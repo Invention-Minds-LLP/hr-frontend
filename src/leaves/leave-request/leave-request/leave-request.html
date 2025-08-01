@@ -1,0 +1,58 @@
+<div class="leave-request">
+    <div class="header">
+        <div class="heading">Leave Request</div>
+        <div class="flex">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center">Filter</i>
+        </div>
+
+    </div>
+
+
+    <div class="table">
+        <p-table class="" [value]="leaveData" [paginator]="true" [rows]="5">
+            <ng-template #header>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>Leave Type</th>
+                    <th>No. Of Days</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-leaveData>
+                <tr>
+                    <td class="empname">
+                        <img src="/img.png" alt="">
+                        <div class="">
+                            {{ leaveData.empName }}
+                            {{leaveData.email}}
+                        </div>
+                    </td>
+                    <td><span class="status-color" [ngClass]="getStatusClass(leaveData.status)">
+                            <span class="dot" [ngClass]="getDotClass(leaveData.status)"></span>
+                            {{ leaveData.department }}
+                        </span></td>
+                    <td>{{ leaveData.jobTitle }}</td>
+                    <td>{{ leaveData.leaveType }}</td>
+                    <td>{{ leaveData.reson }}</td>
+                    <td> <p-datepicker [(ngModel)]="leaveData.noOfDays" selectionMode="range" [readonlyInput]="true" />
+                    </td>
+                    <td><div class="btns">
+                        <button class="btn-1 btn">Accept</button>
+                        <button class="btn-2 btn">Decline</button>
+                        <button class="btn-3">Leave Details</button>
+                    </div>
+                    </td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

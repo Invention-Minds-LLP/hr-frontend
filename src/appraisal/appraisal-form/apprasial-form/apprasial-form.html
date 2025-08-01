@@ -1,0 +1,223 @@
+<div class="appraisal-container">
+    <form action="">
+        <!-- Appraisal Form -->
+        <div class="appraisal-form">
+            <div class="heading">Appraisal Form</div>
+            <div class="sub-heading">Employee Personal Information</div>
+            <div class="input-box">
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Full Name</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Employee ID</label>
+                </p-floatlabel>
+
+                <p-floatlabel  variant="on">
+                    <p-select inputId="on_label" [filter]="true"  [options]="departments" optionLabel="label"/>
+                    <label for="department">Department</label>
+                </p-floatlabel>
+                <p-floatlabel   variant="on">
+                    <p-select inputId="on_label" [filter]="true"[options]="designation" optionLabel="name" />
+                    <label for="on_label">Designation</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <p-datepicker inputId="on_label" showIcon iconDisplay="input" />
+                    <label for="on_label">Date Of Joining</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Appraisal Cycle</label>
+                </p-floatlabel>
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Reviewer (Manager Name)</label>
+                </p-floatlabel>
+            </div>
+
+            <!--  Self Appraisal-->
+
+            <div class="sub-heading">Self Appraisal</div>
+            <div class="input-box">
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Achievements</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Gools & Objective</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Challenges</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Training Opportunities</label>
+                </p-floatlabel>
+
+            </div>
+
+            <!-- Self Rating -->
+
+            <div class="sub-heading">Self Rating ( Out of 10 )</div>
+            <div class="input-box">
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Communication</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Teamwork</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Problem Solving</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Initiative</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Reliability</label>
+                </p-floatlabel>
+            </div>
+
+
+            <!-- Manager Remarks -->
+
+            <div class="heading">Manager Remarks</div>
+            <div class="sub-heading">Manager Rating ( Out of 10 )</div>
+            <div class="input-box">
+                <div class="input-box">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Communication</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Teamwork</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Problem Solving</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Initiative</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Reliability</label>
+                    </p-floatlabel>
+                </div>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Comments</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Recommendations</label>
+                </p-floatlabel>
+            </div>
+
+            <!-- HR Remarks -->
+
+            <div class="heading">HR Remarks</div>
+            <div class="sub-heading">HR Rating ( Out of 10 )</div>
+            <div class="input-box">
+                <div class="input-box">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Communication</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Teamwork</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Problem Solving</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Initiative</label>
+                    </p-floatlabel>
+
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_label" autocomplete="off" />
+                        <label for="on_label">Reliability</label>
+                    </p-floatlabel>
+                </div>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Comments</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
+                        class="h-full"></textarea>
+                    <label for="on_label">Recommendations</label>
+                </p-floatlabel>
+            </div>
+
+            <!-- Final Decision -->
+
+            <div class="heading">Final Decision</div>
+            <div class="sub-heading">Final Score</div>
+            <div class="input-box">
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Over All Score</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on">
+                    <input pInputText id="on_label" autocomplete="off" />
+                    <label for="on_label">Final Decision</label>
+                </p-floatlabel>
+            </div>
+
+            <p-floatlabel variant="on">
+                <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none" class="h-full"></textarea>
+                <label for="on_label">Comments</label>
+            </p-floatlabel>
+
+        </div>
+
+        <!-- btns -->
+        <div class="btns">
+            <p-button label="Submit" severity="success" class="submit-btn"/>
+            <p-button label="Cancel" severity="danger"  class="cancel-btn"/>
+        </div>
+
+    </form>
+</div>

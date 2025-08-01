@@ -1,0 +1,266 @@
+.login {
+    display: flex;
+    flex-direction: row;
+}
+
+.bg-img {
+    width: 100%;
+    height: 100vh;
+    flex-shrink: 0;
+    
+}
+
+.left-side {
+    width: 50%;
+}
+
+.left-side-content {
+    /* margin-top: -630px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    position: absolute;
+    top: 0%;
+    left: 10%;
+}
+
+.header-part {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.heading {
+    color: #FFF;
+    font-family: "Sofia Sans";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 38px;
+}
+
+.logo-img {
+    width: 80px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.main-img {
+    width: 350px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.sub-heading {
+    color: #FFF;
+    text-align: center;
+    font-family: "Sofia Sans";
+    font-size: 31.25px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 37.5px;
+    letter-spacing: -0.5px;
+    width: 300px;
+}
+
+.para {
+    width: 380px;
+    color: #F5F5F5;
+    text-align: center;
+    font-family: "Sofia Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28.16px;
+}
+
+.right-side {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+
+.right-side-heading {
+    color: #242424;
+    text-align: center;
+    font-family: "Sofia Sans";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    width: 80%;
+}
+
+.right-side-heading span {
+    color: #FF5151;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    /* align-items: center; */
+}
+
+::ng-deep .p-inputtext {
+    border-bottom: 1px solid #BDBDBD;
+    width: 100%;
+}
+
+::ng-deep .p-inputtext:focus {
+    border-bottom: 1px solid #BDBDBD;
+    box-shadow: none;
+}
+
+::ng-deep .btn .p-button {
+    width: 153px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 56px;
+    background: #7B76F1;
+    box-shadow: 0 34px 40px -8px rgba(123, 118, 241, 0.24);
+    color: #FFF;
+    text-align: center;
+    font-family: "Sofia Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 22.53px;
+    border: none;
+    margin-left:50px;
+}
+
+::ng-deep .btn .p-button:hover {
+    background: #7B76F1;
+    border: none;
+    color: #FFF;
+}
+
+.icon {
+    position: absolute;
+    top: 75%;
+    right: 0px;
+}
+
+.error-msg {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+@media (max-width:1024px) {
+    .bg-img {
+        width: 100%;
+        height: 100vh;
+        flex-shrink: 0
+    }
+
+    .left-side-content{
+        top: 10%;
+        left: 5%;
+    }
+
+}
+
+@media(max-width:1023px){
+
+    .left-side-content{
+        top: 0px;
+        left: -5%;
+    }
+     .heading ,.sub-heading{
+        font-size: 20px;
+        line-height: 25px;
+     }
+
+
+     .main-img{
+        width: 250px;
+        height: auto;
+     }
+
+    .para{
+        width: 50%;
+        font-size: 12px;
+        line-height: 20px;
+    }
+}
+
+
+
+
+
+@media (max-width:767px) {
+    .login {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+
+    .bg-img {
+        width: 100%;
+        height: 100vh;
+        flex-shrink: 0
+    }
+
+    .main-img {
+        display: none;
+    }
+
+    .left-side-content {
+        /* margin-top: -500px; */
+        left: 12%;
+    }
+
+    .left-side {
+        width: 100vw;
+    }
+
+    .right-side {
+        width: 100vw;
+        width: auto;
+        height: 400px;
+        margin: 0px 20px;
+        border-radius: 28.458px;
+        border: 2.134px solid rgba(88, 130, 193, 0.49);
+        background: rgba(88, 130, 193, 0.28);
+        backdrop-filter: blur(8.893229484558105px);
+        position: absolute;
+        top: 15%;
+    }
+
+    .sub-heading {
+        display: none;
+    }
+
+    .para {
+        display: none;
+    }
+
+    .icon {
+        display: none;
+    }
+
+    .logo-img {
+        width: 100px;
+        height: auto;
+        position: relative;
+    }
+
+    .heading,
+    .right-side-heading {
+        font-size: 22px;
+    }
+
+
+
+
+
+}

@@ -1,0 +1,56 @@
+<div class="permission-request">
+    <div class="header">
+        <div class="heading">Leave Request</div>
+        <div class="flex">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center">Filter</i>
+        </div>
+    </div>
+
+    <div class="table">
+        <p-table class="" [value]="requestData" [paginator]="true" [rows]="5">
+            <ng-template #header>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>Perm. Date</th>
+                    <th>No. Of Hours</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-requestData>
+                <tr>
+                    <td class="empname">
+                        <img src="/img.png" alt="">
+                        <div class="">
+                            {{ requestData.empName }}
+                            {{requestData.email}}
+                        </div>
+                    </td>
+                    <td><span class="status-color">
+                            <span class="dot"></span>
+                            {{ requestData.department }}
+                        </span></td>
+                    <td>{{ requestData.jobTitle }}</td>
+                    <td>{{ requestData.premDate }}</td>
+                    <td>{{ requestData.noOfHours }}</td>
+                    <td>{{ requestData.reson }}</td>
+                    
+                    <td><div class="btns">
+                        <button class="btn-1 btn">Accept</button>
+                        <button class="btn-2 btn">Decline</button>
+                        <button class="btn-3">Perm. Details</button>
+                    </div>
+                    </td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="WFH-request">
+    <div class="header">
+        <div class="heading">Leave Request</div>
+        <div class="flex">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center">Filter</i>
+        </div>
+    </div>
+
+    <div class="table">
+        <p-table class="" [value]="wfhData" [paginator]="true" [rows]="5">
+            <ng-template #header>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>WFH Date</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-wfhData>
+                <tr>
+                    <td class="empname">
+                        <img src="/img.png" alt="">
+                        <div class="">
+                            {{ wfhData.empName }}
+                            {{wfhData.email}}
+                        </div>
+                    </td>
+                    <td><span class="status-color">
+                            <span class="dot"></span>
+                            {{ wfhData.department }}
+                        </span></td>
+                    <td>{{ wfhData.jobTitle }}</td>
+                    <td>{{  wfhData.WFHDate }}</td>
+                    <td>{{ wfhData.reson }}</td>
+                    
+                    <td><div class="btns">
+                        <button class="btn-1 btn">Accept</button>
+                        <button class="btn-2 btn">Decline</button>
+                        <button class="btn-3">WFH. Details</button>
+                    </div>
+                    </td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

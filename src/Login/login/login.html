@@ -1,0 +1,71 @@
+<div class="login">
+    <div class="left-side">
+        <img src="/bg-left.png" alt="" class="bg-img">
+        <div class="left-side-content">
+            <div class="header-part">
+                <img src="/logo.png" alt="" class="logo-img">
+                <div class="heading">HR PRO INDIA</div>
+            </div>
+            <img class="main-img" src="/left-side-img.png" alt="">
+            <div class="sub-heading">Online Community For HR PRO INDIA</div>
+            <div class="para">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.
+            </div>
+        </div>
+    </div>
+    <div class="right-side">
+        <div class="right-side-heading">Welcome back to the <span>HR</span> PRO INDIA Community</div>
+        <form #loginForm="ngForm"  class="form" (ngSubmit)="onSubmit(loginForm)">
+            <p-floatlabel variant="on">
+                <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId" required #empIdCtrl="ngModel" />
+                <label for="EMP ID">EMP ID</label>
+                <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
+            </p-floatlabel>
+            <p-floatlabel variant="on">
+                <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password" [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
+                <label for="password">Password</label>
+                <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
+            </p-floatlabel>
+            <p-button label="Submit" type="Submit" class="btn" />
+        </form>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="145" height="142" viewBox="0 0 145 142" fill="none" class="icon">
+            <g filter="url(#filter0_d_15309_1117)">
+                <path
+                    d="M74 43C89.4639 43 102 55.4088 102 70.7158C102 76.5481 100.178 81.9581 97.0693 86.4229L100.105 99.002L88.8906 94.1895C84.5773 96.8761 79.4726 98.4326 74 98.4326C58.536 98.4326 46 86.023 46 70.7158C46.0001 55.4088 58.5361 43 74 43Z"
+                    fill="white" />
+                <path
+                    d="M102 70.7158H102.5V70.7158L102 70.7158ZM97.0693 86.4229L96.659 86.1372L96.5306 86.3217L96.5833 86.5402L97.0693 86.4229ZM100.105 99.002L99.9083 99.4614L100.826 99.8551L100.592 98.8846L100.105 99.002ZM88.8906 94.1895L89.0878 93.73L88.8479 93.627L88.6263 93.765L88.8906 94.1895ZM46 70.7158L45.5 70.7158V70.7158H46ZM74 43V43.5C89.1926 43.5 101.5 55.6897 101.5 70.7158L102 70.7158L102.5 70.7158C102.5 55.1278 89.7352 42.5 74 42.5V43ZM102 70.7158H101.5C101.5 76.4422 99.7111 81.7532 96.659 86.1372L97.0693 86.4229L97.4797 86.7085C100.644 82.1631 102.5 76.654 102.5 70.7158H102ZM97.0693 86.4229L96.5833 86.5402L99.6194 99.1193L100.105 99.002L100.592 98.8846L97.5554 86.3055L97.0693 86.4229ZM100.105 99.002L100.303 98.5425L89.0878 93.73L88.8906 94.1895L88.6935 94.6489L99.9083 99.4614L100.105 99.002ZM88.8906 94.1895L88.6263 93.765C84.39 96.4037 79.3765 97.9326 74 97.9326V98.4326V98.9326C79.5686 98.9326 84.7645 97.3485 89.155 94.6139L88.8906 94.1895ZM74 98.4326V97.9326C58.8074 97.9326 46.5 85.7421 46.5 70.7158H46H45.5C45.5 86.3039 58.2647 98.9326 74 98.9326V98.4326ZM46 70.7158L46.5 70.7158C46.5001 55.6897 58.8074 43.5 74 43.5V43V42.5C58.2648 42.5 45.5001 55.1278 45.5 70.7158L46 70.7158Z"
+                    fill="#F0EFFD" />
+            </g>
+            <mask id="mask0_15309_1117" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="62" y="59" width="24"
+                height="25">
+                <rect x="62" y="59.001" width="24" height="24" fill="white" />
+            </mask>
+            <g mask="url(#mask0_15309_1117)">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M68.96 73.6409V66.2009H64.4C63.08 66.2009 62 67.2809 62 68.6009V75.8009C62 77.1209 63.08 78.2009 64.4 78.2009H65.6V81.8009L69.2 78.2009H75.2C76.52 78.2009 77.6 77.1209 77.6 75.8009V73.6169C77.5232 73.6337 77.4416 73.6421 77.36 73.6421H68.96V73.6409ZM83.6 60.2009H72.8C71.48 60.2009 70.4 61.2809 70.4 62.6009V72.2009H78.8L82.4 75.8009V72.2009H83.6C84.92 72.2009 86 71.1221 86 69.8009V62.6009C86 61.2809 84.92 60.2009 83.6 60.2009Z"
+                    fill="url(#paint0_linear_15309_1117)" />
+            </g>
+            <defs>
+                <filter id="filter0_d_15309_1117" x="0.5" y="0.5" width="147" height="147.355"
+                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha" />
+                    <feOffset dy="3" />
+                    <feGaussianBlur stdDeviation="22.5" />
+                    <feColorMatrix type="matrix"
+                        values="0 0 0 0 0.0392157 0 0 0 0 0.027451 0 0 0 0 0.298039 0 0 0 0.0784314 0" />
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_15309_1117" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_15309_1117" result="shape" />
+                </filter>
+                <linearGradient id="paint0_linear_15309_1117" x1="50" y1="71.0009" x2="71.4806" y2="94.8684"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#918EFA" />
+                    <stop offset="0.551645" stop-color="#625DEF" />
+                    <stop offset="1" stop-color="#4A44ED" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+</div>
