@@ -1,0 +1,55 @@
+<div class="appraial-table">
+    <div class="heading-part">
+        <div class="heading">All Appraisal</div>
+        <div class="">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center"></i>
+        </div>
+    </div>
+
+    <div class="table">
+        <p-table class="" [value]="table"  [paginator]="true" [rows]="10" >
+            <ng-template #header>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Appraisal Cycle</th>
+                    <th>Self Score</th>
+                    <th>Mgr. Score</th>
+                    <th>HR Score</th>
+                    <th>Final Score</th>
+                    <th>Outcome</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-table>
+                <tr>
+                    <td class="empname"><img src="/img.png" alt="">
+                        <div class="">
+                            {{ table.empName }}
+                            {{table.email}}
+                        </div>
+                    </td>
+                    <td><span class="status-color" [ngClass]="getStatusClass(table.status)">
+                            <span class="dot" [ngClass]="getDotClass(table.status)"></span>
+                            {{ table.department }}
+                        </span></td>
+                    <td>{{ table.appraisalCycle }}</td>
+                    <td>{{ table.selfScore }}</td>
+                    <td>{{ table.mgrScore }}</td>
+                    <td>{{ table.hrScore }}</td>
+                    <td>{{ table.finalScore }}%</td>
+                    <td>{{ table.outCome }}</td>
+                    <td>{{ table.status }}</td>
+                    <td><button class="btn">See Details</button></td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

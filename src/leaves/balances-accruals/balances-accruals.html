@@ -1,0 +1,59 @@
+<div class="balances-accruals">
+    <div class="header">
+        <div class="heading">Leave Request</div>
+        <div class="flex">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center">Filter</i>
+        </div>
+    </div>
+
+    <div class="table">
+        <p-table class="" [value]="balancesData" [paginator]="true" [rows]="5">
+            <ng-template #header>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Phone Number</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>Shift Type</th>
+                    <th>Total Leave Taken</th>
+                    <th>Total Perm. Taken</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-balancesData>
+                <tr>
+                    <td class="empname">
+                        <img src="/img.png" alt="">
+                        <div class="">
+                            {{ balancesData.empName }}
+                            {{balancesData.email}}
+                        </div>
+                    </td>
+                    <td>{{ balancesData.number }}</td>
+                    <td>
+                        <span class="dept-badge"
+                            [ngClass]="departmentColors[balancesData.departmentId]?.badge || 'dept-default'">
+                            <span class="dot"
+                                [ngClass]="departmentColors[balancesData.departmentId]?.dot || 'dot-default'"></span>
+                            {{ balancesData.department }}
+                        </span>
+                    </td>
+                    <td>{{ balancesData.jobTitle }}</td>
+                    <td>{{ balancesData.shiftType }}</td>
+                    <td>{{ balancesData.totalLeave }}</td>
+                    <td>{{ balancesData.totlePerm }}</td>
+
+                    <td>
+                        <button class="btn">See Details</button>
+                    </td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

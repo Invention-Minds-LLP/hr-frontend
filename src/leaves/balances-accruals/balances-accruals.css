@@ -1,0 +1,171 @@
+.balances-accruals {
+    font-family: 'Sofia Sans';
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.heading {
+    color: #000;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.empname {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    text-wrap: wrap;
+}
+
+::ng-deep .p-datatable-table {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 16px;
+    text-transform: capitalize;
+    text-wrap: nowrap;
+}
+
+
+::ng-deep .pi-align-center {
+    border-radius: 8px;
+    border: 1px solid #9B9B9B;
+    /* background: #FAFAFA; */
+    display: flex;
+    width: 109px;
+    height: 30px;
+    padding: 20px 16px;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    color: #9B9B9B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+}
+
+
+
+
+::ng-deep .p-paginator .p-paginator-page {
+    width: 40px;
+    height: 40px;
+    line-height: 26px;
+    padding: 0;
+    text-align: center;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Active page */
+::ng-deep .p-paginator .p-paginator-page.p-highlight {
+    background-color: #FF5151;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Optional: center paginator */
+::ng-deep .p-paginator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1rem;
+}
+
+
+::ng-deep .p-datatable-thead>tr>th {
+    padding: 20px 30px;
+    text-align: center;
+}
+
+::ng-deep .p-datatable-tbody>tr>td {
+    padding: 20px 30px;
+}
+
+
+.btn {
+    border-radius: 8px;
+    border: 2px solid #C4C4C4;
+    display: flex;
+    width: 108px;
+    height: 34px;
+    padding: 20px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    /* color: #767676; */
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.14px;
+}
+
+.dept-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Color Classes */
+.dept-green   { background: #c7f9cc; color: #075e16; }
+.dot-green    { background: #00b33c; }
+
+.dept-yellow  { background: #fff3b0; color: #7d6200; }
+.dot-yellow   { background: #e0c300; }
+
+.dept-red     { background: #ffd2d2; color: #8c0000; }
+.dot-red      { background: #dc3545; }
+
+.dept-blue    { background: #d0f0fd; color: #005b9f; }
+.dot-blue     { background: #007bff; }
+
+.dept-purple  { background: #ecd9ff; color: #5e1a99; }
+.dot-purple   { background: #a347ff; }
+
+.dept-orange  { background: #ffe5cc; color: #a34c00; }
+.dot-orange   { background: #ff9900; }
+
+.dept-teal    { background: #d4f5f5; color: #006666; }
+.dot-teal     { background: #00cccc; }
+
+.dept-default { background: #d3d3d3; color: #444; }
+.dot-default  { background: #888; }

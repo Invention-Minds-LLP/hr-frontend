@@ -1,0 +1,110 @@
+.appraisal-container {
+    font-family: "Sofia Sans";
+    background: white;
+    width: 100vw;
+    height: auto;
+    padding: 20px 50px;
+}
+
+.appraisal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.heading {
+    color: #000;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.sub-heading {
+    color: #1F1F1F;
+    font-feature-settings: 'salt' on, 'liga' off;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    /* 150% */
+}
+
+.input-box {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.final-decision {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.btns {
+    display: flex;
+    flex-direction: row;
+    gap: 100px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+::ng-deep .p-inputtext {
+    width: 100%;
+}
+
+::ng-deep .p-select {
+    width: 100%;
+}
+
+::ng-deep .p-textarea {
+    width: 540px;
+    height: 100px;
+}
+
+::ng-deep .p-button {
+    width: 200%;
+}
+
+::ng-deep .submit-btn .p-button-success {
+    border-radius: 8px;
+    background: #65E972;
+    color: #FFF;
+    font-family: "Sofia Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: none;
+}
+
+::ng-deep .submit-btn .p-button-success:hover {
+    background: #65E972;
+    color: #FFF;
+    border: none;
+}
+
+::ng-deep .cancel-btn .p-button-danger {
+    border-radius: 8px;
+    background: #FF5151;
+    color: #FFF;
+    font-family: "Sofia Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: none;
+}
+
+::ng-deep .cancel-btn .p-button-danger:hover {
+    background: #FF5151;
+    color: #FFF;
+    border: none;
+}

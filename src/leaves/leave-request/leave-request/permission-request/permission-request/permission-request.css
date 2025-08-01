@@ -1,0 +1,175 @@
+.permission-request {
+    font-family: "Sofia Sans";
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.heading {
+    color: #000;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.empname {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    text-wrap: wrap;
+}
+
+::ng-deep .p-datatable-table {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 16px;
+    text-transform: capitalize;
+    text-wrap: nowrap;
+}
+
+
+::ng-deep .pi-align-center {
+    border-radius: 8px;
+    border: 1px solid #9B9B9B;
+    /* background: #FAFAFA; */
+    display: flex;
+    width: 109px;
+    height: 42px;
+    padding: 20px 16px;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    color: #9B9B9B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+}
+
+.status-color {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: capitalize;
+    gap: 6px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+
+
+::ng-deep .p-paginator .p-paginator-page {
+    width: 40px;
+    height: 40px;
+    line-height: 26px;
+    padding: 0;
+    text-align: center;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Active page */
+::ng-deep .p-paginator .p-paginator-page.p-highlight {
+    background-color: #FF5151;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Optional: center paginator */
+::ng-deep .p-paginator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1rem;
+}
+
+
+::ng-deep .p-datatable-thead>tr>th {
+    padding: 20px 30px;
+    text-align: center;
+}
+
+::ng-deep .p-datatable-tbody>tr>td {
+    padding: 20px 30px;
+}
+
+
+
+.btns{
+    display: flex;
+    gap: 20px;
+}
+
+.btn-1 {
+    border-radius: 8px;
+    background: #65E972;
+}
+
+.btn-2 {
+    border-radius: 8px;
+    background: #FF5151;
+}
+
+.btn-3 {
+    color: #FFF;
+    font-family: "Sofia Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.14px;
+    border-radius: 8px;
+    background: #0062A1;
+    display: inline-flex;
+    height: 34px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border: none;
+}
+
+.btn {
+    display: inline-flex;
+    height: 34px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border: none;
+}
+
