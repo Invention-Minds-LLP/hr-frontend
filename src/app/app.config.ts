@@ -1,9 +1,9 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection  } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
-import Lara from '@primeuix/themes/lara'
+import Lara from '@primeuix/themes/lara';
 
 import { routes } from './app.routes';
 
@@ -12,12 +12,17 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-     provideAnimationsAsync(),
-        providePrimeNG({
-            theme: {
-                preset: Lara
-            }
-        })
-  ]
+    provideHttpClient(),
+    provideAnimationsAsync(),
+    provideAnimationsAsync(),
+    providePrimeNG({
+      theme: {
+        preset: Lara,
+        options: {
+          darkModeSelector: '.app-dark'
+        }
+      }
+    })
 
+  ]
 };
