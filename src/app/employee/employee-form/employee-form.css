@@ -1,0 +1,219 @@
+.employee-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem;
+  width: 100%;
+}
+.steps-container .step {
+  width: 100%;
+}
+.steps-container .step[hidden] {
+  display: none !important;
+}
+/* Force hidden step containers to not occupy space */
+.card > div[hidden] {
+  display: none !important;
+}
+
+/* Ensure visible step fills container */
+.card > div {
+  width: 100%;
+}
+
+.card {
+  padding: 20px;
+  width: 100%;
+  padding-top: 3rem;
+}
+.step-container {
+  width: 100%;
+}
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+.heading {
+  color: #1f1f1f;
+  font-feature-settings: "salt" on, "liga" off;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 150% */
+}
+/* Align labels and inputs */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+label {
+  color: #767676;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.14px;
+}
+
+/* Uniform spacing between fields */
+.p-fluid .field input,
+.p-fluid .field .p-select,
+.p-fluid .field .p-datepicker,
+.p-fluid .field .p-calendar {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  background-color: transparent;
+}
+
+/* Make buttons consistent */
+.mt-3 {
+  margin-top: 1.5rem;
+}
+.field.col-4 {
+  width: 33.3333%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.field.col-5 {
+  width: 25%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.field-row {
+  display: flex;
+  /* flex-wrap: wrap; */
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+::ng-deep .p-datepicker {
+  height: 42px;
+  width: 100%;
+  flex: 1 1 auto;
+}
+::ng-deep .p-datepicker {
+  max-width: 100%;
+}
+.p-select,
+.p-calendar {
+  flex: 1 1 auto;
+  width: 100%;
+}
+.nav-btns {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin: 1.5rem 0;
+  gap: 10px;
+}
+.active-step {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+
+div[hidden] {
+  display: none !important;
+}
+
+.profile-pic-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.profile-pic,
+.profile-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f0f0f0;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #999;
+}
+
+/* Upload button (bottom-right corner) */
+.upload-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: #e9144a;
+  color: white;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.upload-btn i {
+  font-size: 1rem;
+}
+
+/* Remove button (top-right corner) */
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.remove-btn i {
+  font-size: 0.8rem;
+  color: #e9144a;
+}
+
+.qualification{
+  width: 100%;
+}
+.custom-file-input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+
+  /* Hide the native file input appearance */
+  color: transparent;
+}
+
+.custom-file-input::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+.custom-file-input::before {
+  content: attr(data-file-name);
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #767676;
+  border-radius: 4px;
+  cursor: pointer;
+}
+

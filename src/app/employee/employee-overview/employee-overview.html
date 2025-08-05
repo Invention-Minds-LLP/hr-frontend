@@ -1,0 +1,18 @@
+
+    <!-- Submenu -->
+    <nav class="sub-nav">
+        <ul>
+            <li class="sub-item" [ngClass]="{ 'active': active === 'list' }"  (click)="show('list')">Manage Employees</li>
+            <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li>
+        </ul>
+    </nav>
+    <div>
+        <hr>
+    </div>
+
+
+<div>
+    <app-employee-form *ngIf="active === 'form'" [employeeData]="selectedEmployee"
+    (closeForm)="onFormClose($event)"></app-employee-form>
+    <app-employee-list *ngIf="active === 'list'" (editEmployee)="onEditEmployee($event)"></app-employee-list>
+</div>

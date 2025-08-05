@@ -64,4 +64,19 @@ export class Employees {
   deleteEmployee(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+  uploadEmployeeDocuments(employeeId: number, docsForm: any) {
+    const formData = new FormData();
+
+    // Append metadata
+    formData.append('metadata', JSON.stringify(docsForm.value));
+
+    // Append actual files
+    docsForm.controls.forEach((docGroup: any) => {
+      if (docGroup.value.file) {
+        formData.append('file', docGroup.value.file);
+      }
+    });
+
+    return this.http.post(`${this.apiUrl}/${employeeId}/documents/upload`, formData);
+  }
 }

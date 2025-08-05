@@ -44,7 +44,7 @@ hr {
   line-height: 42px;
 }
 .logo-red {
-  color: #ff5151;
+  color: #E9144A;
   font-feature-settings: "salt" on, "liga" off;
   font-family: "Sofia Sans";
   font-size: 36px;
@@ -130,7 +130,7 @@ hr {
   position: relative;
 }
 .sub-item.active {
-  color: #ff5151;
+  color: #E9144A;
   font-feature-settings: "salt" on, "liga" off;
   font-family: "Sofia Sans";
   font-size: 16px;
@@ -145,7 +145,7 @@ hr {
   left: 0;
   width: 100%;
   height: 2px;
-  background: #ff5151;
+  background: #E9144A;
 }
 .username{
     color: #000;

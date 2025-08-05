@@ -1,6 +1,103 @@
-body{
-    font-family: "Sofia Sans";
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+body {
+  font-family: "Sofia Sans";
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+/* ==== PRIMARY COLOR OVERRIDES (GLOBAL) ==== */
+:root {
+  --primary-color: #e9144a;
+  --p-steps-item-number-active-background: var(--primary-color) !important;
+  --p-steps-item-number-active-border-color: var(--primary-color) !important;
+  --p-steps-item-label-active-color: var(--primary-color) !important;
+  --p-inputtext-background: transparent !important;
+  --p-floatlabel-focus-color: #767676 !important;
+  --p-floatlabel-on-active-background: #e8ecef !important;
+  --p-paginator-background: transparent !important;
+}
+
+/* Steps Active State */
+.p-steps .p-steps-item.p-highlight .p-steps-number {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.p-steps .p-steps-item.p-highlight .p-menuitem-link {
+  color: var(--primary-color) !important;
+}
+
+/* Buttons (Primary / Success) */
+.p-button,
+.p-button.p-button-success,
+.p-fileupload-choose {
+  background-color: transparent !important; /* Slightly darker shade */
+  border-color: #e9144a !important;
+  border: 2px solid #e9144a !important;
+  color: #e9144a !important;
+}
+
+.p-button:enabled:hover {
+  background-color: #e9144a !important; /* Slightly darker shade */
+  border-color: #e9144a !important;
+  border: 2px solid #e9144a !important;
+  color: #fff !important;
+}
+
+/* Dropdown Highlight */
+.p-dropdown-panel .p-highlight {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* Calendar Date Highlight (today, selected) */
+.p-datepicker td.p-datepicker-today > span,
+.p-datepicker td.p-highlight > span {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+  border-radius: 50%;
+}
+
+/* File Upload Choose Button */
+.p-fileupload-choose {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Progress bar, paginator active page, radio/checkbox, etc. */
+.p-progressbar .p-progressbar-value, .p-highlight,
+.p-radiobutton .p-radiobutton-box.p-highlight,
+.p-checkbox .p-checkbox-box.p-highlight {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.p-steps .p-steps-item.p-highlight ~ .p-steps-item::before {
+  border-color: #e9144a !important;
+}
+/* Active Step Circle */
+.p-steps .p-steps-item.p-highlight .p-steps-number {
+  background-color: #e9144a !important;
+  border-color: #e9144a !important;
+  color: #fff !important;
+}
+
+/* Active Step Label */
+.p-steps .p-steps-item.p-highlight .p-menuitem-link {
+  color: #e9144a !important;
+}
+
+/* Optional: Hover on active step (if clickable) */
+.p-steps .p-steps-item.p-highlight .p-menuitem-link:hover {
+  color: #c5123f !important; /* Slightly darker shade */
+}
+::ng-deep .p-step.completed .p-step-header {
+  background-color: #28a745 !important;
+  color: #fff !important;
+  border-radius: 50%;
+}
+
+::ng-deep .p-step.completed .p-step-title {
+  color: #28a745 !important;
+  font-weight: 600;
 }

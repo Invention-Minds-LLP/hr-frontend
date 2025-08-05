@@ -1,0 +1,435 @@
+<div class="employee-form-container">
+
+    <div class="step-container">
+        <!-- <p-steps [model]="steps" [(activeIndex)]="activeIndex" class="mb-3"></p-steps> -->
+        <p-steps [model]="steps" [(activeIndex)]="activeIndex" class="mb-3">
+            <ng-template pTemplate="item" let-item let-index="index">
+                <a class="p-menuitem-link" [ngClass]="{'completed-step': completedSteps[index]}">
+                    <span class="p-steps-number">{{index + 1}}</span>
+                    <span class="p-steps-title">{{item.label}}</span>
+                </a>
+            </ng-template>
+        </p-steps>
+
+    </div>
+
+    <div class="card">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+
+            <!-- Step 1: Personal Info -->
+            <div [hidden]="activeIndex !== 0" class="personal-container" [class.active-step]="activeIndex === 0">
+                <div class="p-fluid formgrid grid">
+                    <div class="field-row col-12">
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input id="firstName" pInputText formControlName="firstName" />
+                                <label for="firstName">First Name</label>
+                            </p-floatlabel>
+                        </div>
+
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input id="lastName" pInputText formControlName="lastName" />
+                                <label for="lastName">Last Name</label>
+                            </p-floatlabel>
+                        </div>
+
+                        <div class="field col-4">
+                            <p-floatlabel variant="on" style="width:100%">
+                                <label for="dob">Date of Birth</label>
+                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"></p-datePicker>
+                            </p-floatlabel>
+                        </div>
+                    </div>
+
+                    <div class="field-row col-12">
+
+                        <div class="field col-4">
+                            <p-floatLabel variant="on">
+                                <p-select id="gender" [options]="genders" formControlName="gender" optionLabel="label"
+                                    optionValue="value"></p-select>
+                                <label for="gender">Gender</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <div class="field col-4">
+                            <p-floatLabel variant="on">
+
+                                <input id="email" pInputText formControlName="email" />
+                                <label for="email">Email</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <div class="field col-4">
+                            <p-floatLabel variant="on">
+                                <input id="phone" pInputText formControlName="phone" />
+                                <label for="phone">Phone</label>
+                            </p-floatLabel>
+                        </div>
+                    </div>
+
+                    <div class="heading mb-2">Permanent Address</div>
+                    <div class="p-fluid formgrid grid" formGroupName="permanentAddress">
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="line1" />
+                                <label>Address Line 1</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="city" />
+                                <label>City</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="state" />
+                                <label>State</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="zipCode" />
+                                <label>Zip Code</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="country" />
+                                <label>Country</label>
+                            </p-floatlabel>
+                        </div>
+                    </div>
+
+                    <div class="heading mb-2 mt-3 flex align-items-center justify-content-between">
+                        Temporary Address
+                        <p-checkbox binary="true" formControlName="sameAsPermanent" label="Same as Permanent"
+                            (onChange)="copyPermanentAddress()">
+                        </p-checkbox>
+
+                    </div>
+                    <div class="p-fluid formgrid grid" formGroupName="temporaryAddress">
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="line1" />
+                                <label>Address Line 1</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="city" />
+                                <label>City</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="state" />
+                                <label>State</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="zipCode" />
+                                <label>Zip Code</label>
+                            </p-floatlabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatlabel variant="on">
+                                <input pInputText formControlName="country" />
+                                <label>Country</label>
+                            </p-floatlabel>
+                        </div>
+                    </div>
+
+
+
+                    <div class="field col-12">
+                        <div class="heading mb-2">
+                            Emergency Contact
+                        </div>
+                        <div formArrayName="emergencyContacts">
+                            <div *ngFor="let ec of emergencyContacts.controls; let i = index" [formGroupName]="i"
+                                class="p-fluid grid mb-3 mt-3">
+                                <div class="field-row">
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="name" placeholder="" />
+                                            <label>Name</label>
+                                        </p-floatLabel>
+                                    </div>
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="phone" placeholder="" />
+                                            <label>Phone</label>
+                                        </p-floatLabel>
+                                    </div>
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="relationship" placeholder="" />
+                                            <label>Relationship</label>
+                                        </p-floatLabel>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <button pButton variant="outlined" severity="danger" type="button" label="Remove"
+                                        (click)="removeEmergencyContact(i)" class="p-button-danger"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button pButton variant="outlined" severity="danger" type="button"
+                                label="+ Add Emergency Contact" (click)="addEmergencyContact()"
+                                class="p-button-secondary"></button>
+                        </div>
+                    </div>
+                    <!-- 
+                <div class="field col-12">
+                    <div class="heading mb-3 mt-3">
+                        Profile Photo
+                    </div>
+                    <p-fileUpload name="photo" [customUpload]="true"
+                        (uploadHandler)="customPhotoUpload($event)"></p-fileUpload>
+                </div> -->
+
+                </div>
+                <div class="col-3 flex justify-content-center align-items-start">
+                    <div class="profile-pic-container">
+                        <!-- Circular Image -->
+                        <img *ngIf="photoUrl; else placeholder" [src]="photoUrl" class="profile-pic" />
+                        <ng-template #placeholder>
+                            <div class="profile-placeholder">
+                                <i class="pi pi-user"></i>
+                            </div>
+                        </ng-template>
+
+                        <!-- Upload Icon -->
+                        <label class="upload-btn">
+                            <i class="pi pi-upload"></i>
+                            <input type="file" accept="image/*" (change)="onProfileSelect($event)" hidden />
+                        </label>
+
+                        <!-- Remove Icon -->
+                        <button type="button" class="remove-btn" *ngIf="photoUrl" (click)="removeProfilePhoto()">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Employment Info -->
+            <div [hidden]="activeIndex !== 1" [class.active-step]="activeIndex === 1">
+                <div class="p-fluid grid formgrid">
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <input pInputText formControlName="employeeCode" />
+                            <label>Employee Code</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <input pInputText formControlName="referenceCode" />
+                            <label>Reference Code</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <input pInputText formControlName="designation" />
+                            <label>Designation</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd"></p-datePicker>
+                            <label>Date of Joining</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="employmentTypes" formControlName="employmentType" optionLabel="label"
+                                optionValue="value"></p-select>
+                            <label>Employment Type</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="employmentStatuses" formControlName="employmentStatus"
+                                optionLabel="label" optionValue="value"></p-select>
+                            <label>Employment Status</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="departments" formControlName="departmentId" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Department</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="branches" formControlName="branchId" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Branch</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="roles" formControlName="roleId" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Role</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="roles" formControlName="reportingManager" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Reporting Manager</label>
+                        </p-floatLabel>
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="shifts" formControlName="shiftId" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Shift Template</label>
+                        </p-floatLabel>
+
+                    </div>
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd"></p-datePicker>
+                            <label>Shift Date</label>
+                        </p-floatLabel>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Step 3: Qualifications -->
+            <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2">
+                <div formArrayName="qualifications" class="qualification">
+                    <div class="mb-5">
+                        <button pButton variant="outlined" severity="danger" type="button" label="+ Add Qualification"
+                            (click)="addQualification()" class="p-button-secondary"></button>
+                    </div>
+                    <div *ngFor="let q of qualifications.controls; let i = index" [formGroupName]="i"
+                        class="p-fluid grid mb-3 formgrid">
+                        <div class="field col-5">
+                            <input pInputText formControlName="degree" placeholder="Degree" />
+                        </div>
+                        <div class="field col-5"><input pInputText formControlName="institution"
+                                placeholder="Institution" />
+                        </div>
+                        <div class="field col-5"><input pInputText type="number" formControlName="year"
+                                placeholder="Year" />
+                        </div>
+                        <div class="field col-5">
+                            <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
+                                (click)="removeQualification(i)" class="p-button-danger p-button-rounded p-button-text">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Documents Upload -->
+            <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3">
+                <p-fileUpload name="documents[]" [customUpload]="true" multiple="multiple"
+                    (uploadHandler)="onDocumentsUpload($event)"></p-fileUpload>
+            </div> -->
+            <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3">
+                <div formArrayName="documents" class="qualification">
+                    <!-- Add Document Button -->
+                    <div class="mb-5">
+                        <button variant="outlined" severity="danger" pButton type="button" label="+ Add Document"
+                            (click)="addDocument()" class="p-button-secondary">
+                        </button>
+                    </div>
+                    <div *ngFor="let doc of uploadedDocsForm.controls; let i = index" [formGroupName]="i"
+                        class="p-fluid grid mb-3 formgrid">
+
+                        <!-- Category -->
+                        <div class="field col-2">
+                            <p-floatLabel variant="on">
+                                <p-select [options]="documentCategories" formControlName="category" optionLabel="label"
+                                    optionValue="value" (onChange)="filterDocumentTypes(i)">
+                                </p-select>
+                                <label>Category</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <!-- Document Type -->
+                        <div class="field col-2">
+                            <p-floatLabel variant="on">
+                                <p-select [options]="filteredTypes[i]" formControlName="type" optionLabel="label"
+                                    optionValue="value">
+                                </p-select>
+                                <label>Document Type</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <!-- Issue Date -->
+                        <div class="field col-2">
+                            <p-floatLabel variant="on">
+                                <p-datePicker formControlName="issueDate" dateFormat="yy-mm-dd"></p-datePicker>
+                                <label>Issue Date</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div class="field col-2">
+                            <p-floatLabel variant="on">
+                                <p-datePicker formControlName="expiryDate" dateFormat="yy-mm-dd"></p-datePicker>
+                                <label>Expiry Date</label>
+                            </p-floatLabel>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="field col-2">
+                            <div class="file-upload-wrapper">
+                                <input
+                                  type="file"
+                                  class="custom-file-input"
+                                  title="{{
+                                    uploadedDocsForm.at(i).value.file?.name ||
+                                    uploadedDocsForm.at(i).value.fileUrl?.split('/').pop()
+                                  }}"
+                                  [attr.data-file-name]="
+                                    uploadedDocsForm.at(i).value.file?.name ||
+                                    uploadedDocsForm.at(i).value.fileUrl?.split('/').pop() ||
+                                    'Choose File'
+                                  " 
+                                  (change)="onDocumentSelect($event, i)"
+                                />
+                              </div>
+                              
+                          </div>
+                          
+
+                        <!-- Remove -->
+                        <div class="field col-1 flex align-items-center">
+                            <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
+                                class="p-button-danger p-button-rounded p-button-text" (click)="removeDocument(i)">
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Navigation buttons -->
+            <div class="mt-3 nav-btns">
+                <button pButton variant="outlined" severity="danger" type="button" label="Previous" (click)="prevStep()"
+                    [disabled]="activeIndex === 0"></button>
+                <button pButton variant="outlined" severity="danger" type="button" label="Next" (click)="nextStep()"
+                    *ngIf="activeIndex < steps.length - 1"></button>
+                <button pButton variant="outlined" severity="danger" type="submit" label="Submit"
+                    class="p-button-success" *ngIf="activeIndex === steps.length - 1"></button>
+            </div>
+
+        </form>
+    </div>
+</div>
