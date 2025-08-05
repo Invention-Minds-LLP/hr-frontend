@@ -31,6 +31,11 @@
     line-height: 24px;
     /* 150% */
 }
+.input-box-1{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+}
 
 .input-box {
     display: flex;
@@ -59,7 +64,7 @@
 }
 
 ::ng-deep .p-select {
-    width: 100%;
+    width: 100% !important;
 }
 
 ::ng-deep .p-textarea {
@@ -92,7 +97,7 @@
 
 ::ng-deep .cancel-btn .p-button-danger {
     border-radius: 8px;
-    background: #FF5151;
+    background: #E9144A !important;
     color: #FFF;
     font-family: "Sofia Sans";
     font-size: 18px;
@@ -104,7 +109,15 @@
 }
 
 ::ng-deep .cancel-btn .p-button-danger:hover {
-    background: #FF5151;
+    background: #E9144A !important;
     color: #FFF;
     border: none;
+}
+
+::ng-deep .full-width-datepicker .p-inputtext {
+  width: 100% !important;
+}
+
+::ng-deep .full-width-datepicker {
+  width: 100%;
 }

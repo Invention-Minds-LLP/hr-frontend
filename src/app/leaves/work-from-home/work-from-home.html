@@ -27,23 +27,28 @@
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
-                            {{ wfhData.empName }}
-                            {{wfhData.email}}
+                            <div class="name">{{ wfhData.empName }}</div>
+                            <span class="email">{{wfhData.email}}</span>
                         </div>
                     </td>
-                    <td><span class="status-color">
-                            <span class="dot"></span>
+                    <td class="t-data al">
+                        <span class="dept-badge" [ngClass]="getDeptClass(wfhData.department)">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDotColor(wfhData.department) }"></span>
                             {{ wfhData.department }}
-                        </span></td>
-                    <td>{{ wfhData.jobTitle }}</td>
-                    <td>{{  wfhData.WFHDate }}</td>
-                    <td>{{ wfhData.reson }}</td>
-                    
-                    <td><div class="btns">
-                        <button class="btn-1 btn">Accept</button>
-                        <button class="btn-2 btn">Decline</button>
-                        <button class="btn-3">WFH. Details</button>
-                    </div>
+                        </span>
+                    </td>
+
+                    <td class="t-data">{{ wfhData.jobTitle }}</td>
+                    <td class="t-data">{{ wfhData.WFHDate }}</td>
+                    <td class="t-data">{{ wfhData.reson }}</td>
+
+                    <td>
+                        <div class="btns">
+                            <button class="btn-1 btn">Accept</button>
+                            <button class="btn-2 btn">Decline</button>
+                            <button class="btn-3">WFH. Details</button>
+                        </div>
                     </td>
 
                 </tr>

@@ -16,6 +16,7 @@ interface balancesTable {
   totalLeave: string;
   totlePerm: string;
   email: string;
+  empId:string;
 }
 
 @Component({
@@ -27,56 +28,76 @@ interface balancesTable {
 export class BalancesAccruals {
   balancesData: balancesTable[] = [
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003',number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Finance', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj',empId:'IM003', number: 9876543210, department: 'Finance', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
-      empName: 'Govindaraj', number: 9876543210, department: 'Operations', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Operations', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
   ]
 
-  departmentColors: { [key: number]: { badge: string; dot: string } } = {
-  1: { badge: 'dept-green', dot: 'dot-green' },      // Design
-  2: { badge: 'dept-yellow', dot: 'dot-yellow' },    // HR
-  3: { badge: 'dept-red', dot: 'dot-red' },          // Finance
-  4: { badge: 'dept-blue', dot: 'dot-blue' },        // Development
-  5: { badge: 'dept-purple', dot: 'dot-purple' },    // Operations
-  6: { badge: 'dept-orange', dot: 'dot-orange' },    // Support
-  7: { badge: 'dept-teal', dot: 'dot-teal' },        // QA
-  // Add more as needed
-};
+  getDeptClass(department: string): string {
+    switch (department) {
+      case 'Design':
+        return 'design-dept';
+      case 'Development':
+        return 'dev-dept';
+      case 'HR':
+        return 'hr-dept';
+      case 'Finance':
+        return 'finance-dept';
+      default:
+        return 'default-dept';
+    }
+  }
+
+  getDotColor(department: string): string {
+    switch (department) {
+      case 'Design':
+        return '#00c853'; // green
+      case 'Development':
+        return '#2962ff'; // blue
+      case 'HR':
+        return '#ff6d00'; // orange
+      case 'Finance':
+        return '#d500f9'; // purple
+      default:
+        return '#9e9e9e'; // gray
+    }
+  }
+
 
 
 

@@ -11,7 +11,7 @@ export interface Department {
   providedIn: 'root'
 })
 export class Departments {
-  private apiUrl = 'http://localhost:3002/api/departments';
+  private apiUrl = 'http://192.168.1.15:3002/api/departments';
 
   constructor(private http: HttpClient) {}
 

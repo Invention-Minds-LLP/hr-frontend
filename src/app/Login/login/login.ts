@@ -21,6 +21,8 @@ export class Login {
     password: ''
   };
 
+  
+
   constructor(private router : Router, private userService: User){}
 
   ngOnInit() {
@@ -65,4 +67,6 @@ export class Login {
   showError(control : NgModel){
     return this.invaild(control)
   }
+
+  
 }

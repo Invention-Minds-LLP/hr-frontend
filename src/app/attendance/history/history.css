@@ -1,9 +1,9 @@
-.appraial-table {
+.history {
     font-family: 'Sofia Sans';
     padding: 40px 30px;
 }
 
-.heading-part {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -27,7 +27,7 @@
 .table {
     margin-top: 20px;
     height: 100vh;
-    overflow:auto;
+    overflow: scroll;
     padding: 20px;
 }
 
@@ -55,7 +55,7 @@
     line-height: normal;
 }
 
-.t-data{
+.t-data {
     color: #2B2B2B;
     font-size: 16px;
     font-style: normal;
@@ -90,11 +90,13 @@
     font-weight: 500;
     line-height: normal;
     letter-spacing: 0.18px;
+    
 }
 
 ::ng-deep .p-paginator-pages{
     gap: 20px;
 }
+
 
 
 ::ng-deep .p-paginator .p-paginator-page {
@@ -110,11 +112,12 @@
     font-size: 13px;
     border: 1px solid transparent;
     transition: all 0.2s ease-in-out;
+    
 }
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-   background: #E9144A !important;
+    background: #E9144A !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -141,6 +144,9 @@
     font-weight: 600;
     line-height: normal;
     position: sticky;
+    top: 0;
+    z-index: 10;
+
 
 }
 
@@ -151,7 +157,7 @@
 }
 
 
-::ng-deep .p-datatable-tbody{
+::ng-deep .p-datatable-tbody {
     overflow: auto;
 }
 
@@ -193,52 +199,76 @@
     letter-spacing: 0.14px;
 }
 
-.al{
+.al {
     text-align: center;
 }
 
 .dept-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
 }
+
 /* Dot style */
 .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
 }
 
 /* Unique backgrounds per dept */
 .design-dept {
-  background-color: #b9f6ca; /* light green */
-  color: #004d40;
+    background-color: #b9f6ca;
+    /* light green */
+    color: #004d40;
 }
 
 .dev-dept {
-  background-color: #bbdefb; /* light blue */
-  color: #0d47a1;
+    background-color: #bbdefb;
+    /* light blue */
+    color: #0d47a1;
 }
 
 .hr-dept {
-  background-color: #ffe0b2; /* light orange */
-  color: #e65100;
+    background-color: #ffe0b2;
+    /* light orange */
+    color: #e65100;
 }
 
 .finance-dept {
-  background-color: #f3e5f5; /* light purple */
-  color: #6a1b9a;
+    background-color: #f3e5f5;
+    /* light purple */
+    color: #6a1b9a;
 }
 
 .default-dept {
-  background-color: #e0e0e0;
-  color: #424242;
+    background-color: #e0e0e0;
+    color: #424242;
+}
+/* Chrome, Edge, Safari */
+.table::-webkit-scrollbar {
+  width: 5px;
+  height: -4px !important;
+}
+
+.table::-webkit-scrollbar-track {
+  background: #E8ECEF;
+  border-radius: 10px;
+  
+}
+
+.table::-webkit-scrollbar-thumb {
+  background-color: #A70000;   /* Thumb color */
+  border-radius: 10px;
+  min-height: 10px;       
 }
 
 
-
+.table::-webkit-scrollbar-thumb:hover {
+    background-color: #A70000;
+}
 

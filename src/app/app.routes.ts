@@ -10,6 +10,8 @@ import { WorkFromHome } from './leaves/work-from-home/work-from-home';
 import { BalancesAccruals } from './leaves/balances-accruals/balances-accruals';
 import { EmployeeList } from './employee/employee-list/employee-list';
 import { EmployeeOverview } from './employee/employee-overview/employee-overview';
+import { ManageAttendance } from './attendance/manage-attendance/manage-attendance';
+import { History } from './attendance/history/history';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -20,6 +22,8 @@ export const routes: Routes = [
     { path: 'permission-request', component: PermissionRequest },
     { path: 'wfh', component: WorkFromHome },
     { path: 'balances-accruals', component: BalancesAccruals },
+    {path:'attendance', component:ManageAttendance},
+    {path:'history', component:History},
     { path: '**', redirectTo: 'login', pathMatch: 'full' }
 
 ];

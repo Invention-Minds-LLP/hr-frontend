@@ -1,27 +1,25 @@
 .login {
     display: flex;
     flex-direction: row;
+    height: 100vh;
 }
 
 .bg-img {
     width: 100%;
-    height: 100vh;
+    /* height: 100vh; */
     flex-shrink: 0;
-    
+
 }
 
 .left-side {
     width: 50%;
+    overflow: hidden;
+
 }
 
 .left-side-content {
-    /* margin-top: -630px; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
     position: absolute;
-    top: 0%;
+    top: 30%;
     left: 10%;
 }
 
@@ -32,13 +30,15 @@
     gap: 10px;
 }
 
+
 .heading {
     color: #FFF;
     font-family: "Sofia Sans";
-    font-size: 32px;
+    font-size: 80px;
     font-style: normal;
-    font-weight: 700;
-    line-height: 38px;
+    font-weight: 300;
+    line-height: 90px;
+    /* 112.5% */
 }
 
 .logo-img {
@@ -55,25 +55,23 @@
 
 .sub-heading {
     color: #FFF;
-    text-align: center;
     font-family: "Sofia Sans";
-    font-size: 31.25px;
+    font-size: 100px;
     font-style: normal;
     font-weight: 700;
-    line-height: 37.5px;
-    letter-spacing: -0.5px;
-    width: 300px;
+    line-height: 90px;
 }
 
 .para {
     width: 380px;
     color: #F5F5F5;
-    text-align: center;
+    text-align: start;
     font-family: "Sofia Sans";
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: 28.16px;
+    margin-top: 20px;
 }
 
 .right-side {
@@ -82,7 +80,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    /* gap: 40px; */
+    background: #FFF;
 }
 
 
@@ -90,7 +89,7 @@
     color: #242424;
     text-align: center;
     font-family: "Sofia Sans";
-    font-size: 32px;
+    font-size: 48px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
@@ -98,24 +97,58 @@
 }
 
 .right-side-heading span {
-    color: #FF5151;
+    color: #E9144A
 }
 
 .form {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    margin-top: 30px;
     /* align-items: center; */
 }
 
-::ng-deep .p-inputtext {
-    border-bottom: 1px solid #BDBDBD;
+
+input.p-inputtext {
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+    transition: border-color 0.3s ease;
     width: 100%;
 }
 
-::ng-deep .p-inputtext:focus {
-    border-bottom: 1px solid #BDBDBD;
+
+input.p-inputtext:focus {
+    outline: none;
+    border-bottom: 2px solid #3f51b5;
+    box-shadow: none !important;
+}
+
+
+input.ng-invalid.ng-touched {
+    border-bottom: 2px solid red;
+}
+
+
+::ng-deep .p-password input {
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
     box-shadow: none;
+    transition: border-color 0.3s ease;
+    padding-left: 0.5rem;
+    width: 100%;
+}
+
+::ng-deep .p-password input:focus {
+    outline: none;
+    border-bottom: 2px solid #3f51b5;
+    box-shadow: none !important;
+}
+
+::ng-deep .p-password.ng-invalid.ng-touched input {
+    border-bottom: 2px solid red;
 }
 
 ::ng-deep .btn .p-button {
@@ -123,7 +156,7 @@
     height: 46px;
     flex-shrink: 0;
     border-radius: 56px;
-    background: #7B76F1;
+    background: #E9144A;
     box-shadow: 0 34px 40px -8px rgba(123, 118, 241, 0.24);
     color: #FFF;
     text-align: center;
@@ -133,11 +166,11 @@
     font-weight: 700;
     line-height: 22.53px;
     border: none;
-    margin-left:50px;
+    margin-left: 18%;
 }
 
 ::ng-deep .btn .p-button:hover {
-    background: #7B76F1;
+    background: #E9144A;
     border: none;
     color: #FFF;
 }
@@ -149,9 +182,9 @@
 }
 
 .error-msg {
-  color: red;
-  font-size: 12px;
-  margin-top: 4px;
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 @media (max-width:1024px) {
@@ -161,31 +194,25 @@
         flex-shrink: 0
     }
 
-    .left-side-content{
-        top: 10%;
+    .left-side-content {
+        top: 30%;
         left: 5%;
     }
 
 }
 
-@media(max-width:1023px){
+@media(max-width:1023px) {
 
-    .left-side-content{
-        top: 0px;
-        left: -5%;
+    .left-side-content {
+        top: 170px;
+        left: 5%;
     }
-     .heading ,.sub-heading{
-        font-size: 20px;
-        line-height: 25px;
-     }
 
+    .sub-heading {
+        font-size: 80px;
+    }
 
-     .main-img{
-        width: 250px;
-        height: auto;
-     }
-
-    .para{
+    .para {
         width: 50%;
         font-size: 12px;
         line-height: 20px;
@@ -210,10 +237,6 @@
         flex-shrink: 0
     }
 
-    .main-img {
-        display: none;
-    }
-
     .left-side-content {
         /* margin-top: -500px; */
         left: 12%;
@@ -226,7 +249,7 @@
     .right-side {
         width: 100vw;
         width: auto;
-        height: 400px;
+        height: auto;
         margin: 0px 20px;
         border-radius: 28.458px;
         border: 2.134px solid rgba(88, 130, 193, 0.49);
@@ -234,6 +257,13 @@
         backdrop-filter: blur(8.893229484558105px);
         position: absolute;
         top: 15%;
+        left: 10%;
+        padding: 20px;
+
+    }
+
+    .heading {
+        display: none;
     }
 
     .sub-heading {
@@ -244,20 +274,26 @@
         display: none;
     }
 
-    .icon {
-        display: none;
-    }
-
-    .logo-img {
-        width: 100px;
+    .logo {
+        width: 200px;
         height: auto;
-        position: relative;
+        flex-shrink: 0;
+        background: transparent;
     }
 
-    .heading,
-    .right-side-heading {
-        font-size: 22px;
+    .form {
+        margin-top: 10px;
     }
+
+    .heading {
+        font-size: 29px;
+    }
+
+    ::ng-deep .btn .p-button {
+        margin-left: 13%;
+    }
+
+    
 
 
 
