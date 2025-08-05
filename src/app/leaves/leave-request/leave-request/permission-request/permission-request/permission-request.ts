@@ -16,6 +16,7 @@ interface requestTable {
   reson:string;
   noOfHours:string;
   email:string;
+  empId:string;
 }
 
 @Component({
@@ -27,31 +28,63 @@ interface requestTable {
 export class PermissionRequest {
  requestData :requestTable[] = [
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Development',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'HR',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.49 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.49 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'2.15 Hours',email:'govindaraj@gmail.com'
     },
     {
-      empName:'Govindaraj',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
+      empName:'Govindaraj', empId:'IM003',department:'Design',jobTitle:'UI/UX Designer',premDate:'09-05-2025',reson:'Personal I don’t w...',noOfHours:'1.38 Hours',email:'govindaraj@gmail.com'
     },
   ]
+
+   getDeptClass(department: string): string {
+    switch (department) {
+      case 'Design':
+        return 'design-dept';
+      case 'Development':
+        return 'dev-dept';
+      case 'HR':
+        return 'hr-dept';
+      case 'Finance':
+        return 'finance-dept';
+      default:
+        return 'default-dept';
+    }
+  }
+
+  getDotColor(department: string): string {
+    switch (department) {
+      case 'Design':
+        return '#00c853'; // green
+      case 'Development':
+        return '#2962ff'; // blue
+      case 'HR':
+        return '#ff6d00'; // orange
+      case 'Finance':
+        return '#d500f9'; // purple
+      default:
+        return '#9e9e9e'; // gray
+    }
+  }
+
+
 }

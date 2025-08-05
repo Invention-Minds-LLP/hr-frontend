@@ -1,0 +1,73 @@
+<div class="attendance">
+    <div class="header">
+        <div class="heading">Manage Attendance</div>
+        <div class="flex">
+            <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield>
+            <i class="pi pi-align-center">Filter</i>
+        </div>
+    </div>
+
+    <div class="table">
+        <p-table class="" [value]="attendanceData" [paginator]="true" [rows]="10" class="custom-table">
+            <ng-template #header>
+                <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
+                    <th>Employee Name</th>
+                    <th>Phone Number</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>Employment Type</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-attendanceData let-rowIndex="rowIndex">
+                <tr>
+                    <td class="t-data al">{{ rowIndex + 1 }}</td>
+                    <td class="t-data al">{{ attendanceData.empId }}</td>
+                    <td class="empname">
+                        <img src="/img.png" alt="">
+                        <div class="">
+                            <div class="name">{{ attendanceData.empName }}</div>
+                            <span class="email">{{attendanceData.email}}</span>
+                        </div>
+                    </td>
+                    <td class="t-data al">{{ attendanceData.phoneNumber }}</td>
+                    <td class="t-data al">
+                        <span class="dept-badge" [ngClass]="getDeptClass(attendanceData.department)">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDotColor(attendanceData.department) }"></span>
+                            {{ attendanceData.department }}
+                        </span>
+                    </td>
+
+                    <td class="t-data al">{{ attendanceData.jobTitle }}</td>
+                    <td class="t-data al">{{ attendanceData.empType }}</td>
+
+
+                    <td>
+                        <div class="btns" *ngIf="attendanceData.status">
+                            <button class="present btn" (click)="setStatus(attendanceData, 'Present')">Present</button>
+                            <button class="absent btn" (click)="setStatus(attendanceData, 'Absent')">Absent</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex" *ngIf="attendanceData.status">
+                            <button class=""
+                                [ngClass]="{'present-btn': attendanceData.status === 'Present','absent-btn': attendanceData.status === 'Absent' }"
+                                disabled>
+                                {{ attendanceData.status }}
+                            </button>
+                        </div>
+                    </td>
+
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+</div>

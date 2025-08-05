@@ -18,6 +18,7 @@ interface Table {
   outCome: string;
   status: string;
   email: string;
+  empId:string;
 }
 
 @Component({
@@ -39,12 +40,13 @@ export class AppraisalTable {
       finalScore: '90',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
 
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'Finance',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -52,7 +54,8 @@ export class AppraisalTable {
       finalScore: '10',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
@@ -64,11 +67,12 @@ export class AppraisalTable {
       finalScore: '10',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003',
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'HR',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -76,11 +80,12 @@ export class AppraisalTable {
       finalScore: '80',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'Design',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -88,11 +93,12 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'Finance',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -100,7 +106,8 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
@@ -112,11 +119,12 @@ export class AppraisalTable {
       finalScore: '10',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'Design',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -124,11 +132,12 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'HR',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -136,7 +145,8 @@ export class AppraisalTable {
       finalScore: '50',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
@@ -148,11 +158,12 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
-      department: 'Development',
+      department: 'Design',
       appraisalCycle: 'Annual',
       selfScore: '--',
       mgrScore: '8.5',
@@ -160,7 +171,8 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
@@ -172,7 +184,8 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Pending',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
     {
       empName: 'Govindaraj',
@@ -184,31 +197,42 @@ export class AppraisalTable {
       finalScore: '20',
       outCome: 'Promotion',
       status: 'Manager Review',
-      email: 'govindaraj@gmail.com'
+      email: 'govindaraj@gmail.com',
+      empId:'IM003'
     },
   ]
 
 
-  getStatusClass(status: string): string {
-  // Example logic
-  if (status === 'Manager Review') {
-    return 'green-color';
-  } else if (status === 'Pending') {
-    return 'yellow-color';
-  } else {
-    return 'green-color'; // default
+  getDeptClass(department: string): string {
+    switch (department) {
+      case 'Design':
+        return 'design-dept';
+      case 'Development':
+        return 'dev-dept';
+      case 'HR':
+        return 'hr-dept';
+      case 'Finance':
+        return 'finance-dept';
+      default:
+        return 'default-dept';
+    }
   }
-}
 
-getDotClass(status: string): string {
-  if (status === 'Manager Review') {
-    return 'green-dot';
-  } else if (status === 'Pending') {
-    return 'yellow-dot';
-  } else {
-    return 'green-dot'; // default
+  getDotColor(department: string): string {
+    switch (department) {
+      case 'Design':
+        return '#00c853'; // green
+      case 'Development':
+        return '#2962ff'; // blue
+      case 'HR':
+        return '#ff6d00'; // orange
+      case 'Finance':
+        return '#d500f9'; // purple
+      default:
+        return '#9e9e9e'; // gray
+    }
   }
-}
+
 
 
 }

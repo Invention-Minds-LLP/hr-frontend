@@ -1,9 +1,9 @@
-.appraial-table {
+.attendance {
     font-family: 'Sofia Sans';
     padding: 40px 30px;
 }
 
-.heading-part {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -27,7 +27,7 @@
 .table {
     margin-top: 20px;
     height: 100vh;
-    overflow:auto;
+    overflow: auto;
     padding: 20px;
 }
 
@@ -55,7 +55,7 @@
     line-height: normal;
 }
 
-.t-data{
+.t-data {
     color: #2B2B2B;
     font-size: 16px;
     font-style: normal;
@@ -70,6 +70,10 @@
     font-size: 16px;
     text-transform: capitalize;
     text-wrap: nowrap;
+}
+
+::ng-deep .p-paginator-pages{
+    gap: 20px;
 }
 
 
@@ -92,9 +96,7 @@
     letter-spacing: 0.18px;
 }
 
-::ng-deep .p-paginator-pages{
-    gap: 20px;
-}
+
 
 
 ::ng-deep .p-paginator .p-paginator-page {
@@ -114,7 +116,7 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-   background: #E9144A !important;
+    background: #E9144A !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -148,10 +150,15 @@
     padding: 20px 30px;
     background: #E8ECEF;
     border-bottom: 2px solid #D9D9D9;
+    padding: 20px;
+}
+
+.al {
+    text-align: center;
 }
 
 
-::ng-deep .p-datatable-tbody{
+::ng-deep .p-datatable-tbody {
     overflow: auto;
 }
 
@@ -171,30 +178,79 @@
     border-bottom-right-radius: 10px;
 }
 
-
+.btns {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
 
 .btn {
-    border-radius: 8px;
-    border: 2px solid #C4C4C4;
-    display: flex;
-    width: 108px;
+    display: inline-flex;
     height: 34px;
-    padding: 15px 16px;
+    padding: 0 16px;
     justify-content: center;
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
-    color: #767676;
+    color: #FFF;
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    background: transparent;
     letter-spacing: 0.14px;
+    border: none;
 }
 
-.al{
-    text-align: center;
+.present {
+    border-radius: 8px;
+    background: #65E972;
+
+}
+
+.absent {
+    border-radius: 8px;
+    background: #E9144A !important;
+}
+
+.present-btn {
+    border-radius: 30px;
+    background: #65E972;
+    display: flex;
+    width: 120px;
+    height: 30px;
+    padding: 10px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-size: 14px; 
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.14px;
+    border: none;
+}
+
+.absent-btn {
+    border-radius: 30px;
+   background: #E9144A;
+    display: flex;
+    width: 120px;
+    height: 30px;
+    padding: 10px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.14px;
+    border: none;
 }
 
 .dept-badge {
@@ -238,7 +294,3 @@
   background-color: #e0e0e0;
   color: #424242;
 }
-
-
-
-

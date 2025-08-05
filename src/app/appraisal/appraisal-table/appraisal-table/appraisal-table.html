@@ -1,19 +1,21 @@
 <div class="appraial-table">
     <div class="heading-part">
         <div class="heading">All Appraisal</div>
-        <div class="">
+        <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
                 <input type="text" pInputText placeholder="Search" />
             </p-iconfield>
-            <i class="pi pi-align-center"></i>
+            <i class="pi pi-align-center">Filter</i>
         </div>
     </div>
 
     <div class="table">
-        <p-table class="" [value]="table"  [paginator]="true" [rows]="10" >
+        <p-table class="" [value]="table" [paginator]="true" [rows]="10">
             <ng-template #header>
                 <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
                     <th>Employee Name</th>
                     <th>Department</th>
                     <th>Appraisal Cycle</th>
@@ -26,18 +28,22 @@
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-table>
+            <ng-template #body let-table let-rowIndex="rowIndex"> 
                 <tr>
+                    <td class="t-data al">{{ rowIndex + 1}}</td>
+                    <td class="t-data al">{{ table.empId }}</td>
                     <td class="empname"><img src="/img.png" alt="">
                         <div class="">
-                            {{ table.empName }}
-                            {{table.email}}
+                            <div class="name"> {{ table.empName }}</div>
+                            <span class="email">{{table.email}}</span>
                         </div>
-                    </td>
-                    <td><span class="status-color" [ngClass]="getStatusClass(table.status)">
-                            <span class="dot" [ngClass]="getDotClass(table.status)"></span>
+                    <td class="t-data al">
+                        <span class="dept-badge" [ngClass]="getDeptClass(table.department)">
+                            <span class="dot" [ngStyle]="{ backgroundColor: getDotColor(table.department) }"></span>
                             {{ table.department }}
-                        </span></td>
+                        </span>
+                    </td>
+
                     <td>{{ table.appraisalCycle }}</td>
                     <td>{{ table.selfScore }}</td>
                     <td>{{ table.mgrScore }}</td>

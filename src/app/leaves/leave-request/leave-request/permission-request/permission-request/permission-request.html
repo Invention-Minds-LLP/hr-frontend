@@ -1,6 +1,6 @@
 <div class="permission-request">
     <div class="header">
-        <div class="heading">Leave Request</div>
+        <div class="heading">Permission Request</div>
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
@@ -11,9 +11,11 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="requestData" [paginator]="true" [rows]="5">
-            <ng-template #header>
+        <p-table class="" [value]="requestData" [paginator]="true" [rows]="10">
+            <ng-template pTemplate="header">
                 <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
                     <th>Employee Name</th>
                     <th>Department</th>
                     <th>Job Title</th>
@@ -23,29 +25,36 @@
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-requestData>
+            <ng-template pTemplate="body" let-requestData let-rowIndex="rowIndex">
                 <tr>
+                    <td class="t-data al">{{ rowIndex + 1 }}</td>
+                    <td class="t-data al">{{ requestData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
-                            {{ requestData.empName }}
-                            {{requestData.email}}
+                            <div class="name">{{ requestData.empName }}</div>
+                            <span class="email">{{requestData.email}}</span>
                         </div>
                     </td>
-                    <td><span class="status-color">
-                            <span class="dot"></span>
-                            {{ requestData.department }}
-                        </span></td>
-                    <td>{{ requestData.jobTitle }}</td>
-                    <td>{{ requestData.premDate }}</td>
-                    <td>{{ requestData.noOfHours }}</td>
-                    <td>{{ requestData.reson }}</td>
-                    
-                    <td><div class="btns">
-                        <button class="btn-1 btn">Accept</button>
-                        <button class="btn-2 btn">Decline</button>
-                        <button class="btn-3">Perm. Details</button>
-                    </div>
+                    <td class="t-data al"><span class="status-color">
+                            <span class="dept-badge" [ngClass]="getDeptClass(requestData.department)">
+                                <span class="dot"
+                                    [ngStyle]="{ backgroundColor: getDotColor(requestData.department) }"></span>
+                                {{ requestData.department }}
+                            </span>
+                        </span>
+                    </td>
+                    <td class="t-data al">{{ requestData.jobTitle }}</td>
+                    <td class="t-data al">{{ requestData.premDate }}</td>
+                    <td class="t-data al">{{ requestData.noOfHours }}</td>
+                    <td class="t-data al">{{ requestData.reson }}</td>
+
+                    <td>
+                        <div class="btns">
+                            <button class="btn-1 btn">Accept</button>
+                            <button class="btn-2 btn">Decline</button>
+                            <button class="btn-3">Perm. Details</button>
+                        </div>
                     </td>
 
                 </tr>

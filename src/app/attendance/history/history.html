@@ -1,6 +1,6 @@
-<div class="balances-accruals">
+<div class="history">
     <div class="header">
-        <div class="heading">Balances & Accruals</div>
+        <div class="heading">Attendance History</div>
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
@@ -11,7 +11,7 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="balancesData" [paginator]="true" [rows]="10" class="custom-table">
+        <p-table class="" [value]="historyData" [paginator]="true" [rows]="10" class="custom-table">
             <ng-template #header>
                 <tr>
                     <th>No</th>
@@ -20,35 +20,36 @@
                     <th>Phone Number</th>
                     <th>Department</th>
                     <th>Job Title</th>
+                    <th>Employment Type</th>
                     <th>Shift Type</th>
-                    <th>Total Leave Taken</th>
-                    <th>Total Perm. Taken</th>
+                    <th>Leave Details</th>
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-balancesData let-rowIndex="rowIndex">
+            <ng-template #body let-historyData let-rowIndex="rowIndex">
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ balancesData.empId }}</td>
+                    <td class="t-data al">{{ historyData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
-                            <div class="name">{{ balancesData.empName }}</div>
-                            <span class="email">{{balancesData.email}}</span>
+                            <div class="name">{{ historyData.empName }}</div>
+                            <span class="email">{{historyData.email}}</span>
                         </div>
                     </td>
-                    <td class="t-data al">{{ balancesData.number }}</td>
+                    <td class="t-data al">{{ historyData.phoneNumber }}</td>
                     <td class="t-data al">
-                        <span class="dept-badge" [ngClass]="getDeptClass(balancesData.department)">
+                        <span class="dept-badge" [ngClass]="getDeptClass(historyData.department)">
                             <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDotColor(balancesData.department) }"></span>
-                            {{ balancesData.department }}
+                                [ngStyle]="{ backgroundColor: getDotColor(historyData.department) }"></span>
+                            {{ historyData.department }}
                         </span>
                     </td>
-                    <td class="t-data al">{{ balancesData.jobTitle }}</td>
-                    <td class="t-data al">{{ balancesData.shiftType }}</td>
-                    <td class="t-data al">{{ balancesData.totalLeave }}</td>
-                    <td class="t-data al">{{ balancesData.totlePerm }}</td>
+
+                    <td class="t-data al">{{ historyData.jobTitle }}</td>
+                    <td class="t-data al">{{ historyData.empType }}</td>
+                    <td class="t-data al">{{ historyData.shiftType }}</td>
+                    <td class="t-data al">{{ historyData.leaveDetails }}</td>
 
                     <td>
                         <button class="btn">See Details</button>
