@@ -20,7 +20,7 @@ export const routes: Routes = [
     { path: 'login', component: Login },
     { path: 'employee', component: EmployeeOverview, canActivate:[authGuard] },
     { path: 'appraisal', component: AppraisalOverview,canActivate:[authGuard]  },
-    { path: 'leave', component: LeaveOverview },
+    { path: 'leave', component: LeavePopup },
     { path: 'permission-request', component: PermissionRequest },
     { path: 'wfh', component: WorkFromHome },
     { path: 'balances-accruals', component: BalancesAccruals },
