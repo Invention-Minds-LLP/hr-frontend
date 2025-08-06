@@ -4,14 +4,21 @@
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" />
+                <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
             </p-iconfield>
-            <i class="pi pi-align-center">Filter</i>
+            <div class="" (click)="toggleDropdown()">
+                <i class="pi pi-align-center"><span class="filter">Filter</span></i>
+                <ul class="menu-list" *ngIf="filterDropdown">
+                    <li class="list" *ngFor="let option of filterOption"
+                        (click)="selectFilter(option); $event.stopPropagation()"
+                        [ngClass]="{'active': selectedFilter?.value === option.value}">{{ option.label }}</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <div class="table">
-        <p-table class="" [value]="historyData" [paginator]="true" [rows]="10" class="custom-table">
+        <p-table class="" [value]="filterHistoryData" [paginator]="true" [rows]="10" class="custom-table">
             <ng-template #header>
                 <tr>
                     <th>No</th>

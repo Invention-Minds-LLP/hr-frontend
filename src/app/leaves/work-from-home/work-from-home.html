@@ -1,19 +1,31 @@
 <div class="WFH-request">
     <div class="header">
-        <div class="heading">Leave Request</div>
+        <div class="heading">Work From Home</div>
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" />
+                <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
             </p-iconfield>
-            <i class="pi pi-align-center">Filter</i>
+            <div (click)="toggleFilterDropdown()">
+                <i class="pi pi-align-center"><span class="filter">Filter</span></i>
+                <ul *ngIf="showFilterDropdown" class="menu-list">
+                    <li class="list" *ngFor="let option of filterOption"
+                        (click)="selectFiler(option); $event.stopPropagation()"
+                        [ngClass]="{'active': selectedFilter?.value === option.value}">
+                        {{option.label}}
+                    </li>
+                </ul>
+            </div>
+
         </div>
     </div>
 
     <div class="table">
-        <p-table class="" [value]="wfhData" [paginator]="true" [rows]="5">
+        <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="5">
             <ng-template #header>
                 <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
                     <th>Employee Name</th>
                     <th>Department</th>
                     <th>Job Title</th>
@@ -22,26 +34,31 @@
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-wfhData>
+            <ng-template #body let-wfhData let-rowIndex="rowIndex">
                 <tr>
+                    <td>{{ rowIndex + 1 }}</td>
+                    <td>{{ wfhData.empID }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
+                            <div class="name">{{ wfhData.empName }}</div>
+                            <span class="email">{{wfhData.email}}</span>
                             <div class="name">{{ wfhData.empName }}</div>
                             <span class="email">{{wfhData.email}}</span>
                         </div>
                     </td>
                     <td class="t-data al">
                         <span class="dept-badge" [ngClass]="getDeptClass(wfhData.department)">
-                            <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDotColor(wfhData.department) }"></span>
+                            <span class="dot" [ngStyle]="{ backgroundColor: getDotColor(wfhData.department) }"></span>
                             {{ wfhData.department }}
                         </span>
                     </td>
 
                     <td class="t-data">{{ wfhData.jobTitle }}</td>
                     <td class="t-data">{{ wfhData.WFHDate }}</td>
-                    <td class="t-data">{{ wfhData.reson }}</td>
+                    <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
+                            {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
+                        </span></td>
 
                     <td>
                         <div class="btns">

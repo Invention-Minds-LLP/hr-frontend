@@ -1,6 +1,7 @@
 .leave-request {
     font-family: "Sofia Sans";
     padding: 40px 30px;
+    padding: 40px 30px;
 }
 
 .header {
@@ -26,7 +27,7 @@
 
 .table {
     margin-top: 20px;
-    overflow: auto;
+    /* overflow: auto; */
     padding: 20px;
 }
 
@@ -62,6 +63,30 @@
     line-height: normal;
 }
 
+.name {
+    color: #2B2B2B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.email {
+    color: #A1A1A1;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.t-data {
+    color: #2B2B2B;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
 ::ng-deep .p-datatable-table {
     border: none;
     border-radius: 12px;
@@ -70,11 +95,19 @@
     text-transform: capitalize;
     text-wrap: nowrap;
 }
+::ng-deep .p-inputtext{
+    background: #FAFAFA;
+    font-family: "Sofia Sans";
+}
 
+.filter{
+    font-family: "Sofia Sans";
+}
 
 ::ng-deep .pi-align-center {
     border-radius: 8px;
     border: 1px solid #9B9B9B;
+    background: #FAFAFA;
     background: #FAFAFA;
     display: flex;
     width: 109px;
@@ -109,9 +142,14 @@
     border: 1px solid transparent;
     transition: all 0.2s ease-in-out;
 
+
 }
 
 /* Active page */
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+    background: #E9144A !important;
+    color: white !important;
+}
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
     background: #E9144A !important;
     color: white !important;
@@ -128,6 +166,8 @@
     margin-top: 1rem;
     background: #E8ECEF;
 
+    background: #E8ECEF;
+
 }
 
 
@@ -140,7 +180,6 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-
 }
 
 
@@ -148,8 +187,14 @@
     padding: 20px 30px;
     background: #E8ECEF;
     border-bottom: 2px solid #D9D9D9;
+    
 }
 
+::ng-deep .p-datatable-tbody{
+    overflow: scroll;
+    position: sticky;
+    top: 0;
+}
 
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
@@ -179,13 +224,13 @@
 }
 
 ::ng-deep .p-datepicker {
-    --p-datepicker-date-selected-background: #FF5151;
+    --p-datepicker-date-selected-background: #E9144A;
     --p-datepicker-date-width: -1.5rem;
     --p-datepicker-date-height: -0.1rem;
 }
 
 ::ng-deep .p-datepicker-day-selected-range {
-    background: #FF5151;
+    background: #E9144A;
     color: #FFFFFF;
     padding: 5px;
 }
@@ -208,6 +253,7 @@
 
 .btn-2 {
     border-radius: 8px;
+    background: #E9144A !important;
     background: #E9144A !important;
 }
 
@@ -304,9 +350,10 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: 10;
-    padding: 0.25rem 0;
+    padding: 0.30rem 0.5rem;
     list-style: none;
     margin: 0;
+    background: white;
 }
 
 .menu-list li {
@@ -316,8 +363,18 @@
     font-size: 14px;
 }
 
-.menu-list li.active {
-  background-color: #c3ffc3;
-  color: #00a23d;
+
+.menu-list .list:hover {
+  background-color: #eee;
+  border-radius: 20px;
 }
+
+.menu-list .list.active {
+  background-color: #d0ebff; 
+  font-weight: bold;
+  color:black;
+  border-radius: 20px;
+}
+
+
 

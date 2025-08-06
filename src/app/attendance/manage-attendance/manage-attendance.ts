@@ -16,6 +16,7 @@ interface Attendance {
   email: string;
   status: 'Present' | 'Absent' | null;
   empId:string;
+  [key:string]:any
 }
 
 @Component({
@@ -25,6 +26,18 @@ interface Attendance {
   styleUrl: './manage-attendance.css'
 })
 export class ManageAttendance {
+
+  filterAttendanceData:any[] =[];
+  selectedFilter:any = null;
+  filterDropdown:boolean = false;
+
+  filterOption = [
+    {label:'Employee ID', value:'empId'},
+    {label:'Name', value:'name'},
+    {label:'Departmnent', value:'department'},
+    {label:'JobTitle', value:'jobtitle'},
+    {label:'Employee Type', value:'empType'}
+  ]
 
   attendanceData: Attendance[] = [
     { empName: 'Govindaraj', empId:'IM003', phoneNumber: 6382348091, department: 'Development', jobTitle: 'Development', empType: 'Full-time', email: 'govindaraj@gmail.com', status: 'Present' },
@@ -41,9 +54,54 @@ export class ManageAttendance {
     { empName: 'Govindaraj', empId:'IM003' ,phoneNumber: 6382348091, department: 'Finance', jobTitle: 'Development', empType: 'Full-time', email: 'govindaraj@gmail.com', status: 'Present' },
   ]
 
+
+   ngOnInit(){
+      this.filterAttendanceData = [...this.attendanceData];
+      this.filterAttendanceData = [...this.attendanceData];
+    }
+  
+    onSearch(event: Event){
+      const input = event.target as HTMLInputElement;
+      const searchText = input.value.trim().toLowerCase();
+  
+      if(!searchText){
+        this.filterAttendanceData = [...this.attendanceData]
+        return
+      }
+  
+      const filterKey = this.selectedFilter?.value as keyof Attendance;
+  
+      this.filterAttendanceData = this.attendanceData.filter((attendance : Attendance)=>{
+        if(filterKey === 'name'){
+          return attendance.empName?.toLocaleLowerCase().includes(searchText)
+        }
+  
+        return attendance[filterKey]?.toString().toLowerCase().includes(searchText)
+      })
+  
+    }
+  
+  
+    onFilterChange(){
+      this.filterAttendanceData = [...this.attendanceData]
+    }
+  
+    toggleDropdown(){
+      this.filterDropdown =!this.filterDropdown
+    }
+  
+    selectFilter(option : any){
+      this.selectedFilter = option;
+      this.filterDropdown = false;
+      this.onFilterChange()
+      }
+  
+
   setStatus(attendanceData: Attendance, newStatus: 'Present' | 'Absent') {
     attendanceData.status = newStatus;
   }
+
+  
 
   getDeptClass(department: string): string {
   switch (department) {

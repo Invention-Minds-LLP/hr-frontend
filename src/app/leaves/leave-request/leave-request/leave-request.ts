@@ -12,7 +12,8 @@ import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { TooltipModule } from 'primeng/tooltip';
 
-type FilterField = keyof leaveTable;
+
+
 
 interface leaveTable {
   empId: string;
@@ -21,86 +22,137 @@ interface leaveTable {
   jobTitle: string;
   leaveType: string;
   reson: string;
-  noOfDays: string;
+  noOfDays: Date[];
   email: string;
+  [key: string]: any;
 }
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, DatePicker,TooltipModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, DatePicker, TooltipModule],
   templateUrl: './leave-request.html',
   styleUrl: './leave-request.css'
 })
 export class LeaveRequest {
-  searchTerm: string = '';
-  selectedFilter: FilterField = "empName";
-  filterActive: boolean = false;
-  dropdownVisible = false;
+  filteredLeaveData: any[] = [];
+  selectedFilter: any = null;
+  showFilterDropdown: boolean = false
+  filterOptions = [
+    { label: 'Employee ID', value: 'empId' },
+    { label: 'Name', value: 'name' },
+    { label: 'Department', value: 'department' },
+    { label: 'Leave Type', value: 'leaveType' },
+  ];
 
   leaveData: leaveTable[] = [
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Muni', department: 'HR', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Muni', department: 'HR', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Development', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Development', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
     },
     {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: '', email: 'govindaraj@gmail.com'
+      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
     },
   ]
 
-  department = [
-    { label: 'Employee ID', value: 'empId' },
-    { label: 'Employee Name', value: 'empName' },
-  ];
 
-  //search 
-  get FilteredLeave() {
-    const term = this.searchTerm?.toLowerCase() || '';
-    return this.leaveData.filter(item => {
-      if (!term) return true;
-      const fieldValue = (item[this.selectedFilter] as string)?.toLowerCase() || '';
-      return fieldValue.includes(term);
+
+
+  ngOnInit() {
+    this.leaveData = [...this.leaveData];
+    this.filteredLeaveData = [...this.leaveData];
+    this.buildDisabledDates();
+  }
+
+  onSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const searchText = input.value.trim().toLowerCase();
+
+    if (!searchText) {
+      this.filteredLeaveData = [...this.leaveData];
+      return;
+    }
+
+    const filterKey = this.selectedFilter?.value as keyof leaveTable;
+
+    this.filteredLeaveData = this.leaveData.filter((leave: leaveTable) => {
+      if (filterKey === 'name') {
+        return leave.empName?.toLowerCase().includes(searchText);
+      }
+
+      return leave[filterKey]?.toString().toLowerCase().includes(searchText);
     });
   }
 
 
-  
-
-  toggleFilterDropdown(event: MouseEvent) {
-    event.stopPropagation();
-    this.dropdownVisible = !this.dropdownVisible;
+  onFilterChange() {
+    this.filteredLeaveData = [...this.leaveData];
   }
 
-  selectFilter(value: any, event: MouseEvent) {
-    event.stopPropagation();
-    this.selectedFilter = value;
-    this.filterActive = true;
-    this.dropdownVisible = false;
-    console.log(this.dropdownVisible)
+  toggleFilterDropdown(): void {
+    this.showFilterDropdown = !this.showFilterDropdown;
   }
-  get isFilterActive(): boolean {
-    return this.filterActive;
+
+  selectFilter(option: any) {
+    this.selectedFilter = option;
+    this.showFilterDropdown = false;
+    this.onFilterChange();
   }
- 
+
+
+  availableDates: Date[] = [
+    new Date('2025-07-09'),
+    new Date('2025-07-10'),
+    new Date('2025-07-11'),
+    new Date('2025-07-12'),
+    new Date('2025-07-13')
+  ];
+
+  selectedDate: Date[] = [...this.availableDates]; // Show first date by default
+  minDate: Date = this.availableDates[0];
+  maxDate: Date = this.availableDates[this.availableDates.length - 1];
+  disabledDates: Date[] = [];
+
+  buildDisabledDates() {
+    const start = new Date(this.minDate);
+    const end = new Date(this.maxDate);
+    const allowedTimestamps = this.availableDates.map(d => d.getTime());
+
+    while (start <= end) {
+      if (!allowedTimestamps.includes(start.getTime())) {
+        this.disabledDates.push(new Date(start));
+      }
+      start.setDate(start.getDate() + 1);
+    }
+  }
+
+
+
+
+
+
+
+
+
 
   getDeptClass(department: string): string {
     switch (department) {

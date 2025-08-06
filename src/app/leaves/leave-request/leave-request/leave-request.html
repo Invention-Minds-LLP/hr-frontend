@@ -4,13 +4,14 @@
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" [(ngModel)]="searchTerm" />
+                <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
             </p-iconfield>
-            <div class="" (click)="toggleFilterDropdown($event)">
-                <i class="pi pi-align-center">Filter</i>
-                <ul class="menu-list" *ngIf="dropdownVisible">
-                    <li class="list" *ngFor="let option of department" (click)="selectFilter(option.value, $event)"
-                        [class.active]="selectedFilter === option.value">
+            <div class="filter-wrapper" (click)="toggleFilterDropdown()">
+                <i class="pi pi-align-center"> <span class="filter">Filter</span></i>
+                <ul class="menu-list" *ngIf="showFilterDropdown">
+                    <li class="list" *ngFor="let option of filterOptions"
+                        (click)="selectFilter(option); $event.stopPropagation()"
+                        [ngClass]="{ 'active': selectedFilter?.value === option.value }">
                         {{ option.label }}
                     </li>
                 </ul>
@@ -21,9 +22,11 @@
 
 
     <div class="table">
-        <p-table class="" [value]="leaveData" [paginator]="true" [rows]="10">
-            <ng-template #header>
+        <p-table class="" [value]="filteredLeaveData" [paginator]="true" [rows]="7">
+            <ng-template #header class="table-heding">
                 <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
                     <th>No</th>
                     <th>Emp ID</th>
                     <th>Employee Name</th>
@@ -35,13 +38,17 @@
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-leaveData let-rowIndex="rowIndex">
+            <ng-template #body let-leaveData let-rowIndex="rowIndex" >
                 <tr>
+                    <td class="t-data al">{{ rowIndex + 1 }}</td>
+                    <td class="t-data al">{{ leaveData.empId }}</td>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
                     <td class="t-data al">{{ leaveData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
+                            <div class="name">{{ leaveData.empName }}</div>
+                            <span class="email">{{leaveData.email}}</span>
                             <div class="name">{{ leaveData.empName }}</div>
                             <span class="email">{{leaveData.email}}</span>
                         </div>
@@ -57,14 +64,24 @@
                     <td class="t-data">{{ leaveData.jobTitle }}</td>
                     <td class="t-data">{{ leaveData.leaveType }}</td>
                     <td>
-                        <p-datepicker [(ngModel)]="leaveData.noOfDays" selectionMode="range" [showIcon]="true"
-                            inputId="buttondisplay" [readonlyInput]="true" [showOnFocus]="false" />
+                        <p-datepicker [(ngModel)]="availableDates" [selectionMode]="'multiple'" [minDate]="minDate" [maxDate]="maxDate"
+                            [disabledDates]="disabledDates" inputId="datePicker" [showIcon]="true" [touchUI]="true"
+                            placeholder="Select a Date">
+                        </p-datepicker>
+
+
                     </td>
                     <td class="t-data">
                         <span [pTooltip]="leaveData.reson" tooltipPosition="top">
                             {{ leaveData.reson | slice:0:20 }}<span *ngIf="leaveData.reson.length > 20">...</span>
                         </span>
                     </td>
+                    <td>
+                        <div class="btns">
+                            <button class="btn-1 btn">Accept</button>
+                            <button class="btn-2 btn">Decline</button>
+                            <button class="btn-3">Leave Details</button>
+                        </div>
                     <td>
                         <div class="btns">
                             <button class="btn-1 btn">Accept</button>

@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { label } from '@primeuix/themes/aura/metergroup';
+import { value } from '@primeuix/themes/aura/knob';
 
 interface balancesTable {
   empName: string;
@@ -17,6 +19,7 @@ interface balancesTable {
   totlePerm: string;
   email: string;
   empId:string;
+  [key:string]:any
 }
 
 @Component({
@@ -26,47 +29,118 @@ interface balancesTable {
   styleUrl: './balances-accruals.css'
 })
 export class BalancesAccruals {
+
+  filterBalancesData:any[] =[];
+  selectedFilter:any = null;
+  filterDropdown:boolean = false;
+
+  filterOption = [
+    {label:'Employee ID', value:'empId'},
+    {label:'Name', value:'name'},
+    {label:'Departmnent', value:'department'},
+    {label:'JobTitle', value:'jobtitle'},
+    {label:'ShiftType', value:'shiftType'}
+  ]
+
+
+
   balancesData: balancesTable[] = [
     {
+      empName: 'Govindaraj', empId:'IM003',number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
       empName: 'Govindaraj', empId:'IM003',number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj',empId:'IM003', number: 9876543210, department: 'Finance', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj',empId:'IM003', number: 9876543210, department: 'Finance', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Development', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Design', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'HR', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
     {
       empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Operations', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
+      empName: 'Govindaraj', empId:'IM003', number: 9876543210, department: 'Operations', jobTitle: 'UI/UX Designer', shiftType: 'Morning', totalLeave: '33 Days', totlePerm: '22 Hours', email: 'govindaraj@gmail.com'
     },
   ]
+
+
+   ngOnInit(){
+      this.balancesData = [...this.balancesData];
+      this.filterBalancesData = [...this.balancesData];
+    }
+  
+    onSearch(event: Event){
+      const input = event.target as HTMLInputElement;
+      const searchText = input.value.trim().toLowerCase();
+  
+      if(!searchText){
+        this.filterBalancesData = [...this.balancesData]
+        return
+      }
+  
+      const filterKey = this.selectedFilter?.value as keyof balancesTable;
+  
+      this.filterBalancesData = this.balancesData.filter((balance : balancesTable)=>{
+        if(filterKey === 'name'){
+          return balance.empName?.toLocaleLowerCase().includes(searchText)
+        }
+  
+        return balance[filterKey]?.toString().toLowerCase().includes(searchText)
+      })
+  
+    }
+  
+  
+    onFilterChange(){
+      this.filterBalancesData = [...this.balancesData]
+    }
+  
+    toggleDropdown(){
+      this.filterDropdown =!this.filterDropdown
+    }
+  
+    selectFilter(option : any){
+      this.selectedFilter = option;
+      this.filterDropdown = false;
+      this.onFilterChange()
+      }
+  
 
   getDeptClass(department: string): string {
     switch (department) {
