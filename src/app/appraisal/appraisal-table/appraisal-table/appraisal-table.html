@@ -2,16 +2,49 @@
     <div class="heading-part">
         <div class="heading">All Appraisal</div>
         <div class="flex">
-            <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" />
-            </p-iconfield>
-            <i class="pi pi-align-center">Filter</i>
+            <button class="new-app" (click)="openForm()">New Appraisal <svg xmlns="http://www.w3.org/2000/svg"
+                    width="21" height="20" viewBox="0 0 21 20" fill="none">
+                    <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg></button>
+            <!-- Search -->
+            <div class="search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M19.25 19.25L16.0417 16.0417M15.5833 9.16667C15.5833 10.0093 15.4174 10.8437 15.0949 11.6222C14.7724 12.4007 14.2998 13.1081 13.7039 13.7039C13.1081 14.2998 12.4007 14.7724 11.6222 15.0949C10.8437 15.4174 10.0093 15.5833 9.16667 15.5833C8.32402 15.5833 7.48962 15.4174 6.71111 15.0949C5.93261 14.7724 5.22524 14.2998 4.6294 13.7039C4.03356 13.1081 3.56091 12.4007 3.23844 11.6222C2.91597 10.8437 2.75 10.0093 2.75 9.16667C2.75 7.46486 3.42604 5.83276 4.6294 4.6294C5.83276 3.42604 7.46486 2.75 9.16667 2.75C10.8685 2.75 12.5006 3.42604 13.7039 4.6294C14.9073 5.83276 15.5833 7.46486 15.5833 9.16667Z"
+                    stroke="#9B9B9B" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            
+                <input 
+                class="input"
+                type="text" 
+                pInputText 
+                placeholder="Search Employee" 
+                (input)="onSearch($event)" 
+              />
+              
+              </div>
+            
+              <!-- Filter Selector -->
+              <div class="filter"  (click)="toggleFilterDropdown()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M4.5 7.25H19.5M7.385 12H16.615M10.27 16.75H13.73" stroke="#9B9B9B" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div>
+                  {{ selectedFilter?.label || 'Filter' }}
+                </div>
+              </div>
+              <ul class="filter-dropdown" *ngIf="showFilterDropdown">
+                  <li *ngFor="let option of filterOptions" 
+                      (click)="selectFilter(option)">
+                    {{ option.label }}
+                  </li>
+                </ul>
         </div>
     </div>
 
     <div class="table">
-        <p-table class="" [value]="table" [paginator]="true" [rows]="10">
+        <p-table class="" [value]="appraisals" [paginator]="true" [rows]="10">
             <ng-template #header>
                 <tr>
                     <th>No</th>
@@ -19,43 +52,94 @@
                     <th>Employee Name</th>
                     <th>Department</th>
                     <th>Appraisal Cycle</th>
-                    <th>Self Score</th>
+                    <th>Manager</th>
                     <th>Mgr. Score</th>
-                    <th>HR Score</th>
                     <th>Final Score</th>
                     <th>Outcome</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-table let-rowIndex="rowIndex"> 
+            <ng-template #body let-appraisal let-rowIndex="rowIndex">
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1}}</td>
-                    <td class="t-data al">{{ table.empId }}</td>
+                    <td class="t-data al">{{ appraisal.employee.employeeCode }}</td>
                     <td class="empname"><img src="/img.png" alt="">
                         <div class="">
-                            <div class="name"> {{ table.empName }}</div>
-                            <span class="email">{{table.email}}</span>
+                            <div class="name"> {{ appraisal.employee.firstName }} {{ appraisal.employee.lastName }}
+                            </div>
+                            <span class="email">{{appraisal.employee.email}}</span>
                         </div>
                     <td class="t-data al">
-                        <span class="dept-badge" [ngClass]="getDeptClass(table.department)">
-                            <span class="dot" [ngStyle]="{ backgroundColor: getDotColor(table.department) }"></span>
-                            {{ table.department }}
+                        <span class="dept-badge"
+                            [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).badgeColor }">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).dotColor }">
+                            </span>
+                            {{ getDepartmentName(appraisal.employee.departmentId) }}
                         </span>
                     </td>
 
-                    <td>{{ table.appraisalCycle }}</td>
-                    <td>{{ table.selfScore }}</td>
-                    <td>{{ table.mgrScore }}</td>
-                    <td>{{ table.hrScore }}</td>
-                    <td>{{ table.finalScore }}%</td>
-                    <td>{{ table.outCome }}</td>
-                    <td>{{ table.status }}</td>
-                    <td><button class="btn">See Details</button></td>
+                    <td>{{ appraisal.cycle }}</td>
+                    <td>{{appraisal.managerName || '-'}}</td>
+                    <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
+                    <td>{{ appraisal.overallScore || '-' }}</td>
+                    <td>{{ appraisal.finalDecision || '-' }}</td>
+                    <td>{{ appraisal.status || '-' }}</td>
+                    <td><button class="btn" (click)="onEditClick(appraisal)">See Details</button></td>
 
                 </tr>
             </ng-template>
         </p-table>
 
+    </div>
+</div>
+
+
+<div class="popup-backdrop" *ngIf="showPopup">
+    <div class="popup-container">
+        <h2>Create Appraisal</h2>
+
+        <hr />
+
+        <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()">
+
+            <!-- Cycle -->
+            <div class="field col-12">
+                <input type="text" formControlName="cycle" pInputText placeholder="Enter cycle (e.g., Quarter 1 2025)">
+            </div>
+
+            <!-- Department -->
+            <div class="field col-12">
+                <p-floatLabel variant="on">
+                    <p-select [options]="departments" formControlName="departmentId" optionLabel="name" optionValue="id"
+                        class="dropdown"></p-select>
+                    <label>Department</label>
+                </p-floatLabel>
+            </div>
+
+            <!-- Branch -->
+            <div class="field col-12">
+                <p-floatLabel variant="on">
+                    <p-select [options]="branches" formControlName="branchId" optionLabel="name" optionValue="id"
+                        class="dropdown"></p-select>
+                    <label>Branch</label>
+                </p-floatLabel>
+            </div>
+
+            <!-- Employees (Multi Select) -->
+            <div class="field col-12">
+                <p-multiSelect [options]="employees" formControlName="employeeIds" optionLabel="label"
+                    optionValue="value" placeholder="Select Employees" display="chip" class="dropdown">
+                </p-multiSelect>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="popup-actions">
+                <button type="submit" class="btn btn-green" [disabled]="appraisalForm.invalid">Create</button>
+                <button type="button" class="btn btn-red" (click)="closePopup()">Cancel</button>
+            </div>
+        </form>
     </div>
 </div>

@@ -1,0 +1,16 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <ul>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">All Appraisal</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Appraisal</li>
+    </ul>
+</nav>
+<div>
+    <hr>
+</div>
+
+
+<div>
+    <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"></app-apprasial-form>
+    <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
+</div>

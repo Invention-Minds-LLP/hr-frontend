@@ -47,8 +47,8 @@
                     <th>Employee Name</th>
                     <th>Phone Number</th>
                     <th>Branch</th>
-                    <th>Role</th>
                     <th>Department</th>
+                    <th>Role</th>
                     <th>Job Title</th>
                     <th>Employment Type</th>
                     <th>Shift Type</th>
@@ -69,7 +69,6 @@
                     </td>
                     <td class="t-data al">{{ employeeData.phone }}</td>
                     <td>{{ getBranchName(employeeData.branchId) }}</td>
-                    <td>{{ getRoleName(employeeData.roleId) }}</td>
                     <td class="t-data al">
                         <span class="dept-badge"
                               [ngStyle]="{ backgroundColor: getDepartmentColors(employeeData.departmentId).badgeColor }">
@@ -79,7 +78,7 @@
                           {{ getDepartmentName(employeeData.departmentId) }}
                         </span>
                       </td>
-                      
+                      <td>{{ getRoleName(employeeData.roleId) }}</td>  
                     <td class="t-data al">{{ employeeData.designation }}</td>
                     <td class="t-data al">{{ employeeData.employmentType }}</td>
                     <td class="t-data al">{{ getShiftName(employeeData.shiftId) }}</td>

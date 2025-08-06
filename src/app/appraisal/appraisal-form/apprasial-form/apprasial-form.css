@@ -1,7 +1,6 @@
 .appraisal-container {
     font-family: "Sofia Sans";
-    background: white;
-    width: 100vw;
+    background: #e8ecef;
     height: auto;
     padding: 20px 50px;
 }
@@ -39,11 +38,17 @@
 
 .input-box {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 20px;
-    flex-wrap: wrap;
+    width: 100%;
 }
 
+.input-box-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
 .final-decision {
     display: flex;
     flex-direction: column;
@@ -70,6 +75,7 @@
 ::ng-deep .p-textarea {
     width: 540px;
     height: 100px;
+    background-color: transparent!important;
 }
 
 ::ng-deep .p-button {
@@ -120,4 +126,9 @@
 
 ::ng-deep .full-width-datepicker {
   width: 100%;
+}
+
+.error-text{
+    color: #E9144A;
+    
 }

@@ -41,7 +41,7 @@ export interface Employee {
   providedIn: 'root'
 })
 export class Employees {
-  private apiUrl = 'http://192.168.1.15:3002/api/employees';
+  private apiUrl = 'http://localhost:3002/api/employees';
 
   constructor(private http: HttpClient) {}
 
@@ -78,5 +78,12 @@ export class Employees {
     });
 
     return this.http.post(`${this.apiUrl}/${employeeId}/documents/upload`, formData);
+  }
+
+  getEmployeesWithSpecificRoles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/specific-roles`);
+  }
+  getActiveEmployees() {
+    return this.http.get<any[]>(`${this.apiUrl}/active`);
   }
 }

@@ -27,26 +27,40 @@
         </div>
         <nav class="main-nav">
             <ul>
-                <li class="nav-item active">
-                    <i class="pi pi-th-large"></i> Dashboard
+                <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <a [routerLink]="'/dashboard'">
+                        <i class="pi pi-th-large"></i> Dashboard
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <i class="pi pi-users"></i> Employee
+                <li class="nav-item" routerLinkActive="active">
+                    <a [routerLink]="'/employee'">
+                        <i class="pi pi-users"></i> Employee
+                      </a>
                 </li>
-                <li class="nav-item">
-                    <i class="pi pi-user-plus"></i> Attendance
+                <li class="nav-item" routerLinkActive="active">
+                    <a [routerLink]="'/attendance'">
+                        <i class="pi pi-user-plus"></i> Attendance
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <i class="pi pi-chart-line"></i> Leaves
+                <li class="nav-item" routerLinkActive="active">
+                    <a [routerLink]="'/leave'">
+                        <i class="pi pi-chart-line"></i> Leaves
+                    </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" routerLinkActive="active">
+                   <a [routerLink]="'/appraisal'">
                     <i class="pi pi-chart-bar"></i> Appraisal
+                   </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" routerLinkActive="active">
+                   <a [routerLink]="'/evaluation'">
                     <i class="pi pi-star"></i> Evaluation
+                   </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" routerLinkActive="active">
+                  <a [routerLink]="'/settings'">
                     <i class="pi pi-cog"></i> Settings
+                  </a>
                 </li>
                 <li class="nav-item">
                     <i class="pi pi-bars"></i> More Menu

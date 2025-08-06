@@ -91,6 +91,8 @@ export class EmployeeForm {
   photoUrl: string = '';
   uploadedDocsForm!: FormArray;
   completedSteps: boolean[] = [false, false, false, false];
+  reportingManagers: any[] = [];
+
 
 
 
@@ -154,6 +156,7 @@ export class EmployeeForm {
     this.addQualification();
     this.addEmergencyContact();
     this.loadDropdownData();
+    this.loadReportingManagers();
     this.uploadedDocsForm = this.fb.array([]);
     this.employeeForm.addControl('documents', this.uploadedDocsForm);
     this.addDocument();
@@ -175,16 +178,14 @@ export class EmployeeForm {
     }
   }
 
-  // createDocumentGroup() {
-  //   return this.fb.group({
-  //     category: ['', Validators.required],
-  //     type: ['', Validators.required],
-  //     issueDate: [null],
-  //     expiryDate: [null],
-  //     file: [null, Validators.required],
-  //     fileUrl: ['']
-  //   });
-  // }
+  loadReportingManagers() {
+    this.employeeService.getEmployeesWithSpecificRoles().subscribe((data: any[]) => {
+      this.reportingManagers = data.map(emp => ({
+        label: `${emp.firstName} ${emp.lastName}`, // Name to show
+        value: emp.id                               // ID to store
+      }));
+    });
+  }
 
   createDocumentGroup(): FormGroup<{
     category: FormControl<string | null>;

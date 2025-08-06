@@ -1,101 +1,41 @@
 <div class="appraisal-container">
-    <form action="">
-        <!-- Appraisal Form -->
+    <!-- Appraisal Form -->
+    <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()">
         <div class="appraisal-form">
             <div class="heading">Appraisal Form</div>
             <div class="sub-heading">Employee Personal Information</div>
             <div class="input-box-1">
                 <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
+                    <input pInputText formControlName="fullName" readonly />
                     <label for="on_label">Full Name</label>
                 </p-floatlabel>
 
                 <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
+                    <input pInputText formControlName="employeeCode" readonly />
                     <label for="on_label">Employee ID</label>
                 </p-floatlabel>
 
-                <p-floatlabel  variant="on">
-                    <p-select inputId="on_label" [filter]="true"  [options]="departments" optionLabel="label"/>
+                <p-floatlabel variant="on">
+                    <input pInputText formControlName="department" readonly />
                     <label for="department">Department</label>
                 </p-floatlabel>
-                <p-floatlabel   variant="on">
-                    <p-select  inputId="on_label" [filter]="true"[options]="designation" optionLabel="name" />
+                <p-floatlabel variant="on">
+                    <input pInputText formControlName="designation" readonly />
                     <label for="on_label">Designation</label>
                 </p-floatlabel>
 
                 <p-floatlabel variant="on">
-                    <p-datepicker inputId="on_label" showIcon iconDisplay="input" />
+                    <input pInputText formControlName="dateOfJoining" readonly />
                     <label for="on_label">Date Of Joining</label>
                 </p-floatlabel>
 
                 <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
+                    <input pInputText formControlName="cycle" readonly />
                     <label for="on_label">Appraisal Cycle</label>
                 </p-floatlabel>
                 <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
+                    <input pInputText formControlName="managerName" readonly />
                     <label for="on_label">Reviewer (Manager Name)</label>
-                </p-floatlabel>
-            </div>
-
-            <!--  Self Appraisal-->
-
-            <div class="sub-heading">Self Appraisal</div>
-            <div class="input-box">
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Achievements</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Gools & Objective</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Challenges</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Training Opportunities</label>
-                </p-floatlabel>
-
-            </div>
-
-            <!-- Self Rating -->
-
-            <div class="sub-heading">Self Rating ( Out of 10 )</div>
-            <div class="input-box">
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Communication</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Teamwork</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Problem Solving</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Initiative</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Reliability</label>
                 </p-floatlabel>
             </div>
 
@@ -104,120 +44,115 @@
 
             <div class="heading">Manager Remarks</div>
             <div class="sub-heading">Manager Rating ( Out of 10 )</div>
-            <div class="input-box">
-                <div class="input-box">
+            <div class="input-box" style="width: 100%;">
+                <div class="input-box-2">
+                    <div>
+                        <p-floatlabel variant="on">
+                            <input pInputText type="number" formControlName="communication" max="10" min="0" />
+                            <label for="on_label">Communication</label>
+                        </p-floatlabel>
+                        <div
+                            *ngIf="appraisalForm.get('communication')?.hasError('max') && appraisalForm.get('communication')?.touched">
+                            <small class="error-text">Must be 10 or less</small>
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <p-floatlabel variant="on">
+                            <input pInputText type="number" formControlName="teamwork" max="10" min="0" />
+                            <label for="on_label">Teamwork</label>
+                        </p-floatlabel>
+                        <div
+                            *ngIf="appraisalForm.get('teamwork')?.hasError('max') && appraisalForm.get('teamwork')?.touched">
+                            <small class="error-text">Must be 10 or less</small>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p-floatlabel variant="on">
+                            <input pInputText type="number" formControlName="problemSolving" max="10" min="0" />
+                            <label for="on_label">Problem Solving</label>
+                        </p-floatlabel>
+                        <div
+                            *ngIf="appraisalForm.get('problemSolving')?.hasError('max') && appraisalForm.get('problemSolving')?.touched">
+                            <small class="error-text">Must be 10 or less</small>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p-floatlabel variant="on">
+                            <input pInputText type="number" formControlName="initiative" max="10" min="0" />
+                            <label for="on_label">Initiative</label>
+                        </p-floatlabel>
+                        <div
+                            *ngIf="appraisalForm.get('initiative')?.hasError('max') && appraisalForm.get('initiative')?.touched">
+                            <small class="error-text">Must be 10 or less</small>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p-floatlabel variant="on">
+                            <input pInputText type="number" formControlName="reliability" max="10" min="0" />
+                            <label for="on_label">Reliability</label>
+                        </p-floatlabel>
+                        <div
+                            *ngIf="appraisalForm.get('reliability')?.hasError('max') && appraisalForm.get('reliability')?.touched">
+                            <small class="error-text">Must be 10 or less</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-box-2">
+
                     <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Communication</label>
+                        <textarea pTextarea formControlName="comments" rows="5" cols="30" style="resize: none"
+                            class="h-full"></textarea>
+                        <label for="on_label">Comments</label>
                     </p-floatlabel>
 
                     <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Teamwork</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Problem Solving</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Initiative</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Reliability</label>
+                        <textarea pTextarea formControlName="recommendations" rows="5" cols="30" style="resize: none"
+                            class="h-full"></textarea>
+                        <label for="on_label">Recommendations</label>
                     </p-floatlabel>
                 </div>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Comments</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Recommendations</label>
-                </p-floatlabel>
             </div>
 
-            <!-- HR Remarks -->
-
-            <div class="heading">HR Remarks</div>
-            <div class="sub-heading">HR Rating ( Out of 10 )</div>
-            <div class="input-box">
-                <div class="input-box">
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Communication</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Teamwork</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Problem Solving</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Initiative</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <input pInputText id="on_label" autocomplete="off" />
-                        <label for="on_label">Reliability</label>
-                    </p-floatlabel>
-                </div>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Comments</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none"
-                        class="h-full"></textarea>
-                    <label for="on_label">Recommendations</label>
-                </p-floatlabel>
-            </div>
 
             <!-- Final Decision -->
 
             <div class="heading">Final Decision</div>
             <div class="sub-heading">Final Score</div>
-            <div class="input-box">
-                <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
-                    <label for="on_label">Over All Score</label>
-                </p-floatlabel>
+            <div class="input-box-1">
+                <div>
+                    <p-floatlabel variant="on">
+                        <input pInputText type="number" formControlName="overallScore" max="10" min="0" />
+                        <label for="on_label">Over All Score</label>
+                    </p-floatlabel>
+                    <div *ngIf="appraisalForm.get('overallScore')?.hasError('max') && appraisalForm.get('overallScore')?.touched">
+                        <small class="error-text">Must be 10 or less</small>
+                      </div>
+                </div>
 
                 <p-floatlabel variant="on">
-                    <input pInputText id="on_label" autocomplete="off" />
+                    <input pInputText formControlName="finalDecision" />
                     <label for="on_label">Final Decision</label>
                 </p-floatlabel>
             </div>
 
             <p-floatlabel variant="on">
-                <textarea pTextarea id="over_label" rows="5" cols="30" style="resize: none" class="h-full"></textarea>
+                <textarea pTextarea id="over_label" formControlName="finalComments" rows="5" cols="30"
+                    style="resize: none" class="h-full"></textarea>
                 <label for="on_label">Comments</label>
             </p-floatlabel>
 
         </div>
-
-        <!-- btns -->
-        <div class="btns">
-            <p-button label="Submit" severity="success" class="submit-btn"/>
-            <p-button label="Cancel" severity="danger"  class="cancel-btn"/>
-        </div>
-
     </form>
+
+    <!-- btns -->
+    <div class="btns" *ngIf="role === 'Reporting Manager'">
+        <p-button label="Submit" severity="success" class="submit-btn" type="submit" (click)="onSubmit()" />
+        <p-button label="Cancel" severity="danger" class="cancel-btn" (click)="onCancel()" />
+    </div>
+
 </div>

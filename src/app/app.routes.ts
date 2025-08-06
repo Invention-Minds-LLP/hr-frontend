@@ -12,17 +12,19 @@ import { EmployeeList } from './employee/employee-list/employee-list';
 import { EmployeeOverview } from './employee/employee-overview/employee-overview';
 import { ManageAttendance } from './attendance/manage-attendance/manage-attendance';
 import { History } from './attendance/history/history';
+import { AppraisalOverview } from './appraisal/appraisal-overview/appraisal-overview';
+import { LeavePopup } from './leaves/leave-popup/leave-popup';
+import { LeaveOverview } from './leaves/leave-overview/leave-overview';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
-    { path: 'employee', component: EmployeeOverview },
-    { path: 'appraisal-form', component: ApprasialForm },
-    { path: 'appraisal-table', component: AppraisalTable },
-    { path: 'leave-request', component: LeaveRequest },
+    { path: 'employee', component: EmployeeOverview, canActivate:[authGuard] },
+    { path: 'appraisal', component: AppraisalOverview,canActivate:[authGuard]  },
+    { path: 'leave', component: LeaveOverview },
     { path: 'permission-request', component: PermissionRequest },
     { path: 'wfh', component: WorkFromHome },
     { path: 'balances-accruals', component: BalancesAccruals },
-    {path:'attendance', component:ManageAttendance},
+    {path:'attendance', component:ManageAttendance, canActivate:[authGuard] },
     {path:'history', component:History},
     { path: '**', redirectTo: 'login', pathMatch: 'full' }
 

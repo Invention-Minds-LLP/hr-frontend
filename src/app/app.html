@@ -1,5 +1,7 @@
-<div class="app-container">
-  <!-- <app-navbar></app-navbar> -->
+<div class="app-container" *ngIf="!isLoginRoute(); else loginTemplate">
+  <app-navbar></app-navbar>
   <router-outlet></router-outlet>
-   <!-- <app-login></app-login> -->
 </div>
+<ng-template #loginTemplate>
+  <app-login></app-login>
+</ng-template>
