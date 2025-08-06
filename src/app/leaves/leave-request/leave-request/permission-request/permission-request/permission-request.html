@@ -1,19 +1,29 @@
 <div class="permission-request">
     <div class="header">
         <div class="heading">Permission Request</div>
+        <div class="heading">Permission Request</div>
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" />
+                <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
             </p-iconfield>
-            <i class="pi pi-align-center">Filter</i>
+            <div class="" (click)="toggleDropdown()">
+                <i class="pi pi-align-center"><span class="filter">Filter</span></i>
+                <ul class="menu-list" *ngIf="filterDropdown">
+                    <li class="list" *ngFor="let option of filterOption"
+                        (click)="selectFilter(option); $event.stopPropagation()"
+                        [ngClass]="{'active': selectedFilter?.value === option.value}">{{ option.label }}</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <div class="table">
-        <p-table class="" [value]="requestData" [paginator]="true" [rows]="10">
+        <p-table class="" [value]="filterReuqusetData" [paginator]="true" [rows]="10">
             <ng-template pTemplate="header">
                 <tr>
+                    <th>No</th>
+                    <th>Emp ID</th>
                     <th>No</th>
                     <th>Emp ID</th>
                     <th>Employee Name</th>
@@ -29,9 +39,13 @@
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
                     <td class="t-data al">{{ requestData.empId }}</td>
+                    <td class="t-data al">{{ rowIndex + 1 }}</td>
+                    <td class="t-data al">{{ requestData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
+                            <div class="name">{{ requestData.empName }}</div>
+                            <span class="email">{{requestData.email}}</span>
                             <div class="name">{{ requestData.empName }}</div>
                             <span class="email">{{requestData.email}}</span>
                         </div>
@@ -47,8 +61,10 @@
                     <td class="t-data al">{{ requestData.jobTitle }}</td>
                     <td class="t-data al">{{ requestData.premDate }}</td>
                     <td class="t-data al">{{ requestData.noOfHours }}</td>
-                    <td class="t-data al">{{ requestData.reson }}</td>
-
+                    <td><span [pTooltip]="requestData.reson" tooltipPosition="top">
+                            {{ requestData.reson | slice:0:20 }}<span *ngIf="requestData.reson.length > 20">...</span>
+                        </span>
+                    </td>
                     <td>
                         <div class="btns">
                             <button class="btn-1 btn">Accept</button>

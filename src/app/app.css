@@ -1,6 +1,6 @@
 .app-container {
     display: flex;
-    height: 100%; /* Full viewport height */
+    height: 100% ; /* Full viewport height */
     /* overflow: hidden; */
     background-color: #E8ECEF;
     flex-direction: column;

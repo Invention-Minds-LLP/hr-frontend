@@ -1,6 +1,7 @@
 .balances-accruals {
     font-family: 'Sofia Sans';
     padding: 40px 30px;
+    padding: 40px 30px;
 }
 
 .header {
@@ -27,9 +28,10 @@
 .table {
     margin-top: 20px;
     height: 100vh;
-    overflow:auto;
+    /* overflow:auto; */
     padding: 20px;
 }
+
 
 .empname {
     display: flex;
@@ -37,6 +39,30 @@
     align-items: center;
     gap: 10px;
     text-wrap: wrap;
+}
+
+.name {
+    color: #2B2B2B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.email {
+    color: #A1A1A1;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.t-data{
+    color: #2B2B2B;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 }
 
 .name {
@@ -76,10 +102,15 @@
     gap: 20px;
 }
 
+::ng-deep .p-paginator-pages{
+    gap: 20px;
+}
+
 
 ::ng-deep .pi-align-center {
     border-radius: 8px;
     border: 1px solid #9B9B9B;
+    background: #FAFAFA;
     background: #FAFAFA;
     display: flex;
     width: 109px;
@@ -118,6 +149,10 @@
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
    background: #E9144A !important;
     color: white !important;
+}
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+   background: #E9144A !important;
+    color: white !important;
     border-radius: 8px;
     font-weight: bold;
 }
@@ -129,6 +164,7 @@
     align-items: center;
     gap: 4px;
     margin-top: 1rem;
+    background: #E8ECEF;
     background: #E8ECEF;
 }
 
@@ -142,7 +178,6 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    position: sticky;
 
 }
 
@@ -154,9 +189,9 @@
 
 
 
-::ng-deep .p-datatable-tbody{
+/* ::ng-deep .p-datatable-tbody{
     overflow: auto;
-}
+} */
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
     border-top-left-radius: 10px;
@@ -200,16 +235,25 @@
     text-align: center;
 }
 
+.al{
+    text-align: center;
+}
+
 .dept-badge {
   display: inline-flex;
   align-items: center;
   padding: 10px 12px;
+  padding: 10px 12px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
+  font-weight: 500;
 }
 /* Dot style */
+/* Dot style */
 .dot {
+  width: 8px;
+  height: 8px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -240,6 +284,51 @@
 .default-dept {
   background-color: #e0e0e0;
   color: #424242;
+}
+
+.menu-list {
+    position: absolute;
+    top: 13%;
+    left: 1100px;
+    min-width: 160px;
+    background: var(--surface-ground);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    padding: 0.30rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    background: white;
+}
+
+.menu-list li {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+
+.menu-list .list:hover {
+  background-color: #eee;
+  border-radius: 20px;
+}
+
+.menu-list .list.active {
+  background-color: #d0ebff; 
+  font-weight: bold;
+  color:black;
+  border-radius: 20px;
+}
+
+
+::ng-deep .p-inputtext{
+    background: #FAFAFA;
+    font-family: "Sofia Sans";
+}
+
+.filter{
+    font-family: "Sofia Sans";
 }
 
 

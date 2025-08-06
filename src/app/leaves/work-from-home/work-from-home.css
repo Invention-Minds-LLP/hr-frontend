@@ -1,5 +1,6 @@
 .WFH-request {
     font-family: 'Sofia Sans';
+    padding: 40px 30px;
 }
 
 .header {
@@ -26,6 +27,7 @@
 .table {
     margin-top: 20px;
     padding: 20px;
+    padding: 20px;
 }
 
 .empname {
@@ -34,6 +36,30 @@
     align-items: center;
     gap: 10px;
     text-wrap: wrap;
+}
+
+.name {
+    color: #2B2B2B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.email {
+    color: #A1A1A1;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.t-data {
+    color: #2B2B2B;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 }
 
 .name {
@@ -74,8 +100,10 @@
     border-radius: 8px;
     border: 1px solid #9B9B9B;
     background: #FAFAFA;
+    background: #FAFAFA;
     display: flex;
     width: 109px;
+    height: 30px;
     height: 30px;
     padding: 20px 16px;
     align-items: center;
@@ -88,6 +116,7 @@
     line-height: normal;
     letter-spacing: 0.18px;
 }
+
 
 
 
@@ -111,6 +140,9 @@
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
    background: #E9144A !important;
     color: white !important;
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+   background: #E9144A !important;
+    color: white !important;
     border-radius: 8px;
     font-weight: bold;
 }
@@ -123,12 +155,19 @@
     gap: 4px;
     margin-top: 1rem;
     background: #E8ECEF;
+    background: #E8ECEF;
 }
 
 
 ::ng-deep .p-datatable-thead>tr>th {
     padding: 20px 30px;
     text-align: center;
+    background: #FAFAFA;
+    color: #666;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
     background: #FAFAFA;
     color: #666;
     font-size: 16px;
@@ -159,6 +198,55 @@
     border-bottom-right-radius: 10px;
 }
 
+::ng-deep .p-inputtext{
+    background: #FAFAFA;
+    font-family: "Sofia Sans";
+}
+
+::ng-deep .p-paginator-pages {
+    gap: 20px;
+}
+
+
+.filter{
+    font-family: "Sofia Sans";
+}
+
+.menu-list {
+    position: absolute;
+    top: 13%;
+    left: 1100px;
+    min-width: 160px;
+    background: var(--surface-ground);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    padding: 0.30rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    background: white;
+}
+
+.menu-list li {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+
+.menu-list .list:hover {
+  background-color: #eee;
+  border-radius: 20px;
+}
+
+.menu-list .list.active {
+  background-color: #d0ebff; 
+  font-weight: bold;
+  color:black;
+  border-radius: 20px;
+}
+
 
 .btns {
     display: flex;
@@ -172,6 +260,7 @@
 
 .btn-2 {
     border-radius: 8px;
+    background: #E9144A !important;
     background: #E9144A !important;
 }
 
@@ -203,6 +292,55 @@
     gap: 10px;
     flex-shrink: 0;
     border: none;
+    color: #FFF;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.14px;
+}
+
+.dept-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+/* Dot style */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Unique backgrounds per dept */
+.design-dept {
+  background-color: #b9f6ca; /* light green */
+  color: #004d40;
+}
+
+.dev-dept {
+  background-color: #bbdefb; /* light blue */
+  color: #0d47a1;
+}
+
+.hr-dept {
+  background-color: #ffe0b2; /* light orange */
+  color: #e65100;
+}
+
+.finance-dept {
+  background-color: #f3e5f5; /* light purple */
+  color: #6a1b9a;
+}
+
+.default-dept {
+  background-color: #e0e0e0;
+  color: #424242;
+}
     color: #FFF;
     font-size: 14px;
     font-style: normal;
