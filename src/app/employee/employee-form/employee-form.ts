@@ -19,6 +19,7 @@ import { NgModule } from '@angular/core';
 import { Checkbox } from 'primeng/checkbox';
 import { StepperModule } from 'primeng/stepper';
 import { Shifts } from '../../services/shifts/shifts';
+import { AbstractControl } from '@angular/forms';
 
 
 @Component({
@@ -126,6 +127,7 @@ export class EmployeeForm {
       probationEndDate: [''],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
+      shiftId: ['', Validators.required],
 
       emergencyContacts: this.fb.array([]),
       qualifications: this.fb.array([]),
@@ -150,7 +152,7 @@ export class EmployeeForm {
         country: ['']
       }),
 
-      shiftId: [''],
+      
       shiftDate: ['']
     });
     this.addQualification();
@@ -566,6 +568,16 @@ export class EmployeeForm {
 
     return invalidFields;
   }
+
+
+  invalid(control: AbstractControl | null): boolean {
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+
+  showError(control: AbstractControl | null): boolean {
+    return this.invalid(control);
+  }
+
 
 }
 

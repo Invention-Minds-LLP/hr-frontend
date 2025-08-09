@@ -6,7 +6,7 @@
                 <p-inputicon class="pi pi-search" />
                 <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
             </p-iconfield>
-            <div class="filter-wrapper" (click)="toggleFilterDropdown()">
+            <div class="filter" (click)="toggleFilterDropdown()">
                 <i class="pi pi-align-center"> <span class="filter">Filter</span></i>
                 <ul class="menu-list" *ngIf="showFilterDropdown">
                     <li class="list" *ngFor="let option of filterOptions"
@@ -22,7 +22,7 @@
 
 
     <div class="table">
-        <p-table class="" [value]="filteredLeaveData" [paginator]="true" [rows]="7">
+        <p-table class="" [value]="filteredLeaveData" [paginator]="true" [rows]="2">
             <ng-template #header class="table-heding">
                 <tr>
                     <th>No</th>

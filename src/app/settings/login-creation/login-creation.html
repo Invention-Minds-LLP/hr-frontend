@@ -1,0 +1,55 @@
+<div class="login-form">
+    <div class="header">
+        <div class="heading">Login Creation</div>
+    </div>
+
+    <div class="">
+        <form class="form" #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+
+            <div class="inputs">
+
+                <div>
+                    <p-floatlabel variant="on">
+                        <input pInputText id="employeeId" autocomplete="off" name="employeeId" required
+                            [(ngModel)]="login.employeeId" #employeeId="ngModel" />
+                        <label for="employeeId">Employee ID</label>
+                    </p-floatlabel>
+                    <div class="error-msg" *ngIf="showError(employeeId)"> Employee ID is required </div>
+                </div>
+
+                <div>
+                    <p-floatlabel variant="on">
+                        <p-password [toggleMask]="true" [feedback]="false" inputId="newpassword" name="newpassword"
+                            pattern="^(?=.*[A-Za-z])(?=.*\d).{6,}$" required [(ngModel)]="login.password"
+                            #password="ngModel" />
+                        <label for="newpassword">New Password</label>
+                    </p-floatlabel>
+
+                    <div class="error-msg" *ngIf="showError(password)"> New Password is required </div>
+                </div>
+
+
+                <div>
+                    <p-floatlabel variant="on">
+                        <p-password [toggleMask]="true" [feedback]="false" inputId="confirmPassword"
+                            name="confirmPassword" pattern="^(?=.*[A-Za-z])(?=.*\d).{6,}$" required
+                            [(ngModel)]="login.confirmPassword" #confirmPassword="ngModel" />
+                        <label for="confirmPassword">Confirm Password</label>
+                    </p-floatlabel>
+
+                    <div class="error-msg" *ngIf="showError(confirmPassword)"> Confirm Password is required</div>
+                    <div class="error-msg" *ngIf="confirmPasswordMismatch()">
+                        Passwords do not match
+                    </div>
+                </div>
+            </div>
+
+            <div class="btns">
+                <button pButton label="Save" type="submit" class="btn"></button>
+                <button pButton label="Clear" class="btn" type="button" severity="danger" outlined></button>
+            </div>
+
+        </form>
+    </div>
+
+</div>

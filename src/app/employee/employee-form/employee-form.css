@@ -82,6 +82,7 @@ label {
   width: 33.3333%;
   padding: 0 1rem;
   box-sizing: border-box;
+  height: 50px;
 }
 
 .field.col-5 {
@@ -215,5 +216,12 @@ div[hidden] {
   color: #767676;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.error-msg {
+  color: red;
+  font-size: 13px;
+  margin-top: 5px;
+  padding-left: 5px;
 }
 

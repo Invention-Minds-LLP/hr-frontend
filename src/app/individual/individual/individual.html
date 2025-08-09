@@ -1,0 +1,221 @@
+<div class="individual-container">
+
+    <div class="individual-top">
+        <div class="part-1">
+            <!-- Attendance-card -->
+
+            <div class="attendance-card">
+                <!-- Top Date Header -->
+                <div class="date-header">
+                    <button pButton icon="pi pi-angle-left" (click)="goToPreviousDay()" class="arrow-btn"></button>
+
+                    <div class="date-info">
+                        <div class="day-number">{{ selectedDate | date: 'dd' }}</div>
+                        <div class="day-details">
+                            <div class="day-name">{{ selectedDate | date: 'EEEE' }}</div>
+                            <div class="month-year">{{ selectedDate | date: 'MMMM yyyy' }}</div>
+                        </div>
+                    </div>
+
+                    <button pButton icon="pi pi-angle-right" class="arrow-btn" (click)="goToNextDay()"
+                        [disabled]="isToday(selectedDate)">
+                    </button>
+                </div>
+
+                <!-- Week Status -->
+                <div class="status-title">This Week Status</div>
+                <div class="week-status">
+                    <div class="days">
+                        <div class="day" *ngFor="let d of weekDays">
+                            <div class="day-label">{{ d.day }}</div>
+                            <div class="status-icon"
+                                [ngClass]="{'present': d.status === 'present','absent': d.status === 'absent','holiday': d.status === 'holiday'}">
+                                <ng-container [ngSwitch]="d.status">
+                                    <span *ngSwitchCase="'present'">&#10003;</span>
+                                    <span *ngSwitchCase="'absent'">A</span>
+                                    <span *ngSwitchCase="'holiday'">&#8211;</span>
+                                    <span *ngSwitchCase="'none'">&#9711;</span> <!-- empty circle -->
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+               <div class="action-buttons" *ngIf="selectedDate.toDateString() === today.toDateString()">
+                    <button pButton label="Log In" class="login-btn"></button>
+                    <button pButton label="Log Out" class="logout-btn"></button>
+                </div>
+            </div>
+
+
+            <!-- Working-Card -->
+
+            <div class="working-hours">
+                <div class="working-card">
+                    <div class="header">
+                        <div class="title">
+                            <h3>Working Hours</h3>
+                            <div class="">
+                                <span class="shift">{{ shiftName }}</span>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <button pButton icon="pi pi-chevron-left" (click)="previousWeek()"
+                                class="p-button-text"></button>
+                            <p>{{ weekStart | date:'dd MMM yyyy' }} - {{ weekEnd | date:'dd MMM yyyy' }}</p>
+                            <button pButton icon="pi pi-chevron-right" (click)="nextWeek()" class="p-button-text"
+                                [disabled]="isCurrentWeek()">
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="attendance-list">
+                        <div *ngFor="let day of attendanceData" class="attendance-row">
+                            <div class="day">{{ day.dayName }}</div>
+                            <ng-container [ngSwitch]="day.status">
+                                <div class="time" *ngSwitchCase="'Present'">
+                                    {{ day.totalHours }}
+                                </div>
+                                <div class="status leave" *ngSwitchCase="'Leave'">Leave</div>
+                                <div class="status off" *ngSwitchCase="'Day Off'">Day Off</div>
+                                <div class="status empty" *ngSwitchCase="'Empty'"></div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+        <div class="part-2">
+            <div class="box-1 box"></div>
+            <div class="box-2 box"></div>
+            <div class="box-3 box"></div>
+            <div class="box-4 box"></div>
+
+        </div>
+    </div>
+
+
+
+    <div class="individual-bottom">
+        <!-- Leave -->
+        <div class="leave">
+            <div>
+                <div class="header-part">
+                    <div class="main-heading">Leaves</div>
+                    <div class="new-form">
+                        <div class="text">New Form</div>
+                        <div><i class="pi pi-plus"></i></div>
+                    </div>
+                </div>
+
+                <div class="table">
+                    <p-table [value]="leave">
+                        <ng-template #header>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-leave>
+                            <tr>
+                                <td>
+                                    <div class="date date-btn style">
+                                        <span class="">{{ leave.date }}</span>
+                                        <i class="pi pi-chevron-down"></i>
+                                    </div>
+                                </td>
+                                <td><span class="status style" [ngClass]="getStatusClass(leave.status)">{{
+                                        leave.status }}</span></td>
+                                <td><span class="btn style">See details</span></td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+
+            <div class="border"></div>
+        </div>
+
+        <!--permission  -->
+        <div class="permission">
+            <div>
+                <div class="header-part">
+                    <div class="main-heading">Permission</div>
+                    <div class="new-form">
+                        <div class="text">New Form</div>
+                        <div><i class="pi pi-plus"></i></div>
+                    </div>
+                </div>
+
+                <div class="table">
+                    <p-table [value]="permission">
+                        <ng-template #header>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-permission>
+                            <tr>
+                                <td>
+                                    <div class="date date-btn style">
+                                        <span class="">{{ permission.date }}</span>
+                                        <i class="pi pi-chevron-down"></i>
+                                    </div>
+                                </td>
+                                <td><span class="status style" [ngClass]="getStatusClass(permission.status)">{{
+                                        permission.status }}</span></td>
+                                <td><span class="btn style">See details</span></td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+            <div class="border"></div>
+        </div>
+
+        <!-- Work From Home -->
+        <div class="wfh">
+            <div>
+                <div class="header-part">
+                    <div class="main-heading">Work Form Home</div>
+                    <div class="new-form">
+                        <div class="text">New Form</div>
+                        <div><i class="pi pi-plus"></i></div>
+                    </div>
+                </div>
+
+                <div class="table">
+                    <p-table [value]="wfh">
+                        <ng-template #header>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-wfh>
+                            <tr>
+                                <td>
+                                    <div class="date date-btn style">
+                                        <span class="">{{ wfh.date }}</span>
+                                        <i class="pi pi-chevron-down"></i>
+                                    </div>
+                                </td>
+                                <td><span class="status style" [ngClass]="getStatusClass(wfh.status)">{{
+                                        wfh.status }}</span></td>
+                                <td><span class="btn style">See details</span></td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
