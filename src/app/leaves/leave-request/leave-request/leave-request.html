@@ -26,47 +26,44 @@
             <ng-template #header class="table-heding">
                 <tr>
                     <th>No</th>
-                    <th>Emp ID</th>
-                    <th>No</th>
-                    <th>Emp ID</th>
                     <th>Employee Name</th>
+                    <th>Emp ID</th>
                     <th>Department</th>
                     <th>Job Title</th>
                     <th>Leave Type</th>
-                    <th>No. Of Days</th>
+                    <th>Leave Dates</th>
                     <th>Reason</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-leaveData let-rowIndex="rowIndex" >
+            <ng-template #body let-leaveData let-rowIndex="rowIndex">
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ leaveData.empId }}</td>
-                    <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ leaveData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
                             <div class="name">{{ leaveData.empName }}</div>
                             <span class="email">{{leaveData.email}}</span>
-                            <div class="name">{{ leaveData.empName }}</div>
-                            <span class="email">{{leaveData.email}}</span>
                         </div>
                     </td>
-                    <td><span class="status-color">
-                            <span class="dept-badge" [ngClass]="getDeptClass(leaveData.department)">
-                                <span class="dot"
-                                    [ngStyle]="{ backgroundColor: getDotColor(leaveData.department) }"></span>
-                                {{ leaveData.department }}
+                    <td class="t-data al">{{ leaveData.empId }}</td>
+                    <td class="t-data al">
+                        <span class="dept-badge"
+                            [ngStyle]="{ backgroundColor: getDepartmentColors(leaveData.department).badgeColor }">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(leaveData.department).dotColor }">
                             </span>
+                            {{ getDepartmentName(leaveData.department) }}
                         </span>
+                    </td>
 
                     <td class="t-data">{{ leaveData.jobTitle }}</td>
                     <td class="t-data">{{ leaveData.leaveType }}</td>
                     <td>
-                        <p-datepicker [(ngModel)]="availableDates" [selectionMode]="'multiple'" [minDate]="minDate" [maxDate]="maxDate"
-                            [disabledDates]="disabledDates" inputId="datePicker" [showIcon]="true" [touchUI]="true"
-                            placeholder="Select a Date">
+                        <p-datepicker [(ngModel)]="availableDates" [selectionMode]="'multiple'" [minDate]="minDate"
+                            [maxDate]="maxDate" [disabledDates]="disabledDates" inputId="datePicker" [showIcon]="true"
+                            [touchUI]="true" placeholder="Select a Date">
                         </p-datepicker>
 
 
@@ -76,17 +73,16 @@
                             {{ leaveData.reson | slice:0:20 }}<span *ngIf="leaveData.reson.length > 20">...</span>
                         </span>
                     </td>
+                    <td class="t-data">
+                        {{leaveData.status || '-'}}
+                    </td>
                     <td>
                         <div class="btns">
-                            <button class="btn-1 btn">Accept</button>
-                            <button class="btn-2 btn">Decline</button>
-                            <button class="btn-3">Leave Details</button>
-                        </div>
-                    <td>
-                        <div class="btns">
-                            <button class="btn-1 btn">Accept</button>
-                            <button class="btn-2 btn">Decline</button>
-                            <button class="btn-3">Leave Details</button>
+                            <button class="btn-1 btn" (click)="acceptLeave(leaveData.id)">Accept</button>
+                            <button class="btn-2 btn" (click)="openDeclineDialog(leaveData.id)">
+                                Decline
+                            </button>
+                            <button class="btn-3" (click)="openLeaveDetails(leaveData)">Leave Details</button>
                         </div>
                     </td>
 
@@ -95,4 +91,117 @@
         </p-table>
 
     </div>
+</div>
+
+<!-- Decline Reason Popup -->
+<div class="custom-popup" *ngIf="declineDialogVisible">
+    <div class="popup-content">
+        <h3>Leave Request Decline Reason</h3>
+        <hr>
+        <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+        <div class="popup-actions">
+            <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+            <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- top badges -->
+<div class="leave-dashboard-popup" *ngIf="showLeaveDetailsPopup">
+<div class="leave-dashboard-container">
+    <div class="badges">
+        <div class="badge">
+            <div class="big green">{{ dashboard?.remaining ?? 0 | number:'2.0' }}</div>
+            <div class="label">Leave Available</div>
+        </div>
+        <div class="badge">
+            <div class="big red">{{ dashboard?.takenYtd ?? 0 | number:'2.0' }}</div>
+            <div class="label">Leaves Taken</div>
+        </div>
+        <div class="badge">
+            <div class="big amber">{{ dashboard?.takenThisMonth ?? 0 | number:'2.0' }}</div>
+            <div class="label">This Month</div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="left-form">
+            <app-leave-popup [showPopup]="true" [leaveData]="selectedLeaveForView" [isViewOnly]="true" [hasBackdrop]="false"
+                (close)="showLeaveDetailsPopup = false">
+            </app-leave-popup>
+        </div>
+
+        <!-- right side: who’s on leave today -->
+          <aside class="who-panel">
+            <div class="who-title"><i class="pi pi-users"></i> Who’s on Leave</div>
+
+            <hr/>
+          
+            <!-- Today -->
+            <div class="who-section">
+              <div class="section-title">Today</div>
+              <ng-container *ngIf="buckets.today.length; else emptyToday">
+                <div class="who-item" *ngFor="let p of visible(buckets.today,'today')">
+                  <img [src]="'/img.png'" alt="" />
+                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
+                </div>
+          
+                <button
+                  *ngIf="moreCount(buckets.today) > 0"
+                  class="more-btn"
+                  (click)="toggle('today')">
+                  <ng-container *ngIf="!expanded.today">+{{ moreCount(buckets.today) }} more</ng-container>
+                  <ng-container *ngIf="expanded.today">show less</ng-container>
+                  <i class="pi" [ngClass]="expanded.today ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                </button>
+              </ng-container>
+              <ng-template #emptyToday><div class="muted">—</div></ng-template>
+            </div>
+          
+            <!-- This week -->
+            <div class="who-section">
+              <div class="section-title">This week</div>
+              <ng-container *ngIf="buckets.thisWeek.length; else emptyWeek">
+                <div class="who-item" *ngFor="let p of visible(buckets.thisWeek,'thisWeek')">
+                  <img [src]="'/img.png'" alt="" />
+                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
+                </div>
+          
+                <button
+                  *ngIf="moreCount(buckets.thisWeek) > 0"
+                  class="more-btn"
+                  (click)="toggle('thisWeek')">
+                  <ng-container *ngIf="!expanded.thisWeek">+{{ moreCount(buckets.thisWeek) }} more</ng-container>
+                  <ng-container *ngIf="expanded.thisWeek">show less</ng-container>
+                  <i class="pi" [ngClass]="expanded.thisWeek ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                </button>
+              </ng-container>
+              <ng-template #emptyWeek><div class="muted">—</div></ng-template>
+            </div>
+          
+            <!-- Next month -->
+            <div class="who-section">
+              <div class="section-title">Next Month</div>
+              <ng-container *ngIf="buckets.nextMonth.length; else emptyNext">
+                <div class="who-item" *ngFor="let p of visible(buckets.nextMonth,'nextMonth')">
+                  <img [src]="'/img.png'" alt="" />
+                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
+                </div>
+          
+                <button
+                  *ngIf="moreCount(buckets.nextMonth) > 0"
+                  class="more-btn"
+                  (click)="toggle('nextMonth')">
+                  <ng-container *ngIf="!expanded.nextMonth">+{{ moreCount(buckets.nextMonth) }} more</ng-container>
+                  <ng-container *ngIf="expanded.nextMonth">show less</ng-container>
+                  <i class="pi" [ngClass]="expanded.nextMonth ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                </button>
+              </ng-container>
+              <ng-template #emptyNext><div class="muted">—</div></ng-template>
+            </div>
+          </aside>
+          
+    </div>
+</div>
 </div>

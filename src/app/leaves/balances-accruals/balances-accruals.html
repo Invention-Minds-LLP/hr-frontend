@@ -17,7 +17,7 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="filterBalancesData" [paginator]="true" [rows]="10" class="custom-table">
+        <p-table class="" [value]="balancesData" [paginator]="true" [rows]="10" class="custom-table">
             <ng-template #header>
                 <tr>
                     <th>No</th>
@@ -28,6 +28,7 @@
                     <th>Job Title</th>
                     <th>Shift Type</th>
                     <th>Total Leave Taken</th>
+                    <th>Total WFH Taken</th>
                     <th>Total Perm. Taken</th>
                     <th>Action</th>
                 </tr>
@@ -35,29 +36,32 @@
             <ng-template #body let-balancesData let-rowIndex="rowIndex" class="t-body">
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ balancesData.empId }}</td>
+                    <td class="t-data al">{{ balancesData.employeeCode }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
-                            <div class="name">{{ balancesData.empName }}</div>
+                            <div class="name">{{ balancesData.name }}</div>
                             <span class="email">{{balancesData.email}}</span>
                         </div>
                     </td>
-                    <td class="t-data al">{{ balancesData.number }}</td>
+                    <td class="t-data al">{{ balancesData.phone  }}</td>
                     <td class="t-data al">
-                        <span class="dept-badge" [ngClass]="getDeptClass(balancesData.department)">
+                        <span class="dept-badge"
+                            [ngStyle]="{ backgroundColor: getDepartmentColors(balancesData.department).badgeColor }">
                             <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDotColor(balancesData.department) }"></span>
-                            {{ balancesData.department }}
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(balancesData.department).dotColor }">
+                            </span>
+                            {{ getDepartmentName(balancesData.department) }}
                         </span>
                     </td>
-                    <td class="t-data al">{{ balancesData.jobTitle }}</td>
+                    <td class="t-data al">{{ balancesData.designation  }}</td>
                     <td class="t-data al">{{ balancesData.shiftType }}</td>
-                    <td class="t-data al">{{ balancesData.totalLeave }}</td>
-                    <td class="t-data al">{{ balancesData.totlePerm }}</td>
+                    <td class="t-data al">{{ balancesData.totalLeaveDays  }}</td>
+                    <td class="t-data al">{{ balancesData.totalWFHDays  }}</td>
+                    <td class="t-data al">{{balancesData.totalPermissionHours }}</td>
 
                     <td>
-                        <button class="btn">See Details</button>
+                        <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
                     </td>
 
                 </tr>
@@ -66,3 +70,7 @@
 
     </div>
 </div>
+
+<div *ngIf="selectedEmployee" class="modal-overlay">
+    <app-employee-details [employee]="selectedEmployee"></app-employee-details>
+  </div>

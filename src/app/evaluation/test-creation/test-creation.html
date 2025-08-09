@@ -1,0 +1,40 @@
+<div class="test-creator">
+    <h3>Create Evaluation Test</h3>
+  
+    <div class="form-row">
+      <label>Test Name:</label>
+      <input type="text" [(ngModel)]="formData.name" />
+    </div>
+  
+    <div class="form-row">
+      <label>Question Bank:</label>
+      <select [(ngModel)]="formData.questionBankId">
+        <option [ngValue]="0">Select a Bank</option>
+        <option *ngFor="let bank of questionBanks" [ngValue]="bank.id">
+          {{ bank.name }}
+        </option>
+      </select>
+    </div>
+  
+    <div class="form-row">
+      <label>Duration (minutes):</label>
+      <input type="number" [(ngModel)]="formData.duration" min="1" />
+    </div>
+  
+    <div class="form-row">
+      <label>Passing Percentage:</label>
+      <input type="number" [(ngModel)]="formData.passingPercent" min="0" max="100" />
+    </div>
+  
+    <div class="form-row">
+      <label>Max Attempts:</label>
+      <input type="number" [(ngModel)]="formData.maxAttempts" min="1" />
+    </div>
+  
+    <div class="form-actions">
+      <button class="btn-green" (click)="submit()">Create Test</button>
+    </div>
+  
+    <p *ngIf="message">{{ message }}</p>
+  </div>
+  

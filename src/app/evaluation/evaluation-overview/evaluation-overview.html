@@ -1,0 +1,19 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <ul>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Question Bank</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'test' }" (click)="show('test')">Test Creation</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'assigned' }" (click)="show('assigned')">Assigned Tests</li>
+    </ul>
+</nav>
+<div>
+    <hr>
+</div>
+
+
+<div>
+    <app-question-bank *ngIf="active === 'form'"></app-question-bank>
+    <app-all-test *ngIf="active === 'test'"></app-all-test>
+    <app-assigned-test *ngIf="active === 'assigned'"></app-assigned-test>
+    <app-test-creation></app-test-creation>
+</div>

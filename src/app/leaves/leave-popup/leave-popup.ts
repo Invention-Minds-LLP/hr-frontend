@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Leaves } from '../../services/leaves/leaves';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { from } from 'rxjs';
 
 interface CalendarDay {
   date: Date;
@@ -20,9 +21,18 @@ interface CalendarDay {
 export class LeavePopup {
 
 
-  constructor(private leaveService: Leaves){}
+  constructor(private leaveService: Leaves) { }
 
   @Input() showPopup = true;
+  @Input() leaveData: any = null;     // Data passed when opening popup
+  @Input() isViewOnly: boolean = false; // Controls editability
+  @Output() close = new EventEmitter<void>();
+  @Input() hasBackdrop = true;
+  closePopup() {
+    this.close.emit();
+  }
+
+
 
   monthsList = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -35,7 +45,7 @@ export class LeavePopup {
 
   days = 0;
 
-  leaveTypes:any[] = [];
+  leaveTypes: any[] = [];
   leaveType = '';
 
   calendarDays: CalendarDay[] = [];
@@ -68,7 +78,11 @@ export class LeavePopup {
   }
 
   ngOnInit(): void {
-    this.initializeDefaults();
+    if (this.leaveData) {
+      this.populateFromLeaveData(this.leaveData);
+    } else {
+      this.initializeDefaults();
+    }
     this.populateYears();
     this.generateCalendar();
     this.calculateDays();
@@ -76,7 +90,19 @@ export class LeavePopup {
       this.leaveTypes = types;
     });
   }
+  populateFromLeaveData(data: any) {
+    this.fromDate = new Date(data.startDate);
+    this.toDate = new Date(data.endDate);
+    this.currentMonthIndex = this.fromDate.getMonth();
+    this.currentYear = this.fromDate.getFullYear();
+    this.syncDropdownsFromDates();
+    this.leaveType = data.leaveType;
+    this.reason = data.reason;
+    this.calculateDays();
 
+    // Disable dragging in calendar for view-only
+    this.isDragging = false;
+  }
   initializeDefaults() {
     const today = new Date();
     this.fromDate = today;
@@ -252,7 +278,7 @@ export class LeavePopup {
         console.error('Error applying leave:', err);
         alert('Failed to apply leave. Please try again.');
       }
-    });  
+    });
   }
 
   resetForm() {

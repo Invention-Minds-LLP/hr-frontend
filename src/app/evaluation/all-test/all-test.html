@@ -1,0 +1,21 @@
+<h3>🧪 All Created Tests</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Duration</th>
+      <th>Passing %</th>
+      <th>Max Attempts</th>
+      <th>Question Bank ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let test of tests">
+      <td>{{ test.name }}</td>
+      <td>{{ test.duration }} min</td>
+      <td>{{ test.passingPercent }}%</td>
+      <td>{{ test.maxAttempts }}</td>
+      <td>{{ test.questionBankId }}</td>
+    </tr>
+  </tbody>
+</table>

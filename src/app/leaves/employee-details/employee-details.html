@@ -1,0 +1,207 @@
+<!-- EMPLOYEE DETAILS MODAL -->
+<div class="overlay">
+    <div class="sheet">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="left">
+                <img class="avatar" src="/img.png" alt="Avatar" />
+                <div class="ident">
+                    <h2 class="name">{{ employee.name }}</h2>
+                    <p class="email">{{ employee.email }}</p>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="meta">
+                    <div class="row">
+                        <div class="cell">
+                            <div class="label">Department :</div>
+                            <div class="value">
+                                <span class="dept-badge"
+                                    [ngStyle]="{ backgroundColor: getDepartmentColors(employee.department).badgeColor }">
+                                    <span class="dot"
+                                        [ngStyle]="{ backgroundColor: getDepartmentColors(employee.department).dotColor }">
+                                    </span>
+                                    {{ getDepartmentName(employee.department) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <div class="label">Employee Type :</div>
+                            <div class="value">{{employee.employmentType}}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="cell">
+                            <div class="label">Job Title :</div>
+                            <div class="value">{{ employee.designation }}</div>
+                        </div>
+                        <div class="cell">
+                            <div class="label">Shift Type :</div>
+                            <div class="value">{{ employee.shiftType }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stats">
+                <div class="stat stat--red">
+                    <div class="big"><span class="num">{{ totalLeave | number:'2.0'}}</span><span class="denom">/{{ entitlements?.leaveEntitlement || 0 }}</span></div>
+                    <div class="caption">Leaves Taken</div>
+                </div>
+                <div class="stat stat--purple">
+                    <div class="big"><span class="num">{{ totalWFH | number:'2.0' }}</span><span class="denom">/{{ entitlements?.wfhEntitlement || 0 }}</span></div>
+                    <div class="caption">Work From Home</div>
+                </div>
+                <div class="stat stat--gray">
+                    <div class="big"><span class="num">{{ getTotalPermissionHours() | number:'2.0'}}</span><span
+                            class="denom">/{{ entitlements?.permissionEntitlement || 0 }}</span>
+                    </div>
+                    <div class="caption">Perm. Hours Taken</div>
+                </div>
+            </div>
+            <div class="toolbar">
+                <p-datePicker [(ngModel)]="selectedDates" [selectionMode]="'multiple'" [showIcon]="true"
+                    [showButtonBar]="true" [panelStyle]="{minWidth:'320px'}" inputId="filterDates"
+                    placeholder="Select date(s)" (onSelect)="applyFilters()">
+                </p-datePicker>
+
+                <button class="iconbtn" type="button" (click)="clearFilters()" title="Clear">
+                    <i class="pi pi-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="grid">
+            <!-- Leave -->
+            <div>
+                <div class="panel">
+                    <h4 class="panel-title">Leave Details</h4>
+                    <div class="table-scroll table-scroll--4">
+                        <table class="bordered-table">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Dates</th>
+                                    <th>Days</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let leave of filtered.leave; let i = index">
+                                    <td>{{ (i+1) | number:'2.0' }}</td>
+                                    <td>{{ leave.startDate | date:'dd/MM/yyyy' }}<ng-container *ngIf="leave.endDate">
+                                            to {{ leave.endDate | date:'dd/MM/yyyy' }}</ng-container></td>
+                                    <td>{{ getDurationDays(leave.startDate, leave.endDate) | number:'2.0' }}</td>
+                                    <td><button class="btn-pill" (click)="openLeaveDetails(leave)">See Details</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h4 class="panel-title">Accruals (YTD)</h4>
+                    <div class="table-scroll table-scroll--4">
+                        <table class="bordered-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Entitlement</th>
+                                    <th>Accrued to Date</th>
+                                    <th>Used</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let r of accruals">
+                                    <td>{{ r.category }}</td>
+                                    <td>{{ r.entitlement }}</td>
+                                    <td>{{ r.accruedToDate }}</td>
+                                    <td>{{ r.used }}</td>
+                                    <td>{{ r.balance }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <!-- Permission -->
+                <div class="panel">
+                    <h4 class="panel-title">Permission Hours Taken</h4>
+                    <div class="table-scroll table-scroll--4">
+                        <table class="bordered-table">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Dates</th>
+                                    <th>Hours</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let perm of filtered.permission; let i = index">
+                                    <td>{{ (i+1) | number:'2.0' }}</td>
+                                    <td>{{ perm.day | date:'dd/MM/yyyy' }}</td>
+                                    <td>{{ getPermissionHours(perm) | number:'2.0' }}</td>
+                                    <td><button class="btn-pill" (click)="openDetailsPopup(perm)">See Details</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- WFH -->
+                <div class="panel">
+                    <h4 class="panel-title">Work Form Home Details</h4>
+                    <div class="tablewrap">
+                        <div class="table-scroll table-scroll--4">
+                            <table class="bordered-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Dates</th>
+                                        <th>Days</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let wfh of filtered.wfh; let i = index">
+                                        <td>{{ (i+1) | number:'2.0' }}</td>
+                                        <td>{{ wfh.startDate | date:'dd/MM/yyyy' }} to {{ wfh.endDate |
+                                            date:'dd/MM/yyyy' }}</td>
+                                        <td>{{ getDurationDays(wfh.startDate, wfh.endDate) | number:'2.0' }}</td>
+                                        <td><button class="btn-pill" (click)="openWFHDetails(wfh)">See Details</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <app-leave-popup *ngIf="showLeaveDetailsPopup" [showPopup]="true" [leaveData]="selectedLeaveForView"
+        [isViewOnly]="true" (close)="showLeaveDetailsPopup = false">
+    </app-leave-popup>
+
+    <app-permission-popup *ngIf="showPermissionPopup" [showPopup]="true" [permissionData]="selectedPermission"
+        [isViewOnly]="true" (close)="showPermissionPopup=false">
+    </app-permission-popup>
+
+
+    <app-wfh-popup *ngIf="showWFHPopup" [showPopup]="true" [wfhData]="selectedWFH" [isViewOnly]="true"
+        (close)="showWFHPopup=false">
+    </app-wfh-popup>

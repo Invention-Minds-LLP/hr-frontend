@@ -11,32 +11,25 @@ import { formatDate } from '@angular/common';
 import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { TooltipModule } from 'primeng/tooltip';
+import { Leaves } from '../../../services/leaves/leaves';
+import { Departments } from '../../../services/departments/departments';
+import { LeavePopup } from '../../leave-popup/leave-popup';
 
+export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
-
-
-interface leaveTable {
-  empId: string;
-  empName: string;
-  department: string;
-  jobTitle: string;
-  leaveType: string;
-  reson: string;
-  noOfDays: Date[];
-  email: string;
-  [key: string]: any;
-}
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, DatePicker, TooltipModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, DatePicker, TooltipModule, LeavePopup],
   templateUrl: './leave-request.html',
   styleUrl: './leave-request.css'
 })
+
 export class LeaveRequest {
   filteredLeaveData: any[] = [];
   selectedFilter: any = null;
-  showFilterDropdown: boolean = false
+  showFilterDropdown: boolean = false;
+  departments: any[] = [];
   filterOptions = [
     { label: 'Employee ID', value: 'empId' },
     { label: 'Name', value: 'name' },
@@ -44,44 +37,69 @@ export class LeaveRequest {
     { label: 'Leave Type', value: 'leaveType' },
   ];
 
-  leaveData: leaveTable[] = [
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Muni', department: 'HR', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Development', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Muni', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Sick Leave', reson: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-    {
-      empId: 'IM003', empName: 'Govindaraj', department: 'Design', jobTitle: 'UI/UX Designer', leaveType: 'Casual Leave', reson: 'Personal I don’t w...', noOfDays: [], email: 'govindaraj@gmail.com'
-    },
-  ]
+  leaveData: any[] = [];
+  currentUserId = 1; // Example, replace with actual logged-in user ID
+  declineDialogVisible: boolean = false;  // Controls the dialog visibility
+  declineReason: string = '';             // Stores the decline reason input
+  currentDeclineId: number | null = null; // Stores the leave ID being declined
+  showLeaveDetailsPopup: boolean = false;
+  selectedLeaveForView: any = null;
+  dashboard?: any;
+  buckets: { today: any[]; thisWeek: any[]; nextMonth: any[] } = {
+    today: [], thisWeek: [], nextMonth: []
+  };
 
 
+  expanded: Record<BucketKey, boolean> = {
+    today: false,
+    thisWeek: false,
+    nextMonth: false,
+  };
+  
+
+
+
+
+
+  constructor(private leaveService: Leaves, private departmentService: Departments) { }
 
 
   ngOnInit() {
     this.leaveData = [...this.leaveData];
     this.filteredLeaveData = [...this.leaveData];
+    this.loadLeaves();
     this.buildDisabledDates();
+
+    this.departmentService.getDepartments().subscribe(data => this.departments = data);
   }
+
+  loadLeaves() {
+    this.leaveService.getLeaves().subscribe({
+      next: (data) => {
+        this.leaveData = data.map((leave: any, index: number) => ({
+          no: index + 1,
+          id: leave.id,
+          empId: leave.employee?.employeeCode,
+          empName: `${leave.employee?.firstName} ${leave.employee?.lastName}`,
+          email: leave.employee?.email || '',
+          department: leave.employee?.departmentId || '',
+          jobTitle: leave.employee?.designation || '',
+          leaveType: leave.leaveType?.name,
+          reson: leave.reason,
+          startDate: leave.startDate,
+          endDate: leave.endDate,
+          status: leave.status,
+          empID: leave.employee.id
+        }));
+        this.filteredLeaveData = [...this.leaveData];
+      },
+      error: (err) => {
+        console.error('Error fetching leaves:', err);
+      }
+    });
+  }
+
+
 
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -92,9 +110,9 @@ export class LeaveRequest {
       return;
     }
 
-    const filterKey = this.selectedFilter?.value as keyof leaveTable;
+    const filterKey = this.selectedFilter?.value as keyof any;
 
-    this.filteredLeaveData = this.leaveData.filter((leave: leaveTable) => {
+    this.filteredLeaveData = this.leaveData.filter((leave: any) => {
       if (filterKey === 'name') {
         return leave.empName?.toLowerCase().includes(searchText);
       }
@@ -145,48 +163,72 @@ export class LeaveRequest {
     }
   }
 
+  getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
 
-
-
-
-
-
-
-
-
-  getDeptClass(department: string): string {
-    switch (department) {
-      case 'Design':
-        return 'design-dept';
-      case 'Development':
-        return 'dev-dept';
-      case 'HR':
-        return 'hr-dept';
-      case 'Finance':
-        return 'finance-dept';
-      default:
-        return 'default-dept';
-    }
+    return { badgeColor, dotColor };
   }
 
-  getDotColor(department: string): string {
-    switch (department) {
-      case 'Design':
-        return '#00c853'; // green
-      case 'Development':
-        return '#2962ff'; // blue
-      case 'HR':
-        return '#ff6d00'; // orange
-      case 'Finance':
-        return '#d500f9'; // purple
-      default:
-        return '#9e9e9e'; // gray
-    }
+  getDepartmentName(id: number): string {
+    return this.departments.find(dep => dep.id === id)?.name || 'N/A';
+  }
+  acceptLeave(id: number) {
+    this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId).subscribe({
+      next: () => this.loadLeaves(),
+      error: (err) => console.error('Error approving leave:', err)
+    });
+  }
+  openDeclineDialog(id: number) {
+    this.currentDeclineId = id;
+    this.declineDialogVisible = true;
   }
 
+  confirmDecline() {
+    if (!this.declineReason.trim()) return;
 
+    this.leaveService.updateLeaveStatus(
+      this.currentDeclineId!,
+      'Declined',
+      this.currentUserId,
+      this.declineReason
+    ).subscribe({
+      next: () => {
+        this.declineDialogVisible = false;
+        this.declineReason = '';
+        this.currentDeclineId = null;
+        this.loadLeaves();
+      },
+      error: (err) => console.error('Error declining leave:', err)
+    });
+  }
+  closeDeclineDialog() {
+    this.declineDialogVisible = false;
+    this.declineReason = '';
+    this.currentDeclineId = null;
+  }
+  openLeaveDetails(leave: any) {
+    this.selectedLeaveForView = {
+      ...leave,
+      startDate: leave.startDate, // Ensure these fields exist from backend
+      endDate: leave.endDate,
+      leaveType: leave.leaveType,
+      reason: leave.reson
+    };
+    this.leaveService.getDashboard(leave.empID).subscribe(d => this.dashboard = d);
 
-
-
-
+    this.leaveService.getWhoIsOnLeaveToday().subscribe(b => this.buckets = b);
+    this.showLeaveDetailsPopup = true;
+  }
+  visible(list: any[], key: BucketKey) {
+    return this.expanded[key] ? list : list.slice(0, 2);
+  }
+  moreCount(list: any[]) {
+    return Math.max(0, list.length - 2);
+  }
+  toggle(key: BucketKey) {
+    this.expanded[key] = !this.expanded[key];
+  }
+  
 }

@@ -25,4 +25,19 @@ export class Leaves {
   createLeaveType(name: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/types`, { name });
   }
+
+  updateLeaveStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/status`, { status, declineReason, userId });
+  }
+
+  getDashboard(employeeId: number, date = new Date()): Observable<any> {
+    const d = date.toISOString().slice(0, 10);
+    return this.http.get<any>(`${this.apiUrl}/${employeeId}/dashboard?date=${d}`);
+  }
+
+  getWhoIsOnLeaveToday(date = new Date()) {
+    const d = date.toISOString().slice(0, 10);
+    return this.http.get<{today: any[]; thisWeek: any[]; nextMonth: any[]}>(`${this.apiUrl}/leave-today?date=${d}`);
+  }
+  
 }

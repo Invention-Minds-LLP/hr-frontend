@@ -1,0 +1,29 @@
+<h2>My Assigned Tests</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Test Name</th>
+      <th>Duration</th>
+      <th>Status</th>
+      <th>Assigned On</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let t of tests">
+      <td>{{ t.test.name }}</td>
+      <td>{{ t.test.duration }} min</td>
+      <td>{{ t.status }}</td>
+      <td>{{ t.assignedAt | date:'short' }}</td>
+      <td>
+        <button 
+        (click)="startTest(t.id)"
+      >
+        Start Test
+      </button>
+      <span *ngIf="!t.canStart" class="disabled-msg">Max attempts reached</span>
+      
+      </td>
+    </tr>
+  </tbody>
+</table>

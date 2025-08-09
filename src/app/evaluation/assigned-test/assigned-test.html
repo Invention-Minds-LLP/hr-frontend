@@ -1,0 +1,21 @@
+<h3>👥 Assigned Tests to Employees</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Test</th>
+      <th>Status</th>
+      <th>Attempts</th>
+      <th>Assigned At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let a of assignedTests">
+      <td>{{ a.employee?.firstName }} {{ a.employee?.lastName }}</td>
+      <td>{{ a.test?.name }}</td>
+      <td>{{ a.status }}</td>
+      <td>{{ a.attempts }}</td>
+      <td>{{ a.assignedAt | date: 'short' }}</td>
+    </tr>
+  </tbody>
+</table>

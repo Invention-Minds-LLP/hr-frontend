@@ -6,8 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { label } from '@primeuix/themes/aura/metergroup';
-import { value } from '@primeuix/themes/aura/knob';
+import { Departments } from '../../services/departments/departments';
+import { Entitles } from '../../services/entitles/entitles';
+import { EmployeeDetails } from "../employee-details/employee-details";
 
 interface balancesTable {
   empName: string;
@@ -24,16 +25,20 @@ interface balancesTable {
 
 @Component({
   selector: 'app-balances-accruals',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, EmployeeDetails],
   templateUrl: './balances-accruals.html',
   styleUrl: './balances-accruals.css'
 })
 export class BalancesAccruals {
 
+  constructor(private entitleService: Entitles, private departmentService: Departments){}
+
   filterBalancesData: any[] = [];
   selectedFilter: any = null;
   filterDropdown: boolean = false;
-
+  selectedEmployee:any = null;
+  requests: any = null;
+  departments: any[] = [];
   filterOption = [
     { label: 'Employee ID', value: 'empId' },
     { label: 'Name', value: 'name' },
@@ -47,8 +52,11 @@ export class BalancesAccruals {
 
 
   ngOnInit() {
-    this.balancesData = [...this.balancesData];
+    this.entitleService.getEmployeeUsageSummary().subscribe((data) => {
+      this.balancesData = data;
+    });
     this.filterBalancesData = [...this.balancesData];
+    this.departmentService.getDepartments().subscribe(data => this.departments = data);
   }
 
   onSearch(event: Event) {
@@ -88,38 +96,25 @@ export class BalancesAccruals {
   }
 
 
-  getDeptClass(department: string): string {
-    switch (department) {
-      case 'Design':
-        return 'design-dept';
-      case 'Development':
-        return 'dev-dept';
-      case 'HR':
-        return 'hr-dept';
-      case 'Finance':
-        return 'finance-dept';
-      default:
-        return 'default-dept';
-    }
+  getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
   }
 
-  getDotColor(department: string): string {
-    switch (department) {
-      case 'Design':
-        return '#00c853'; // green
-      case 'Development':
-        return '#2962ff'; // blue
-      case 'HR':
-        return '#ff6d00'; // orange
-      case 'Finance':
-        return '#d500f9'; // purple
-      default:
-        return '#9e9e9e'; // gray
-    }
+  getDepartmentName(id: number): string {
+    return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
+  showEmployeeDetails(employee: any) {
+    this.selectedEmployee = employee;
+  }
+  
 
-
-
-
+  closeDetails(): void {
+    this.selectedEmployee = null;
+    this.requests = null;
+  }
 }
 

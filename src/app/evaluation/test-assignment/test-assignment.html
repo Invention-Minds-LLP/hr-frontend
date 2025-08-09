@@ -1,0 +1,28 @@
+<div class="assign-test">
+    <h3>Assign Evaluation Test to Employees</h3>
+  
+    <div class="form-row">
+      <label>Select Test:</label>
+      <select [(ngModel)]="selectedTestId">
+        <option value="0">-- Select Test --</option>
+        <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
+      </select>
+    </div>
+  
+    <div class="form-row">
+      <label>Select Employees:</label>
+      <div class="employee-list">
+        <label *ngFor="let e of employees" class="emp-item">
+          <input type="checkbox" [value]="e.id" (change)="toggleSelection(e.id)" [checked]="selectedEmployeeIds.includes(e.id)" />
+          {{ e.firstName }} {{ e.lastName }}
+        </label>
+      </div>
+    </div>
+  
+    <div class="form-actions">
+      <button (click)="assign()" class="btn-green">Assign Test</button>
+    </div>
+  
+    <p *ngIf="message" class="message">{{ message }}</p>
+  </div>
+  

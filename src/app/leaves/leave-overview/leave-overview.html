@@ -2,7 +2,9 @@
 <nav class="sub-nav">
     <ul>
         <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Leave Request</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">WFH Request</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'wfh' }" (click)="show('wfh')">WFH Request</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'permission' }" (click)="show('permission')">Permission Request</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'balances' }" (click)="show('balances')">Balances & Accruals</li>
     </ul>
 </nav>
 <div>
@@ -12,4 +14,7 @@
 
 <div>
 <app-leave-request *ngIf="active === 'list'"></app-leave-request>
+<app-work-from-home *ngIf="active === 'wfh'"></app-work-from-home>
+<app-permission-request *ngIf="active === 'permission'"></app-permission-request>
+<app-balances-accruals *ngIf="active === 'balances'"></app-balances-accruals>
 </div>

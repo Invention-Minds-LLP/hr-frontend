@@ -1,0 +1,24 @@
+<h2>{{ test?.name }}</h2>
+<p>Time Left: {{ formatTime(timeLeft) }}</p>
+
+<form (ngSubmit)="submit()">
+  <div *ngFor="let q of test?.questions; let i = index">
+    <p><strong>{{ i + 1 }}. {{ q.text }}</strong></p>
+
+    <div *ngIf="q.type === 'MCQ'">
+      <label *ngFor="let o of q.options">
+        <input
+        type="checkbox"
+        (change)="toggleOption(i, o.id, $event)"
+      />      
+        {{ o.text }}
+      </label>
+    </div>
+
+    <div *ngIf="q.type === 'Descriptive'">
+      <textarea [(ngModel)]="responses[i].answer" name="desc-{{i}}"></textarea>
+    </div>
+  </div>
+
+  <button type="submit">Submit Test</button>
+</form>

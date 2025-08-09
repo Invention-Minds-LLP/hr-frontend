@@ -1,0 +1,69 @@
+<div class="question-manager">
+    <h3>Questions</h3>
+  
+    <button (click)="toggleForm()" class="btn-add">
+      {{ showForm ? 'Cancel' : 'Add Question' }}
+    </button>
+  
+    <!-- Add Question Form -->
+    <div *ngIf="showForm" class="question-form">
+      <div class="form-row">
+        <label>Question Text:</label>
+        <input type="text" [(ngModel)]="newQuestion.text" />
+      </div>
+  
+      <div class="form-row">
+        <label>Type:</label>
+        <select [(ngModel)]="newQuestion.type">
+          <option value="MCQ">MCQ</option>
+          <option value="Descriptive">Descriptive</option>
+        </select>
+      </div>
+  
+      <div class="form-row">
+        <label>Weight:</label>
+        <input type="number" [(ngModel)]="newQuestion.weight" />
+      </div>
+  
+      <!-- MCQ Options -->
+      <div *ngIf="newQuestion.type === 'MCQ'">
+        <h4>Options:</h4>
+        <div *ngFor="let opt of newQuestion.options; let i = index" class="form-row option-row">
+          <input [(ngModel)]="opt.text" placeholder="Option text" />
+          <label>
+            <input type="checkbox" [(ngModel)]="opt.isCorrect" />
+            Correct
+          </label>
+          <button (click)="removeOption(i)">✖</button>
+        </div>
+        <button (click)="addOption()">➕ Add Option</button>
+      </div>
+  
+      <div class="form-actions">
+        <button class="btn-green" (click)="saveQuestion()">Save</button>
+      </div>
+    </div>
+  
+    <!-- List of Questions -->
+    <div *ngIf="questions.length === 0">
+      <p>No questions added yet.</p>
+    </div>
+  
+    <div *ngIf="questions.length > 0">
+        <ul class="question-list">
+          <li *ngFor="let q of questions">
+            <strong>{{ q.text }}</strong> ({{ q.type }}, weight: {{ q.weight }})
+            <button (click)="deleteQuestion(q.id!)" class="btn-delete">Delete</button>
+      
+            <!-- ✅ Only show options if question is MCQ and has options -->
+            <ul *ngIf="q.type === 'MCQ' && q.options?.length">
+              <li *ngFor="let o of q.options">
+                {{ o.text }} <strong *ngIf="o.isCorrect">(✔)</strong>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      
+  </div>
+  

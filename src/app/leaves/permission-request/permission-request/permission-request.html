@@ -23,39 +23,35 @@
             <ng-template pTemplate="header">
                 <tr>
                     <th>No</th>
-                    <th>Emp ID</th>
-                    <th>No</th>
-                    <th>Emp ID</th>
                     <th>Employee Name</th>
+                    <th>Emp ID</th>
                     <th>Department</th>
                     <th>Job Title</th>
                     <th>Perm. Date</th>
                     <th>No. Of Hours</th>
                     <th>Reason</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-requestData let-rowIndex="rowIndex">
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ requestData.empId }}</td>
-                    <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ requestData.empId }}</td>
                     <td class="empname">
                         <img src="/img.png" alt="">
                         <div class="">
                             <div class="name">{{ requestData.empName }}</div>
                             <span class="email">{{requestData.email}}</span>
-                            <div class="name">{{ requestData.empName }}</div>
-                            <span class="email">{{requestData.email}}</span>
                         </div>
                     </td>
-                    <td class="t-data al"><span class="status-color">
-                            <span class="dept-badge" [ngClass]="getDeptClass(requestData.department)">
-                                <span class="dot"
-                                    [ngStyle]="{ backgroundColor: getDotColor(requestData.department) }"></span>
-                                {{ requestData.department }}
+                    <td class="t-data al">{{ requestData.empId }}</td>
+                    <td class="t-data al">
+                        <span class="dept-badge"
+                            [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).badgeColor }">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).dotColor }">
                             </span>
+                            {{ getDepartmentName(requestData.department) }}
                         </span>
                     </td>
                     <td class="t-data al">{{ requestData.jobTitle }}</td>
@@ -65,11 +61,12 @@
                             {{ requestData.reson | slice:0:20 }}<span *ngIf="requestData.reson.length > 20">...</span>
                         </span>
                     </td>
+                    <td>{{requestData.status || '-'}}</td>
                     <td>
                         <div class="btns">
-                            <button class="btn-1 btn">Accept</button>
-                            <button class="btn-2 btn">Decline</button>
-                            <button class="btn-3">Perm. Details</button>
+                            <button class="btn-1 btn" (click)="approveRequest(requestData.id)">Accept</button>
+                            <button class="btn-2 btn" (click)="openDeclineDialog(requestData.id)">Decline</button>
+                            <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
                         </div>
                     </td>
 
@@ -79,3 +76,27 @@
 
     </div>
 </div>
+
+
+<!-- Decline Reason Popup -->
+<div class="custom-popup" *ngIf="declineDialogVisible">
+    <div class="popup-content">
+        <h3>Permission Request Decline Reason</h3>
+        <hr />
+
+        <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+        <div class="popup-actions">
+            <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+            <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<app-permission-popup
+  *ngIf="showPopup"
+  [showPopup]="true"
+  [permissionData]="selectedPermission"
+  [isViewOnly]="viewMode"
+  (close)="closePopup()">
+</app-permission-popup>

@@ -43,7 +43,7 @@ export interface Employee {
 export class Employees {
   private apiUrl = 'http://localhost:3002/api/employees';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getEmployees(): Observable<Employee[]> {
     return this.http.get<Employee[]>(this.apiUrl);
@@ -85,5 +85,10 @@ export class Employees {
   }
   getActiveEmployees() {
     return this.http.get<any[]>(`${this.apiUrl}/active`);
+  }
+  getAccruals(employeeId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/${employeeId}/accruals`
+    );
   }
 }
