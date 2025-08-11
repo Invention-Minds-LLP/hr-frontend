@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { AutoComplete } from 'primeng/autocomplete';
@@ -22,6 +22,7 @@ interface AttendanceDay {
 }
 
 
+
 @Component({
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup],
@@ -34,19 +35,21 @@ export class Individual {
   permission: any[] = []
   wfh: any[] = []
   // Leave
-showLeaveDetailsPopup = false;
-selectedLeaveForView: any = null;
-leaveViewMode = false;
+  showLeaveDetailsPopup = false;
+  selectedLeaveForView: any = null;
+  leaveViewMode = false;
 
-// Permission
-showPermissionPopup = false;
-selectedPermission: any = null;
-permissionViewMode = false;
+  // Permission
+  showPermissionPopup = false;
+  selectedPermission: any = null;
+  permissionViewMode = false;
 
-// WFH
-showWFHPopup = false;
-selectedWFH: any = null;
-wfhViewMode = false;
+  // WFH
+  showWFHPopup = false;
+  selectedWFH: any = null;
+  wfhViewMode = false;
+
+
 
 
 
@@ -118,7 +121,7 @@ wfhViewMode = false;
             status: r.status
           };
         });
-        
+
         this.wfh = (res.wfh ?? []).map(r => {
           const isRange = !!(r.startDate && r.endDate);
           return {
@@ -157,7 +160,7 @@ wfhViewMode = false;
       const result: string[] = [];
       const startDate = new Date(start);
       const endDate = new Date(end);
-    
+
       // Loop until we reach end date
       let current = new Date(startDate);
       while (current <= endDate) {
@@ -322,13 +325,13 @@ wfhViewMode = false;
     this.selectedLeaveForView = null; // no data for new form
     this.showLeaveDetailsPopup = true;
   }
-  
+
   openPermissionForm() {
     this.permissionViewMode = false;
     this.selectedPermission = null;
     this.showPermissionPopup = true;
   }
-  
+
   openWFHForm() {
     this.wfhViewMode = false;
     this.selectedWFH = null;
@@ -339,13 +342,13 @@ wfhViewMode = false;
     this.selectedLeaveForView = row;
     this.showLeaveDetailsPopup = true;
   }
-  
+
   viewPermissionDetails(row: any) {
     this.permissionViewMode = true;
     this.selectedPermission = row;
     this.showPermissionPopup = true;
   }
-  
+
   viewWFHDetails(row: any) {
     this.wfhViewMode = true;
     this.selectedWFH = row;

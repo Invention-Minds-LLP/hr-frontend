@@ -396,7 +396,7 @@
   line-height: normal;
 }
 
-::ng-deep .table .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
   background: #fff;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
@@ -408,7 +408,7 @@
   letter-spacing: 0.16px;
 }
 
-::ng-deep .table .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .table .p-datatable .p-datatable-tbody>tr>td {
   border: none;
   text-align: center;
 }
@@ -418,7 +418,7 @@
 }
 
 .border {
-    height: 400px;
+  height: 400px;
   border-right: 2px solid #adadad;
 }
 
@@ -462,14 +462,17 @@
 
 .dropdown-container-in-table {
   display: flex;
-  justify-content: center; /* Center align within the cell */
+  justify-content: center;
+  /* Center align within the cell */
   align-items: center;
-  width: 100%; /* Ensure it stretches across the cell */
+  width: 100%;
+  /* Ensure it stretches across the cell */
 }
 
 /* Dropdown styling */
 .dropdown-in-table {
-  width: 140px; /* Adjust width to fit inside the table cell */
+  width: 140px;
+  /* Adjust width to fit inside the table cell */
   padding: 10px;
   font-size: 14px;
   background-color: white;
@@ -508,9 +511,131 @@
 }
 
 
-@media (max-width: 800px){
-    .individual-top, .individual-bottom{
-        flex-direction: column;
-        height: auto;
-    }
+.holiday-card {
+  background-color: #327ba8;
+  color: white;
+  text-align: center;
+  border-radius: 20px;
+  padding: 15px;
+  width: 250px;
+}
+
+.holiday-title {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.holiday-month {
+  font-size: 1em;
+  opacity: 0.8;
+}
+
+.holiday-dates {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 1.1em;
+}
+
+.holiday-dates div {
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.holiday-dates div.today {
+  background-color: #ff5c5c;
+  font-weight: bold;
+}
+
+.holiday-dates div.holiday {
+  color: #ff7b7b;
+}
+
+/* lap */
+@media(max-width: 1439px) {
+  .individual-container {
+    overflow: auto;
+  }
+}
+
+/* Tab */
+
+@media (max-width: 1023px) {
+
+  .individual-top,
+  .individual-bottom {
+    flex-direction: column;
+    height: auto;
+    /* align-items: center; */
+  }
+}
+
+/* Mobile */
+
+@media (max-width:767px) {
+
+  .individual-container {
+    padding: 20px;
+  }
+
+  .days {
+    gap: 15px;
+  }
+
+  .day-number {
+    font-size: 3.25rem;
+  }
+
+  .day-name {
+    font-size: 1.25rem;
+  }
+
+  .month-year {
+    font-size: 0.875rem;
+  }
+
+  .part-1 {
+    display: flex;
+    flex-direction: column;
+
+  }
+
+  .attendance-card,
+  .working-card {
+    width: 100%;
+    height: auto;
+  }
+
+  .title h3 {
+    font-size: 1.25rem;
+  }
+
+  .shift {
+    font-size: 0.75rem;
+  }
+
+  .flex p {
+    font-size: 0.70rem;
+    margin-top: 40px;
+  }
+
+  .box {
+    width: 100%;
+  }
+
+  .action-buttons{
+    gap: 10px;
+  }
+  .part-2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  
+
+  ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
+    width: 100%;
+  }
 }

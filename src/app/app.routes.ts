@@ -14,6 +14,7 @@ import { MyTests } from './evaluation/my-tests/my-tests';
 import { TestPlatform } from './evaluation/test-platform/test-platform';
 import { SettingsOverview } from './settings/settings-overview/settings-overview';
 import { Individual } from './individual/individual/individual';
+import { PopUp } from './pop-up/pop-up';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -30,6 +31,7 @@ export const routes: Routes = [
     { path: 'take-test/:id', component: TestPlatform },
     {path: 'settings', component: SettingsOverview},
     {path:'individual', component: Individual},
+    {path:'popup', component:PopUp},
     { path: '**', redirectTo: 'login', pathMatch: 'full' }
 
 ];
