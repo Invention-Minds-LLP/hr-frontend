@@ -6,8 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CommonModule } from '@angular/common';
-import { label } from '@primeuix/themes/aura/metergroup';
-import { value } from '@primeuix/themes/aura/knob';
+import { User } from '../../services/user/user';
 
 interface TableData {
   empId: string;
@@ -35,37 +34,14 @@ export class Table {
     {label:'Role', value:'role'}
   ]
 
-  tabledata: TableData[] = [
-    {
-      empId: 'IM001',name:'Govindaraj',role: 'Development',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM002',name:'Govind',role: 'HR',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM004',name:'Muni',role: 'DEsigner',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM008',name:'Govind',role: 'IT',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM005',name:'Govindaraj',role: 'HR',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM003',name:'Chandru',role: 'Development',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM009',name:'Govind',role: 'IT',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-    {
-      empId: 'IM002',name:'Chandru',role: 'Development',loginTime: '09.00AM',loginDate: '12-08-2025'
-    },
-  ]
+  tableData: any[] = [];
+
+
+  constructor(private userService: User){}
 
 
   ngOnInit(){
-    this.tabledata = [...this.tabledata];
-    this.filterEmployeeData = [...this.tabledata];
+    this.fetchUsers();
   }
 
   onSearch(event : Event){
@@ -73,13 +49,13 @@ export class Table {
     const searchText = input.value.trim().toLowerCase();
 
     if(!searchText){
-      this.filterEmployeeData = [...this.tabledata];
+      this.filterEmployeeData = [...this.tableData];
       return;
     }
 
     const filterKey = this.selectedFilter?.value as keyof TableData;
 
-    this.filterEmployeeData = this.tabledata.filter((table: TableData)=>{
+    this.filterEmployeeData = this.tableData.filter((table: TableData)=>{
 
       if(filterKey === 'name'){
         return table.name?.toLowerCase().includes(searchText)
@@ -91,7 +67,7 @@ export class Table {
 
 
   onFilterChange(){
-    this.filterEmployeeData = [...this.tabledata];
+    this.filterEmployeeData = [...this.tableData];
   }
 
   toggleFilterDropdown(){
@@ -103,5 +79,53 @@ export class Table {
     this.selectedFilter = option;
     this.showDropdown = false;
     this.onFilterChange();
+  }
+  fetchUsers() {
+    this.userService.listAllUsers().subscribe({
+      next: (users) => {
+        this.tableData = (users ?? []).map((u:any) => {
+          const fullName = `${u.employee?.firstName ?? ''} ${u.employee?.lastName ?? ''}`.trim();
+          const name = fullName || u.username || '';
+          const { loginTime, loginDate } = this.splitDateTime(u.lastLogin);
+          return {
+            empId: u.employeeCode,
+            name,
+            role: u.role,
+            loginTime,
+            loginDate,
+            // keep raw fields if you need them later
+            _raw: u
+          };
+        });
+        this.filterEmployeeData = [...this.tableData];
+      },
+      error: (err) => {
+        console.error('Failed to load users', err);
+        this.tableData = [];
+        this.filterEmployeeData = [];
+      }
+    });
+  }
+
+  splitDateTime(iso?: string | null) {
+    if (!iso) return { loginTime: '-', loginDate: '-' };
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return { loginTime: '-', loginDate: '-' };
+
+    const loginTime = new Intl.DateTimeFormat('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).format(d);
+
+    const loginDate = new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(d); // dd/mm/yyyy
+
+    // If you need dd-MM-yyyy:
+    const [dd, mm, yyyy] = loginDate.split('/');
+    return { loginTime, loginDate: `${dd}-${mm}-${yyyy}` };
   }
 }

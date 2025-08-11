@@ -4,6 +4,10 @@ import { CommonModule } from '@angular/common';
 import { AutoComplete } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { Employees } from '../../services/employees/employees';
+import { LeavePopup } from '../../leaves/leave-popup/leave-popup';
+import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
+import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 
 interface individual {
   date: string;
@@ -20,37 +24,33 @@ interface AttendanceDay {
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
 export class Individual {
 
-  leave: individual[] = [
+  leave: any[] = []
+  permission: any[] = []
+  wfh: any[] = []
+  // Leave
+showLeaveDetailsPopup = false;
+selectedLeaveForView: any = null;
+leaveViewMode = false;
 
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Rejected' },
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Pending' },
-    { date: '03-08-2025', status: 'Rejected' },
-  ]
-  permission: individual[] = [
+// Permission
+showPermissionPopup = false;
+selectedPermission: any = null;
+permissionViewMode = false;
 
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Rejected' },
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Pending' },
-    { date: '03-08-2025', status: 'Rejected' },
-  ]
-  wfh: individual[] = [
+// WFH
+showWFHPopup = false;
+selectedWFH: any = null;
+wfhViewMode = false;
 
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Rejected' },
-    { date: '03-08-2025', status: 'Approved' },
-    { date: '03-08-2025', status: 'Pending' },
-    { date: '03-08-2025', status: 'Rejected' },
-  ]
 
+
+  constructor(private employeeService: Employees) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -87,7 +87,7 @@ export class Individual {
 
 
   // Working-Card
-   rawAttendance: { date: string; login?: string; logout?: string; status: 'Present' | 'Leave' | 'Day Off' }[] = [
+  rawAttendance: { date: string; login?: string; logout?: string; status: 'Present' | 'Leave' | 'Day Off' }[] = [
     { date: '2025-08-04', login: '10:00 AM', logout: '03:50 PM', status: 'Present' },
     { date: '2025-08-05', status: 'Leave' },
     { date: '2025-08-06', login: '09:15 AM', logout: '05:17 PM', status: 'Present' },
@@ -98,8 +98,78 @@ export class Individual {
 
   ngOnInit() {
     this.generateWeekDays();
+
+    const employeeId = Number(localStorage.getItem('userId')); // make sure this is the numeric Employee.id
+    if (!employeeId) return;
+
+    this.employeeService.getEmployeeRequests(employeeId).subscribe({
+      next: (res) => {
+        this.leave = (res.leaves ?? []).map(r => {
+          const isRange = !!(r.startDate && r.endDate);
+          return {
+            ...r,
+            leaveType: r.leaveType.name,
+            isRange,
+            dates: isRange ? getDateRangeArray(r.startDate, r.endDate) : [toDDMMYYYY(r.startDate)],
+            status: r.status
+          };
+        });
+        
+        this.wfh = (res.wfh ?? []).map(r => {
+          const isRange = !!(r.startDate && r.endDate);
+          return {
+            ...r,
+            isRange,
+            dates: isRange ? getDateRangeArray(r.startDate, r.endDate) : [toDDMMYYYY(r.startDate)],
+            status: r.status
+          };
+        });
+        this.permission = (res.permissions ?? []).map(r => ({
+          ...r,
+          date: toDDMMYYYY(r.day),                    // permissions use single "day"
+          status: r.status
+        }));
+      },
+      error: (err) => console.error(err)
+    });
+
     this.setWeek(new Date());
+    // tiny helpers:
+    function toDDMMYYYY(value: string): string {
+      if (!value) return '-';
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return '-';
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+    function rangeOrDate(start?: string, end?: string): string {
+      if (start && end) return `${toDDMMYYYY(start)} — ${toDDMMYYYY(end)}`;
+      if (start) return toDDMMYYYY(start);
+      return '-';
+    }
+    function getDateRangeArray(start: string, end: string): string[] {
+      const result: string[] = [];
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+    
+      // Loop until we reach end date
+      let current = new Date(startDate);
+      while (current <= endDate) {
+        const dd = String(current.getDate()).padStart(2, '0');
+        const mm = String(current.getMonth() + 1).padStart(2, '0');
+        const yyyy = current.getFullYear();
+        result.push(`${dd}-${mm}-${yyyy}`);
+        current.setDate(current.getDate() + 1);
+      }
+      return result;
+    }
+    
+
   }
+
+
 
   // Attendance-card 
 
@@ -217,9 +287,9 @@ export class Individual {
   }
 
   isCurrentWeek(): boolean {
-  const today = new Date();
-  return today >= this.weekStart && today <= this.weekEnd;
-}
+    const today = new Date();
+    return today >= this.weekStart && today <= this.weekEnd;
+  }
 
 
   calculateTotalHours(login: string, logout: string) {
@@ -244,6 +314,41 @@ export class Individual {
     nextWeek.setDate(nextWeek.getDate() + 7);
     this.setWeek(nextWeek);
   }
+  openLeaveForm() {
+    this.leaveViewMode = false;
+    this.selectedLeaveForView = null; // no data for new form
+    this.showLeaveDetailsPopup = true;
+  }
+  
+  openPermissionForm() {
+    this.permissionViewMode = false;
+    this.selectedPermission = null;
+    this.showPermissionPopup = true;
+  }
+  
+  openWFHForm() {
+    this.wfhViewMode = false;
+    this.selectedWFH = null;
+    this.showWFHPopup = true;
+  }
+  viewLeaveDetails(row: any) {
+    this.leaveViewMode = true;
+    this.selectedLeaveForView = row;
+    this.showLeaveDetailsPopup = true;
+  }
+  
+  viewPermissionDetails(row: any) {
+    this.permissionViewMode = true;
+    this.selectedPermission = row;
+    this.showPermissionPopup = true;
+  }
+  
+  viewWFHDetails(row: any) {
+    this.wfhViewMode = true;
+    this.selectedWFH = row;
+    this.showWFHPopup = true;
+  }
+    
 }
 
 

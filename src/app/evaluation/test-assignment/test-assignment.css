@@ -1,41 +1,88 @@
 .assign-test {
-    max-width: 600px;
-    margin: 20px auto;
-  }
-  
-  .form-row {
-    margin-bottom: 15px;
-  }
-  
-  .form-row label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .employee-list {
-    border: 1px solid #ccc;
-    padding: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  .emp-item {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .btn-green {
-    background-color: #28a745;
-    color: white;
-    padding: 8px 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .message {
-    margin-top: 15px;
-    font-weight: bold;
-  }
-  
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.form-row {
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.form-row label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  width: 120px;
+  text-wrap: nowrap;
+}
+
+.employee-list {
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.emp-item {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.btn-green {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.message {
+  margin-top: 15px;
+  font-weight: bold;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+h3 {
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 10px 0;
+}
+
+.form-container {
+  margin-top: 30px;
+  width: 100%;
+}
+
+select {
+  width: 75%;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #a6a6a6;
+}
+::ng-deep .p-multiselect .dropdown {
+  width: 100% !important;
+}
+.p-select,
+.p-multiselect,
+input {
+  width: 100% !important;
+}
+:host ::ng-deep .p-multiselect .p-multiselect-label {
+  white-space: normal !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+}

@@ -1,15 +1,19 @@
 <div class="assign-test">
-    <h3>Assign Evaluation Test to Employees</h3>
-  
-    <div class="form-row">
-      <label>Select Test:</label>
-      <select [(ngModel)]="selectedTestId">
-        <option value="0">-- Select Test --</option>
-        <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
-      </select>
-    </div>
-  
-    <div class="form-row">
+ <div class="header">
+  <h3>Assign Evaluation Test to Employees</h3>
+  <span class="close-icon" (click)="close()">&#10006;</span>
+ </div>
+<hr/>
+<div class="form-container">
+  <div class="form-row">
+    <label>Select Test:</label>
+    <select [(ngModel)]="selectedTestId">
+      <option value="0">-- Select Test --</option>
+      <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
+    </select>
+  </div>
+
+  <!-- <div class="form-row">
       <label>Select Employees:</label>
       <div class="employee-list">
         <label *ngFor="let e of employees" class="emp-item">
@@ -17,12 +21,27 @@
           {{ e.firstName }} {{ e.lastName }}
         </label>
       </div>
-    </div>
-  
-    <div class="form-actions">
-      <button (click)="assign()" class="btn-green">Assign Test</button>
-    </div>
-  
-    <p *ngIf="message" class="message">{{ message }}</p>
+    </div> -->
+  <div class="form-row">
+    <label>Select Employees:</label>
+
+    <p-multiSelect [options]="employees" optionLabel="firstName" optionValue="id" [(ngModel)]="selectedEmployeeIds"
+      [filter]="true" defaultLabel="Choose employees" [showToggleAll]="true" [showClear]="true" [display]="'chip'"
+      [maxSelectedLabels]="20" (onChange)="onEmployeesChange($event)">
+      <!-- Item template (optional, nicer display) -->
+      <ng-template let-emp pTemplate="item">
+        <div class="emp-option">
+          <div class="emp-name">{{ emp.firstName }}</div>
+          <small *ngIf="emp.department">{{ emp.department }}</small>
+        </div>
+      </ng-template>
+    </p-multiSelect>
   </div>
-  
+
+  <div class="form-actions">
+    <button (click)="assign()" class="btn-green">Assign Test</button>
+  </div>
+</div>
+
+  <p *ngIf="message" class="message">{{ message }}</p>
+</div>

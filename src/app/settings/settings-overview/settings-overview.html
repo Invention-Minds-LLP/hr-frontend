@@ -1,0 +1,20 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <ul>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'profile' }" (click)="show('profile')">My Profile</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'reset' }" (click)="show('reset')">Reset Password</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'create' }" (click)="show('create')">New User</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Login Activities</li>
+    </ul>
+</nav>
+<div>
+    <hr>
+</div>
+
+
+<div>
+    <app-profile *ngIf="active === 'profile'"></app-profile>
+    <app-reset-password  *ngIf="active === 'reset'"></app-reset-password>
+    <app-login-creation  *ngIf="active === 'create'"></app-login-creation>
+    <app-table  *ngIf="active === 'list'"></app-table>
+</div>

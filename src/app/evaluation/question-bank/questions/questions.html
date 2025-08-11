@@ -1,69 +1,144 @@
-<div class="question-manager">
-    <h3>Questions</h3>
-  
-    <button (click)="toggleForm()" class="btn-add">
-      {{ showForm ? 'Cancel' : 'Add Question' }}
-    </button>
-  
-    <!-- Add Question Form -->
-    <div *ngIf="showForm" class="question-form">
-      <div class="form-row">
-        <label>Question Text:</label>
-        <input type="text" [(ngModel)]="newQuestion.text" />
+<div class="qb-questions">
+  <!-- Header / actions -->
+  <p-toolbar styleClass="mb-3">
+    <div class="p-toolbar-group-left">
+      <h3 class="m-0">Questions</h3>
+      <p-badge [value]="questions?.length || 0" styleClass="ml-2"></p-badge>
+    </div>
+    <div class="p-toolbar-group-right">
+      <button pButton type="button" icon="pi pi-plus" label="Add Question" (click)="openCreate()"></button>
+    </div>
+  </p-toolbar>
+
+  <!-- List -->
+  <p-table #dt
+           [value]="questions"
+           [paginator]="true"
+           [rows]="10"
+           responsiveLayout="scroll"
+           [rowsPerPageOptions]="[5,10,20]"
+           [sortMode]="'multiple'">
+    <!-- Topbar / search -->
+    <ng-template pTemplate="caption">
+      <div class="table-caption">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText
+          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+          placeholder="Search questions" />   
+        </span>
       </div>
-  
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="text">Question <p-sortIcon field="text"></p-sortIcon></th>
+        <th style="width: 120px" pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+        <th style="width: 110px" pSortableColumn="weight">Weight <p-sortIcon field="weight"></p-sortIcon></th>
+        <th style="width: 220px">Options</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-q>
+      <tr>
+        <td>
+          <div class="q-text" [pTooltip]="q.text" tooltipPosition="bottom">{{ q.text }}</div>
+        </td>
+        <td>
+          <p-tag [value]="q.type" [severity]="q.type === 'MCQ' ? 'info' : 'warning'"></p-tag>
+        </td>
+        <td>
+          <p-badge [value]="q.weight" severity="secondary"></p-badge>
+        </td>
+        <td>
+          <ng-container *ngIf="q.type === 'MCQ'; else dash">
+            <span class="muted">{{ q.options?.length || 0 }} options</span>
+            <p-tag *ngIf="countCorrect(q) > 0"
+                   [value]="countCorrect(q) + ' correct'"
+                   severity="success"
+                   styleClass="ml-2"></p-tag>
+          </ng-container>
+          <ng-template #dash>—</ng-template>
+        </td>
+        <td class="row-actions">
+          <!-- If you add edit in your service later, wire this up -->
+          <!-- <button pButton icon="pi pi-pencil" class="p-button-text" (click)="openEdit(q)"></button> -->
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" (click)="confirmDelete(q.id)"></button>
+        </td>
+      </tr>
+      <!-- Optional: show options inline below the row -->
+      <tr *ngIf="q.type === 'MCQ' && q.options?.length">
+        <td colspan="5" class="options-row">
+          <div class="opt-chip"
+               *ngFor="let o of q.options"
+               [ngClass]="{ correct: o.isCorrect }">
+            <i class="pi" [ngClass]="o.isCorrect ? 'pi-check-circle' : 'pi-circle'"></i>
+            <span>{{ o.text }}</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Create / Edit Dialog -->
+  <p-dialog [(visible)]="showForm" [modal]="true" [style]="{width:'640px'}"
+            [dismissableMask]="true"
+            [header]="isEditing ? 'Edit Question' : 'Add Question'"
+            (onHide)="onDialogHide()">
+    <div class="form-grid">
       <div class="form-row">
-        <label>Type:</label>
-        <select [(ngModel)]="newQuestion.type">
-          <option value="MCQ">MCQ</option>
-          <option value="Descriptive">Descriptive</option>
-        </select>
+        <label>Question Text <span class="req">*</span></label>
+        <textarea pInputTextarea rows="3" [(ngModel)]="newQuestion.text" placeholder="Enter the question"></textarea>
+        <small class="error" *ngIf="submitted && !newQuestion.text?.trim()">Question text is required.</small>
       </div>
-  
-      <div class="form-row">
-        <label>Weight:</label>
-        <input type="number" [(ngModel)]="newQuestion.weight" />
-      </div>
-  
-      <!-- MCQ Options -->
-      <div *ngIf="newQuestion.type === 'MCQ'">
-        <h4>Options:</h4>
-        <div *ngFor="let opt of newQuestion.options; let i = index" class="form-row option-row">
-          <input [(ngModel)]="opt.text" placeholder="Option text" />
-          <label>
-            <input type="checkbox" [(ngModel)]="opt.isCorrect" />
-            Correct
-          </label>
-          <button (click)="removeOption(i)">✖</button>
+
+      <div class="two-col">
+        <div>
+          <label>Type</label>
+          <p-select [options]="types"
+                      optionLabel="label"
+                      optionValue="value"
+                      [(ngModel)]="newQuestion.type"></p-select>
         </div>
-        <button (click)="addOption()">➕ Add Option</button>
+
+        <div>
+          <label>Weight</label>
+          <p-inputNumber [(ngModel)]="newQuestion.weight" [min]="1" [useGrouping]="false"></p-inputNumber>
+          <small class="error" *ngIf="submitted && !newQuestion.weight">Weight is required.</small>
+        </div>
       </div>
-  
-      <div class="form-actions">
-        <button class="btn-green" (click)="saveQuestion()">Save</button>
+
+      <!-- MCQ options -->
+      <div *ngIf="newQuestion.type === 'MCQ'" class="options-edit">
+        <div class="opt-head">
+          <h4 class="m-0">Options</h4>
+          <button pButton type="button" icon="pi pi-plus" label="Add option" class="p-button-text" (click)="addOption()"></button>
+        </div>
+
+        <div class="opt-list">
+          <div class="opt-item" *ngFor="let opt of newQuestion.options; let i = index">
+            <input pInputText [(ngModel)]="opt.text" placeholder="Option text" class="flex-1" />
+            <p-checkbox [(ngModel)]="opt.isCorrect" [binary]="true" inputId="opt-{{i}}"></p-checkbox>
+            <label for="opt-{{i}}">Correct</label>
+            <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger" (click)="removeOption(i)"></button>
+          </div>
+        </div>
+
+        <div class="opt-validation">
+          <small class="error" *ngIf="submitted && (newQuestion.options?.length || 0) < 2">At least 2 options are required.</small>
+          <small class="error" *ngIf="submitted && !hasAtLeastOneCorrect()">Mark at least one option as correct.</small>
+          <small class="error" *ngIf="submitted && hasEmptyOption()">Option texts cannot be empty.</small>
+        </div>
       </div>
     </div>
-  
-    <!-- List of Questions -->
-    <div *ngIf="questions.length === 0">
-      <p>No questions added yet.</p>
-    </div>
-  
-    <div *ngIf="questions.length > 0">
-        <ul class="question-list">
-          <li *ngFor="let q of questions">
-            <strong>{{ q.text }}</strong> ({{ q.type }}, weight: {{ q.weight }})
-            <button (click)="deleteQuestion(q.id!)" class="btn-delete">Delete</button>
-      
-            <!-- ✅ Only show options if question is MCQ and has options -->
-            <ul *ngIf="q.type === 'MCQ' && q.options?.length">
-              <li *ngFor="let o of q.options">
-                {{ o.text }} <strong *ngIf="o.isCorrect">(✔)</strong>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      
-  </div>
-  
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancel" class="p-button-text" (click)="showForm=false"></button>
+      <button pButton label="Save" (click)="saveQuestion()" [disabled]="saving"></button>
+    </ng-template>
+  </p-dialog>
+
+  <p-confirmDialog></p-confirmDialog>
+  <p-toast></p-toast>
+</div>

@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-               <div class="action-buttons" *ngIf="selectedDate.toDateString() === today.toDateString()">
+                <div class="action-buttons" *ngIf="selectedDate.toDateString() === today.toDateString()">
                     <button pButton label="Log In" class="login-btn"></button>
                     <button pButton label="Log Out" class="logout-btn"></button>
                 </div>
@@ -106,14 +106,14 @@
             <div>
                 <div class="header-part">
                     <div class="main-heading">Leaves</div>
-                    <div class="new-form">
+                    <div class="new-form" (click)="openLeaveForm()">
                         <div class="text">New Form</div>
                         <div><i class="pi pi-plus"></i></div>
                     </div>
                 </div>
 
                 <div class="table">
-                    <p-table [value]="leave">
+                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -124,14 +124,26 @@
                         <ng-template #body let-leave>
                             <tr>
                                 <td>
-                                    <div class="date date-btn style">
-                                        <span class="">{{ leave.date }}</span>
-                                        <i class="pi pi-chevron-down"></i>
+                                    <div class="dropdown-container-in-table"
+                                        *ngIf="leave.dates?.length > 0; else noLeaveDates">
+                                        <select class="dropdown-in-table">
+                                            <option disabled>
+                                                {{ leave.dates[0] }} — {{ leave.dates[leave.dates.length - 1] }}
+                                            </option>
+                                            <option *ngFor="let d of leave.dates" [value]="d">
+                                                {{ d }}
+                                            </option>
+                                        </select>
                                     </div>
+                                    <ng-template #noLeaveDates>
+                                        <span>-</span>
+                                    </ng-template>
                                 </td>
+
+
                                 <td><span class="status style" [ngClass]="getStatusClass(leave.status)">{{
                                         leave.status }}</span></td>
-                                <td><span class="btn style">See details</span></td>
+                                <td><span class="btn style" (click)="viewLeaveDetails(leave)">See details</span></td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -146,14 +158,14 @@
             <div>
                 <div class="header-part">
                     <div class="main-heading">Permission</div>
-                    <div class="new-form">
+                    <div class="new-form" (click)="openPermissionForm()">
                         <div class="text">New Form</div>
                         <div><i class="pi pi-plus"></i></div>
                     </div>
                 </div>
 
                 <div class="table">
-                    <p-table [value]="permission">
+                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -166,12 +178,12 @@
                                 <td>
                                     <div class="date date-btn style">
                                         <span class="">{{ permission.date }}</span>
-                                        <i class="pi pi-chevron-down"></i>
+                                        <!-- <i class="pi pi-chevron-down"></i> -->
                                     </div>
                                 </td>
                                 <td><span class="status style" [ngClass]="getStatusClass(permission.status)">{{
                                         permission.status }}</span></td>
-                                <td><span class="btn style">See details</span></td>
+                                <td><span class="btn style" (click)="viewPermissionDetails(permission)">See details</span></td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -185,14 +197,14 @@
             <div>
                 <div class="header-part">
                     <div class="main-heading">Work Form Home</div>
-                    <div class="new-form">
+                    <div class="new-form" (click)="openWFHForm()">
                         <div class="text">New Form</div>
                         <div><i class="pi pi-plus"></i></div>
                     </div>
                 </div>
 
                 <div class="table">
-                    <p-table [value]="wfh">
+                    <p-table [value]="wfh" [scrollable]="true" scrollHeight="300px">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -203,14 +215,24 @@
                         <ng-template #body let-wfh>
                             <tr>
                                 <td>
-                                    <div class="date date-btn style">
-                                        <span class="">{{ wfh.date }}</span>
-                                        <i class="pi pi-chevron-down"></i>
+                                    <div class="dropdown-container-in-table"
+                                        *ngIf="wfh.dates?.length > 0; else noWfhDates">
+                                        <select class="dropdown-in-table">
+                                            <option disabled>
+                                                {{ wfh.dates[0] }} — {{ wfh.dates[wfh.dates.length - 1] }}
+                                            </option>
+                                            <option *ngFor="let d of wfh.dates" [value]="d">{{ d }}</option>
+                                        </select>
                                     </div>
+                                    <ng-template #noWfhDates>
+                                        <span>-</span>
+                                    </ng-template>
                                 </td>
+
+
                                 <td><span class="status style" [ngClass]="getStatusClass(wfh.status)">{{
                                         wfh.status }}</span></td>
-                                <td><span class="btn style">See details</span></td>
+                                <td><span class="btn style" (click)="viewWFHDetails(wfh)">See details</span></td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -219,3 +241,29 @@
         </div>
     </div>
 </div>
+
+<app-leave-popup
+  *ngIf="showLeaveDetailsPopup"
+  [showPopup]="true"
+  [leaveData]="selectedLeaveForView"
+  [isViewOnly]="leaveViewMode"
+  [hasBackdrop]="true"
+  (close)="showLeaveDetailsPopup = false">
+</app-leave-popup>
+
+<app-permission-popup
+  *ngIf="showPermissionPopup"
+  [showPopup]="true"
+  [permissionData]="selectedPermission"
+  [isViewOnly]="permissionViewMode"
+  (close)="showPermissionPopup = false">
+</app-permission-popup>
+
+<app-wfh-popup
+  *ngIf="showWFHPopup"
+  [showPopup]="true"
+  [wfhData]="selectedWFH"
+  [isViewOnly]="wfhViewMode"
+  [hasBackDrop]="true"
+  (close)="showWFHPopup = false">
+</app-wfh-popup>

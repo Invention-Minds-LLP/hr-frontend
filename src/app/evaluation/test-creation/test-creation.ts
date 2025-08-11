@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Tests } from '../../services/tests/tests';
@@ -11,6 +11,8 @@ import { QuestionBankService } from '../../services/question-bank/question-bank'
   styleUrl: './test-creation.css'
 })
 export class TestCreation {
+
+  @Output() closeForm = new EventEmitter<boolean>();
 
   questionBanks: any[] = [];
   formData: any = {
@@ -55,6 +57,10 @@ export class TestCreation {
         this.message = 'Error creating test';
       }
     });
+  }
+
+  close(){
+    this.closeForm.emit()
   }
 
   resetForm() {

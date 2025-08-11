@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { Questions } from '../questions/questions';
+import { BaseIcon } from "primeng/icons/baseicon";
 
 
 
@@ -21,9 +22,18 @@ export class QuestionBank {
   isEditing: boolean = false;
   departments: any[] = [];
   selectedBankId: number | null = null;
+  selectedBank: any = null;
 
-  selectQuestionBank(bankId: number) {
-    this.selectedBankId = bankId;
+  selectQuestionBank(bank: any) {
+    this.selectedBankId = bank;
+    this.selectedBank = bank; // so you can show its name in the header
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    console.log(this.selectedBankId)
+  }
+
+  closeQuestions() {
+    this.selectedBankId = null;
+    this.selectedBank = null;
   }
 
 

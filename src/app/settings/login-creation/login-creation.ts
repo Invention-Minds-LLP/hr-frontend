@@ -5,6 +5,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { User } from '../../services/user/user';
 
 @Component({
   selector: 'app-login-creation',
@@ -20,11 +21,37 @@ export class LoginCreation {
     confirmPassword:''
   }
 
+  constructor(private userService: User){}
 
   onSubmit(form : NgForm){
     if(form.valid && ! this.confirmPasswordMismatch()){
       console.log('form Submited', this.login);
-      alert('Form Submitted Successfully')
+      
+    if (this.login.employeeId == null) {
+      alert('Employee ID is required');
+      return;
+    }
+
+    const payload = {
+      employeeCode: String(this.login.employeeId), // backend expects employeeCode (string)
+      password: this.login.password
+    };
+
+    this.userService.registerUser(payload).subscribe({
+      next: (res) => {
+        console.log('User created:', res);
+        alert('User created successfully');
+        this.onClear();
+      },
+      error: (err) => {
+        console.error('Register failed:', err);
+        const msg =
+          err?.error?.error ||
+          err?.error?.message ||
+          'Failed to create user. Ensure Employee exists and no user already linked to this employeeCode.';
+        alert(msg);
+      }
+    })
     }else{
       alert('Form is invalid ')
     }

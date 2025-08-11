@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
 import { Router } from '@angular/router';
 import { DatePipe, CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-my-tests',
-  imports: [DatePipe, CommonModule],
+  imports: [DatePipe, CommonModule, TableModule, ButtonModule],
   templateUrl: './my-tests.html',
   styleUrl: './my-tests.css'
 })

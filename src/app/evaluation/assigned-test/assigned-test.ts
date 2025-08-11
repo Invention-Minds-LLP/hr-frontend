@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { AssignTest } from '../../services/assign-test/assign-test';
 import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-assigned-test',
-  imports: [CommonModule],
+  imports: [CommonModule, TableModule],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css'
 })

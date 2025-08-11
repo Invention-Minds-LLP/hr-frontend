@@ -1,11 +1,15 @@
 <div class="test-creator">
+  <div class="header">
     <h3>Create Evaluation Test</h3>
-  
+    <span class="close-icon" (click)="close()">&#10006;</span>
+  </div>
+  <hr />
+  <div class="form-container">
     <div class="form-row">
       <label>Test Name:</label>
       <input type="text" [(ngModel)]="formData.name" />
     </div>
-  
+
     <div class="form-row">
       <label>Question Bank:</label>
       <select [(ngModel)]="formData.questionBankId">
@@ -15,26 +19,26 @@
         </option>
       </select>
     </div>
-  
+
     <div class="form-row">
       <label>Duration (minutes):</label>
       <input type="number" [(ngModel)]="formData.duration" min="1" />
     </div>
-  
+
     <div class="form-row">
       <label>Passing Percentage:</label>
       <input type="number" [(ngModel)]="formData.passingPercent" min="0" max="100" />
     </div>
-  
+
     <div class="form-row">
       <label>Max Attempts:</label>
       <input type="number" [(ngModel)]="formData.maxAttempts" min="1" />
     </div>
-  
+
     <div class="form-actions">
       <button class="btn-green" (click)="submit()">Create Test</button>
     </div>
-  
-    <p *ngIf="message">{{ message }}</p>
   </div>
-  
+
+  <p *ngIf="message">{{ message }}</p>
+</div>

@@ -31,33 +31,86 @@
 .popup-content {
   background: white;
   padding: 20px;
-  width: 400px;
+  width: 500px;
   border-radius: 10px;
 }
+.popup-title{
+  color: #000;
+font-family: "Sofia Sans";
+font-size: 26px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+}
 
+.form-container{
+  margin-top: 30px;
+}
 .form-row {
   margin-bottom: 15px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
 }
 
 .popup-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  margin: 20px 0;
+  margin-top: 40px;
 }
 
 .btn-green {
-  background-color: #28a745;
+  border-radius: 8px;
+  background: #17b226;
   color: white;
   padding: 6px 14px;
   border: none;
-  border-radius: 5px;
+  width: 130px;
+  height: 40px;
 }
 
 .btn-red {
-  background-color: #dc3545;
+  border-radius: 8px;
+  background: #ff5151;
   color: white;
   padding: 6px 14px;
   border: none;
-  border-radius: 5px;
+  width: 130px;
+  height: 40px;
+}
+.button-div {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.form-row label {
+  display: block;
+  width: 150px;
+  color: #7a7a7a;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+input,
+select {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
 }
 ::ng-deep .p-datatable {
   border: none;
@@ -173,4 +226,59 @@
   font-weight: 500;
   color: #767676;
   cursor: pointer;
+}
+/* Header where the back button sits */
+.question-section .header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+/* Back button */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;          /* gray-300 */
+  background: #fff;
+  color: #111827;                      /* gray-900 */
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .06s ease;
+}
+
+/* Arrow (if you don’t type the arrow in HTML) */
+.btn-back::before {
+  content: '←';
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Hover / active / focus */
+.btn-back:hover {
+  background: #f9fafb;                 /* gray-50 */
+  border-color: #cbd5e1;               /* gray-300/200 mix */
+}
+.btn-back:active {
+  transform: translateY(1px);
+}
+.btn-back:focus-visible {
+  outline: 3px solid #93c5fd55;        /* blue-300 with alpha */
+  outline-offset: 2px;
+  border-color: #60a5fa;               /* blue-400 */
+}
+
+/* Optional compact variant */
+.btn-back.compact {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Make the title sit nicely next to the button */
+.question-section .header h2 {
+  margin: 0;
+  font-weight: 600;
 }

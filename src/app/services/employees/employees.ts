@@ -91,4 +91,9 @@ export class Employees {
       `${this.apiUrl}/${employeeId}/accruals`
     );
   }
+  getEmployeeRequests(employeeId: number) {
+    return this.http.get<{leaves:any[]; permissions:any[]; wfh:any[]}>(
+      `${this.apiUrl}/${employeeId}/requests`
+    );
+  }
 }

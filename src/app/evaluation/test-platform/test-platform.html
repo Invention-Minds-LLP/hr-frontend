@@ -1,24 +1,116 @@
-<h2>{{ test?.name }}</h2>
-<p>Time Left: {{ formatTime(timeLeft) }}</p>
+<!-- test-take.component.html -->
+<div class="test-shell" *ngIf="test">
 
-<form (ngSubmit)="submit()">
-  <div *ngFor="let q of test?.questions; let i = index">
-    <p><strong>{{ i + 1 }}. {{ q.text }}</strong></p>
+  <ng-container *ngIf="!started; else testView">
+    <h2>{{ test?.name || 'Test' }}</h2>
+    <p class="muted">
+      When you begin, we’ll enter fullscreen and watch for tab switching / screenshot attempts.
+      You’re allowed <strong>{{ maxViolations }}</strong> violation(s) before auto-submit.
+    </p>
+    <button type="button" class="btn begin" (click)="begin()">Begin in Fullscreen</button>
+  </ng-container>
 
-    <div *ngIf="q.type === 'MCQ'">
-      <label *ngFor="let o of q.options">
-        <input
-        type="checkbox"
-        (change)="toggleOption(i, o.id, $event)"
-      />      
-        {{ o.text }}
-      </label>
+<ng-template #testView>
+    <!-- Sticky header -->
+    <header class="test-header">
+      <div class="title">
+        <h2>{{ test?.name }}</h2>
+        <div class="subtitle">{{ answeredCount }} / {{ total }} answered</div>
+      </div>
+  
+      <div class="header-right">
+        <p-badge class="timer-badge" [value]="formatTime(timeLeft)" severity="danger"></p-badge>
+        <p-progressBar [value]="timeProgress" [showValue]="false"></p-progressBar>
+        <button pButton label="Submit" class="p-button-success" (click)="confirmSubmit()"></button>
+      </div>
+    </header>
+  
+    <!-- Main layout -->
+    <div class="test-layout">
+      <!-- Navigator (left sidebar) -->
+      <aside class="navigator">
+        <div class="nav-header">
+          <h4>Questions</h4>
+          <div class="legend">
+            <span class="dot answered"></span> Answered
+            <span class="dot marked"></span> Marked
+            <span class="dot current"></span> Current
+            <span class="dot unanswered"></span> Unanswered
+          </div>
+        </div>
+  
+        <!-- <div class="nav-grid">
+          <button
+            *ngFor="let q of test?.questions; let idx = index"
+            pButton
+            [label]="(idx + 1).toString()"
+            [ngClass]="buttonClass(idx)"
+            (click)="goToQuestion(idx)">
+          </button>
+        </div> -->
+        <div class="nav-grid">
+          <button *ngFor="let q of test?.questions; let idx = index" type="button" class="qbtn"
+            [class.current]="idx === currentIndex" [class.marked]="responses[idx].marked"
+            [class.answered]="isAnswered(idx)"
+            [class.unanswered]="!isAnswered(idx) && !responses[idx].marked && idx !== currentIndex"
+            (click)="goToQuestion(idx)">
+            {{ idx + 1 }}
+          </button>
+        </div>
+  
+      </aside>
+  
+      <!-- Question area -->
+      <main class="question-area">
+        <p-card>
+          <div class="q-meta">
+            <div>Question {{ currentIndex + 1 }} of {{ total }}</div>
+            <p-chip *ngIf="responses[currentIndex]?.marked" label="Marked for review" icon="pi pi-flag"></p-chip>
+          </div>
+  
+          <p class="q-text">
+            <strong>{{ currentQuestion?.text }}</strong>
+          </p>
+  
+          <!-- MCQ (multiple answers) -->
+          <div *ngIf="currentQuestion?.type === 'MCQ'" class="options">
+            <div *ngFor="let o of currentQuestion.options" class="option-row">
+              <p-checkbox [inputId]="'q' + currentIndex + 'o' + o.id" [value]="o.id"
+                [(ngModel)]="responses[currentIndex].answer">
+              </p-checkbox>
+              <label [for]="'q' + currentIndex + 'o' + o.id">{{ o.text }}</label>
+            </div>
+          </div>
+  
+          <!-- Descriptive -->
+          <div *ngIf="currentQuestion?.type === 'Descriptive'" class="desc-wrap">
+            <textarea pInputTextarea rows="6" [(ngModel)]="responses[currentIndex].answer"
+              placeholder="Type your answer here...">
+            </textarea>
+          </div>
+  
+          <!-- Actions -->
+          <div class="q-actions">
+            <div class="qn-button">
+              <button pButton label="Previous" (click)="prev()" [disabled]="currentIndex === 0"
+                class="p-button-text"></button>
+  
+              <span class="spacer"></span>
+  
+              <button pButton label="Clear" class="p-button-secondary p-button-text" (click)="clearCurrent()"></button>
+            </div>
+            <div class="qn-button">
+              <button pButton label="{{ responses[currentIndex].marked ? 'Unmark' : 'Mark for review' }}"
+              class="p-button-help p-button-text" (click)="toggleMark()"></button>
+  
+            <button pButton label="Save & Next" (click)="next()" [disabled]="currentIndex === total - 1"></button>
+            </div>
+          </div>
+        </p-card>
+      </main>
     </div>
+</ng-template>
 
-    <div *ngIf="q.type === 'Descriptive'">
-      <textarea [(ngModel)]="responses[i].answer" name="desc-{{i}}"></textarea>
-    </div>
-  </div>
-
-  <button type="submit">Submit Test</button>
-</form>
+  <!-- Confirm submit -->
+  <p-confirmDialog></p-confirmDialog>
+</div>

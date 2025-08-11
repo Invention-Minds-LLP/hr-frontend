@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Tests } from '../../services/tests/tests';
 import { AssignTest } from '../../services/assign-test/assign-test';
 import { Employees } from '../../services/employees/employees';
+import { MultiSelect, MultiSelectChangeEvent  } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-test-assignment',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MultiSelect],
   templateUrl: './test-assignment.html',
   styleUrl: './test-assignment.css'
 })
 export class TestAssignment {
+
+  @Input() test: any = null;
+  @Output() closeForm = new EventEmitter<boolean>();
 
   tests: any[] = [];
   employees: any[] = [];
@@ -31,6 +35,9 @@ export class TestAssignment {
   ngOnInit(): void {
     this.loadTests();
     this.loadEmployees();
+    if(this.test){
+      this.selectedTestId = this.test.id
+    }
   }
 
   loadTests() {
@@ -54,6 +61,10 @@ export class TestAssignment {
     } else {
       this.selectedEmployeeIds.push(empId);
     }
+  }
+  onEmployeesChange(event: MultiSelectChangeEvent) {
+    const ids = event.value as number[];
+    this.selectedEmployeeIds = ids;
   }
 
   assign() {
@@ -79,5 +90,8 @@ export class TestAssignment {
         this.message = 'Failed to assign test.';
       }
     });
+  }
+  close(){
+    this.closeForm.emit();
   }
 }

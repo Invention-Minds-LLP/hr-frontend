@@ -167,3 +167,12 @@ line-height: normal;
     justify-content: center;
     align-items: center;
 }
+
+@media (max-width:800px){
+  nav{
+    display: none;
+  }
+  .nav-bar-container{
+    padding: 0;
+  }
+}
