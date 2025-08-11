@@ -70,7 +70,8 @@ export class WorkFromHome {
   ]
 
 
-  wfhData: WFHTable[] = []
+  wfhData: WFHTable[] = [];
+  columnCount:number = 9;
 
   ngOnInit() {
     this.loadWFHRequests();

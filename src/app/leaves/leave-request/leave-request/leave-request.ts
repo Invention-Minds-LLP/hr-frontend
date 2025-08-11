@@ -55,6 +55,8 @@ export class LeaveRequest {
     thisWeek: false,
     nextMonth: false,
   };
+
+  columnCount:number = 10;
   
 
 
@@ -89,7 +91,8 @@ export class LeaveRequest {
           startDate: leave.startDate,
           endDate: leave.endDate,
           status: leave.status,
-          empID: leave.employee.id
+          empID: leave.employee.id,
+          leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
         }));
         this.filteredLeaveData = [...this.leaveData];
       },

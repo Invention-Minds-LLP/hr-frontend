@@ -29,6 +29,7 @@ export class WfhPopup {
   @Output() close = new EventEmitter<void>();
   @Input() hasBackDrop = true;
 
+
   closePopup() {
     this.close.emit();
   }
@@ -57,6 +58,7 @@ export class WfhPopup {
   isDragging = false;
   daysList = Array.from({ length: 31 }, (_, i) => i + 1);
   reason = '';
+  employeeId: string = '';
 
 
 
@@ -77,6 +79,7 @@ export class WfhPopup {
   }
 
   ngOnInit(): void {
+    this.employeeId = localStorage.getItem('empId') || ''
     if (this.wfhData) {
       this.populateFromLeaveData(this.wfhData);
     } else {
@@ -253,7 +256,7 @@ export class WfhPopup {
 
   applyWFH() {
     const payload = {
-      employeeId: 1, // get from localStorage or auth
+      employeeId: parseInt(this.employeeId), // get from localStorage or auth
       startDate: this.fromDate.toISOString(),
       endDate: this.toDate.toISOString(),
       reason: this.reason

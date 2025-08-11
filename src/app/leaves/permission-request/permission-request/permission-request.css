@@ -1,7 +1,6 @@
 .permission-request {
     font-family: "Sofia Sans";
-    padding: 40px 30px;
-    padding: 40px 30px;
+    padding: 40px 50px;
 }
 
 .header {
@@ -510,4 +509,10 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 5px;
   resize: none;
+}
+.no-data-message {
+  text-align: center !important;
+  vertical-align: middle !important;
+  font-style: italic;
+  color: #555;
 }

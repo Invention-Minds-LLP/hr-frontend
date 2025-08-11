@@ -52,7 +52,8 @@ export class PermissionRequest {
     { label: 'JobTitle', value: 'jobtitle' },
   ]
 
-  requestData: requestTable[] = []
+  requestData: requestTable[] = [];
+  columnCount:number = 10;
 
 
   ngOnInit() {

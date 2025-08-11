@@ -146,6 +146,14 @@
                                 <td><span class="btn style" (click)="viewLeaveDetails(leave)">See details</span></td>
                             </tr>
                         </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                              <td colspan="3" class="no-data-message">
+                                <i class="pi pi-info-circle"></i>
+                                No leave requests found.
+                              </td>
+                            </tr>
+                          </ng-template>
                     </p-table>
                 </div>
             </div>
@@ -186,6 +194,14 @@
                                 <td><span class="btn style" (click)="viewPermissionDetails(permission)">See details</span></td>
                             </tr>
                         </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                              <td colspan="3" class="no-data-message">
+                                <i class="pi pi-info-circle"></i>
+                                No Permission requests found.
+                              </td>
+                            </tr>
+                          </ng-template>
                     </p-table>
                 </div>
             </div>
@@ -235,6 +251,14 @@
                                 <td><span class="btn style" (click)="viewWFHDetails(wfh)">See details</span></td>
                             </tr>
                         </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                              <td colspan="3" class="no-data-message">
+                                <i class="pi pi-info-circle"></i>
+                                No WFH requests found.
+                              </td>
+                            </tr>
+                          </ng-template>
                     </p-table>
                 </div>
             </div>
@@ -248,7 +272,7 @@
   [leaveData]="selectedLeaveForView"
   [isViewOnly]="leaveViewMode"
   [hasBackdrop]="true"
-  (close)="showLeaveDetailsPopup = false">
+  (close)="closePopup()">
 </app-leave-popup>
 
 <app-permission-popup
@@ -256,7 +280,7 @@
   [showPopup]="true"
   [permissionData]="selectedPermission"
   [isViewOnly]="permissionViewMode"
-  (close)="showPermissionPopup = false">
+  (close)="closePopup()">
 </app-permission-popup>
 
 <app-wfh-popup
@@ -265,5 +289,5 @@
   [wfhData]="selectedWFH"
   [isViewOnly]="wfhViewMode"
   [hasBackDrop]="true"
-  (close)="showWFHPopup = false">
+  (close)="closePopup()">
 </app-wfh-popup>

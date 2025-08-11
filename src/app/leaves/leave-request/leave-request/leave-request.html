@@ -60,13 +60,13 @@
 
                     <td class="t-data">{{ leaveData.jobTitle }}</td>
                     <td class="t-data">{{ leaveData.leaveType }}</td>
-                    <td>
-                        <p-datepicker [(ngModel)]="availableDates" [selectionMode]="'multiple'" [minDate]="minDate"
+                    <td class="t-data">
+                        <!-- <p-datepicker [(ngModel)]="availableDates" [selectionMode]="'multiple'" [minDate]="minDate"
                             [maxDate]="maxDate" [disabledDates]="disabledDates" inputId="datePicker" [showIcon]="true"
                             [touchUI]="true" placeholder="Select a Date">
-                        </p-datepicker>
+                        </p-datepicker> -->
 
-
+                        {{leaveData.leaveDate}}
                     </td>
                     <td class="t-data">
                         <span [pTooltip]="leaveData.reson" tooltipPosition="top">
@@ -88,6 +88,14 @@
 
                 </tr>
             </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td [attr.colspan]="columnCount" class="no-data-message">
+                    <i class="pi pi-info-circle"></i>
+                    No Leave requests found.
+                  </td>
+                </tr>
+              </ng-template>
         </p-table>
 
     </div>

@@ -58,6 +58,7 @@ export class LeavePopup {
   isDragging = false;
   daysList = Array.from({ length: 31 }, (_, i) => i + 1);
   reason = '';
+  employeeId: string = ''
 
 
 
@@ -78,6 +79,7 @@ export class LeavePopup {
   }
 
   ngOnInit(): void {
+    this.employeeId = localStorage.getItem('empId') || '';
     if (this.leaveData) {
       this.populateFromLeaveData(this.leaveData);
     } else {
@@ -262,7 +264,7 @@ export class LeavePopup {
       return;
     }
     const payload = {
-      employeeId: 1, // Replace with actual logged-in employee ID (or @Input() if coming from parent)
+      employeeId: parseInt(this.employeeId), // Replace with actual logged-in employee ID (or @Input() if coming from parent)
       leaveTypeId: this.leaveTypes.find(type => type.name === this.leaveType)?.id,
       startDate: this.fromDate.toISOString(),
       endDate: this.toDate.toISOString(),

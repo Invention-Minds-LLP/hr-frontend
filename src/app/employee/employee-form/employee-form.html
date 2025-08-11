@@ -88,6 +88,28 @@
                             </p-floatLabel>
                         </div>
                     </div>
+                    <div class="field-row col-12">
+                        <div class="field col-4">
+                            <p-floatLabel variant="on">
+                                <p-select id="bloodGroup" [options]="bloodGroups" formControlName="bloodGroup"
+                                    optionLabel="label" optionValue="value"
+                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('bloodGroup'))}">
+                                </p-select>
+                                <label for="bloodGroup">Blood Group</label>
+                                <div class="error-msg" *ngIf="showError(employeeForm.get('bloodGroup'))">
+                                    Blood Group is required
+                                </div>
+                            </p-floatLabel>
+                        </div>
+                        <div class="field col-4">
+                            <p-floatLabel variant="on">
+                                <input id="age" pInputText formControlName="age" readonly />
+                                <label for="age">Age</label>
+                            </p-floatLabel>
+                        </div>
+
+
+                    </div>
 
                     <div class="heading mb-2">Permanent Address</div>
                     <div class="p-fluid formgrid grid" formGroupName="permanentAddress">

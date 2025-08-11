@@ -586,6 +586,12 @@ hr {
 section{
   padding: 10px;
 }
+.no-data-message {
+  text-align: center !important;
+  vertical-align: middle !important;
+  font-style: italic;
+  color: #555;
+}
 
 /* responsive: drop the right column below on small screens */
 @media (max-width: 900px) {

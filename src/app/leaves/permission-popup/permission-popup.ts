@@ -23,11 +23,13 @@ export class PermissionPopup {
   startTime = '';
   endTime = '';
   reason = '';
+  employeeId: string = ''
 
   constructor(private permissionService: Permission) {}
 
 
   ngOnInit(){
+    this.employeeId = localStorage.getItem('empId') || '';
     console.log(this.permissionData)
     if(this.permissionData){
           this.permissionType = this.permissionData.permissionType || '';
@@ -57,7 +59,7 @@ export class PermissionPopup {
 
     // Build payload
     const payload: any = {
-      employeeId: Number(localStorage.getItem('userId')) || 1,
+      employeeId: parseInt(this.employeeId) || 1,
       permissionType: this.permissionType,
       timing: this.timing,
       day: this.day,

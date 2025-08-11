@@ -98,8 +98,12 @@ wfhViewMode = false;
 
   ngOnInit() {
     this.generateWeekDays();
+    this.fetchDetails();
 
-    const employeeId = Number(localStorage.getItem('userId')); // make sure this is the numeric Employee.id
+  }
+
+  fetchDetails(){
+    const employeeId = Number(localStorage.getItem('empId')); // make sure this is the numeric Employee.id
     if (!employeeId) return;
 
     this.employeeService.getEmployeeRequests(employeeId).subscribe({
@@ -166,7 +170,6 @@ wfhViewMode = false;
       return result;
     }
     
-
   }
 
 
@@ -348,7 +351,13 @@ wfhViewMode = false;
     this.selectedWFH = row;
     this.showWFHPopup = true;
   }
-    
+   
+  closePopup(){
+    this.showLeaveDetailsPopup = false;
+    this.showPermissionPopup = false;
+    this.showWFHPopup = false;
+    this.fetchDetails();
+  }
 }
 
 

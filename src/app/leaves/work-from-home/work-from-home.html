@@ -21,7 +21,7 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="5">
+        <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="10">
             <ng-template #header>
                 <tr>
                     <th>No</th>
@@ -73,6 +73,14 @@
                     </td>
 
                 </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td [attr.colspan]="columnCount" class="no-data-message">
+                  <i class="pi pi-info-circle"></i>
+                  No WFH requests found.
+                </td>
+              </tr>
             </ng-template>
         </p-table>
 

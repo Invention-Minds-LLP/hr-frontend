@@ -44,9 +44,10 @@ export class Login {
             localStorage.setItem('employeeId',response.employeeCode ); // Store user details
             localStorage.setItem('name', response.username); // Store user name
             localStorage.setItem('role', response.role); // Store user role
-            localStorage.setItem('userId', response.id)
+            localStorage.setItem('userId', response.id);
+            localStorage.setItem('empId', response.empId);
             console.log('Login successful');
-            this.router.navigate(['/employee']);
+            this.router.navigate(['/individual']);
           } else {
             console.error('Login failed:', response.message);
           }

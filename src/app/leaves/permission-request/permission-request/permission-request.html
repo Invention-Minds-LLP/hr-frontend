@@ -1,7 +1,6 @@
 <div class="permission-request">
     <div class="header">
         <div class="heading">Permission Request</div>
-        <div class="heading">Permission Request</div>
         <div class="flex">
             <p-iconfield>
                 <p-inputicon class="pi pi-search" />
@@ -72,6 +71,14 @@
 
                 </tr>
             </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td [attr.colspan]="columnCount" class="no-data-message">
+                    <i class="pi pi-info-circle"></i>
+                    No WFH requests found.
+                  </td>
+                </tr>
+              </ng-template>
         </p-table>
 
     </div>

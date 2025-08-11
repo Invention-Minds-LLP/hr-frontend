@@ -93,6 +93,17 @@ export class EmployeeForm {
   uploadedDocsForm!: FormArray;
   completedSteps: boolean[] = [false, false, false, false];
   reportingManagers: any[] = [];
+  bloodGroups = [
+    { label: 'A+', value: 'A+' },
+    { label: 'A-', value: 'A-' },
+    { label: 'B+', value: 'B+' },
+    { label: 'B-', value: 'B-' },
+    { label: 'O+', value: 'O+' },
+    { label: 'O-', value: 'O-' },
+    { label: 'AB+', value: 'AB+' },
+    { label: 'AB-', value: 'AB-' }
+  ];
+  
 
 
 
@@ -115,6 +126,8 @@ export class EmployeeForm {
       phone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       photoUrl: [''],
+      bloodGroup:['',Validators.required],
+      age:['',Validators.required],
 
       employeeCode: ['', Validators.required],
       referenceCode: [''],
@@ -163,8 +176,16 @@ export class EmployeeForm {
     this.employeeForm.addControl('documents', this.uploadedDocsForm);
     this.addDocument();
     if (this.employeeData) {
+      console.log(this.employeeData);
       this.patchForm(this.employeeData);
     }
+    this.employeeForm.get('dob')?.valueChanges.subscribe(dob => {
+      if (dob) {
+        this.employeeForm.patchValue({
+          age: this.calculateAge(new Date(dob))
+        }, { emitEvent: false });
+      }
+    });
 
   }
   sameAsPermanent = false;
@@ -476,7 +497,9 @@ export class EmployeeForm {
       employmentStatus: data.employmentStatus,
       shiftId: data.shiftId,
       shiftDate: data.latestShiftAssignment.date ? new Date(data.latestShiftAssignment.date) : null,
-      sameAsPermanent: data.sameAsPermanent
+      sameAsPermanent: data.sameAsPermanent,
+      bloodGroup: data.bloodGroup,
+      age:data.age
     });
 
     // Patch addresses
@@ -577,7 +600,15 @@ export class EmployeeForm {
   showError(control: AbstractControl | null): boolean {
     return this.invalid(control);
   }
-
+  calculateAge(dob: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age;
+  }
 
 }
 
