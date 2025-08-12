@@ -87,6 +87,7 @@ export class EmployeeForm {
   roles: any[] = [];
   shifts: any[] = [];
   filteredTypes: any[][] = []; // store filtered options per row
+  patterns: any[] = []; // rotation patterns
 
   uploadedDocuments: any[] = [];
   photoUrl: string = '';
@@ -103,7 +104,7 @@ export class EmployeeForm {
     { label: 'AB+', value: 'AB+' },
     { label: 'AB-', value: 'AB-' }
   ];
-  
+
 
 
 
@@ -126,8 +127,8 @@ export class EmployeeForm {
       phone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       photoUrl: [''],
-      bloodGroup:['',Validators.required],
-      age:['',Validators.required],
+      bloodGroup: ['', Validators.required],
+      age: ['', Validators.required],
 
       employeeCode: ['', Validators.required],
       referenceCode: [''],
@@ -165,8 +166,12 @@ export class EmployeeForm {
         country: ['']
       }),
 
-      
-      shiftDate: ['']
+
+      shiftMode: ['FIXED', Validators.required],   // NEW
+      rotationPatternId: [''],                     // NEW for ROTATIONAL
+      rotationStartDate: [''],                     // NEW
+      shiftDate: ['']                              // keep (optional for fixed)
+
     });
     this.addQualification();
     this.addEmergencyContact();
@@ -241,6 +246,7 @@ export class EmployeeForm {
     this.branchService.getBranches().subscribe(data => this.branches = data);
     this.roleService.getRoles().subscribe(data => this.roles = data);
     this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data);
+    this.shiftService.getRotationPatterns().subscribe(data => this.patterns = data); // NEW
   }
 
   get emergencyContacts(): FormArray {
@@ -341,8 +347,7 @@ export class EmployeeForm {
         permanentAddress,
         temporaryAddress,
         documents,
-        shiftId,
-        shiftDate,
+        shiftId, shiftDate, shiftMode, rotationPatternId, rotationStartDate,
         ...rest
       } = this.employeeForm.value;
 
@@ -352,7 +357,11 @@ export class EmployeeForm {
         addresses: [
           { type: 'PERMANENT', ...formValue.permanentAddress },
           { type: 'TEMPORARY', ...formValue.temporaryAddress }
-        ]
+        ],
+        shiftMode,
+        fixedShiftId: shiftMode === 'FIXED' ? shiftId : undefined,
+        rotationPatternId: shiftMode === 'ROTATIONAL' ? rotationPatternId : undefined,
+        rotationStartDate: shiftMode === 'ROTATIONAL' ? rotationStartDate : undefined
       };
 
       console.log(payload)
@@ -499,7 +508,7 @@ export class EmployeeForm {
       shiftDate: data.latestShiftAssignment.date ? new Date(data.latestShiftAssignment.date) : null,
       sameAsPermanent: data.sameAsPermanent,
       bloodGroup: data.bloodGroup,
-      age:data.age
+      age: data.age
     });
 
     // Patch addresses

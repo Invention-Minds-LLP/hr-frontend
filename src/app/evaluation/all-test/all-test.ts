@@ -13,12 +13,13 @@ import { TestAssignment } from "../test-assignment/test-assignment";
 })
 export class AllTest {
   tests: any[] = [];
-  showTest:boolean = false;
+  showTest: boolean = false;
   selectedTest: any = null;
   showAssignPopup: boolean = false;
-  assignTest:any = null;
+  assignTest: any = null;
+  editingTest: any = null;
 
-  constructor(private testService: Tests) {}
+  constructor(private testService: Tests) { }
 
   ngOnInit(): void {
     this.testService.getAll().subscribe({
@@ -26,15 +27,32 @@ export class AllTest {
       error: err => console.error('Failed to load tests', err)
     });
   }
-  openForm(){
+
+  fetchTests() {
+    this.testService.getAll().subscribe({
+      next: data => this.tests = data,
+      error: err => console.error('Failed to load tests', err)
+    });
+  }
+  openTest(test: any) {
+    this.editingTest = test;
     this.showTest = true;
   }
 
-  openTest(test:any){
-    this.selectedTest = test;
+  // when child emits close
+  onCloseCreation() {
+    this.showTest = false;
+    this.editingTest = null;
+    this.fetchTests();      // refresh list after save/cancel
   }
-  openAssign(test:any){
+
+  openAssign(test: any) {
+    this.assignTest = test;
     this.showAssignPopup = true;
-    this.assignTest = test
+  }
+
+  newForm() {
+    this.showTest = true;
+    this.editingTest = null
   }
 }

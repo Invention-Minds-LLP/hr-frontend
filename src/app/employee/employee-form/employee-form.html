@@ -400,17 +400,41 @@
                             </div>
                         </p-floatLabel>
                     </div>
+                    <!-- Shift Mode -->
                     <div class="field col-4">
+                        <p-floatLabel variant="on">
+                            <p-select
+                                [options]="[{label:'General', value:'FIXED'},{label:'Rotational', value:'ROTATIONAL'}]"
+                                formControlName="shiftMode"></p-select>
+                            <label>Shift Mode</label>
+                        </p-floatLabel>
+                    </div>
+
+                    <!-- If FIXED: choose a single template -->
+                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
                         <p-floatLabel variant="on">
                             <p-select [options]="shifts" formControlName="shiftId" optionLabel="name" optionValue="id"
                                 [ngClass]="{ 'ng-invalid': showError(employeeForm.get('shiftId')) }"></p-select>
                             <label>Shift Template</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('shiftId'))">
-                                Shift Template is required.
-                            </div>
                         </p-floatLabel>
-
                     </div>
+
+                    <!-- If ROTATIONAL: choose a pattern and start date -->
+                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
+                        <p-floatLabel variant="on">
+                            <p-select [options]="patterns" formControlName="rotationPatternId" optionLabel="name"
+                                optionValue="id"></p-select>
+                            <label>Rotation Pattern</label>
+                        </p-floatLabel>
+                    </div>
+
+                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
+                        <p-floatLabel variant="on">
+                            <p-datePicker formControlName="rotationStartDate" dateFormat="yy-mm-dd"></p-datePicker>
+                            <label>Rotation Start Date</label>
+                        </p-floatLabel>
+                    </div>
+
                     <div class="field col-4">
                         <p-floatLabel variant="on">
                             <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd"></p-datePicker>

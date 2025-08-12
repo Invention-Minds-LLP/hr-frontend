@@ -3,7 +3,7 @@
   <p-toolbar styleClass="mb-3">
     <div class="p-toolbar-group-left">
       <h3 class="m-0">Questions</h3>
-      <p-badge [value]="questions?.length || 0" styleClass="ml-2"></p-badge>
+      <p-badge [value]="questions.length || 0" styleClass="ml-2"></p-badge>
     </div>
     <div class="p-toolbar-group-right">
       <button pButton type="button" icon="pi pi-plus" label="Add Question" (click)="openCreate()"></button>

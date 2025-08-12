@@ -1,44 +1,126 @@
-<div class="test-creator">
-  <div class="header">
-    <h3>Create Evaluation Test</h3>
-    <span class="close-icon" (click)="close()">&#10006;</span>
+<div class="tc-wrap">
+  <div class="tc-header">
+    <h2>Test Creation Form</h2>
+    <!-- <button class="tc-close" (click)="close()">×</button> -->
   </div>
-  <hr />
-  <div class="form-container">
-    <div class="form-row">
-      <label>Test Name:</label>
-      <input type="text" [(ngModel)]="formData.name" />
+
+  <form class="tc-grid" (ngSubmit)="submit()" #formRef="ngForm">
+    <!-- Row 1 -->
+    <div class="tc-field">
+      <input type="text" [(ngModel)]="formData.name" name="name" placeholder="Test Name" required />
     </div>
 
-    <div class="form-row">
-      <label>Question Bank:</label>
-      <select [(ngModel)]="formData.questionBankId">
-        <option [ngValue]="0">Select a Bank</option>
-        <option *ngFor="let bank of questionBanks" [ngValue]="bank.id">
-          {{ bank.name }}
-        </option>
+    <div class="tc-field">
+      <select [(ngModel)]="ui.roleId" name="roleId">
+        <option [ngValue]="null">Role</option>
+        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
       </select>
+      <!-- <span class="tc-caret"></span> -->
     </div>
 
-    <div class="form-row">
-      <label>Duration (minutes):</label>
-      <input type="number" [(ngModel)]="formData.duration" min="1" />
+    <div class="tc-field">
+      <select [(ngModel)]="ui.level" name="level">
+        <option value="">Level</option>
+        <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+      </select>
+      <!-- <span class="tc-caret"></span> -->
     </div>
 
-    <div class="form-row">
-      <label>Passing Percentage:</label>
-      <input type="number" [(ngModel)]="formData.passingPercent" min="0" max="100" />
+    <!-- Row 2 -->
+    <div class="tc-field">
+      <select [(ngModel)]="ui.purpose" name="purpose">
+        <option value="">Purpose</option>
+        <option *ngFor="let p of purposes" [value]="p">{{ p }}</option>
+      </select>
+      <!-- <span class="tc-caret"></span> -->
     </div>
 
-    <div class="form-row">
-      <label>Max Attempts:</label>
-      <input type="number" [(ngModel)]="formData.maxAttempts" min="1" />
+    <div class="tc-field">
+      <input type="number" min="1" [(ngModel)]="formData.duration" name="duration" placeholder="Total Duration" />
     </div>
 
-    <div class="form-actions">
-      <button class="btn-green" (click)="submit()">Create Test</button>
+    <div class="tc-field">
+      <input type="number" min="0" max="100" [(ngModel)]="formData.passingPercent" name="passingPercent" placeholder="Passing Percentage" />
     </div>
+
+    <!-- Row 3 -->
+    <div class="tc-field">
+      <input type="number" min="1" [(ngModel)]="formData.maxAttempts" name="maxAttempts" placeholder="Maximum Attempt Allowed" />
+    </div>
+
+    <div class="tc-field">
+      <select [(ngModel)]="ui.randomization" name="randomization">
+        <option value="">Randomization</option>
+        <option value="none">None</option>
+        <option value="shuffle_questions">Shuffle Questions</option>
+        <option value="shuffle_options">Shuffle Options</option>
+        <option value="both">Both</option>
+      </select>
+      <!-- <span class="tc-caret"></span> -->
+    </div>
+
+    <div class="tc-field">
+      <select [(ngModel)]="formData.questionBankId" name="questionBankId" (change)="clearPreview()">
+        <option [ngValue]="0">Select Question Bank</option>
+        <option *ngFor="let bank of questionBanks" [ngValue]="bank.id">{{ bank.name }}</option>
+      </select>
+      <!-- <span class="tc-caret"></span> -->
+    </div>
+  </form>
+
+  <!-- Actions -->
+  <div class="tc-actions">
+    <button type="button" class="btn btn-blue" (click)="preview()">Preview</button>
+    <button type="button" class="btn btn-green" (click)="submit()">Save</button>
+    <button type="button" class="btn btn-red" (click)="close()">Cancel</button>
   </div>
 
-  <p *ngIf="message">{{ message }}</p>
+  <!-- Message -->
+  <p class="tc-msg" *ngIf="message">{{ message }}</p>
+
+  <!-- Preview Drawer -->
+  <div class="tc-preview" *ngIf="showPreview">
+    <div class="tp-head">
+      <div class="tp-title">
+        <strong>Preview:</strong>
+        <span class="muted">{{ selectedBankName || '—' }}</span>
+      </div>
+      <button class="tp-close" (click)="showPreview=false">×</button>
+    </div>
+
+    <div class="tp-meta">
+      <div><b>Duration:</b> {{ formData.duration }} min</div>
+      <div><b>Pass %:</b> {{ formData.passingPercent }}%</div>
+      <div><b>Max Attempts:</b> {{ formData.maxAttempts }}</div>
+    </div>
+
+    <div class="tp-list" *ngIf="previewQuestions.length; else noQs">
+      <div class="tp-item" *ngFor="let q of previewQuestions; let i = index">
+        <div class="tp-q">
+          <span class="num">{{ i + 1 }}.</span>
+          <span class="text">{{ q.text }}</span>
+          <span class="badge" [class.badge-info]="q.type==='MCQ'" [class.badge-warn]="q.type!=='MCQ'">
+            {{ q.type }}
+          </span>
+        </div>
+
+        <div class="tp-opts" *ngIf="q.type==='MCQ'">
+          <div class="opt" *ngFor="let o of q.options">
+            <i class="dot" [class.correct]="o.isCorrect"></i>
+            <span>{{ o.text }}</span>
+          </div>
+          <div class="opt-meta">
+            <span class="muted">{{ q.options?.length || 0 }} options</span>
+            <span class="ok" *ngIf="countCorrect(q) > 0">{{ countCorrect(q) }} correct</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noQs>
+      <div class="tp-empty">
+        <i>Selected question bank has no questions.</i>
+      </div>
+    </ng-template>
+  </div>
 </div>

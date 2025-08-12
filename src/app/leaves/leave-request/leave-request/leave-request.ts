@@ -20,7 +20,7 @@ export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, DatePicker, TooltipModule, LeavePopup],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup],
   templateUrl: './leave-request.html',
   styleUrl: './leave-request.css'
 })

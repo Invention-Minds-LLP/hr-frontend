@@ -17,4 +17,9 @@ export class Tests {
   getAll(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
+  // services/tests/tests.ts
+update(id: number, payload: any) {
+  return this.http.put<any>(`http://localhost:3002/api/tests/${id}`, payload);
+}
+
 }

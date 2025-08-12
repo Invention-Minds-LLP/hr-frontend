@@ -138,36 +138,6 @@ export class AppraisalTable {
   }
   
 
-  getDeptClass(department: string): string {
-    switch (department) {
-      case 'Design':
-        return 'design-dept';
-      case 'Development':
-        return 'dev-dept';
-      case 'HR':
-        return 'hr-dept';
-      case 'Finance':
-        return 'finance-dept';
-      default:
-        return 'default-dept';
-    }
-  }
-
-  getDotColor(department: string): string {
-    switch (department) {
-      case 'Design':
-        return '#00c853'; // green
-      case 'Development':
-        return '#2962ff'; // blue
-      case 'HR':
-        return '#ff6d00'; // orange
-      case 'Finance':
-        return '#d500f9'; // purple
-      default:
-        return '#9e9e9e'; // gray
-    }
-  }
-
   closePopup() {
     this.showPopup = false;
     this.appraisalForm.reset();

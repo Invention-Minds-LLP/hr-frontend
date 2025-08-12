@@ -1,0 +1,134 @@
+<form class="qb-editor" [formGroup]="bankForm">
+    <h2 class="title">
+        Question Bank — <span class="muted">{{ bankId ? 'Edit' : 'New' }} {{ bankPreset?.name ?? bankForm?.get('name')?.value ?? '—' }}</span>
+      </h2>
+
+    <!-- Question Info -->
+    <section class="qb-info">
+        <div class="row">
+            <input pInputText placeholder="Question Bank Name" formControlName="name" />
+            <!-- <input pInputText placeholder="Category" formControlName="category" /> -->
+            <p-select placeholder="Department" [options]="departments" optionLabel="name" optionValue="id"
+                formControlName="departmentId"></p-select>
+            <input pInputText placeholder="Designation" formControlName="designation" />
+            <p-select placeholder="Select Test Level" [options]="testLevels" optionLabel="label" optionValue="value"
+                formControlName="level"></p-select>
+        </div>
+
+        <!-- <div class="row">
+        <p-select placeholder="Select Test Level"
+                  [options]="testLevels" optionLabel="label" optionValue="value"
+                  formControlName="level"></p-select>
+      </div> -->
+    </section>
+
+    <!-- Add Questions -->
+    <section class="qb-questions" formArrayName="questions">
+        <h3 class="sec-title">Add Questions</h3>
+
+        <div class="q-block" *ngFor="let q of questionsFA.controls; let i = index" [formGroupName]="i">
+            <div class="q-row controls">
+                <p-select class="type" [options]="qTypes" optionLabel="label" optionValue="value" formControlName="type"
+                    (onChange)="onTypeChange(i)"></p-select>
+
+                <!-- <p-inputNumber class="max" placeholder="Enter Max Time"
+                         [useGrouping]="false" formControlName="maxTime"></p-inputNumber> -->
+
+                <p-inputNumber class="w" placeholder="Weightage" [useGrouping]="false"
+                    formControlName="weight"></p-inputNumber>
+                <!--       
+          <p-inputNumber class="nw" placeholder="Negative Weightage"
+                         [useGrouping]="false" formControlName="negativeWeight"></p-inputNumber> -->
+
+                <!-- NEW: Answer Type (only for MCQ) -->
+                <ng-container *ngIf="q.get('type')!.value === 'MCQ'">
+                    <p-select class="atype"
+                        [options]="[{label:'Single Choice',value:'single'},{label:'Multiple Choice',value:'multiple'}]"
+                        optionLabel="label" optionValue="value" formControlName="answerType"
+                        (onChange)="onAnswerTypeChange(i)"></p-select>
+                </ng-container>
+
+                <button  type="button" class="add-btn" icon="pi pi-plus" label="Add"
+                    (click)="addQuestionRow(q.get('type')!.value)">Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#767676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg></button>
+
+                <button  type="button" class="del-btn p-button-text p-button-danger" icon="pi pi-trash"
+                    (click)="removeQuestionRow(i)" *ngIf="questionsFA.length > 1">Remove</button>
+            </div>
+
+            <textarea pInputTextarea class="q-textarea" rows="3" [placeholder]="(i+1) + '. Type Your Question Here...'"
+                formControlName="text"></textarea>
+
+            <!-- options -->
+            <div class="options" *ngIf="q.get('type')!.value !== 'Descriptive'">
+                <div class="opt-row" formArrayName="options" *ngFor="let opt of optionsFA(i).controls; let oi = index">
+                    <div [formGroupName]="oi" class="opt-item">
+                        <input pInputText class="opt-input" placeholder="Type Answer Here" formControlName="text" />
+                        <div class="opt-actions">
+                            <p-checkbox [binary]="true" formControlName="isCorrect"
+                                (onChange)="onCorrectChange(i, oi)"></p-checkbox>
+                            <button  type="button" icon="pi pi-plus" class="p-button-text add-btn"
+                                (click)="addOption(i)">Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#767676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  </svg></button>
+                            <button  type="button" icon="pi pi-times" class="p-button-text p-button-danger"
+                                (click)="removeOption(i, oi)" [disabled]="optionsFA(i).length <= 2">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- validation messages -->
+                <div class="opt-validation">
+                    <small class="error" *ngIf="submitted && optionsFA(i).length < 2">At least 2 options are
+                        required.</small>
+                    <small class="error"
+                        *ngIf="submitted && q.get('answerType')!.value === 'single' && countCorrectAt(i) !== 1">
+                        Exactly one option must be marked correct for Single Choice.
+                    </small>
+                    <small class="error"
+                        *ngIf="submitted && q.get('answerType')!.value === 'multiple' && countCorrectAt(i) < 1">
+                        Mark at least one option as correct for Multiple Choice.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <div class="actions">
+        <button  class="btn-preview" label="Preview" type="button" (click)="openPreview()">Preview</button>
+        <button  class="btn-save p-button-success" label="Save" type="button" (click)="saveAll()"
+            [disabled]="saving">Save</button>
+        <button  class="btn-cancel p-button-danger" label="Cancel" type="button" (click)="cancel()">Cancel</button>
+    </div>
+</form>
+
+<!-- Preview -->
+<p-dialog [(visible)]="showPreview" [modal]="true" [style]="{width:'760px'}" header="Preview">
+    <div class="preview">
+        <div class="pv-info">
+            <div><b>Name:</b> {{ bankForm.value.name || '—' }}</div>
+            <div><b>Category:</b> {{ bankForm.value.category || '—' }}</div>
+            <div><b>Department:</b> {{ getDeptName(bankForm.value.departmentId!) }}</div>
+            <div><b>Level:</b> {{ bankForm.value.level || '—' }}</div>
+        </div>
+        <hr />
+        <ol class="pv-list">
+            <li *ngFor="let q of questionsFA.controls">
+                <div class="pv-q">{{ q.value.text }}</div>
+                <div class="pv-meta">Type: {{ q.value.type }} • Weight: {{ q.value.weight || 0 }}</div>
+                <ul *ngIf="q.value.type !== 'Descriptive'">
+                    <li *ngFor="let o of q.value.options">
+                        <span [style.font-weight]="o.isCorrect ? '600' : '400'">
+                            {{ o.text }} <ng-container *ngIf="o.isCorrect">✓</ng-container>
+                        </span>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>

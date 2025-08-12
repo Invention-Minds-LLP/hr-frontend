@@ -21,4 +21,7 @@ export class QuestionsService {
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+  update(id: number, question: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, question);
+  }
 }

@@ -6,13 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { Questions } from '../questions/questions';
 import { BaseIcon } from "primeng/icons/baseicon";
+import { QuestionBankEditor } from "../question-bank-editor/question-bank-editor";
 
 
 
 
 @Component({
   selector: 'app-question-bank',
-  imports: [CommonModule, FormsModule, TableModule, Questions],
+  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor],
   templateUrl: './question-bank.html',
   styleUrl: './question-bank.css'
 })
@@ -23,6 +24,8 @@ export class QuestionBank {
   departments: any[] = [];
   selectedBankId: number | null = null;
   selectedBank: any = null;
+    // NEW: editor switching state
+    showEditor = false;
 
   selectQuestionBank(bank: any) {
     this.selectedBankId = bank;
@@ -63,22 +66,27 @@ export class QuestionBank {
     });
   }
 
-  openForm(bank?: QuestionBank): void {
+  editingBank: any = null;
+
+  openForm(bank?: any): void {
     this.isEditing = !!bank;
-
-    if (bank) {
-      this.formData = { ...bank };
-    } else {
-      this.resetForm();
-    }
-
+    this.editingBank = bank ?? null;
     this.showFormPopup = true;
+    this.showEditor = true;
   }
-
+  
   closeForm(): void {
     this.showFormPopup = false;
-    this.resetForm();
+    this.showEditor = false;
+    this.isEditing = false;
+    this.editingBank = null;
   }
+  
+  onBankSaved(): void {
+    this.fetchQuestionBanks();   // refresh list after save
+    this.closeForm();
+  }
+  
 
   save(): void {
     if (!this.formData.name || !this.formData.createdBy) {

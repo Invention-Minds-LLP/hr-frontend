@@ -1,107 +1,57 @@
 <div class="question-bank">
-<ng-container *ngIf="!selectedBankId; else questionsView">
-  <div class="header">
-    <h2>Question Bank List</h2>
-    <button (click)="openForm()" class="add-btn">Add New QB
-      <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-        <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </button>
-  </div>
+  <!-- If editing/creating, show the editor -->
+  <ng-container *ngIf="showEditor; else listView">
+    <app-question-bank-editor
+      [bankId]="editingBank?.id"
+      [bankPreset]="editingBank"
+      (saved)="onBankSaved()"
+      (closed)="closeForm()">
+    </app-question-bank-editor>
+  </ng-container>
 
-  <p-table [value]="questionBanks" [paginator]="true" [rows]="10">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Role</th>
-        <th>Department ID</th>
-        <th>Difficulty</th>
-        <th style="text-align: center;">Action</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-bank let-i="rowIndex">
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ bank.name }}</td>
-        <td>{{ bank.role }}</td>
-        <td class="t-data al">
-          <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(bank.departmentId).badgeColor }">
-            <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(bank.departmentId).dotColor }">
-            </span>
-            {{ getDepartmentName(bank.departmentId) }}
-          </span>
-        </td>
-        <td>{{ bank.difficulty }}</td>
-        <td class="button-div">
-          <button class="btn-edit" (click)="openForm(bank)">Edit</button>
-          <button class="btn-edit" (click)="selectQuestionBank(bank.id)">Questions</button>
-          <!-- <button class="btn-delete" (click)="delete(bank.id!)">Delete</button> -->
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-
-
-<!-- Form Popup -->
-<div class="custom-popup" *ngIf="showFormPopup">
-  <div class="popup-content">
-    <h3 class="popup-title">{{ isEditing ? 'Edit' : 'Add' }} Question Bank</h3>
-    <hr />
-    <div class="form-container">
-
-      <div class="form-row">
-        <label>Name:</label>
-        <input type="text" [(ngModel)]="formData.name" />
-      </div>
-
-      <div class="form-row">
-        <label>Role:</label>
-        <input type="text" [(ngModel)]="formData.role" />
-      </div>
-
-      <div class="form-row">
-        <label>Department:</label>
-        <select [(ngModel)]="formData.departmentId">
-          <option value="">Select Department</option>
-          <option *ngFor="let dept of departments" [ngValue]="dept.id">
-            {{ dept.name }}
-          </option>
-        </select>
-      </div>
-
-
-      <div class="form-row">
-        <label>Difficulty:</label>
-        <select [(ngModel)]="formData.difficulty">
-          <option value="">Select</option>
-          <option value="Easy">Easy</option>
-          <option value="Moderate">Moderate</option>
-          <option value="Hard">Hard</option>
-        </select>
-      </div>
-
-      <div class="popup-actions">
-        <button class="btn-green" (click)="save()">Save</button>
-        <button class="btn-red" (click)="closeForm()">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-</ng-container>
-
-<!-- Question Manager Section -->
-<ng-template  #questionsView>
-  <div class="question-section">
+  <!-- Else show the table -->
+  <ng-template #listView>
     <div class="header">
-      <button class="btn-back" (click)="closeQuestions()">Back to Banks</button>
-      <h2>Questions — {{ selectedBank?.name }}</h2>
+      <h2>Question Bank List</h2>
+      <button (click)="openForm()" class="add-btn">
+        Add New QB
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
     </div>
 
-    <app-questions *ngIf="selectedBankId"
-                   [questionBankId]="selectedBankId!">
-    </app-questions>
-  </div>
-</ng-template>
+    <p-table [value]="questionBanks" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Department ID</th>
+          <th>Difficulty</th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-bank let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ bank.name }}</td>
+          <td>{{ bank.role }}</td>
+          <td class="t-data al">
+            <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(bank.departmentId).badgeColor }">
+              <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(bank.departmentId).dotColor }"></span>
+              {{ getDepartmentName(bank.departmentId) }}
+            </span>
+          </td>
+          <td>{{ bank.difficulty }}</td>
+          <td class="button-div">
+            <button class="btn-edit" (click)="openForm(bank)">Edit</button>
+            <button class="btn-edit" (click)="selectQuestionBank(bank)">Questions</button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
 </div>

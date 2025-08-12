@@ -8,7 +8,7 @@ import { AssignedTest } from "../assigned-test/assigned-test";
 
 @Component({
   selector: 'app-evaluation-overview',
-  imports: [CommonModule, QuestionBank, TestCreation, TestAssignment, AllTest, AssignedTest],
+  imports: [CommonModule, QuestionBank, AllTest, AssignedTest],
   templateUrl: './evaluation-overview.html',
   styleUrl: './evaluation-overview.css'
 })

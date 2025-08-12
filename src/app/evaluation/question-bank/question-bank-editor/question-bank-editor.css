@@ -1,0 +1,140 @@
+.qb-editor {
+  padding: 24px;
+}
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.muted {
+  color: #8a8a8a;
+}
+
+.qb-info .row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+/* .qb-info .row:last-child {
+  grid-template-columns: 240px;
+} */
+
+.qb-questions {
+  margin-top: 20px;
+}
+.sec-title {
+  margin-bottom: 10px;
+}
+
+.q-block {
+  /* background: #f6f8fb; */
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.q-row.controls {
+  display: grid;
+  grid-template-columns: 250px 230px 180px 180px 44px; /* +180px for Answer Type */
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.q-textarea {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.options {
+  margin-top: 8px;
+}
+.opt-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+.opt-input {
+  flex: 1;
+}
+.opt-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.opt-row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.btn-preview,
+.btn-save,
+.btn-cancel {
+  border-radius: 8px;
+  background: #0062a1;
+  border: none;
+  display: flex;
+  width: 160px;
+  height: 44px;
+  padding: 0 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #FFF;
+font-family: "Sofia Sans";
+font-size: 18px;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
+letter-spacing: 0.18px;
+}
+.btn-save {
+  border-radius: 8px;
+  background: #17b226;
+}
+
+.btn-cancel {
+  border-radius: 8px;
+  background: #ff5151;
+}
+
+input,
+.p-select,
+.p-datepicker,
+.p-calendar,
+.p-textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  background-color: transparent;
+}
+
+.add-btn {
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  display: inline-flex;
+  height: 38px;
+  width: 83px;
+  padding: 0 16px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #767676;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.14px;
+  background: transparent;
+}

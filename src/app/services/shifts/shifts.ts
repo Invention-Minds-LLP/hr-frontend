@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class Shifts {
   private apiUrl = 'http://localhost:3002/api/shifts';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /* ==========================
      SHIFT TEMPLATE METHODS
@@ -67,4 +67,13 @@ export class Shifts {
   deleteShiftAssignment(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/assignments/${id}`);
   }
+
+  // shifts.service.ts
+  getRotationPatterns() {
+    return this.http.get<any[]>('http://localhost:3002/api/shifts/rotation-patterns');
+  }
+  assignRotational(body: { employeeId: number; patternId: number; startDate: string }) {
+    return this.http.post('http://localhost:3002/api/shifts/assign-rotational', body);
+  }
+
 }

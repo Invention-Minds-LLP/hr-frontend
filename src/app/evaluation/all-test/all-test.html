@@ -1,51 +1,62 @@
 <div class="question-bank">
-  <div class="header">
-    <h2>All Tests</h2>
-    <button (click)="openForm()" class="add-btn">Add New Test
-      <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-        <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </button>
-  </div>
-  <p-table [value]="tests">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Duration</th>
-        <th>Passing %</th>
-        <th>Max Attempts</th>
-        <th>Question Bank</th>
-        <th style="text-align: center;">Action</th>
-      </tr>
-    </ng-template>
+  <!-- Table view -->
+  <ng-container *ngIf="!showTest; else creationView">
+    <div class="header">
+      <h2>All Tests</h2>
+      <button (click)="newForm()" class="add-btn">
+        Add New Test
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
 
-    <ng-template pTemplate="body" let-test let-i="rowIndex">
-      <tr>
-        <td>{{i + 1}}</td>
-        <td>{{ test.name }}</td>
-        <td>{{ test.duration }} min</td>
-        <td>{{ test.passingPercent }}%</td>
-        <td>{{ test.maxAttempts }}</td>
-        <td>{{ test.questionBankName }}</td>
-        <td class="button-div">
-          <button class="btn-edit" (click)="openTest(test)">Edit</button>
-          <button class="btn-edit" (click)="openAssign(test)">Assign</button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+    <p-table [value]="tests">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Name</th>
+          <th>Duration</th>
+          <th>Passing %</th>
+          <th>Max Attempts</th>
+          <th>Question Bank</th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-test let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ test.name }}</td>
+          <td>{{ test.duration }} min</td>
+          <td>{{ test.passingPercent }}%</td>
+          <td>{{ test.maxAttempts }}</td>
+          <td>{{ test.questionBankName }}</td>
+          <td class="button-div">
+            <button class="btn-edit" (click)="openTest(test)">Edit</button>
+            <button class="btn-edit" (click)="openAssign(test)">Assign</button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <!-- Creation / Edit view -->
+  <ng-template #creationView>
+    <app-test-creation
+      [testData]="editingTest"          
+      (closeForm)="onCloseCreation()">
+    </app-test-creation>
+  </ng-template>
 </div>
 
-<div *ngIf="showTest" class="overlay">
-  <div class="content">
-    <app-test-creation (closeForm)="showTest = false"></app-test-creation>
-  </div>
-</div>
-
+<!-- Assign overlay stays as-is -->
 <div *ngIf="showAssignPopup" class="overlay">
   <div class="content">
-    <app-test-assignment (closeForm)="showAssignPopup = false" [test]="assignTest"></app-test-assignment>
+    <app-test-assignment
+      [test]="assignTest"
+      (closeForm)="showAssignPopup = false">
+    </app-test-assignment>
   </div>
 </div>
