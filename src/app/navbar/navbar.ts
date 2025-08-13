@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
@@ -62,6 +62,10 @@ export class Navbar {
     return map[s] ?? s.toUpperCase().replace(/ /g, '_');
   }
   
+  @HostListener('document:click')
+  closeDropdown() {
+    this.isOpen = false;
+  }
 
 
   goToProfile() {

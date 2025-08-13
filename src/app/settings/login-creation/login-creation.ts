@@ -21,9 +21,13 @@ export class LoginCreation {
     confirmPassword:''
   }
 
+  formSubmitted = false;
+
   constructor(private userService: User){}
 
   onSubmit(form : NgForm){
+    this.formSubmitted = true;
+
     if(form.valid && ! this.confirmPasswordMismatch()){
       console.log('form Submited', this.login);
       
@@ -41,7 +45,7 @@ export class LoginCreation {
       next: (res) => {
         console.log('User created:', res);
         alert('User created successfully');
-        this.onClear();
+        this.onClear(form);
       },
       error: (err) => {
         console.error('Register failed:', err);
@@ -76,13 +80,14 @@ export class LoginCreation {
   }
 
 
-  onClear(){
+  onClear(form : NgForm){
     this.login ={
       employeeId:null,
       password:'',
       confirmPassword:''
-
     }
+    this.formSubmitted = false;
+    form.resetForm();
   }
 
 }

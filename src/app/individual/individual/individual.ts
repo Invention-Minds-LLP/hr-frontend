@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { AutoComplete } from 'primeng/autocomplete';
@@ -8,6 +8,7 @@ import { Employees } from '../../services/employees/employees';
 import { LeavePopup } from '../../leaves/leave-popup/leave-popup';
 import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
+import { Holiday, Holidays } from '../../services/holidays/holidays';
 
 interface individual {
   date: string;
@@ -49,11 +50,15 @@ export class Individual {
   selectedWFH: any = null;
   wfhViewMode = false;
 
+ monthName: string = '';
+year: number = 0;
+holidays: any[] = [];
+nearestHoliday: any = null;
+displayDates: Date[] = [];
 
 
 
-
-  constructor(private employeeService: Employees) { }
+  constructor(private employeeService: Employees, private holidayService: Holidays) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -103,9 +108,68 @@ export class Individual {
     this.generateWeekDays();
     this.fetchDetails();
 
+    const today = new Date();
+    this.year = today.getFullYear();
+    this.monthName = today.toLocaleString('default', { month: 'long' });
+    this.loadHolidaysForYear(this.year, today);
+
   }
 
-  fetchDetails(){
+   loadHolidaysForYear(year: number, fromDate: Date) {
+    this.holidayService.getHolidays(year, 'IN').subscribe(data => {
+      if (!data || data.length === 0) {
+        this.holidays = [];
+        return;
+      }
+
+      this.holidays = data;
+
+      const upcoming = data
+        .map(h => new Date(h.date))
+        .filter(d => d >= fromDate)
+        .sort((a, b) => a.getTime() - b.getTime());
+
+      if (upcoming.length > 0) {
+        this.setNearestHoliday(upcoming[0]);
+      } else {
+        this.year = year + 1;
+        this.monthName = new Date(this.year, 0).toLocaleString('default', { month: 'long' });
+        this.loadHolidaysForYear(this.year, new Date(this.year, 0, 1));
+      }
+    });
+  }
+
+  setNearestHoliday(date: Date) {
+    this.nearestHoliday = this.holidays.find(
+      h => h.date === date.toISOString().split('T')[0]
+    ) || null;
+
+    const start = new Date(date);
+    start.setDate(date.getDate() - 3);
+
+    this.displayDates = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return d;
+    });
+  }
+
+  isNearest(date: Date): boolean {
+    return this.nearestHoliday && date.toISOString().split('T')[0] === this.nearestHoliday.date;
+  }
+
+  isHoliday(date: Date): boolean {
+    return this.holidays.some(h => h.date === date.toISOString().split('T')[0]);
+  }
+
+
+
+
+
+
+ 
+
+  fetchDetails() {
     const employeeId = Number(localStorage.getItem('empId')); // make sure this is the numeric Employee.id
     if (!employeeId) return;
 
@@ -172,7 +236,7 @@ export class Individual {
       }
       return result;
     }
-    
+
   }
 
 
@@ -354,8 +418,8 @@ export class Individual {
     this.selectedWFH = row;
     this.showWFHPopup = true;
   }
-   
-  closePopup(){
+
+  closePopup() {
     this.showLeaveDetailsPopup = false;
     this.showPermissionPopup = false;
     this.showWFHPopup = false;

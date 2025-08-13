@@ -554,6 +554,44 @@
   color: #ff7b7b;
 }
 
+.holiday-card {
+  background-color: #2b7da8;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  border-radius: 20px;
+  width: 260px;
+  margin: auto;
+}
+
+.month-year {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.dates-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+.dates-row div {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.dates-row div.nearest {
+  background-color: #ff5252;
+  font-weight: bold;
+}
+
+.dates-row div.other-holiday {
+  color: #ff5252;
+}
+
+
 /* lap */
 @media(max-width: 1439px) {
   .individual-container {
@@ -567,9 +605,27 @@
 
   .individual-top,
   .individual-bottom {
+    width: 100%;
     flex-direction: column;
     height: auto;
-    /* align-items: center; */
+    align-items: center;
+  }
+
+  .border{
+    display: none;
+  }
+
+  .leave,
+  .permission {
+    flex-direction: column;
+    width: 100%;
+    height: 200px;
+    border-bottom: 2px solid #adadad;
+  }
+
+ 
+  .wfh {
+    width: 100%;
   }
 }
 
@@ -623,7 +679,7 @@
   }
 
   .box {
-    width: 100%;
+    width: 90vw;
   }
 
   .action-buttons{
@@ -635,9 +691,29 @@
     align-items: center;
   }
 
+  .main-heading{
+    font-size: 20px;
+  }
+
+  ::ng-deep .table .p-datatable .p-datatable-thead > tr > th {
+    font-size: 14px;
+  }
+
+  .border{
+    border-right: none;
+  }
+
+  .wfh{
+    width: 80vw;
+  }
+
+
+  .leave,
+  .permission {
+    flex-direction: column;
+    width: 80vw;
+    height: 200px;
+  }
   
 
-  ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
-    width: 100%;
-  }
 }

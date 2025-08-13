@@ -6,6 +6,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { User } from '../../services/user/user';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-reset-password',
@@ -27,8 +28,9 @@ export class ResetPassword {
   disableSelect = false;
   userId: any;
 
+  formSubmitted = false;
 
-  constructor(private userService: User){}
+  constructor(private userService: User) { }
 
   ngOnInit() {
     // const stored = localStorage.getItem('employee');
@@ -43,7 +45,7 @@ export class ResetPassword {
     const storedName = localStorage.getItem('name');
     const storedId = localStorage.getItem('userId');
 
-    if(storedId){
+    if (storedId) {
       this.userId = storedId;
     }
 
@@ -71,7 +73,7 @@ export class ResetPassword {
         },
         error: (err) => console.error('Failed to fetch employee list', err)
       });
-      
+
     }
   }
 
@@ -79,22 +81,23 @@ export class ResetPassword {
 
 
   onResetPassword(form: NgForm) {
+    this.formSubmitted = true;
     if (form.valid && !this.passwordMismatch()) {
       this.userService
-      .resetMyPassword(parseInt(this.userId),this.reset.confirmPassword, this.reset.newPassword)
-      .subscribe({
-        next: (res) => {
-          alert(res?.message || 'Password reset successfully!');
-          this.onClear();
-        },
-        error: (err) => {
-          const msg =
-            err?.error?.error ||
-            err?.error?.message ||
-            'Failed to reset password.';
-          alert(msg);
-        }
-      })
+        .resetMyPassword(parseInt(this.userId), this.reset.confirmPassword, this.reset.newPassword)
+        .subscribe({
+          next: (res) => {
+            alert(res?.message || 'Password reset successfully!');
+            this.onClear(form);
+          },
+          error: (err) => {
+            const msg =
+              err?.error?.error ||
+              err?.error?.message ||
+              'Failed to reset password.';
+            alert(msg);
+          }
+        })
       alert('Password reset successfully!');
       console.log('Password Reset:', this.reset);
 
@@ -121,11 +124,13 @@ export class ResetPassword {
   }
 
 
-  onClear() {
+  onClear(form: NgForm) {
     this.reset = {
       newPassword: '',
       confirmPassword: ''
     };
+    this.formSubmitted = false;
+    form.resetForm();
   }
 
 }

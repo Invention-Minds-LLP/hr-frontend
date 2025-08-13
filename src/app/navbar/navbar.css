@@ -10,6 +10,11 @@
   font-family: "primeicons";
 }
 
+::ng-deep .pi-chevron-down,
+::ng-deep .pi-chevron-up {
+  font-size: 1rem;
+}
+
 .nav-bar-container {
   padding: 0 4rem;
 }
@@ -25,6 +30,7 @@
   align-items: center;
   padding: 0.5rem 1.5rem;
   height: 119px;
+  margin-top: 50px;
 }
 
 hr {
@@ -35,8 +41,8 @@ hr {
 }
 
 .bell {
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border: 2px solid #C4C4C4;
   border-radius: 50%;
   display: flex;
@@ -46,21 +52,51 @@ hr {
 }
 
 .profile {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: inline-block;
+  border: 2px solid #C4C4C4;
+  border-radius: 40px;
+  width: 181px;
+  height: auto;
+  background: transparent;
+  padding: 5px;
+  transition: all 0.5s ease;
+}
 
+.profile.active {
+  background: white;
+  border-radius: 8px 8px 0 0;
+  border: none;
+  padding: 5px;
 }
 
 .dropdown {
-  position: absolute;
-  top: 55px;
-  right: 0;
+  border-top: 1px solid #C4C4C4;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 0 0 8px 8px;
+  border: none;
+  transition: all 0.5s ease;
+}
+
+.dropdown.active {
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  width: 200px;
+  position: absolute;
+  top: 110%;
+  right: -5px;
+  width: 181px;
+  height: 100px;
+  border-top: 1px solid #C4C4C4;
+
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* padding: 2px 10px 0 2px; */
 }
 
 .sub-heading {
@@ -87,10 +123,6 @@ hr {
   cursor: pointer;
 }
 
-.dropdown hr {
-  margin-top: 10px;
-}
-
 .dropdown-profile,
 .log-out {
   display: flex;
@@ -99,9 +131,7 @@ hr {
   cursor: pointer;
 }
 
-.log-out {
-  color: red;
-}
+
 
 
 /* Logo */
@@ -184,15 +214,11 @@ a {
 }
 
 .user-profile {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 40px;
-  border: 2px solid #C4C4C4;
+  display: inline-block;
   cursor: pointer;
-  height: 50px;
+  background: transparent;
   position: relative;
+  width: 100%;
 }
 
 .avatar {

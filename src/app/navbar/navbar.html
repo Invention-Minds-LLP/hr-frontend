@@ -15,14 +15,17 @@
                             fill="#ADADAD" />
                     </svg>
                 </div>
-                <div class="profile">
-                    <div class="user-profile">
-                        <img src="https://i.pravatar.cc/40" alt="User Avatar" class="avatar" />
-                        <span class="username">{{username}}</span>
-                        <i *ngIf="!isOpen" class="pi pi-chevron-down" (click)="toggleDropdown($event)"></i>
-                        <i *ngIf="isOpen" class="pi pi-chevron-up" (click)="toggleDropdown($event)"></i>
+                <div class="profile" [class.active]="isOpen">
+                    <div class="user-profile"   (click)="toggleDropdown($event)">
+                        <div class="flex">
+                            <img src="https://i.pravatar.cc/40" alt="User Avatar" class="avatar" />
+                            <span class="username">{{username}}</span>
+                            <i *ngIf="!isOpen" class="pi pi-chevron-down" (click)="toggleDropdown($event)"></i>
+                            <i *ngIf="isOpen" class="pi pi-chevron-up" (click)="toggleDropdown($event)"></i>
+                        </div>
 
-                        <div class="dropdown" *ngIf="isOpen">
+                        
+                        <div class="dropdown" *ngIf="isOpen" [ngClass]="{ 'active': isOpen }">
 
                             <div class="dropdown-profile" (click)="goToProfile()" routerLink="/settings">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
@@ -37,7 +40,7 @@
                                 <div class="sub-heading">Profile Settings</div>
                             </div>
 
-                            <hr>
+                            
 
                             <div class="log-out" (click)="openLogoutPopup()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"
@@ -72,7 +75,7 @@
                 <li class="nav-item" routerLinkActive="active">
                     <a [routerLink]="'/individual'">
                         <i class="pi pi-users"></i> My Profile
-                      </a>
+                    </a>
                 </li>
                 <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted && role !='Reporting Manager'">
                     <a [routerLink]="'/employee'">
