@@ -58,6 +58,8 @@ export class AppraisalTable {
   selectedFilter: any = null;
   filteredEmployees: any[] = [];
   showFilterDropdown = false;
+  role:string='';
+  loggedEmployeeId: number = 0;
 
 
   constructor(private fb: FormBuilder,
@@ -77,6 +79,9 @@ export class AppraisalTable {
     this.appraisalForm.get('departmentId')?.valueChanges.subscribe(() => this.filterEmployees());
     this.appraisalForm.get('branchId')?.valueChanges.subscribe(() => this.filterEmployees());
 
+    this.role = localStorage.getItem('role') || '';
+    this.loggedEmployeeId = Number(localStorage.getItem('empId'));
+
     this.getAppraisals();
     this.loadDropdownData();
   }
@@ -85,7 +90,14 @@ export class AppraisalTable {
   getAppraisals(){
     this.appraisalService.getAllAppraisals().subscribe({
       next: (data) => {
-        this.appraisals = data;
+        if (this.role === 'HR' || this.role === 'HR Manager') {
+          // HR sees everything
+          this.appraisals = data;
+        } else if (this.role === 'Reporting Manager') {
+          this.appraisals = (data || []).filter(
+            (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
+          );
+        } 
       },
       error: () => {
         alert('Error loading appraisals');

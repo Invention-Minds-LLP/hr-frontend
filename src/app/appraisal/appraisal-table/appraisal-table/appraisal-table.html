@@ -2,7 +2,7 @@
     <div class="heading-part">
         <div class="heading">All Appraisal</div>
         <div class="flex">
-            <button class="new-app" (click)="openForm()">New Appraisal <svg xmlns="http://www.w3.org/2000/svg"
+            <button class="new-app" *ngIf="role === 'HR' || role === 'HR Manager'" (click)="openForm()">New Appraisal <svg xmlns="http://www.w3.org/2000/svg"
                     width="21" height="20" viewBox="0 0 21 20" fill="none">
                     <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" />

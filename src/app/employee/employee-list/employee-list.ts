@@ -123,4 +123,41 @@ export class EmployeeList {
     this.showFilterDropdown = false; // hide after selecting
     this.onFilterChange(); // trigger filter logic
   }
+  isRotational(emp: any): boolean {
+    return emp?.EmployeeShiftSetting?.mode === 'ROTATIONAL';
+  }
+  
+  getShiftModeLabel(emp: any): string {
+    const mode = emp?.EmployeeShiftSetting?.mode;
+    return mode === 'ROTATIONAL' ? 'Rotational' : 'General';
+  }
+  
+  getRotationalTypeLabel(emp: any): string {
+    const st = emp?.latestShiftAssignment?.shift;
+    if (!st) return '—';
+    // Prefer template name; fallback to enum like MORNING -> Morning
+    return st.name || this.toTitle(st.shiftType);
+  }
+  
+  private toTitle(s?: string) {
+    return s ? s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : '';
+  }
+  
+  getRotationalAbbrev(emp: any): string {
+    // Prefer enum; fallback to name text
+    const shift = emp?.latestShiftAssignment?.shift;
+    if (!shift) return '—';
+  
+    const byEnum = (shift.shiftType || '').toString().toUpperCase();
+    if (byEnum === 'MORNING') return 'MS';
+    if (byEnum === 'EVENING') return 'ES';
+    if (byEnum === 'NIGHT')   return 'NS';
+  
+    const byName = (shift.name || '').toString().toUpperCase();
+    if (byName.includes('MORNING')) return 'MS';
+    if (byName.includes('EVENING')) return 'ES';
+    if (byName.includes('NIGHT'))   return 'NS';
+  
+    return '—';
+  }
 }

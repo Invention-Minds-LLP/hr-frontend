@@ -36,6 +36,9 @@ export class LeaveRequest {
     { label: 'Department', value: 'department' },
     { label: 'Leave Type', value: 'leaveType' },
   ];
+  private isHRRole(norm: string): boolean {
+    return norm === 'HR' || norm === 'HR_MANAGER';
+  }
 
   leaveData: any[] = [];
   currentUserId = 1; // Example, replace with actual logged-in user ID
@@ -56,8 +59,11 @@ export class LeaveRequest {
     nextMonth: false,
   };
 
-  columnCount:number = 10;
-  
+  columnCount: number = 10;
+  isHR: boolean = false;
+  role: string = '';
+  loggedEmployeeId: number = 0;
+
 
 
 
@@ -70,6 +76,9 @@ export class LeaveRequest {
     this.leaveData = [...this.leaveData];
     this.filteredLeaveData = [...this.leaveData];
     this.loadLeaves();
+    this.role = localStorage.getItem('role') || '';
+    this.loggedEmployeeId = Number(localStorage.getItem('empId') )|| 0
+    this.isHR = this.isHRRole(this.role);
     this.buildDisabledDates();
 
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
@@ -92,8 +101,17 @@ export class LeaveRequest {
           endDate: leave.endDate,
           status: leave.status,
           empID: leave.employee.id,
+          declineReason: leave.declineReason,
+          reportingManagerId: leave.employee?.reportingManager ?? null,
           leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
         }));
+        // Only pending rows are actionable in this screen
+        const pending = this.leaveData.filter(r => (r.status || '').toUpperCase() === 'PENDING');
+
+        // HR/HR Manager see all; reporting managers see only their team
+        this.leaveData = this.isHR
+          ? pending
+          : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         this.filteredLeaveData = [...this.leaveData];
       },
       error: (err) => {
@@ -217,7 +235,8 @@ export class LeaveRequest {
       startDate: leave.startDate, // Ensure these fields exist from backend
       endDate: leave.endDate,
       leaveType: leave.leaveType,
-      reason: leave.reson
+      reason: leave.reson,
+      declineReason: leave.declineReason
     };
     this.leaveService.getDashboard(leave.empID).subscribe(d => this.dashboard = d);
 
@@ -233,5 +252,5 @@ export class LeaveRequest {
   toggle(key: BucketKey) {
     this.expanded[key] = !this.expanded[key];
   }
-  
+
 }

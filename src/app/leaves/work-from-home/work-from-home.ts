@@ -72,15 +72,21 @@ export class WorkFromHome {
 
   wfhData: WFHTable[] = [];
   columnCount:number = 9;
+  isHR: boolean = false;
+  role: string = '';
+  loggedEmployeeId: number = 0;
 
   ngOnInit() {
     this.loadWFHRequests();
+    this.role = localStorage.getItem('role') || '';
+    this.loggedEmployeeId = Number(localStorage.getItem('empId') )|| 0
+    this.isHR = this.isHRRole(this.role);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
   }
   loadWFHRequests() {
     this.wfhService.getWFHRequests().subscribe({
       next: (data) => {
-        this.wfhData = data.map((wfh: any, index: number) => ({
+        const pending = data.map((wfh: any, index: number) => ({
           no: index + 1,
           empID: wfh.employee?.employeeCode,
           empName: `${wfh.employee?.firstName} ${wfh.employee?.lastName}`,
@@ -92,8 +98,12 @@ export class WorkFromHome {
           id: wfh.id,
           status: wfh.status,
           startDate: wfh.startDate,
-          endDate: wfh.endDate
+          endDate: wfh.endDate,
+          reportingManagerId: wfh.reportingManager ?? null, 
         }));
+        this.wfhData = this.isHR
+        ? pending
+        : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         this.filterWFHData = [...this.wfhData];
       },
       error: (err) => {
@@ -204,4 +214,8 @@ export class WorkFromHome {
   toggle(key: BucketKey) {
     this.expanded[key] = !this.expanded[key];
   }
+  private isHRRole(norm: string): boolean {
+    return norm === 'HR' || norm === 'HR_MANAGER';
+  }
+
 }

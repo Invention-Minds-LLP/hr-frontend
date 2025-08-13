@@ -13,6 +13,26 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { firstValueFrom } from 'rxjs';
+
+// utils
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const a = arr.slice();
+  const rand = mulberry32(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 @Component({
   selector: 'app-test-platform',
@@ -46,6 +66,7 @@ export class TestPlatform implements OnInit, OnDestroy {
   currentIndex = 0;
 
   assignedTestId: number;
+  attemptId?: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -56,10 +77,32 @@ export class TestPlatform implements OnInit, OnDestroy {
   ) {
     this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
   }
+  private applyRandomization(test: any, mode: 'NONE' | 'SHUFFLE_QUESTIONS' | 'SHUFFLE_OPTIONS' | 'BOTH', seed: number) {
+    // questions
+    if (mode === 'SHUFFLE_QUESTIONS' || mode === 'BOTH') {
+      test.questions = seededShuffle(test.questions, seed);
+    }
+
+    // options per question (use a per-question salt so each question shuffles differently)
+    if (mode === 'SHUFFLE_OPTIONS' || mode === 'BOTH') {
+      test.questions = test.questions.map((q: any, idx: number) => ({
+        ...q,
+        options: seededShuffle(q.options, seed + q.id + idx) // simple salt
+      }));
+    }
+    return test;
+  }
+
 
   ngOnInit(): void {
+    this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
+    const qid = this.route.snapshot.queryParamMap.get('attemptId');
+    this.attemptId = qid ? Number(qid) : undefined;
     this.attemptService.getDetails(this.assignedTestId).subscribe(data => {
-      this.test = data.test;
+      const seed = this.attemptId ?? this.assignedTestId;
+
+      const mode = (data.test.randomization ?? 'NONE') as 'NONE' | 'SHUFFLE_QUESTIONS' | 'SHUFFLE_OPTIONS' | 'BOTH';
+      this.test = this.applyRandomization(data.test, mode, seed);
       // init timer
       this.totalSeconds = (this.test.duration ?? 0) * 60;
       this.timeLeft = this.totalSeconds;
@@ -71,12 +114,16 @@ export class TestPlatform implements OnInit, OnDestroy {
         marked: false
       }));
 
-      this.startTimer(); 
-      this.attachProctoring(); 
+      this.startTimer();
+      this.attachProctoring();
     });
   }
 
   async begin(): Promise<void> {
+    if (!this.attemptId) {
+      const { attemptId } = await firstValueFrom(this.attemptService.startAttempt(this.assignedTestId));
+      this.attemptId = attemptId;
+    }
     this.started = true;
     await this.requestFullscreen();
     this.attachProctoring();
@@ -203,7 +250,8 @@ export class TestPlatform implements OnInit, OnDestroy {
       testId: this.test.id,
       responses: this.responses,
       score,
-      status
+      status,
+      attemptId: this.attemptId,
     };
 
     this.attemptService.submit(payload).subscribe(() => {
@@ -263,7 +311,7 @@ export class TestPlatform implements OnInit, OnDestroy {
     if (e.key === 'PrintScreen') {
       e.preventDefault();
       // Best-effort: clear clipboard (requires HTTPS + user gesture in some browsers)
-      try { await navigator.clipboard.writeText(''); } catch {}
+      try { await navigator.clipboard.writeText(''); } catch { }
       this.flagViolation('Attempted screenshot');
     }
   };
@@ -287,4 +335,5 @@ export class TestPlatform implements OnInit, OnDestroy {
     if (el.requestFullscreen) await el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
   }
+
 }

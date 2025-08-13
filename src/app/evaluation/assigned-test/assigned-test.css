@@ -148,3 +148,20 @@
   align-items: center;
   gap: 20px;
 }
+.ovr-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.ovr-title { font-weight:600; font-size:16px; }
+.ovr-sub { color:#6b7280; font-size:12px; }
+.ovr-badges p-badge { margin-left:6px; }
+.ok { color:#16a34a; font-weight:600; }
+.bad { color:#dc2626; font-weight:600; }
+.na { color:#6b7280; font-weight:600; }
+.btn-edit {
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  background: #e8ecef;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #767676;
+  cursor: pointer;
+}

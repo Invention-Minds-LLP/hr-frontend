@@ -1,0 +1,135 @@
+<div class="wrapper">
+    <div class="head">
+        <div class="title">
+            Resignation Post-HR
+            <span class="sub" *ngIf="employeeName">• {{ employeeName }}</span>
+            <p-badge value="Next steps" severity="info"></p-badge>
+        </div>
+        <div class="actions">
+            <button pButton label="Mark Completed" class="p-button-success" (click)="markCompleted()"></button>
+        </div>
+    </div>
+
+    <div class="toast" *ngIf="toast() as t" [class.ok]="t.type==='success'" [class.err]="t.type==='error'">
+        {{ t.msg }}
+    </div>
+
+    <!-- 🧰 Handover -->
+    <section class="card">
+        <div class="card-h">Handover Tasks</div>
+
+        <form [formGroup]="taskForm" class="task-form">
+            <div class="task-actions">
+                <button  label="+ Add Row" class="p-button-text btn-edit" type="button" (click)="addTaskRow()">Add Row +</button>
+                <span class="spacer"></span>
+                <button label="Save Tasks" class="save-btn" [disabled]="busy()" (click)="submitTasks()">Save Tasks</button>
+            </div>
+            <div formArrayName="tasks" class="grid">
+                <div class="row" *ngFor="let g of tasks.controls; let i = index" [formGroupName]="i">
+                    <input pInputText type="text" placeholder="Task title *" formControlName="title" />
+                    <input pInputText type="text" placeholder="Description" formControlName="description" />
+                    <input pInputText type="number" placeholder="Assignee ID" formControlName="assigneeId" readonly />
+                    <p-datePicker formControlName="dueDate" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="Due Date" />
+                    <button pButton icon="pi pi-trash" class="p-button-danger p-button-text" type="button"
+                        (click)="removeTaskRow(i)" *ngIf="tasks.length > 1"></button>
+                </div>
+            </div>
+        </form>
+
+        <p-table [value]="tasksLocal" *ngIf="tasksLocal.length">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>No</th>
+                    <th>Title</th>
+                    <th>Assignee</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-t let-i="rowIndex" >
+                <tr>
+                    <td>{{ i + 1}}</td>
+                    <td>{{ t.title }}</td>
+                    <td>{{ t.assigneeId || '-' }}</td>
+                    <td>{{ t.dueDate ? (t.dueDate | date:'mediumDate') : '-' }}</td>
+                    <td>{{ t.status || 'OPEN' }}</td>
+                    <td class="task-btns" *ngIf="t.id">
+                        <button  size="small" label="Open" class="open-btn" style="width: 30%;" 
+                            (click)="setTaskStatus(t,'OPEN')">Open</button>
+                        <button  size="small" label="In Progress" class="pending-btn" style="width: 40%;" 
+                            (click)="setTaskStatus(t,'IN_PROGRESS')">In Progress</button>
+                        <button  size="small" class="save-btn" style="width: 30%;" label="Done" 
+                            (click)="setTaskStatus(t,'DONE')">Done</button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </section>
+
+    <!-- ✅ Clearances -->
+    <section class="card">
+        <div class="card-h">Department Clearances</div>
+        <div class="clearance-grid">
+            <div class="cl-card" *ngFor="let t of clearanceTypes">
+                <div class="cl-head">{{ t }} Clearance</div>
+
+                <p-select [options]="[
+              {label:'Pending', value:'PENDING'},
+              {label:'Approved', value:'APPROVED'},
+              {label:'Rejected', value:'REJECTED'}
+            ]" [(ngModel)]="clearanceDrafts[t].decision" [ngModelOptions]="{standalone:true}"
+                    [disabled]="isClearanceLocked(t)">
+                </p-select>
+
+                <textarea pInputTextarea rows="3" placeholder="Notes (optional)" [(ngModel)]="clearanceDrafts[t].note"
+                    [ngModelOptions]="{standalone:true}" [disabled]="isClearanceLocked(t)"></textarea>
+
+                <input pInputText type="number" placeholder="Verifier ID (optional)"
+                    [(ngModel)]="clearanceDrafts[t].verifierId" [ngModelOptions]="{standalone:true}"
+                    [disabled]="isClearanceLocked(t)" />
+
+                <button  label="Save" *ngIf="!isClearanceLocked(t)" class="save-btn" style="width: 100%;height: 39px;" (click)="saveClearance(t)">Save</button>
+                <p-badge *ngIf="isClearanceLocked(t)" value="Approved" class="pending-btn" style="width: 100%;height: 39px;" severity="success">
+                </p-badge>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🗓 Exit Interview -->
+    <section class="card">
+        <div class="card-h">Exit Interview</div>
+        <div class="row">
+            <p-datePicker [(ngModel)]="exitAt" [ngModelOptions]="{standalone:true}" [showIcon]="true" [showTime]="true"
+                dateFormat="yy-mm-dd" />
+            <input pInputText type="number" placeholder="Interviewer ID" [(ngModel)]="interviewerId"
+                [ngModelOptions]="{standalone:true}" />
+        </div>
+        <textarea pInputTextarea rows="3" placeholder="Notes" [(ngModel)]="exitNotes"
+            [ngModelOptions]="{standalone:true}"></textarea>
+        <div class="right">
+            <button  label="Schedule / Update" class="save-btn" (click)="scheduleExit()">Schedule</button>
+        </div>
+    </section>
+
+    <!-- 💰 Final Settlement -->
+    <section class="card">
+        <div class="card-h">Final Settlement</div>
+        <div class="row">
+            <p-select [options]="[
+            {label:'Due', value:'DUE'},
+            {label:'Processing', value:'PROCESSING'},
+            {label:'Paid', value:'PAID'}
+          ]" [(ngModel)]="fnfStatus" [ngModelOptions]="{standalone:true}">
+            </p-select>
+
+            <input pInputText type="text" placeholder="Note (optional)" [(ngModel)]="fnfNote"
+                [ngModelOptions]="{standalone:true}" />
+            <button label="Save" (click)="saveFnF()" class="save-btn" style="width: 50%;">Save</button>
+        </div>
+    </section>
+
+</div>
+
+<p-toast position="bottom-right" [life]="3000"></p-toast>
+

@@ -22,4 +22,9 @@ export class TestAttempt {
   submit(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/submit`, payload);
   }
+  startAttempt(assignedTestId: number) {
+    return this.http.post<{ attemptId: number }>(
+      `${this.apiUrl}/${assignedTestId}/start`, {}
+    );
+  }
 }

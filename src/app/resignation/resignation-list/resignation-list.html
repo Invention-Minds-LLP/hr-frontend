@@ -1,0 +1,66 @@
+<div class="resignation">
+    <div class="header">
+        <h2>Resignations</h2>
+      </div>
+      
+      <p-table [value]="rows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Employee</th>
+            <th>Dept</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>CEO</th>
+            <th>HR</th>
+            <th>Proposed LWD</th>
+            <th>Actual LWD</th>
+            <th style="text-align:center">Actions</th>
+            <th>Proceeding</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-r let-i="rowIndex">
+            <ng-template #dash><span class="muted">—</span></ng-template>
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
+            <td>{{ r.employee?.departmentId }}</td>
+            <td><span class="reason" [title]="r.reason">{{ r.reason }}</span></td>
+            <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
+            <td>{{ r.managerDecision }}</td>
+            <td>{{ r.hrDecision }}</td>
+            <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+            <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
+            <td class="actions">
+              <ng-container *ngIf="r.managerDecision === 'PENDING' && r.hrDecision !== 'PENDING' && role === 'Management'" >
+                <button pButton size="small" label="CEO Approve" (click)="approveManager(r)"></button>
+                <button pButton size="small" label="CEO Reject" class="p-button-danger" (click)="rejectManager(r)"></button>
+              </ng-container>
+              <ng-container *ngIf="r.hrDecision === 'PENDING'">
+                <button pButton size="small" label="HR Approve" class="p-button-success" (click)="approveHR(r)"></button>
+                <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
+                <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"></button>
+              </ng-container>
+            </td>
+            <td>
+                <button *ngIf="isHR && r?.managerDecision === 'APPROVED';else dash" class="btn-edit" (click)="showPostHr = true">
+                    Proceed to off-boarding
+                  </button>
+                  <p-dialog [(visible)]="showPostHr" [modal]="true" header="Off-boarding" [style]="{width:'80vw'}">
+                    <app-resign-post
+                      [resignationId]="r?.id"
+                      [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
+                    </app-resign-post>
+                  </p-dialog>
+            </td>
+          </tr>
+        </ng-template>
+      
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="10" class="no-data">No resignations.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+</div>
+                

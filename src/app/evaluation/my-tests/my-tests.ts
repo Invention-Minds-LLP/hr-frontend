@@ -12,7 +12,7 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './my-tests.css'
 })
 export class MyTests {
-  employeeId = 1; // Replace with logged-in user
+  employeeId = Number(localStorage.getItem('empId')); // Replace with logged-in user
   tests: any[] = [];
 
   constructor(private testService: TestAttempt, private router: Router) {}
@@ -23,8 +23,14 @@ export class MyTests {
     });
   }
 
-  startTest(testId: number): void {
-    this.router.navigate(['/take-test', testId]);
+  startTest(assignedId: number): void {
+    this.testService.startAttempt(assignedId).subscribe({
+      next: ({ attemptId }) => {
+        this.router.navigate(['/take-test', assignedId], { queryParams: { attemptId } });
+      },
+      error: (e) => alert(e?.error?.error || 'Cannot start test')
+    });
   }
+  
 
 }

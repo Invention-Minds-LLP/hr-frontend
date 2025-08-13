@@ -51,7 +51,7 @@ export class ResetPassword {
       this.role = storedRole.toLowerCase();
     }
 
-    const restrictedRoles = ['executive', 'intern', 'junior executive'];
+    const restrictedRoles = ['executives', 'intern', 'junior executive'];
     if (restrictedRoles.includes(this.role)) {
       // Just show their own employee
       this.disableSelect = true;

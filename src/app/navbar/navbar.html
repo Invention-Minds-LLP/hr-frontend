@@ -18,7 +18,7 @@
                 <div class="profile">
                     <div class="user-profile">
                         <img src="https://i.pravatar.cc/40" alt="User Avatar" class="avatar" />
-                        <span class="username">Nithish</span>
+                        <span class="username">{{username}}</span>
                         <i *ngIf="!isOpen" class="pi pi-chevron-down" (click)="toggleDropdown($event)"></i>
                         <i *ngIf="isOpen" class="pi pi-chevron-up" (click)="toggleDropdown($event)"></i>
 
@@ -64,7 +64,7 @@
         </div>
         <nav class="main-nav">
             <ul>
-                <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <li class="nav-item" routerLinkActive="active"[routerLinkActiveOptions]="{ exact: true }" *ngIf="!isRestricted">
                     <a [routerLink]="'/dashboard'">
                         <i class="pi pi-th-large"></i> Dashboard
                     </a>
@@ -74,31 +74,38 @@
                         <i class="pi pi-users"></i> My Profile
                       </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
+                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted && role !='Reporting Manager'">
                     <a [routerLink]="'/employee'">
                         <i class="pi pi-users"></i> Employee
                     </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
+                <!-- <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
                     <a [routerLink]="'/attendance'">
                         <i class="pi pi-user-plus"></i> Attendance
                     </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active">
+                </li> -->
+                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
                     <a [routerLink]="'/leave'">
                         <i class="pi pi-chart-line"></i> Leaves
                     </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
+                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
                     <a [routerLink]="'/appraisal'">
                         <i class="pi pi-chart-bar"></i> Appraisal
                     </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
+                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted && role !='Reporting Manager'">
                     <a [routerLink]="'/evaluation'">
                         <i class="pi pi-star"></i> Evaluation
                     </a>
                 </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a [routerLink]="'/resignation'">
+                        <i class="pi pi-users"></i> Resignation
+                      </a>
+                </li>
+            </ul>
+            <ul>
                 <li class="nav-item" routerLinkActive="active">
                     <a [routerLink]="'/settings'">
                         <i class="pi pi-cog"></i> Settings

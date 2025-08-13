@@ -14,6 +14,10 @@ import { PopUp } from "../pop-up/pop-up";
 export class Navbar {
   isOpen = false;
   showLogoutPopup = false;
+  allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR EXECUTIVE'];
+  role: string = '';
+  // isRestricted = true;
+  // username:string = ''
 
   constructor(private router: Router) { }
 
@@ -22,16 +26,52 @@ export class Navbar {
     this.isOpen = !this.isOpen;
   }
 
+  isRestricted = false;
+  username = '';
+  
+  ngOnInit(): void {
+    const rawRole = localStorage.getItem('role') ?? '';
+    this.role=rawRole;
+    const norm = this.normalizeRole(rawRole);
+  
+    const deptRaw =
+      localStorage.getItem('departmentId') ||
+      (JSON.parse(localStorage.getItem('user') || '{}')?.departmentId ?? '');
+    const deptId = Number(deptRaw) || 0;
+  
+    // Restrict only Executives not in dept 1
+    this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
+  
+    this.username = localStorage.getItem('name') || '';
+    console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
+  }
+  
+  private normalizeRole(raw: any): string {
+    const s = (raw || '').toString().trim().toLowerCase()
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ');
+    const map: Record<string, string> = {
+      'executive': 'EXECUTIVE',
+      'executives': 'EXECUTIVE',
+      'junior executive': 'JUNIOR_EXECUTIVE',
+      'jr executive': 'JUNIOR_EXECUTIVE',
+      'jr. executive': 'JUNIOR_EXECUTIVE',
+      'intern': 'INTERN',
+      'interns': 'INTERN',
+    };
+    return map[s] ?? s.toUpperCase().replace(/ /g, '_');
+  }
+  
 
 
   goToProfile() {
-    this.isOpen = false; 
+    this.isOpen = false;
     this.router.navigate(['/profile']);
   }
 
   openLogoutPopup() {
-    this.isOpen = false; 
-    this.showLogoutPopup = true; 
+    this.isOpen = false;
+    this.showLogoutPopup = true;
   }
 
   handleLogout() {

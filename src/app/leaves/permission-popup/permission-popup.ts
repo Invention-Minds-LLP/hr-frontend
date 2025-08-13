@@ -23,7 +23,8 @@ export class PermissionPopup {
   startTime = '';
   endTime = '';
   reason = '';
-  employeeId: string = ''
+  employeeId: string = '';
+  declineReason:string = '';
 
   constructor(private permissionService: Permission) {}
 
@@ -40,6 +41,7 @@ export class PermissionPopup {
           this.startTime = this.permissionData.startTime || '';
           this.endTime = this.permissionData.endTime || '';
           this.reason = this.permissionData.reson || '';
+          this.declineReason = this.permissionData.declineReason || ''
       
     }
   }

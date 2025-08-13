@@ -69,21 +69,23 @@ export class EmployeeDetails {
         this.leaveRequests = data.leaveRequests || [];
         this.permissionRequests = data.permissionRequests || [];
         this.wfhRequests = data.wfhRequests || [];
-        this.totalLeave = data.totalLeaveRequests;
-        this.totalWFH = data.totalWFHRequests;
+        this.totalLeave = data.totals?.totalLeaveDays ?? 0;
+        this.totalWFH   = data.totals?.totalWFHDays ?? 0;
+        this.entitlements = data.entitlements || this.entitlements;
         this.applyFilters();
       });
       this.employeeService.getAccruals(this.employee?.id).subscribe({
         next: rows => this.accruals = rows
       });
       const year = new Date().getFullYear(); // or derive from selected date range
-      this.entitleService.getEntitlementPolicyByYear(year).subscribe({
-        next: (res) => {
-          // If your backend (by mistake) returns an array, normalize it:
-          this.entitlements = Array.isArray(res) ? (res[0] ?? null) : res;
-        },
-        error: (e) => console.error('Entitlements load failed', e)
-      });
+      // this.entitleService.getEntitlementPolicyByYear(year).subscribe({
+      //   next: (res) => {
+      //     // If your backend (by mistake) returns an array, normalize it:
+      //     this.entitlements = Array.isArray(res) ? (res[0] ?? null) : res;
+      //   },
+      //   error: (e) => console.error('Entitlements load failed', e)
+      // });
+      
       this.departmentService.getDepartments().subscribe(data => this.departments = data);
     }
   }

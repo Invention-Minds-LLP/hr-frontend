@@ -298,6 +298,7 @@
 .wfh,
 .permission {
   padding: 10px;
+  width: 33.33%;
 }
 
 .individual-bottom {
@@ -428,6 +429,7 @@
   flex-direction: row;
   gap: 20px;
   max-height: 400px;
+  width: 33.333%;
 }
 
 .status-pending {

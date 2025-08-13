@@ -127,7 +127,6 @@ label {
   width: 100%;
 }
 
-
 div[hidden] {
   display: none !important;
 }
@@ -186,7 +185,7 @@ div[hidden] {
   color: #e9144a;
 }
 
-.qualification{
+.qualification {
   width: 100%;
 }
 .custom-file-input {
@@ -225,3 +224,27 @@ div[hidden] {
   padding-left: 5px;
 }
 
+.doc-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.doc-img {
+  width: 140px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  object-fit: cover;
+}
+.doc-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.file-tag {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+}

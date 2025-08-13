@@ -58,7 +58,8 @@ export class LeavePopup {
   isDragging = false;
   daysList = Array.from({ length: 31 }, (_, i) => i + 1);
   reason = '';
-  employeeId: string = ''
+  employeeId: string = '';
+  declineReason:string = '';
 
 
 
@@ -100,6 +101,7 @@ export class LeavePopup {
     this.syncDropdownsFromDates();
     this.leaveType = data.leaveType;
     this.reason = data.reason;
+    this.declineReason = data.declineReason
     this.calculateDays();
 
     // Disable dragging in calendar for view-only

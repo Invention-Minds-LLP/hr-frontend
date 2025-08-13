@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="field-row col-12">
-                        <div class="field col-4">
+                        <div class="field col-6">
                             <p-floatLabel variant="on">
                                 <p-select id="bloodGroup" [options]="bloodGroups" formControlName="bloodGroup"
                                     optionLabel="label" optionValue="value"
@@ -101,7 +101,7 @@
                                 </div>
                             </p-floatLabel>
                         </div>
-                        <div class="field col-4">
+                        <div class="field col-6">
                             <p-floatLabel variant="on">
                                 <input id="age" pInputText formControlName="age" readonly />
                                 <label for="age">Age</label>
@@ -562,11 +562,26 @@
                         </div>
 
 
+
                         <!-- Remove -->
                         <div class="field col-1 flex align-items-center">
                             <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
                                 class="p-button-danger p-button-rounded p-button-text" (click)="removeDocument(i)">
                             </button>
+                        </div>
+
+                        <!-- Preview (image or link) -->
+                        <div class="field col-12" *ngIf="getDocPreview(i) as p">
+                            <div class="doc-preview" [ngSwitch]="p.kind">
+                                <!-- Images -->
+                                <img *ngSwitchCase="'image'" [src]="p.src" alt="Document preview" class="doc-img" />
+
+                                <!-- Non-image (PDF/others) -->
+                                <!-- <div *ngSwitchDefault class="doc-file">
+                                    <span class="file-tag">{{ p.kind.toUpperCase() }}</span>
+                                    <a [href]="p.src" target="_blank" rel="noopener">View file</a>
+                                </div> -->
+                            </div>
                         </div>
 
                     </div>

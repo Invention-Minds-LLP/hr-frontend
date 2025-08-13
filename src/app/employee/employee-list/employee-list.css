@@ -278,3 +278,19 @@ input {
   color: #fff !important;
   border: none;
 }
+.mode-chip {
+  /* padding: 2px 8px; */
+  border-radius: 999px;
+  font-size: 14px;
+  height: 40px;
+  max-width: 120px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.mode-chip.gen { background:#eef3ff; color:#2a54d6; }
+.mode-chip.rot { background:#eefbf1; color:#1f7a3a; width: 100%; }
+

@@ -77,6 +77,11 @@
                 <div class="form-row">
                     <textarea placeholder="Type Reason here..." rows="10" [(ngModel)]="reason"></textarea>
                 </div>
+                <div class="form-row" *ngIf="declineReason">
+                    <div>
+                        Reason For Decline: {{declineReason}}
+                    </div>
+                </div>
             </div>
 
             <!-- Calendar -->
@@ -196,6 +201,11 @@
                 <!-- Reason -->
                 <div class="form-row">
                     <textarea placeholder="Type Reason here..." rows="10" [(ngModel)]="reason"></textarea>
+                </div>
+                <div class="form-row" *ngIf="declineReason">
+                    <div>
+                        Reason For Decline: {{declineReason}}
+                    </div>
                 </div>
             </div>
 

@@ -127,7 +127,15 @@ hr {
 }
 
 /* Main Navigation */
-.main-nav ul {
+.main-nav {
+  display: flex;
+  gap: 2rem;
+  height: 64px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ul{
   display: flex;
   gap: 2rem;
   height: 64px;

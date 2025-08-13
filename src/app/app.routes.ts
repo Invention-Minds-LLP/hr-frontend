@@ -15,23 +15,26 @@ import { TestPlatform } from './evaluation/test-platform/test-platform';
 import { SettingsOverview } from './settings/settings-overview/settings-overview';
 import { Individual } from './individual/individual/individual';
 import { PopUp } from './pop-up/pop-up';
+import { ResignationForm } from './resignation/resignation-form/resignation-form';
+import { ResignOverview } from './resignation/resign-overview/resign-overview';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
     { path: 'employee', component: EmployeeOverview, canActivate: [authGuard] },
     { path: 'appraisal', component: AppraisalOverview, canActivate: [authGuard] },
-    { path: 'leave', component: LeaveOverview },
-    { path: 'permission-request', component: PermissionRequest },
-    { path: 'wfh', component: WorkFromHome },
-    { path: 'balances-accruals', component: BalancesAccruals },
+    { path: 'leave', component: LeaveOverview, canActivate: [authGuard] },
+    { path: 'permission-request', component: PermissionRequest, canActivate: [authGuard] },
+    { path: 'wfh', component: WorkFromHome, canActivate: [authGuard] },
+    { path: 'balances-accruals', component: BalancesAccruals, canActivate: [authGuard] },
     { path: 'attendance', component: ManageAttendance, canActivate: [authGuard] },
-    { path: 'history', component: History },
-    { path: 'evaluation', component: EvaluationOverview },
-    { path: 'my-tests', component: MyTests },
-    { path: 'take-test/:id', component: TestPlatform },
-    {path: 'settings', component: SettingsOverview},
-    {path:'individual', component: Individual},
+    { path: 'history', component: History, canActivate: [authGuard] },
+    { path: 'evaluation', component: EvaluationOverview,canActivate: [authGuard] },
+    { path: 'my-tests', component: MyTests, canActivate: [authGuard] },
+    { path: 'take-test/:id', component: TestPlatform, canActivate: [authGuard] },
+    {path: 'settings', component: SettingsOverview, canActivate: [authGuard]},
+    {path:'individual', component: Individual, canActivate: [authGuard]},
     {path:'popup', component:PopUp},
+    {path:'resignation', component: ResignOverview},
     { path: '**', redirectTo: 'login', pathMatch: 'full' }
 
 ];

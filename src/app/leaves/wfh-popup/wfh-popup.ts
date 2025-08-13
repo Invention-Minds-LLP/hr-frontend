@@ -59,6 +59,7 @@ export class WfhPopup {
   daysList = Array.from({ length: 31 }, (_, i) => i + 1);
   reason = '';
   employeeId: string = '';
+  declineReason:string = '';
 
 
 
@@ -96,6 +97,7 @@ export class WfhPopup {
     this.currentYear = this.fromDate.getFullYear();
     this.syncDropdownsFromDates();
     this.reason = data.reason;
+    this.declineReason = data.declineReason
     this.calculateDays();
 
     // Disable dragging in calendar for view-only

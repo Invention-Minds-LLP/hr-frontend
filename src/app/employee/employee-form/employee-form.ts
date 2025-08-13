@@ -141,7 +141,7 @@ export class EmployeeForm {
       probationEndDate: [''],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
-      shiftId: ['', Validators.required],
+      shiftId: [''],
 
       emergencyContacts: this.fb.array([]),
       qualifications: this.fb.array([]),
@@ -172,6 +172,9 @@ export class EmployeeForm {
       rotationStartDate: [''],                     // NEW
       shiftDate: ['']                              // keep (optional for fixed)
 
+    });
+    this.employeeForm.get('shiftMode')!.valueChanges.subscribe(mode => {
+      this.applyShiftValidators(mode);
     });
     this.addQualification();
     this.addEmergencyContact();
@@ -484,6 +487,19 @@ export class EmployeeForm {
   }
   patchForm(data: any) {
     if (!data) return;
+    // ——— shift setting (needs API to include EmployeeShiftSetting) ———
+    const setting = data.EmployeeShiftSetting || null;
+    const mode: 'FIXED' | 'ROTATIONAL' = setting?.mode ?? 'FIXED';
+    console.log(mode)
+
+    // If FIXED: prefer setting.fixedShiftId, else fall back to legacy employee.shiftId
+    const fixedShiftFromSetting = setting?.fixedShiftId ?? null;
+    const fixedShiftFallback = data.shiftId ?? null;
+
+    // latest assignment date (may be missing)
+    const latestAssignDate = data.latestShiftAssignment?.date
+      ? new Date(data.latestShiftAssignment.date)
+      : null;
 
     // Patch main fields
     this.employeeForm.patchValue({
@@ -504,11 +520,17 @@ export class EmployeeForm {
       employmentType: data.employmentType,
       probationEndDate: data.probationEndDate ? new Date(data.probationEndDate) : null,
       employmentStatus: data.employmentStatus,
-      shiftId: data.shiftId,
-      shiftDate: data.latestShiftAssignment.date ? new Date(data.latestShiftAssignment.date) : null,
+      // shiftDate: data.latestShiftAssignment.date ? new Date(data.latestShiftAssignment.date) : null,
       sameAsPermanent: data.sameAsPermanent,
       bloodGroup: data.bloodGroup,
-      age: data.age
+      age: data.age,
+      reportingManager: data.reportingManager,
+
+      shiftMode: mode,
+      shiftId: mode === 'FIXED' ? (fixedShiftFromSetting ?? fixedShiftFallback) : null,
+      rotationPatternId: mode === 'ROTATIONAL' ? setting?.rotationPatternId ?? null : null,
+      rotationStartDate: mode === 'ROTATIONAL' && setting?.startDate ? new Date(setting.startDate) : null,
+      shiftDate: latestAssignDate
     });
 
     // Patch addresses
@@ -560,7 +582,28 @@ export class EmployeeForm {
       this.filteredTypes[index] = this.documentTypes.filter(t => t.category === doc.category);
       this.uploadedDocsForm.push(docGroup);
     });
+    this.applyShiftValidators(mode);
   }
+  private applyShiftValidators(mode: 'FIXED' | 'ROTATIONAL') {
+    const shiftIdCtrl = this.employeeForm.get('shiftId')!;
+    const patternCtrl = this.employeeForm.get('rotationPatternId')!;
+    const startCtrl = this.employeeForm.get('rotationStartDate')!;
+  
+    if (mode === 'FIXED') {
+      shiftIdCtrl.setValidators([Validators.required]);
+      patternCtrl.clearValidators();
+      startCtrl.clearValidators();
+    } else {
+      shiftIdCtrl.clearValidators();
+      patternCtrl.setValidators([Validators.required]);
+      startCtrl.setValidators([Validators.required]);
+    }
+  
+    shiftIdCtrl.updateValueAndValidity();
+    patternCtrl.updateValueAndValidity();
+    startCtrl.updateValueAndValidity();
+  }
+  
 
   onCancel() {
     this.closeForm.emit(false);
@@ -618,6 +661,27 @@ export class EmployeeForm {
     }
     return age;
   }
+  private isImageSrc(src: string): boolean {
+    const s = (src || '').toLowerCase();
+    return s.startsWith('data:image') ||
+           s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') ||
+           s.endsWith('.webp') || s.endsWith('.gif');
+  }
+  
+  getDocPreview(index: number): { kind: 'image' | 'pdf' | 'file'; src: string } | null {
+    const v = this.uploadedDocsForm.at(index)?.value as any;
+    const src: string | null = v?.fileUrl || null;
+    if (!src) return null;
+  
+    if (this.isImageSrc(src)) return { kind: 'image', src };
+  
+    const sl = src.toLowerCase();
+    if (sl.startsWith('data:application/pdf') || sl.endsWith('.pdf')) {
+      return { kind: 'pdf', src };
+    }
+    return { kind: 'file', src };
+  }
+  
 
 }
 

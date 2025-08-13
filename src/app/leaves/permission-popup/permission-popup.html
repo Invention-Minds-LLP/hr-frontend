@@ -47,6 +47,11 @@
             <div class="form-group full-width-textarea">
                 <textarea [(ngModel)]="reason" placeholder="Type your reason here..."></textarea>
             </div>
+            <div class="form-row" *ngIf="declineReason">
+                <div>
+                    Reason For Decline: {{declineReason}}
+                </div>
+            </div>
     
             <div class="popup-actions">
                 <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()">Apply</button>

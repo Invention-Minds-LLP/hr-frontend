@@ -3,8 +3,8 @@
     <ul>
         <li class="sub-item" [ngClass]="{ 'active': active === 'profile' }" (click)="show('profile')">My Profile</li>
         <li class="sub-item" [ngClass]="{ 'active': active === 'reset' }" (click)="show('reset')">Reset Password</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'create' }" (click)="show('create')">New User</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Login Activities</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'create' }" (click)="show('create')" *ngIf="!isRestricted">New User</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')" *ngIf="!isRestricted">Login Activities</li>
     </ul>
 </nav>
 <div>

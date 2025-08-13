@@ -17,4 +17,9 @@ export class AssignTest {
   getAll(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
+  // assign-test.service.ts
+getOverview(assignedId: number) {
+  return this.http.get<any>(`${this.apiUrl}/${assignedId}/overview`);
+}
+
 }

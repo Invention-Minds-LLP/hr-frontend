@@ -1,0 +1,16 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <ul>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">All Resignation</li>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">My Resignation</li>
+    </ul>
+</nav>
+<div>
+    <hr>
+</div>
+
+
+<div>
+    <app-resignation-form *ngIf="active === 'form'"></app-resignation-form>
+    <app-resignation-list *ngIf="active === 'list'"></app-resignation-list>
+</div>  

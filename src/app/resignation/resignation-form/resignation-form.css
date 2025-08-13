@@ -1,0 +1,274 @@
+.field {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  flex-direction: column;
+}
+.field.readonly {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 8px;
+}
+.req {
+  color: #d32f2f;
+}
+.error {
+  color: #d32f2f;
+  font-size: 12px;
+}
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+
+.button {
+  width: 200px;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+}
+
+.field-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 30px;
+}
+
+textarea {
+  width: 100%;
+  background: transparent !important;
+}
+
+input {
+  display: flex;
+  width: 260px;
+  height: 38px;
+  padding: 0 16px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  color: #767676;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.14px;
+  background: transparent;
+}
+
+::ng-deep .p-card {
+  background: transparent !important;
+  padding: 50px;
+}
+/* src/app/pages/resignation/my-resignations.css */
+.resignations .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  /* padding: 50px; */
+}
+.resignations{
+    padding: 50px;
+}
+.b {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.b-blue {
+  background: #eef3ff;
+  color: #2a54d6;
+}
+.b-amber {
+  background: #fff4e5;
+  color: #a66300;
+}
+.b-gray {
+  background: #f2f2f2;
+  color: #555;
+}
+.b-green {
+  background: #eaf7ee;
+  color: #1f7a3a;
+}
+.b-red {
+  background: #fde8ea;
+  color: #b42318;
+}
+.action-cell {
+  text-align: center;
+}
+
+.empty {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+}
+
+.withdraw-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.withdraw-dialog .card {
+  background: #fff;
+  width: 480px;
+  max-width: 90vw;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+.withdraw-dialog textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  resize: vertical;
+}
+.withdraw-dialog .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+::ng-deep .p-datatable-table {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 16px;
+    text-transform: capitalize;
+    text-wrap: nowrap;
+}
+
+::ng-deep .p-paginator-pages{
+    gap: 20px;
+}
+
+::ng-deep .p-paginator-pages{
+    gap: 20px;
+}
+
+
+::ng-deep .pi-align-center {
+    border-radius: 8px;
+    border: 1px solid #9B9B9B;
+    background: #FAFAFA;
+    display: flex;
+    width: 109px;
+    height: 30px;
+    padding: 20px 16px;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    color: #9B9B9B;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+}
+
+
+
+
+::ng-deep .p-paginator .p-paginator-page {
+    width: 40px;
+    height: 40px;
+    line-height: 26px;
+    padding: 0;
+    text-align: center;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Active page */
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+   background: #E9144A !important;
+    color: white !important;
+}
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+   background: #E9144A !important;
+    color: white !important;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Optional: center paginator */
+::ng-deep .p-paginator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1rem;
+    background: #E8ECEF;
+    background: #E8ECEF;
+}
+
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    padding: 20px 30px;
+    text-align: center;
+    background: #FAFAFA;
+    color: #666;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+    padding: 20px 30px;
+    background: #E8ECEF;
+    border-bottom: 2px solid #D9D9D9;
+}
+
+
+
+/* ::ng-deep .p-datatable-tbody{
+    overflow: auto;
+} */
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+

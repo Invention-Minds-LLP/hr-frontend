@@ -54,10 +54,16 @@ export class PermissionRequest {
 
   requestData: requestTable[] = [];
   columnCount:number = 10;
+  isHR: boolean = false;
+  role: string = '';
+  loggedEmployeeId: number = 0;
 
 
   ngOnInit() {
     this.loadPermissionRequests();
+    this.role = localStorage.getItem('role') || '';
+    this.loggedEmployeeId = Number(localStorage.getItem('empId') )|| 0
+    this.isHR = this.isHRRole(this.role);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
   }
 
@@ -99,7 +105,7 @@ export class PermissionRequest {
   loadPermissionRequests() {
     this.permissionService.getPermissions().subscribe({
       next: (data) => {
-        this.requestData = data.map(req => ({
+         const pending = data.map(req => ({
           id: req.id,
           empId: req.employee.employeeCode,
           empName: `${req.employee.firstName} ${req.employee.lastName}`,
@@ -115,7 +121,11 @@ export class PermissionRequest {
           day: req.day,
           startTime: req.startTime,
           endTime: req.endTime,
+          reportingManagerId: req.reportingManager ?? null, 
         }));
+        this.requestData = this.isHR
+        ? pending
+        : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         this.filterReuqusetData = [...this.requestData];
       },
       error: (err) => console.error('Error fetching permission requests:', err)
@@ -200,6 +210,9 @@ closePopup() {
   this.showPopup = false;
   this.selectedPermission = null;
   this.viewMode = false;
+}
+private isHRRole(norm: string): boolean {
+  return norm === 'HR' || norm === 'HR_MANAGER';
 }
 
 }
