@@ -10,11 +10,11 @@
 }
 .sheet {
   width: min(1200px, 96vw);
-  background: #fff;
+  background: #E8ECEF;
   border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
   padding: 50px 50px;
-  color: #101113;
+  color: #000000;
   max-height: 700px;
   overflow: auto;
 }
@@ -41,7 +41,7 @@
 }
 .ident .name {
   margin: 0;
-  color: #2b2b2b;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 26px;
   font-style: normal;
@@ -50,7 +50,7 @@
 }
 .ident .email {
   margin: 4px 0 0;
-  color: #a1a1a1;
+  color: #2b2b2b;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -81,7 +81,7 @@
   gap: 8px;
 }
 .label {
-  color: #666;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 20px;
   font-style: normal;
@@ -190,15 +190,15 @@
   width: 240px;
 }
 .stat--red {
-  background: #ffeff0;
+  background: #fcdfe1;
   color: #c62828;
 }
 .stat--purple {
-  background: #f3e7ff;
+  background: #e7d5fa;
   color: #6a1b9a;
 }
 .stat--gray {
-  background: #f4f5f7;
+  background: #cddeff;
   color: #3e4045;
 }
 .big {
@@ -217,7 +217,7 @@
   font-weight: 700;
 }
 .caption {
-  color: #3b3b3b;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -279,7 +279,7 @@
   position: sticky;
   top: 0;
   /* background: #fbfbfc; */
-  color: #3b3b3b;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -293,7 +293,7 @@
   padding: 10px 12px;
   height: var(--row-h);
   border: 1px solid #828282;
-  color: #3b3b3b;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -307,7 +307,7 @@
 /* Button */
 .btn-pill {
   padding: 6px 10px;
-  color: #767676;
+  color: #000000;
   font-family: "Sofia Sans";
   font-size: 10px;
   font-style: normal;
@@ -315,11 +315,14 @@
   line-height: normal;
   letter-spacing: 0.1px;
   border-radius: 4px;
-  border: 2px solid #c4c4c4;
+  border: 2px solid #aaaaaa;
   cursor: pointer;
   background: transparent;
   width: 90px;
   height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .dept-badge {
     display: inline-flex;
@@ -336,4 +339,7 @@
     height: 8px;
     border-radius: 50%;
     margin-right: 6px;
+  }
+  ::ng-deep .p-datepicker-dropdown{
+    background: transparent;
   }

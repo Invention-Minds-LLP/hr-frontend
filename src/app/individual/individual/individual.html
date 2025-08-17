@@ -90,13 +90,16 @@
             <div class="box-1 box">
                 <!-- <div class="holiday-card">
                     <h2>Nearest Holiday</h2>
-                    <div class="month-year">{{ monthName }} {{ year }}</div>
+                    <p>{{ monthName }} {{ year }}</p>
 
-                    <div class="dates-row">
-                        <div *ngFor="let date of displayDates" [class.nearest]="isNearest(date)"
-                            [class.other-holiday]="!isNearest(date) && isHoliday(date)">
-                            {{ date.getDate() }}
-                        </div>
+                    <div class="date-strip">
+                        <span *ngFor="let day of holidayDates"
+                            [class.holiday]="day == (nearestHoliday?.date | date:'d')">
+                            {{ day }}
+                        </span>
+                    </div>
+                    <div *ngIf="holidayDates.length === 0">
+                        {{ noHolidaysMessage }}
                     </div>
                 </div> -->
 
@@ -171,7 +174,7 @@
 
     <div class="individual-bottom">
         <!-- Leave -->
-        <div class="leave">
+        <div class="leave-table">
             <div style="width: 100%;">
                 <div class="header-part">
                     <div class="main-heading">Leaves</div>
@@ -231,7 +234,7 @@
         </div>
 
         <!--permission  -->
-        <div class="permission">
+        <div class="permission-table">
             <div style="width: 100%;">
                 <div class="header-part">
                     <div class="main-heading">Permission</div>

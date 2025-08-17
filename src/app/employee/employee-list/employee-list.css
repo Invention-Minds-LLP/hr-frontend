@@ -1,7 +1,7 @@
 .history {
   font-family: "Sofia Sans";
   padding: 20px 60px;
-  background-color: #e8ecef; /* Light background like screenshot */
+  background-color: transparent; /* Light background like screenshot */
 }
 
 .pi {
@@ -52,7 +52,7 @@ p-iconfield input {
   outline: none;
   padding: 6px;
   font-size: 14px;
-  background-color: #e8ecef !important;
+  background-color: transparent !important;
 }
 
 input {
@@ -60,7 +60,7 @@ input {
   outline: none;
   padding: 6px;
   font-size: 14px;
-  background-color: #fafafa !important;
+  background-color: transparent !important;
 }
 
 .search {
@@ -83,7 +83,7 @@ input {
   letter-spacing: 0.18px;
   border-radius: 8px;
   border: 1px solid #c4c4c4;
-  background: #fafafa;
+  background: transparent;
 }
 
 .filter {
@@ -97,7 +97,7 @@ input {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 6px 14px;
-  background-color: #fafafa !important;
+  background-color: transparent !important;
   cursor: pointer;
   width: 210px;
   height: 44px;
@@ -152,7 +152,7 @@ input {
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background: #f9f9f9;
+  background: #E8ECEF;
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -181,7 +181,7 @@ input {
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: #e8ecef;
+  background: transparent;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
@@ -240,7 +240,7 @@ input {
 .btn {
   border-radius: 8px;
   border: 2px solid #c4c4c4;
-  background: #e8ecef;
+  background: transparent;
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
@@ -250,7 +250,7 @@ input {
 
 /* Paginator */
 ::ng-deep .p-paginator {
-  background: #edf0f2;
+  background: transparent;
   justify-content: center;
   padding: 16px 0;
   gap: 8px;

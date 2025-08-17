@@ -33,9 +33,7 @@
   border-radius: 20px;
 } */
 
-.box-1 {
-  background: #3177a3;
-}
+
 
 .box-2 {
   background: #ac6c34;
@@ -178,7 +176,7 @@
 
 
 .attendance-card {
-  background: #fff;
+  background: #E8ECEF;
   border-radius: 12px;
   padding: 20px;
   width: 340px;
@@ -339,11 +337,12 @@
 }
 
 .working-card {
-  background: #fff;
+  background: #E8ECEF;
   border-radius: 8px;
   padding: 30px 20px;
   height: 380px;
   width: 340px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .header {
@@ -436,7 +435,7 @@
   /* margin: 50px; */
   font-family: "Sofia Sans";
   border-radius: 20px;
-  background: #fff;
+  background: #E8ECEF;
   padding: 50px 30px;
   display: flex;
   flex-direction: row;
@@ -526,7 +525,7 @@
 }
 
 ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
-  background: #fff;
+  background:#E8ECEF;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
   color: #000;
@@ -540,6 +539,7 @@
 ::ng-deep .table .p-datatable .p-datatable-tbody>tr>td {
   border: none;
   text-align: center;
+  background: #E8ECEF;
 }
 
 ::ng-deep .pi-chevron-down {
@@ -551,8 +551,8 @@
   border-right: 2px solid #adadad;
 }
 
-.leave,
-.permission {
+.leave-table,
+.permission-table {
   display: flex;
   flex-direction: row;
   gap: 20px;
@@ -632,6 +632,7 @@
   font-size: 14px;
   padding: 4px;
 }
+
 .no-data-message {
   text-align: center;
   padding: 1rem;
@@ -642,82 +643,55 @@
 
 
 .holiday-card {
-  background-color: #327ba8;
+  background: #3177a3;
+  width: 350px;
+  height: 155px;
   color: white;
-  text-align: center;
-  border-radius: 20px;
-  padding: 15px;
-  width: 250px;
-}
-
-.holiday-title {
-  font-size: 1.4em;
-  font-weight: bold;
-}
-
-.holiday-month {
-  font-size: 1em;
-  opacity: 0.8;
-}
-
-.holiday-dates {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-  font-size: 1.1em;
-}
-
-.holiday-dates div {
-  padding: 5px 8px;
-  border-radius: 6px;
-}
-
-.holiday-dates div.today {
-  background-color: #ff5c5c;
-  font-weight: bold;
-}
-
-.holiday-dates div.holiday {
-  color: #ff7b7b;
-}
-
-.holiday-card {
-  background-color: #2b7da8;
-  color: white;
-  text-align: center;
   padding: 20px;
-  border-radius: 20px;
-  width: 260px;
-  margin: auto;
+  border-radius: 15px;
+  text-align: center;
 }
 
-.month-year {
-  font-size: 14px;
-  opacity: 0.9;
+.holiday-card h2 {
+  margin: 0;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
 }
 
-.dates-row {
+.holiday-card p {
+  margin: 5px 0 15px;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.16px;
+}
+
+.date-strip {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
-  font-size: 18px;
+  gap: 8px;
 }
 
-.dates-row div {
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-
-.dates-row div.nearest {
-  background-color: #ff5252;
+.date-strip span {
+  padding: 8px 12px;
+  border-radius: 8px;
   font-weight: bold;
 }
 
-.dates-row div.other-holiday {
-  color: #ff5252;
+.date-strip span.holiday {
+  background-color: #ff5f5f;
+  color: white;
 }
+
+
 
 
 /* lap */
@@ -739,22 +713,23 @@
     align-items: center;
   }
 
-  .border{
+  .border {
     display: none;
   }
 
-  .leave,
-  .permission {
+  .leave-table,
+  .permission-table {
     flex-direction: column;
     width: 100%;
     height: 200px;
     border-bottom: 2px solid #adadad;
   }
 
- 
   .wfh {
     width: 100%;
   }
+
+
 }
 
 /* Mobile */
@@ -810,38 +785,47 @@
     width: 90vw;
   }
 
-  .action-buttons{
+  .holiday-card {
+    width: 90vw;
+    height: auto;
+    padding: 20px;
+  }
+
+  .action-buttons {
     gap: 10px;
   }
+
   .part-2 {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  .main-heading{
+  .main-heading {
     font-size: 20px;
   }
 
-  ::ng-deep .table .p-datatable .p-datatable-thead > tr > th {
+  ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
     font-size: 14px;
   }
 
-  .border{
+  .border {
     border-right: none;
   }
 
-  .wfh{
+  .wfh {
     width: 80vw;
   }
 
 
-  .leave,
-  .permission {
+  .leave-table,
+  .permission-table {
     flex-direction: column;
     width: 80vw;
     height: 200px;
   }
-  
+
+
+
 
 }

@@ -13,7 +13,7 @@
   }
   
   .popup-content {
-    background: #fff;
+    background: #E8ECEF;
     width: 600px;
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -32,7 +32,7 @@
   
   hr {
     border: none;
-    border-top: 3px solid #ddd;
+    border-top: 3px solid #cecdcd;
     margin-bottom: 25px;
     height: 2px;
   }
@@ -46,7 +46,7 @@
   }
   
   .form-group label {
-    color: #7A7A7A;
+    color: #2C2C2C;
     font-family: "Sofia Sans";
     font-size: 20px;
     font-style: normal;
@@ -62,7 +62,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    color: #4F4F4F;
+    color: #2C2C2C;
     font-family: "Sofia Sans";
     font-size: 16px;
     font-style: normal;
@@ -70,6 +70,7 @@
     line-height: normal;
     letter-spacing: 0.16px;
     outline: none;
+    background-color: #E8ECEF;
   }
   
   .form-group select:focus,
@@ -86,7 +87,7 @@
     height: 130px;
     border-radius: 10px;
     padding: 12px;
-    color: #767676;
+    color: #2C2C2C;
     font-family: "Sofia Sans";
     font-size: 14px;
     font-style: normal;
@@ -94,8 +95,8 @@
     line-height: normal;
     letter-spacing: 0.14px;
     border-radius: 8px;
-    background: #EAEAEA;
-    border: none;
+    background:transparent;
+    border: 1px solid #A6A6A6;
     resize: none;
     outline: none;
   }
