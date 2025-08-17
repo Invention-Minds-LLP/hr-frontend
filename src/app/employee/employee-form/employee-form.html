@@ -346,6 +346,22 @@
                             </div>
                         </p-floatLabel>
                     </div>
+                    <div class="field col-4" *ngIf="employeeForm.get('employmentType')?.value === 'PROBATION'">
+                        <p-floatLabel variant="on">
+                          <p-datepicker
+                            formControlName="probationEndDate"
+                            [minDate]="today"
+                            dateFormat="dd M yy"
+                            inputId="probEndDate"
+                            [showIcon]="true"
+                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
+                          </p-datepicker>
+                          <label for="probEndDate">Probation End Date</label>
+                          <div class="error-msg" *ngIf="showError(employeeForm.get('probationEndDate'))">
+                            Probation end date is required.
+                          </div>
+                        </p-floatLabel>
+                      </div>
                     <div class="field col-4">
                         <p-floatLabel variant="on">
                             <p-select [options]="employmentStatuses" formControlName="employmentStatus"

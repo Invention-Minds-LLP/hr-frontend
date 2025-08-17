@@ -17,6 +17,8 @@ import { Individual } from './individual/individual/individual';
 import { PopUp } from './pop-up/pop-up';
 import { ResignationForm } from './resignation/resignation-form/resignation-form';
 import { ResignOverview } from './resignation/resign-overview/resign-overview';
+import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
+import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -35,6 +37,9 @@ export const routes: Routes = [
     {path:'individual', component: Individual, canActivate: [authGuard]},
     {path:'popup', component:PopUp},
     {path:'resignation', component: ResignOverview},
+    {path: 'dashboard', component: HrDashboard},
+    {path:'recruitment', component: RecruitmentDashboard
+    },
     { path: '**', redirectTo: 'login', pathMatch: 'full' }
 
 ];

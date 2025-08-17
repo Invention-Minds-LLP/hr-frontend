@@ -1,0 +1,238 @@
+<div class="card">
+    <h2>Application Status</h2>
+  
+    <div class="filters">
+      <label>
+        <span>Job</span>
+        <select [(ngModel)]="selectedJobId" (change)="load()">
+          <option [ngValue]="undefined">All jobs</option>
+          <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }}</option>
+        </select>
+      </label>
+  
+      <label>
+        <span>Status</span>
+        <select [(ngModel)]="filterStatus" (change)="load()">
+          <option [ngValue]="''">Any</option>
+          <option *ngFor="let s of ['APPLIED','SCREENING','SHORTLISTED','INTERVIEW_SCHEDULED','INTERVIEWED','OFFERED','OFFER_ACCEPTED','OFFER_DECLINED','REJECTED','WITHDRAWN','HIRED','NO_SHOW']" [ngValue]="s">
+            {{ s }}
+          </option>
+        </select>
+      </label>
+  
+      <label class="grow">
+        <span>Search</span>
+        <input [(ngModel)]="q" (keyup.enter)="load()" placeholder="candidate or email" />
+      </label>
+  
+      <button (click)="load()">Load</button>
+    </div>
+  
+    <div class="table-wrap">
+        <table class="apps">
+          <colgroup>
+            <col style="width:34%" />
+            <col style="width:14%" />
+            <col style="width:16%" />
+            <col style="width:12%" />
+            <col style="width:auto" />
+          </colgroup>
+      
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Job Title</th>
+              <th>Status</th>
+              <th>Stage</th>
+              <th>Offer</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+      
+          <tbody>
+            <tr *ngFor="let a of apps">
+              <td class="candidate">
+                <div class="name">{{ a.candidate?.name }}</div>
+                <div class="email" [title]="a.candidate?.email">{{ a.candidate?.email }}</div>
+              </td>
+              <td>{{a.job?.title}}</td>
+              <td>
+                <span class="pill" >{{ a.status }}</span>
+              </td>
+              <td>{{ a.currentStage || '—' }}</td>
+              <td>{{ a.offer?.status || '—' }}</td>
+              <td class="actions">
+                <p-select
+                  [options]="actionOptionsFor(a)"
+                  [(ngModel)]="actionSel[a.id]"
+                  placeholder="Choose action"
+                  appendTo="body"
+                  [style]="{ width: '14rem' }"
+                  (onChange)="handleActionSelect(a, $event.value); actionSel[a.id]=null">
+                </p-select>
+              </td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+  </div>
+  <!-- ... your existing table / page content ... -->
+
+<!-- ====================== -->
+<!-- Schedule Interview     -->
+<!-- ====================== -->
+<p-dialog header="Schedule Interview"
+[(visible)]="showInterviewDialog"
+[modal]="true" [dismissableMask]="true" [style]="{width:'520px'}"
+(onHide)="resetInterview()">
+<form [formGroup]="interviewForm" class="p-fluid">
+<div class="p-field">
+<label for="stage">Stage</label>
+<input id="stage" type="text" pInputText formControlName="stage" placeholder="Tech1 / Tech2 / HR" />
+</div>
+
+<div class="p-formgrid p-grid" style="gap:12px;">
+<div class="p-col">
+<label for="start">Start</label>
+<p-datepicker id="start" formControlName="startTime" [showTime]="true" hourFormat="24"></p-datepicker>
+</div>
+<div class="p-col">
+<label for="end">End</label>
+<p-datepicker id="end" formControlName="endTime" [showTime]="true" hourFormat="24"></p-datepicker>
+</div>
+</div>
+
+<div class="p-field">
+<label for="panel">Panel user IDs (CSV)</label>
+<input id="panel" type="text" pInputText formControlName="panelUserIds" placeholder="12,45,77" />
+</div>
+</form>
+
+<ng-template pTemplate="footer">
+<button pButton type="button" label="Cancel" class="p-button-text" (click)="showInterviewDialog=false"></button>
+<button pButton type="button" label="Save" icon="pi pi-check" (click)="submitInterview()" [disabled]="interviewForm.invalid"></button>
+</ng-template>
+</p-dialog>
+
+<!-- ====================== -->
+<!-- Send Offer (optional date) -->
+<!-- ====================== -->
+<p-dialog header="Send Offer"
+[(visible)]="showOfferDialog"
+[modal]="true" [dismissableMask]="true" [style]="{width:'420px'}"
+(onHide)="offerForm.reset()">
+<form [formGroup]="offerForm" class="p-fluid">
+<div class="p-field">
+<label for="join">Proposed join (optional)</label>
+<p-datepicker id="join" formControlName="proposedJoinAt" [showTime]="true" hourFormat="24"></p-datepicker>
+</div>
+</form>
+
+<ng-template pTemplate="footer">
+<button pButton type="button" label="Skip" class="p-button-text" (click)="submitOffer(true)"></button>
+<button pButton type="button" label="Send" icon="pi pi-send" (click)="submitOffer(false)"></button>
+</ng-template>
+</p-dialog>
+
+<!-- ====================== -->
+<!-- Reason (Decline / No-show) -->
+<!-- ====================== -->
+<p-dialog [header]="reasonDialogTitle"
+[(visible)]="showReasonDialog"
+[modal]="true" [dismissableMask]="true" [style]="{width:'480px'}"
+(onHide)="reasonForm.reset()">
+<form [formGroup]="reasonForm" class="p-fluid">
+<div class="p-field">
+<label for="rsn">{{ reasonDialogLabel }}</label>
+<textarea id="rsn" rows="4" pInputTextarea formControlName="reason"></textarea>
+</div>
+</form>
+
+<ng-template pTemplate="footer">
+<button pButton type="button" label="Cancel" class="p-button-text" (click)="showReasonDialog=false"></button>
+<button pButton type="button" label="Save" icon="pi pi-check" (click)="submitReason()"></button>
+</ng-template>
+</p-dialog>
+<p-dialog header="Assign Test"
+          [(visible)]="showAssignTestDialog"
+          [modal]="true" [dismissableMask]="true" [style]="{width:'520px'}"
+          (onHide)="assignTestForm.reset()">
+
+  <form [formGroup]="assignTestForm" class="p-fluid">
+    <div class="p-field">
+      <label for="test">Evaluation Test *</label>
+      <p-select id="test"
+                formControlName="testId"
+                [options]="testsCatalog"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select a test"
+                [overlayOptions]="{ appendTo: 'body' }">
+      </p-select>
+    </div>
+
+    <div class="p-formgrid p-grid" style="gap:12px;">
+      <div class="p-col">
+        <label for="tstart">Test start (optional)</label>
+        <p-datepicker id="tstart" formControlName="testDate" [showTime]="true" hourFormat="24"></p-datepicker>
+      </div>
+      <div class="p-col">
+        <label for="tend">Deadline (optional)</label>
+        <p-datepicker id="tend" formControlName="deadlineDate" [showTime]="true" hourFormat="24"></p-datepicker>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="showAssignTestDialog=false"></button>
+    <button pButton type="button" label="Assign" icon="pi pi-check"
+            (click)="submitAssignTest()" [disabled]="assignTestForm.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- Review Test dialog -->
+<p-dialog header="Review Test"
+          [(visible)]="showReviewDialog"
+          [modal]="true" [dismissableMask]="true" [style]="{width:'560px'}"
+          (onHide)="reviewForm.reset()">
+
+  <div *ngIf="reviewCtx">
+    <div class="p-mb-3">
+      <strong>{{ reviewCtx?.test?.name }}</strong>
+      <span class="p-ml-2">Score: <b>{{ reviewCtx?.score ?? '—' }}%</b></span>
+      <span class="p-ml-2">Completed: {{ reviewCtx?.completedAt | date:'medium' }}</span>
+    </div>
+
+    <form [formGroup]="reviewForm" class="p-fluid">
+      <div class="p-field">
+        <label>Decision *</label>
+        <div class="p-formgrid p-grid">
+          <div class="p-col-6">
+            <p-radioButton name="dec" value="PASS" formControlName="decision" inputId="dec-pass"></p-radioButton>
+            <label for="dec-pass" style="margin-left:.5rem">Pass</label>
+          </div>
+          <div class="p-col-6">
+            <p-radioButton name="dec" value="FAIL" formControlName="decision" inputId="dec-fail"></p-radioButton>
+            <label for="dec-fail" style="margin-left:.5rem">Fail</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-field">
+        <label for="note">Note (optional)</label>
+        <textarea id="note" pInputTextarea rows="4" formControlName="note" placeholder="Add context for your decision"></textarea>
+      </div>
+    </form>
+
+    <div class="p-mt-2 p-text-600">Next step: Use the Status dropdown to move the candidate (no automatic change).</div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="showReviewDialog=false"></button>
+    <button pButton type="button" label="Save Review" icon="pi pi-check"
+            (click)="submitReview()" [disabled]="reviewForm.invalid"></button>
+  </ng-template>
+</p-dialog>

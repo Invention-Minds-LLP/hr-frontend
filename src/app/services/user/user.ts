@@ -37,4 +37,12 @@ export class User {
       params
     });
   }
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/candidate/login`, { email, password });
+  }
+
+  // Optional: if you use a set-password flow for candidates
+  setPassword(email: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/set-password`, { email, password });
+  }
 }

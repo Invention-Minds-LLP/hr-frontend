@@ -26,12 +26,12 @@
   gap: 15px;
 }
 
-.box {
+/* .box {
   width: 350px;
   height: 155px;
   flex-shrink: 0;
   border-radius: 20px;
-}
+} */
 
 .box-1 {
   background: #3177a3;
@@ -43,11 +43,139 @@
 
 .box-3 {
   background: #35ac40;
+  display: flex;
+  justify-content: center;
 }
 
 .box-4 {
   background: #ab3434;
 }
+.box {
+  width: 350px;
+  height: 155px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  padding: 14px 16px;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* align-items: center; */
+}
+
+
+.box-title {
+  margin: 10px 0;
+  margin-top: 0;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  text-align: center;
+}
+
+.empty {
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.list-3 {
+  display: grid;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.person-chip {
+  /* background: rgba(255,255,255,0.12); */
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.person-chip .name {
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: 20px;
+}
+
+.person-chip .dept {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* PrimeNG carousel tweaks to fit the 3-up layout inside the box */
+:host ::ng-deep .p-carousel .p-carousel-content .p-carousel-item {
+  padding: 0 6px;
+}
+:host ::ng-deep .p-carousel .p-carousel-items-container {
+  padding-top: 2px;
+}
+
+/* If this is in a component stylesheet, prefix with :host ::ng-deep */
+:host ::ng-deep .p-carousel .p-carousel-content { position: relative; }
+
+/* Arrow buttons */
+::ng-deep .p-carousel-prev,
+::ng-deep .p-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;               /* circle size */
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #d22b46; /* red outline */
+  background: transparent;   /* no fill */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d22b46;            /* icon color */
+  box-shadow: none;
+}
+
+:host ::ng-deep .p-carousel-prev { left: 14px; }
+:host ::ng-deep .p-carousel-next { right: 14px; }
+
+:host ::ng-deep .p-carousel-prev:hover,
+:host ::ng-deep .p-carousel-next:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Icon size/color (PrimeIcons) */
+:host ::ng-deep .p-carousel-prev .pi,
+:host ::ng-deep .p-carousel-next .pi,
+:host ::ng-deep .p-carousel-prev-icon,
+:host ::ng-deep .p-carousel-next-icon {
+  font-size: 1.1rem;         /* make arrows a bit bigger */
+  color: #d22b46;
+}
+
+/* Indicators (the dots) */
+:host ::ng-deep .p-carousel-indicators {
+  gap: 8px;
+  margin-top: 8px;
+}
+:host ::ng-deep .p-carousel-indicator button {
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;        /* square-ish like your screenshot */
+  background: #e6eef7;       /* light */
+  border: none;
+}
+:host ::ng-deep .p-carousel-indicator.p-highlight button {
+  background: #1fb875;       /* green for active */
+}
+
+::ng-deep .p-button-text.p-button-secondary{
+  color: white;
+  /* border: 2px solid white; */
+  /* background-color: white; */
+}
+
 
 .attendance-card {
   background: #fff;
@@ -593,11 +721,11 @@
 
 
 /* lap */
-@media(max-width: 1439px) {
+/* @media(max-width: 1439px) {
   .individual-container {
     overflow: auto;
   }
-}
+} */
 
 /* Tab */
 

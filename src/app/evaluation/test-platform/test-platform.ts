@@ -14,6 +14,7 @@ import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { firstValueFrom } from 'rxjs';
+import { Recuriting } from '../../services/recruiting/recuriting';
 
 // utils
 function mulberry32(seed: number) {
@@ -67,13 +68,15 @@ export class TestPlatform implements OnInit, OnDestroy {
 
   assignedTestId: number;
   attemptId?: number;
+  candidateId?:number;
 
   constructor(
     private route: ActivatedRoute,
     private assignedTestService: AssignTest,
     private attemptService: TestAttempt,
     private router: Router,
-    private confirmation: ConfirmationService
+    private confirmation: ConfirmationService,
+    private ct: Recuriting
   ) {
     this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
   }
@@ -95,9 +98,14 @@ export class TestPlatform implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.candidateId = Number(localStorage.getItem('candidateId')) || 0
     this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
     const qid = this.route.snapshot.queryParamMap.get('attemptId');
     this.attemptId = qid ? Number(qid) : undefined;
+    if(this.candidateId){
+      this.load();
+      return;
+    }
     this.attemptService.getDetails(this.assignedTestId).subscribe(data => {
       const seed = this.attemptId ?? this.assignedTestId;
 
@@ -116,6 +124,16 @@ export class TestPlatform implements OnInit, OnDestroy {
 
       this.startTimer();
       this.attachProctoring();
+    });
+  }
+  load() {
+    this.ct.getAssignedTestDetail(this.assignedTestId).subscribe((t: any) => {
+      this.test = t;
+      this.responses = t.questions.map((q: any) => ({
+        answer: q.type === 'MCQ' ? [] : '',   // MCQ starts as [] ; Descriptive as ''
+        marked: false,
+      }));
+      this.timeLeft = (t.duration || 30) * 60;
     });
   }
 
@@ -231,6 +249,12 @@ export class TestPlatform implements OnInit, OnDestroy {
   submit(): void {
     clearInterval(this.timerId);
 
+    if(this.candidateId){
+      const answers = this.collectAnswers();
+      this.ct.submitAssignedTest(this.assignedTestId, answers).subscribe(res => { /* show score, route back */ });
+      return;
+    }
+
     // quick scoring for MCQ
     const correctCount = this.test.questions.reduce((count: number, q: any, i: number) => {
       if (q.type === 'MCQ') {
@@ -335,5 +359,28 @@ export class TestPlatform implements OnInit, OnDestroy {
     if (el.requestFullscreen) await el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
   }
+// test-take.component.ts
+
+
+
+
+/** Build payload [{questionId, answer}] from UI state */
+collectAnswers(): { questionId: number; answer: any }[] {
+  if (!this.test?.questions) return [];
+  return this.test.questions.map((q: any, idx: number) => {
+    const raw = this.responses[idx]?.answer;
+    // Normalize: MCQ → number | number[] ; Descriptive → string
+    let answer: any = raw;
+    if (q.type === 'MCQ') {
+      // allow single or multi
+      answer = Array.isArray(raw)
+        ? raw.map((x: any) => Number(x))
+        : (raw == null || raw === '' ? null : Number(raw));
+    } else {
+      answer = raw == null ? '' : String(raw);
+    }
+    return { questionId: q.id, answer };
+  });
+}
 
 }

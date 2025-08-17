@@ -19,7 +19,7 @@
                 <label>Select Timing :</label>
                 <select [(ngModel)]="timing">
                     <option value="">Select Timing</option>
-                    <option value="FULLDAY">Full Day</option>
+                    <!-- <option value="FULLDAY">Full Day</option> -->
                     <option value="HALFDAY">Half Day</option>
                     <option value="HOURLY">Hourly</option>
                 </select>
@@ -31,7 +31,7 @@
             </div>
     
             <!-- Show Start/End Time only if HOURLY -->
-            <div *ngIf="timing === 'HOURLY'">
+            <div >
                 <div class="form-group">
                     <label>Start Time:</label>
                     <input type="time" [(ngModel)]="startTime" />

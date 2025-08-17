@@ -2,6 +2,6 @@
     display: flex;
     height: 100% ; /* Full viewport height */
     /* overflow: hidden; */
-    background-color: #E8ECEF;
+    background-color: #fff;
     flex-direction: column;
   }

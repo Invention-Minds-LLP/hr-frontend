@@ -1,0 +1,52 @@
+.card {
+  background: #E8ECEF;
+  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 860px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+input,
+select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 2px solid #C4C4C4;
+}
+fieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 12px;
+}
+legend {
+  padding: 0 8px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 12px;
+}
+.grid .wide {
+  grid-column: 1 / -1;
+}
+.actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #22c55e;
+  color: #fff;
+}
+.error {
+  color: #dc2626;
+}

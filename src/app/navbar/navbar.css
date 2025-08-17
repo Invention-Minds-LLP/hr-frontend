@@ -21,7 +21,7 @@
 
 /* Top Bar */
 .header {
-  background-color: #e8ecef;
+  background-color: #fff;
 }
 
 .header-top {
@@ -30,7 +30,7 @@
   align-items: center;
   padding: 0.5rem 1.5rem;
   height: 119px;
-  margin-top: 50px;
+  /* margin-top: 50px; */
 }
 
 hr {
@@ -56,10 +56,10 @@ hr {
   display: inline-block;
   border: 2px solid #C4C4C4;
   border-radius: 40px;
-  width: 181px;
-  height: auto;
+  width: 100%;
+  height: 54px;
   background: transparent;
-  padding: 5px;
+  /* padding: 5px; */
   transition: all 0.5s ease;
 }
 
@@ -84,7 +84,7 @@ hr {
 .dropdown.active {
   background: white;
   position: absolute;
-  top: 110%;
+  top: 100%;
   right: -5px;
   width: 181px;
   height: 100px;
@@ -211,6 +211,7 @@ a {
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 20%;
 }
 
 .user-profile {

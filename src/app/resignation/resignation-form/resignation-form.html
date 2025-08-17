@@ -1,110 +1,114 @@
-<p-card>
-    <h2>Submit Resignation</h2>
-
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
-        <div class="field-row">
-            <div class="field">
-                <label>Reason <span class="req">*</span></label>
-                <textarea pInputTextarea formControlName="reason" rows="5"
-                    placeholder="Write your reason..."></textarea>
-                <div class="error" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">
-                    Please enter at least 10 characters.
+<div class="resignation-container">
+ <div class="resignation-form">
+    <p-card>
+        <h2>Submit Resignation</h2>
+    
+        <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+            <div class="field-row">
+                <div class="field">
+                    <label>Reason <span class="req">*</span></label>
+                    <textarea pInputTextarea formControlName="reason" rows="5"
+                        placeholder="Write your reason..."></textarea>
+                    <div class="error" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">
+                        Please enter at least 10 characters.
+                    </div>
+                </div>
+    
+                <div class="field">
+                    <label>Additional Notes</label>
+                    <textarea pInputTextarea formControlName="additionalNotes" rows="5"
+                        placeholder="Any notes..."></textarea>
                 </div>
             </div>
-
-            <div class="field">
-                <label>Additional Notes</label>
-                <textarea pInputTextarea formControlName="additionalNotes" rows="5"
-                    placeholder="Any notes..."></textarea>
+    
+            <div class="field-row">
+                <div class="field">
+                    <label>Notice Period (days)</label>
+                    <input type="number" pInputText formControlName="noticePeriodDays" />
+                </div>
+    
+                <div class="field readonly">
+                    <label>Proposed Last Working Day</label>
+                    <div>{{ proposedLWD | date:'mediumDate' }}</div>
+                </div>
             </div>
-        </div>
-
-        <div class="field-row">
-            <div class="field">
-                <label>Notice Period (days)</label>
-                <input type="number" pInputText formControlName="noticePeriodDays" />
+    
+            <button pButton type="submit" label="Submit" [disabled]="form.invalid || loading"></button>
+        </form>
+    
+        <!-- <ng-container *ngIf="submitted">
+            <hr />
+            <div class="status">
+                <div><strong>Status:</strong> {{ submitted.status }}</div>
+                <div><strong>Manager Decision:</strong> {{ submitted.managerDecision }}</div>
+                <div><strong>HR Decision:</strong> {{ submitted.hrDecision }}</div>
+                <div><strong>Proposed LWD:</strong> {{ submitted.proposedLastWorkingDay | date:'mediumDate' }}</div>
+                <button pButton class="p-button-danger button" label="Withdraw" (click)="withdraw()"
+                    *ngIf="submitted.hrDecision === 'PENDING'"></button>
             </div>
-
-            <div class="field readonly">
-                <label>Proposed Last Working Day</label>
-                <div>{{ proposedLWD | date:'mediumDate' }}</div>
-            </div>
+        </ng-container> -->
+    </p-card>
+ </div>
+    
+    <!-- src/app/pages/resignation/my-resignations.html -->
+    <div class="resignations">
+        <div class="header">
+            <h2>My Resignations</h2>
         </div>
-
-        <button pButton type="submit" label="Submit" [disabled]="form.invalid || loading"></button>
-    </form>
-
-    <!-- <ng-container *ngIf="submitted">
-        <hr />
-        <div class="status">
-            <div><strong>Status:</strong> {{ submitted.status }}</div>
-            <div><strong>Manager Decision:</strong> {{ submitted.managerDecision }}</div>
-            <div><strong>HR Decision:</strong> {{ submitted.hrDecision }}</div>
-            <div><strong>Proposed LWD:</strong> {{ submitted.proposedLastWorkingDay | date:'mediumDate' }}</div>
-            <button pButton class="p-button-danger button" label="Withdraw" (click)="withdraw()"
-                *ngIf="submitted.hrDecision === 'PENDING'"></button>
-        </div>
-    </ng-container> -->
-</p-card>
-
-<!-- src/app/pages/resignation/my-resignations.html -->
-<div class="resignations">
-    <div class="header">
-        <h2>My Resignations</h2>
-    </div>
-
-    <p-table [value]="rows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>No</th>
-                <th>Submitted On</th>
-                <th>Last Working Day</th>
-                <th>Notice</th>
-                <th>Status</th>
-                <th>Reason</th>
-                <th style="text-align:center;">Action</th>
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-r let-i="rowIndex">
-            <tr>
-                <td>{{ i + 1 }}</td>
-                <td>{{ r.createdAt | date:'short' }}</td>
-                <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
-                <td>{{ r.noticePeriodDays }} days</td>
-                <td><span class="{{ badgeClass(r.status) }}">{{ r.status }}</span></td>
-                <td>
-                    <span title="{{ r.reason }}">{{ r.reason?.length > 40 ? (r.reason | slice:0:40) + '…' : r.reason
-                        }}</span>
-                </td>
-                <td class="action-cell">
-                    <button pButton label="Withdraw" class="p-button-danger p-button-sm" [disabled]="!withdrawable(r)"
-                        (click)="askWithdraw(r)">
-                    </button>
-                </td>
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="7" class="empty">No resignation requests found.</td>
-            </tr>
-        </ng-template>
-    </p-table>
-
-    <!-- Simple inline dialog -->
-    <div class="withdraw-dialog" *ngIf="withdrawingId">
-        <div class="card">
-            <h3>Withdraw Resignation</h3>
-            <p>Optionally share a reason (visible to HR):</p>
-            <textarea pInputTextarea [(ngModel)]="withdrawReason" name="withdrawReason" rows="4"
-                placeholder="Reason (optional)">
-</textarea>
-
-
-            <div class="actions">
-                <button pButton label="Cancel" class="p-button-text" (click)="cancelWithdraw()"></button>
-                <button pButton label="Confirm Withdraw" class="p-button-danger" (click)="confirmWithdraw()"></button>
+    
+        <p-table [value]="rows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>No</th>
+                    <th>Submitted On</th>
+                    <th>Last Working Day</th>
+                    <th>Notice</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </ng-template>
+    
+            <ng-template pTemplate="body" let-r let-i="rowIndex">
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ r.createdAt | date:'short' }}</td>
+                    <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+                    <td>{{ r.noticePeriodDays }} days</td>
+                    <td><span class="{{ badgeClass(r.status) }}">{{ r.status }}</span></td>
+                    <td>
+                        <span title="{{ r.reason }}">{{ r.reason?.length > 40 ? (r.reason | slice:0:40) + '…' : r.reason
+                            }}</span>
+                    </td>
+                    <td class="action-cell">
+                        <button pButton label="Withdraw" class="p-button-danger p-button-sm" [disabled]="!withdrawable(r)"
+                            (click)="askWithdraw(r)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+    
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="empty">No resignation requests found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    
+        <!-- Simple inline dialog -->
+        <div class="withdraw-dialog" *ngIf="withdrawingId">
+            <div class="card">
+                <h3>Withdraw Resignation</h3>
+                <p>Optionally share a reason (visible to HR):</p>
+                <textarea pInputTextarea [(ngModel)]="withdrawReason" name="withdrawReason" rows="4"
+                    placeholder="Reason (optional)">
+    </textarea>
+    
+    
+                <div class="actions">
+                    <button pButton label="Cancel" class="p-button-text" (click)="cancelWithdraw()"></button>
+                    <button pButton label="Confirm Withdraw" class="p-button-danger" (click)="confirmWithdraw()"></button>
+                </div>
             </div>
         </div>
     </div>

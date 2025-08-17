@@ -24,25 +24,25 @@ export class PermissionPopup {
   endTime = '';
   reason = '';
   employeeId: string = '';
-  declineReason:string = '';
+  declineReason: string = '';
 
-  constructor(private permissionService: Permission) {}
+  constructor(private permissionService: Permission) { }
 
 
-  ngOnInit(){
+  ngOnInit() {
     this.employeeId = localStorage.getItem('empId') || '';
     console.log(this.permissionData)
-    if(this.permissionData){
-          this.permissionType = this.permissionData.permissionType || '';
-          this.timing = this.permissionData.timing || '';
-          this.day = this.permissionData.day
-          ? new Date(this.permissionData.day).toISOString().split('T')[0]
-          : '';             
-          this.startTime = this.permissionData.startTime || '';
-          this.endTime = this.permissionData.endTime || '';
-          this.reason = this.permissionData.reson || '';
-          this.declineReason = this.permissionData.declineReason || ''
-      
+    if (this.permissionData) {
+      this.permissionType = this.permissionData.permissionType || '';
+      this.timing = this.permissionData.timing || '';
+      this.day = this.permissionData.day
+        ? new Date(this.permissionData.day).toISOString().split('T')[0]
+        : '';
+      this.startTime = this.toTimeInput(this.permissionData.startTime);
+      this.endTime = this.toTimeInput(this.permissionData.endTime);
+      this.reason = this.permissionData.reason || '';
+      this.declineReason = this.permissionData.declineReason || ''
+
     }
   }
 
@@ -58,6 +58,17 @@ export class PermissionPopup {
       alert('Please select start and end time for hourly permission');
       return;
     }
+    // time required for HOURLY and HALFDAY
+    if ((this.timing === 'HOURLY' || this.timing === 'HALFDAY') && (!this.startTime || !this.endTime)) {
+      alert('Please select start and end time.');
+      return;
+    }
+
+    // optional: ensure start < end
+    if ((this.timing === 'HOURLY' || this.timing === 'HALFDAY') && this.startTime >= this.endTime) {
+      alert('End time must be after start time.');
+      return;
+    }
 
     // Build payload
     const payload: any = {
@@ -68,7 +79,7 @@ export class PermissionPopup {
       reason: this.reason
     };
 
-    if (this.timing === 'HOURLY') {
+    if (this.timing === 'HOURLY' || this.timing === 'HALFDAY') {
       payload.startTime = `${this.day}T${this.startTime}`;
       payload.endTime = `${this.day}T${this.endTime}`;
     }
@@ -96,4 +107,12 @@ export class PermissionPopup {
     this.reason = '';
     this.close.emit();
   }
+  private toTimeInput(iso?: string): string {
+    if (!iso) return '';
+    const d = new Date(iso);        // converts from Z to local
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
 }

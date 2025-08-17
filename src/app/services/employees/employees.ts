@@ -96,4 +96,7 @@ export class Employees {
       `${this.apiUrl}/${employeeId}/requests`
     );
   }
+  getToday(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/today`);
+  }
 }

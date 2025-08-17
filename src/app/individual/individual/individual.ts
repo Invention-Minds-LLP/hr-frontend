@@ -9,6 +9,7 @@ import { LeavePopup } from '../../leaves/leave-popup/leave-popup';
 import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 import { Holiday, Holidays } from '../../services/holidays/holidays';
+import { CarouselModule } from 'primeng/carousel';
 
 interface individual {
   date: string;
@@ -26,7 +27,7 @@ interface AttendanceDay {
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup,CarouselModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -50,11 +51,11 @@ export class Individual {
   selectedWFH: any = null;
   wfhViewMode = false;
 
- monthName: string = '';
-year: number = 0;
-holidays: any[] = [];
-nearestHoliday: any = null;
-displayDates: Date[] = [];
+  monthName: string = '';
+  year: number = 0;
+  holidays: any[] = [];
+  nearestHoliday: any = null;
+  displayDates: Date[] = [];
 
 
 
@@ -84,6 +85,8 @@ displayDates: Date[] = [];
 
 
   attendanceData: AttendanceDay[] = [];
+  birthday: any[] = [];
+  anniversary: any[] = [];
 
   // Attendance-card 
   attendanceRecords: { date: string, status: 'present' | 'absent' }[] = [
@@ -113,9 +116,27 @@ displayDates: Date[] = [];
     this.monthName = today.toLocaleString('default', { month: 'long' });
     this.loadHolidaysForYear(this.year, today);
 
+    this.getBirthAndAnniversary();
+
+
   }
 
-   loadHolidaysForYear(year: number, fromDate: Date) {
+  getBirthAndAnniversary() {
+    this.employeeService.getToday().subscribe({
+      next: (res: any) => {
+        this.birthday = res?.birthdays ?? [];
+        this.anniversary = res?.anniversaries ?? [];
+        console.log(this.birthday, this.anniversary)
+      },
+      error: (err) => {
+        console.error('Failed to load celebrants', err);
+        this.birthday = [];
+        this.anniversary = [];
+      }
+    });
+  }
+
+  loadHolidaysForYear(year: number, fromDate: Date) {
     this.holidayService.getHolidays(year, 'IN').subscribe(data => {
       if (!data || data.length === 0) {
         this.holidays = [];
@@ -167,7 +188,7 @@ displayDates: Date[] = [];
 
 
 
- 
+
 
   fetchDetails() {
     const employeeId = Number(localStorage.getItem('empId')); // make sure this is the numeric Employee.id

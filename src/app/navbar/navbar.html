@@ -82,11 +82,11 @@
                         <i class="pi pi-users"></i> Employee
                     </a>
                 </li>
-                <!-- <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
-                    <a [routerLink]="'/attendance'">
-                        <i class="pi pi-user-plus"></i> Attendance
+                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
+                    <a [routerLink]="'/recruitment'">
+                        <i class="pi pi-user-plus"></i> Recruitment
                     </a>
-                </li> -->
+                </li>
                 <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
                     <a [routerLink]="'/leave'">
                         <i class="pi pi-chart-line"></i> Leaves
@@ -102,7 +102,7 @@
                         <i class="pi pi-star"></i> Evaluation
                     </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
+                <li class="nav-item" routerLinkActive="active" *ngIf="!isRestricted && role !='Reporting Manager'">
                     <a [routerLink]="'/resignation'">
                         <i class="pi pi-users"></i> Resignation
                       </a>

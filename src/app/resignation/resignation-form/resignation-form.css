@@ -74,6 +74,7 @@ input {
 ::ng-deep .p-card {
   background: transparent !important;
   padding: 50px;
+  box-shadow: none !important;
 }
 /* src/app/pages/resignation/my-resignations.css */
 .resignations .header {
@@ -84,7 +85,7 @@ input {
   /* padding: 50px; */
 }
 .resignations{
-    padding: 50px;
+    /* padding: 50px; */
 }
 .b {
   padding: 2px 8px;
@@ -272,3 +273,14 @@ input {
 }
 
 
+.resignation-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 30px;
+}
+.resignation-form{
+    display: flex;
+    width: 50%;
+}

@@ -1,0 +1,43 @@
+<div class="card">
+    <h2>Create Job Vacancy</h2>
+  
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid">
+        <label>
+          <span>Title *</span>
+          <input formControlName="title" placeholder="e.g., Senior Engineer" />
+        </label>
+  
+        <label>
+            <span>Department *</span>
+            <select formControlName="departmentId">
+              <option [ngValue]="null">Select department</option>
+              <option *ngFor="let d of departments" [ngValue]="d.id">
+                {{ d.name }}
+              </option>
+            </select>
+          </label>
+  
+        <label>
+          <span>Location</span>
+          <input formControlName="location" placeholder="e.g., Chennai" />
+        </label>
+  
+        <label>
+          <span>Headcount *</span>
+          <input formControlName="headcount" type="number" min="1" />
+        </label>
+<!--   
+        <label>
+          <span>Backfill for Employee ID</span>
+          <input formControlName="backfillForEmployeeId" type="number" />
+        </label> -->
+      </div>
+  
+      <div class="actions">
+        <button type="submit" [disabled]="saving">Create</button>
+        <span class="error" *ngIf="error">{{ error }}</span>
+      </div>
+    </form>
+  </div>
+  

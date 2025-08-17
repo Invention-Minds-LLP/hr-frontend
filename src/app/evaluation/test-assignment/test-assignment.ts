@@ -67,16 +67,47 @@ export class TestAssignment {
     this.selectedEmployeeIds = ids;
   }
 
+  availFromDate = ''; // "YYYY-MM-DD"
+  availToDate   = '';
+
+  // (optional) prefill from test.activeFrom/activeTo when a test is chosen
+  onTestChange(testId: number) {
+    const t = this.tests.find(x => x.id === +testId);
+    if (t?.activeFrom) this.availFromDate = new Date(t.activeFrom).toISOString().slice(0, 10);
+    if (t?.activeTo)   this.availToDate   = new Date(t.activeTo).toISOString().slice(0, 10);
+  }
+
+  private startOfDayISO(dateStr: string): string {
+    return new Date(`${dateStr}T00:00:00`).toISOString(); // local -> ISO
+  }
+  private endOfDayISO(dateStr: string): string {
+    return new Date(`${dateStr}T23:59:59.999`).toISOString();
+  }
+
   assign() {
     if (!this.selectedTestId || this.selectedEmployeeIds.length === 0) {
       alert('Please select a test and at least one employee');
+      return;
+    }
+    if (!this.availFromDate || !this.availToDate) {
+      alert('Please select both dates (From/To)');
+      return;
+    }
+
+    const fromISO = new Date(this.availFromDate);
+    const toISO   = new Date(this.availToDate);
+
+    if (new Date(toISO) < new Date(fromISO)) {
+      alert('“Available To” must be the same or after “Available From”.');
       return;
     }
 
     const payload = {
       testId: this.selectedTestId,
       employeeIds: this.selectedEmployeeIds,
-      assignedBy: this.assignedBy
+      assignedBy: this.assignedBy,
+      testDate: fromISO,       // availability start (00:00 local)
+      deadlineDate: toISO      // availability end (23:59:59.999 local)
     };
 
     this.assignedService.assign(payload).subscribe({
@@ -84,6 +115,7 @@ export class TestAssignment {
         this.message = 'Test successfully assigned!';
         this.selectedTestId = 0;
         this.selectedEmployeeIds = [];
+        this.availFromDate = this.availToDate = '';
       },
       error: (err) => {
         console.error('Assignment failed', err);

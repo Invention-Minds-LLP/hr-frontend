@@ -105,6 +105,8 @@ export class EmployeeForm {
     { label: 'AB-', value: 'AB-' }
   ];
 
+  today:any =new Date();
+
 
 
 
@@ -138,7 +140,7 @@ export class EmployeeForm {
       roleId: ['', Validators.required],
       dateOfJoining: ['', Validators.required],
       employmentType: ['PERMANENT', Validators.required],
-      probationEndDate: [''],
+      probationEndDate: [{ value: null, disabled: true }],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
       shiftId: [''],
@@ -193,6 +195,18 @@ export class EmployeeForm {
           age: this.calculateAge(new Date(dob))
         }, { emitEvent: false });
       }
+    });
+    this.employeeForm.get('employmentType')!.valueChanges.subscribe((val) => {
+      const ctrl = this.employeeForm.get('probationEndDate')!;
+      if (val === 'PROBATION') {
+        ctrl.enable();
+        ctrl.addValidators([Validators.required]);
+      } else {
+        ctrl.reset(null);
+        ctrl.clearValidators();
+        ctrl.disable();
+      }
+      ctrl.updateValueAndValidity({ emitEvent: false });
     });
 
   }

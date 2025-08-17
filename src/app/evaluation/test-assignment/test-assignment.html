@@ -37,6 +37,17 @@
       </ng-template>
     </p-multiSelect>
   </div>
+  <div class="form-row">
+    <label>Available From:</label>
+    <input type="date" [(ngModel)]="availFromDate" />
+  </div>
+  
+  <div class="form-row">
+    <label>Available To:</label>
+    <input type="date" [(ngModel)]="availToDate" />
+  </div>
+  
+  
 
   <div class="form-actions">
     <button (click)="assign()" class="btn-green">Assign Test</button>
