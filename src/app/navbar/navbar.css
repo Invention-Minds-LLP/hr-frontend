@@ -21,7 +21,7 @@
 
 /* Top Bar */
 .header {
-  background-color: #fff;
+  background-color: #FFFFFF
 }
 
 .header-top {
@@ -231,7 +231,7 @@ a {
 /* Submenu */
 .sub-nav {
   display: flex;
-  background: #e8ecef;
+  background: #FFFFFF;
   /* padding: 0.5rem 1.5rem; */
   height: 64px;
   /* border-bottom: 1px solid #ddd; */

@@ -27,7 +27,7 @@ interface AttendanceDay {
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup,CarouselModule],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule,CarouselModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -51,15 +51,24 @@ export class Individual {
   selectedWFH: any = null;
   wfhViewMode = false;
 
-  monthName: string = '';
-  year: number = 0;
-  holidays: any[] = [];
-  nearestHoliday: any = null;
-  displayDates: Date[] = [];
+  // Holidays
+  nearestHoliday: { name: string; date: string } | null = null;
+  holidayDates: string[] = [];
+  monthName = ''; // Leave empty for auto mode
+  year = new Date().getFullYear();
+  selectedMonth = new Date().getMonth();
+  allHolidays: { name: string; date: string }[] = [];
+
+  months = Array.from({ length: 12 }, (_, i) =>
+    new Date(0, i).toLocaleString('default', { month: 'long' })
+  );
+
+  noHolidaysMessage: string = '';
 
 
 
-  constructor(private employeeService: Employees, private holidayService: Holidays) { }
+
+  constructor(private employeeService: Employees) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -110,83 +119,72 @@ export class Individual {
   ngOnInit() {
     this.generateWeekDays();
     this.fetchDetails();
+    this.setWeek(new Date());
+
+    this.loadHolidays(this.year);
+  }
+
+  // Holidays
+  loadHolidays(year: number) {
+
+    const calendarId = 'en.indian#holiday@group.v.calendar.google.com';
+    const apiKey = 'AIzaSyC10pxMOv55Jq8XkkDuJ_WAWG4AUUZVX9g';
+    const today = new Date();
+    const startDate = `${today.getFullYear()}-01-01`;
+    const endDate = `${today.getFullYear()}-12-31`;
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${startDate}T00:00:00Z&timeMax=${endDate}T23:59:59Z&singleEvents=true&orderBy=startTime`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        this.allHolidays = data.items.map((item: any) => ({
+          name: item.summary,
+          date: item.start.date
+        }));
+
+        // Find nearest holiday
+        const today = new Date();
+        const futureHolidays = this.allHolidays
+          .map(h => ({ ...h, time: new Date(h.date).getTime() }))
+          .filter(h => h.time >= today.getTime())
+          .sort((a, b) => a.time - b.time);
+
+        if (futureHolidays.length) {
+          this.nearestHoliday = futureHolidays[0];
+          this.selectedMonth = new Date(this.nearestHoliday.date).getMonth();
+          this.updateMonthDisplay();
+        }
+      });
+  }
+
+  updateMonthDisplay() {
+    this.monthName = this.months[this.selectedMonth];
 
     const today = new Date();
-    this.year = today.getFullYear();
-    this.monthName = today.toLocaleString('default', { month: 'long' });
-    this.loadHolidaysForYear(this.year, today);
 
-    this.getBirthAndAnniversary();
+    this.holidayDates = Array.from(
+      new Set(
+        this.allHolidays
+          .filter(h => {
+            const holidayDate = new Date(h.date);
+            return (
+              holidayDate.getMonth() === this.selectedMonth &&
+              holidayDate.getTime() >= today.getTime()
+            );
+          })
+          .map(h => new Date(h.date).getDate().toString())
+      )
+    );
 
-
+    if (this.holidayDates.length === 0) {
+      this.noHolidaysMessage = "No upcoming holidays this month!";
+    } else {
+      this.noHolidaysMessage = "";
+    }
   }
-
-  getBirthAndAnniversary() {
-    this.employeeService.getToday().subscribe({
-      next: (res: any) => {
-        this.birthday = res?.birthdays ?? [];
-        this.anniversary = res?.anniversaries ?? [];
-        console.log(this.birthday, this.anniversary)
-      },
-      error: (err) => {
-        console.error('Failed to load celebrants', err);
-        this.birthday = [];
-        this.anniversary = [];
-      }
-    });
+  onMonthChange() {
+    this.updateMonthDisplay();
   }
-
-  loadHolidaysForYear(year: number, fromDate: Date) {
-    this.holidayService.getHolidays(year, 'IN').subscribe(data => {
-      if (!data || data.length === 0) {
-        this.holidays = [];
-        return;
-      }
-
-      this.holidays = data;
-
-      const upcoming = data
-        .map(h => new Date(h.date))
-        .filter(d => d >= fromDate)
-        .sort((a, b) => a.getTime() - b.getTime());
-
-      if (upcoming.length > 0) {
-        this.setNearestHoliday(upcoming[0]);
-      } else {
-        this.year = year + 1;
-        this.monthName = new Date(this.year, 0).toLocaleString('default', { month: 'long' });
-        this.loadHolidaysForYear(this.year, new Date(this.year, 0, 1));
-      }
-    });
-  }
-
-  setNearestHoliday(date: Date) {
-    this.nearestHoliday = this.holidays.find(
-      h => h.date === date.toISOString().split('T')[0]
-    ) || null;
-
-    const start = new Date(date);
-    start.setDate(date.getDate() - 3);
-
-    this.displayDates = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      return d;
-    });
-  }
-
-  isNearest(date: Date): boolean {
-    return this.nearestHoliday && date.toISOString().split('T')[0] === this.nearestHoliday.date;
-  }
-
-  isHoliday(date: Date): boolean {
-    return this.holidays.some(h => h.date === date.toISOString().split('T')[0]);
-  }
-
-
-
-
-
 
 
 

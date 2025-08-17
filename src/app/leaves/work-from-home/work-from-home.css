@@ -87,7 +87,7 @@
 }
 
 ::ng-deep .p-inputtext {
-  background: #fafafa;
+  background: transparent;
   font-family: "Sofia Sans";
 }
 
@@ -98,8 +98,7 @@
 ::ng-deep .pi-align-center {
   border-radius: 8px;
   border: 1px solid #9b9b9b;
-  background: #fafafa;
-  background: #fafafa;
+  background: transparent;
   display: flex;
   width: 109px;
   height: 42px;
@@ -126,7 +125,7 @@
   padding: 0;
   text-align: center;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #E8ECEF;
   color: #333;
   font-weight: 600;
   font-size: 13px;
@@ -153,9 +152,7 @@
   align-items: center;
   gap: 4px;
   margin-top: 1rem;
-  background: #e8ecef;
-
-  background: #e8ecef;
+  background: transparent;
 }
 
 /* PrimeNG Table Overrides */
@@ -166,7 +163,7 @@
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background: #f9f9f9;
+  background:#E8ECEF;
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -195,7 +192,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: #e8ecef;
+  background:transparent;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;

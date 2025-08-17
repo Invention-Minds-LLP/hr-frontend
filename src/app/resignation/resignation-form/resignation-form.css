@@ -174,7 +174,7 @@ input {
 ::ng-deep .pi-align-center {
     border-radius: 8px;
     border: 1px solid #9B9B9B;
-    background: #FAFAFA;
+    background: transparent;
     display: flex;
     width: 109px;
     height: 30px;
@@ -200,7 +200,7 @@ input {
     padding: 0;
     text-align: center;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: #E8ECEF;
     color: #333;
     font-weight: 600;
     font-size: 13px;
@@ -227,15 +227,14 @@ input {
     align-items: center;
     gap: 4px;
     margin-top: 1rem;
-    background: #E8ECEF;
-    background: #E8ECEF;
+    background: transparent;
 }
 
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
     padding: 20px 30px;
     text-align: center;
-    background: #FAFAFA;
+    background: #E8ECEF;
     color: #666;
     font-size: 16px;
     font-style: normal;
@@ -246,7 +245,7 @@ input {
 
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
     padding: 20px 30px;
-    background: #E8ECEF;
+    background: transparent;
     border-bottom: 2px solid #D9D9D9;
 }
 

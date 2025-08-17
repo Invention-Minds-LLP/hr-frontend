@@ -1,6 +1,6 @@
 body {
   font-family: "Sofia Sans";
-  background-color: #f4f4f4;
+  background-color: transparent;
   margin: 0;
   padding: 0;
 }
@@ -31,7 +31,7 @@ body {
   --p-steps-item-label-active-color: var(--primary-color) !important;
   --p-inputtext-background: transparent !important;
   --p-floatlabel-focus-color: #767676 !important;
-  --p-floatlabel-on-active-background: #e8ecef !important;
+  --p-floatlabel-on-active-background: white !important;
   --p-paginator-background: transparent !important;
 }
 
