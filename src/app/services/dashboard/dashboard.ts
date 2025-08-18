@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 // ---- TYPES (match your API)
 export type ListKey =
-  | 'unmarked' | 'approvals' | 'probation' | 'docs' | 'feedback' | 'clearances'
+  | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
   | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending';
 
 
@@ -18,7 +18,7 @@ export interface List {
 }
 
 export interface LateInfo { count: number; medianMins: number; }
-export interface OtYesterday { hours: number; cost?: string; }
+export interface OtYesterday { hours: number; cost?: string;count?:number }
 
 export type PeopleRow = [label: string, value: string, cls?: 'good' | 'warn' | 'danger'];
 export type MetricRow  = [label: string, value: string, cls?: 'good' | 'warn' | 'danger'];

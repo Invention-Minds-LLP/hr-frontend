@@ -1,0 +1,285 @@
+.wrap {
+  margin: 16px auto;
+  padding: 30px 50px;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.input {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  height: 38px;
+}
+.btn {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn.primary {
+  border-radius: 8px;
+  background: #3177a3;
+  color: #fff;
+  width: 160px;
+  height: 44px;
+  border-color: #3177a3;
+  color: #FFF;
+font-family: "Sofia Sans";
+font-size: 18px;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
+letter-spacing: 0.18px;
+}
+.btn.ghost {
+  background: transparent;
+}
+.btn.danger,
+.link.danger {
+  color: #b00020;
+}
+.spacer {
+  flex: 1 1 auto;
+}
+
+.card {
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+.card.danger {
+  border-color: #ffcccc;
+  background: #fff5f5;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+table.list {
+  width: 100%;
+  border-collapse: collapse;
+}
+table.list th,
+table.list td {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+  vertical-align: top;
+}
+.bold {
+  font-weight: 600;
+}
+.sub {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  padding: 0;
+}
+.actions .link {
+  margin-right: 6px;
+}
+
+.pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.pill.good {
+  background: #e7f5e8;
+  color: #2e7d32;
+}
+.pill.warn {
+  background: #fff4e5;
+  color: #a15c00;
+}
+.pill.danger {
+  background: #ffe6e8;
+  color: #b00020;
+}
+.pill.muted {
+  background: #f1f3f5;
+  color: #555;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+}
+.modal.open {
+  display: block;
+}
+.sheet {
+  background: #fff;
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 16px;
+  border-radius: 10px;
+  position: relative;
+}
+.close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.form {
+  display: grid;
+  gap: 8px;
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.bar-sep {
+  text-align: center;
+  opacity: 0.6;
+  margin: 8px 0;
+}
+
+.muted {
+  opacity: 0.7;
+}
+.actions-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+::ng-deep .p-datatable {
+  border: none;
+  background: transparent;
+}
+
+/* Header Row */
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #e8ecef;
+  color: #666;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 20px;
+  border-bottom: none;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  /* border-radius: 12px; */
+}
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-bottom-right-radius: 10px;
+}
+::ng-deep .p-paginator {
+  background: transparent;
+  justify-content: center;
+  padding: 16px 0;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator-pages {
+  display: flex;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator .p-paginator-page {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #ddd;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #e9144a !important;
+  color: #fff !important;
+  border: none;
+}
+
+/* Body Rows */
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background: transparent;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2b2b2b;
+  text-align: left;
+  border-bottom: 2px solid #d9d9d9;
+  text-wrap: nowrap;
+}
+/* 2-column grid for the modal form */
+.form.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* two equal columns */
+    gap: 12px 16px;                   /* row/column gaps */
+    align-items: start;
+  }
+  
+  .form.two-col .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  /* span full width for wide rows like Notes/Actions */
+  .form.two-col .span-2 { grid-column: 1 / -1; }
+  
+  /* make controls fill the cell width (works with native and PrimeNG) */
+  .form.two-col .input,
+  .form.two-col select,
+  .form.two-col textarea,
+  .form.two-col :where(.p-inputtext, .p-dropdown, .p-calendar, .p-datepicker) {
+    width: 100%;
+  }
+  
+  /* align the button bar */
+  .form.two-col .actions {
+    display: flex;
+    justify-content: flex-start;   /* change to flex-end if you prefer right align */
+    gap: 8px;
+  }
+  
+  /* stack to one column on small screens */
+  @media (max-width: 640px) {
+    .form.two-col { grid-template-columns: 1fr; }
+  }
+  

@@ -65,60 +65,57 @@
         <div>
             <hr>
         </div>
-        <nav class="main-nav">
-            <ul>
-                <li class="nav-item" routerLinkActive="active"[routerLinkActiveOptions]="{ exact: true }" *ngIf="!isRestricted">
-                    <a [routerLink]="'/dashboard'">
-                        <i class="pi pi-th-large"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active">
-                    <a [routerLink]="'/individual'">
-                        <i class="pi pi-users"></i> My Profile
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted && role !='Reporting Manager'">
-                    <a [routerLink]="'/employee'">
-                        <i class="pi pi-users"></i> Employee
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
-                    <a [routerLink]="'/recruitment'">
-                        <i class="pi pi-user-plus"></i> Recruitment
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
-                    <a [routerLink]="'/leave'">
-                        <i class="pi pi-chart-line"></i> Leaves
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted">
-                    <a [routerLink]="'/appraisal'">
-                        <i class="pi pi-chart-bar"></i> Appraisal
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active"  *ngIf="!isRestricted && role !='Reporting Manager'">
-                    <a [routerLink]="'/evaluation'">
-                        <i class="pi pi-star"></i> Evaluation
-                    </a>
-                </li>
-                <li class="nav-item" routerLinkActive="active" *ngIf="!isRestricted && role !='Reporting Manager'">
-                    <a [routerLink]="'/resignation'">
-                        <i class="pi pi-users"></i> Resignation
-                      </a>
-                </li>
-            </ul>
-            <ul>
-                <li class="nav-item" routerLinkActive="active">
-                    <a [routerLink]="'/settings'">
-                        <i class="pi pi-cog"></i> Settings
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <i class="pi pi-bars"></i> More Menu
-                </li>
-            </ul>
-        </nav>
+<nav class="main-nav">
+    <ul>
+      <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" *ngIf="!isRestricted">
+        <a [routerLink]="'/dashboard'"><i class="pi pi-th-large"></i> Dashboard</a>
+      </li>
+  
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="'/individual'"><i class="pi pi-user"></i> My Profile</a>
+      </li>
+  
+      <!-- Administration Group -->
+      <li class="nav-item group" [class.open]="adminOpen">
+        <button type="button" class="group-toggle" (click)="toggle('admin')">
+          <i class="pi pi-briefcase"></i>
+          <span>Administration</span>
+          <i class="pi chevron" [ngClass]="adminOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </button>
+        <ul class="sub" *ngIf="adminOpen">
+          <li routerLinkActive="active"><a [routerLink]="'/admin/employee'"><i class="pi pi-users"></i> Employee</a></li>
+          <li routerLinkActive="active"><a [routerLink]="'/admin/leave'"><i class="pi pi-chart-line"></i> Leaves</a></li>
+          <li routerLinkActive="active"><a [routerLink]="'/admin/appraisal'"><i class="pi pi-chart-bar"></i> Appraisal</a></li>
+            <!-- <li routerLinkActive="active"><a [routerLink]="'/admin/attendance'"><i class="pi pi-calendar"></i> Attendance</a></li> -->
+            <li routerLinkActive="active"><a [routerLink]="'/admin/resignation'"><i class="pi pi-star"></i> Resignation</a></li>
+        </ul>
+      </li>
+  
+      <!-- Recruitment Group -->
+      <li class="nav-item group" [class.open]="recruitOpen" *ngIf="!isRestricted && role !== 'Reporting Manager'">
+        <button type="button" class="group-toggle" (click)="toggle('recruit')">
+          <i class="pi pi-verified"></i>
+          <span>Recruitment</span>
+          <i class="pi chevron" [ngClass]="recruitOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        </button>
+        <ul class="sub" *ngIf="recruitOpen">
+          <li routerLinkActive="active"><a [routerLink]="'/recruitment/jobs'"><i class="pi pi-user-plus"></i> Recruitment</a></li>
+          <li routerLinkActive="active"><a [routerLink]="'/recruitment/internships'"><i class="pi pi-id-card"></i> Internship</a></li>
+          <li routerLinkActive="active"><a [routerLink]="'/recruitment/evaluation'"><i class="pi pi-star"></i> Evaluation</a></li>
+        </ul>
+      </li>
+    </ul>
+  
+    <ul>
+      <li class="nav-item" routerLinkActive="active">
+        <a [routerLink]="'/settings'"><i class="pi pi-cog"></i> Settings</a>
+      </li>
+      <!-- <li class="nav-item">
+        <i class="pi pi-bars"></i> More Menu
+      </li> -->
+    </ul>
+  </nav>
+  
 
     </header>
 

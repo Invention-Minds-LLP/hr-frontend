@@ -107,15 +107,13 @@
     </div>
 
     <!-- ROW: Recruiting -->
-    <div class="row">
+    <!-- <div class="row">
         <div class="card grid-12">
             <div class="kicker"><span class="dot"></span><strong>Recruiting command center</strong></div>
             <div id="pipe" *ngIf="d.pipeline?.length">
                 <div class="card" *ngFor="let p of d.pipeline; trackBy: trackPipeline">
                   <div class="h">{{ p.name }}</div>
                   <div class="kpi">{{ p.value }}</div>
-              
-                  <!-- conversion bar (skip for Jobs Open) -->
                   <div class="bar" *ngIf="showBar(p)" style="margin-top:8px">
                     <i [style.width.%]="calcPipeWidth(p, d.pipeline)"></i>
                   </div>
@@ -129,7 +127,7 @@
                 <a href="#" (click)="$event.preventDefault(); openList('feedback')">Interviews today</a>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- ROW: People Ops + Learning/Performance -->
     <div class="row">
@@ -188,13 +186,32 @@
             <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex" (click)="onListAction(a)">{{ a
                 }}</button>
         </div>
-        <table class="list">
-            <tr>
-                <th style="text-align: left;" *ngFor="let c of list.cols; trackBy: trackByIndex">{{ c }}</th>
-            </tr>
-            <tr *ngFor="let row of list.rows; trackBy: trackByIndex">
-                <td style="text-align: left;" *ngFor="let cell of row; trackBy: trackByIndex">{{ cell }}</td>
-            </tr>
-        </table>
+        <p-table
+        [value]="list?.rows || []"
+        [responsiveLayout]="'scroll'"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10,25,50]"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ width: '100%' }"
+        styleClass="p-datatable-gridlines p-datatable-striped"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
+              {{ c }}
+            </th>
+          </tr>
+        </ng-template>
+      
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
+              {{ row[i] }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
     </div>
 </div>

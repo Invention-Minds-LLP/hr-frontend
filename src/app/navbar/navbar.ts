@@ -16,6 +16,8 @@ export class Navbar {
   showLogoutPopup = false;
   allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR EXECUTIVE'];
   role: string = '';
+  adminOpen = false;
+  recruitOpen = false;
   // isRestricted = true;
   // username:string = ''
 
@@ -89,6 +91,15 @@ export class Navbar {
   }
 
 
-
+  toggle(which: 'admin' | 'recruit') {
+    if (which === 'admin') {
+      this.adminOpen = !this.adminOpen;
+      // Optional: navigate to default when opening
+      // if (this.adminOpen) this.router.navigateByUrl('/admin');
+    } else {
+      this.recruitOpen = !this.recruitOpen;
+      // if (this.recruitOpen) this.router.navigateByUrl('/recruitment');
+    }
+  }
 
 }

@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Announcements } from '../../services/announcement/announcements';
+import { TableModule } from 'primeng/table';
 
 type TileDef =
   | { key: 'leaves' | 'wfh' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
@@ -14,7 +15,7 @@ type TileDef =
 
 @Component({
   selector: 'app-hr-dashboard',
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TableModule],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })
@@ -134,12 +135,13 @@ export class HrDashboard implements OnInit {
       'Pending approvals (Leave/WFH/Perm)': 'approvals',
       'Probation ending (7 days)': 'probation',
       'Documents expiring (30 days)': 'docs',
-      'Interviews missing feedback': 'feedback',
+      // 'Interviews missing feedback': 'feedback',
+      'Offers awaiting signature (7d)': 'offersPendingSignature',
       'Exit clearances overdue': 'clearances',
     };
   
     const known: ListKey[] = [
-      'unmarked','approvals','probation','docs','feedback','clearances',
+      'unmarked','approvals','probation','docs','offersPendingSignature','clearances',
       'leaves','wfh','permissions','late','ot','joiners','birthdays','anniversaries'
     ];
   
@@ -176,9 +178,10 @@ export class HrDashboard implements OnInit {
     const T = this.data.today;
     switch (t.key) {
       case 'late':
-        return `${T.late.count}/ ${T.late.medianMins}m med`;
+        return `${T.late.count}`;
       case 'otYesterday':
-        return `${T.otYesterday.hours}h${T.otYesterday.cost ? ' · ' + T.otYesterday.cost : ''}`;
+        // return `${T.otYesterday.hours}h${T.otYesterday.cost ? ' · ' + T.otYesterday.cost : ''}`;
+        return String(T.otYesterday.count ?? 0);
       case 'leaves':
         return String(T.leaves);
       case 'wfh':

@@ -1,0 +1,319 @@
+<div class="wrap">
+    <h2>Internships</h2>
+
+    <!-- Filters -->
+    <div class="filters">
+        <input class="input" placeholder="Search (candidate / employee)" [(ngModel)]="q"
+            (ngModelChange)="onSearchChange($event)">
+
+        <select class="input" [(ngModel)]="status" (ngModelChange)="onImmediateFilterChange()">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+        <!-- <input class="input" type="number" placeholder="Employee ID" [(ngModel)]="employeeId">
+      <input class="input" type="number" placeholder="Mentor ID" [(ngModel)]="mentorId"> -->
+        <p-datepicker [(ngModel)]="activeRange" selectionMode="range" dateFormat="yy-mm-dd" [showIcon]="true"
+            (ngModelChange)="onRangeChange($event)">
+        </p-datepicker>
+
+        <!-- <button class="btn" (click)="page=1; load()">Apply</button>
+        <button class="btn ghost" (click)="resetFilters()">Reset</button> -->
+        <!-- <div class="spacer"></div> -->
+        <button class="btn primary" (click)="openCreate()">+ New Internship</button>
+    </div>
+
+    <!-- Loading / error -->
+    <div *ngIf="loading" class="card">Loading…</div>
+    <div *ngIf="error" class="card danger">{{ error }}</div>
+
+    <!-- Table -->
+    <!-- Table -->
+    <p-table [value]="items" [loading]="loading" [paginator]="true" [rows]="pageSize" [totalRecords]="total"
+        [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="true" [first]="(page - 1) * pageSize" [rowHover]="true"
+        responsiveLayout="scroll" (onLazyLoad)="onLazyLoad($event)">
+        <!-- HEADER -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th>ID</th>
+                <th>Candidate</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Stipend</th>
+                <th>Employee</th>
+                <th>Mentor</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+
+        <!-- BODY -->
+        <ng-template pTemplate="body" let-it>
+            <tr>
+                <td>{{ it.id }}</td>
+
+                <td>
+                    <div class="bold">{{ it.candidateName }}</div>
+                    <div class="sub">{{ it.email || it.phone || '—' }}</div>
+                </td>
+
+                <td>{{ it.title || '—' }}</td>
+
+                <td>
+                    <p-tag [value]="it.status" [severity]="getSeverity(it.status)"></p-tag>
+                </td>
+
+
+
+                <td>{{ it.startDate | date: 'yyyy-MM-dd' }}</td>
+                <td>{{ it.endDate | date: 'yyyy-MM-dd' }}</td>
+                <td>{{ it.stipend || '—' }}</td>
+                <td>{{ it.employeeName || '—' }}</td>
+                <td>{{ it.mentorName || '—' }}</td>
+
+                <td class="actions">
+                    <!-- <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(it)"></button>
+                    <button pButton type="button" class="p-button-text" label="Offer" [disabled]="it.status !== 'DRAFT'"
+                        (click)="openAction('offer', it)"></button>
+                    <button pButton type="button" class="p-button-text" label="Activate"
+                        [disabled]="!(it.status==='DRAFT' || it.status==='OFFERED')"
+                        (click)="openAction('activate', it)"></button>
+                    <button pButton type="button" class="p-button-text" label="Extend"
+                        [disabled]="it.status !== 'ACTIVE'" (click)="openAction('extend', it)"></button>
+                    <button pButton type="button" class="p-button-text" label="Complete"
+                        [disabled]="it.status !== 'ACTIVE'" (click)="openAction('complete', it)"></button>
+                    <button pButton type="button" class="p-button-text p-button-danger" label="Drop"
+                        [disabled]="it.status==='DROPPED' || it.status==='COMPLETED' || it.status==='CONVERTED'"
+                        (click)="openAction('drop', it)"></button>
+                    <button pButton type="button" class="p-button-text" label="Convert"
+                        [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
+                        (click)="openAction('convert', it)"></button> -->
+                    <div class="actions-wrap">
+                        <p-select [options]="allowedStatusOptions(it)" optionLabel="label" optionValue="value"
+                        [(ngModel)]="it.status" [style.width.px]="150" appendTo="body"
+                        (onChange)="onStatusChange(it, $event)">
+                    </p-select>
+                    <button
+                    pButton
+                    type="button"
+                    class="p-button-text"
+                    icon="pi pi-pencil"
+                    label="Edit"
+                    (click)="openEdit(it)">
+                  </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <!-- EMPTY -->
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="10" class="p-text-center">No internships found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" [class.open]="modalOpen">
+    <div class="sheet" *ngIf="action as a">
+        <button class="close" (click)="close()">✕</button>
+
+        <!-- CREATE -->
+        <ng-container *ngIf="a==='create'">
+            <h3>New Internship</h3>
+            <div class="form two-col">
+                <label class="field">Candidate Name
+                    <input class="input" [(ngModel)]="createForm.candidateName">
+                </label>
+
+                <label class="field">Title
+                    <input class="input" [(ngModel)]="createForm.title">
+                </label>
+
+                <label class="field">Email
+                    <input class="input" [(ngModel)]="createForm.email">
+                </label>
+
+                <label class="field">Phone
+                    <input class="input" [(ngModel)]="createForm.phone">
+                </label>
+
+                <label class="field">Stipend
+                    <input class="input" type="number" [(ngModel)]="createForm.stipend">
+                </label>
+
+                <label class="field">Mentor ID
+                    <input class="input" type="number" [(ngModel)]="createForm.mentorId">
+                </label>
+
+                <label class="field">Employee ID
+                    <input class="input" type="number" [(ngModel)]="createForm.employeeId">
+                </label>
+
+                <label class="field">Status
+                    <select class="input" [(ngModel)]="createForm.status">
+                        <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                    </select>
+                </label>
+
+                <label class="field">Start
+                    <input class="input" type="date" [(ngModel)]="createForm.startDate">
+                    <!-- or <p-datepicker [(ngModel)]="createForm.startDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+                </label>
+
+                <label class="field">End
+                    <input class="input" type="date" [(ngModel)]="createForm.endDate">
+                    <!-- or <p-datepicker [(ngModel)]="createForm.endDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+                </label>
+
+                <label class="field span-2">Notes
+                    <textarea class="input" rows="3" [(ngModel)]="createForm.notes"></textarea>
+                </label>
+
+                <div class="actions span-2">
+                    <button class="btn primary" (click)="submitCreate()">Create</button>
+                </div>
+            </div>
+            <!--               
+            <div class="actions">
+                <button class="btn primary" (click)="submitCreate()">Create</button>
+            </div> -->
+        </ng-container>
+
+        <!-- EDIT -->
+        <ng-container *ngIf="a==='edit' && selected">
+            <h3>Edit #{{ selected.id }}</h3>
+            <!-- Edit modal form: two columns -->
+            <div class="form two-col">
+                <label class="field">Candidate Name
+                    <input class="input" [(ngModel)]="editForm.candidateName">
+                </label>
+
+                <label class="field">Title
+                    <input class="input" [(ngModel)]="editForm.title">
+                </label>
+
+                <label class="field">Email
+                    <input class="input" [(ngModel)]="editForm.email">
+                </label>
+
+                <label class="field">Phone
+                    <input class="input" [(ngModel)]="editForm.phone">
+                </label>
+
+                <label class="field">Stipend
+                    <input class="input" type="number" [(ngModel)]="editForm.stipend">
+                </label>
+
+                <label class="field">Mentor ID
+                    <input class="input" type="number" [(ngModel)]="editForm.mentorId">
+                </label>
+
+                <label class="field">Employee ID
+                    <input class="input" type="number" [(ngModel)]="editForm.employeeId">
+                </label>
+
+                <label class="field">Status
+                    <select class="input" [(ngModel)]="editForm.status">
+                        <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                    </select>
+                </label>
+
+                <label class="field">Start
+                    <input class="input" type="date" [(ngModel)]="editForm.startDate">
+                    <!-- or PrimeNG:
+      <p-datepicker [(ngModel)]="editForm.startDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+                </label>
+
+                <label class="field">End
+                    <input class="input" type="date" [(ngModel)]="editForm.endDate">
+                    <!-- or PrimeNG datepicker -->
+                </label>
+
+                <label class="field span-2">Notes
+                    <textarea class="input" rows="3" [(ngModel)]="editForm.notes"></textarea>
+                </label>
+
+                <div class="actions span-2">
+                    <button class="btn primary" (click)="submitEdit()">Save</button>
+                </div>
+            </div>
+
+        </ng-container>
+
+        <!-- WORKFLOW: Offer -->
+        <ng-container *ngIf="a==='offer' && selected">
+            <h3>Offer #{{ selected.id }}</h3>
+            <label>Offer Start <input class="input" type="date" [(ngModel)]="workflowForm.startDate"></label>
+            <div class="actions">
+                <button class="btn primary" (click)="submitAction()">Set OFFERED</button>
+            </div>
+        </ng-container>
+
+        <!-- WORKFLOW: Activate -->
+        <ng-container *ngIf="a==='activate' && selected">
+            <h3>Activate #{{ selected.id }}</h3>
+            <div class="row2">
+                <label>Start <input class="input" type="date" [(ngModel)]="workflowForm.startDate"></label>
+                <label>Employee ID <input class="input" type="number" [(ngModel)]="workflowForm.employeeId"></label>
+            </div>
+            <div class="actions">
+                <button class="btn primary" (click)="submitAction()">Set ACTIVE</button>
+            </div>
+        </ng-container>
+
+        <!-- WORKFLOW: Extend -->
+        <ng-container *ngIf="a==='extend' && selected">
+            <h3>Extend #{{ selected.id }}</h3>
+            <label>New End Date <input class="input" type="date" [(ngModel)]="workflowForm.endDate"></label>
+            <div class="actions">
+                <button class="btn primary" (click)="submitAction()">Extend</button>
+            </div>
+        </ng-container>
+
+        <!-- WORKFLOW: Complete -->
+        <ng-container *ngIf="a==='complete' && selected">
+            <h3>Complete #{{ selected.id }}</h3>
+            <label>End Date (optional) <input class="input" type="date" [(ngModel)]="workflowForm.endDate"></label>
+            <div class="actions">
+                <button class="btn primary" (click)="submitAction()">Complete</button>
+            </div>
+        </ng-container>
+
+        <!-- WORKFLOW: Drop -->
+        <ng-container *ngIf="a==='drop' && selected">
+            <h3>Drop #{{ selected.id }}</h3>
+            <label>Reason <textarea class="input" rows="3" [(ngModel)]="workflowForm.reason"></textarea></label>
+            <div class="actions">
+                <button class="btn danger" (click)="submitAction()">Drop</button>
+            </div>
+        </ng-container>
+
+        <!-- WORKFLOW: Convert -->
+        <ng-container *ngIf="a==='convert' && selected">
+            <h3>Convert #{{ selected.id }}</h3>
+            <p class="muted">Either specify an existing Employee ID, or fill the fields to create a new employee.</p>
+            <label>Employee ID (existing) <input class="input" type="number"
+                    [(ngModel)]="workflowForm.employeeId"></label>
+            <div class="bar-sep">OR</div>
+            <div class="row2">
+                <label>First Name <input class="input" [(ngModel)]="workflowForm.createEmployee.firstName"></label>
+                <label>Last Name <input class="input" [(ngModel)]="workflowForm.createEmployee.lastName"></label>
+            </div>
+            <label>Email <input class="input" [(ngModel)]="workflowForm.createEmployee.email"></label>
+            <div class="row2">
+                <label>Dept ID <input class="input" type="number"
+                        [(ngModel)]="workflowForm.createEmployee.departmentId"></label>
+                <label>Branch ID <input class="input" type="number"
+                        [(ngModel)]="workflowForm.createEmployee.branchId"></label>
+            </div>
+            <label>DOJ <input class="input" type="date" [(ngModel)]="workflowForm.createEmployee.dateOfJoining"></label>
+            <div class="actions">
+                <button class="btn primary" (click)="submitAction()">Convert</button>
+            </div>
+        </ng-container>
+    </div>
+</div>
