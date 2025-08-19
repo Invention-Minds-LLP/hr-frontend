@@ -625,8 +625,7 @@
   border-right: 2px solid #adadad;
 }
 
-.leave-table,
-.permission-table {
+
 .leave-table,
 .permission-table {
   display: flex;
