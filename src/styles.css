@@ -8,7 +8,7 @@ body {
 /* styles.scss (global) */
 :root,
 .theme-light {
-  --bg:#f7f9fc; --panel:#fff; --card:#fff; --chip:#f3f6fb;
+  --bg:#f7f9fc; --panel:#fff; --card:#E8ECEF; --chip:#f3f6fb;
   --border:#e7edf7; --text:#0c1220; --muted:#5c6a80;
   --shadow:0 12px 32px rgba(16,24,40,.08); --radius:16px;
   --accent:#2563eb; --good:#16a34a; --warn:#d97706; --danger:#ef4444;

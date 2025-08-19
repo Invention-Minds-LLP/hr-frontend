@@ -65,6 +65,12 @@
     font-family: 'Sofia Sans';
     padding: 40px 50px;
 }
+/* status chip colors */
+.chip.s-ON_HOLD {
+  background: #fde68a;   /* amber-300 */
+  color: #7c2d12;        /* brown-ish text */
+}
+
 
 .pi{
     z-index:-1;

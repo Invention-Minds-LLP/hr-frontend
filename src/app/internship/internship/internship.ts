@@ -11,6 +11,8 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { Department, Departments } from '../../services/departments/departments';
+import { Employees } from '../../services/employees/employees';
 import {
   Internships,
   InternshipStatus,
@@ -26,7 +28,7 @@ type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complet
 // add near the top with your other types
 type PrimeSeverity = 'success' | 'info' | 'warning' | 'danger';
 
-
+type EmpPick = { id: number; firstName: string; lastName: string; employeeCode?: string | null; departmentId?: number | null };
 
 
 
@@ -75,8 +77,12 @@ export class Internship implements OnInit {
     employeeId: null,
     mentorId: null,
     endDate: null,
-    status: 'DRAFT'
+    status: 'DRAFT',
+    departmentId: null,   
   };
+  departmentId?: number;                 // filter (optional)
+  departments: Department[] = [];        // dropdown source
+  deptOptions: {label: string, value: number}[] = [];
 
   editForm: UpdateInternshipDto = {};
   workflowForm: any = {};  // changes based on action
@@ -102,31 +108,66 @@ export class Internship implements OnInit {
   getSeverity(status: InternshipStatus | string): PrimeSeverity {
     return this.severityMap[status as InternshipStatus] ?? 'info';
   }
+  onCreateStatusChange(s: InternshipStatus) {
+    this.createForm.status = s;
+    if (s !== 'CONVERTED') this.createForm.employeeId = null;  // clear when not converted
+  }
+  
+  onEditStatusChange(s: InternshipStatus) {
+    this.editForm.status = s;
+    if (s !== 'CONVERTED') this.editForm.employeeId = undefined; // don't send on patch
+  }
+  
 
+  private lastStatus: Record<number, InternshipStatus> = {};
 
+  // store current status when the select gets focus
+  rememberStatus(it: Internships) {
+    if (it?.id) this.lastStatus[it.id] = it.status;
+  }
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
+  private statusToAction(next: InternshipStatus | string): ActionKind | null {
+    switch (next) {
+      case 'OFFERED':   return 'offer';
+      case 'ACTIVE':    return 'activate';
+      case 'COMPLETED': return 'complete';
+      case 'DROPPED':   return 'drop';
+      case 'CONVERTED': return 'convert';
+      default:          return null; // DRAFT or unknown -> no modal
+    }
+  }
 
   onStatusChange(it: Internships, ev: { value: InternshipStatus }) {
     const next = ev.value;
-    const prev = it.status;
-
-    // optimistic UI
-    it.status = next;
-
-    this.api.update(it.id, { status: next }).subscribe({
-      next: (updated) => { it.status = updated.status; },
-      error: (err) => {
-        it.status = prev; // revert on failure
-        alert(err?.error?.error || 'Failed to update status');
-      },
-    });
+    const prev = this.lastStatus[it.id] ?? it.status;
+  
+    const action = this.statusToAction(next);
+    if (!action) {
+      // No action modal for this choice (e.g., DRAFT). Just persist status if you want:
+      // this.api.update(it.id, { status: next }).subscribe(/* refresh */);
+      it.status = prev; // or keep next if you do update above
+      return;
+    }
+  
+    // Revert immediately; we'll switch after the action succeeds
+    it.status = prev;
+  
+    // Open the corresponding workflow modal you already have
+    this.openAction(action, it);
   }
 
-  constructor(private api: InternshipService) { }
+  constructor(private api: InternshipService, private dept: Departments, private empService: Employees) { }
   // debounce for the search box
 private search$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.dept.getDepartments().subscribe({
+      next: (rows) => {
+        this.departments = rows || [];
+        this.deptOptions = this.departments.map(d => ({ label: d.name, value: d.id! }));
+      },
+      error: () => { this.departments = []; this.deptOptions = []; }
+    });
     this.search$.pipe(debounceTime(300)).subscribe(() => {
       this.page = 1;
       this.load();
@@ -155,6 +196,7 @@ private search$ = new Subject<void>();
       page: this.page,
       pageSize: this.pageSize,
       order: this.order,
+      departmentId: this.departmentId,
     }).pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (resp: InternshipListResponse) => {
@@ -169,6 +211,18 @@ private search$ = new Subject<void>();
           this.total = 0;
         },
       });
+  }
+  private toMentorOptions(list: EmpPick[]) {
+    return list.map(e => ({
+      label: `${e.firstName} ${e.lastName}${e.employeeCode ? ' (' + e.employeeCode + ')' : ''}`,
+      value: e.id,
+    }));
+  }
+  
+  // fetch employees for a dept
+  private async loadMentors(deptId: number) {
+    const list = await this.empService.list({ departmentId: deptId, status: 'ACTIVE' }).toPromise();
+    return this.toMentorOptions(list || []);
   }
 
   resetFilters() {
@@ -201,7 +255,8 @@ private search$ = new Subject<void>();
       employeeId: null,
       mentorId: null,
       endDate: null,
-      status: 'DRAFT'
+      status: 'DRAFT',
+      departmentId: null, // optional, can be set later
     };
     this.modalOpen = true;
   }
@@ -217,11 +272,17 @@ private search$ = new Subject<void>();
       stipend: it.stipend ?? undefined,
       notes: it.notes || '',
       employeeId: it.employeeId,
-      mentorId: it.mentorId,
+      mentorId: it.mentorId ?? null,
       startDate: it.startDate?.slice(0, 10),
       endDate: it.endDate ? it.endDate.slice(0, 10) : null,
       status: it.status,
+      departmentId: it.departmentId ?? null, 
     };
+    if (this.editForm.departmentId) {
+      this.loadMentors(this.editForm.departmentId).then(opts => this.mentorOptionsEdit = opts);
+    } else {
+      this.mentorOptionsEdit = [];
+    }
     this.modalOpen = true;
   }
 
@@ -343,5 +404,25 @@ private search$ = new Subject<void>();
     this.page = 1;
     this.load();
   }
+  mentorOptionsCreate: { label: string; value: number }[] = [];
+  mentorOptionsEdit:   { label: string; value: number }[] = [];
   
+  // called when create department changes
+  onCreateDeptChange(deptId?: number | null) {
+    if (!deptId) { this.mentorOptionsCreate = []; this.createForm.mentorId = null; return; }
+    this.loadMentors(deptId).then(opts => {
+      this.mentorOptionsCreate = opts;
+      // clear mentor if it’s not in the new list
+      if (!opts.some(o => o.value === this.createForm.mentorId)) this.createForm.mentorId = null;
+    });
+  }
+  
+  // called when edit department changes
+  onEditDeptChange(deptId?: number | null) {
+    if (!deptId) { this.mentorOptionsEdit = []; this.editForm.mentorId = null; return; }
+    this.loadMentors(deptId).then(opts => {
+      this.mentorOptionsEdit = opts;
+      if (!opts.some(o => o.value === this.editForm.mentorId)) this.editForm.mentorId = null;
+    });
+  } 
 }

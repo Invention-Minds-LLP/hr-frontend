@@ -28,6 +28,7 @@ export class InternshipService {
     page?: number;
     pageSize?: number;
     order?: 'asc' | 'desc';
+    departmentId?: number | null;
   } = {}): Observable<InternshipListResponse> {
     let p = new HttpParams();
     Object.entries(params).forEach(([k, v]) => {

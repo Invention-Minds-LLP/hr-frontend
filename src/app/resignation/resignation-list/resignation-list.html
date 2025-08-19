@@ -39,6 +39,7 @@
               <ng-container *ngIf="r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
                 <button pButton size="small" label="HR Approve" class="p-button-success" (click)="approveHR(r)"></button>
                 <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
+                <button pButton size="small" label="On Hold" class="p-button-warning" style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
                 <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"></button>
               </ng-container>
             </td>

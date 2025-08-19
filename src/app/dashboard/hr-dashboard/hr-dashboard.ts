@@ -7,6 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Announcements } from '../../services/announcement/announcements';
 import { TableModule } from 'primeng/table';
+import { Branches, Branch } from '../../services/branches/branches'  // adjust path
+import { Departments, Department } from '../../services/departments/departments';
 
 type TileDef =
   | { key: 'leaves' | 'wfh' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
@@ -35,7 +37,7 @@ export class HrDashboard implements OnInit {
   modalOpen = false;
   selectedList?: List;
   selectedListKey?: ListKey;
-  announcements: Array<{ id:number; title:string; ackCount:number; audienceCount:number; ackRate:number; ackPercent:number }> = [];
+  announcements: Array<{ id: number; title: string; ackCount: number; audienceCount: number; ackRate: number; ackPercent: number }> = [];
 
 
   today = new Date();
@@ -54,10 +56,37 @@ export class HrDashboard implements OnInit {
   ];
   ackRate = 0; // 0..1
   latestAnnTitle = '';
-  
-  constructor(private api: Dashboard, private announcement: Announcements) { }
+  branches: Branch[] = [];
+  departments: Department[] = [];
+
+
+  constructor(private api: Dashboard, private announcement: Announcements,
+    private branchesSvc: Branches,
+    private departmentsSvc: Departments
+  ) { }
+  branchId: number | null = null;
+  departmentId: number | null = null;
+
+  onLocationChangeById(id: number | null) {
+    this.branchId = id;
+    this.location = 'ALL'; // optional, unused when id present
+    this.load();
+  }
+  onDeptChangeById(id: number | null) {
+    this.departmentId = id;
+    this.department = 'ALL'; // optional, unused when id present
+    this.load();
+  }
 
   ngOnInit(): void {
+    this.departmentsSvc.getDepartments().subscribe({
+      next: (rows) => (this.departments = rows || []),
+      error: () => (this.departments = []),
+    });
+    this.branchesSvc.getBranches().subscribe({
+      next: (rows) => (this.branches = rows || []),
+      error: () => (this.branches = []),
+    });
     this.load();
   }
 
@@ -65,30 +94,33 @@ export class HrDashboard implements OnInit {
     this.loading = true;
     this.error = undefined;
     console.log('checking')
-    this.api.getDashboard({ location: this.location, department: this.department })
-    .pipe(finalize(() => (this.loading = false)))
-    .subscribe({
-      next: (resp) => {
-        this.data = resp;
-        // if backend already returns 'announcements' + 'latestAnnouncement'
-        this.announcements = resp.announcements || [];
-        if (resp.latestAnnouncement) {
-          this.latestAnnTitle = resp.latestAnnouncement.title;
-          this.ackRate = resp.latestAnnouncement.ackRate ?? 0;
-        } else {
-          // fallback if not provided: derive from list
-          const latest = this.announcements[0];
-          this.latestAnnTitle = latest?.title || '';
-          this.ackRate = latest?.ackRate || 0;
-        }
-      },
-      error: (err) => {
-        this.error = err?.error?.error || err.message || 'Failed to load dashboard';
-        this.announcements = [];
-        this.latestAnnTitle = '';
-        this.ackRate = 0;
-      },
-    });
+    this.api.getDashboard({
+      location: this.location, department: this.department, ...(this.branchId != null ? { branchId: this.branchId } : {}),
+      ...(this.departmentId != null ? { departmentId: this.departmentId } : {}),
+    })
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (resp) => {
+          this.data = resp;
+          // if backend already returns 'announcements' + 'latestAnnouncement'
+          this.announcements = resp.announcements || [];
+          if (resp.latestAnnouncement) {
+            this.latestAnnTitle = resp.latestAnnouncement.title;
+            this.ackRate = resp.latestAnnouncement.ackRate ?? 0;
+          } else {
+            // fallback if not provided: derive from list
+            const latest = this.announcements[0];
+            this.latestAnnTitle = latest?.title || '';
+            this.ackRate = latest?.ackRate || 0;
+          }
+        },
+        error: (err) => {
+          this.error = err?.error?.error || err.message || 'Failed to load dashboard';
+          this.announcements = [];
+          this.latestAnnTitle = '';
+          this.ackRate = 0;
+        },
+      });
     console.log(this.data)
   }
 
@@ -129,7 +161,7 @@ export class HrDashboard implements OnInit {
       'New Joiners Today': 'joiners',
       'Birthdays Today': 'birthdays',
       'Anniversaries Today': 'anniversaries',
-  
+
       // keep your existing attention modals too
       'Unmarked attendance (by 11:00)': 'unmarked',
       'Pending approvals (Leave/WFH/Perm)': 'approvals',
@@ -139,16 +171,16 @@ export class HrDashboard implements OnInit {
       'Offers awaiting signature (7d)': 'offersPendingSignature',
       'Exit clearances overdue': 'clearances',
     };
-  
+
     const known: ListKey[] = [
-      'unmarked','approvals','probation','docs','offersPendingSignature','clearances',
-      'leaves','wfh','permissions','late','ot','joiners','birthdays','anniversaries'
+      'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
+      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries'
     ];
-  
+
     const k = (known as string[]).includes(String(key))
       ? (key as ListKey)
       : (map[labelFallback || String(key)] ?? 'unmarked');
-  
+
     this.api.getList(k).subscribe({
       next: (list) => {
         this.selectedListKey = k;
@@ -158,7 +190,7 @@ export class HrDashboard implements OnInit {
       error: () => { /* quiet for demo */ },
     });
   }
-  
+
   closeModal() { this.modalOpen = false; this.selectedList = undefined; this.selectedListKey = undefined; }
 
   // utils for *ngFor
@@ -197,7 +229,7 @@ export class HrDashboard implements OnInit {
     }
   }
 
-  ackPercentOf(a: { ackPercent:number }) { return a?.ackPercent ?? 0; }
+  ackPercentOf(a: { ackPercent: number }) { return a?.ackPercent ?? 0; }
   openAnnAckSummary(announcementId: number) {
     this.selectedAnnId = announcementId;
     this.api.getList({ key: 'annAck', id: String(announcementId) }).subscribe({
@@ -208,7 +240,7 @@ export class HrDashboard implements OnInit {
       },
     });
   }
-  
+
   openAnnAckPending(announcementId: number, departmentId?: number) {
     const params: any = { key: 'annAckPending', id: String(announcementId) };
     if (departmentId != null) params.departmentId = String(departmentId);
@@ -220,7 +252,7 @@ export class HrDashboard implements OnInit {
       },
     });
   }
-  
+
   onListAction(action: string) {
     // Route "View pending" to the pending drilldown for this announcement
     if (this.selectedListKey === ('annAck' as any) && action === 'View pending' && this.selectedAnnId) {

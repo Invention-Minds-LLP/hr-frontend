@@ -19,6 +19,8 @@ export interface Internships {
 
   createdAt: string;
   updatedAt: string;
+  departmentId?: number | null;
+  departmentName?: string | null;
 
   // Optional enrichments from the API
   employee?: { id: number; firstName: string; lastName: string } | null;
@@ -45,6 +47,7 @@ export interface CreateInternshipDto {
   mentorId?: number | null;
   endDate?: string | null;
   status?: InternshipStatus;
+  departmentId?: number | null;
 }
 
 export interface UpdateInternshipDto extends Partial<CreateInternshipDto> {}

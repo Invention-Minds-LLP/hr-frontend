@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpParams  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface EmergencyContact {
@@ -36,6 +36,7 @@ export interface Employee {
   emergencyContacts?: EmergencyContact[];
   qualifications?: Qualification[];
 }
+export interface EmployeeRow { id: number; firstName: string; lastName: string; employeeCode?: string | null; departmentId?: number | null; }
 
 @Injectable({
   providedIn: 'root'
@@ -98,5 +99,11 @@ export class Employees {
   }
   getToday(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/today`);
+  }
+  list(q: { departmentId?: number; status?: string } = {}): Observable<EmployeeRow[]> {
+    let params = new HttpParams();
+    if (q.departmentId != null) params = params.set('departmentId', String(q.departmentId));
+    if (q.status) params = params.set('status', q.status);
+    return this.http.get<EmployeeRow[]>(`${this.apiUrl}/dept`, { params });
   }
 }

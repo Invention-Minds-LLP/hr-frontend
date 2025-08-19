@@ -70,4 +70,9 @@ export class ResignationList {
     };
     return map[n] || s.toLowerCase().replace(/\s+/g, '_');
   }
+  holdHR(r: any) {
+    const note = prompt('Reason for putting on hold?') || '';
+    this.api.hrHold(r.id, { note }).subscribe(upd => this.replace(upd));
+  }
+  
 }

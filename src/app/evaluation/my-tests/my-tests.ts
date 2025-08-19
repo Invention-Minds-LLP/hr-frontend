@@ -19,9 +19,12 @@ export class MyTests {
   constructor(private testService: TestAttempt, private router: Router, private ct: Recuriting) {}
 
   ngOnInit(): void {
-    // this.testService.getForEmployee(this.employeeId).subscribe(data => {
-    //   this.tests = data;
-    // });
+    if(this.employeeId){
+      this.testService.getForEmployee(this.employeeId).subscribe(data => {
+        this.tests = data;
+      });
+      return;
+    }
     const candidateId = Number(localStorage.getItem('candidateId'));
     this.ct.getCandidateAssignedTests(candidateId).subscribe(rows => this.tests = rows);
   }

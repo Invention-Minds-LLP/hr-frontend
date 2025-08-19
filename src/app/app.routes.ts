@@ -25,6 +25,7 @@ import { ResignOverview } from './resignation/resign-overview/resign-overview';
 import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 import { Internship } from './internship/internship/internship';
+import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -68,6 +69,7 @@ export const routes: Routes = [
   { path: 'attendance', component: ManageAttendance, canActivate: [authGuard] },
   { path: 'history', component: History, canActivate: [authGuard] },
   { path: 'resignation', component: ResignOverview, canActivate: [authGuard] },
+  { path: 'interview', component: CandidateEvalForm, canActivate: [authGuard] },
   { path: 'popup', component: PopUp },
 
   // ---- Backward-compat redirects (optional) ----
@@ -78,6 +80,7 @@ export const routes: Routes = [
   { path: 'internship', redirectTo: 'recruitment/internships', pathMatch: 'full' },
   { path: 'my-tests', redirectTo: 'recruitment/my-tests', pathMatch: 'full' },
   { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full' },
+  
 
   // Default / catch-all
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },

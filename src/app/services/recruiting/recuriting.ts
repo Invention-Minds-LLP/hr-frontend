@@ -135,8 +135,15 @@ export class Recuriting {
     return this.http.get<Paged<Application>>(`${baseUrl}/applications`, { params: p });
   }
 
-  moveApplication(id: number, to: ApplicationStatuses, extra?: { rejectReason?: RejectReason; currentStage?: string }) {
-    return this.http.patch<Application>(`${baseUrl}/applications/${id}/status`, { to, ...extra });
+  moveApplication(
+    id: number,
+    to: ApplicationStatuses,
+    extra?: { rejectReason?: RejectReason; currentStage?: string }
+  ) {
+    return this.http.patch<Application>(
+      `${baseUrl}/applications/${id}/status`,
+      { to, ...(extra ?? {}) } // ✅ safe spread
+    );
   }
 
   /* -------- Interviews -------- */

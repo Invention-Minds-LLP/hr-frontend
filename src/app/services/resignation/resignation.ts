@@ -49,6 +49,10 @@ export class Resignation {
   hrCancel(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/cancel`, {});
   }
+  hrHold(id: number, body: { note?: string } = {}) {
+    return this.http.put<any>(`${this.apiUrl}/${id}/hr-hold`, body);
+  }
+  
 
   addTasks(id: number, tasks: Array<{ title: string; description?: string; assigneeId?: number; dueDate?: string }>): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/handover-tasks`, { tasks });

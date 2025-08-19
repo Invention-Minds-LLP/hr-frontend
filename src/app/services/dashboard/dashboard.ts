@@ -77,13 +77,29 @@ export class Dashboard {
 
   constructor(private http: HttpClient) {}
 
-  getDashboard(filters?: { location?: string; department?: string }): Observable<DashboardResponse> {
+  // getDashboard(filters?: { location?: string; department?: string }): Observable<DashboardResponse> {
+  //   let params = new HttpParams();
+  //   if (filters?.location)   params = params.set('location', filters.location);
+  //   if (filters?.department) params = params.set('department', filters.department);
+  //   console.log(this.baseUrl)
+  //   return this.http.get<DashboardResponse>(`${this.baseUrl}`, { params });
+  // }
+  getDashboard(filters?: {
+    location?: string | null;
+    department?: string | null;
+    branchId?: number | null;
+    departmentId?: number | null;
+  }): Observable<DashboardResponse> {
     let params = new HttpParams();
-    if (filters?.location)   params = params.set('location', filters.location);
-    if (filters?.department) params = params.set('department', filters.department);
-    console.log(this.baseUrl)
-    return this.http.get<DashboardResponse>(`${this.baseUrl}`, { params });
+
+    if (filters?.location)     params = params.set('location', filters.location);
+    if (filters?.department)   params = params.set('department', filters.department);
+    if (filters?.branchId != null)     params = params.set('branchId', String(filters.branchId));
+    if (filters?.departmentId != null) params = params.set('departmentId', String(filters.departmentId));
+
+    return this.http.get<DashboardResponse>(this.baseUrl, { params });
   }
+
 
   getList(arg: ListKey | { key: string; [k: string]: string }): Observable<List> {
     let params = new HttpParams();

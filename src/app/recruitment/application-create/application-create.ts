@@ -48,8 +48,8 @@ export class ApplicationCreate implements OnInit {
     this.saving = true;
     this.api.createApplication(this.form.value as any).subscribe({
       next: (_app: Application) => {
-        alert('Application created!');
-        this.router.navigate(['/recruiting']);
+        // alert('Application created!');
+        this.router.navigate(['/recruitment/jobs']);
       },
       error: (e) => (this.error = e?.error?.error || 'Failed to create'),
       complete: () => (this.saving = false),

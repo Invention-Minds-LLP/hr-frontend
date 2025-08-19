@@ -23,7 +23,8 @@ interface AttendanceDay {
   status?: 'Leave' | 'Day Off' | 'Present' | 'Empty';
 }
 
-
+// put this in your component class
+type LeaveTypeCount = { label: string; count: number };
 
 @Component({
   selector: 'app-individual',
@@ -65,6 +66,15 @@ export class Individual {
 
   noHolidaysMessage: string = '';
 
+
+
+leaveByTypeToday: LeaveTypeCount[] = [
+  { label: 'Sick Leave',     count: 3 },
+  { label: 'Casual Leave',   count: 2 },
+  { label: 'Earned Leave',   count: 1 },
+  { label: 'Maternity',      count: 0 },
+  { label: 'Comp Off',       count: 1 },
+];
 
 
 

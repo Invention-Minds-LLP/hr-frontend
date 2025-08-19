@@ -50,7 +50,7 @@
         </div> -->
         <div class="nav-grid">
           <button *ngFor="let q of test?.questions; let idx = index" type="button" class="qbtn"
-            [class.current]="idx === currentIndex" [class.marked]="responses[idx].marked"
+            [class.current]="idx === currentIndex" [class.marked]="responses[idx]?.marked"
             [class.answered]="isAnswered(idx)"
             [class.unanswered]="!isAnswered(idx) && !responses[idx].marked && idx !== currentIndex"
             (click)="goToQuestion(idx)">

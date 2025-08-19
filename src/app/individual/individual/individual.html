@@ -165,7 +165,18 @@
                 </p-carousel>
             </div>
 
-            <div class="box-4 box"></div>
+            <div class="box box-4">
+                <div class="box-title">Leaves by Type (Today)</div>
+              
+                <ul class="lb-list">
+                  <li class="lb-item" *ngFor="let it of leaveByTypeToday">
+                    <span class="lb-name">{{ it.label }}</span>
+                    <span class="lb-badge">{{ it.count }}</span>
+                  </li>
+                </ul>
+              </div>
+              
+              
 
         </div>
     </div>
@@ -185,7 +196,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px">
+                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -245,7 +256,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px">
+                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -293,7 +304,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="wfh" [scrollable]="true" scrollHeight="300px">
+                    <p-table [value]="wfh" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>

@@ -173,6 +173,33 @@
   /* border: 2px solid white; */
   /* background-color: white; */
 }
+/* only vertical scroll for these tables */
+:host ::ng-deep .vscroll .p-datatable-wrapper,
+:host ::ng-deep .vscroll .p-datatable-scrollable-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* keep table from exceeding container width */
+:host ::ng-deep .vscroll .p-datatable-table {
+  width: 100% !important;
+  table-layout: auto; /* allow natural wrapping */
+}
+
+/* wrap long text so it doesn't create horizontal scroll */
+:host ::ng-deep .vscroll .p-datatable-thead > tr > th,
+:host ::ng-deep .vscroll .p-datatable-tbody > tr > td {
+  white-space: normal;        /* allow wrapping */
+  word-break: break-word;     /* break long tokens */
+}
+
+/* make the selects fit the cell so they don't overflow */
+.dropdown-container-in-table,
+.dropdown-in-table {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+}
 
 
 .attendance-card {
@@ -439,10 +466,36 @@
   padding: 50px 30px;
   display: flex;
   flex-direction: row;
-  gap: 0px;
+  gap: 20px;
   justify-content: flex-start;
   align-items: flex-start;
 }
+/* title */
+.box-4 .box-title{
+  color:#fff; font-weight:800; font-size:18px;
+  text-align:center; margin-bottom:8px;
+}
+
+/* list layout */
+.lb-list{
+  list-style:none; margin:0; padding:0;
+  display:grid; gap:8px;
+}
+.lb-item{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; min-height:28px;
+}
+.lb-name{
+  color:#fff; font-weight:600; line-height:1.2;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.lb-badge{
+  min-width:26px; height:22px; padding:0 8px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border-radius:999px; line-height:1;
+  background:rgba(255,255,255,.22); color:#fff; font-weight:800;
+}
+
 
 .header-part {
   display: flex;
@@ -721,7 +774,7 @@
   .permission-table {
     flex-direction: column;
     width: 100%;
-    height: 200px;
+    /* height: 200px; */
     border-bottom: 2px solid #adadad;
   }
 

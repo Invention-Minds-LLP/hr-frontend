@@ -138,6 +138,14 @@ export class TestPlatform implements OnInit, OnDestroy {
   }
 
   async begin(): Promise<void> {
+    if(this.candidateId){
+      // For candidates, just start the test without attempt
+      this.started = true;
+      await this.requestFullscreen();
+      this.attachProctoring();
+      this.startTimer();
+      return;
+    }
     if (!this.attemptId) {
       const { attemptId } = await firstValueFrom(this.attemptService.startAttempt(this.assignedTestId));
       this.attemptId = attemptId;

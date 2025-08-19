@@ -34,9 +34,10 @@
         <!-- HEADER -->
         <ng-template pTemplate="header">
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Candidate</th>
                 <th>Title</th>
+                <th>Department</th>
                 <th>Status</th>
                 <th>Start</th>
                 <th>End</th>
@@ -48,9 +49,9 @@
         </ng-template>
 
         <!-- BODY -->
-        <ng-template pTemplate="body" let-it>
+        <ng-template pTemplate="body" let-it let-index="rowIndex">
             <tr>
-                <td>{{ it.id }}</td>
+                <td>{{ index + 1 }}</td>
 
                 <td>
                     <div class="bold">{{ it.candidateName }}</div>
@@ -58,6 +59,7 @@
                 </td>
 
                 <td>{{ it.title || '—' }}</td>
+                <td>{{ it.departmentName || '—' }}</td>
 
                 <td>
                     <p-tag [value]="it.status" [severity]="getSeverity(it.status)"></p-tag>
@@ -89,18 +91,13 @@
                         [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
                         (click)="openAction('convert', it)"></button> -->
                     <div class="actions-wrap">
-                        <p-select [options]="allowedStatusOptions(it)" optionLabel="label" optionValue="value"
-                        [(ngModel)]="it.status" [style.width.px]="150" appendTo="body"
-                        (onChange)="onStatusChange(it, $event)">
-                    </p-select>
-                    <button
-                    pButton
-                    type="button"
-                    class="p-button-text"
-                    icon="pi pi-pencil"
-                    label="Edit"
-                    (click)="openEdit(it)">
-                  </button>
+                        <p-select [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
+                            optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
+                            appendTo="body" (onChange)="onStatusChange(it, $event)">
+                        </p-select>
+                        <button pButton type="button" class="p-button-text" icon="pi pi-pencil" label="Edit"
+                            (click)="openEdit(it)">
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -140,21 +137,33 @@
                 <label class="field">Phone
                     <input class="input" [(ngModel)]="createForm.phone">
                 </label>
+                <label class="field">Department
+                    <p-select [options]="deptOptions" [(ngModel)]="createForm.departmentId"
+                        placeholder="Select department" [showClear]="true" appendTo="body"
+                        (onChange)="onCreateDeptChange($event.value)" style="min-width: 14rem">
+                    </p-select>
+                </label>
+
 
                 <label class="field">Stipend
                     <input class="input" type="number" [(ngModel)]="createForm.stipend">
                 </label>
 
-                <label class="field">Mentor ID
-                    <input class="input" type="number" [(ngModel)]="createForm.mentorId">
+                <label class="field">Mentor
+                    <p-select [options]="mentorOptionsCreate" [(ngModel)]="createForm.mentorId"
+                        placeholder="Select mentor" [showClear]="true" appendTo="body"
+                        [disabled]="!createForm.departmentId" style="min-width: 14rem">
+                    </p-select>
                 </label>
 
-                <label class="field">Employee ID
+                <label class="field" *ngIf="createForm.status === 'CONVERTED'">
+                    Employee ID
                     <input class="input" type="number" [(ngModel)]="createForm.employeeId">
                 </label>
 
                 <label class="field">Status
-                    <select class="input" [(ngModel)]="createForm.status">
+                    <select class="input" [(ngModel)]="createForm.status"
+                        (ngModelChange)="onCreateStatusChange($event)">
                         <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
                     </select>
                 </label>
@@ -203,21 +212,30 @@
                 <label class="field">Phone
                     <input class="input" [(ngModel)]="editForm.phone">
                 </label>
+                <label class="field">Department
+                    <p-select [options]="deptOptions" [(ngModel)]="editForm.departmentId"
+                        placeholder="Select department" [showClear]="true" appendTo="body"
+                        (onChange)="onEditDeptChange($event.value)" style="min-width: 14rem">
+                    </p-select>
+                </label>
+
 
                 <label class="field">Stipend
                     <input class="input" type="number" [(ngModel)]="editForm.stipend">
                 </label>
 
-                <label class="field">Mentor ID
-                    <input class="input" type="number" [(ngModel)]="editForm.mentorId">
+                <label class="field">Mentor
+                    <p-select [options]="mentorOptionsEdit" [(ngModel)]="editForm.mentorId" placeholder="Select mentor"
+                        [showClear]="true" appendTo="body" [disabled]="!editForm.departmentId" style="min-width: 14rem">
+                    </p-select>
                 </label>
-
-                <label class="field">Employee ID
+                <label class="field" *ngIf="editForm.status === 'CONVERTED'">
+                    Employee ID
                     <input class="input" type="number" [(ngModel)]="editForm.employeeId">
                 </label>
 
                 <label class="field">Status
-                    <select class="input" [(ngModel)]="editForm.status">
+                    <select class="input" [(ngModel)]="editForm.status" (ngModelChange)="onEditStatusChange($event)">
                         <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
                     </select>
                 </label>

@@ -200,6 +200,34 @@ select:focus {
   --tile-g1: rgba(245, 158, 11, 0.35);
   --tile-g2: rgba(251, 146, 60, 0.28);
 }
+/* add 'background' to your transition for a smooth fade */
+.tile{
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease, background .25s ease;
+}
+
+/* full tile becomes the solid gradient on hover */
+.tile:hover{
+  background: linear-gradient(135deg, var(--hover1, #22c55e), var(--hover2, #14b8a6));
+  border-color: transparent;   /* optional: cleaner edge */
+}
+
+/* optional: improve contrast */
+/* .tile:hover .kpi,
+.tile:hover .label,
+.tile:hover .sub { color:#fff; } */
+
+/* optional: dim the bottom glow a bit on hover */
+.tile:hover::after{ opacity:.25; }
+
+/* light/pastel hover colors */
+.tile[data-kind="leaves"]        { --hover1:#bbf7d0; --hover2:#99f6e4; }  /* green-200 → teal-200 */
+.tile[data-kind="wfh"]           { --hover1:#c7d2fe; --hover2:#bae6fd; }  /* indigo-200 → sky-200 */
+.tile[data-kind="permissions"]   { --hover1:#ddd6fe; --hover2:#f5d0fe; }  /* violet-200 → fuchsia-200 */
+.tile[data-kind="late"]          { --hover1:#fed7aa; --hover2:#fecaca; }  /* orange-200 → red-200 */
+.tile[data-kind="otYesterday"]   { --hover1:#bae6fd; --hover2:#a5f3fc; }  /* sky-200 → cyan-200 */
+.tile[data-kind="newJoiners"]    { --hover1:#99f6e4; --hover2:#d9f99d; }  /* teal-200 → lime-200 */
+.tile[data-kind="birthdays"]     { --hover1:#fbcfe8; --hover2:#f5d0fe; }  /* pink-200 → fuchsia-200 */
+.tile[data-kind="anniversaries"] { --hover1:#fde68a; --hover2:#fed7aa; }  /* amber-200 → orange-200 */
 
 /* ---------- Announcements Progress ---------- */
 .bar {
@@ -509,6 +537,7 @@ border: none;
   box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
   padding: 18px;
   max-height: 70vh;
+  overflow-x: hidden;
 }
 
 .sheet::before {

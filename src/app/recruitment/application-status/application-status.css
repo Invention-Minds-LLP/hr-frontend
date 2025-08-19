@@ -132,4 +132,116 @@ button.ghost {
   
   /* Utility */
   .right { text-align: right; }
-  
+  /* container */
+.review-dialog { padding: .25rem .25rem 0; }
+
+/* summary */
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.summary-main { min-width: 0; }
+.test-name { font-weight: 700; font-size: 1rem; line-height: 1.25rem; }
+.meta { margin-top: .25rem; font-size: .85rem; color: var(--text-color-secondary, #6b7280); display: flex; gap: .4rem; align-items: center; }
+
+/* score tag bigger */
+:host ::ng-deep .score-tag .p-tag {
+  font-size: 1rem;
+  padding: .35rem .6rem;
+  border-radius: 8px;
+}
+
+/* form fields */
+.form .field { margin-bottom: 1rem; }
+.label { display: block; font-weight: 600; margin-bottom: .35rem; }
+.req { color: var(--red-500, #ef4444); }
+.muted { color: var(--text-color-secondary, #6b7280); }
+
+/* radios inline */
+.radio-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: .25rem;
+}
+.field-radiobutton { display: flex; align-items: center; gap: .5rem; }
+
+/* hint */
+.hint { color: var(--red-500, #ef4444); }
+
+/* info box */
+.next-step {
+  margin-top: .25rem;
+  font-size: .9rem;
+  color: var(--text-color-secondary, #6b7280);
+  background: var(--surface-100, #f3f4f6);
+  padding: .6rem .75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+::ng-deep .p-textarea {
+  width: 100%;
+  height: 100px;
+  background-color: transparent!important;
+}
+.dialog-body { padding: 0 0.25rem; }
+.field { margin-bottom: 1rem; }
+.label { font-weight: 600; display:inline-block; margin-bottom:.5rem; }
+.req { color: var(--red-500, #f44336); }
+.muted { color: var(--text-color-secondary, #6b7280); }
+.hint { display:block; margin-top:.35rem; font-size:.85rem; color: var(--text-color-secondary, #6b7280); }
+.option-row { display:flex; align-items:center; }
+.name { font-weight:600; }
+
+/* container + rhythm */
+.si-body { padding: .25rem .25rem 0 .25rem; }
+.si-field { margin-bottom: 1rem; }
+.si-label { font-weight: 600; display: inline-block; margin-bottom: .5rem; }
+.si-req { color: var(--red-500, #f44336); }
+.si-hint { display:block; margin-top:.35rem; font-size:.85rem; color: var(--text-color-secondary, #6b7280); }
+.si-divider { margin: .25rem 0 1rem 0; }
+
+/* grid for dates */
+.si-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.si-col {}
+.si-input :is(input, .p-datepicker, .p-calendar) { width: 100%; }
+
+/* multiselect list items */
+.si-multi .p-multiselect-items { padding: .25rem .25rem .5rem .25rem; }
+.si-opt { display:flex; align-items:center; padding:.25rem .35rem; }
+.si-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.75rem; font-weight:600;
+  background: var(--surface-200, #eef2ff); color: var(--primary-color, #6366f1);
+  margin-right:.5rem; flex: 0 0 28px;
+}
+.si-opt-text { display:flex; flex-direction:column; }
+.si-opt-name { font-weight:600; line-height:1.15; }
+.si-opt-sub { font-size:.8rem; color: var(--text-color-secondary, #6b7280); line-height:1.2; }
+
+/* selected chips inside trigger */
+.si-multi .p-multiselect-token { margin: .15rem .25rem .15rem 0; }
+/* tidy spacing */
+.at-body { padding: .25rem .25rem 0 .25rem; }
+.at-field { margin-bottom: 1rem; }
+.at-label { font-weight: 600; display:inline-block; margin-bottom:.5rem; }
+.at-req { color: var(--red-500, #f44336); }
+.at-muted { color: var(--text-color-secondary, #6b7280); }
+.at-hint { display:block; margin-top:.35rem; font-size:.85rem; color: var(--text-color-secondary, #6b7280); }
+
+/* date pickers side-by-side, stack on small screens */
+.at-row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .at-row { grid-template-columns: 1fr; } }
+
+/* prevent horizontal scroll in the dialog */
+:host ::ng-deep .p-dialog .p-dialog-content { overflow-x: hidden; }
+
+/* in case your theme has a low overlay z-index, nudge it up */
+:host ::ng-deep .p-datepicker { z-index: 1200 !important; }
+:host ::ng-deep .p-multiselect-panel,
+:host ::ng-deep .p-dropdown-panel { z-index: 1200 !important; }

@@ -5,27 +5,26 @@
         <div class="chip date">{{ today | date:'EEE, MMM dd' }}</div>
         <div class="spacer"></div>
 
-        <select class="input" [value]="location" #loc (change)="onLocationChange(loc.value)">
-            <option value="ALL">All Locations</option>
-            <option>Chennai</option>
-            <option>Bengaluru</option>
-            <option>Hyderabad</option>
+        <!-- Location
+        <select class="input" [(ngModel)]="branchId" (ngModelChange)="onLocationChangeById($event)">
+            <option [ngValue]="null">All Locations</option>
+            <option *ngFor="let b of branches" [ngValue]="b.id">{{ b.name }}</option>
         </select>
 
-        <select class="input" [value]="department" #dep (change)="onDeptChange(dep.value)">
-            <option value="ALL">All Departments</option>
-            <option>Engineering</option>
-            <option>Support</option>
-            <option>HR</option>
-        </select>
+        <select class="input" [(ngModel)]="departmentId" (ngModelChange)="onDeptChangeById($event)">
+            <option [ngValue]="null">All Departments</option>
+            <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
+        </select> -->
 
 
 
 
-        <input placeholder="Search employee / candidate / job" class="input" style="min-width:260px" />
-        <button class="btn" (click)="toast('Nothing to approve in this demo 🙂')">
+
+
+        <!-- <input placeholder="Search employee / candidate / job" class="input" style="min-width:260px" /> -->
+        <!-- <button class="btn" (click)="toast('Nothing to approve in this demo 🙂')">
             My approvals ({{ pendingApprovalsCount() }})
-        </button>
+        </button> -->
     </header>
 
     <!-- Loading / error -->
@@ -35,7 +34,8 @@
     <!-- ROW: Today strip -->
     <div class="row" id="todayStrip">
         <!-- tile card: remove "as any" and use a helper to format values -->
-        <div class="tile grid-3" *ngFor="let t of tiles; trackBy: trackByIndex" [attr.data-kind]="t.key" (click)="openList(t.key, t.label)">
+        <div class="tile grid-3" *ngFor="let t of tiles; trackBy: trackByIndex" [attr.data-kind]="t.key"
+            (click)="openList(t.key, t.label)">
             <div class="kpi">{{ getTileValue(t) }}</div>
             <div class="label">{{ t.label }}</div>
             <div class="sub">Tap to view details</div>
@@ -47,63 +47,63 @@
     <div class="row">
         <div class="card grid-8">
             <div class="kicker"><span class="dot"></span><strong>Attention needed</strong></div>
-          
+
             <!-- NEW wrapper gives rounded outer border + scroll + sticky header support -->
             <div class="table-wrap">
-              <table class="attention">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Count</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let a of d.attention; trackBy: trackByIndex"
-                      (click)="openList(a.modal)"
-                      tabindex="0">
-                    <td class="left">{{ a.label }}</td>
-                    <td class="left"><strong [ngClass]="a.severity">{{ a.count }}</strong></td>
-                    <td class="left">
-                      <button class="open-table" (click)="$event.preventDefault(); openList(a.modal)">Open</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                <table class="attention">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Count</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of d.attention; trackBy: trackByIndex" (click)="openList(a.modal)"
+                            tabindex="0">
+                            <td class="left">{{ a.label }}</td>
+                            <td class="left"><strong [ngClass]="a.severity">{{ a.count }}</strong></td>
+                            <td class="left">
+                                <button class="open-table"
+                                    (click)="$event.preventDefault(); openList(a.modal)">Open</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-          
+
             <div class="footer-note">Click a row to open the full list and take action.</div>
-          </div>
-          
-          <div class="card grid-4">
+        </div>
+
+        <div class="card grid-4">
             <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
-          
+
             <!-- New: full list -->
             <div class="ann-list" *ngIf="announcements?.length; else noAnns">
-              <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
-                <div class="ann-meta">
-                  <div class="ann-title">
-                    <span class="idx">#{{ i + 1 }}</span> {{ a.title }}
-                  </div>
-                  <span class="pill small">Ack {{ ackPercentOf(a) }}%</span>
+                <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
+                    <div class="ann-meta">
+                        <div class="ann-title">
+                            <span class="idx">#{{ i + 1 }}</span> {{ a.title }}
+                        </div>
+                        <span class="pill small">Ack {{ ackPercentOf(a) }}%</span>
+                    </div>
+                    <div class="ann-bar">
+                        <i [style.width.%]="ackPercentOf(a)"></i>
+                    </div>
+                    <div class="ann-sub">
+                        {{ a.ackCount }} / {{ a.audienceCount }} acknowledged
+                    </div>
                 </div>
-                <div class="ann-bar">
-                  <i [style.width.%]="ackPercentOf(a)"></i>
-                </div>
-                <div class="ann-sub">
-                  {{ a.ackCount }} / {{ a.audienceCount }} acknowledged
-                </div>
-              </div>
             </div>
-          
+
             <ng-template #noAnns>
-              <div class="muted">No live announcements.</div>
+                <div class="muted">No live announcements.</div>
             </ng-template>
-          
+
             <div class="footer-note">Dept breakdown available in drilldown (not shown here).</div>
-          </div>
-          
-          
+        </div>
+
+
     </div>
 
     <!-- ROW: Recruiting -->
@@ -183,35 +183,29 @@
         <button class="close" (click)="closeModal()">Close ✕</button>
         <h3>{{ list.title }}</h3>
         <div class="actions" *ngIf="list.actions?.length">
-            <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex" (click)="onListAction(a)">{{ a
+            <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex" (click)="onListAction(a)">{{
+                a
                 }}</button>
         </div>
-        <p-table
-        [value]="list?.rows || []"
-        [responsiveLayout]="'scroll'"
-        [paginator]="true"
-        [rows]="10"
-        [rowsPerPageOptions]="[10,25,50]"
-        [showCurrentPageReport]="true"
-        [tableStyle]="{ width: '100%' }"
-        styleClass="p-datatable-gridlines p-datatable-striped"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
-              {{ c }}
-            </th>
-          </tr>
-        </ng-template>
-      
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
-              {{ row[i] }}
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      
+        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" [paginator]="true" [rows]="10"
+            [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true" [tableStyle]="{ width: '100%' }"
+            styleClass="p-datatable-gridlines p-datatable-striped">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
+                        {{ c }}
+                    </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+                <tr>
+                    <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
+                        {{ row[i] }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
     </div>
 </div>

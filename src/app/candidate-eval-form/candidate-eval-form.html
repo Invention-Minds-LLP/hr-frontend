@@ -1,0 +1,170 @@
+<form class="eval-form" *ngIf="form" [formGroup]="form" (ngSubmit)="submit()">
+    <p-card class="eval-card">
+      <h2 class="page-title">Candidate Evaluation Form</h2>
+  
+      <!-- Candidate info -->
+      <div class="section">
+        <div class="section-title">Candidate Information</div>
+  
+        <!-- ⬇️ one wrapper for the whole candidate group -->
+        <div class="form-grid" formGroupName="candidate">
+          <div class="field">
+            <label>Full name <span class="req">*</span></label>
+            <input pInputText formControlName="name" placeholder="e.g. Priya K." />
+          </div>
+  
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <p-datepicker formControlName="date" dateFormat="dd-M-yy"></p-datepicker>
+          </div>
+  
+          <div class="field">
+            <label>Position applied for <span class="req">*</span></label>
+            <input pInputText formControlName="position" />
+          </div>
+  
+          <div class="field">
+            <label>Department <span class="req">*</span></label>
+            <p-select
+              [options]="departments"
+              optionLabel="label"
+              optionValue="value"
+              formControlName="department"
+              placeholder="Select"
+            ></p-select>
+          </div>
+  
+          <div class="field">
+            <label>Highest qualification</label>
+            <input pInputText formControlName="qualification" />
+          </div>
+  
+          <div class="field">
+            <label>Total experience (years)</label>
+            <p-inputNumber formControlName="experienceYears" [min]="0" [max]="50"></p-inputNumber>
+          </div>
+        </div>
+      </div>
+  
+      <p-divider type="solid"></p-divider>
+  
+      <!-- Panel & scoring -->
+      <div class="section">
+        <div class="section-title">
+          Interview Panel & Scores <span class="muted">(0–10 each)</span>
+        </div>
+  
+        <div class="panel-toolbar">
+          <button pButton icon="pi pi-user-plus" label="Add panelist" type="button" (click)="addPanelist()"></button>
+          <span class="overall" *ngIf="overallAverage != null">Overall avg: <b>{{ overallAverage }}</b></span>
+        </div>
+  
+        <div class="panel-grid" [style.gridTemplateColumns]="'220px ' + '220px '.repeat(panelArr.length)">
+          <div class="panel-cell muted">Criteria / Panel</div>
+  
+          <!-- ⬇️ give each column its FormGroup -->
+          <div class="panel-cell" *ngFor="let p of panelArr.controls; let i = index" [formGroup]="panelGroup(p)">
+            <div class="panel-header">
+              <input pInputText placeholder="Name" formControlName="name" />
+              <input pInputText placeholder="Designation" formControlName="designation" />
+              <div class="panel-meta">
+                Avg: <b>{{ p.get('average')?.value ?? '—' }}</b>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-text p-button-danger"
+                  (click)="removePanelist(i)"
+                  *ngIf="panelArr.length > 1"
+                ></button>
+              </div>
+            </div>
+          </div>
+  
+          <!-- criteria rows -->
+          <ng-container *ngFor="let c of criteria">
+            <div class="panel-cell crit">{{ c.label }}</div>
+            <div class="panel-cell" *ngFor="let p of panelArr.controls" [formGroup]="scoresGroup(p)">
+              <p-inputNumber
+                [formControlName]="c.key"
+                [min]="0"
+                [max]="10"
+                [useGrouping]="false"
+                [showButtons]="true"
+                [step]="1"
+                suffix="/10"
+                [inputStyle]="{ width: '100%' }"
+                [style]="{ width: '100%' }"
+              ></p-inputNumber>
+            </div>
+          </ng-container>
+  
+          <!-- notes/signature -->
+          <div class="panel-cell crit">Signature / Notes</div>
+          <div class="panel-cell" *ngFor="let p of panelArr.controls" [formGroup]="panelGroup(p)">
+            <textarea pInputTextarea rows="2" formControlName="signature" placeholder="Notes / Signature"></textarea>
+          </div>
+        </div>
+      </div>
+  
+      <p-divider type="solid"></p-divider>
+  
+      <!-- Conclusion -->
+      <div class="section">
+        <div class="section-title">Final Conclusion</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Decision <span class="req">*</span></label>
+            <p-select
+              [options]="[
+                { label: 'Selected', value: 'Selected' },
+                { label: 'Shortlisted', value: 'Shortlisted' },
+                { label: 'Hold', value: 'Hold' },
+                { label: 'Rejected', value: 'Rejected' }
+              ]"
+              formControlName="conclusion"
+              placeholder="Choose"
+            ></p-select>
+          </div>
+          <div class="field col-4">
+            <label>Remarks</label>
+            <textarea pInputTextarea rows="3" formControlName="remarks" placeholder="Overall notes"></textarea>
+          </div>
+        </div>
+      </div>
+  
+      <p-divider type="solid"></p-divider>
+  
+      <!-- HR block -->
+      <div class="section">
+        <div class="section-title">For HR use only</div>
+  
+        <!-- ⬇️ one wrapper for the HR group -->
+        <div class="form-grid" formGroupName="hr">
+          <div class="field">
+            <label>Present salary</label>
+            <p-inputNumber formControlName="presentSalary" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
+          </div>
+          <div class="field">
+            <label>Payslip produced?</label>
+            <p-select formControlName="payslip" [options]="yesNo" placeholder="Select"></p-select>
+          </div>
+          <div class="field">
+            <label>Expected salary / month</label>
+            <p-inputNumber formControlName="expectedSalary" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
+          </div>
+          <div class="field">
+            <label>Gross offer / month</label>
+            <p-inputNumber formControlName="grossOffer" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
+          </div>
+        </div>
+      </div>
+  
+      <div class="actions">
+        <button pButton type="button" label="Reset" class="p-button-text" (click)="reset()"></button>
+        <span class="spacer"></span>
+        <button pButton type="submit" label="Save Evaluation" icon="pi pi-check"></button>
+      </div>
+    </p-card>
+  </form>
+  

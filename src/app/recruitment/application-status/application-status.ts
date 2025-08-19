@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { of, switchMap } from 'rxjs';
 // RxJS
-import {  forkJoin, firstValueFrom } from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import {
@@ -17,13 +18,21 @@ import { InputText } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
+import { TableModule } from 'primeng/table';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { Employees } from '../../services/employees/employees';
+import { Chip } from 'primeng/chip';
 
 type ActionKey =
   | `MOVE:${ApplicationStatuses}`
   | 'INTERVIEW'
   | 'ASSIGN_TEST'
   | 'SEND_OFFER'
-  |'REVIEW_TEST'
+  | 'REVIEW_TEST'
   | 'SIGN_OFFER'
   | 'JOINED'
   | 'NO_SHOW'
@@ -32,14 +41,19 @@ type ActionKey =
 
 @Component({
   selector: 'app-application-status',
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule,
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, Tooltip, TableModule,
     InputText,
+    MultiSelectModule,
     TextareaModule,
     SelectModule,
+    RadioButtonModule,
+    DividerModule,
+    TagModule,
+    Chip,
     DatePicker, ReactiveFormsModule],
   templateUrl: './application-status.html',
   styleUrl: './application-status.css',
-  providers:[MessageService]
+  providers: [MessageService]
 })
 
 
@@ -48,6 +62,7 @@ export class ApplicationStatus implements OnInit {
   private api = inject(Recuriting);
   private fb = inject(FormBuilder);
   private messages = inject(MessageService);
+  constructor(private sanitizer: DomSanitizer, private employeeService: Employees) { }
 
   jobs: Job[] = [];
   selectedJobId?: number;
@@ -59,6 +74,8 @@ export class ApplicationStatus implements OnInit {
   page = 1; pageSize = 20;
   loading = false;
   error?: string;
+  resumeDialogOpen = false;
+  resumeSafeUrl?: SafeResourceUrl;
 
 
   currentApp: Application | null = null;
@@ -86,6 +103,15 @@ export class ApplicationStatus implements OnInit {
     reason: [''],
   });
 
+  rejectDlg = { visible: false, app: null as Application | null, reason: null as any | null, note: '' };
+  rejectReasonOptions = [
+    { label: 'Salary', value: 'SALARY' },
+    { label: 'Role mismatch', value: 'ROLE_MISMATCH' },
+    { label: 'Location', value: 'LOCATION' },
+    { label: 'Experience', value: 'EXPERIENCE' },
+    { label: 'Culture', value: 'CULTURE' },
+    { label: 'Other', value: 'OTHER' },
+  ];
 
   // holds the current selected action per row (by application id)
   actionSel: Record<number, ActionKey | null> = {};
@@ -95,17 +121,82 @@ export class ApplicationStatus implements OnInit {
     this.api.listJobs({ pageSize: 200 }).subscribe(res => (this.jobs = res.rows));
     this.load();
   }
-  scheduleInterview(app: Application) {
-    this.currentApp = app;
-    this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelUserIds: '' });
-    this.showInterviewDialog = true;
-  }
+  // scheduleInterview(app: Application) {
+  //   this.currentApp = app;
+  //   this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelUserIds: '' });
+  //   this.showInterviewDialog = true;
+  // }
 
-  sendOffer(app: Application) {
-    this.currentApp = app;
-    this.offerForm.reset({ proposedJoinAt: null });
-    this.showOfferDialog = true;
+// ---- fields ----
+panelOptions: Array<{ label: string; value: number; meta?: { code: string } }> = [];
+selectedPanelIds: number[] = []; // bound to p-multiSelect
+
+// helper to render selected chips
+panelLabelById = (id: number) =>
+  this.panelOptions.find(o => o.value === id)?.label ?? String(id);
+
+// call this when opening the dialog for an app
+scheduleInterview(a: Application) {
+  this.currentApp = a;
+  this.showInterviewDialog = true;
+
+  // reset form (keep your existing defaults if any)
+  this.interviewForm.reset({ stage: '', startTime: null, endTime: null, panelUserIds: '' });
+  this.selectedPanelIds = [];
+
+  // load employees from job's department (ACTIVE only)
+  const depId = a?.job?.departmentId;
+  if (depId) {
+    this.employeeService.list({ departmentId: depId, status: 'ACTIVE' })
+      .subscribe(rows => {
+        this.panelOptions = rows.map(e => {
+          const code = e.employeeCode ?? undefined; // code?: string
+          const opt: { label: string; value: number; meta?: { code: string } } = {
+            label: `${e.firstName} ${e.lastName}${code ? ` (${code})` : ''}`,
+            value: e.id
+          };
+          if (code) opt.meta = { code }; // only add when it's a string
+          return opt;
+        });
+      });
+  } else {
+    // fallback: load none or all; choose your preference
+    this.panelOptions = [];
   }
+}
+
+// keep the CSV in your form control so submit logic stays simple
+syncPanelCsv() {
+  const csv = (this.selectedPanelIds ?? []).join(',');
+  this.interviewForm.patchValue({ panelUserIds: csv }, { emitEvent: false });
+}
+private toIso(d: Date | string): string {
+  return d instanceof Date ? d.toISOString() : new Date(d).toISOString();
+}
+
+submitInterview() {
+  if (!this.currentApp) return;
+
+  // ensure panel CSV is up to date (in case user didn't change after open)
+  this.syncPanelCsv();
+
+  const v = this.interviewForm.value;
+  console.log('submitInterview', v);
+  const payload = {
+    stage: (v.stage ?? '').toString().trim(),          // ← ensure string
+    startTime: this.toIso(v.startTime as Date),        // ← Date -> ISO string
+    endTime:   this.toIso(v.endTime as Date),          // ← Date -> ISO string
+    panelUserIds: v.panelUserIds || '',
+  };
+
+  this.api.scheduleInterview(this.currentApp.id, payload)
+    .subscribe(() => {
+      this.showInterviewDialog = false;
+      this.resetInterview();
+      this.load(); // your refresh
+    });
+}
+
 
   signOffer(app: Application) {
     this.getOrCreateOffer(app).pipe(
@@ -139,21 +230,21 @@ export class ApplicationStatus implements OnInit {
 
   // --- submit handlers for dialogs ---
 
-  submitInterview() {
-    if (!this.currentApp || this.interviewForm.invalid) return;
-    const v = this.interviewForm.value;
-    const body = {
-      stage: v.stage!,
-      startTime: (v.startTime as Date).toISOString(),
-      endTime: (v.endTime as Date).toISOString(),
-      panelUserIds: v.panelUserIds || undefined,
-    };
-    this.api.scheduleInterview(this.currentApp.id, body).subscribe(() => {
-      this.showInterviewDialog = false;
-      this.resetInterview();
-      this.load();
-    });
-  }
+  // submitInterview() {
+  //   if (!this.currentApp || this.interviewForm.invalid) return;
+  //   const v = this.interviewForm.value;
+  //   const body = {
+  //     stage: v.stage!,
+  //     startTime: (v.startTime as Date).toISOString(),
+  //     endTime: (v.endTime as Date).toISOString(),
+  //     panelUserIds: v.panelUserIds || undefined,
+  //   };
+  //   this.api.scheduleInterview(this.currentApp.id, body).subscribe(() => {
+  //     this.showInterviewDialog = false;
+  //     this.resetInterview();
+  //     this.load();
+  //   });
+  // }
   resetInterview() { this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelUserIds: '' }); }
 
   submitOffer(skipDate: boolean) {
@@ -199,7 +290,7 @@ export class ApplicationStatus implements OnInit {
       page: this.page,
       pageSize: this.pageSize,
     }).subscribe({
-      next: (res) => { this.apps = res.rows; this.total = res.total; },
+      next: (res) => { this.apps = res.rows; this.total = res.total; this.annotatePendingReviews(this.apps) },
       error: (e) => this.error = e?.error?.error || 'Failed to load',
       complete: () => this.loading = false,
     });
@@ -223,9 +314,24 @@ export class ApplicationStatus implements OnInit {
     return map[s] || [];
   }
 
-  move(app: Application, to: ApplicationStatuses) {
-    this.api.moveApplication(app.id, to).subscribe(() => this.load());
+  move(
+    app: Application,
+    to: ApplicationStatuses,
+    extras: Partial<{ rejectReason: any; currentStage: string }> = {}
+  ) {
+    const extra: { rejectReason?: any; currentStage?: string } = {};
+    if (extras.rejectReason) extra.rejectReason = extras.rejectReason;
+    if (extras.currentStage?.trim()) extra.currentStage = extras.currentStage.trim();
+  
+    this.api.moveApplication(app.id, to, extra)
+      .subscribe(() => this.load());
   }
+  sendOffer(app: Application) {
+    this.currentApp = app;
+    this.offerForm.reset({ proposedJoinAt: null });
+    this.showOfferDialog = true;
+  }
+  
 
   // scheduleInterview(app: Application) {
   //   const stage = prompt('Stage (e.g., Tech1)') || 'Screen';
@@ -306,14 +412,20 @@ export class ApplicationStatus implements OnInit {
   handleActionSelect(a: Application, key: ActionKey | null) {
     if (!key) return;
 
-    // Moves
     if (key.startsWith('MOVE:')) {
       const target = key.split(':')[1] as ApplicationStatuses;
+
+      // Require reason for REJECTED
+      console.log(target)
+      if (target === 'REJECTED') { this.openRejectDialog(a); return; }
+      if (target === 'SHORTLISTED') { this.openShortlistDialog(a); return; }
+
+
       this.move(a, target);
       return;
     }
 
-    // Others
+    // Non-move actions
     switch (key) {
       case 'INTERVIEW':
         this.scheduleInterview(a);
@@ -334,40 +446,56 @@ export class ApplicationStatus implements OnInit {
         this.noShow(a);
         break;
       case 'REVIEW_TEST':
-         this.openReviewTest(a);
-       break;
+        this.openReviewTest(a);
+        break;
       case 'DECLINE_OFFER':
         this.declineOffer(a);
         break;
     }
   }
+
   // component TS additions
   testsCatalog: EvalTestLite[] = [];
   showAssignTestDialog = false;
   assignTestForm = this.fb.group({
-    testId: [null as number | null, Validators.required],
-    testDate: [null as Date | null],      // optional start
-    deadlineDate: [null as Date | null],  // optional deadline
+    testId: [null, Validators.required],
+  
+    // start
+    testDateDate: [null],        // Date only
+    testDateTime: [null],        // Date object holding only time part
+  
+    // deadline
+    deadlineDateDate: [null],
+    deadlineDateTime: [null],
   });
+  
 
   openAssignTest(a: Application) {
     this.currentApp = a;
     if (!this.testsCatalog.length) {
       this.api.listPublishedTests().subscribe(t => this.testsCatalog = t || []);
     }
-    this.assignTestForm.reset({ testId: null, testDate: null, deadlineDate: null });
+    this.assignTestForm.reset({ testId: null, testDateDate: null, deadlineDateDate: null, testDateTime:null, deadlineDateTime: null });
     this.showAssignTestDialog = true;
+  }
+  private toIsos(date: Date | null, time: Date | null): string | undefined {
+    if (!date) return undefined;
+    const d = new Date(date);
+    if (time) {
+      d.setHours(time.getHours(), time.getMinutes(), time.getSeconds() || 0, 0);
+    }
+    return d.toISOString(); // send string; adjust if your API expects Date
   }
 
   submitAssignTest() {
     if (!this.currentApp || this.assignTestForm.invalid) return;
     const v = this.assignTestForm.value;
-    const body = {
-      testId: Number(v.testId),
-      testDate: v.testDate ? (v.testDate as Date).toISOString() : undefined,
-      deadlineDate: v.deadlineDate ? (v.deadlineDate as Date).toISOString() : undefined,
+    const payload = {
+      testId: Number(v.testId), // <-- cast to number (in case it’s a string)
+      testDate: this.toIsos(v.testDateDate!, v.testDateTime!),
+      deadlineDate: this.toIsos(v.deadlineDateDate!, v.deadlineDateTime!),
     };
-    this.api.assignTestToApplication(this.currentApp.id, body).subscribe(() => {
+    this.api.assignTestToApplication(this.currentApp.id, payload).subscribe(() => {
       this.showAssignTestDialog = false;
       this.load(); // refresh applications/interviews if you show them
     });
@@ -386,20 +514,41 @@ export class ApplicationStatus implements OnInit {
   reviewCtx: CandidateAssignedTest | null = null;
 
   reviewForm = this.fb.group({
-    decision: [null as 'PASS' | 'FAIL' | null, Validators.required],
-    note: [''],
+    decision: this.fb.control<string | null>(null, { validators: Validators.required }),
+    note: this.fb.control<string>(''),
   });
 
-  openReviewTest(a: Application) {
-    // pick the latest completed & unreviewed test
-    const tests = (a as any)._tests as CandidateAssignedTest[] || [];
-    const pending = tests.find(t => t.status === 'Completed' && !t.reviewedAt);
-    if (!pending) { this.messages.add({ severity: 'info', summary: 'Nothing to review' }); return; }
+  // openReviewTest(a: Application) {
+  //   console.log('openReviewTest', a);
+  //   // pick the latest completed & unreviewed test
+  //   const tests = (a as any)._CandidateAssignedTest as CandidateAssignedTest[] || [];
+  //   const pending = tests.find(t => t.status === 'Completed' && !t.reviewedAt);
+  //   if (!pending) { this.messages.add({ severity: 'info', summary: 'Nothing to review' }); return; }
+  //   this.currentApp = a;
+  //   this.reviewCtx = pending;
+  //   this.reviewForm.reset({ decision: null, note: '' });
+  //   this.showReviewDialog = true;
+  // }
+  openReviewTest(a: Application & { CandidateAssignedTest?: CandidateAssignedTest[] }) {
+    // use the property that actually exists on the object
+    const tests = a.CandidateAssignedTest ?? [];
+
+    // pick latest Completed + not reviewed
+    const pending = tests
+      .sort((x, y) => new Date(y.completedAt ?? 0).getTime() - new Date(x.completedAt ?? 0).getTime())
+      .find(t => /completed/i.test(t.status ?? '') && !t.reviewedAt);
+
+    if (!pending) {
+      this.messages.add({ severity: 'info', summary: 'Nothing to review' });
+      return;
+    }
+
     this.currentApp = a;
     this.reviewCtx = pending;
     this.reviewForm.reset({ decision: null, note: '' });
     this.showReviewDialog = true;
   }
+
 
   submitReview() {
     if (!this.currentApp || !this.reviewCtx || this.reviewForm.invalid) return;
@@ -434,9 +583,51 @@ export class ApplicationStatus implements OnInit {
         tests.some(t => t.status === 'Completed' && !t.reviewedAt);
     }
   }
-  
+
   // tiny helper used anywhere (TS-safe)
   hasPendingTestReview(a: Application) {
     return !!this.pendingReviewByAppId[a.id];
   }
+  resumeUrl(a: any): string | null {
+    return a?.resumeUrl || a?.candidate?.resumeUrl || null;
+  }
+
+  /** Open modal viewer */
+  viewResume(a: any) {
+    const url = this.resumeUrl(a);
+    if (!url) {
+      this.resumeSafeUrl = undefined;
+      this.resumeDialogOpen = true;
+      return;
+    }
+    // If your resumes are PDFs this will embed them; other formats will download/open in-browser as supported
+    this.resumeSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.resumeDialogOpen = true;
+  }
+  openRejectDialog(a: Application) { this.rejectDlg = { visible: true, app: a, reason: null, note: '' }; }
+  doReject() {
+    if (!this.rejectDlg.app || !this.rejectDlg.reason) return;
+    this.move(this.rejectDlg.app, 'REJECTED', {
+      rejectReason: this.rejectDlg.reason,
+
+    });
+    this.rejectDlg.visible = false;
+  }
+  shortlistDlg = { visible: false, app: null as Application | null, stage: '' };
+  openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '' }; }
+  doShortlist() {
+    if (!this.shortlistDlg.app || !this.shortlistDlg.stage) return;
+    this.move(this.shortlistDlg.app, 'SHORTLISTED', { currentStage: this.shortlistDlg.stage.trim() });
+    this.shortlistDlg.visible = false;
+  }
+  initials(label?: string | null): string {
+    if (!label) return '?';
+    const parts = label.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    const first = parts[0]?.[0] ?? '';
+    const second = (parts[1]?.[0] ?? '') || (parts[0]?.[1] ?? ''); // fallback to 2 letters of first word
+    const res = (first + second).toUpperCase();
+    return res || '?';
+  }
+  
 }

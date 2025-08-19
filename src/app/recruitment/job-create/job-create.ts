@@ -57,7 +57,7 @@ export class JobCreate {
       next: (job) => {
         this.created = job;
         alert('Job created!');
-        // this.router.navigate(['/recruiting']); // or to job list
+        this.router.navigate(['/recruitment/jobs']); // or to job list
       },
       error: (e) => (this.error = e?.error?.error || 'Failed to create'),
       complete: () => (this.saving = false),
