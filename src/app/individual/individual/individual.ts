@@ -28,7 +28,7 @@ type LeaveTypeCount = { label: string; count: number };
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule,CarouselModule],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule, FormsModule, CarouselModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -66,15 +66,6 @@ export class Individual {
 
   noHolidaysMessage: string = '';
 
-
-
-leaveByTypeToday: LeaveTypeCount[] = [
-  { label: 'Sick Leave',     count: 3 },
-  { label: 'Casual Leave',   count: 2 },
-  { label: 'Earned Leave',   count: 1 },
-  { label: 'Maternity',      count: 0 },
-  { label: 'Comp Off',       count: 1 },
-];
 
 
 
@@ -129,8 +120,8 @@ leaveByTypeToday: LeaveTypeCount[] = [
   ngOnInit() {
     this.generateWeekDays();
     this.fetchDetails();
-    this.setWeek(new Date());
 
+    this.setWeek(new Date());
     this.loadHolidays(this.year);
   }
 
@@ -160,41 +151,48 @@ leaveByTypeToday: LeaveTypeCount[] = [
           .sort((a, b) => a.time - b.time);
 
         if (futureHolidays.length) {
-          this.nearestHoliday = futureHolidays[0];
-          this.selectedMonth = new Date(this.nearestHoliday.date).getMonth();
-          this.updateMonthDisplay();
+          this.allHolidays = futureHolidays;
+          this.updateHolidayList(); // only our new method
         }
+
       });
   }
 
-  updateMonthDisplay() {
-    this.monthName = this.months[this.selectedMonth];
-
+  updateHolidayList() {
     const today = new Date();
 
-    this.holidayDates = Array.from(
-      new Set(
-        this.allHolidays
-          .filter(h => {
-            const holidayDate = new Date(h.date);
-            return (
-              holidayDate.getMonth() === this.selectedMonth &&
-              holidayDate.getTime() >= today.getTime()
-            );
-          })
-          .map(h => new Date(h.date).getDate().toString())
-      )
-    );
+    // Keep only upcoming holidays
+    this.holidayDates = this.allHolidays
+      .filter(h => new Date(h.date).getTime() >= today.getTime())
+      .map(h => ({
+        name: h.name,
+        date: new Date(h.date)
+      }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
 
     if (this.holidayDates.length === 0) {
-      this.noHolidaysMessage = "No upcoming holidays this month!";
+      this.noHolidaysMessage = "No upcoming holidays!";
+      this.currentIndex = 0;
     } else {
       this.noHolidaysMessage = "";
+      this.currentIndex = 0; // start from nearest
+      this.nearestHoliday = this.holidayDates[0];
     }
   }
-  onMonthChange() {
-    this.updateMonthDisplay();
+  nextHoliday() {
+    if (this.currentIndex < this.holidayDates.length - 1) {
+      this.currentIndex++;
+      this.nearestHoliday = this.holidayDates[this.currentIndex];
+    }
   }
+
+  prevHoliday() {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+      this.nearestHoliday = this.holidayDates[this.currentIndex];
+    }
+  }
+
 
 
 

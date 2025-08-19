@@ -48,6 +48,7 @@
 .box-4 {
   background: #ab3434;
 }
+
 .box {
   width: 350px;
   height: 155px;
@@ -110,12 +111,15 @@
 :host ::ng-deep .p-carousel .p-carousel-content .p-carousel-item {
   padding: 0 6px;
 }
+
 :host ::ng-deep .p-carousel .p-carousel-items-container {
   padding-top: 2px;
 }
 
 /* If this is in a component stylesheet, prefix with :host ::ng-deep */
-:host ::ng-deep .p-carousel .p-carousel-content { position: relative; }
+:host ::ng-deep .p-carousel .p-carousel-content {
+  position: relative;
+}
 
 /* Arrow buttons */
 ::ng-deep .p-carousel-prev,
@@ -123,24 +127,33 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 42px;               /* circle size */
+  width: 42px;
+  /* circle size */
   height: 42px;
   border-radius: 50%;
-  border: 2px solid #d22b46; /* red outline */
-  background: transparent;   /* no fill */
+  border: 2px solid #d22b46;
+  /* red outline */
+  background: transparent;
+  /* no fill */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #d22b46;            /* icon color */
+  color: #d22b46;
+  /* icon color */
   box-shadow: none;
 }
 
-:host ::ng-deep .p-carousel-prev { left: 14px; }
-:host ::ng-deep .p-carousel-next { right: 14px; }
+:host ::ng-deep .p-carousel-prev {
+  left: 14px;
+}
+
+:host ::ng-deep .p-carousel-next {
+  right: 14px;
+}
 
 :host ::ng-deep .p-carousel-prev:hover,
 :host ::ng-deep .p-carousel-next:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Icon size/color (PrimeIcons) */
@@ -148,7 +161,8 @@
 :host ::ng-deep .p-carousel-next .pi,
 :host ::ng-deep .p-carousel-prev-icon,
 :host ::ng-deep .p-carousel-next-icon {
-  font-size: 1.1rem;         /* make arrows a bit bigger */
+  font-size: 1.1rem;
+  /* make arrows a bit bigger */
   color: #d22b46;
 }
 
@@ -157,18 +171,23 @@
   gap: 8px;
   margin-top: 8px;
 }
+
 :host ::ng-deep .p-carousel-indicator button {
   width: 4px;
   height: 4px;
-  border-radius: 4px;        /* square-ish like your screenshot */
-  background: #e6eef7;       /* light */
+  border-radius: 4px;
+  /* square-ish like your screenshot */
+  background: #e6eef7;
+  /* light */
   border: none;
 }
+
 :host ::ng-deep .p-carousel-indicator.p-highlight button {
-  background: #1fb875;       /* green for active */
+  background: #1fb875;
+  /* green for active */
 }
 
-::ng-deep .p-button-text.p-button-secondary{
+::ng-deep .p-button-text.p-button-secondary {
   color: white;
   /* border: 2px solid white; */
   /* background-color: white; */
@@ -203,6 +222,7 @@
 
 
 .attendance-card {
+  background: #E8ECEF;
   background: #E8ECEF;
   border-radius: 12px;
   padding: 20px;
@@ -578,7 +598,7 @@
 }
 
 ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
-  background:#E8ECEF;
+  background: #E8ECEF;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
   color: #000;
@@ -593,6 +613,7 @@
   border: none;
   text-align: center;
   background: #E8ECEF;
+  background: #E8ECEF;
 }
 
 ::ng-deep .pi-chevron-down {
@@ -604,6 +625,8 @@
   border-right: 2px solid #adadad;
 }
 
+.leave-table,
+.permission-table {
 .leave-table,
 .permission-table {
   display: flex;
@@ -686,6 +709,7 @@
   padding: 4px;
 }
 
+
 .no-data-message {
   text-align: center;
   padding: 1rem;
@@ -695,6 +719,7 @@
 }
 
 
+/* Holiday  */
 .holiday-card {
   background: #3177a3;
   width: 350px;
@@ -727,23 +752,39 @@
   letter-spacing: 0.16px;
 }
 
-.date-strip {
+.holiday-display{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.holiday-date{
+  font-size:18px;
+
+}
+
+.next {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  align-items: center;
+  gap: 20px;
+  height: 50px;
 }
 
-.date-strip span {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: bold;
-}
+::ng-deep .pi-chevron-right,
+::ng-deep .pi-chevron-left {
+  color: #000000;
+  display: inline-flex;
+  padding: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 40px;
+  background: #FFFFFD;
+  box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
 
-.date-strip span.holiday {
-  background-color: #ff5f5f;
-  color: white;
 }
-
 
 
 

@@ -11,6 +11,7 @@
 .sheet {
   width: min(1200px, 96vw);
   background: #E8ECEF;
+  background: #E8ECEF;
   border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
   padding: 50px 50px;

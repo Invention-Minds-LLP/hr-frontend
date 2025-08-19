@@ -8,6 +8,7 @@
 
 .pi {
   font-family: "primeicons";
+  color: black;
 }
 
 ::ng-deep .pi-chevron-down,
@@ -192,7 +193,9 @@ a {
   color: #444;
   display: flex;
   gap: 10px;
+  font-size: 16px;
 }
+
 /* 
 
 .nav-item:hover {
@@ -300,10 +303,21 @@ a {
   align-items: center;
   z-index: 999;
 }
-.main-nav { display: flex; justify-content: space-between; gap: 12px; align-items: center; height: 80px;}
-.main-nav ul { list-style: none; padding: 0; margin: 0; display: flex; }
-.nav-item { margin: 4px 0; }
-.nav-item > a { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 6px; text-decoration: none; }
+
+.main-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 0;
+}
+
+/* .main-nav ul { list-style: none; padding: 0; margin: 0; display: flex;  } */
+.nav-item {
+  margin: 4px 0;
+  cursor: pointer;
+}
+
+/* .nav-item > a { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 6px; text-decoration: none; }
 .nav-item.active > a { background: #eef4ff; color: #0a58ca; }
 
 .group .group-toggle {
@@ -316,7 +330,48 @@ a {
 
 .sub { margin-left: 8px; padding-left: 10px; border-left: 1px dashed #e5e7eb; }
 .sub li a { padding: 6px 8px; display: flex; gap: 8px; align-items: center; border-radius: 4px; }
-.sub li.active > a { background: #eef4ff; color: #0a58ca; }
+.sub li.active > a { background: #eef4ff; color: #0a58ca; } */
+
+.main-headings {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.flex1 {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+}
+.nav-item .active {
+  display: inline-flex;
+  height: 40px;
+  padding: 10px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 30px;
+  background: #FFF;
+  box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
+
+}
+.sub-headings{
+  height:45px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.nav-link{
+  display: flex;
+  align-items: center;
+}
+
+
 
 @media (max-width:800px) {
   nav {

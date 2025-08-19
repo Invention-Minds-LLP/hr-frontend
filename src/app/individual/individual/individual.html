@@ -87,21 +87,31 @@
             </div>
         </div>
         <div class="part-2">
-            <div class="box-1 box">
-                <!-- <div class="holiday-card">
-                    <h2>Nearest Holiday</h2>
-                    <p>{{ monthName }} {{ year }}</p>
-
-                    <div class="date-strip">
-                        <span *ngFor="let day of holidayDates"
-                            [class.holiday]="day == (nearestHoliday?.date | date:'d')">
-                            {{ day }}
+            <div class="box-1 ">
+                <div class="holiday-card box" *ngIf="holidayDates.length > 0; else noHolidays">
+                    <div class="next">
+                        <!-- Prev (show only if not the first holiday) -->
+                        <span *ngIf="currentIndex > 0" class="arrow prev" (click)="prevHoliday()">
+                            <i class="pi pi-chevron-left"></i>
                         </span>
+                        <h2>Nearest Holiday</h2>
+
+                        <!-- Next (show only if not the last holiday) -->
+                        <span *ngIf="currentIndex < holidayDates.length - 1" class="arrow next" (click)="nextHoliday()">
+                            <i class="pi pi-chevron-right"></i>
+                        </span>
+
                     </div>
-                    <div *ngIf="holidayDates.length === 0">
-                        {{ noHolidaysMessage }}
+
+                    <div class="holiday-display">
+                        <div class="holiday-date">{{ nearestHoliday?.date | date:'dd MMM yyyy' }}</div>
+                        <div class="holiday-name">{{ nearestHoliday?.name }}</div>
                     </div>
-                </div> -->
+                </div>
+
+                <ng-template #noHolidays>
+                    <p>{{ noHolidaysMessage }}</p>
+                </ng-template>
 
             </div>
             <!-- Today Birthday -->
@@ -121,7 +131,7 @@
 
                 <!-- > 3: carousel -->
                 <p-carousel *ngIf="birthday.length > 1" [value]="birthday" [numVisible]="1" [numScroll]="1"
-                    [circular]="true" [showIndicators]="true" >
+                    [circular]="true" [showIndicators]="true">
                     <ng-template pTemplate="item" let-item>
                         <div class="person-chip">
                             <div class="name">{{ item.employeeName }}</div>
@@ -147,11 +157,12 @@
                             <span *ngIf="a.years !== undefined"> · {{ a.years }} yr{{ a.years > 1 ? 's' : '' }}</span>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- > 3 -->
                 <p-carousel *ngIf="anniversary.length > 1" [value]="anniversary" [numVisible]="1" [numScroll]="1"
-                    [circular]="true" [showIndicators]="true" >
+                    [circular]="true" [showIndicators]="true">
                     <ng-template pTemplate="item" let-item>
                         <div class="person-chip">
                             <div class="name">{{ item.employeeName }}</div>
