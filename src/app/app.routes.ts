@@ -21,6 +21,7 @@ import { SettingsOverview } from './settings/settings-overview/settings-overview
 import { Individual } from './individual/individual/individual';
 import { PopUp } from './pop-up/pop-up';
 import { ResignOverview } from './resignation/resign-overview/resign-overview';
+import { EmployeeDetails } from './leaves/employee-details/employee-details';
 
 import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';

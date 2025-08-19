@@ -30,24 +30,24 @@ export class Navbar {
 
   isRestricted = false;
   username = '';
-  
+
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
-    this.role=rawRole;
+    this.role = rawRole;
     const norm = this.normalizeRole(rawRole);
-  
+
     const deptRaw =
       localStorage.getItem('departmentId') ||
       (JSON.parse(localStorage.getItem('user') || '{}')?.departmentId ?? '');
     const deptId = Number(deptRaw) || 0;
-  
+
     // Restrict only Executives not in dept 1
     this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
-  
+
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
   }
-  
+
   private normalizeRole(raw: any): string {
     const s = (raw || '').toString().trim().toLowerCase()
       .replace(/[_-]+/g, ' ')
@@ -63,7 +63,7 @@ export class Navbar {
     };
     return map[s] ?? s.toUpperCase().replace(/ /g, '_');
   }
-  
+
   @HostListener('document:click')
   closeDropdown() {
     this.isOpen = false;
@@ -90,16 +90,27 @@ export class Navbar {
     this.showLogoutPopup = false;
   }
 
+  activeMenu: string | null = null;
 
-  toggle(which: 'admin' | 'recruit') {
-    if (which === 'admin') {
-      this.adminOpen = !this.adminOpen;
-      // Optional: navigate to default when opening
-      // if (this.adminOpen) this.router.navigateByUrl('/admin');
-    } else {
-      this.recruitOpen = !this.recruitOpen;
-      // if (this.recruitOpen) this.router.navigateByUrl('/recruitment');
-    }
+  toggle(menu: 'admin' | 'recruit') {
+    this.activeMenu = this.activeMenu === menu ? null : menu;
+  }
+
+  // Close when clicking outside
+  // @HostListener('document:click', ['$event'])
+  // onClickOutside(event: MouseEvent) {
+  //   const target = event.target as HTMLElement;
+  //   if (!target.closest('.main-nav')) {
+  //     this.activeMenu = null;
+  //   }
+  // }
+
+  // Close when clicking any other main heading
+  closeMenus() {
+    this.activeMenu = null;
   }
 
 }
+
+
+
