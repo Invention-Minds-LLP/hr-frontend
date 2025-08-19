@@ -53,18 +53,21 @@ export class Individual {
   wfhViewMode = false;
 
   // Holidays
-  nearestHoliday: { name: string; date: string } | null = null;
-  holidayDates: string[] = [];
-  monthName = ''; // Leave empty for auto mode
-  year = new Date().getFullYear();
-  selectedMonth = new Date().getMonth();
-  allHolidays: { name: string; date: string }[] = [];
+  nearestHoliday: { name: string; date: Date } | null = null;
+  holidayDates: { name: string; date: Date }[] = [];
+  allHolidays: { name: string; date: string }[] = []; // raw API (string dates)
 
-  months = Array.from({ length: 12 }, (_, i) =>
-    new Date(0, i).toLocaleString('default', { month: 'long' })
-  );
-
+  currentIndex = 0;
   noHolidaysMessage: string = '';
+  year = new Date().getFullYear();
+
+  leaveByTypeToday: LeaveTypeCount[] = [
+    { label: 'Sick Leave', count: 3 },
+    { label: 'Casual Leave', count: 2 },
+    { label: 'Earned Leave', count: 1 },
+    { label: 'Maternity', count: 0 },
+    { label: 'Comp Off', count: 1 },
+  ];
 
 
 
