@@ -125,19 +125,21 @@
     margin-bottom: 10px;
   }
   .calendar-header button {
-    background: #ff6b6b;
-    border: none;
+    background:transparent;
+    border: 1px solid #e0e0e0;
     padding: 4px 10px;
     font-size: 18px;
     border-radius: 6px;
     cursor: pointer;
-    color: white;
+    color:black ;
     margin: 6px;
     transition: background 0.2s;
   }
   
   .calendar-header button:hover {
-    background: #e0e0e0;
+    /* background: #e0e0e0; */
+    background: #3465b0;
+    color: white;
   }
   
   .calendar-grid {
@@ -161,7 +163,7 @@
     cursor: pointer;
   }
   .calendar-grid div.selected {
-    background: #ff6b6b;
+    background: #3465b0;
     color: white;
   }
   .calendar-grid div.empty {
@@ -177,7 +179,7 @@
   }
   button.apply {
     border-radius: 8px;
-    background: #65e972;
+    background: #3465b0;
     color: #fff;
     font-family: "Sofia Sans";
     font-size: 14px;

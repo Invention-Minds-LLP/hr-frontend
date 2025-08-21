@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Entitles } from '../../services/entitles/entitles';
 import { TableModule } from 'primeng/table';
 import { DatePipe } from '@angular/common';
@@ -38,6 +38,12 @@ export class EmployeeDetails {
   selectedDates: Date[] = [];
   filtered = { leave: [] as any[], permission: [] as any[], wfh: [] as any[] };
 
+  @Input() EmployeeDetails: any;
+  @Output() close = new EventEmitter<void>();
+
+   onCancel() {
+    this.close.emit();  
+  }
 
   // Helpers to normalize and test dates
   private toKey(d: Date | string): string {

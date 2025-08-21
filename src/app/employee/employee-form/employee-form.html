@@ -250,7 +250,7 @@
                                 </div>
 
                                 <div class="col-12 mt-2">
-                                    <button pButton variant="outlined" severity="danger" type="button" label="Remove"
+                                    <button pButton variant="outlined"  type="button" label="Remove"
                                         (click)="removeEmergencyContact(i)" class="p-button-danger"></button>
                                 </div>
                             </div>
@@ -492,7 +492,7 @@
                             </div>
                         </div>
 
-                        <div class="field col-5">
+                        <div class="field col-5 trash-btn">
                             <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
                                 (click)="removeQualification(i)" class="p-button-danger p-button-rounded p-button-text">
                             </button>
@@ -580,7 +580,7 @@
 
 
                         <!-- Remove -->
-                        <div class="field col-1 flex align-items-center">
+                        <div class="field col-1 flex align-items-center trash-btn">
                             <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
                                 class="p-button-danger p-button-rounded p-button-text" (click)="removeDocument(i)">
                             </button>

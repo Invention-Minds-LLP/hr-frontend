@@ -8,19 +8,26 @@
         </div>
     </div>
     <div class="right-side">
-        <img class="logo" src="/logo.png" alt="">
-        <div class="right-side-heading">Log <span>in</span></div>
-        <form #loginForm="ngForm"  class="form" (ngSubmit)="onSubmit(loginForm)">
-            <p-floatlabel variant="on">
-                <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId" required #empIdCtrl="ngModel" />
-                <label for="EMP ID">EMP ID</label>
-                <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
-            </p-floatlabel>
-            <p-floatlabel variant="on">
-                <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password" [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
-                <label for="password">Password</label>
-                <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
-            </p-floatlabel>
+        <img class="logo" src="/logo1.png" alt="">
+        <img class="logo-resp" src="/logo.png" alt="">
+        <div class="right-side-heading">Sign <span>in</span></div>
+        <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)">
+            <div class="input">
+                <p-floatlabel variant="on">
+                    <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId" required
+                        #empIdCtrl="ngModel" />
+                    <label for="EMP ID">EMP ID</label>
+                    <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
+                </p-floatlabel>
+            </div>
+            <div class="input">
+                <p-floatlabel variant="on">
+                    <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password"
+                        [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
+                    <label for="password">Password</label>
+                    <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
+                </p-floatlabel>
+            </div>
             <p-button label="LOG IN" type="Submit" class="btn" />
         </form>
 

@@ -48,6 +48,7 @@ export const routes: Routes = [
       { path: 'resignation', component: ResignOverview },
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
     ],
+
   },
 
   // --- Recruitment group ---

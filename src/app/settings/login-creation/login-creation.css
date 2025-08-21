@@ -53,3 +53,14 @@
 ::ng-deep .btns .p-button{
     padding: 10px 40px;
 }
+
+.save-btn {
+    background-color: #3465b0;
+    color: white;
+    border: none;
+}
+
+.save-btn:hover {
+    background-color: #3465b0;
+    border: none;
+}

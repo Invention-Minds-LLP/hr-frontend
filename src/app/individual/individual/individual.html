@@ -90,14 +90,16 @@
             <div class="box-1 ">
                 <div class="holiday-card box" *ngIf="holidayDates.length > 0; else noHolidays">
                     <div class="next">
-                        <!-- Prev (show only if not the first holiday) -->
-                        <span *ngIf="currentIndex > 0" class="arrow prev" (click)="prevHoliday()">
+                        <!-- Prev (always show, disabled if currentIndex == 0) -->
+                        <span class="arrow prev" [class.disabled]="currentIndex === 0" (click)="prevHoliday()">
                             <i class="pi pi-chevron-left"></i>
                         </span>
+
                         <h2>Nearest Holiday</h2>
 
-                        <!-- Next (show only if not the last holiday) -->
-                        <span *ngIf="currentIndex < holidayDates.length - 1" class="arrow next" (click)="nextHoliday()">
+                        <!-- Next (always show, disabled if currentIndex is last) -->
+                        <span class="arrow next" [class.disabled]="currentIndex === holidayDates.length - 1"
+                            (click)="nextHoliday()">
                             <i class="pi pi-chevron-right"></i>
                         </span>
 
@@ -180,14 +182,14 @@
                 <div class="box-title">Pending Leaves</div>
               
                 <ul class="lb-list">
-                  <li class="lb-item" *ngFor="let it of leaveByTypeToday">
-                    <span class="lb-name">{{ it.label }}</span>
-                    <span class="lb-badge">{{ it.count }}</span>
-                  </li>
+                    <li class="lb-item" *ngFor="let it of leaveByTypeToday">
+                        <span class="lb-name">{{ it.label }}</span>
+                        <span class="lb-badge">{{ it.count }}</span>
+                    </li>
                 </ul>
-              </div>
-              
-              
+            </div>
+
+
 
         </div>
     </div>
@@ -207,7 +209,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
+                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -267,7 +269,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
+                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>
@@ -315,7 +317,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="wfh" [scrollable]="true" scrollHeight="300px"  scrollDirection="vertical" >
+                    <p-table [value]="wfh" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
                         <ng-template #header>
                             <tr>
                                 <th>Date</th>

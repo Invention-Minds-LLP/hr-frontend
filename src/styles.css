@@ -25,7 +25,7 @@ body {
 }
 
 :root {
-  --primary-color: #e9144a;
+  --primary-color: #3465b0;
   --p-steps-item-number-active-background: var(--primary-color) !important;
   --p-steps-item-number-active-border-color: var(--primary-color) !important;
   --p-steps-item-label-active-color: var(--primary-color) !important;

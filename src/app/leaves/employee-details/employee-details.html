@@ -44,17 +44,20 @@
                     </div>
                 </div>
             </div>
+            <i class="pi pi-times cancel-icon" (click)="onCancel()"></i>
         </div>
 
         <!-- Stats -->
         <div class="stats-container">
             <div class="stats">
                 <div class="stat stat--red">
-                    <div class="big"><span class="num">{{ totalLeave | number:'2.0'}}</span><span class="denom">/{{ entitlements?.leaveEntitlement || 0 }}</span></div>
+                    <div class="big"><span class="num">{{ totalLeave | number:'2.0'}}</span><span class="denom">/{{
+                            entitlements?.leaveEntitlement || 0 }}</span></div>
                     <div class="caption">Leaves Taken</div>
                 </div>
                 <div class="stat stat--purple">
-                    <div class="big"><span class="num">{{ totalWFH | number:'2.0' }}</span><span class="denom">/{{ entitlements?.wfhEntitlement || 0 }}</span></div>
+                    <div class="big"><span class="num">{{ totalWFH | number:'2.0' }}</span><span class="denom">/{{
+                            entitlements?.wfhEntitlement || 0 }}</span></div>
                     <div class="caption">Work From Home</div>
                 </div>
                 <div class="stat stat--gray">
