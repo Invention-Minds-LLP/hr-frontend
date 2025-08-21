@@ -56,7 +56,7 @@ export class Individual {
   // Holidays
   nearestHoliday: { name: string; date: Date } | null = null;
   holidayDates: { name: string; date: Date }[] = [];
-  allHolidays: { name: string; date: string }[] = []; // raw API (string dates)
+  allHolidays: { name: string; date: string }[] = [];
 
   currentIndex = 0;
   noHolidaysMessage: string = '';
@@ -220,6 +220,7 @@ export class Individual {
       this.nearestHoliday = this.holidayDates[this.currentIndex];
     }
   }
+
 
 
 

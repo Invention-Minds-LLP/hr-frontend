@@ -50,6 +50,8 @@ export class BalancesAccruals {
 
   balancesData: any[] = [];
 
+  
+
 
   ngOnInit() {
     this.entitleService.getEmployeeUsageSummary().subscribe((data) => {
@@ -109,6 +111,10 @@ export class BalancesAccruals {
   }
   showEmployeeDetails(employee: any) {
     this.selectedEmployee = employee;
+  }
+
+  handleClose() {
+    this.selectedEmployee = null;   // hide child
   }
   
 

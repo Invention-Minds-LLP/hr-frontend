@@ -157,7 +157,7 @@ div[hidden] {
   position: absolute;
   bottom: 5px;
   right: 5px;
-  background: #e9144a;
+  background: #3465b0;
   color: white;
   border-radius: 50%;
   padding: 6px;
@@ -248,3 +248,26 @@ div[hidden] {
   background: #eef2f7;
   color: #475569;
 }
+
+.p-button-danger{
+  background-color: #3465b0;
+  border-color: #3465b0;
+}
+.p-button-danger:hover{
+   background-color: #3465b0;
+  border-color: #3465b0;
+}
+
+::ng-deep .trash-btn .p-button{
+  background-color: transparent;
+  border: 1px solid #e9144a;
+  color: #e9144a;
+  font-size: 1.2rem;
+}
+::ng-deep .trash-btn .p-button:hover{
+  background-color: transparent;
+  border: 1px solid #e9144a;
+  color: #e9144a;
+  font-size: 1.2rem;
+}
+

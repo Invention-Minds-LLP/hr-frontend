@@ -64,15 +64,21 @@ export class Navbar {
     return map[s] ?? s.toUpperCase().replace(/ /g, '_');
   }
 
-  @HostListener('document:click')
-  closeDropdown() {
-    this.isOpen = false;
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.dropdown');
+
+    
+    if (dropdown && !dropdown.contains(target)) {
+      this.isOpen = false;
+    }
   }
 
 
   goToProfile() {
     this.isOpen = false;
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/settings']);
   }
 
   openLogoutPopup() {

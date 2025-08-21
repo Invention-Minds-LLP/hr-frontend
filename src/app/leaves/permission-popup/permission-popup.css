@@ -123,21 +123,21 @@
   }
   
   .btn-green {
-    background-color: #17B226;
+    background-color: #3465b0;
     color: white;
   }
   
   .btn-red {
-    background-color: #FF5151;
+    background-color: #E9144A;
     color: white;
   }
   
   .btn-green:hover {
-    background-color: #00b44b;
+    background-color: #3465b0;
   }
   
   .btn-red:hover {
-    background-color: #FF5151;
+    background-color: #E9144A;
   }
   .form-group select,
 .form-group input[type="date"],

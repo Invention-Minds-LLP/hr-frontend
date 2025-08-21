@@ -72,5 +72,5 @@
 </div>
 
 <div *ngIf="selectedEmployee" class="modal-overlay">
-    <app-employee-details [employee]="selectedEmployee"></app-employee-details>
+    <app-employee-details [employee]="selectedEmployee" (close)="handleClose()"></app-employee-details>
   </div>

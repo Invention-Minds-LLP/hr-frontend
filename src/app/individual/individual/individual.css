@@ -193,6 +193,7 @@
   /* border: 2px solid white; */
   /* background-color: white; */
 }
+
 /* only vertical scroll for these tables */
 :host ::ng-deep .vscroll .p-datatable-wrapper,
 :host ::ng-deep .vscroll .p-datatable-scrollable-body {
@@ -203,14 +204,17 @@
 /* keep table from exceeding container width */
 :host ::ng-deep .vscroll .p-datatable-table {
   width: 100% !important;
-  table-layout: auto; /* allow natural wrapping */
+  table-layout: auto;
+  /* allow natural wrapping */
 }
 
 /* wrap long text so it doesn't create horizontal scroll */
-:host ::ng-deep .vscroll .p-datatable-thead > tr > th,
-:host ::ng-deep .vscroll .p-datatable-tbody > tr > td {
-  white-space: normal;        /* allow wrapping */
-  word-break: break-word;     /* break long tokens */
+:host ::ng-deep .vscroll .p-datatable-thead>tr>th,
+:host ::ng-deep .vscroll .p-datatable-tbody>tr>td {
+  white-space: normal;
+  /* allow wrapping */
+  word-break: break-word;
+  /* break long tokens */
 }
 
 /* make the selects fit the cell so they don't overflow */
@@ -224,9 +228,8 @@
 
 .attendance-card {
   background: #E8ECEF;
-  background: #E8ECEF;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 10px 0;
   width: 340px;
   height: 380px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -240,13 +243,19 @@
 }
 
 .arrow-btn {
-  background: #f5f5f5;
+  background: white;
   border-radius: 50%;
   width: 39px;
   height: 39px;
   color: #000;
   border: none;
-  font-size: 20px;
+  font-size: 12px;
+}
+
+.arrow-btn:hover {
+  background: #3465b0;
+  border: none;
+  color: white;
 }
 
 .date-info {
@@ -494,30 +503,54 @@
   justify-content: flex-start;
   align-items: flex-start;
 }
+
 /* title */
-.box-4 .box-title{
-  color:#fff; font-weight:800; font-size:18px;
-  text-align:center; margin-bottom:8px;
+.box-4 .box-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 /* list layout */
-.lb-list{
-  list-style:none; margin:0; padding:0;
-  display:grid; gap:8px;
+.lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
 }
-.lb-item{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px; min-height:28px;
+
+.lb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
 }
-.lb-name{
-  color:#fff; font-weight:600; line-height:1.2;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+
+.lb-name {
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.lb-badge{
-  min-width:26px; height:22px; padding:0 8px;
-  display:inline-flex; align-items:center; justify-content:center;
-  border-radius:999px; line-height:1;
-  background:rgba(255,255,255,.22); color:#fff; font-weight:800;
+
+.lb-badge {
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  line-height: 1;
+  background: rgba(255, 255, 255, .22);
+  color: #fff;
+  font-weight: 800;
 }
 
 
@@ -543,6 +576,7 @@
   border-radius: 8px;
   background: #3177a3;
   padding: 10px 16px;
+  cursor: pointer;
 }
 
 .text {
@@ -579,6 +613,7 @@
   gap: 10px;
   width: 100px;
   padding: 10px 20px;
+  cursor: pointer;
 }
 
 .date-btn {
@@ -754,15 +789,16 @@
   letter-spacing: 0.16px;
 }
 
-.holiday-display{
+.holiday-display {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 20px;
 }
-.holiday-date{
-  font-size:18px;
+
+.holiday-date {
+  font-size: 18px;
 
 }
 
@@ -774,19 +810,44 @@
   height: 50px;
 }
 
-::ng-deep .pi-chevron-right,
-::ng-deep .pi-chevron-left {
-  color: #000000;
+::ng-deep .arrow .pi-chevron-right,
+::ng-deep .arrow  .pi-chevron-left {
+  color: #000;
   display: inline-flex;
   padding: 10px;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
+  font-size: 12px;
   border-radius: 40px;
   background: #FFFFFD;
   box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
-
+  border: none;
+  cursor: pointer;
 }
+
+.arrow.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
+.flex .p-button-text{
+  background: white;
+  color: black;
+}
+
+::ng-deep .flex .pi-chevron-left,
+::ng-deep .flex .pi-chevron-right {
+  font-size: 12px;
+}
+
+.flex .p-button-text:hover{
+  background-color: #3465b0;
+  color: #FFF;
+  border: none;
+}
+
 
 
 

@@ -274,7 +274,7 @@ input {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #e9144a !important;
+  background: #3465b0 !important;
   color: #fff !important;
   border: none;
 }
