@@ -202,7 +202,7 @@ select:focus {
 }
 /* add 'background' to your transition for a smooth fade */
 .tile{
-  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease, background .25s ease;
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease, background 4s ease;
 }
 
 /* full tile becomes the solid gradient on hover */

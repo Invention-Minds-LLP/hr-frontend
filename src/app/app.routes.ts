@@ -46,6 +46,7 @@ export const routes: Routes = [
       { path: 'appraisal', component: AppraisalOverview },
       { path: 'attendance', component: ManageAttendance },
       { path: 'resignation', component: ResignOverview },
+      { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
     ],
   },
 
@@ -57,7 +58,6 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'jobs' },
       { path: 'jobs', component: RecruitmentDashboard },     // main recruitment board
       { path: 'internships', component: Internship },        // internship module
-      { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
       { path: 'my-tests', component: MyTests },              // keep tests under recruitment
       { path: 'take-test/:id', component: TestPlatform },
     ],

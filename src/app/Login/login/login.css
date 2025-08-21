@@ -34,15 +34,15 @@
 .heading {
     color: #FFF;
     font-family: "Sofia Sans";
-    font-size: 80px;
+    font-size: 60px;
     font-style: normal;
     font-weight: 300;
     line-height: 90px;
     /* 112.5% */
 }
 
-.logo-img {
-    width: 80px;
+.logo {
+    width: 250px;
     height: auto;
     flex-shrink: 0;
 }
@@ -274,12 +274,12 @@ input.ng-invalid.ng-touched {
         display: none;
     }
 
-    .logo {
+    /* .logo {
         width: 200px;
         height: auto;
         flex-shrink: 0;
         background: transparent;
-    }
+    } */
 
     .form {
         margin-top: 10px;

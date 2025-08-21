@@ -122,8 +122,8 @@
                 <div class="empty" *ngIf="birthday.length === 0">No birthdays today</div>
 
                 <!-- <= 3: simple list -->
-                <div class="list-3" *ngIf="birthday.length > 0 && birthday.length < 1">
-                    <div class="person-chip" *ngFor="let b of birthday">
+                <div class="list-3" *ngIf="birthday.length > 0 && birthday.length <= 1">
+                    <div class="person-chip" *ngFor="let b of birthday; trackBy: trackById">
                         <div class="name">{{ b.employeeName }}</div>
                         <div class="dept">{{ b.departmentName || '-' }}</div>
                     </div>
@@ -149,12 +149,12 @@
                 <div class="empty" *ngIf="anniversary.length === 0">No work anniversaries today</div>
 
                 <!-- <= 3 -->
-                <div class="list-3" *ngIf="anniversary.length > 0 && anniversary.length < 1">
+                <div class="list-3" *ngIf="anniversary.length > 0 && anniversary.length <= 1">
                     <div class="person-chip" *ngFor="let a of anniversary">
                         <div class="name">{{ a.employeeName }}</div>
                         <div class="dept">
                             {{ a.departmentName || '-' }}
-                            <span *ngIf="a.years !== undefined"> · {{ a.years }} yr{{ a.years > 1 ? 's' : '' }}</span>
+                            <!-- <span *ngIf="a.years !== undefined"> · {{ a.years }} yr{{ a.years > 1 ? 's' : '' }}</span> -->
                         </div>
                     </div>
 
@@ -177,7 +177,7 @@
             </div>
 
             <div class="box box-4">
-                <div class="box-title">Leaves by Type (Today)</div>
+                <div class="box-title">Pending Leaves</div>
               
                 <ul class="lb-list">
                   <li class="lb-item" *ngFor="let it of leaveByTypeToday">

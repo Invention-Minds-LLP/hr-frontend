@@ -1,0 +1,38 @@
+<p-card class="card">
+    <div class="header">
+      <h2>Interviews Scheduled</h2>
+      <!-- <button pButton label="Refresh" (click)="load()"></button> -->
+    </div>
+
+    <p-table [value]="rows()" *ngIf="rows().length; else empty" [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
+    [tableStyle]="{ 'min-width': '1200px' }" styleClass="p-datatable-gridlines p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Candidate</th>
+          <th>Job</th>
+          <th>Stage</th>
+          <th>Start</th>
+          <th>Action</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-r let-i ="rowIndex">
+        <tr>
+          <td>{{ i + 1}}</td>
+          <td>{{ r.application?.candidate?.name || '—' }}</td>
+          <td>{{ r.application?.job?.title || '—' }}</td>
+          <td>{{ r.stage }}</td>
+          <td>{{ r.startTime | date:'medium' }}</td>
+          <td>
+            <button pButton label="Evaluate"
+              (click)="onEvaluate(r)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <ng-template #empty>
+      <p>No interviews found.</p>
+    </ng-template>
+  </p-card>
+  

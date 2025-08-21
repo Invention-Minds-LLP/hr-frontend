@@ -44,15 +44,20 @@
               </ng-container>
             </td>
             <td>
-                <button *ngIf="isHR && r?.managerDecision === 'APPROVED';else dash" class="btn-edit" (click)="showPostHr = true">
+                <button *ngIf="isHR && r?.managerDecision === 'APPROVED';else dash" class="btn-edit" (click)="openDialog(r.id)">
                     Proceed to off-boarding
                   </button>
-                  <p-dialog [(visible)]="showPostHr" [modal]="true" header="Off-boarding" [style]="{width:'80vw'}">
-                    <app-resign-post
-                      [resignationId]="r?.id"
-                      [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
-                    </app-resign-post>
-                  </p-dialog>
+                  <p-dialog
+                  [visible]="isOpen(r.id)"
+                  (visibleChange)="dialogOpen[r.id] = $event"
+                  [modal]="true"
+                  header="Off-boarding"
+                  [style]="{ width: '80vw' }">
+                  <app-resign-post
+                    [resignationId]="r?.id"
+                    [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
+                  </app-resign-post>
+                </p-dialog>
             </td>
           </tr>
         </ng-template>

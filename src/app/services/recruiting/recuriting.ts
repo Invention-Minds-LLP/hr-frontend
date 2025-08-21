@@ -237,5 +237,21 @@ export class Recuriting {
     if (params?.jobId) p = p.set('jobId', String(params.jobId));
     return this.http.get<CandidateAssignedTest[]>(`${baseUrl}/tests/review-queue`, { params: p });
   }
+  upsertFeedback(interviewId: number, dto: any): Observable<any> {
+    return this.http.post(`${baseUrl}/interview/${interviewId}/feedback`, dto);
+  }
 
+  /** POST /api/interviews/:id/hr-review */
+  saveHrReview(interviewId: number, dto: any): Observable<any> {
+    return this.http.post(`${baseUrl}/interview/${interviewId}/hr-review`, dto);
+  }
+
+  /** GET /api/interviews/:id/summary */
+  getSummary(interviewId: number): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/interview/${interviewId}/summary`);
+  }
+
+  getAllInterview(): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/interview`);
+  }
 }

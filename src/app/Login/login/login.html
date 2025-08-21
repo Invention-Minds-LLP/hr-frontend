@@ -2,14 +2,14 @@
     <div class="left-side">
         <img src="/bg-left.png" alt="" class="bg-img">
         <div class="left-side-content">
-           <div class="heading">Hello,<div class="sub-heading">Welcome</div></div>
-            <div class="para">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.
+           <div class="heading">Welcome to <div class="sub-heading">HR Minds</div></div>
+            <div class="para">Plan your time, build new skills, share feedback, and stay connected to what matters.
             </div>
         </div>
     </div>
     <div class="right-side">
         <img class="logo" src="/logo.png" alt="">
-        <div class="right-side-heading">Sign <span>in</span></div>
+        <div class="right-side-heading">Log <span>in</span></div>
         <form #loginForm="ngForm"  class="form" (ngSubmit)="onSubmit(loginForm)">
             <p-floatlabel variant="on">
                 <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId" required #empIdCtrl="ngModel" />

@@ -74,5 +74,10 @@ export class ResignationList {
     const note = prompt('Reason for putting on hold?') || '';
     this.api.hrHold(r.id, { note }).subscribe(upd => this.replace(upd));
   }
+  dialogOpen: Record<number, boolean> = {};
+
+openDialog(id: number)  { this.dialogOpen[id] = true; }
+closeDialog(id: number) { this.dialogOpen[id] = false; }
+isOpen(id: number)      { return !!this.dialogOpen[id]; }
   
 }

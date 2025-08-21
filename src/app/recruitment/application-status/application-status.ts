@@ -88,12 +88,36 @@ export class ApplicationStatus implements OnInit {
   reasonDialogLabel = 'Reason (optional)';
 
   /** Forms */
-  interviewForm = this.fb.group({
-    stage: ['Tech1', Validators.required],
-    startTime: [null as Date | null, Validators.required],
-    endTime: [null as Date | null, Validators.required],
-    panelUserIds: [''],
-  });
+  // interviewForm = this.fb.group({
+  //   stage: ['Tech1', Validators.required],
+  //   startTime: [null as Date | null, Validators.required],
+  //   endTime: [null as Date | null, Validators.required],
+  //   panelUserIds: [''],
+  // });
+  interviewForm = this.fb.group(
+    {
+      stage: ['Tech1', Validators.required],
+
+      // date-only + time-only
+      startDate: [null as Date | null, Validators.required],
+      startTime: [null as Date | null, Validators.required],
+      endDate: [null as Date | null, Validators.required],
+      endTime: [null as Date | null, Validators.required],
+
+      panelIds: [[] as (number | string)[]],
+    },
+    { validators: [this.endAfterStartValidator()] }
+  );
+
+  endAfterStartValidator() {
+    return (fg: import('@angular/forms').AbstractControl) => {
+      const v: any = fg.value || {};
+      if (!v.startDate || !v.startTime || !v.endDate || !v.endTime) return null;
+      const s = new Date(v.startDate); s.setHours(v.startTime.getHours(), v.startTime.getMinutes(), 0, 0);
+      const e = new Date(v.endDate); e.setHours(v.endTime.getHours(), v.endTime.getMinutes(), 0, 0);
+      return e > s ? null : { endBeforeStart: true };
+    };
+  }
 
   offerForm = this.fb.group({
     proposedJoinAt: [null as Date | null],
@@ -127,75 +151,78 @@ export class ApplicationStatus implements OnInit {
   //   this.showInterviewDialog = true;
   // }
 
-// ---- fields ----
-panelOptions: Array<{ label: string; value: number; meta?: { code: string } }> = [];
-selectedPanelIds: number[] = []; // bound to p-multiSelect
+  // ---- fields ----
+  panelOptions: Array<{ label: string; value: number; meta?: { code: string } }> = [];
+  selectedPanelIds: number[] = []; // bound to p-multiSelect
 
-// helper to render selected chips
-panelLabelById = (id: number) =>
-  this.panelOptions.find(o => o.value === id)?.label ?? String(id);
+  // helper to render selected chips
+  panelLabelById = (id: number) =>
+    this.panelOptions.find(o => o.value === id)?.label ?? String(id);
 
-// call this when opening the dialog for an app
-scheduleInterview(a: Application) {
-  this.currentApp = a;
-  this.showInterviewDialog = true;
+  // call this when opening the dialog for an app
+  scheduleInterview(a: Application) {
+    this.currentApp = a;
+    this.showInterviewDialog = true;
 
-  // reset form (keep your existing defaults if any)
-  this.interviewForm.reset({ stage: '', startTime: null, endTime: null, panelUserIds: '' });
-  this.selectedPanelIds = [];
+    // reset form (keep your existing defaults if any)
+    this.interviewForm.reset({ stage: '', startTime: null, endTime: null, panelIds: [] });
+    this.selectedPanelIds = [];
 
-  // load employees from job's department (ACTIVE only)
-  const depId = a?.job?.departmentId;
-  if (depId) {
-    this.employeeService.list({ departmentId: depId, status: 'ACTIVE' })
-      .subscribe(rows => {
-        this.panelOptions = rows.map(e => {
-          const code = e.employeeCode ?? undefined; // code?: string
-          const opt: { label: string; value: number; meta?: { code: string } } = {
-            label: `${e.firstName} ${e.lastName}${code ? ` (${code})` : ''}`,
-            value: e.id
-          };
-          if (code) opt.meta = { code }; // only add when it's a string
-          return opt;
+    // load employees from job's department (ACTIVE only)
+    const depId = a?.job?.departmentId;
+    if (depId) {
+      this.employeeService.list({ departmentId: depId, status: 'ACTIVE' })
+        .subscribe(rows => {
+          this.panelOptions = rows.map(e => {
+            const code = e.employeeCode ?? undefined; // code?: string
+            const opt: { label: string; value: number; meta?: { code: string } } = {
+              label: `${e.firstName} ${e.lastName}${code ? ` (${code})` : ''}`,
+              value: e.id
+            };
+            if (code) opt.meta = { code }; // only add when it's a string
+            return opt;
+          });
         });
-      });
-  } else {
-    // fallback: load none or all; choose your preference
-    this.panelOptions = [];
+    } else {
+      // fallback: load none or all; choose your preference
+      this.panelOptions = [];
+    }
   }
-}
 
-// keep the CSV in your form control so submit logic stays simple
-syncPanelCsv() {
-  const csv = (this.selectedPanelIds ?? []).join(',');
-  this.interviewForm.patchValue({ panelUserIds: csv }, { emitEvent: false });
-}
-private toIso(d: Date | string): string {
-  return d instanceof Date ? d.toISOString() : new Date(d).toISOString();
-}
+  // keep the CSV in your form control so submit logic stays simple
+  // syncPanelCsv() {
+  //   const csv = (this.selectedPanelIds ?? []).join(',');
+  //   this.interviewForm.patchValue({ panelUserIds: csv }, { emitEvent: false });
+  // }
+  private toIso(d: Date | string): string {
+    return d instanceof Date ? d.toISOString() : new Date(d).toISOString();
+  }
 
-submitInterview() {
-  if (!this.currentApp) return;
-
-  // ensure panel CSV is up to date (in case user didn't change after open)
-  this.syncPanelCsv();
-
-  const v = this.interviewForm.value;
-  console.log('submitInterview', v);
-  const payload = {
-    stage: (v.stage ?? '').toString().trim(),          // ← ensure string
-    startTime: this.toIso(v.startTime as Date),        // ← Date -> ISO string
-    endTime:   this.toIso(v.endTime as Date),          // ← Date -> ISO string
-    panelUserIds: v.panelUserIds || '',
-  };
-
-  this.api.scheduleInterview(this.currentApp.id, payload)
-    .subscribe(() => {
+  submitInterview() {
+    if (!this.currentApp) return;
+  
+  
+    const v = this.interviewForm.value;
+    const start = this.combineDateAndTime(v.startDate as Date, v.startTime as Date);
+    const end   = this.combineDateAndTime(v.endDate as Date,   v.endTime as Date);
+  
+    const payload = {
+      stage: (v.stage ?? '').toString().trim(),
+      // pick one based on your backend
+      // startTime: start.toISOString(),
+      // endTime:   end.toISOString(),
+      startTime: this.toOffsetIso(start),
+      endTime:   this.toOffsetIso(end),
+      panelUserIds: (v.panelIds ?? []).join(','), 
+    };
+  
+    this.api.scheduleInterview(this.currentApp.id, payload).subscribe(() => {
       this.showInterviewDialog = false;
       this.resetInterview();
-      this.load(); // your refresh
+      this.load();
     });
-}
+  }
+  
 
 
   signOffer(app: Application) {
@@ -245,7 +272,7 @@ submitInterview() {
   //     this.load();
   //   });
   // }
-  resetInterview() { this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelUserIds: '' }); }
+  resetInterview() { this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelIds: [] }); }
 
   submitOffer(skipDate: boolean) {
     if (!this.currentApp) return;
@@ -322,7 +349,7 @@ submitInterview() {
     const extra: { rejectReason?: any; currentStage?: string } = {};
     if (extras.rejectReason) extra.rejectReason = extras.rejectReason;
     if (extras.currentStage?.trim()) extra.currentStage = extras.currentStage.trim();
-  
+
     this.api.moveApplication(app.id, to, extra)
       .subscribe(() => this.load());
   }
@@ -331,7 +358,7 @@ submitInterview() {
     this.offerForm.reset({ proposedJoinAt: null });
     this.showOfferDialog = true;
   }
-  
+
 
   // scheduleInterview(app: Application) {
   //   const stage = prompt('Stage (e.g., Tech1)') || 'Screen';
@@ -459,23 +486,23 @@ submitInterview() {
   showAssignTestDialog = false;
   assignTestForm = this.fb.group({
     testId: [null, Validators.required],
-  
+
     // start
     testDateDate: [null],        // Date only
     testDateTime: [null],        // Date object holding only time part
-  
+
     // deadline
     deadlineDateDate: [null],
     deadlineDateTime: [null],
   });
-  
+
 
   openAssignTest(a: Application) {
     this.currentApp = a;
     if (!this.testsCatalog.length) {
       this.api.listPublishedTests().subscribe(t => this.testsCatalog = t || []);
     }
-    this.assignTestForm.reset({ testId: null, testDateDate: null, deadlineDateDate: null, testDateTime:null, deadlineDateTime: null });
+    this.assignTestForm.reset({ testId: null, testDateDate: null, deadlineDateDate: null, testDateTime: null, deadlineDateTime: null });
     this.showAssignTestDialog = true;
   }
   private toIsos(date: Date | null, time: Date | null): string | undefined {
@@ -629,5 +656,23 @@ submitInterview() {
     const res = (first + second).toUpperCase();
     return res || '?';
   }
-  
+
+  private combineDateAndTime(date: Date, time: Date): Date {
+    if (!date || !time) return null as any;
+    const d = new Date(date);
+    d.setHours(time.getHours(), time.getMinutes(), 0, 0);
+    return d;
+  }
+
+  // If your backend expects UTC, use toISOString().
+  // If it expects local wall time with offset (recommended), use this:
+  private toOffsetIso(d: Date): string {
+    const pad = (n: number) => `${Math.floor(Math.abs(n))}`.padStart(2, '0');
+    const off = -d.getTimezoneOffset(); // minutes
+    const sign = off >= 0 ? '+' : '-';
+    const hh = pad(off / 60), mm = pad(off % 60);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+      `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${sign}${hh}:${mm}`;
+  }
+
 }

@@ -33,6 +33,8 @@ body {
   --p-floatlabel-focus-color: #767676 !important;
   --p-floatlabel-on-active-background: white !important;
   --p-paginator-background: transparent !important;
+  --p-datepicker-date-width: 1rem !important;
+  --p-datepicker-date-height: 1.5rem !important;
 }
 
 /* Steps Active State */
@@ -44,6 +46,9 @@ body {
 
 .p-steps .p-steps-item.p-highlight .p-menuitem-link {
   color: var(--primary-color) !important;
+}
+.p-datepicker-day-view {
+  font-size: 12px !important;
 }
 
 /* Buttons (Primary / Success) */

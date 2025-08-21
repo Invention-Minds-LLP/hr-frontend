@@ -10,6 +10,7 @@ import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 import { Holiday, Holidays } from '../../services/holidays/holidays';
 import { CarouselModule } from 'primeng/carousel';
+import { finalize } from 'rxjs';
 
 interface individual {
   date: string;
@@ -100,6 +101,7 @@ export class Individual {
   attendanceData: AttendanceDay[] = [];
   birthday: any[] = [];
   anniversary: any[] = [];
+  loadingToday: boolean= false;
 
   // Attendance-card 
   attendanceRecords: { date: string, status: 'present' | 'absent' }[] = [
@@ -123,9 +125,32 @@ export class Individual {
   ngOnInit() {
     this.generateWeekDays();
     this.fetchDetails();
+    this.loadToday();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
+  }
+  loadToday(): void {
+ 
+
+    this.employeeService.getToday()
+      .pipe(finalize(() => (this.loadingToday = false)))
+      .subscribe({
+        next: ({ birthdays, anniversaries }: any) => {
+          this.birthday = birthdays ?? [];
+          console.log(this.birthday)
+          this.anniversary = anniversaries ?? [];
+        },
+        error: (err) => {
+          console.error('getToday failed', err);
+          // this.errorToday = "Couldn't load today's celebrants.";
+          this.birthday = [];
+          this.anniversary = [];
+        },
+      });
+  }
+  trackById(_i: number, item: { employeeId: number }) {
+    return item.employeeId;
   }
 
   // Holidays

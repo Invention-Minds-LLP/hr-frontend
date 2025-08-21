@@ -1,98 +1,61 @@
 <div class="wrap">
-    <h2>Recruiting</h2>
+  <h2>Recruiting</h2>
 
-    <!-- Top pipeline stats -->
-    <div class="stats">
-        <div class="stat">
-            <div>Jobs Open</div><strong>{{ stats()['jobsOpen'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Applied</div><strong>{{ stats()['applied'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Shortlisted</div><strong>{{ stats()['shortlisted'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Interviewing</div><strong>{{ stats()['interviewing'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Offered</div><strong>{{ stats()['offered'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Accepted</div><strong>{{ stats()['accepted'] || 0 }}</strong>
-        </div>
-        <div class="stat">
-            <div>Hired</div><strong>{{ stats()['hired'] || 0 }}</strong>
-        </div>
+  <!-- Top pipeline stats -->
+  <!-- Top pipeline stats -->
+  <div class="stats" *ngIf="!selectedInterview()">
+    <div class="stat">
+      <div>Vacancies</div><strong>{{ stats()['vacancies'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Applications Received</div><strong>{{ stats()['applicationsReceived'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Applied</div><strong>{{ stats()['applied'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Shortlisted</div><strong>{{ stats()['shortlisted'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Interviewing</div><strong>{{ stats()['interviewing'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Offered</div><strong>{{ stats()['offered'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Accepted</div><strong>{{ stats()['accepted'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Declined</div><strong>{{ stats()['offerDeclined'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Hired</div><strong>{{ stats()['hired'] || 0 }}</strong>
+    </div>
+    <div class="stat">
+      <div>Rejected</div><strong>{{ stats()['rejected'] || 0 }}</strong>
+    </div>
+  </div>
+
+
+  <div *ngIf="!selectedInterview()" class="columns">
+    <div class="col">
+
+      <app-job-create>
+
+      </app-job-create>
+
+    </div>
+    <!-- Jobs -->
+
+    <div class="col">
+      <app-application-create>
+
+      </app-application-create>
     </div>
 
-    <div class="columns">
-        <div class="col">
 
-            <app-job-create>
-
-            </app-job-create>
-
-        </div>
-        <!-- Jobs -->
-        <div class="col stat">
-            <h3>Jobs</h3>
-            <div class="table-wrap">
-                <table class=" jobs">
-                    <colgroup>
-                        <col style="width:20%">
-                        <col style="width:16%">
-                        <col style="width:14%">
-                        <col style="width:14%">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Dept</th>
-                            <th>Headcount</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let j of jobs" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id">
-                            <td class="title"><span class="text">{{ j.title }}</span></td>
-                            <td class="left"><span class="pill" [class.warn]="j.status!=='OPEN'">{{ j.status }}</span>
-                            </td>
-                            <td class="left">{{ j.departmentName }}</td>
-                            <td class="left">{{ j.headcount }}</td>
-                            <td class="left">
-                                <p-select
-                                  [options]="jobStatusOptionsFor(j)"
-                                  [ngModel]="j.status"
-                                  (onChange)="onJobStatusChange(j, $event.value)"
-                                  [style]="{ width: '10rem' }"
-                                  [disabled]="updatingJobId === j.id"
-                                  [showClear]="false"
-                                  [editable]="false"
-                                  appendTo="body"
-                                  optionLabel="label"
-                                  optionValue="value" 
-                                  [placeholder]="j.status">
-                                  <ng-template pTemplate="selectedItem">
-                                    <span class="pill" [class.warn]="j.status !== 'OPEN'">{{ j.status }}</span>
-                                  </ng-template>
-                                  <ng-template let-opt pTemplate="item">
-                                    <span>{{ opt.label }}</span>
-                                  </ng-template>
-                                </p-select>
-                              </td>
-                              
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-
-
-        <!-- Applications -->
-        <!-- <div class="col" *ngIf="selectedJob">
+    <!-- Applications -->
+    <!-- <div class="col" *ngIf="selectedJob">
         <h3>Applications — {{ selectedJob.title }}</h3>
         <table class="grid">
           <thead>
@@ -131,16 +94,65 @@
           </tbody>
         </table>
       </div> -->
-    </div>
-    <div class="columns">
-        <div class="col">
-            <app-application-create>
+  </div>
+  <div class=""*ngIf="!selectedInterview()" style="margin-top: 2rem;">
+    <div class="stat">
+      <h3>Jobs</h3>
+      <div class="table-wrap">
+        <table class=" jobs">
+          <colgroup>
+            <col style="width:20%">
+            <col style="width:16%">
+            <col style="width:14%">
+            <col style="width:14%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Dept</th>
+              <th>Headcount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let j of jobs" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id">
+              <td class="title"><span class="text">{{ j.title }}</span></td>
+              <td class="left"><span class="pill" [class.warn]="j.status!=='OPEN'">{{ j.status }}</span>
+              </td>
+              <td class="left">{{ j.departmentName }}</td>
+              <td class="left">{{ j.headcount }}</td>
+              <td class="left">
+                <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
+                  (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '10rem' }"
+                  [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
+                  optionLabel="label" optionValue="value" [placeholder]="j.status">
+                  <ng-template pTemplate="selectedItem">
+                    <span class="pill" [class.warn]="j.status !== 'OPEN'">{{ j.status }}</span>
+                  </ng-template>
+                  <ng-template let-opt pTemplate="item">
+                    <span>{{ opt.label }}</span>
+                  </ng-template>
+                </p-select>
+              </td>
 
-            </app-application-create>
-        </div>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
-    <div class="columns">
-      <app-application-status></app-application-status>
+  </div>
+  <div *ngIf="!selectedInterview()" class="" style="margin-top: 2rem;">
+    <app-application-status></app-application-status>
+  </div>
+  <div class="" *ngIf="!selectedInterview()" style="margin-top: 2rem;">
+    <app-interview (evaluate)="onEvaluate($event)"></app-interview>
+  </div>
+  <div class="" style="margin-top: 2rem;">
+    <app-candidate-eval-form id="eval-form" *ngIf="selectedInterview()" [interviewId]="selectedInterview()?.id"
+      [interview]="selectedInterview()">
+    </app-candidate-eval-form>
   </div>
 </div>
 <p-toast></p-toast>

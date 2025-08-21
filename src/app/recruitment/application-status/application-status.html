@@ -92,7 +92,7 @@
       <small class="si-hint">Example: “Tech1”, “Tech2”, “HR”.</small>
     </div>
 
-    <!-- Time row -->
+    <!-- Time row
     <div class="si-row">
       <div class="si-col">
         <label class="si-label">Start <span class="si-req">*</span></label>
@@ -106,15 +106,39 @@
           <p-datepicker formControlName="endTime" [showTime]="true" hourFormat="24" appendTo="body"></p-datepicker>
         </div>
       </div>
+    </div> -->
+    <!-- Time row -->
+    <div class="si-row">
+      <!-- Start -->
+      <div class="si-col">
+        <label class="si-label">Start <span class="si-req">*</span></label>
+        <div class="si-input si-grid-2">
+          <p-datepicker formControlName="startDate"  [showTime]="false" appendTo="body" ></p-datepicker>
+          <p-datepicker formControlName="startTime" [showTime]="true" [timeOnly]="true" hourFormat="24"
+            appendTo="body"></p-datepicker>
+        </div>
+      </div>
+
+      <!-- End -->
+      <div class="si-col">
+        <label class="si-label">End <span class="si-req">*</span></label>
+        <div class="si-input si-grid-2">
+          <p-datepicker formControlName="endDate" [showTime]="false" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="endTime" [showTime]="true" [timeOnly]="true" hourFormat="24"
+            appendTo="body"></p-datepicker>
+        </div>
+      </div>
+
     </div>
+
 
     <p-divider class="si-divider"></p-divider>
 
     <!-- Panel multi-select -->
     <div class="si-field">
       <label class="si-label">Panel interviewers</label>
-      <p-multiSelect [options]="panelOptions" [(ngModel)]="selectedPanelIds" defaultLabel="Select interviewers"
-        [filter]="true" [showClear]="true" [display]="'chip'" appendTo="body" (onChange)="syncPanelCsv()"> <ng-template
+      <p-multiSelect [options]="panelOptions" formControlName="panelIds" defaultLabel="Select interviewers"
+        [filter]="true" [showClear]="true" [display]="'chip'" appendTo="body"> <ng-template
           pTemplate="item" let-opt>
           <div class="option-row"> <i class="pi pi-user" style="margin-right:.5rem;"></i>
             <div>
@@ -199,8 +223,7 @@
 
       <!-- Force overlay to body so it isn't clipped -->
       <p-select formControlName="testId" [options]="testsCatalog" optionLabel="name" optionValue="id"
-        placeholder="Select a test" [filter]="true" [showClear]="true"
-        appendTo="body"></p-select>
+        placeholder="Select a test" [filter]="true" [showClear]="true" appendTo="body"></p-select>
       <small class="at-hint" *ngIf="assignTestForm.get('testId')?.invalid && assignTestForm.touched">
         Please choose a test to assign.
       </small>
@@ -218,7 +241,7 @@
           <p-datepicker formControlName="testDateTime" [timeOnly]="true" hourFormat="24" appendTo="body"></p-datepicker>
         </div>
       </div>
-      
+
       <div class="at-row">
         <!-- Deadline -->
         <div class="at-col">
@@ -227,10 +250,11 @@
         </div>
         <div class="at-col">
           <label class="at-label">Time</label>
-          <p-datepicker formControlName="deadlineDateTime" [timeOnly]="true" hourFormat="24" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="deadlineDateTime" [timeOnly]="true" hourFormat="24"
+            appendTo="body"></p-datepicker>
         </div>
       </div>
-      
+
     </div>
   </form>
 

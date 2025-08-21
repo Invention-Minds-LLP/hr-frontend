@@ -683,7 +683,7 @@
   /* Adjust width to fit inside the table cell */
   padding: 10px;
   font-size: 14px;
-  background-color: white;
+  background-color: transparent;
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); Subtle shadow */
   border-radius: 6px;
   border: 1px solid #d9d9d9;

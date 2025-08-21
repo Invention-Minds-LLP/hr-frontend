@@ -11,10 +11,12 @@ import { ApplicationStatus } from "../application-status/application-status";
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
+import { Interview } from '../interview/interview';
+import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form';
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule],
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers:[MessageService]
@@ -22,6 +24,7 @@ import { SelectModule } from 'primeng/select';
 export class RecruitmentDashboard implements OnInit {
   private api = inject(Recuriting);
   private messages = inject(MessageService);
+  selectedInterview = signal<any | null>(null);
 
   // top stats
   stats = signal<{ [k: string]: number }>({});
@@ -180,4 +183,9 @@ export class RecruitmentDashboard implements OnInit {
     };
     return map[s] || [];
   }
+  onEvaluate = (row: any) => {
+    this.selectedInterview.set(row);
+    // (optional) scroll the form into view
+    setTimeout(() => document.getElementById('eval-form')?.scrollIntoView({ behavior: 'smooth' }), 0);
+  };
 }
