@@ -25,7 +25,7 @@
         <td>{{ t.assignedAt | date:'short' }}</td>
         <td class="action-cell">
           <ng-container *ngIf="t.canStart; else maxMsg">
-            <button class="button" (click)="start(t)">Start</button>
+            <button class="button" (click)="startTest(t)">Start</button>
           </ng-container>
           <ng-template #maxMsg>
             <span class="disabled-msg">Max attempts reached</span>

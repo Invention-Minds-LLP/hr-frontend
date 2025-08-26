@@ -1,0 +1,38 @@
+<div class="question-bank">
+    <div class="header">
+  
+      <h2>My Assigned Tests</h2>
+    </div>
+  
+    <p-table [value]="tests" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Test Name</th>
+          <th>Duration</th>
+          <th>Status</th>
+          <th>Assigned On</th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="body" let-t let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1}}</td>
+          <td>{{ t.test?.name }}</td>
+          <td>{{ t.test?.duration }} min</td>
+          <td>{{ t.status }}</td>
+          <td>{{ t.assignedAt | date:'short' }}</td>
+          <td class="action-cell">
+            <ng-container *ngIf="t.canStart; else maxMsg">
+              <button class="button" (click)="start(t)">Start</button>
+            </ng-container>
+            <ng-template #maxMsg>
+              <span class="disabled-msg">Max attempts reached</span>
+            </ng-template>
+          </td>
+          
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>

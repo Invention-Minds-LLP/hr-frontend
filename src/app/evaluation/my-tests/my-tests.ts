@@ -25,8 +25,8 @@ export class MyTests {
       });
       return;
     }
-    const candidateId = Number(localStorage.getItem('candidateId'));
-    this.ct.getCandidateAssignedTests(candidateId).subscribe(rows => this.tests = rows);
+    // const candidateId = Number(localStorage.getItem('candidateId'));
+    // this.ct.getCandidateAssignedTests(candidateId).subscribe(rows => this.tests = rows);
   }
 
   startTest(assignedId: number): void {
@@ -38,8 +38,8 @@ export class MyTests {
     });
   }
   
-  start(a: any) {
-    console.log(a)
-    this.ct.startAssignedTest(a.applicationId, a.id ).subscribe(() => this.router.navigate(['/take-test', a.id]));
-  }
+  // start(a: any) {
+  //   console.log(a)
+  //   this.ct.startAssignedTest(a.applicationId, a.id ).subscribe(() => this.router.navigate(['/take-test', a.id]));
+  // }
 }

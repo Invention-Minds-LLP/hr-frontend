@@ -1,0 +1,176 @@
+::ng-deep .p-datatable {
+    border: none;
+    background: transparent;
+  }
+  
+  /* Header Row */
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    background: #f9f9f9;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px 20px;
+    border-bottom: none;
+    height: 60px;
+    text-align: left;
+    text-wrap: nowrap;
+    /* border-radius: 12px; */
+  }
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-bottom-right-radius: 10px;
+  }
+  
+  /* Body Rows */
+  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    background: #e8ecef;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2b2b2b;
+    text-align: left;
+    border-bottom: 2px solid #d9d9d9;
+    text-wrap: nowrap;
+  }
+  .dept-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Dot style */
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  /* Active page */
+  ::ng-deep .p-paginator-page.p-paginator-page-selected {
+    background: #e9144a !important;
+    color: white !important;
+  }
+  ::ng-deep .p-paginator-page.p-paginator-page-selected {
+    background: #e9144a !important;
+    color: white !important;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  
+  /* Optional: center paginator */
+  ::ng-deep .p-paginator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1rem;
+    background: #e8ecef;
+  
+    background: #e8ecef;
+  }
+  .add-btn {
+    display: flex;
+    width: 200px;
+    height: 44px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #3177a3;
+    color: #fff;
+    font-family: "Sofia Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: none;
+  }
+  .btn-edit {
+    border-radius: 8px;
+    border: 2px solid #c4c4c4;
+    background: #e8ecef;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #767676;
+    cursor: pointer;
+  }
+  .question-bank {
+    font-family: "Sofia Sans";
+    padding: 40px 50px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .content {
+    background: white;
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+    border-radius: 10px;
+  }
+  
+  .button-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  .action-cell{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+  .button {
+    border-radius: 8px;
+    background: #17b226;
+    display: flex;
+    width: 160px;
+    height: 44px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border: none;
+    color: #fff;
+    font-family: "Sofia Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+  }
+  

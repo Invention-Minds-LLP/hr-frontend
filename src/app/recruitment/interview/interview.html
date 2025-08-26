@@ -4,35 +4,142 @@
       <!-- <button pButton label="Refresh" (click)="load()"></button> -->
     </div>
 
-    <p-table [value]="rows()" *ngIf="rows().length; else empty" [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
-    [tableStyle]="{ 'min-width': '1200px' }" styleClass="p-datatable-gridlines p-datatable-striped">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>No</th>
-          <th>Candidate</th>
-          <th>Job</th>
-          <th>Stage</th>
-          <th>Start</th>
-          <th>Action</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-r let-i ="rowIndex">
-        <tr>
-          <td>{{ i + 1}}</td>
-          <td>{{ r.application?.candidate?.name || '—' }}</td>
-          <td>{{ r.application?.job?.title || '—' }}</td>
-          <td>{{ r.stage }}</td>
-          <td>{{ r.startTime | date:'medium' }}</td>
-          <td>
-            <button pButton label="Evaluate"
-              (click)="onEvaluate(r)"></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <p-table [value]="rows()" *ngIf="rows().length; else empty" 
+    [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
+    [tableStyle]="{ 'min-width': '1200px' }"
+    styleClass="p-datatable-gridlines p-datatable-striped">
+
+<ng-template pTemplate="header">
+<tr>
+ <th>No</th>
+ <th>Candidate</th>
+ <th>Job</th>
+ <th>Round</th>
+ <th>Start</th>
+ <th>Status</th>
+ <th>Score</th>
+ <th>Action</th>
+</tr>
+</ng-template>
+
+<ng-template pTemplate="body" let-r let-i="rowIndex">
+<tr>
+ <td>{{ i + 1 }}</td>
+ <td>{{ r.application?.candidate?.name || '—' }}</td>
+ <td>{{ r.application?.job?.title || '—' }}</td>
+
+ <!-- Round type -->
+ <td>
+   <ng-container *ngIf="r.candidateAssignedTestId; else panel">
+     Test Round
+   </ng-container>
+   <ng-template #panel>
+     {{ r.stage }} Round
+   </ng-template>
+ </td>
+
+ <td>{{ r.startTime | date:'medium' }}</td>
+
+ <!-- Status -->
+ <td>
+   <ng-container *ngIf="r.candidateAssignedTest; else panelStatus">
+     {{ r.candidateAssignedTest.status }}
+   </ng-container>
+   <ng-template #panelStatus>
+     {{ r.result || 'Pending' }}
+   </ng-template>
+ </td>
+
+ <!-- Score -->
+ <td>
+   <ng-container *ngIf="r.candidateAssignedTest">
+     {{ r.candidateAssignedTest.score || '—' }}
+   </ng-container>
+   <ng-container *ngIf="!r.candidateAssignedTest && r.InterviewFeedback?.length">
+     {{ r.InterviewFeedback[0]?.average || '—' }}
+   </ng-container>
+ </td>
+
+ <td>
+   <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+ </td>
+</tr>
+</ng-template>
+</p-table>
+
 
     <ng-template #empty>
       <p>No interviews found.</p>
     </ng-template>
   </p-card>
-  
+  <!-- inside Interview component -->
+  <p-dialog header="Review Test" [(visible)]="showReviewDialog" [modal]="true"
+  [dismissableMask]="true" [draggable]="false" [resizable]="false"
+  [breakpoints]="{ '960px':'60vw', '640px':'90vw' }" [style]="{ width:'560px' }"
+  (onHide)="reviewForm.reset()">
+
+  <div class="review-dialog" *ngIf="reviewCtx">
+    <div class="summary">
+      <div class="summary-main">
+        <div class="test-name">{{ reviewCtx?.test?.name }}</div>
+        <div class="meta">
+          Completed: {{ reviewCtx?.completedAt | date:'MMM d, y, h:mm a' }}
+        </div>
+      </div>
+      <p-tag class="score-tag" [value]="(reviewCtx?.score ?? 0) + '%'" severity="info"></p-tag>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Editable form if not yet reviewed -->
+    <form [formGroup]="reviewForm" *ngIf="!readOnlyReview; else readOnlyBlock">
+      <div class="field">
+        <label class="label">Decision <span class="req">*</span></label>
+        <div class="radio-row">
+          <div class="field-radiobutton">
+            <p-radioButton inputId="dec-pass" name="decision" value="PASS"
+              formControlName="decision"></p-radioButton>
+            <label for="dec-pass">Pass</label>
+          </div>
+          <div class="field-radiobutton">
+            <p-radioButton inputId="dec-fail" name="decision" value="FAIL"
+              formControlName="decision"></p-radioButton>
+            <label for="dec-fail">Fail</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Note</label>
+        <textarea pInputTextarea rows="4" formControlName="note"></textarea>
+      </div>
+    </form>
+
+    <!-- Read-only block if already reviewed -->
+    <ng-template #readOnlyBlock>
+      <div class="field">
+        <label class="label">Decision</label>
+        <p-tag [value]="reviewCtx.reviewDecision" severity="success"></p-tag>
+      </div>
+      <div class="field">
+        <label class="label">Reviewed At</label>
+        <div>{{ reviewCtx.reviewedAt | date:'MMM d, y, h:mm a' }}</div>
+      </div>
+      <div class="field" *ngIf="reviewCtx.reviewNote">
+        <label class="label">Note</label>
+        <p>{{ reviewCtx.reviewNote }}</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Close" class="p-button-text"
+      (click)="showReviewDialog=false"></button>
+
+    <!-- Only show Save if editable -->
+    <button *ngIf="!readOnlyReview" pButton type="button"
+      label="Save Review" icon="pi pi-check"
+      (click)="submitReview()" [disabled]="reviewForm.invalid"></button>
+  </ng-template>
+</p-dialog>
+

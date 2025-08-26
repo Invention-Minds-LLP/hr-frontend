@@ -27,6 +27,7 @@ import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 import { Internship } from './internship/internship/internship';
 import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
+import { CandidateTests } from './evaluation/candidate-tests/candidate-tests';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -61,6 +62,7 @@ export const routes: Routes = [
       { path: 'internships', component: Internship },        // internship module
       { path: 'my-tests', component: MyTests },              // keep tests under recruitment
       { path: 'take-test/:id', component: TestPlatform },
+      { path: 'candidate-tests', component: CandidateTests }, // view candidate details
     ],
   },
 

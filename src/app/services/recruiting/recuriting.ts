@@ -202,6 +202,10 @@ export class Recuriting {
   reviewCandidateTest(applicationId: number, assignedId: number, body: { decision: 'PASS' | 'FAIL'; note?: string }) {
     return this.http.post<{ ok: true }>(`${baseUrl}/applications/${applicationId}/tests/${assignedId}/review`, body);
   }
+  getApplicationSummary(appId: number) {
+    return this.http.get(`${baseUrl}/applications/${appId}/summary`);
+  }
+  
 
   // listApplicationTests(applicationId: number) {
   //   return this.http.get<CandidateAssignedTest[]>(`${baseUrl}/applications/${applicationId}/tests`);

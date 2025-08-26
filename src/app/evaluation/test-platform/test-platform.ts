@@ -15,6 +15,7 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { firstValueFrom } from 'rxjs';
 import { Recuriting } from '../../services/recruiting/recuriting';
+import { DialogModule } from 'primeng/dialog';
 
 // utils
 function mulberry32(seed: number) {
@@ -39,6 +40,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
   selector: 'app-test-platform',
   standalone: true,
   imports: [FormsModule, CommonModule, CardModule,
+    DialogModule,
     ButtonModule,
     CheckboxModule,
     TextareaModule,
@@ -65,10 +67,13 @@ export class TestPlatform implements OnInit, OnDestroy {
 
   // nav
   currentIndex = 0;
+  showSubmitPopup: boolean = false;
+  submitMessage: string = '';
+
 
   assignedTestId: number;
   attemptId?: number;
-  candidateId?:number;
+  candidateId?: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -102,7 +107,7 @@ export class TestPlatform implements OnInit, OnDestroy {
     this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
     const qid = this.route.snapshot.queryParamMap.get('attemptId');
     this.attemptId = qid ? Number(qid) : undefined;
-    if(this.candidateId){
+    if (this.candidateId) {
       this.load();
       return;
     }
@@ -128,8 +133,12 @@ export class TestPlatform implements OnInit, OnDestroy {
   }
   load() {
     this.ct.getAssignedTestDetail(this.assignedTestId).subscribe((t: any) => {
+      const seed = this.assignedTestId;
       this.test = t;
+      const mode = (t.randomization ?? 'NONE') as 'NONE' | 'SHUFFLE_QUESTIONS' | 'SHUFFLE_OPTIONS' | 'BOTH';
+      this.test = this.applyRandomization(t, mode, seed);
       this.responses = t.questions.map((q: any) => ({
+        questionId: q.id,
         answer: q.type === 'MCQ' ? [] : '',   // MCQ starts as [] ; Descriptive as ''
         marked: false,
       }));
@@ -138,7 +147,7 @@ export class TestPlatform implements OnInit, OnDestroy {
   }
 
   async begin(): Promise<void> {
-    if(this.candidateId){
+    if (this.candidateId) {
       // For candidates, just start the test without attempt
       this.started = true;
       await this.requestFullscreen();
@@ -253,13 +262,23 @@ export class TestPlatform implements OnInit, OnDestroy {
       accept: () => this.submit()
     });
   }
+  onPopupClose() {
+    this.showSubmitPopup = false;
+    this.router.navigate(['/my-tests']); // navigate back after closing
+  }
+
 
   submit(): void {
     clearInterval(this.timerId);
 
-    if(this.candidateId){
+    if (this.candidateId) {
       const answers = this.collectAnswers();
-      this.ct.submitAssignedTest(this.assignedTestId, answers).subscribe(res => { /* show score, route back */ });
+      this.ct.submitAssignedTest(this.assignedTestId, answers).subscribe(res => {
+        this.submitMessage = 'Your test has been submitted successfully. Thank you.';
+        this.showSubmitPopup = true;
+        
+        this.router.navigate(['/candidate-tests']);
+      });
       return;
     }
 
@@ -287,7 +306,9 @@ export class TestPlatform implements OnInit, OnDestroy {
     };
 
     this.attemptService.submit(payload).subscribe(() => {
-      alert(`Test submitted! You ${status} with score ${score.toFixed(2)}%.`);
+      this.submitMessage = 'Your test has been submitted successfully. Thank you.';
+      this.showSubmitPopup = true;
+      
       this.router.navigate(['/my-tests']);
     });
   }
@@ -357,7 +378,8 @@ export class TestPlatform implements OnInit, OnDestroy {
     this.violations++;
     // You can show a toast/banner here
     if (this.violations >= this.maxViolations) {
-      alert('Max policy violations reached. Auto-submitting your test.');
+      this.submitMessage = 'Max policy violations reached. Your test has been auto-submitted.';
+      this.showSubmitPopup = true;
       this.submit();
     }
   }
@@ -367,28 +389,28 @@ export class TestPlatform implements OnInit, OnDestroy {
     if (el.requestFullscreen) await el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
   }
-// test-take.component.ts
+  // test-take.component.ts
 
 
 
 
-/** Build payload [{questionId, answer}] from UI state */
-collectAnswers(): { questionId: number; answer: any }[] {
-  if (!this.test?.questions) return [];
-  return this.test.questions.map((q: any, idx: number) => {
-    const raw = this.responses[idx]?.answer;
-    // Normalize: MCQ → number | number[] ; Descriptive → string
-    let answer: any = raw;
-    if (q.type === 'MCQ') {
-      // allow single or multi
-      answer = Array.isArray(raw)
-        ? raw.map((x: any) => Number(x))
-        : (raw == null || raw === '' ? null : Number(raw));
-    } else {
-      answer = raw == null ? '' : String(raw);
-    }
-    return { questionId: q.id, answer };
-  });
-}
+  /** Build payload [{questionId, answer}] from UI state */
+  collectAnswers(): { questionId: number; answer: any }[] {
+    if (!this.test?.questions) return [];
+    return this.test.questions.map((q: any, idx: number) => {
+      const raw = this.responses[idx]?.answer;
+      // Normalize: MCQ → number | number[] ; Descriptive → string
+      let answer: any = raw;
+      if (q.type === 'MCQ') {
+        // allow single or multi
+        answer = Array.isArray(raw)
+          ? raw.map((x: any) => Number(x))
+          : (raw == null || raw === '' ? null : Number(raw));
+      } else {
+        answer = raw == null ? '' : String(raw);
+      }
+      return { questionId: q.id, answer };
+    });
+  }
 
 }

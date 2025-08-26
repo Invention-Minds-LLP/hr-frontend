@@ -114,3 +114,10 @@
   <!-- Confirm submit -->
   <p-confirmDialog></p-confirmDialog>
 </div>
+<p-dialog header="Test Submitted" [(visible)]="showSubmitPopup" [modal]="true" [closable]="false">
+  <p>{{ submitMessage }}</p>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="OK" (click)="onPopupClose()"></button>
+  </ng-template>
+</p-dialog>
+

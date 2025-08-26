@@ -49,7 +49,7 @@
       <p-divider type="solid"></p-divider>
   
       <!-- Panel & scoring -->
-      <div class="section">
+      <ng-template #myPanel class="section">
         <div class="section-title">
           Interview Panel & Scores <span class="muted">(0–10 each)</span>
         </div>
@@ -108,12 +108,63 @@
             <textarea pInputTextarea rows="2" formControlName="signature" placeholder="Notes / Signature"></textarea>
           </div>
         </div>
-      </div>
-  
-      <p-divider type="solid"></p-divider>
+      </ng-template>
+      <section *ngIf="viewAllPanelReadOnly; else myPanel">
+        <p class="p-mb-2">
+          Panel submissions: <b>{{ submittedCount }}</b> / <b>{{ totalPanelMembers }}</b>
+        </p>
+        <small *ngIf="totalPanelMembers > 0 && submittedCount < totalPanelMembers">
+          Waiting on {{ totalPanelMembers - submittedCount }} panelist(s).
+        </small>
+
+        <div class="panel-container">
+                
+        <div *ngFor="let g of panelArr.controls; let i = index" class="p-mb-3 panel-card">
+          <div class="panel-head">
+            <p-chip [label]="panelGroup(g).get('name')?.value || 'Unknown panelist'"></p-chip>
+            <p-tag styleClass="p-ml-2" [value]="'Designation: ' + (panelGroup(g).get('designation')?.value || '—')"></p-tag>
+            <p-tag styleClass="p-ml-2" [severity]="'info'" [value]="'Status: ' + (panelGroup(g).get('status')?.value || '—')"></p-tag>
+            <p-tag styleClass="p-ml-auto" [severity]="'success'"
+                   [value]="'Avg: ' + (panelGroup(g).get('average')?.value ?? '—')"></p-tag>
+          </div>
+      
+          <div class="score-grid">
+            <div class="score-item">
+              <div class="score-label">Job skills</div>
+              <div class="score-value">{{ panelGroup(g).get('scores.jobSkills')?.value ?? '—' }}/10</div>
+              <p-progressBar *ngIf="panelGroup(g).get('scores.jobSkills')?.value != null"
+                             [value]="(panelGroup(g).get('scores.jobSkills')?.value || 0) * 10"></p-progressBar>
+            </div>
+      
+            <div class="score-item">
+              <div class="score-label">Job knowledge</div>
+              <div class="score-value">{{ panelGroup(g).get('scores.jobKnowledge')?.value ?? '—' }}/10</div>
+              <p-progressBar *ngIf="panelGroup(g).get('scores.jobKnowledge')?.value != null"
+                             [value]="(panelGroup(g).get('scores.jobKnowledge')?.value || 0) * 10"></p-progressBar>
+            </div>
+      
+            <div class="score-item">
+              <div class="score-label">Attitude</div>
+              <div class="score-value">{{ panelGroup(g).get('scores.attitude')?.value ?? '—' }}/10</div>
+              <p-progressBar *ngIf="panelGroup(g).get('scores.attitude')?.value != null"
+                             [value]="(panelGroup(g).get('scores.attitude')?.value || 0) * 10"></p-progressBar>
+            </div>
+      
+            <div class="score-item">
+              <div class="score-label">Communication</div>
+              <div class="score-value">{{ panelGroup(g).get('scores.communication')?.value ?? '—' }}/10</div>
+              <p-progressBar *ngIf="panelGroup(g).get('scores.communication')?.value != null"
+                             [value]="(panelGroup(g).get('scores.communication')?.value || 0) * 10"></p-progressBar>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+      
+
   
       <!-- Conclusion -->
-      <div class="section">
+      <div class="section" *ngIf="isRestricted">
         <div class="section-title">Final Conclusion</div>
         <div class="form-grid">
           <div class="field">
@@ -136,10 +187,10 @@
         </div>
       </div>
   
-      <p-divider type="solid"></p-divider>
+      <p-divider type="solid" *ngIf="isRestricted"></p-divider>
   
       <!-- HR block -->
-      <div class="section">
+      <div class="section" *ngIf="isRestricted">
         <div class="section-title">For HR use only</div>
   
         <!-- ⬇️ one wrapper for the HR group -->
@@ -163,7 +214,7 @@
         </div>
       </div>
   
-      <div class="actions">
+      <div class="actions" *ngIf="isRestricted">
         <button pButton type="button" label="Reset" class="p-button-text" (click)="reset()"></button>
         <span class="spacer"></span>
         <button pButton type="submit" label="Save Evaluation" icon="pi pi-check"></button>

@@ -34,7 +34,7 @@ body {
   --p-floatlabel-on-active-background: white !important;
   --p-paginator-background: transparent !important;
   --p-datepicker-date-width: 1rem !important;
-  --p-datepicker-date-height: 1.5rem !important;
+  --p-datepicker-date-height: 1rem !important;
 }
 
 /* Steps Active State */

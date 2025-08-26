@@ -1,8 +1,8 @@
 
 
-import { Component, computed, signal, effect,Input } from '@angular/core';
+import { Component, computed, signal, effect, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormArray, FormBuilder,FormGroup,FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 
 // PrimeNG (swap for your UI lib as needed)
 import { CardModule } from 'primeng/card';
@@ -15,7 +15,9 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { ChipModule } from 'primeng/chip';
 import { Recuriting } from '../services/recruiting/recuriting';
-import { Departments, Department } from '../services/departments/departments'; 
+import { Departments, Department } from '../services/departments/departments';
+import { ProgressBar } from 'primeng/progressbar';
+import { Tag } from 'primeng/tag';
 
 function score01Validator(ctrl: AbstractControl): ValidationErrors | null {
   const v = ctrl.value;
@@ -31,38 +33,42 @@ type SelectOpt = { label: string; value: string };
   imports: [
     CommonModule, ReactiveFormsModule,
     CardModule, InputTextModule, DatePicker, SelectModule,
-    InputNumberModule, TextareaModule, ButtonModule, DividerModule, ChipModule
+    InputNumberModule, TextareaModule, ButtonModule, DividerModule, ChipModule, ProgressBar,Tag
   ],
   templateUrl: './candidate-eval-form.html',
   styleUrl: './candidate-eval-form.css'
 })
 export class CandidateEvalForm {
   // ---- form ----
-  form:any;
-  saving:boolean=false;
-  panelId: number | null = null; 
+  form: any;
+  saving: boolean = false;
+  panelId: number | null = null;
   departments: SelectOpt[] = [];
   isRestricted = false; // set based on role and department
   username = '';
-  yesNo = ['Yes','No'].map(x => ({label:x, value:x}));
+  yesNo = ['Yes', 'No'].map(x => ({ label: x, value: x }));
   role: string = 'panel'; // or 'hr' based on your auth logic
+  // at top of class
+  expectedPanelIds: number[] = [];
+  totalPanelMembers = 0;
+  submittedCount = 0;
+  reviewerUserId: number | null = null; // set from auth service if you have it
+  deptId:number | null = null; // set from auth service if you have it
+
+  viewAllPanelReadOnly = false; // true if restricted -> show all read-only
+  isPanelMember:boolean = false;
+
+  isHr:boolean = false;
+
   @Input() interviewId!: number;
+  private pendingInterview: any | null = null;
   @Input() set interview(v: any | null) {
     if (!v) return;
-    const start = v.startTime ? new Date(v.startTime) : null;
-    const candidateName = v.application?.candidate?.name ?? '';
-    const jobTitle = v.application?.job?.title ?? '';
-    const deptName = v.application?.job?.department?.name ?? null;
-    console.log(deptName)
-
-    this.form.patchValue({
-      candidate: {
-        name: candidateName,
-        date: start,
-        position: jobTitle,
-        department: deptName,
-      }
-    });
+    if (this.isRestricted === null) {     // not decided yet → buffer
+      this.pendingInterview = v;
+      return;
+    }
+    this.populateFromInterview(v);
   }
 
   // departments = ['Engineering', 'Operations', 'HR', 'Finance', 'Nursing', 'Pharmacy']
@@ -87,7 +93,7 @@ export class CandidateEvalForm {
       }
     });
   }
-  constructor(private fb: FormBuilder,private api: Recuriting, private deptSvc: Departments) {
+  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments) {
     this.form = this.fb.group({
       candidate: this.fb.group({
         name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
@@ -109,6 +115,16 @@ export class CandidateEvalForm {
     });
     // start with two panelists (you can change)
     this.addPanelist();
+    
+    const deptRaw =
+      localStorage.getItem('deptId') ||
+      (JSON.parse(localStorage.getItem('user') || '{}')?.deptId ?? '');
+    const deptId = Number(deptRaw) || 0;
+
+    // Restrict only Executives not in dept 1
+    this.isRestricted = (deptId === 1);
+    this.panelId = Number(localStorage.getItem('empId')) || null; // or set from route param or service
+    this.reviewerUserId = Number(localStorage.getItem('empId')) || null; // set from auth service if you have it
     // this.addPanelist();
   }
   private normalizeRole(raw: any): string {
@@ -128,23 +144,27 @@ export class CandidateEvalForm {
   }
 
   ngOnInit() {
-    this.panelId = Number(localStorage.getItem('empId')) || null; // or set from route param or service
     const rawRole = localStorage.getItem('role') ?? '';
     this.role = rawRole;
     const norm = this.normalizeRole(rawRole);
 
     const deptRaw =
-      localStorage.getItem('departmentId') ||
-      (JSON.parse(localStorage.getItem('user') || '{}')?.departmentId ?? '');
+      localStorage.getItem('deptId') ||
+      (JSON.parse(localStorage.getItem('user') || '{}')?.deptId ?? '');
     const deptId = Number(deptRaw) || 0;
 
     // Restrict only Executives not in dept 1
-    this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
+    this.isRestricted = (deptId === 1);
 
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
     this.loadDepartments();
-    
+    this.applyAccessRules();
+    if (this.pendingInterview) {
+      this.populateFromInterview(this.pendingInterview);
+      this.pendingInterview = null;
+    }
+
   }
 
   // ---- panel helpers ----
@@ -156,29 +176,31 @@ export class CandidateEvalForm {
       name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
       designation: this.fb.control<string>('', { nonNullable: true }),
       scores: this.fb.group({
-        jobSkills:      this.fb.control<number | null>(null, { validators: score01Validator }),
-        jobKnowledge:   this.fb.control<number | null>(null, { validators: score01Validator }),
-        attitude:       this.fb.control<number | null>(null, { validators: score01Validator }),
-        communication:  this.fb.control<number | null>(null, { validators: score01Validator }),
+        jobSkills: this.fb.control<number | null>(null, { validators: score01Validator }),
+        jobKnowledge: this.fb.control<number | null>(null, { validators: score01Validator }),
+        attitude: this.fb.control<number | null>(null, { validators: score01Validator }),
+        communication: this.fb.control<number | null>(null, { validators: score01Validator }),
       }),
       signature: this.fb.control<string>(''),
       // ⬇️ important: type as number | null (not just null)
       average: this.fb.control<number | null>({ value: null, disabled: true }),
     });
-  
+
     g.get('scores')!.valueChanges.subscribe((scores: any) => {
       const vals = this.criteria
         .map(c => Number(scores?.[c.key]))
         .filter(n => Number.isFinite(n));
-      const avg: number | null = vals.length ? +(vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1) : null;
-  
+      const avg: number | null = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
+
       // now this matches FormControl<number | null>
       (g.get('average') as FormControl<number | null>).setValue(avg, { emitEvent: false });
     });
-  
+
     this.panelArr.push(g);
+    // apply current rule to the newly added group
+    this.setPanelValidators(!this.isRestricted);
   }
-  
+
 
   removePanelist(i: number) {
     this.panelArr.removeAt(i);
@@ -190,7 +212,7 @@ export class CandidateEvalForm {
       .map(c => c.get('average')!.value)
       .filter((x: any) => x != null);
     if (!avgs.length) return null;
-    return +(avgs.reduce((a: number,b: number)=>a+b,0)/avgs.length).toFixed(1);
+    return +(avgs.reduce((a: number, b: number) => a + b, 0) / avgs.length).toFixed(1);
   }
 
   saveAllPanel(submit: boolean) {
@@ -226,7 +248,7 @@ export class CandidateEvalForm {
         jobKnowledge: scores.jobKnowledge ?? undefined,
         attitude: scores.attitude ?? undefined,
         communication: scores.communication ?? undefined,
-        signature: g.get('signature')!.value || undefined,
+        notes: g.get('signature')!.value || undefined,
         submit, // DRAFT or SUBMITTED (server computes status)
       };
 
@@ -262,7 +284,7 @@ export class CandidateEvalForm {
       grossOffer: v?.hr?.grossOffer ?? null,
       conclusion: v?.conclusion ?? null,
       remarks: v?.remarks ?? null,
-      reviewerUserId: null, // set from auth service if you have it
+      reviewerUserId: this.reviewerUserId, // set from auth service if you have it
     };
 
     this.api.saveHrReview(this.interviewId, dto).subscribe({
@@ -296,4 +318,198 @@ export class CandidateEvalForm {
   scoresGroup(ctrl: AbstractControl): FormGroup {
     return (ctrl as FormGroup).get('scores') as FormGroup;
   }
+  private setPanelValidators(required: boolean) {
+    this.panelArr.controls.forEach(g => {
+      const scores = (g.get('scores') as FormGroup);
+      const vs = required ? [Validators.required, score01Validator] : [score01Validator];
+
+      // name required if we're enforcing
+      g.get('name')!.setValidators(required ? [Validators.required] : []);
+      g.get('name')!.updateValueAndValidity({ emitEvent: false });
+
+      ['jobSkills', 'jobKnowledge', 'attitude', 'communication'].forEach(k => {
+        const c = scores.get(k)!;
+        c.setValidators(vs);
+        c.updateValueAndValidity({ emitEvent: false });
+      });
+    });
+  }
+
+  private setHrValidators(required: boolean) {
+    const hr = this.form.get('hr') as FormGroup;
+    const req = required ? [Validators.required] : [];
+    hr.get('payslip')!.setValidators(req);
+    hr.get('expectedSalary')!.setValidators(req);
+    hr.get('grossOffer')!.setValidators(req);
+    this.form.get('conclusion')!.setValidators(required ? [Validators.required] : []);
+
+    ['payslip', 'expectedSalary', 'grossOffer'].forEach(k =>
+      hr.get(k)!.updateValueAndValidity({ emitEvent: false })
+    );
+    this.form.get('conclusion')!.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private applyAccessRules() {
+    if (this.isRestricted) {
+      // read-only, no requirements
+      this.setPanelValidators(false);
+      // this.setHrValidators(false);
+      // this.panelArr.disable({ emitEvent: false });
+      // (this.form.get('hr') as FormGroup).disable({ emitEvent: false });
+    } else {
+      // must fill correctly
+      this.panelArr.enable({ emitEvent: false });
+      (this.form.get('hr') as FormGroup).enable({ emitEvent: false });
+      this.setPanelValidators(true);
+      this.setHrValidators(true);
+    }
+  }
+  private populateFromInterview(v: any) {
+    console.log(v)
+    // Candidate header (always)
+    const start = v.startTime ? new Date(v.startTime) : null;
+    const candidateName = v.application?.candidate?.name ?? '';
+    const jobTitle = v.application?.job?.title ?? '';
+    const deptName = v.application?.job?.department?.name ?? null;
+    const experienceYears = v.application?.candidate?.experience ?? null;
+    const qualification = v.application?.candidate?.qualification ?? '';
+    this.form.patchValue({
+      candidate: { name: candidateName, date: start, position: jobTitle, department: deptName, qualification: qualification,experienceYears: experienceYears },
+    });
+    console.log(this.form.value)
+  
+    // ------ panelUsers: compute expected count ------
+    const raw = (v?.panelUserIds ?? '').toString();
+    const arr = raw.split(',').map((s:any) => +s.trim()).filter((n:any) => Number.isFinite(n));
+    this.expectedPanelIds = Array.from(new Set(arr));
+    this.totalPanelMembers = this.expectedPanelIds.length;
+    this.isPanelMember = this.expectedPanelIds.includes(this.panelId ?? 0);
+  
+    // ------ feedbacks from API ------
+    const allFeedback: any[] = Array.isArray(v?.InterviewFeedback) ? v.InterviewFeedback : [];
+    const submitted = allFeedback.filter(f => (f?.status ?? '').toUpperCase() === 'SUBMITTED');
+    this.submittedCount = submitted.length;
+  
+    // Clear current UI rows
+    this.panelArr.clear();
+  
+    if (this.isRestricted && !this.isPanelMember) {
+      // ============== RESTRICTED: show ALL (read-only) ==============
+      this.viewAllPanelReadOnly = true;
+  
+      // show submitted first (then drafts if you want)
+      const visible = submitted.length ? submitted : allFeedback;
+      visible.forEach(f => this.panelArr.push(this.fbFrom(f)));
+
+      console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
+  
+      // read-only
+      this.panelArr.disable({ emitEvent: false });
+  
+      if (v.InterviewHRReview) {
+        this.form.patchValue({
+          conclusion: v.InterviewHRReview.conclusion ?? 'Shortlisted',
+          remarks: v.InterviewHRReview.remarks ?? '',
+          hr: {
+            presentSalary: v.InterviewHRReview.presentSalary ?? null,
+            payslip: v.InterviewHRReview.payslip === true ? 'Yes' : v.InterviewHRReview.payslip === false ? 'No' : 'No',
+            expectedSalary: v.InterviewHRReview.expectedSalary ?? null,
+            grossOffer: v.InterviewHRReview.grossOffer ?? null,
+          },
+        });
+      } else {
+        // defaults if no HR review yet
+        this.form.patchValue({
+          conclusion: 'Shortlisted',
+          remarks: '',
+          hr: { presentSalary: null, payslip: 'No', expectedSalary: null, grossOffer: null },
+        });
+      }
+    }
+    else if(this.isRestricted && this.isPanelMember){
+      // ============== RESTRICTED + PANEL: show my feedback + blanks ==============
+      // this.viewAllPanelReadOnly = false;
+  
+      const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
+      console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
+      if (mine) {
+        // Already filled → show only in read-only mode
+        this.panelArr.push(this.fbFrom(mine));
+        this.viewAllPanelReadOnly = true;
+      } 
+      
+      else {
+        this.addPanelist(); // blank row for me to fill
+      console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
+      this.viewAllPanelReadOnly = false;
+      }
+  
+      // enable editing my row
+      this.panelArr.enable({ emitEvent: false });
+      if (v.InterviewHRReview) {
+        this.form.patchValue({
+          conclusion: v.InterviewHRReview.conclusion ?? 'Shortlisted',
+          remarks: v.InterviewHRReview.remarks ?? '',
+          hr: {
+            presentSalary: v.InterviewHRReview.presentSalary ?? null,
+            payslip: v.InterviewHRReview.payslip === true ? 'Yes' : v.InterviewHRReview.payslip === false ? 'No' : 'No',
+            expectedSalary: v.InterviewHRReview.expectedSalary ?? null,
+            grossOffer: v.InterviewHRReview.grossOffer ?? null,
+          },
+        });
+      } else {
+        // defaults if no HR review yet
+        this.form.patchValue({
+          conclusion: 'Shortlisted',
+          remarks: '',
+          hr: { presentSalary: null, payslip: 'No', expectedSalary: null, grossOffer: null },
+        });
+      }
+    
+      
+    } else {
+      // ============== NON-RESTRICTED: show ONLY my feedback ==============
+      this.viewAllPanelReadOnly = false;
+  
+      const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
+      console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
+      if (mine) this.panelArr.push(this.fbFrom(mine));
+      
+      else this.addPanelist(); // blank row for me to fill
+      console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
+  
+      // enable editing my row
+      this.panelArr.enable({ emitEvent: false });
+    }
+  
+    // Re-apply validators/enablement for HR + panel
+    this.applyAccessRules();
+  }
+  private fbFrom(f: any) {
+    const g = this.fb.group({
+      name: this.fb.control<string>(f?.name || '', { nonNullable: true }),
+      designation: this.fb.control<string>(f?.designation || '', { nonNullable: true }),
+      scores: this.fb.group({
+        jobSkills:      this.fb.control<number | null>(f?.jobSkills ?? null, { validators: score01Validator }),
+        jobKnowledge:   this.fb.control<number | null>(f?.jobKnowledge ?? null, { validators: score01Validator }),
+        attitude:       this.fb.control<number | null>(f?.attitude ?? null, { validators: score01Validator }),
+        communication:  this.fb.control<number | null>(f?.communication ?? null, { validators: score01Validator }),
+      }),
+      signature: this.fb.control<string>(f?.notes || ''),
+      average: this.fb.control<number | null>({ value: f?.average ?? null, disabled: true }),
+      panelUserId: this.fb.control<number | null>(f?.panelUserId ?? null),
+      status: this.fb.control<string>(f?.status ?? 'DRAFT'),
+      submittedAt: this.fb.control<Date | null>(f?.submittedAt ? new Date(f.submittedAt) : null),
+    });
+  
+    // keep average in sync
+    g.get('scores')!.valueChanges.subscribe((scores: any) => {
+      const vals = this.criteria.map(c => Number(scores?.[c.key])).filter(Number.isFinite);
+      const avg = vals.length ? +(vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1) : null;
+      (g.get('average') as FormControl<number | null>).setValue(avg, { emitEvent: false });
+    });
+  
+    return g;
+  }
+
 }

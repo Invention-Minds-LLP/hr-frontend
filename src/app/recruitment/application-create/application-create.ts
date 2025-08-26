@@ -28,7 +28,9 @@ export class ApplicationCreate implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       source: [''],
-      resumeUrl: [''],
+      resumeUrl: [''],  
+      qualification: [''],
+      experience: [''],
     }),
   });
 
@@ -46,6 +48,7 @@ export class ApplicationCreate implements OnInit {
       return;
     }
     this.saving = true;
+    this.form.value.candidate?.experience?.toString() // default to 0 if not provided
     this.api.createApplication(this.form.value as any).subscribe({
       next: (_app: Application) => {
         // alert('Application created!');
