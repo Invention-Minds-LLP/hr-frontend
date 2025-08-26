@@ -4,6 +4,7 @@ import { Wfh } from '../../services/wfh/wfh';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { from } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 interface CalendarDay {
   date: Date;
@@ -21,7 +22,7 @@ interface CalendarDay {
 export class WfhPopup {
 
 
-  constructor(private wfhService: Wfh) { }
+  constructor(private wfhService: Wfh, private messageService : MessageService) { }
 
   @Input() showPopup = true;
   @Input() wfhData: any = null;     // Data passed when opening popup
@@ -266,12 +267,23 @@ export class WfhPopup {
 
     this.wfhService.createWFH(payload).subscribe({
       next: () => {
-        alert('WFH Request submitted successfully!');
+        // alert('WFH Request submitted successfully!');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'WFH Request submitted successfully!'
+        });
+
         this.close.emit();
       },
       error: (err) => {
         console.error('Error creating WFH:', err);
-        alert('Failed to submit WFH request.');
+        // alert('Failed to submit WFH request.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to submit WFH request.'
+        });
       }
     });
   }

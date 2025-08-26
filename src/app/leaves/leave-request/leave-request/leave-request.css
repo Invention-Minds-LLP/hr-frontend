@@ -100,7 +100,7 @@
   border: 1px solid #9b9b9b;
   background: transparent;
   display: flex;
-  width: 109px;
+  width: auto;
   height: 42px;
   padding: 20px 16px;
   align-items: center;
@@ -112,6 +112,7 @@
   font-weight: 500;
   line-height: normal;
   letter-spacing: 0.18px;
+  cursor: pointer;
 }
 
 ::ng-deep .p-paginator-pages {
@@ -389,9 +390,9 @@ hr {
 
 .menu-list {
   position: absolute;
-  top: 13%;
-  left: 1100px;
-  min-width: 160px;
+  top: 57%;
+  right: 10px;
+  min-width: 150px;
   background: var(--surface-ground);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);

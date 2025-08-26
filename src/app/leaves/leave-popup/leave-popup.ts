@@ -4,6 +4,7 @@ import { Leaves } from '../../services/leaves/leaves';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { from } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 interface CalendarDay {
   date: Date;
@@ -21,7 +22,7 @@ interface CalendarDay {
 export class LeavePopup {
 
 
-  constructor(private leaveService: Leaves) { }
+  constructor(private leaveService: Leaves, private messageService: MessageService) { }
 
   @Input() showPopup = true;
   @Input() leaveData: any = null;     // Data passed when opening popup
@@ -262,7 +263,12 @@ export class LeavePopup {
 
   applyLeave() {
     if (!this.leaveType) {
-      alert('Please select a leave type');
+      // alert('Please select a leave type');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a leave type'
+      })
       return;
     }
     const payload = {
@@ -274,13 +280,23 @@ export class LeavePopup {
     };
     this.leaveService.createLeave(payload).subscribe({
       next: (res) => {
-        alert('Leave applied successfully!');
+        // alert('Leave applied successfully!');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Leave applied successfully!'
+        });
         console.log('API response:', res);
         this.resetForm();
       },
       error: (err) => {
         console.error('Error applying leave:', err);
-        alert('Failed to apply leave. Please try again.');
+        // alert('Failed to apply leave. Please try again.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to apply leave. Please try again.'
+        });
       }
     });
   }

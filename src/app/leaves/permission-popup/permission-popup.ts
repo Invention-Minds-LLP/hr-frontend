@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Permission } from '../../services/permission/permission';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-permission-popup',
@@ -26,7 +27,7 @@ export class PermissionPopup {
   employeeId: string = '';
   declineReason: string = '';
 
-  constructor(private permissionService: Permission) { }
+  constructor(private permissionService: Permission, private messageService : MessageService) { }
 
 
   ngOnInit() {
@@ -50,23 +51,43 @@ export class PermissionPopup {
   submit() {
     // Validation
     if (!this.permissionType || !this.timing || !this.day || !this.reason) {
-      alert('Please fill all fields');
+      // alert('Please fill all fields');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please fill all fields'
+      });
       return;
     }
 
     if (this.timing === 'HOURLY' && (!this.startTime || !this.endTime)) {
-      alert('Please select start and end time for hourly permission');
+      // alert('Please select start and end time for hourly permission');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select start and end time for hourly permission'
+      });
       return;
     }
     // time required for HOURLY and HALFDAY
     if ((this.timing === 'HOURLY' || this.timing === 'HALFDAY') && (!this.startTime || !this.endTime)) {
-      alert('Please select start and end time.');
+      // alert('Please select start and end time.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select start and end time.'
+      });
       return;
     }
 
     // optional: ensure start < end
     if ((this.timing === 'HOURLY' || this.timing === 'HALFDAY') && this.startTime >= this.endTime) {
-      alert('End time must be after start time.');
+      // alert('End time must be after start time.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'End time must be after start time.'
+      });
       return;
     }
 
@@ -87,12 +108,22 @@ export class PermissionPopup {
     // Call API
     this.permissionService.createPermission(payload).subscribe({
       next: () => {
-        alert('Permission request submitted successfully!');
+        // alert('Permission request submitted successfully!');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Permission request submitted successfully!'
+        });
         this.closePopup();
       },
       error: (err) => {
         console.error('Error creating permission request:', err);
-        alert('Failed to submit permission request.');
+        // alert('Failed to submit permission request.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to submit permission request.'
+        });
       }
     });
   }

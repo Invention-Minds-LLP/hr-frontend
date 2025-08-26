@@ -63,10 +63,10 @@ export class WorkFromHome {
   
 
   filterOption = [
-    { label: 'Employee Id', value: 'empId' },
-    { label: 'Name', value: 'name' },
-    { label: 'Department', value: 'department' },
-    { label: 'JobTitle', value: 'jobtitle' },
+    { label: 'Employee Id', value: 'empID' },
+    { label: 'Name', value: 'empName' },
+    { label: 'Department', value: 'deptName' },
+    { label: 'JobTitle', value: 'jobTitle' },
   ]
 
 
@@ -86,12 +86,17 @@ export class WorkFromHome {
   loadWFHRequests() {
     this.wfhService.getWFHRequests().subscribe({
       next: (data) => {
-        const pending = data.map((wfh: any, index: number) => ({
+        const pending = data.map((wfh: any, index: number) => {
+          const deptId = wfh.employee?.departmentId;
+          const dept = this.departments.find(d => d.id === deptId);
+
+          return{
           no: index + 1,
           empID: wfh.employee?.employeeCode,
           empName: `${wfh.employee?.firstName} ${wfh.employee?.lastName}`,
           email: wfh.employee?.email || '',
           department: wfh.employee?.departmentId || '',
+          deptName: dept ? dept.name : '',
           jobTitle: wfh.employee?.designation || '',
           WFHDate: `${new Date(wfh.startDate).toLocaleDateString()} - ${new Date(wfh.endDate).toLocaleDateString()}`,
           reson: wfh.reason,
@@ -100,7 +105,8 @@ export class WorkFromHome {
           startDate: wfh.startDate,
           endDate: wfh.endDate,
           reportingManagerId: wfh.reportingManager ?? null, 
-        }));
+          }
+        });
         this.wfhData = this.isHR
         ? pending
         : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
@@ -122,13 +128,9 @@ export class WorkFromHome {
       return
     }
 
-    const filterKey = this.selectedFilter?.value as keyof WFHTable
+    const filterKey = this.selectedFilter?.value;
 
     this.filterWFHData = this.wfhData.filter((wfh: WFHTable) => {
-      if (filterKey === 'name') {
-        return wfh.empName?.toLowerCase().includes(searchText)
-      }
-
       return wfh[filterKey]?.toString()?.toLowerCase().includes(searchText)
     })
   }

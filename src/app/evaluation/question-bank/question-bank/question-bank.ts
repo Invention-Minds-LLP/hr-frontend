@@ -7,6 +7,7 @@ import { TableModule } from 'primeng/table';
 import { Questions } from '../questions/questions';
 import { BaseIcon } from "primeng/icons/baseicon";
 import { QuestionBankEditor } from "../question-bank-editor/question-bank-editor";
+import { MessageService } from 'primeng/api';
 
 
 
@@ -48,7 +49,7 @@ export class QuestionBank {
     createdBy: 1 // Replace with actual user ID if available
   };
 
-  constructor(private qService: QuestionBankService, private departmentService: Departments) { }
+  constructor(private qService: QuestionBankService, private departmentService: Departments, private messageService : MessageService) { }
 
   ngOnInit(): void {
     this.fetchQuestionBanks();
@@ -90,7 +91,12 @@ export class QuestionBank {
 
   save(): void {
     if (!this.formData.name || !this.formData.createdBy) {
-      alert('Please fill required fields');
+      // alert('Please fill required fields');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Please fill required fields'
+      })
       return;
     }
 

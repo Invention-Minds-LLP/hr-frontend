@@ -5,6 +5,7 @@ import { Tests } from '../../services/tests/tests';
 import { AssignTest } from '../../services/assign-test/assign-test';
 import { Employees } from '../../services/employees/employees';
 import { MultiSelect, MultiSelectChangeEvent  } from 'primeng/multiselect';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-test-assignment',
@@ -29,8 +30,8 @@ export class TestAssignment {
   constructor(
     private testService: Tests,
     private employeeService: Employees,
-    private assignedService: AssignTest
-  ) {}
+    private assignedService: AssignTest,
+    private messageService : MessageService) {}
 
   ngOnInit(): void {
     this.loadTests();
@@ -86,11 +87,21 @@ export class TestAssignment {
 
   assign() {
     if (!this.selectedTestId || this.selectedEmployeeIds.length === 0) {
-      alert('Please select a test and at least one employee');
+      // alert('Please select a test and at least one employee');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Please select a test and at least one employee'
+      })
       return;
     }
     if (!this.availFromDate || !this.availToDate) {
-      alert('Please select both dates (From/To)');
+      // alert('Please select both dates (From/To)');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Please select both dates (From/To)'
+      })
       return;
     }
 
@@ -98,7 +109,12 @@ export class TestAssignment {
     const toISO   = new Date(this.availToDate);
 
     if (new Date(toISO) < new Date(fromISO)) {
-      alert('“Available To” must be the same or after “Available From”.');
+      // alert('“Available To” must be the same or after “Available From”.');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'“Available To” must be the same or after “Available From”.'
+      })
       return;
     }
 

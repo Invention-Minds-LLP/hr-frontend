@@ -5,6 +5,7 @@ import { Tests } from '../../services/tests/tests';
 import { QuestionBankService } from '../../services/question-bank/question-bank';
 import { QuestionsService } from '../../services/questions/questions';
 import { Roles, Role } from '../../services/roles/roles';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-test-creation',
@@ -47,8 +48,8 @@ export class TestCreation {
     private testService: Tests,
     private questionBankService: QuestionBankService,
     private questionsService: QuestionsService,
-    private rolesService: Roles
-  ) { }
+    private rolesService: Roles,
+    private messageService: MessageService) { }
 
   private patchFromTestData() {
     if (!this.testData) return;
@@ -96,7 +97,13 @@ export class TestCreation {
 
   preview() {
     if (!this.formData.questionBankId) {
-      alert('Please select a Question Bank first.');
+      // alert('Please select a Question Bank first.');
+      this.messageService.add({
+        severity:'warn',
+        summary:'Warning',
+        detail:'Please select a Question Bank first.'
+
+      })
       return;
     }
     const bank = this.questionBanks.find(b => b.id === this.formData.questionBankId);
@@ -122,7 +129,12 @@ export class TestCreation {
   // UPDATE submit() to handle create vs update and include extras
   submit() {
     if (!this.formData.name || !this.formData.questionBankId) {
-      alert('Please fill Test Name and select a Question Bank.');
+      // alert('Please fill Test Name and select a Question Bank.');
+      this.messageService.add({
+        severity:'warn',
+        summary:'Warning',
+        detail:'Please fill Test Name and select a Question Bank.'
+      })
       return;
     }
 

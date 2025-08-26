@@ -13,6 +13,7 @@ import { Departments } from '../../../services/departments/departments';
 import { Branches } from '../../../services/branches/branches';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
+import { MessageService } from 'primeng/api';
 
 interface Table {
   empName: string;
@@ -44,7 +45,7 @@ export class AppraisalTable {
   departments: any[] = [];
   branches: any[] = [];
   allEmployees: any[] = [];
-  appraisals:any[]=[];
+  appraisals: any[] = [];
   filterOptions = [
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
@@ -54,11 +55,11 @@ export class AppraisalTable {
     { label: 'Employment Type', value: 'employmentType' },
     { label: 'Shift', value: 'shiftId' }
   ];
-  
+
   selectedFilter: any = null;
   filteredEmployees: any[] = [];
   showFilterDropdown = false;
-  role:string='';
+  role: string = '';
   loggedEmployeeId: number = 0;
 
 
@@ -66,7 +67,8 @@ export class AppraisalTable {
     private appraisalService: Appraisal,
     private employeeService: Employees,
     private departmentService: Departments,
-    private branchService: Branches) { }
+    private branchService: Branches,
+    private messageService: MessageService) { }
 
   ngOnInit() {
     this.appraisalForm = this.fb.group({
@@ -87,7 +89,7 @@ export class AppraisalTable {
   }
 
 
-  getAppraisals(){
+  getAppraisals() {
     this.appraisalService.getAllAppraisals().subscribe({
       next: (data) => {
         if (this.role === 'HR' || this.role === 'HR Manager') {
@@ -97,13 +99,18 @@ export class AppraisalTable {
           this.appraisals = (data || []).filter(
             (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
           );
-        } 
+        }
       },
       error: () => {
-        alert('Error loading appraisals');
+        // alert('Error loading appraisals');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error loading appraisals'
+        });
       }
     });
-  
+
   }
 
   openForm() {
@@ -129,26 +136,37 @@ export class AppraisalTable {
     if (this.appraisalForm.valid) {
       this.appraisalService.bulkCreateAppraisals(this.appraisalForm.value).subscribe({
         next: (res: any) => {
-          alert(`${res.count} appraisal forms created`);
+          // alert(`${res.count} appraisal forms created`);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `${res.count} appraisal forms created`
+          });
           this.showPopup = false;
         },
-        error: () => alert('Error creating appraisals')
+        error: () => 
+          // alert('Error creating appraisals')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error creating appraisals' 
+          })
       });
     }
   }
 
   getDepartmentColors(departmentId: number) {
-    const baseHue = (departmentId * 40) % 360; 
+    const baseHue = (departmentId * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;
-  
+
     return { badgeColor, dotColor };
   }
 
   getDepartmentName(id: number): string {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
-  
+
 
   closePopup() {
     this.showPopup = false;
@@ -166,14 +184,14 @@ export class AppraisalTable {
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
     const searchText = input.value;
-  
+
     if (!searchText) {
       this.filteredEmployees = [...this.appraisals];
       return;
     }
-  
+
     const filterKey = this.selectedFilter.value;
-  
+
     this.filteredEmployees = this.appraisals.filter(emp => {
       if (filterKey === 'name') {
         return (
@@ -184,10 +202,11 @@ export class AppraisalTable {
       }
       return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
     });
+
   }
 
   onFilterChange() {
-    this.filteredEmployees = [...this.appraisals]; 
+    this.filteredEmployees = [...this.appraisals];
     this.showFilterDropdown = false;
     console.log(this.selectedFilter)
   }
@@ -202,7 +221,7 @@ export class AppraisalTable {
 
   onEditClick(appraisal: any) {
     const departmentName = this.getDepartmentName(appraisal.employee.departmentId);
-  
+
     // Merge employee properties and appraisal properties into one flat object
     const mergedAppraisal = {
       ...appraisal,
@@ -214,10 +233,10 @@ export class AppraisalTable {
       dateOfJoining: appraisal.employee.dateOfJoining,
       email: appraisal.employee.email
     };
-  
+
     delete mergedAppraisal.employee; // Remove nested employee object
-  
+
     this.editAppraisal.emit(mergedAppraisal);
   }
-  
+
 }

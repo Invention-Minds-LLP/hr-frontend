@@ -311,13 +311,15 @@
 }
 
 .btn-green {
-  background-color: #28a745;
+  background-color: #3465b0;
   color: #fff;
+  border: 1px solid #3465b0;
 }
 
 .btn-red {
   background-color: #dc3545;
   color: #fff;
+  border: 1px solid #dc3545;
 }
 
 ::ng-deep .p-select .dropdown {

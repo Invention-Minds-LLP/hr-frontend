@@ -9,6 +9,7 @@ import { Announcements } from '../../services/announcement/announcements';
 import { TableModule } from 'primeng/table';
 import { Branches, Branch } from '../../services/branches/branches'  // adjust path
 import { Departments, Department } from '../../services/departments/departments';
+import { MessageService } from 'primeng/api';
 
 type TileDef =
   | { key: 'leaves' | 'wfh' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
@@ -62,7 +63,8 @@ export class HrDashboard implements OnInit {
 
   constructor(private api: Dashboard, private announcement: Announcements,
     private branchesSvc: Branches,
-    private departmentsSvc: Departments
+    private departmentsSvc: Departments,
+    private messageService : MessageService
   ) { }
   branchId: number | null = null;
   departmentId: number | null = null;
@@ -198,7 +200,14 @@ export class HrDashboard implements OnInit {
   trackPipeline(_i: number, x: PipelineItem) { return x.name; }
 
   // tiny toast for demo
-  toast(msg: string) { alert(msg); }
+  toast(msg: string) {
+    //  alert(msg); 
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Action',
+      detail: msg
+    })
+    }
   // inside DashboardComponent class:
   calcPipeWidth(p: PipelineItem, arr: PipelineItem[]): number {
     const applied = arr.find(x => x.name === 'Applied')?.value || 1;

@@ -30,6 +30,7 @@
 .step-container {
   width: 100%;
 }
+
 .mb-3 {
   margin-bottom: 1rem;
 }
@@ -77,6 +78,11 @@ label {
 /* Make buttons consistent */
 .mt-3 {
   margin-top: 1.5rem;
+}
+
+.p-menuitem-link{
+  display: flex;
+  flex-direction: column;
 }
 .field.col-4 {
   width: 33.3333%;
@@ -270,4 +276,7 @@ div[hidden] {
   color: #e9144a;
   font-size: 1.2rem;
 }
+
+
+
 

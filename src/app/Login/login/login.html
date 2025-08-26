@@ -2,36 +2,39 @@
     <div class="left-side">
         <img src="/bg-left.png" alt="" class="bg-img">
         <div class="left-side-content">
-           <div class="heading">Welcome to <div class="sub-heading">HR Minds</div></div>
+            <div class="heading">Welcome to <div class="sub-heading">HR Minds</div>
+            </div>
             <div class="para">Plan your time, build new skills, share feedback, and stay connected to what matters.
             </div>
         </div>
     </div>
-    <div class="right-side">
-        <img class="logo" src="/logo1.png" alt="">
-        <img class="logo-resp" src="/logo.png" alt="">
-        <div class="right-side-heading">Log <span>in</span></div>
-        <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)">
-            <div class="input">
-                <p-floatlabel variant="on">
-                    <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId" required
-                        #empIdCtrl="ngModel" />
-                    <label for="EMP ID">EMP ID</label>
-                    <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
-                </p-floatlabel>
-            </div>
-            <div class="input">
-                <p-floatlabel variant="on">
-                    <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password"
-                        [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
-                    <label for="password">Password</label>
-                    <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
-                </p-floatlabel>
-            </div>
-            <p-button label="LOG IN" type="Submit" class="btn" />
-        </form>
 
-        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="145" height="142" viewBox="0 0 145 142" fill="none" class="icon">
+    <div class="right">
+        <div class="right-side">
+            <img class="logo" src="/logo1.png" alt="">
+            <img class="logo-resp" src="/logo.png" alt="">
+            <div class="right-side-heading">Sign <span>in</span></div>
+            <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)">
+                <div class="input">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId"
+                            required #empIdCtrl="ngModel" />
+                        <label for="EMP ID">EMP ID</label>
+                        <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
+                    </p-floatlabel>
+                </div>
+                <div class="input">
+                    <p-floatlabel variant="on">
+                        <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password"
+                            [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
+                        <label for="password">Password</label>
+                        <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
+                    </p-floatlabel>
+                </div>
+                <p-button label="LOG IN" type="Submit" class="btn" />
+            </form>
+
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="145" height="142" viewBox="0 0 145 142" fill="none" class="icon">
             <g filter="url(#filter0_d_15309_1117)">
                 <path
                     d="M74 43C89.4639 43 102 55.4088 102 70.7158C102 76.5481 100.178 81.9581 97.0693 86.4229L100.105 99.002L88.8906 94.1895C84.5773 96.8761 79.4726 98.4326 74 98.4326C58.536 98.4326 46 86.023 46 70.7158C46.0001 55.4088 58.5361 43 74 43Z"
@@ -70,5 +73,6 @@
                 </linearGradient>
             </defs>
         </svg> -->
+        </div>
     </div>
 </div>

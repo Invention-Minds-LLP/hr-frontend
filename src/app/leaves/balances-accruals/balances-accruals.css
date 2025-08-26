@@ -3,9 +3,10 @@
     padding: 40px 50px;
 }
 
-.pi{
-    z-index:-1;
+.pi {
+    z-index: -1;
 }
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -57,7 +58,7 @@
     line-height: normal;
 }
 
-.t-data{
+.t-data {
     color: #2B2B2B;
     font-size: 16px;
     font-style: normal;
@@ -81,7 +82,7 @@
     line-height: normal;
 }
 
-.t-data{
+.t-data {
     color: #2B2B2B;
     font-size: 16px;
     font-style: normal;
@@ -98,11 +99,11 @@
     text-wrap: nowrap;
 }
 
-::ng-deep .p-paginator-pages{
+::ng-deep .p-paginator-pages {
     gap: 20px;
 }
 
-::ng-deep .p-paginator-pages{
+::ng-deep .p-paginator-pages {
     gap: 20px;
 }
 
@@ -112,7 +113,7 @@
     border: 1px solid #9B9B9B;
     background: transparent;
     display: flex;
-    width: 109px;
+    width: auto;
     height: 30px;
     padding: 20px 16px;
     align-items: center;
@@ -124,6 +125,7 @@
     font-weight: 500;
     line-height: normal;
     letter-spacing: 0.18px;
+    cursor: pointer;
 }
 
 
@@ -146,11 +148,12 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-   background: #3465b0 !important;
+    background: #3465b0 !important;
     color: white !important;
 }
+
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-   background: #3465b0 !important;
+    background: #3465b0 !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -229,65 +232,70 @@
     letter-spacing: 0.14px;
 }
 
-.al{
+.al {
     text-align: center;
 }
 
-.al{
+.al {
     text-align: center;
 }
 
 .dept-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 12px;
-  padding: 10px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 12px;
+    padding: 10px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    font-weight: 500;
 }
+
 /* Dot style */
 /* Dot style */
 .dot {
-  width: 8px;
-  height: 8px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
+    width: 8px;
+    height: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
 }
 
 /* Unique backgrounds per dept */
 .design-dept {
-  background-color: #b9f6ca; /* light green */
-  color: #004d40;
+    background-color: #b9f6ca;
+    /* light green */
+    color: #004d40;
 }
 
 .dev-dept {
-  background-color: #bbdefb; /* light blue */
-  color: #0d47a1;
+    background-color: #bbdefb;
+    /* light blue */
+    color: #0d47a1;
 }
 
 .hr-dept {
-  background-color: #ffe0b2; /* light orange */
-  color: #e65100;
+    background-color: #ffe0b2;
+    /* light orange */
+    color: #e65100;
 }
 
 .finance-dept {
-  background-color: #f3e5f5; /* light purple */
-  color: #6a1b9a;
+    background-color: #f3e5f5;
+    /* light purple */
+    color: #6a1b9a;
 }
 
 .default-dept {
-  background-color: #e0e0e0;
-  color: #424242;
+    background-color: #e0e0e0;
+    color: #424242;
 }
 
 .menu-list {
     position: absolute;
-    top: 13%;
-    left: 1100px;
+    top: 57%;
+    right: 10px;
     min-width: 160px;
     background: var(--surface-ground);
     border-radius: 8px;
@@ -308,24 +316,24 @@
 
 
 .menu-list .list:hover {
-  background-color: #eee;
-  border-radius: 20px;
+    background-color: #eee;
+    border-radius: 20px;
 }
 
 .menu-list .list.active {
-  background-color: #d0ebff; 
-  font-weight: bold;
-  color:black;
-  border-radius: 20px;
+    background-color: #d0ebff;
+    font-weight: bold;
+    color: black;
+    border-radius: 20px;
 }
 
 
-::ng-deep .p-inputtext{
-    background:transparent;
+::ng-deep .p-inputtext {
+    background: transparent;
     font-family: "Sofia Sans";
 }
 
-.filter{
+.filter {
     font-family: "Sofia Sans";
 }
 
@@ -336,21 +344,21 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  
-  .modal {
+}
+
+.modal {
     background: #fff;
     padding: 24px;
     width: 60%;
     border-radius: 8px;
     position: relative;
-  }
-  
-  .close-btn {
+}
+
+.close-btn {
     position: absolute;
     top: 8px;
     right: 12px;
@@ -361,4 +369,4 @@
     cursor: pointer;
     border-radius: 4px;
     padding: 4px 8px;
-  }
+}

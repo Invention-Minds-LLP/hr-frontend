@@ -8,6 +8,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
+import { MessageService } from 'primeng/api';
 
 type Status = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'WITHDRAWN' | 'APPROVED' | 'REJECTED';
 
@@ -29,7 +30,7 @@ export class ResignationForm {
   form!: FormGroup;
 
 
-  constructor(private fb: FormBuilder, private api: Resignation) {}
+  constructor(private fb: FormBuilder, private api: Resignation, private messageService : MessageService) {}
   ngOnInit(): void {
     this.form = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]],
@@ -53,7 +54,15 @@ export class ResignationForm {
     this.api.create({ employeeId: this.employeeId, ...this.form.value as any })
       .subscribe({
         next: (rec) => { this.submitted = rec; this.loading = false; },
-        error: () => { alert('Failed to submit'); this.loading = false; }
+        error: () => { 
+          // alert('Failed to submit'); 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to submit resignation'
+          })
+          this.loading = false; 
+        }
       });
     this.load();
   }
@@ -93,7 +102,13 @@ export class ResignationForm {
         this.withdrawReason = '';
         this.load();
       },
-      error: () => alert('Failed to withdraw')
+      error: () => 
+        // alert('Failed to withdraw')
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to withdraw resignation'
+      })
     });
   }
 

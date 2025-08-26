@@ -32,8 +32,8 @@ export class LeaveRequest {
   departments: any[] = [];
   filterOptions = [
     { label: 'Employee ID', value: 'empId' },
-    { label: 'Name', value: 'name' },
-    { label: 'Department', value: 'department' },
+    { label: 'Name', value: 'empName' },
+    { label: 'Department', value: 'deptName' },
     { label: 'Leave Type', value: 'leaveType' },
   ];
   private isHRRole(norm: string): boolean {
@@ -77,7 +77,7 @@ export class LeaveRequest {
     this.filteredLeaveData = [...this.leaveData];
     this.loadLeaves();
     this.role = localStorage.getItem('role') || '';
-    this.loggedEmployeeId = Number(localStorage.getItem('empId') )|| 0
+    this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
     this.isHR = this.isHRRole(this.role);
     this.buildDisabledDates();
 
@@ -87,24 +87,30 @@ export class LeaveRequest {
   loadLeaves() {
     this.leaveService.getLeaves().subscribe({
       next: (data) => {
-        this.leaveData = data.map((leave: any, index: number) => ({
-          no: index + 1,
-          id: leave.id,
-          empId: leave.employee?.employeeCode,
-          empName: `${leave.employee?.firstName} ${leave.employee?.lastName}`,
-          email: leave.employee?.email || '',
-          department: leave.employee?.departmentId || '',
-          jobTitle: leave.employee?.designation || '',
-          leaveType: leave.leaveType?.name,
-          reson: leave.reason,
-          startDate: leave.startDate,
-          endDate: leave.endDate,
-          status: leave.status,
-          empID: leave.employee.id,
-          declineReason: leave.declineReason,
-          reportingManagerId: leave.employee?.reportingManager ?? null,
-          leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
-        }));
+        this.leaveData = data.map((leave: any, index: number) => {
+          const deptId = leave.employee?.departmentId
+          const dept = this.departments.find((d: any) => d.id === deptId);
+
+          return {
+            no: index + 1,
+            id: leave.id,
+            empId: leave.employee?.employeeCode,
+            empName: `${leave.employee?.firstName} ${leave.employee?.lastName}`,
+            email: leave.employee?.email || '',
+            department: leave.employee?.departmentId || '',
+            deptName: dept? dept.name : '',
+            jobTitle: leave.employee?.designation || '',
+            leaveType: leave.leaveType?.name,
+            reson: leave.reason,
+            startDate: leave.startDate,
+            endDate: leave.endDate,
+            status: leave.status,
+            empID: leave.employee.id,
+            declineReason: leave.declineReason,
+            reportingManagerId: leave.employee?.reportingManager ?? null,
+            leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
+          }
+        });
         // Only pending rows are actionable in this screen
         const pending = this.leaveData.filter(r => (r.status || '').toUpperCase() === 'PENDING');
 
@@ -131,15 +137,12 @@ export class LeaveRequest {
       return;
     }
 
-    const filterKey = this.selectedFilter?.value as keyof any;
+    const filterKey = this.selectedFilter?.value;
 
     this.filteredLeaveData = this.leaveData.filter((leave: any) => {
-      if (filterKey === 'name') {
-        return leave.empName?.toLowerCase().includes(searchText);
-      }
-
       return leave[filterKey]?.toString().toLowerCase().includes(searchText);
     });
+    console.log('Filtered Data:', this.filteredLeaveData);
   }
 
 
