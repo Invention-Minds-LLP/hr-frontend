@@ -5,16 +5,17 @@ import { PrimeNG } from 'primeng/config';
 import { Navbar } from "./navbar/navbar";
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,Login, Navbar, CommonModule],
+  imports: [RouterOutlet, Login, Navbar, CommonModule, ToastModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
 
-  constructor(private router:Router){}
+  constructor(private router: Router) { }
   protected title = 'hr-frontend';
 
   dark = false;

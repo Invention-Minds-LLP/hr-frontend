@@ -4,7 +4,7 @@ import { AssignTest } from '../../services/assign-test/assign-test';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -81,7 +81,8 @@ export class TestPlatform implements OnInit, OnDestroy {
     private attemptService: TestAttempt,
     private router: Router,
     private confirmation: ConfirmationService,
-    private ct: Recuriting
+    private ct: Recuriting,
+    private messageService: MessageService
   ) {
     this.assignedTestId = Number(this.route.snapshot.paramMap.get('id'));
   }

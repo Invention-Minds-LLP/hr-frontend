@@ -23,6 +23,7 @@ import {
 } from '../../services/internship/internship-service.model';
 import { InternshipService } from '../../services/internship/internship-service';
 import { Select } from "primeng/select";
+import { MessageService } from 'primeng/api';
 
 type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert';
 // add near the top with your other types
@@ -78,11 +79,11 @@ export class Internship implements OnInit {
     mentorId: null,
     endDate: null,
     status: 'DRAFT',
-    departmentId: null,   
+    departmentId: null,
   };
   departmentId?: number;                 // filter (optional)
   departments: Department[] = [];        // dropdown source
-  deptOptions: {label: string, value: number}[] = [];
+  deptOptions: { label: string, value: number }[] = [];
 
   editForm: UpdateInternshipDto = {};
   workflowForm: any = {};  // changes based on action
@@ -104,7 +105,7 @@ export class Internship implements OnInit {
     CONVERTED: 'success',
     DROPPED: 'danger',
   };
-  
+
   getSeverity(status: InternshipStatus | string): PrimeSeverity {
     return this.severityMap[status as InternshipStatus] ?? 'info';
   }
@@ -112,12 +113,12 @@ export class Internship implements OnInit {
     this.createForm.status = s;
     if (s !== 'CONVERTED') this.createForm.employeeId = null;  // clear when not converted
   }
-  
+
   onEditStatusChange(s: InternshipStatus) {
     this.editForm.status = s;
     if (s !== 'CONVERTED') this.editForm.employeeId = undefined; // don't send on patch
   }
-  
+
 
   private lastStatus: Record<number, InternshipStatus> = {};
 
@@ -128,19 +129,19 @@ export class Internship implements OnInit {
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
   private statusToAction(next: InternshipStatus | string): ActionKind | null {
     switch (next) {
-      case 'OFFERED':   return 'offer';
-      case 'ACTIVE':    return 'activate';
+      case 'OFFERED': return 'offer';
+      case 'ACTIVE': return 'activate';
       case 'COMPLETED': return 'complete';
-      case 'DROPPED':   return 'drop';
+      case 'DROPPED': return 'drop';
       case 'CONVERTED': return 'convert';
-      default:          return null; // DRAFT or unknown -> no modal
+      default: return null; // DRAFT or unknown -> no modal
     }
   }
 
   onStatusChange(it: Internships, ev: { value: InternshipStatus }) {
     const next = ev.value;
     const prev = this.lastStatus[it.id] ?? it.status;
-  
+
     const action = this.statusToAction(next);
     if (!action) {
       // No action modal for this choice (e.g., DRAFT). Just persist status if you want:
@@ -148,17 +149,17 @@ export class Internship implements OnInit {
       it.status = prev; // or keep next if you do update above
       return;
     }
-  
+
     // Revert immediately; we'll switch after the action succeeds
     it.status = prev;
-  
+
     // Open the corresponding workflow modal you already have
     this.openAction(action, it);
   }
 
-  constructor(private api: InternshipService, private dept: Departments, private empService: Employees) { }
+  constructor(private api: InternshipService, private dept: Departments, private empService: Employees, private messageService: MessageService) { }
   // debounce for the search box
-private search$ = new Subject<void>();
+  private search$ = new Subject<void>();
 
   ngOnInit(): void {
     this.dept.getDepartments().subscribe({
@@ -218,7 +219,7 @@ private search$ = new Subject<void>();
       value: e.id,
     }));
   }
-  
+
   // fetch employees for a dept
   private async loadMentors(deptId: number) {
     const list = await this.empService.list({ departmentId: deptId, status: 'ACTIVE' }).toPromise();
@@ -276,7 +277,7 @@ private search$ = new Subject<void>();
       startDate: it.startDate?.slice(0, 10),
       endDate: it.endDate ? it.endDate.slice(0, 10) : null,
       status: it.status,
-      departmentId: it.departmentId ?? null, 
+      departmentId: it.departmentId ?? null,
     };
     if (this.editForm.departmentId) {
       this.loadMentors(this.editForm.departmentId).then(opts => this.mentorOptionsEdit = opts);
@@ -311,7 +312,13 @@ private search$ = new Subject<void>();
   submitCreate() {
     this.api.create(this.createForm).subscribe({
       next: () => { this.close(); this.load(); },
-      error: (err) => alert(err?.error?.error || 'Create failed'),
+      error: (err) =>
+        // alert(err?.error?.error || 'Create failed'),
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || 'Create failed'
+        })
     });
   }
 
@@ -319,7 +326,13 @@ private search$ = new Subject<void>();
     if (!this.selected) return;
     this.api.update(this.selected.id, this.editForm).subscribe({
       next: () => { this.close(); this.load(); },
-      error: (err) => alert(err?.error?.error || 'Update failed'),
+      error: (err) =>
+        //  alert(err?.error?.error || 'Update failed'),
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || 'Update failed'
+        })
     });
   }
 
@@ -333,7 +346,13 @@ private search$ = new Subject<void>();
     } else if (a === 'activate') {
       this.api.activate(id, { startDate: this.workflowForm.startDate, employeeId: this.workflowForm.employeeId ?? null }).subscribe(this.afterAction, this.onErr);
     } else if (a === 'extend') {
-      if (!this.workflowForm.endDate) return alert('endDate is required');
+      if (!this.workflowForm.endDate) return
+      // alert('endDate is required');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'endDate is required'
+      })
       this.api.extend(id, { endDate: this.workflowForm.endDate }).subscribe(this.afterAction, this.onErr);
     } else if (a === 'complete') {
       this.api.complete(id, { endDate: this.workflowForm.endDate || undefined }).subscribe(this.afterAction, this.onErr);
@@ -350,7 +369,13 @@ private search$ = new Subject<void>();
   }
 
   private afterAction = () => { this.close(); this.load(); };
-  private onErr = (err: any) => alert(err?.error?.error || 'Action failed');
+  private onErr = (err: any) =>
+    //  alert(err?.error?.error || 'Action failed');
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err?.error?.error || 'Action failed'
+    });
 
   // Small helpers
   trackById(_i: number, x: Internships) { return x.id; }
@@ -398,15 +423,15 @@ private search$ = new Subject<void>();
     this.page = 1;
     this.search$.next();
   }
-  
+
   // called by status dropdown (apply immediately)
   onImmediateFilterChange() {
     this.page = 1;
     this.load();
   }
   mentorOptionsCreate: { label: string; value: number }[] = [];
-  mentorOptionsEdit:   { label: string; value: number }[] = [];
-  
+  mentorOptionsEdit: { label: string; value: number }[] = [];
+
   // called when create department changes
   onCreateDeptChange(deptId?: number | null) {
     if (!deptId) { this.mentorOptionsCreate = []; this.createForm.mentorId = null; return; }
@@ -416,7 +441,7 @@ private search$ = new Subject<void>();
       if (!opts.some(o => o.value === this.createForm.mentorId)) this.createForm.mentorId = null;
     });
   }
-  
+
   // called when edit department changes
   onEditDeptChange(deptId?: number | null) {
     if (!deptId) { this.mentorOptionsEdit = []; this.editForm.mentorId = null; return; }
@@ -424,5 +449,5 @@ private search$ = new Subject<void>();
       this.mentorOptionsEdit = opts;
       if (!opts.some(o => o.value === this.editForm.mentorId)) this.editForm.mentorId = null;
     });
-  } 
+  }
 }

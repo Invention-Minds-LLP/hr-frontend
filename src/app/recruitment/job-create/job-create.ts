@@ -4,6 +4,7 @@ import { Recuriting, Job } from '../../services/recruiting/recuriting';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Departments, Department } from '../../services/departments/departments';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -17,6 +18,9 @@ export class JobCreate {
   private api = inject(Recuriting);
   private deptApi = inject(Departments);
   private router = inject(Router);
+
+
+  constructor(private messageService : MessageService){}
 
   
   departments: Department[] = [];
@@ -56,7 +60,12 @@ export class JobCreate {
     this.api.createJob(this.form.value as any).subscribe({
       next: (job) => {
         this.created = job;
-        alert('Job created!');
+        // alert('Job created!');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Job created successfully!'
+        });
         this.router.navigate(['/recruitment/jobs']); // or to job list
       },
       error: (e) => (this.error = e?.error?.error || 'Failed to create'),

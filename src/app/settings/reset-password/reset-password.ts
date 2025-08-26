@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { User } from '../../services/user/user';
 import { from } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-reset-password',
@@ -30,7 +31,7 @@ export class ResetPassword {
 
   formSubmitted = false;
 
-  constructor(private userService: User) { }
+  constructor(private userService: User, private messageService : MessageService) { }
 
   ngOnInit() {
     // const stored = localStorage.getItem('employee');
@@ -87,7 +88,12 @@ export class ResetPassword {
         .resetMyPassword(parseInt(this.userId), this.reset.confirmPassword, this.reset.newPassword)
         .subscribe({
           next: (res) => {
-            alert(res?.message || 'Password reset successfully!');
+            // alert(res?.message || 'Password reset successfully!');
+            this.messageService.add({
+              severity:'success',
+              summary:'Success',
+              detail: res.message || 'Password reset successfully!'
+            })
             this.onClear(form);
           },
           error: (err) => {
@@ -95,14 +101,29 @@ export class ResetPassword {
               err?.error?.error ||
               err?.error?.message ||
               'Failed to reset password.';
-            alert(msg);
+            // alert(msg);
+            this.messageService.add({
+              severity:'error',
+              summary:'Error',
+              detail:msg
+          })
           }
         })
-      alert('Password reset successfully!');
+      // alert('Password reset successfully!');
+      this.messageService.add({
+        severity:'success',
+        summary:'Success',
+        detail:'Password reset successfully!'
+      })
       console.log('Password Reset:', this.reset);
 
     } else {
-      alert('Confirm Password Not Mathched');
+      // alert('Confirm Password Not Mathched');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Confirm Password Not Matched'
+      })
     }
     // this.onClear(); 
   }

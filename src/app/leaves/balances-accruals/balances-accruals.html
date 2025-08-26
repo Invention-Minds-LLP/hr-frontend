@@ -7,7 +7,7 @@
                 <input type="text" pInputText placeholder="Search"  (input)="onSearch($event)"  />
             </p-iconfield>
             <div (click)="toggleDropdown()">
-                <i class="pi pi-align-center"><span class="filter">Filter</span></i>
+                <i class="pi pi-align-center"><span class="filter">{{ selectedFilter?.label || 'Filter' }}</span></i>
                 <ul class="menu-list" *ngIf="filterDropdown">
                     <li class="list" *ngFor="let option of filterOption" (click)="selectFilter(option);$event.stopPropagation()"
                         [ngClass]="{'active': selectedFilter?.value === option.value}">{{ option.label }}</li>
@@ -17,7 +17,7 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="balancesData" [paginator]="true" [rows]="10" class="custom-table">
+        <p-table class="" [value]="filterBalancesData" [paginator]="true" [rows]="10" class="custom-table">
             <ng-template #header>
                 <tr>
                     <th>No</th>

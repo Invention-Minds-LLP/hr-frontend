@@ -13,7 +13,7 @@ import { EmployeeDetails } from "../employee-details/employee-details";
 interface balancesTable {
   empName: string;
   number: number;
-  department: string;
+  department: number;
   jobTitle: string;
   shiftType: string;
   totalLeave: string;
@@ -31,34 +31,36 @@ interface balancesTable {
 })
 export class BalancesAccruals {
 
-  constructor(private entitleService: Entitles, private departmentService: Departments){}
+  constructor(private entitleService: Entitles, private departmentService: Departments) { }
 
   filterBalancesData: any[] = [];
+  balancesData: any[] = [];
   selectedFilter: any = null;
   filterDropdown: boolean = false;
-  selectedEmployee:any = null;
+  selectedEmployee: any = null;
   requests: any = null;
   departments: any[] = [];
   filterOption = [
-    { label: 'Employee ID', value: 'empId' },
+    { label: 'Employee ID', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
-    { label: 'Departmnent', value: 'department' },
-    { label: 'JobTitle', value: 'jobtitle' },
+    { label: 'Department', value: 'department' },
+    { label: 'JobTitle', value: 'designation' },
     { label: 'ShiftType', value: 'shiftType' }
   ]
 
 
-  balancesData: any[] = [];
 
-  
+
+
 
 
   ngOnInit() {
     this.entitleService.getEmployeeUsageSummary().subscribe((data) => {
       this.balancesData = data;
+      this.filterBalancesData = [...this.balancesData];
     });
-    this.filterBalancesData = [...this.balancesData];
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
+
   }
 
   onSearch(event: Event) {
@@ -70,16 +72,19 @@ export class BalancesAccruals {
       return
     }
 
-    const filterKey = this.selectedFilter?.value as keyof balancesTable;
+    const filterKey = this.selectedFilter?.value;
 
     this.filterBalancesData = this.balancesData.filter((balance: balancesTable) => {
-      if (filterKey === 'name') {
-        return balance.empName?.toLocaleLowerCase().includes(searchText)
+      if (filterKey === 'department') {
+        const deptName = this.getDepartmentName(balance.department)?.toLowerCase()
+        return deptName.includes(searchText)
       }
 
       return balance[filterKey]?.toString().toLowerCase().includes(searchText)
     })
 
+
+    console.log(this.balancesData)
   }
 
 
@@ -116,7 +121,7 @@ export class BalancesAccruals {
   handleClose() {
     this.selectedEmployee = null;   // hide child
   }
-  
+
 
   closeDetails(): void {
     this.selectedEmployee = null;

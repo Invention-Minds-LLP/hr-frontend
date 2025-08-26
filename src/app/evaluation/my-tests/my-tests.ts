@@ -5,18 +5,21 @@ import { DatePipe, CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { Recuriting, CandidateAssignedTest} from '../../services/recruiting/recuriting';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-my-tests',
   imports: [DatePipe, CommonModule, TableModule, ButtonModule],
   templateUrl: './my-tests.html',
   styleUrl: './my-tests.css'
+
 })
 export class MyTests {
   employeeId = Number(localStorage.getItem('empId')); // Replace with logged-in user
   tests: any[] = [];
 
-  constructor(private testService: TestAttempt, private router: Router, private ct: Recuriting) {}
+  constructor(private testService: TestAttempt, private router: Router, private ct: Recuriting , private messageService : MessageService) {}
 
   ngOnInit(): void {
     if(this.employeeId){
@@ -34,7 +37,13 @@ export class MyTests {
       next: ({ attemptId }) => {
         this.router.navigate(['/take-test', assignedId], { queryParams: { attemptId } });
       },
-      error: (e) => alert(e?.error?.error || 'Cannot start test')
+      error: (e) => 
+        // alert(e?.error?.error || 'Cannot start test')
+        this.messageService.add({
+          severity:'error',
+          summary:'Error',
+          detail:e?.error?.error || 'Cannot start test'
+        })
     });
   }
   

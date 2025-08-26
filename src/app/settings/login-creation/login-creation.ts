@@ -6,6 +6,7 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { User } from '../../services/user/user';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login-creation',
@@ -23,7 +24,7 @@ export class LoginCreation {
 
   formSubmitted = false;
 
-  constructor(private userService: User){}
+  constructor(private userService: User, private messageService : MessageService){}
 
   onSubmit(form : NgForm){
     this.formSubmitted = true;
@@ -32,7 +33,12 @@ export class LoginCreation {
       console.log('form Submited', this.login);
       
     if (this.login.employeeId == null) {
-      alert('Employee ID is required');
+      // alert('Employee ID is required');
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Employee ID is required'
+      })
       return;
     }
 
@@ -44,7 +50,12 @@ export class LoginCreation {
     this.userService.registerUser(payload).subscribe({
       next: (res) => {
         console.log('User created:', res);
-        alert('User created successfully');
+        // alert('User created successfully');
+        this.messageService.add({
+          severity:'success',
+          summary:'Success',
+          detail:'User created successfully'
+        })
         this.onClear(form);
       },
       error: (err) => {
@@ -53,11 +64,22 @@ export class LoginCreation {
           err?.error?.error ||
           err?.error?.message ||
           'Failed to create user. Ensure Employee exists and no user already linked to this employeeCode.';
-        alert(msg);
+        // alert(msg);
+        this.messageService.add({
+          severity:'error',
+          summary:'Error',
+          detail:msg
+        })
+      
       }
     })
     }else{
-      alert('Form is invalid ')
+      // alert('Form is invalid ')
+      this.messageService.add({
+        severity:'error',
+        summary:'Error',
+        detail:'Form is invalid'
+      })
     }
   }
 

@@ -24,7 +24,7 @@ import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-employee-form',
-  imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ToastModule, ReactiveFormsModule, StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule],
+  imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule, StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css'
 })
@@ -117,7 +117,8 @@ export class EmployeeForm {
     private departmentService: Departments,
     private branchService: Branches,
     private roleService: Roles,
-    private shiftService: Shifts) { }
+    private shiftService: Shifts,
+    private messageService: MessageService) { }
 
   ngOnInit() {
 
@@ -403,10 +404,21 @@ export class EmployeeForm {
             }
 
 
-            alert('Employee updated successfully!');
+            // alert('Employee updated successfully!');
+            this.messageService.add({
+              severity:'success',
+              summary:'Success',
+              detail:'Employee updated successfully!'
+            })
             this.closeForm.emit(true);
           },
-          error: () => alert('Error updating employee')
+          error: () =>
+            //  alert('Error updating employee')
+            this.messageService.add({
+              severity:'error',
+              summary:'Error',
+              detail:'Error updating employee'
+            })
         });
       }
       else {
@@ -420,7 +432,13 @@ export class EmployeeForm {
             }
             this.employeeForm.reset()
           },
-          error: () => alert('Error creating employee')
+          error: () => 
+            // alert('Error creating employee')
+          this.messageService.add({
+            severity:'error',
+            summary:'Error',
+            detail:'Error creating employee'
+          })
         });
       }
 
@@ -476,8 +494,20 @@ export class EmployeeForm {
 
     this.employeeService.uploadEmployeeDocuments(employeeId, this.uploadedDocsForm)
       .subscribe({
-        next: () => alert('Employee and documents uploaded successfully!'),
-        error: () => alert('Documents upload failed')
+        next: () => 
+          // alert('Employee and documents uploaded successfully!'),
+          this.messageService.add({
+            severity:'success',
+            summary:'Success',
+            detail:'Employee and documents uploaded successfully!'
+          }),
+        error: () =>
+          //  alert('Documents upload failed')
+          this.messageService.add({
+            severity:'error',
+            summary:'Error',
+            detail:'Documents upload failed'
+          })
       });
 
 

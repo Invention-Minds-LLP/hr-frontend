@@ -10,6 +10,7 @@ import { Permission } from '../../../services/permission/permission';
 import { TooltipModule } from 'primeng/tooltip';
 import { Departments } from '../../../services/departments/departments';
 import { PermissionPopup } from '../../permission-popup/permission-popup';
+import { MessageService } from 'primeng/api';
 
 interface requestTable {
   empName: string;
@@ -31,7 +32,7 @@ interface requestTable {
 })
 export class PermissionRequest {
 
-  constructor(private permissionService: Permission, private departmentService: Departments) { }
+  constructor(private permissionService: Permission, private departmentService: Departments, private messageService: MessageService) { }
 
   filterReuqusetData: any[] = [];
   selectedFilter: any = null;
@@ -39,7 +40,7 @@ export class PermissionRequest {
   declineDialogVisible: boolean = false;
   declineReason: string = '';
   currentDeclineId: number | null = null;
-  departments:any[]=[];
+  departments: any[] = [];
   showPopup: boolean = false;
   selectedPermission: any = null;
   viewMode: boolean = false;
@@ -47,13 +48,13 @@ export class PermissionRequest {
 
   filterOption = [
     { label: 'Employee ID', value: 'empId' },
-    { label: 'Name', value: 'name' },
-    { label: 'Departmnent', value: 'department' },
-    { label: 'JobTitle', value: 'jobtitle' },
+    { label: 'Name', value: 'empName' },
+    { label: 'Departmnent', value: 'deptName' },
+    { label: 'JobTitle', value: 'jobTitle' },
   ]
 
   requestData: requestTable[] = [];
-  columnCount:number = 10;
+  columnCount: number = 10;
   isHR: boolean = false;
   role: string = '';
   loggedEmployeeId: number = 0;
@@ -62,7 +63,7 @@ export class PermissionRequest {
   ngOnInit() {
     this.loadPermissionRequests();
     this.role = localStorage.getItem('role') || '';
-    this.loggedEmployeeId = Number(localStorage.getItem('empId') )|| 0
+    this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
     this.isHR = this.isHRRole(this.role);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
   }
@@ -76,15 +77,13 @@ export class PermissionRequest {
       return
     }
 
-    const filterKey = this.selectedFilter?.value as keyof requestTable;
+    const filterKey = this.selectedFilter?.value;
 
     this.filterReuqusetData = this.requestData.filter((request: requestTable) => {
-      if (filterKey === 'name') {
-        return request.empName?.toLocaleLowerCase().includes(searchText)
-      }
-
       return request[filterKey]?.toString().toLowerCase().includes(searchText)
     })
+
+    // console.log('Data', this.filterReuqusetData)
 
   }
 
@@ -105,27 +104,33 @@ export class PermissionRequest {
   loadPermissionRequests() {
     this.permissionService.getPermissions().subscribe({
       next: (data) => {
-         const pending = data.map(req => ({
-          id: req.id,
-          empId: req.employee.employeeCode,
-          empName: `${req.employee.firstName} ${req.employee.lastName}`,
-          department: req.employee.departmentId || '',
-          jobTitle: req.employee.designation,
-          premDate: new Date(req.day).toLocaleDateString(),
-          reson: req.reason,
-          noOfHours: this.calculateHours(req.startTime, req.endTime),
-          email: req.employee.email,
-          status: req.status,
-          permissionType: req.permissionType,
-          timing: req.timing,
-          day: req.day,
-          startTime: req.startTime,
-          endTime: req.endTime,
-          reportingManagerId: req.reportingManager ?? null, 
-        }));
+        const pending = data.map(req => {
+          const deptId = req.employee?.departmentId;
+          const dept = this.departments.find(d => d.id === deptId);
+
+          return {
+            id: req.id,
+            empId: req.employee.employeeCode,
+            empName: `${req.employee.firstName} ${req.employee.lastName}`,
+            department: req.employee.departmentId || '',
+            deptName: dept? dept.name : '',
+            jobTitle: req.employee.designation,
+            premDate: new Date(req.day).toLocaleDateString(),
+            reson: req.reason,
+            noOfHours: this.calculateHours(req.startTime, req.endTime),
+            email: req.employee.email,
+            status: req.status,
+            permissionType: req.permissionType,
+            timing: req.timing,
+            day: req.day,
+            startTime: req.startTime,
+            endTime: req.endTime,
+            reportingManagerId: req.reportingManager ?? null,
+          }
+        });
         this.requestData = this.isHR
-        ? pending
-        : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
+          ? pending
+          : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         this.filterReuqusetData = [...this.requestData];
       },
       error: (err) => console.error('Error fetching permission requests:', err)
@@ -159,7 +164,12 @@ export class PermissionRequest {
   // Confirm decline action
   confirmDecline() {
     if (!this.declineReason.trim()) {
-      alert('Please enter a reason for declining');
+      // alert('Please enter a reason for declining');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please enter a reason for declining'
+      })
       return;
     }
 
@@ -199,20 +209,20 @@ export class PermissionRequest {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
 
-openDetailsPopup(request: any) {
-  // Pass mapped data to popup
-  this.selectedPermission = request;
-  this.viewMode = true; // make popup readonly
-  this.showPopup = true;
-}
+  openDetailsPopup(request: any) {
+    // Pass mapped data to popup
+    this.selectedPermission = request;
+    this.viewMode = true; // make popup readonly
+    this.showPopup = true;
+  }
 
-closePopup() {
-  this.showPopup = false;
-  this.selectedPermission = null;
-  this.viewMode = false;
-}
-private isHRRole(norm: string): boolean {
-  return norm === 'HR' || norm === 'HR_MANAGER';
-}
+  closePopup() {
+    this.showPopup = false;
+    this.selectedPermission = null;
+    this.viewMode = false;
+  }
+  private isHRRole(norm: string): boolean {
+    return norm === 'HR' || norm === 'HR_MANAGER';
+  }
 
 }

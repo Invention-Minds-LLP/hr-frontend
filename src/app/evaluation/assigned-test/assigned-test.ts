@@ -5,19 +5,23 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-assigned-test',
   imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule],
   templateUrl: './assigned-test.html',
-  styleUrl: './assigned-test.css'
+  styleUrl: './assigned-test.css',
+
+
 })
 export class AssignedTest {
   assignedTests: any[] = [];
   overviewVisible = false;
   overview: any = null;
 
-  constructor(private assignedService: AssignTest) {}
+  constructor(private assignedService: AssignTest, private messageService: MessageService) {}
 
   ngOnInit(): void {
     this.assignedService.getAll().subscribe({
@@ -28,7 +32,13 @@ export class AssignedTest {
   openOverview(a: any) {
     this.assignedService.getOverview(a.id).subscribe({
       next: data => { this.overview = data; this.overviewVisible = true; },
-      error: err => alert('Failed to load overview')
+      error: err => 
+        // alert('Failed to load overview')
+      this.messageService.add({
+          severity:'error',
+          summary:'Error',
+          detail:'Failed to load overview'
+      })
     });
   }
   fmtDuration(s?: number | null) {

@@ -7,7 +7,7 @@
                 <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
             </p-iconfield>
             <div class="filter" (click)="toggleFilterDropdown()">
-                <i class="pi pi-align-center"> <span class="filter">Filter</span></i>
+                <i class="pi pi-align-center"> <span class="filter">{{ selectedFilter?.label || 'Filter'}}</span></i>
                 <ul class="menu-list" *ngIf="showFilterDropdown">
                     <li class="list" *ngFor="let option of filterOptions"
                         (click)="selectFilter(option); $event.stopPropagation()"

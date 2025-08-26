@@ -18,6 +18,7 @@ import { Recuriting } from '../services/recruiting/recuriting';
 import { Departments, Department } from '../services/departments/departments';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
+import { MessageService } from 'primeng/api';
 
 function score01Validator(ctrl: AbstractControl): ValidationErrors | null {
   const v = ctrl.value;
@@ -93,7 +94,7 @@ export class CandidateEvalForm {
       }
     });
   }
-  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments) {
+  constructor(private fb: FormBuilder,private api: Recuriting, private deptSvc: Departments, private messageService : MessageService) {
     this.form = this.fb.group({
       candidate: this.fb.group({
         name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
@@ -229,7 +230,12 @@ export class CandidateEvalForm {
       }
       if (this.panelArr.invalid) {
         this.form.markAllAsTouched();
-        alert('Please fill Panel User ID and Name for each panelist before submitting.');
+        // alert('Please fill Panel User ID and Name for each panelist before submitting.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Please fill Panel User ID and Name for each panelist before submitting.'
+        });
         this.saving = false;
         return;
       }
@@ -262,12 +268,22 @@ export class CandidateEvalForm {
         completed++;
         if (completed === calls.length) {
           this.saving = false;
-          alert(submit ? 'Panel feedback submitted.' : 'Panel drafts saved.');
+          // alert(submit ? 'Panel feedback submitted.' : 'Panel drafts saved.');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: submit ? 'Panel feedback submitted.' : 'Panel drafts saved.'
+          });
         }
       },
       error: (err) => {
         this.saving = false;
-        alert(err?.error?.message || 'Failed to save panel feedback');
+        // alert(err?.error?.message || 'Failed to save panel feedback');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.message || 'Failed to save panel feedback'
+        });
       }
     }));
   }
@@ -288,8 +304,20 @@ export class CandidateEvalForm {
     };
 
     this.api.saveHrReview(this.interviewId, dto).subscribe({
-      next: () => alert('HR review saved.'),
-      error: (err) => alert(err?.error?.message || 'Failed to save HR review'),
+      next: () => 
+        // alert('HR review saved.'),
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'HR review saved.'
+        }),
+      error: (err) => 
+        // alert(err?.error?.message || 'Failed to save HR review'),
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.message || 'Failed to save HR review'
+        })
     });
   }
 
