@@ -1,0 +1,88 @@
+<div class="survey-container">
+  <div class="p-fluid">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="employee-details p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6">
+          <label>Emp Name :</label>
+          <input pInputText [value]="employeeDetails.name" readonly />
+        </div>
+        <div class="p-field p-col-3">
+          <label>Emp ID :</label>
+          <input pInputText [value]="employeeDetails.employeeId" readonly />
+        </div>
+        <div class="p-field p-col-3">
+          <label>Desig :</label>
+          <input pInputText [value]="employeeDetails.role" readonly />
+        </div>
+        <div class="p-field p-col-6">
+          <label>Department :</label>
+          <input pInputText [value]="employeeDetails.deptId" readonly />
+        </div>
+        <div class="p-field p-col-6">
+          <label>Date :</label>
+          <input pInputText [value]="today | date:'dd-MM-yyyy'" readonly />
+        </div>
+      </div>
+      
+      
+  
+      <div *ngFor="let group of groupedQuestions">
+        <p-panel [header]="group.section + '. ' + sectionTitles[group.section]">
+          <p-table
+            [value]="group.questions"
+            styleClass="p-datatable-gridlines p-datatable-striped"
+            [responsiveLayout]="'scroll'"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:40px;">Sl No.</th>
+                <th>Question</th>
+                <th>Fully Agree</th>
+                <th>Mostly Agree</th>
+                <th>Mostly Disagree</th>
+                <th>Strongly Disagree</th>
+              </tr>
+            </ng-template>
+  
+            <ng-template pTemplate="body" let-q let-rowIndex="rowIndex">
+              <tr [formGroup]="getFormGroupFor(q.id)">
+                <td>{{ rowIndex + 1 }}</td>
+                <td>{{ q.questionText }}</td>
+                <td>
+                  <p-radioButton
+                    name="answer{{ q.id }}"
+                    value="Fully Agree"
+                    formControlName="answer"
+                  />
+                </td>
+                <td>
+                  <p-radioButton
+                    name="answer{{ q.id }}"
+                    value="Mostly Agree"
+                    formControlName="answer"
+                  />
+                </td>
+                <td>
+                  <p-radioButton
+                    name="answer{{ q.id }}"
+                    value="Mostly Disagree"
+                    formControlName="answer"
+                  />
+                </td>
+                <td>
+                  <p-radioButton
+                    name="answer{{ q.id }}"
+                    value="Strongly Disagree"
+                    formControlName="answer"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-panel>
+      </div>
+  
+      <button pButton type="submit" *ngIf="!surveyData" label="Submit Survey" class="p-mt-3"></button>
+    </form>
+  </div>
+</div>

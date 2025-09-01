@@ -172,11 +172,12 @@ export class HrDashboard implements OnInit {
       // 'Interviews missing feedback': 'feedback',
       'Offers awaiting signature (7d)': 'offersPendingSignature',
       'Exit clearances overdue': 'clearances',
+      'OT pending approval (yesterday)': 'otPending',
     };
 
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
-      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries'
+      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending'
     ];
 
     const k = (known as string[]).includes(String(key))
@@ -262,13 +263,30 @@ export class HrDashboard implements OnInit {
     });
   }
 
+  selectedRows: any[] = [];
+
   onListAction(action: string) {
-    // Route "View pending" to the pending drilldown for this announcement
+    // --- Case 1: Announcement Acks → View pending
     if (this.selectedListKey === ('annAck' as any) && action === 'View pending' && this.selectedAnnId) {
       this.openAnnAckPending(this.selectedAnnId); // no dept filter = whole audience
       return;
     }
-    // default behavior from before
+  
+    // --- Case 2: OT Approval/Rejection
+    if ((action === 'Approve selected' || action === 'Reject selected') && this.selectedRows.length) {
+      const ids = this.selectedRows.map(r => r.id);
+      this.api
+        .approveOrRejectOT(ids, action.startsWith('Approve') ? 'APPROVE' : 'REJECT')
+        .subscribe(() => {
+          this.closeModal();
+          // this.reloadData(); // refresh dashboard
+        });
+      return;
+    }
+  
+    // --- Default fallback
     this.toast(action);
   }
+  
+
 }

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 // ---- TYPES (match your API)
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
-  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending';
+  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending' | 'otPending';
 
 
 export interface List {
@@ -15,6 +15,7 @@ export interface List {
   cols: string[];
   rows: string[][];
   actions?: string[];
+  selectable?: boolean;
 }
 
 export interface LateInfo { count: number; medianMins: number; }
@@ -120,6 +121,13 @@ export class Dashboard {
     return this.http.post<{ ok: boolean; jobId?: number; note?: string }>(
       `${this.baseUrl}/recruiting/backfill-from-resignation`,
       { resignationId }
+    );
+  }
+
+  approveOrRejectOT(ids: number[], action: 'APPROVE' | 'REJECT') {
+    return this.http.post<{ ok: boolean; updated: number }>(
+      `${this.baseUrl}/ot/approve-reject`,
+      { ids, action }
     );
   }
 }

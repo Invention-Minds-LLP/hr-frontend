@@ -3,12 +3,14 @@ import { FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angu
 import { Recuriting, Job, Candidate, Application } from '../../services/recruiting/recuriting';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-application-create',
   imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './application-create.html',
-  styleUrl: './application-create.css'
+  styleUrl: './application-create.css',
+  providers: [MessageService],
 })
 
 export class ApplicationCreate implements OnInit {
@@ -16,6 +18,7 @@ export class ApplicationCreate implements OnInit {
   private api = inject(Recuriting);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
 
   jobs: Job[] = [];
   saving = false;
@@ -52,7 +55,9 @@ export class ApplicationCreate implements OnInit {
     this.api.createApplication(this.form.value as any).subscribe({
       next: (_app: Application) => {
         // alert('Application created!');
+        this.messageService.add({severity:'success', summary:'Success', detail:'Application created!'});
         this.router.navigate(['/recruitment/jobs']);
+        this.form.reset();
       },
       error: (e) => (this.error = e?.error?.error || 'Failed to create'),
       complete: () => (this.saving = false),

@@ -1,0 +1,34 @@
+<div *ngIf="!selectedSurvey">
+    <h2>All Surveys</h2>
+    <p-table [value]="surveys" [paginator]="true" [rows]="10" [loading]="loading">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Survey ID</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="body" let-survey>
+        <tr>
+          <td>{{ survey.id }}</td>
+          <td>{{ survey.employee.firstName }} {{ survey.employee.lastName }} ({{ survey.employee.employeeCode }})</td>
+          <td>{{ survey.employee.departmentId }}</td>
+          <td>{{ survey.date | date:'dd-MM-yyyy' }}</td>
+          <td>
+            <button pButton label="View" (click)="openSurvey(survey)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <div *ngIf="selectedSurvey">
+    <app-survey-form
+      [surveyData]="selectedSurvey"
+      (closeForm)="closeSurvey()"
+    ></app-survey-form>
+  </div>
+  

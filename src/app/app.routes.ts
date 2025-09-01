@@ -28,6 +28,12 @@ import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recrui
 import { Internship } from './internship/internship/internship';
 import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
 import { CandidateTests } from './evaluation/candidate-tests/candidate-tests';
+import { AnnouncementForm } from './announcements/announcement-form/announcement-form';
+import { AnnouncementPopup } from './announcements/announcement-popup/announcement-popup';
+import { SurveyForm } from './survey/survey-form/survey-form';
+import { SurveyList } from './survey/survey-list/survey-list';
+import { ExitInterview } from './resignation/exit-interview/exit-interview';
+import { ExitInterviewList } from './resignation/exit-interview-list/exit-interview-list';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -48,6 +54,11 @@ export const routes: Routes = [
       { path: 'attendance', component: ManageAttendance },
       { path: 'resignation', component: ResignOverview },
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
+      { path: 'all-announcement', component: AnnouncementForm},
+      { path: 'announcement', component: AnnouncementPopup},
+      { path: 'survey', component: SurveyForm},
+      { path: 'exit', component: ExitInterviewList}
+
     ],
 
   },

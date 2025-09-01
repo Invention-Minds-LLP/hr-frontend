@@ -1,0 +1,104 @@
+.circular-card {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+}
+
+.circular-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* === Labels & Fields === */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-inputtextarea {
+  font-size: 0.95rem;
+  padding: 0.6rem;
+}
+
+
+.req {
+  color: red;
+  font-weight: bold;
+}
+
+/* === Audience Radio Buttons === */
+.p-field-radiobuttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.p-field-radiobuttons label {
+  margin-left: 0.25rem;
+  font-weight: 500;
+}
+
+/* === MultiSelect / AutoComplete styling === */
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep .p-autocomplete {
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-multiselect-label,
+:host ::ng-deep .p-autocomplete-input {
+  padding: 0.6rem;
+  font-size: 0.95rem;
+}
+
+/* === Attachments List === */
+.attachment-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+}
+
+.attachment-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.attachment-list i {
+  margin-right: 0.5rem;
+  color: #6366f1;
+}
+
+/* === Flags (check options) === */
+.flags {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.flags label {
+  margin-left: 0.4rem;
+  font-weight: 500;
+}
+
+/* === Submit Button === */
+.submit-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}

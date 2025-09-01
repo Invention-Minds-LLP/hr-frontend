@@ -1,0 +1,365 @@
+<div class="p-fluid exit-form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- ================== BASIC INFO ================== -->
+    <p-card header="Basic Information" class="mb-3">
+      <div class="grid col-12">
+        <div class="col-4">
+          <p-floatlabel variant="on">
+            <input pInputText id="employeeId" formControlName="employeeId" />
+            <label for="employeeId"><i class="pi pi-id-card mr-2"></i>Employee ID</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-4">
+          <p-floatlabel variant="on">
+            <input pInputText id="interviewedBy" formControlName="interviewedBy" />
+            <label for="interviewedBy"><i class="pi pi-user mr-2"></i>Interviewed By</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-4">
+          <p-floatlabel variant="on">
+            <p-datepicker id="interviewDate" formControlName="interviewDate" dateFormat="dd/mm/yy"></p-datepicker>
+            <label for="interviewDate"><i class="pi pi-calendar mr-2"></i>Interview Date</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- ================== NEXT JOB INFO ================== -->
+    <p-card header="Next Job Information" class="mb-3">
+      <div class="grid col-12">
+        <div class="col-6">
+          <p-floatlabel variant="on">
+            <input pInputText id="nextOrgName" formControlName="nextOrgName" />
+            <label for="nextOrgName"><i class="pi pi-building mr-2"></i>Organization</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-6">
+          <p-floatlabel variant="on">
+            <input pInputText id="nextOrgPosition" formControlName="nextOrgPosition" />
+            <label for="nextOrgPosition"><i class="pi pi-briefcase mr-2"></i>Position</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-6">
+          <p-floatlabel variant="on">
+            <input pInputText id="nextOrgCategory" formControlName="nextOrgCategory" />
+            <label for="nextOrgCategory">Category (Govt/Private)</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-6">
+          <p-floatlabel variant="on">
+            <input pInputText id="nextOrgLocation" formControlName="nextOrgLocation" />
+            <label for="nextOrgLocation">Location (India/Abroad)</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12">
+          <p-floatlabel variant="on">
+            <input pInputText id="nextOrgIndustry" formControlName="nextOrgIndustry" />
+            <label for="nextOrgIndustry">Industry</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </p-card>
+
+
+    <!-- ================== ACCORDION ================== -->
+    <p-accordion class="mb-3">
+      <!-- Academic Qualification -->
+      <p-accordion-panel header="Academic Qualification">
+        <p-accordion-header>Academic Qualification</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-8">
+              <p-selectButton [options]="academicOptions" formControlName="academicQualification"
+                multiple="true"></p-selectButton>
+            </div>
+            <div class="col-4">
+              <p-floatlabel variant="on">
+                <input pInputText id="academicOthers" formControlName="academicQualificationOthers" />
+                <label for="academicOthers">Others</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Vacancy Source -->
+      <p-accordion-panel header="Vacancy Source">
+        <p-accordion-header>Vacancy Source</p-accordion-header>
+        <p-accordion-content>
+          <p-selectButton [options]="vacancyOptions" formControlName="vacancySource" multiple="true"></p-selectButton>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Recruitment Mode -->
+      <p-accordion-panel header="Recruitment Mode">
+        <p-accordion-header>Recruitment Mode</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-8">
+              <p-selectButton [options]="recruitmentOptions" formControlName="recruitmentMode"
+                multiple="true"></p-selectButton>
+            </div>
+            <div class="col-4">
+              <p-floatlabel variant="on">
+                <input pInputText id="recruitmentOthers" formControlName="recruitmentModeOthers" />
+                <label for="recruitmentOthers">Others</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Reasons -->
+      <p-accordion-panel header="Reasons for Leaving">
+        <p-accordion-header>Reasons for Leaving</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-6" *ngFor="let reason of [
+              {id:'reasonForLeaving', label:'Primary reason'},
+              {id:'triggerReason', label:'Trigger reason'},
+              {id:'mostSatisfying', label:'Most satisfying'},
+              {id:'leastSatisfying', label:'Least satisfying'},
+              {id:'supportReceived', label:'Support received'},
+              {id:'newJobOffers', label:'New job offers'}
+            ]">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea [id]="reason.id" rows="2" [formControlName]="reason.id"></textarea>
+                <label [for]="reason.id">{{reason.label}}</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Expectations & Skills -->
+      <p-accordion-panel header="Expectations & Skills">
+        <p-accordion-header>Expectations & Skills</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-6">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea id="expectationsMet" rows="2" formControlName="expectationsMet"></textarea>
+                <label for="expectationsMet">Expectations met?</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-6">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea id="skillUtilization" rows="2" formControlName="skillUtilization"></textarea>
+                <label for="skillUtilization">Skill utilization</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- ================== Factors Influencing Decision ================== -->
+      <p-accordion-panel header="Factors Influencing Decision">
+        <p-accordion-header>Factors Influencing Decision</p-accordion-header>
+        <p-accordion-content>
+          <div formGroupName="influencedFactors" class="grid">
+            <div class="col-6" *ngFor="let factor of leaveFactorsList">
+              <div class="flex align-items-center justify-content-between mb-3">
+                <label class="font-semibold">{{ factor.label }}</label>
+                <div class="flex gap-3">
+                  <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+                    [formControlName]="factor.key">
+                  </p-radioButton>
+                  <label for="{{factor.key}}_yes">Yes</label>
+
+                  <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                    [formControlName]="factor.key">
+                  </p-radioButton>
+                  <label for="{{factor.key}}_no">No</label>
+                </div>
+              </div>
+            </div>
+            <!-- Others -->
+            <div class="col-12">
+              <p-floatLabel>
+                <input pInputText formControlName="others" id="othersFactors" />
+                <label for="othersFactors">Others (Please specify)</label>
+              </p-floatLabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+
+      <!-- ================== Dissatisfaction Factors ================== -->
+      <p-accordion-panel header="Dissatisfaction Factors">
+        <p-accordion-header>Dissatisfaction Factors</p-accordion-header>
+        <p-accordion-content>
+          <div formGroupName="dissatisfaction" class="grid">
+            <div class="col-6" *ngFor="let factor of dissatisfactionList">
+              <div class="flex align-items-center justify-content-between mb-3">
+                <label class="font-semibold">{{ factor.label }}</label>
+                <div class="flex gap-3">
+                  <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+                    [formControlName]="factor.key">
+                  </p-radioButton>
+                  <label for="{{factor.key}}_yes">Yes</label>
+
+                  <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                    [formControlName]="factor.key">
+                  </p-radioButton>
+                  <label for="{{factor.key}}_no">No</label>
+                </div>
+              </div>
+            </div>
+            <!-- Others -->
+            <div class="col-12">
+              <p-floatLabel>
+                <input pInputText formControlName="others" id="othersDissatisfaction" />
+                <label for="othersDissatisfaction">Others (Please specify)</label>
+              </p-floatLabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+
+      <!-- Job Opinions -->
+      <p-accordion-panel header="Job / Department Opinions">
+        <p-accordion-header>Job / Department Opinions</p-accordion-header>
+        <p-accordion-content>
+          <div formGroupName="jobOpinion" class="grid">
+            <div class="col-6" *ngFor="let item of jobOpinionFields">
+              <label class="block mb-2">{{item.label}}</label>
+              <p-rating [formControlName]="item.key"></p-rating>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Attitude of Superiors -->
+      <p-accordion-panel header="Attitude of Superiors">
+        <p-accordion-header>Attitude of Superiors</p-accordion-header>
+        <p-accordion-content>
+          <div formGroupName="attitudeSuperiors" class="grid">
+            <div class="col-6" *ngFor="let item of superiorOpinionFields">
+              <label class="block mb-2">{{item.label}}</label>
+              <p-rating [formControlName]="item.key"></p-rating>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Company Opinions -->
+      <p-accordion-panel header="Company Opinions">
+        <p-accordion-header>Company Opinions</p-accordion-header>
+        <p-accordion-content>
+          <div formGroupName="companyOpinion" class="grid">
+            <div class="col-6" *ngFor="let item of companyOpinionFields">
+              <label class="block mb-2">{{item.label}}</label>
+              <p-rating [formControlName]="item.key"></p-rating>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Pay in New Job -->
+      <p-accordion-panel header="Pay in New Job">
+        <p-accordion-header>
+          Pay in New Job
+        </p-accordion-header>
+        <p-accordion-content>
+          <div class="formgrid grid">
+            <div class="field-radiobutton col-4">
+              <p-radioButton name="pay" value="More" formControlName="newJobSalaryComparison"
+                inputId="payMore"></p-radioButton>
+              <label for="payMore">More</label>
+            </div>
+            <div class="field-radiobutton col-4">
+              <p-radioButton name="pay" value="Same" formControlName="newJobSalaryComparison"
+                inputId="paySame"></p-radioButton>
+              <label for="paySame">Same</label>
+            </div>
+            <div class="field-radiobutton col-4">
+              <p-radioButton name="pay" value="Less" formControlName="newJobSalaryComparison"
+                inputId="payLess"></p-radioButton>
+              <label for="payLess">Less</label>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Discrimination -->
+      <p-accordion-panel header="Discrimination">
+        <p-accordion-header>Discrimination</p-accordion-header>
+        <p-accordion-content>
+          <div class="field-checkbox">
+            <p-checkbox formControlName="discrimination" binary="true"
+              label="Faced discrimination/harassment?"></p-checkbox>
+            <label for="discrimination">Faced discrimination/harassment?</label>
+          </div>
+        </p-accordion-content>
+
+      </p-accordion-panel>
+
+      <!-- Final -->
+      <p-accordion-panel header="Final">
+        <p-accordion-header>Final</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-6">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea id="likedMost" rows="2" formControlName="likedMost"></textarea>
+                <label for="likedMost">What did you like most?</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-6">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea id="stayEncouragement" rows="2" formControlName="stayEncouragement"></textarea>
+                <label for="stayEncouragement">What could encourage you to stay?</label>
+              </p-floatlabel>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox formControlName="recommendCompany" binary="true" inputId="recommendCompany"></p-checkbox>
+              <label for="recommendCompany">Would you recommend this company?</label>
+            </div>
+
+            <div class="col-12">
+              <p-floatlabel variant="on">
+                <textarea pInputTextarea id="recommendReason" rows="2" formControlName="recommendReason"></textarea>
+                <label for="recommendReason">Why / Why not?</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+      <!-- Demotivating Factors -->
+      <p-accordion-panel header="Demotivating Factors">
+        <p-accordion-header>Demotivating Factors</p-accordion-header>
+        <p-accordion-content>
+          <div class="grid">
+            <div class="col-8">
+              <p-selectButton [options]="demotivatingOptions" formControlName="demotivating"
+                multiple="true"></p-selectButton>
+            </div>
+            <div class="col-4">
+              <p-floatlabel variant="on">
+                <input pInputText id="demotivatingOthers" formControlName="demotivatingOthers" />
+                <label for="demotivatingOthers">Others</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+
+    </p-accordion>
+
+    <!-- ================== SUBMIT ================== -->
+    <div class="text-center mt-4">
+      <button pButton type="submit" label="Submit" icon="pi pi-check"
+        class="p-button-rounded p-button-success"></button>
+    </div>
+
+  </form>
+</div>

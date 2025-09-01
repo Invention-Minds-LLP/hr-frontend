@@ -76,4 +76,15 @@ export class Resignation {
   markCompleted(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/complete`, {});
   }
+  submit(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/exit-interview`, payload);
+  }
+
+  getById(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/exit-interview/${id}`);
+  }
+
+  listExitInterview(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/exit-interview`);
+  }
 }

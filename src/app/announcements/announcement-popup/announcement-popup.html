@@ -1,0 +1,36 @@
+<p-dialog
+  header="Important Announcement"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '600px' }"
+>
+  <div *ngIf="current">
+    <h3>{{ current.title }}</h3>
+    <p>{{ current.body }}</p>
+    <div class="dates">
+      <small>
+        <i class="pi pi-calendar"></i>
+        Valid from:
+        {{ current.startsAt | date:'MMM d, y, h:mm a' }}
+        <span *ngIf="current.endsAt">
+          – until {{ current.endsAt | date:'MMM d, y, h:mm a' }}
+        </span>
+      </small>
+    </div>
+
+    <div *ngIf="current.attachments?.length">
+      <h4>Attachments</h4>
+      <ul>
+        <li *ngFor="let f of current.attachments">
+          <a [href]="f.url" target="_blank">{{ f.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Acknowledge" icon="pi pi-check" (click)="acknowledge()"></button>
+  </ng-template>
+</p-dialog>

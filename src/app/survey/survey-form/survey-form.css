@@ -1,0 +1,57 @@
+.employee-details {
+    margin-bottom: 20px;
+    padding: 15px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .employee-details label {
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 4px;
+    display: block;
+  }
+  
+  .employee-details input[readonly] {
+    background-color: #f5f5f5;
+    color: #333;
+    font-weight: 500;
+    border: 1px solid #ccc;
+  }
+  
+  
+  .survey-container{
+    padding: 50px;
+  }
+
+  ::ng-deep .p-datatable-table {
+    table-layout: fixed !important;  /* ensures equal column layout */
+    width: 100% !important;
+  }
+  
+  ::ng-deep .p-datatable-thead > tr > th,
+  ::ng-deep .p-datatable-tbody > tr > td {
+    text-align: left;
+    white-space: normal;   /* allow wrapping */
+    word-wrap: break-word;
+  }
+  
+  /* Adjust specific column widths */
+  ::ng-deep .p-datatable-thead > tr > th:nth-child(1),
+  ::ng-deep .p-datatable-tbody > tr > td:nth-child(1) {
+    width: 60px !important;   /* Sl No. */
+  }
+  
+  ::ng-deep .p-datatable-thead > tr > th:nth-child(2),
+  ::ng-deep .p-datatable-tbody > tr > td:nth-child(2) {
+    width: 60% !important;   /* Question column fixed */
+  }
+  
+  ::ng-deep .p-datatable-thead > tr > th:nth-child(n+3),
+  ::ng-deep .p-datatable-tbody > tr > td:nth-child(n+3) {
+    width: 10% !important;   /* Options columns */
+    text-align: center;
+  }
+  

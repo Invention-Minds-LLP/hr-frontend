@@ -75,33 +75,33 @@
             <div class="footer-note">Click a row to open the full list and take action.</div>
         </div>
 
-        <div class="card grid-4">
-            <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
+            <div class="card grid-4">
+                <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
 
-            <!-- New: full list -->
-            <div class="ann-list" *ngIf="announcements?.length; else noAnns">
-                <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
-                    <div class="ann-meta">
-                        <div class="ann-title">
-                            <span class="idx">#{{ i + 1 }}</span> {{ a.title }}
+                <!-- New: full list -->
+                <div class="ann-list" *ngIf="announcements?.length; else noAnns">
+                    <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
+                        <div class="ann-meta">
+                            <div class="ann-title">
+                                <span class="idx">#{{ i + 1 }}</span> {{ a.title }}
+                            </div>
+                            <span class="pill small">Ack {{ ackPercentOf(a) }}%</span>
                         </div>
-                        <span class="pill small">Ack {{ ackPercentOf(a) }}%</span>
-                    </div>
-                    <div class="ann-bar">
-                        <i [style.width.%]="ackPercentOf(a)"></i>
-                    </div>
-                    <div class="ann-sub">
-                        {{ a.ackCount }} / {{ a.audienceCount }} acknowledged
+                        <div class="ann-bar">
+                            <i [style.width.%]="ackPercentOf(a)"></i>
+                        </div>
+                        <div class="ann-sub">
+                            {{ a.ackCount }} / {{ a.audienceCount }} acknowledged
+                        </div>
                     </div>
                 </div>
+
+                <ng-template #noAnns>
+                    <div class="muted">No live announcements.</div>
+                </ng-template>
+
+                <div class="footer-note">Dept breakdown available in drilldown (not shown here).</div>
             </div>
-
-            <ng-template #noAnns>
-                <div class="muted">No live announcements.</div>
-            </ng-template>
-
-            <div class="footer-note">Dept breakdown available in drilldown (not shown here).</div>
-        </div>
 
 
     </div>
@@ -187,11 +187,15 @@
                 a
                 }}</button>
         </div>
-        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" [paginator]="true" [rows]="10"
+        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'"   [(selection)]="selectedRows"
+            dataKey="id"  [paginator]="true" [rows]="10"
             [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true" [tableStyle]="{ width: '100%' }"
             styleClass="p-datatable-gridlines p-datatable-striped">
             <ng-template pTemplate="header">
                 <tr>
+                    <th style="width:3rem"  *ngIf="list?.selectable">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                      </th>
                     <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
                         {{ c }}
                     </th>
@@ -200,8 +204,11 @@
 
             <ng-template pTemplate="body" let-row>
                 <tr>
+                    <td style="width:3rem"  *ngIf="list?.selectable">
+                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                      </td>
                     <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
-                        {{ row[i] }}
+                        {{ row.data ? row.data[i] : row[i] }}
                     </td>
                 </tr>
             </ng-template>

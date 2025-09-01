@@ -1,9 +1,10 @@
 import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection  } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient,  withInterceptors , withFetch } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Lara from '@primeuix/themes/lara';
+import { AuthInterceptor } from './auth.interceptor';
 
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -15,7 +16,10 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([AuthInterceptor])
+    ),
     provideAnimationsAsync(),
     provideAnimationsAsync(),
     providePrimeNG({

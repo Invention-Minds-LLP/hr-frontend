@@ -1,0 +1,34 @@
+<div *ngIf="!selectedInterview">
+    <h2>Exit Interviews</h2>
+    <p-table [value]="exitInterviews" [paginator]="true" [rows]="10" [loading]="loading">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Employee</th>
+          <th>Date</th>
+          <th>Interviewer</th>
+          <th>Action</th>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="body" let-interview>
+        <tr>
+          <td>{{ interview.id }}</td>
+          <td>{{ interview.employee.firstName }} {{ interview.employee.lastName }}</td>
+          <td>{{ interview.scheduledAt | date:'dd-MM-yyyy' }}</td>
+          <td>{{ interview.interviewerName }}</td>
+          <td>
+            <button pButton label="View / Edit" (click)="openInterview(interview)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <div *ngIf="selectedInterview">
+    <app-exit-interview
+      [formData]="selectedInterview"
+      (closeForm)="closeForm()"
+    ></app-exit-interview>
+  </div>
+  
