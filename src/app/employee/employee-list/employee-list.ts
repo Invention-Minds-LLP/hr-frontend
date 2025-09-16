@@ -10,10 +10,14 @@ import { Roles } from '../../services/roles/roles';
 import { Shifts } from '../../services/shifts/shifts';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
+import { label } from '@primeuix/themes/aura/metergroup';
+import { value } from '@primeuix/themes/aura/knob';
+import { RouterLink, RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-employee-list',
-  imports: [TableModule, CommonModule, FormsModule],
+  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
@@ -26,21 +30,21 @@ export class EmployeeList {
   departments: any[] = [];
   branches: any[] = [];
   roles: any[] = [];
-  shifts: any[]=[];
+  shifts: any[] = [];
   filterOptions = [
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
-    { label: 'Branch', value: 'branchId' },
-    { label: 'Department', value: 'departmentId' },
+    { label: 'Branch', value: 'branch' },
+    { label: 'Department', value: 'department' },
     { label: 'Status', value: 'employmentStatus' },
     { label: 'Employment Type', value: 'employmentType' },
-    { label: 'Shift', value: 'shiftId' }
+    { label: 'Shift', value: 'shift' }
   ];
-  
+
   selectedFilter: any = null;
   filteredEmployees: any[] = [];
   showFilterDropdown = false;
-  
+
 
 
 
@@ -63,21 +67,21 @@ export class EmployeeList {
 
 
   getDepartmentColors(departmentId: number) {
-    const baseHue = (departmentId * 40) % 360; 
+    const baseHue = (departmentId * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;
-  
+
     return { badgeColor, dotColor };
   }
-  
+
   getDepartmentName(id: number): string {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
-  
+
   getBranchName(id: number): string {
     return this.branches.find(branch => branch.id === id)?.name || 'N/A';
   }
-  
+
   getRoleName(id: number): string {
     return this.roles.find(role => role.id === id)?.name || 'N/A';
   }
@@ -90,28 +94,50 @@ export class EmployeeList {
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
     const searchText = input.value;
-  
+
     if (!searchText) {
       this.filteredEmployees = [...this.employee];
       return;
     }
-  
+
     const filterKey = this.selectedFilter.value;
-  
+
     this.filteredEmployees = this.employee.filter(emp => {
-      if (filterKey === 'name') {
-        return (
-          `${emp.firstName} ${emp.lastName}`
+      // if (filterKey === 'name') {
+      //   return (
+      //     `${emp.firstName} ${emp.lastName}`
+      //       .toLowerCase()
+      //       .includes(searchText.toLowerCase())
+      //   );
+      // }
+      // return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
+      switch (filterKey) {
+        case 'name':
+          return `${emp.firstName} ${emp.lastName}`
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+        case 'department':
+          return this.getDepartmentName(emp.departmentId)
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+
+        case 'branch':
+          return this.getBranchName(emp.branchId)
+            .toLocaleLowerCase()
+            .includes(searchText.toLocaleLowerCase());
+        case 'shift':
+          return this.getShiftName(emp.shiftId)
             .toLowerCase()
             .includes(searchText.toLowerCase())
-        );
+        default:
+          return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
       }
-      return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
     });
+    console.log(this.filteredEmployees)
   }
 
   onFilterChange() {
-    this.filteredEmployees = [...this.employee]; 
+    this.filteredEmployees = [...this.employee];
     this.showFilterDropdown = false;
     console.log(this.selectedFilter)
   }
@@ -126,38 +152,38 @@ export class EmployeeList {
   isRotational(emp: any): boolean {
     return emp?.EmployeeShiftSetting?.mode === 'ROTATIONAL';
   }
-  
+
   getShiftModeLabel(emp: any): string {
     const mode = emp?.EmployeeShiftSetting?.mode;
     return mode === 'ROTATIONAL' ? 'Rotational' : 'General';
   }
-  
+
   getRotationalTypeLabel(emp: any): string {
     const st = emp?.latestShiftAssignment?.shift;
     if (!st) return '—';
     // Prefer template name; fallback to enum like MORNING -> Morning
     return st.name || this.toTitle(st.shiftType);
   }
-  
+
   private toTitle(s?: string) {
     return s ? s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : '';
   }
-  
+
   getRotationalAbbrev(emp: any): string {
     // Prefer enum; fallback to name text
     const shift = emp?.latestShiftAssignment?.shift;
     if (!shift) return '—';
-  
+
     const byEnum = (shift.shiftType || '').toString().toUpperCase();
     if (byEnum === 'MORNING') return 'MS';
     if (byEnum === 'EVENING') return 'ES';
-    if (byEnum === 'NIGHT')   return 'NS';
-  
+    if (byEnum === 'NIGHT') return 'NS';
+
     const byName = (shift.name || '').toString().toUpperCase();
     if (byName.includes('MORNING')) return 'MS';
     if (byName.includes('EVENING')) return 'ES';
-    if (byName.includes('NIGHT'))   return 'NS';
-  
+    if (byName.includes('NIGHT')) return 'NS';
+
     return '—';
   }
 }

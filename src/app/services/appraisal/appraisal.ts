@@ -10,7 +10,7 @@ export class Appraisal {
 
   constructor(private http: HttpClient){}
 
-  apiUrl:string = 'http://localhost:3002/api/appraisals'
+  apiUrl:string = 'http://192.168.1.15:3002/api/appraisals'
 
   bulkCreateAppraisals(payload: any) {
     return this.http.post(`${this.apiUrl}/bulk-create`, payload);

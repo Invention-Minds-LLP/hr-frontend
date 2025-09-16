@@ -36,22 +36,22 @@
 
 
 .box-2 {
-  background: #ac6c34;
+  background: #E67E22;
 }
 
 .box-3 {
-  background: #35ac40;
+  background: #31BF6D;
   display: flex;
   justify-content: center;
 }
 
 .box-4 {
-  background: #ab3434;
+  background: #E74C3C;
 }
 
 .box {
   width: 350px;
-  height: 155px;
+  height: 180px;
   flex-shrink: 0;
   border-radius: 20px;
   padding: 14px 16px;
@@ -227,7 +227,7 @@
 
 
 .attendance-card {
-  background: #E8ECEF;
+  background: #555555;
   border-radius: 12px;
   padding: 20px 10px 0;
   width: 340px;
@@ -243,13 +243,14 @@
 }
 
 .arrow-btn {
-  background: white;
+  background: #302F31;
   border-radius: 50%;
   width: 39px;
   height: 39px;
-  color: #000;
+  color: white;
   border: none;
   font-size: 12px;
+  box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
 }
 
 .arrow-btn:hover {
@@ -267,10 +268,11 @@
   font-size: 5rem;
   font-weight: bold;
   margin-right: 8px;
+  color: white;
 }
 
 .month-year {
-  color: #595959;
+  color: white;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -280,7 +282,7 @@
 }
 
 .day-name {
-  color: #000;
+  color: white;
   font-family: "Sofia Sans";
   font-size: 26px;
   font-style: normal;
@@ -294,7 +296,7 @@
 }
 
 .status-title {
-  color: #000;
+  color: white;
   font-family: "Sofia Sans";
   font-size: 18px;
   font-style: normal;
@@ -329,6 +331,7 @@
 .day-label {
   font-weight: bold;
   margin-bottom: 4px;
+  color: white;
 }
 
 .status-icon {
@@ -339,6 +342,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: red;
 }
 
 .present {
@@ -347,7 +351,7 @@
 }
 
 .absent {
-  background-color: #ff5151;
+  background-color: #E51313;
   color: white;
 }
 
@@ -365,7 +369,7 @@
 .login-btn {
   width: 119px;
   height: 34px;
-  background-color: #28a745 !important;
+  background-color: #0DE121 !important;
   border: none !important;
   color: white !important;
   font-weight: bold;
@@ -382,7 +386,7 @@
 .logout-btn {
   width: 119px;
   height: 34px;
-  background-color: #e9144a !important;
+  background-color: #E51313 !important;
   border: none !important;
   color: white !important;
   font-weight: bold;
@@ -397,7 +401,7 @@
 }
 
 .working-card {
-  background: #E8ECEF;
+  background: #555555;
   border-radius: 8px;
   padding: 30px 20px;
   height: 380px;
@@ -417,6 +421,7 @@
   flex-direction: row;
   align-items: center;
   gap: 20px;
+  color: white;
 }
 
 .title {
@@ -430,7 +435,7 @@
 }
 
 .title h3 {
-  color: #1f1f1f;
+  color: white;
   font-family: "Sofia Sans";
   font-size: 24px;
   font-style: normal;
@@ -454,10 +459,12 @@
 }
 
 .p-button-text {
-  background: #f5f5f5;
+  background:#302F31 !important;
   border-radius: 50%;
   width: 35px;
   height: 35px;
+  box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
+  color: white !important;
 }
 
 .attendance-row {
@@ -468,10 +475,12 @@
 
 .day {
   font-weight: 500;
+  color: white;
 }
 
 .time {
   text-align: right;
+  color: white;
 }
 
 .status.leave {
@@ -495,7 +504,7 @@
   /* margin: 50px; */
   font-family: "Sofia Sans";
   border-radius: 20px;
-  background: #E8ECEF;
+  background: #555555;
   padding: 50px 30px;
   display: flex;
   flex-direction: row;
@@ -561,7 +570,7 @@
 }
 
 .main-heading {
-  color: #1f1f1f;
+  color: white;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -636,11 +645,12 @@
   line-height: normal;
 }
 
-::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF;
+::ng-deep  .table .p-datatable .p-datatable-thead>tr>th  {
+  background: #555555;
+  border: none;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
-  color: #000;
+  color:white;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -651,7 +661,8 @@
 ::ng-deep .table .p-datatable .p-datatable-tbody>tr>td {
   border: none;
   text-align: center;
-  background: #E8ECEF;
+  background: #555555;
+  color: white;
 }
 
 ::ng-deep .pi-chevron-down {
@@ -758,9 +769,9 @@
 
 /* Holiday  */
 .holiday-card {
-  background: #3177a3;
+  background: #417FC8;
   width: 350px;
-  height: 155px;
+  height: 180px;
   color: white;
   padding: 20px;
   border-radius: 15px;

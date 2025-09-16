@@ -9,7 +9,7 @@
 }
 
 .field.readonly {
-  background: #fafafa;
+  background: transparent;
   padding: 10px;
   border-radius: 8px;
 }
@@ -44,15 +44,19 @@
 
 .field-row {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 30px;
+  /* gap: 30px; */
 }
 
 textarea {
-  width: 100%;
-  background: transparent !important;
+  width: 420px;
+  background:#D9D9D9 !important;
+  border-radius: 10px;
+  color: black;
+
 }
 
 input {
@@ -65,7 +69,7 @@ input {
   flex-shrink: 0;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
-  color: #767676;
+  color:white;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -77,9 +81,10 @@ input {
 
 ::ng-deep .p-card {
   background: transparent !important;
-  padding: 50px;
+  /* padding: 50px; */
   box-shadow: none !important;
 }
+
 
 /* src/app/pages/resignation/my-resignations.css */
 .resignations .header {
@@ -87,6 +92,7 @@ input {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  color: white;
   /* padding: 50px; */
 }
 
@@ -169,6 +175,11 @@ input {
   margin-top: 12px;
 }
 
+.p-button-text{
+  background-color: #FF0000 !important;
+  color: white;
+}
+
 ::ng-deep .p-datatable-table {
   border: none;
   border-radius: 12px;
@@ -226,12 +237,12 @@ input {
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -252,20 +263,25 @@ input {
   padding: 20px 30px;
   text-align: center;
   background: #E8ECEF;
-  color: #666;
+  color: #666666;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-
+  width: 100%;
 }
 
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
-  background: transparent;
+  background: #302F31;
+  color: white;
+  border: none;
   border-bottom: 2px solid #D9D9D9;
-}
 
+}
+.heading{
+  color: white;
+}
 
 
 /* ::ng-deep .p-datatable-tbody{
@@ -292,23 +308,64 @@ input {
 .resignation-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   width: 100%;
-  padding: 30px;
+  padding: 0 30px 30px;
+  gap: 0px;
+  margin-top: 20px;
 }
 
 .resignation-form {
   display: flex;
-  width: 50%;
+  width: 35%;
 }
 
 .p-button {
   background-color: #3465b0;
   color: white;
   border: none;
+  width: 100%;
 }
 .p-button:hover {
   background-color: #3465b0;
   color: white;
   border: none;
 }
+
+::ng-deep .p-card-body{
+  padding: 0px;
+}
+
+.flex{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex input{
+  position: absolute;
+  width:420px;
+}
+
+.flex label{
+  position: relative;
+  left:40px;
+  top: 3px;
+  color: white;
+}
+
+.readonly{
+  border: 2px solid #C4C4C4;
+  height: 40px;
+  color: white;
+}
+
+.readonly div{
+  position: absolute;
+}
+
+.readonly label{
+  position: relative;
+  left: 90px;
+}
+

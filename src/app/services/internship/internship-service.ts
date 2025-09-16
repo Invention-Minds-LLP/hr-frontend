@@ -14,7 +14,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class InternshipService {
   // Change if your API is hosted elsewhere
-  private base = 'http://localhost:3002/api/internships';
+  private base = 'http://192.168.1.15:3002/api/internships';
 
   constructor(private http: HttpClient) {}
 

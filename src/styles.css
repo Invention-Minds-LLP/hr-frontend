@@ -1,6 +1,7 @@
 body {
   font-family: "Sofia Sans";
-  background-color: transparent;
+  /* background-color: transparent; */
+  background-color: #302F31;
   margin: 0;
   padding: 0;
 }
@@ -30,8 +31,8 @@ body {
   --p-steps-item-number-active-border-color: var(--primary-color) !important;
   --p-steps-item-label-active-color: var(--primary-color) !important;
   --p-inputtext-background: transparent !important;
-  --p-floatlabel-focus-color: #767676 !important;
-  --p-floatlabel-on-active-background: white !important;
+  --p-floatlabel-focus-color: white !important;
+  --p-floatlabel-on-active-background: #555555 !important;
   --p-paginator-background: transparent !important;
   --p-datepicker-date-width: 1rem !important;
   --p-datepicker-date-height: 1rem !important;

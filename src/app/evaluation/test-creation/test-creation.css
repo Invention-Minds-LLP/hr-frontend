@@ -13,6 +13,7 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  color: white;
 }
 .tc-header h2 {
   margin: 0 0 8px 0;
@@ -51,7 +52,7 @@
   padding: 0 12px;
   background: transparent;
   font-size: 14px;
-  color: #767676;
+  color: white;
 font-family: "Sofia Sans";
 font-size: 14px;
 font-style: normal;

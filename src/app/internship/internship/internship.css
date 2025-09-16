@@ -2,6 +2,10 @@
   margin: 16px auto;
   padding: 30px 50px;
 }
+
+.wrap h2{
+  color: white;
+}
 .filters {
   display: flex;
   gap: 8px;
@@ -140,7 +144,7 @@ table.list td {
   max-height: 90vh;
   overflow-y: auto;
   margin: 40px auto;
-  padding: 16px;
+  padding: 20px 30px;
   border-radius: 10px;
   position: relative;
 }
@@ -172,11 +176,15 @@ table.list td {
 .muted {
   opacity: 0.7;
 }
-.actions-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.actions-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; padding: 20px; }
 
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
+}
+
+.al{
+  text-align: center;
 }
 
 /* Header Row */
@@ -239,12 +247,12 @@ table.list td {
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: transparent;
+  background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
-  text-align: left;
+  color: white;
+  text-align: center;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
 }

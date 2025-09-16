@@ -13,7 +13,7 @@
   }
   
   .popup-content {
-    background: #E8ECEF;
+    background: white;
     width: 600px;
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -70,7 +70,7 @@
     line-height: normal;
     letter-spacing: 0.16px;
     outline: none;
-    background-color: #E8ECEF;
+    background-color: transparent;
   }
   
   .form-group select:focus,

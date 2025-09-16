@@ -5,11 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { Resignation } from '../../services/resignation/resignation';
 import { DialogModule } from 'primeng/dialog';
 import { ResignPost } from '../resign-post/resign-post';
+import { RouterLink, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost],
+  imports: [CommonModule, TableModule, ButtonModule, DatePipe,  DialogModule, ResignPost, RouterModule, RouterLink],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })

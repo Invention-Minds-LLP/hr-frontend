@@ -1,0 +1,36 @@
+.interview-table{
+    padding: 30px;
+}
+
+.interview-table h2{
+  color: white;
+}
+::ng-deep .p-datatable-table{
+    width: 100%;
+}
+
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable  .p-datatable-thead > tr > th:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+::ng-deep .interview-table .p-datatable-thead > tr > th{
+    background: #E8ECEF;
+    text-align: center;
+}
+
+::ng-deep .interview-table .p-datatable-tbody > tr > td{
+    text-align: center;
+}

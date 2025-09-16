@@ -1,7 +1,9 @@
 .WFH-request {
   font-family: "Sofia Sans";
   padding: 40px 50px;
+  width: 100%;
 }
+
 
 .header {
   display: flex;
@@ -17,7 +19,7 @@
 }
 
 .heading {
-  color: #000;
+  color: white;
   font-size: 26px;
   font-style: normal;
   font-weight: 600;
@@ -39,7 +41,7 @@
 }
 
 .name {
-  color: #2b2b2b;
+  color: white;
   font-size: 18px;
   font-style: normal;
   font-weight: 600;
@@ -62,32 +64,8 @@
   line-height: normal;
 }
 
-.name {
-  color: #2b2b2b;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-}
-
-.email {
-  color: #a1a1a1;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-.t-data {
-  color: #2b2b2b;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-}
-
-::ng-deep .p-inputtext {
-  background: transparent;
+::ng-deep .WFH-request .p-inputtext {
+  background: white;
   font-family: "Sofia Sans";
 }
 
@@ -98,7 +76,7 @@
 ::ng-deep .pi-align-center {
   border-radius: 8px;
   border: 1px solid #9b9b9b;
-  background: transparent;
+  background: white;
   display: flex;
   width: auto;
   height: 42px;
@@ -136,12 +114,12 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #E51313 !important;
   color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #E51313 !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -166,7 +144,7 @@
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: #E8ECEF;
-  color: #666;
+  color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
@@ -195,11 +173,11 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: transparent;
+  background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: white;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
@@ -255,7 +233,7 @@
   line-height: normal;
   letter-spacing: 0.14px;
   border-radius: 8px;
-  background: #0062a1;
+  background: #0062A1;
   display: inline-flex;
   height: 34px;
   padding: 0 16px;
@@ -290,6 +268,7 @@
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
+  color: black;
 }
 
 /* Dot style */
@@ -384,18 +363,18 @@ hr {
 
 .btn-green {
   border-radius: 8px;
-  background: #17b226;
+  background: #17B226;
   color: white;
 }
 
 .btn-red {
   border-radius: 8px;
-  background: #ff5151;
+  background: #FF0000;
 }
 
 .menu-list {
   position: absolute;
-  top: 57%;
+  top: 52%;
   right: 10px;
   min-width: 160px;
   background: var(--surface-ground);
@@ -474,7 +453,7 @@ hr {
 }
 
 .who-title {
-  color: #767676;
+  color: #2C2C2C;
   font-family: "Sofia Sans";
   font-size: 20px;
   font-style: normal;

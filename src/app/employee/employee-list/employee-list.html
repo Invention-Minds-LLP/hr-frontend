@@ -2,6 +2,10 @@
   <div class="header">
     <div class="heading">Employee List</div>
     <div class="flex">
+      <div class="add-btn" [routerLink]="'/employee-form'">
+        <p-button label="Add New Form" icon="pi pi-plus" iconPos="right"   />
+      </div>
+
       <!-- Search -->
       <div class="search">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -85,7 +89,7 @@
               </ng-container>
             </span>
           </td>
-          
+
 
           <td>{{employeeData.employmentStatus}}</td>
 

@@ -4,6 +4,8 @@
     /* padding: 0.5rem 1.5rem; */
     height: 64px;
     padding: 0 4rem;
+    justify-content: end;
+    margin-right: 20px;
   }
   .sub-nav ul {
     list-style: none;
@@ -15,7 +17,7 @@
   }
   .sub-item {
     cursor: pointer;
-    padding-bottom: 0.2rem;
+    /* padding-bottom: 0.2rem; */
     color: #444;
     position: relative;
   }
@@ -29,7 +31,7 @@
     line-height: 24px; /* 150% */
   }
   .sub-item.active::after {
-    content: "";
+    /* content: ""; */
     position: absolute;
     bottom: -2px;
     left: 0;

@@ -1,12 +1,13 @@
 .card {
-  background: #E8ECEF;
+  background: white;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   border-radius: 12px;
   padding: 30px;
 }
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  display: flex;
+  /* grid-template-columns: repeat(2, minmax(220px, 1fr)); */
+  flex-direction: column;
   gap: 12px;
 }
 label {
@@ -15,7 +16,7 @@ label {
   gap: 6px;
 }
 input, select {
-  padding: 8px 10px;
+  padding: 10px 16px;
   border-radius: 8px;
   border: 2px solid #C4C4C4;
 }

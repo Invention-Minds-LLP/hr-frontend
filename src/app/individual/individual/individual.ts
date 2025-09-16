@@ -11,6 +11,7 @@ import { PermissionPopup } from '../../leaves/permission-popup/permission-popup'
 import { Holiday, Holidays } from '../../services/holidays/holidays';
 import { CarouselModule } from 'primeng/carousel';
 import { finalize } from 'rxjs';
+import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 
 interface individual {
   date: string;
@@ -29,7 +30,7 @@ type LeaveTypeCount = { label: string; count: number };
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule, FormsModule, CarouselModule],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })

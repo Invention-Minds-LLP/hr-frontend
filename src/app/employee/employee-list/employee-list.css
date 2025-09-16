@@ -1,6 +1,6 @@
 .history {
   font-family: "Sofia Sans";
-  padding: 20px 60px;
+  padding: 50px 60px;
   background-color: transparent; /* Light background like screenshot */
 }
 
@@ -19,7 +19,7 @@
 .heading {
   font-size: 24px;
   font-weight: 600;
-  color: #2b2b2b;
+  color: white;
 }
 
 /* Search and Filter */
@@ -83,7 +83,7 @@ input {
   letter-spacing: 0.18px;
   border-radius: 8px;
   border: 1px solid #c4c4c4;
-  background: transparent;
+  background: white;
 }
 
 .filter {
@@ -97,7 +97,7 @@ input {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 6px 14px;
-  background-color: transparent !important;
+  background-color: white !important;
   cursor: pointer;
   width: 210px;
   height: 44px;
@@ -153,7 +153,7 @@ input {
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #E8ECEF;
-  color: #666;
+  color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
@@ -181,11 +181,11 @@ input {
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: transparent;
+  background: white;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: black;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
@@ -209,7 +209,7 @@ input {
 .name {
   font-weight: 600;
   font-size: 16px;
-  color: #2b2b2b;
+  color: white;
 }
 
 .email {
@@ -269,12 +269,12 @@ input {
   font-weight: 500;
   color: #333;
   border: 1px solid #ddd;
-  background-color: transparent;
+  background-color: white;
   cursor: pointer;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #f00 !important;
   color: #fff !important;
   border: none;
 }
@@ -294,3 +294,12 @@ input {
 .mode-chip.gen { background:#eef3ff; color:#2a54d6; }
 .mode-chip.rot { background:#eefbf1; color:#1f7a3a; width: 100%; }
 
+::ng-deep .add-btn .p-button{
+  background-color:#0062A1;
+  border: 1px solid #0062A1;
+}
+
+::ng-deep .add-btn .p-button:hover{
+  background-color: #0062A1;
+   border: 1px solid #0062A1;
+}

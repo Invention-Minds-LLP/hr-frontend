@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 
 /** If you have environments: import from environments and set baseUrl = environment.apiBase */
-const baseUrl = 'http://localhost:3002/api/recruiting';
+const baseUrl = 'http://192.168.1.15:3002/api/recruiting';
 
 /* ---------- Shared types (mirror Prisma enums) ---------- */
 export type JobStatus = 'OPEN' | 'ON_HOLD' | 'CLOSED' | 'DRAFT';

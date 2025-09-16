@@ -1,4 +1,4 @@
-<div *ngIf="!selectedInterview">
+<div *ngIf="!selectedInterview" class="interview-table">
     <h2>Exit Interviews</h2>
     <p-table [value]="exitInterviews" [paginator]="true" [rows]="10" [loading]="loading">
       <ng-template pTemplate="header">

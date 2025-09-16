@@ -21,7 +21,7 @@
 }
 
 .heading {
-    color: #000;
+    color: white;
     font-size: 26px;
     font-style: normal;
     font-weight: 600;
@@ -43,7 +43,7 @@
 }
 
 .name {
-    color: #2B2B2B;
+    color:white;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -66,29 +66,6 @@
     line-height: normal;
 }
 
-.name {
-    color: #2B2B2B;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-}
-
-.email {
-    color: #A1A1A1;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.t-data {
-    color: #2B2B2B;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-}
 
 ::ng-deep .p-datatable-table {
     border: none;
@@ -111,7 +88,7 @@
 ::ng-deep .pi-align-center {
     border-radius: 8px;
     border: 1px solid #9B9B9B;
-    background: transparent;
+    background: white;
     display: flex;
     width: auto;
     height: 30px;
@@ -148,12 +125,12 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #3465b0 !important;
+    background: #FF0000 !important;
     color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #3465b0 !important;
+    background: #FF0000 !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -174,7 +151,7 @@
     padding: 20px 30px;
     text-align: center;
     background: #E8ECEF;
-    color: #666;
+    color: black;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
@@ -184,7 +161,7 @@
 
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
     padding: 20px 30px;
-    background: transparent;
+    background: #302F31;
     border-bottom: 2px solid #D9D9D9;
 }
 
@@ -249,7 +226,9 @@
     font-size: 14px;
     font-weight: 500;
     font-weight: 500;
+    color: black;
 }
+
 
 /* Dot style */
 /* Dot style */
@@ -294,7 +273,7 @@
 
 .menu-list {
     position: absolute;
-    top: 57%;
+    top: 52%;
     right: 10px;
     min-width: 160px;
     background: var(--surface-ground);
@@ -329,7 +308,7 @@
 
 
 ::ng-deep .p-inputtext {
-    background: transparent;
+    background: white;
     font-family: "Sofia Sans";
 }
 

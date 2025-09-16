@@ -1,12 +1,19 @@
 .qb-editor {
   padding: 24px;
+  --p-checkbox-checked-background:#003366;
+  --p-checkbox-checked-hover-background:#003366;
+  --p-checkbox-focus-border-color:#003366;
+  --p-checkbox-hover-border-color:#003366;
+  --p-checkbox-checked-focus-border-color:#003366;
+  --p-checkbox-checked-border-color: #003366;
 }
 .title {
   text-align: center;
   margin-bottom: 20px;
+  color: white;
 }
 .muted {
-  color: #8a8a8a;
+  color: #FB9C2A;
 }
 
 .qb-info .row {
@@ -24,6 +31,7 @@
 }
 .sec-title {
   margin-bottom: 10px;
+  color: white;
 }
 
 .q-block {
@@ -34,7 +42,7 @@
 }
 .q-row.controls {
   display: grid;
-  grid-template-columns: 250px 230px 180px 180px 44px; /* +180px for Answer Type */
+  grid-template-columns: 250px 230px 180px 100px 70px; /* +180px for Answer Type */
   gap: 10px;
   align-items: center;
   width: 100%;
@@ -117,9 +125,19 @@ input,
   border-radius: 8px;
   border: 2px solid #c4c4c4;
   background-color: transparent;
+  color: white;
 }
 
-.add-btn {
+
+input::placeholder,
+.p-select::placeholder,
+.p-datepicker::placeholder,
+.p-calendar::placeholder,
+.p-textarea::placeholder{
+  color: white;
+}
+
+.add-btn, .remove-btn {
   border-radius: 8px;
   border: 2px solid #c4c4c4;
   display: inline-flex;
@@ -129,7 +147,7 @@ input,
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  color: #767676;
+  color: white;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -138,3 +156,23 @@ input,
   letter-spacing: 0.14px;
   background: transparent;
 }
+::ng-deep .p-select-dropdown{
+color: white;
+}
+::ng-deep .p-select-label.p-placeholder{
+  color: white;
+}
+::ng-deep .p-select-label{
+  color: white;
+}
+
+::ng-deep .p-inputnumber-input{
+  color: white;
+}
+
+.remove-btn{
+  border: 1px solid red;
+}
+
+
+

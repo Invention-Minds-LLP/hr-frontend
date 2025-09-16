@@ -44,7 +44,7 @@
                 <th>Stipend</th>
                 <th>Employee</th>
                 <th>Mentor</th>
-                <th>Actions</th>
+                <th class="al">Actions</th>
             </tr>
         </ng-template>
 
@@ -90,7 +90,7 @@
                     <button pButton type="button" class="p-button-text" label="Convert"
                         [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
                         (click)="openAction('convert', it)"></button> -->
-                    <div class="actions-wrap">
+                    <div class="actions-wrap ">
                         <p-select [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
                             optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
                             appendTo="body" (onChange)="onStatusChange(it, $event)">

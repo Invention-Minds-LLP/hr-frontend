@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Leaves {
-  private apiUrl = 'http://localhost:3002/api/leaves'; // adjust base url
+  private apiUrl = 'http://192.168.1.15:3002/api/leaves'; // adjust base url
 
   constructor(private http: HttpClient) {}
 

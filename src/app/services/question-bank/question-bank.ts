@@ -12,7 +12,7 @@ export class QuestionBankService {
 
 
 
-  private apiUrl = 'http://localhost:3002/api/question-banks';
+  private apiUrl = 'http://192.168.1.15:3002/api/question-banks';
 
   constructor(private http: HttpClient) {}
 

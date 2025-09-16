@@ -1,12 +1,12 @@
 <div class="resignation-container">
  <div class="resignation-form">
     <p-card>
-        <h2>Submit Resignation</h2>
+        <h2 class="heading">Submit Resignation</h2>
     
         <form [formGroup]="form" (ngSubmit)="submit()" class="form">
             <div class="field-row">
                 <div class="field">
-                    <label>Reason <span class="req">*</span></label>
+                    <!-- <label>Reason <span class="req">*</span></label> -->
                     <textarea pInputTextarea formControlName="reason" rows="5"
                         placeholder="Write your reason..."></textarea>
                     <div class="error" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">
@@ -15,20 +15,20 @@
                 </div>
     
                 <div class="field">
-                    <label>Additional Notes</label>
+                    <!-- <label>Additional Notes</label> -->
                     <textarea pInputTextarea formControlName="additionalNotes" rows="5"
                         placeholder="Any notes..."></textarea>
                 </div>
             </div>
     
             <div class="field-row">
-                <div class="field">
-                    <label>Notice Period (days)</label>
+                <div class="field flex">
+                    <label>[Notice Period days]</label>
                     <input type="number" pInputText formControlName="noticePeriodDays" />
                 </div>
     
                 <div class="field readonly">
-                    <label>Proposed Last Working Day</label>
+                    <label>[Proposed Last Working Day]</label>
                     <div>{{ proposedLWD | date:'mediumDate' }}</div>
                 </div>
             </div>
