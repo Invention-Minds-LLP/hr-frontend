@@ -87,4 +87,15 @@ export class Resignation {
   listExitInterview(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/exit-interview`);
   }
+  requestWithdraw(id: number, reason?: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${id}/request-withdraw`, { reason });
+  }
+  hrApproveWithdraw(id: number, payload: { note?: string; approvedBy?: number }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${id}/hr-withdraw-approve`, payload);
+  }
+  
+  hrRejectWithdraw(id: number, payload: { note?: string; rejectedBy?: number }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${id}/hr-withdraw-reject`, payload);
+  }
+  
 }

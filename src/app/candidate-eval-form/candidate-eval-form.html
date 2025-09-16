@@ -211,6 +211,14 @@
             <label>Gross offer / month</label>
             <p-inputNumber formControlName="grossOffer" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
           </div>
+          <div class="field">
+            <label>Notice Period</label>
+            <p-inputNumber formControlName="noticePeriod" [min]="0" ></p-inputNumber>
+          </div>
+          <div class="field">
+            <label>Expected DOJ</label>
+            <p-datepicker formControlName="expectedDoj" dateFormat="dd-M-yy"></p-datepicker>
+          </div>
         </div>
       </div>
   

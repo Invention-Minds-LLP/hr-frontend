@@ -2,7 +2,7 @@
     font-family: "Sofia Sans";
     background: transparent;
     height: auto;
-    padding: 20px 50px;
+    padding: 50px 50px;
 }
 
 .appraisal-form {
@@ -28,7 +28,7 @@
     font-style: normal;
     font-weight: 700;
     line-height: 24px;
-    /* 150% */
+  
 }
 .input-box-1{
     display: grid;
@@ -62,7 +62,7 @@
     align-items: center;
     justify-content: center;
     margin-top: 50px;
-}
+} 
 
 ::ng-deep .p-inputtext {
     width: 100%;
@@ -73,7 +73,7 @@
 }
 
 ::ng-deep .p-textarea {
-    width: 540px;
+    width: 100%;
     height: 100px;
     background-color: transparent!important;
 }

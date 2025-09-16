@@ -1,0 +1,124 @@
+<div *ngIf="template" class="p-fluid performance-container">
+    <h2 class="p-mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
+  
+    <!-- Question Responses -->
+    <p-table [value]="template.questions" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Category</th>
+          <th>Question</th>
+          <th *ngFor="let p of ['1st Month','3rd Month','6th Month','1 Year','2 Year']">{{ p }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-q>
+        <tr>
+          <td>{{ q.category }}</td>
+          <td>{{ q.text }}</td>
+          <td *ngFor="let p of ['MONTH_1','MONTH_3','MONTH_6','YEAR_1','YEAR_2']">
+            <p-select 
+              [options]="scoreOptions" 
+              [(ngModel)]="q.periods[p].score" 
+              optionLabel="label" 
+              appendTo="body"
+              optionValue="value"
+              placeholder="Select Score"
+              (onChange)="updateMarksScored()"
+              [disabled]="p !== currentPeriod">
+            </p-select>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  
+    <!-- Summary -->
+    <h3 class="p-mt-5">Overall Summary</h3>
+    <p-table [value]="summaryPeriods" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Assessment Period</th>
+          <th>Marks Scored</th>
+          <th>Overall Performance</th>
+          <th>Employee</th>
+          <th>Supervisor</th>
+          <th>HOD</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-p>
+        <tr>
+          <td>{{ p }}</td>
+          <td><input type="number" pInputText [(ngModel)]="summary[p].marksScored" [disabled]="p !== currentPeriod" /></td>
+          <td>
+            <p-select 
+              [options]="performanceOptions" 
+              [(ngModel)]="summary[p].overallPerf"
+              optionLabel="label" 
+              appendTo="body"
+              optionValue="value"
+              placeholder="Select Performance"
+              [disabled]="p !== currentPeriod">
+            </p-select>
+          </td>
+          <td><input pInputText [(ngModel)]="summary[p].employeeSig" placeholder="Signature" [disabled]="p !== currentPeriod" /></td>
+          <td><input pInputText [(ngModel)]="summary[p].supervisorSig" placeholder="Signature"[disabled]="p !== currentPeriod" /></td>
+          <td><input pInputText [(ngModel)]="summary[p].hodSig" placeholder="Signature" [disabled]="p !== currentPeriod"/></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  
+    <!-- Final Review -->
+    <div class="p-mt-5">
+        <h3>Final Review</h3>
+      
+        <div class="p-fluid p-formgrid p-grid final">
+          <!-- Appreciations -->
+          <div class="p-field p-col-12">
+            <p-floatlabel  variant="on" [ngClass]="{'float-active': finalReview.appreciations}">
+              <textarea id="appreciations" pInputTextarea [(ngModel)]="finalReview.appreciations" rows="3"></textarea>
+              <label for="appreciations">Appreciations</label>
+            </p-floatlabel>
+          </div>
+      
+          <!-- Talents -->
+          <div class="p-field p-col-12">
+            <p-floatlabel  variant="on" [ngClass]="{'float-active': finalReview.talents}">
+              <textarea id="talents" pInputTextarea [(ngModel)]="finalReview.talents" rows="3"></textarea>
+              <label for="talents">Talents & Participation</label>
+            </p-floatlabel>
+          </div>
+      
+          <!-- Comments -->
+          <div class="p-field p-col-12">
+            <p-floatlabel  variant="on"  [ngClass]="{'float-active': finalReview.overallComments}">
+              <textarea id="comments" pInputTextarea [(ngModel)]="finalReview.overallComments" rows="3"></textarea>
+              <label for="comments">Overall Comments</label>
+            </p-floatlabel>
+          </div>
+      
+          <!-- Signatures in row -->
+          <div class="p-field p-col-12 p-md-4">
+            <p-floatlabel  variant="on">
+              <input id="empSig" pInputText [(ngModel)]="finalReview.employeeSig" />
+              <label for="empSig">Employee Signature</label>
+            </p-floatlabel>
+          </div>
+      
+          <div class="p-field p-col-12 p-md-4">
+            <p-floatlabel  variant="on">
+              <input id="supSig" pInputText [(ngModel)]="finalReview.supervisorSig" />
+              <label for="supSig">Supervisor Signature</label>
+            </p-floatlabel>
+          </div>
+      
+          <div class="p-field p-col-12 p-md-4">
+            <p-floatlabel  variant="on">
+              <input id="hrSig" pInputText [(ngModel)]="finalReview.hrSig" />
+              <label for="hrSig">HR Signature</label>
+            </p-floatlabel>
+          </div>
+        </div>
+    <!-- Submit Button -->
+    <div class="p-mt-4">
+      <button pButton type="button" label="Submit" icon="pi pi-check" (click)="onSubmit()"></button>
+    </div>
+  </div>
+  

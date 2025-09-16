@@ -65,17 +65,27 @@ export class EmployeeForm {
     { label: 'Educational Certificates', value: 'EDUCATION' },
     { label: 'Employment Contract', value: 'EMPLOYMENT_CONTRACT' },
     { label: 'Offer Letter', value: 'OFFER_LETTER' },
-    { label: 'Experience Letters', value: 'EXPERIENCE' }
+    { label: 'Experience Letters', value: 'EXPERIENCE' },
+    { label: 'Certificates', value: 'CERTIFICATE' },
+    { label: 'Financial Documents', value: 'FINANCIAL' }
   ];
 
   documentTypes = [
     { label: 'Aadhaar Card', value: 'AADHAAR', category: 'IDENTITY', mandatory: true },
     { label: 'Passport', value: 'PASSPORT', category: 'IDENTITY', mandatory: false },
     { label: 'PAN Card', value: 'PAN', category: 'IDENTITY', mandatory: true },
+    { label: 'SSLC Certificate', value: 'SSLC', category: 'EDUCATION', mandatory: false },
+    { label: 'PU Certificate', value: 'PU', category: 'EDUCATION', mandatory: false },
     { label: 'Degree Certificate', value: 'DEGREE', category: 'EDUCATION', mandatory: false },
+    { label: 'Diploma Certificate', value: 'DIPLOMA', category: 'EDUCATION', mandatory: false },
     { label: 'Employment Contract', value: 'EMPLOYMENT_CONTRACT', category: 'EMPLOYMENT_CONTRACT', mandatory: true },
     { label: 'Offer Letter', value: 'OFFER_LETTER', category: 'OFFER_LETTER', mandatory: false },
-    { label: 'Experience Letter', value: 'EXPERIENCE', category: 'EXPERIENCE', mandatory: false }
+    { label: 'Experience Letter', value: 'EXPERIENCE', category: 'EXPERIENCE', mandatory: false },
+    // NEW: certificates
+    { label: 'Registration Certificate', value: 'REGISTRATION_CERT', category: 'CERTIFICATE', mandatory: false },
+    { label: 'Salary Certificate', value: 'SALARY_CERT', category: 'CERTIFICATE', mandatory: false },
+    { label: 'Verification Certificate', value: 'VERIFICATION_CERT', category: 'CERTIFICATE', mandatory: false },
+    { label: 'Bank Document', value: 'BANK', category: 'FINANCIAL', mandatory: false }
   ];
 
 
@@ -105,7 +115,7 @@ export class EmployeeForm {
     { label: 'AB-', value: 'AB-' }
   ];
 
-  today:any =new Date();
+  today: any = new Date();
 
 
 
@@ -141,6 +151,7 @@ export class EmployeeForm {
       roleId: ['', Validators.required],
       dateOfJoining: ['', Validators.required],
       employmentType: ['PERMANENT', Validators.required],
+      employeeType: ['CLINICAL', Validators.required],  
       probationEndDate: [{ value: null, disabled: true }],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
@@ -350,6 +361,15 @@ export class EmployeeForm {
   onSubmit() {
     const invalidFields = this.getInvalidFields(this.employeeForm);
     console.log('Invalid fields:', invalidFields);
+    if (!this.validateMandatoryDocs()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Missing Documents',
+        detail: 'Please upload all mandatory documents before submitting.'
+      });
+      return;
+    }
+    
 
     if (this.employeeForm.valid) {
       const formValue = this.employeeForm.value;
@@ -406,18 +426,18 @@ export class EmployeeForm {
 
             // alert('Employee updated successfully!');
             this.messageService.add({
-              severity:'success',
-              summary:'Success',
-              detail:'Employee updated successfully!'
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Employee updated successfully!'
             })
             this.closeForm.emit(true);
           },
           error: () =>
             //  alert('Error updating employee')
             this.messageService.add({
-              severity:'error',
-              summary:'Error',
-              detail:'Error updating employee'
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error updating employee'
             })
         });
       }
@@ -432,13 +452,13 @@ export class EmployeeForm {
             }
             this.employeeForm.reset()
           },
-          error: () => 
+          error: () =>
             // alert('Error creating employee')
-          this.messageService.add({
-            severity:'error',
-            summary:'Error',
-            detail:'Error creating employee'
-          })
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error creating employee'
+            })
         });
       }
 
@@ -476,9 +496,23 @@ export class EmployeeForm {
   // Validate mandatory docs before submit
   validateMandatoryDocs(): boolean {
     const uploadedTypes = this.uploadedDocsForm.value.map((d: any) => d.type);
-    const missingMandatory = this.documentTypes
-      .filter(d => d.mandatory)
-      .some(m => !uploadedTypes.includes(m.value));
+    const employeeType = this.employeeForm.get('employeeType')?.value;
+
+    let mandatoryDocs: string[] = [];
+  
+    if (employeeType === 'CLINICAL') {
+      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    } else if (employeeType === 'NONCLINICAL') {
+      mandatoryDocs = ['REGISTRATION_CERT'];
+    }
+  
+    // Always required
+    mandatoryDocs.push('AADHAAR', 'PAN');
+  
+    // Education requirement
+    mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
+  
+    const missingMandatory = mandatoryDocs.some(m => !uploadedTypes.includes(m));
     return !missingMandatory;
   }
   uploadEmployeeDocs(employeeId: number) {
@@ -494,19 +528,19 @@ export class EmployeeForm {
 
     this.employeeService.uploadEmployeeDocuments(employeeId, this.uploadedDocsForm)
       .subscribe({
-        next: () => 
+        next: () =>
           // alert('Employee and documents uploaded successfully!'),
           this.messageService.add({
-            severity:'success',
-            summary:'Success',
-            detail:'Employee and documents uploaded successfully!'
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Employee and documents uploaded successfully!'
           }),
         error: () =>
           //  alert('Documents upload failed')
           this.messageService.add({
-            severity:'error',
-            summary:'Error',
-            detail:'Documents upload failed'
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Documents upload failed'
           })
       });
 
@@ -632,7 +666,7 @@ export class EmployeeForm {
     const shiftIdCtrl = this.employeeForm.get('shiftId')!;
     const patternCtrl = this.employeeForm.get('rotationPatternId')!;
     const startCtrl = this.employeeForm.get('rotationStartDate')!;
-  
+
     if (mode === 'FIXED') {
       shiftIdCtrl.setValidators([Validators.required]);
       patternCtrl.clearValidators();
@@ -642,12 +676,12 @@ export class EmployeeForm {
       patternCtrl.setValidators([Validators.required]);
       startCtrl.setValidators([Validators.required]);
     }
-  
+
     shiftIdCtrl.updateValueAndValidity();
     patternCtrl.updateValueAndValidity();
     startCtrl.updateValueAndValidity();
   }
-  
+
 
   onCancel() {
     this.closeForm.emit(false);
@@ -708,24 +742,24 @@ export class EmployeeForm {
   private isImageSrc(src: string): boolean {
     const s = (src || '').toLowerCase();
     return s.startsWith('data:image') ||
-           s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') ||
-           s.endsWith('.webp') || s.endsWith('.gif');
+      s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') ||
+      s.endsWith('.webp') || s.endsWith('.gif');
   }
-  
+
   getDocPreview(index: number): { kind: 'image' | 'pdf' | 'file'; src: string } | null {
     const v = this.uploadedDocsForm.at(index)?.value as any;
     const src: string | null = v?.fileUrl || null;
     if (!src) return null;
-  
+
     if (this.isImageSrc(src)) return { kind: 'image', src };
-  
+
     const sl = src.toLowerCase();
     if (sl.startsWith('data:application/pdf') || sl.endsWith('.pdf')) {
       return { kind: 'pdf', src };
     }
     return { kind: 'file', src };
   }
-  
+
 
 }
 

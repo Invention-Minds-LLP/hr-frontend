@@ -508,6 +508,19 @@
             </div> -->
             <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3">
                 <div formArrayName="documents" class="qualification">
+                    <div class="field col-4">
+                        <p-floatLabel variant="on">
+                          <p-select
+                            [options]="[
+                              { label: 'Clinical', value: 'CLINICAL' },
+                              { label: 'Non-clinical', value: 'NONCLINICAL' }
+                            ]"
+                            formControlName="employeeType"
+                          ></p-select>
+                          <label>Employee Type</label>
+                        </p-floatLabel>
+                      </div>
+                      
                     <!-- Add Document Button -->
                     <div class="mb-5">
                         <button variant="outlined" severity="danger" pButton type="button" label="+ Add Document"

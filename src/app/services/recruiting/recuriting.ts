@@ -125,8 +125,8 @@ export class Recuriting {
     return this.http.post<Candidate>(`${baseUrl}/candidates`, body);
   }
 
-  createApplication(body: { jobId: number; candidateId?: number; candidate?: Omit<Candidate, 'id'> }) {
-    return this.http.post<Application>(`${baseUrl}/applications`, body);
+  createApplication(data: FormData) {
+    return this.http.post<Application>(`${baseUrl}/applications`, data);
   }
 
   listApplications(params: { jobId?: number; status?: ApplicationStatuses; q?: string; page?: number; pageSize?: number } = {}) {

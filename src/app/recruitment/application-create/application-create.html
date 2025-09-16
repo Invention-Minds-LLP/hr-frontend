@@ -19,7 +19,8 @@
           <label><span>Higher Qualification</span><input formControlName="qualification" placeholder="Higher Qualification" /></label>
           <label><span>Experience (years)</span><input formControlName="experience" type="number" min="0" placeholder="Years of Experience" /></label>
           <label><span>Source</span><input formControlName="source" placeholder="Referral / LinkedIn / ..." /></label>
-          <label class="wide"><span>Resume URL</span><input formControlName="resumeUrl" placeholder="https://..." /></label>
+          <label><span>Address</span><textarea formControlName="address" placeholder="Address" ></textarea></label>
+          <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)" /></label>
 
         </div>
       </fieldset>

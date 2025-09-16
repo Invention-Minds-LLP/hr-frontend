@@ -1,0 +1,403 @@
+<p-card header="Manpower Requisition Form">
+    <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" class="p-fluid">
+  
+      <!-- Job Information -->
+      <p-panel header="Job Information" toggleable="true">
+        <div class="grid p-fluid">
+          <div class="p-field col-6">
+            <p-floatLabel variant="on">
+            <label for="title">Job Title</label>
+            <input pInputText id="title" formControlName="title" />
+        </p-floatLabel>
+          </div>
+  
+          <div class="p-field col-6">
+            <p-floatLabel variant="on">
+            <label for="departmentId">Department</label>
+            <p-select 
+              [options]="departments" 
+              optionLabel="name" 
+              optionValue="id" 
+              id="departmentId" 
+              formControlName="departmentId">
+            </p-select>
+            </p-floatLabel>
+          </div>
+  
+          <div class="p-field col-6">
+            <p-floatLabel variant="on">
+            <label for="headcount">Headcount</label>
+            <input pInputText type="number" id="headcount" [value]="totalVacancies" disabled />
+            </p-floatLabel>
+          </div>
+  
+          <!-- <div class="p-field col-6">
+            <p-floatLabel variant="on">
+            <label for="minExperience">Experience (Min)</label>
+            <input pInputText type="number" id="minExperience" formControlName="minExperience" />
+            </p-floatLabel>
+          </div>
+  
+          <div class="p-field col-6">
+            <p-floatLabel variant="on">
+            <label for="maxExperience">Experience (Max)</label>
+            <input pInputText type="number" id="maxExperience" formControlName="maxExperience" />
+            </p-floatLabel>
+          </div> -->
+        </div>
+      </p-panel>
+
+      <p-panel header="Job Profile Requirement" toggleable="true">
+        <div class="p-field">
+          <label for="skills">Requirement for the Job Profile</label>
+          <p-editor id="skills" formControlName="skills" [style]="{height:'200px'}"></p-editor>
+        </div>
+      </p-panel>
+      
+
+      <p-panel header="Reason Breakdown" toggleable="true">
+        <div formArrayName="reasonBreakdown">
+            <p-table  [value]="reasonBreakdown.controls">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Designation</th>
+                    <th>Type</th>
+                    <th>Count</th>
+                    <th>Min Exp</th>
+                    <th>Max Exp</th>
+                    <th>Details</th>
+                    <th></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-i="rowIndex">
+                  <tr [formGroupName]="i">
+                    <td>
+                        <input type="text" pInputText formControlName="designation" />
+                      </td>
+                    <td>
+                      <p-select [options]="reasonOptions" appendTo="body" formControlName="type"></p-select>
+                    </td>
+                    <td>
+                      <input type="number" pInputText formControlName="count" (input)="updateHeadcount()" />
+                    </td>
+                    <td><input type="number" pInputText formControlName="minExperience" /></td>
+                    <td><input type="number" pInputText formControlName="maxExperience" /></td>
+                    <td>
+                      <input type="text" pInputText formControlName="details" />
+                    </td>
+                    <td class="flex gap-3">
+                      <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm"
+                              (click)="removeReason(i)" type="button"></button>
+                              <button pButton icon="pi pi-plus" class=" p-button-sm" (click)="addReason()" type="button"></button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+        </div>
+       
+      </p-panel>
+  
+  
+      <!-- Education -->
+      <p-panel header="Education" toggleable="true">
+        <div class="flex flex-column gap-3">
+      
+          <!-- Up to SSC -->
+          <div class="flex align-items-center gap-3">
+            <p-checkbox formControlName="eduSSC" binary="true" inputId="eduSSC"></p-checkbox>
+            <label for="eduSSC" class="w-2">Up to SSC</label>
+            <input pInputText formControlName="eduSSCDetail" class="flex-1" placeholder="Details (optional)" />
+          </div>
+      
+          <!-- Technical Diploma -->
+          <div class="flex align-items-center gap-3">
+            <p-checkbox formControlName="eduDiploma" binary="true" inputId="eduDiploma"></p-checkbox>
+            <label for="eduDiploma" class="w-2">Technical Diploma</label>
+            <input pInputText formControlName="eduDiplomaDetail" class="flex-1" placeholder="Details (e.g., Diploma in Nursing)" />
+          </div>
+      
+          <!-- Bachelor’s Degree -->
+          <div class="flex align-items-center gap-3">
+            <p-checkbox formControlName="eduBachelor" binary="true" inputId="eduBachelor"></p-checkbox>
+            <label for="eduBachelor" class="w-2">Bachelor’s Degree</label>
+            <input pInputText formControlName="eduBachelorDetail" class="flex-1" placeholder="Details (e.g., B.Sc Nursing)" />
+          </div>
+      
+          <!-- Master’s Degree -->
+          <div class="flex align-items-center gap-3">
+            <p-checkbox formControlName="eduMaster" binary="true" inputId="eduMaster"></p-checkbox>
+            <label for="eduMaster" class="w-2">Master’s Degree</label>
+            <input pInputText formControlName="eduMasterDetail" class="flex-1" placeholder="Details (e.g., M.Sc Nursing)" />
+          </div>
+      
+          <!-- Other -->
+          <div class="flex align-items-center gap-3">
+            <p-checkbox formControlName="eduOtherDetail" binary="true" inputId="eduOtherDetail"></p-checkbox>
+            <label for="eduOtherDetail" class="w-2">Other</label>
+            <input pInputText formControlName="eduOther" class="flex-1" placeholder="Specify other qualification" />
+          </div>
+      
+        </div>
+      
+        <!-- Training / Projects -->
+        <div class="p-field mt-3">
+          <p-floatLabel variant="on">
+            <label for="training">Training / Projects</label>
+            <textarea pInputTextarea id="training" rows="2" formControlName="training" [ngClass]="{'float-active': requisitionForm.get('training')?.value}"></textarea>
+          </p-floatLabel>
+        </div>
+      </p-panel>
+      
+
+  
+      <!-- Additional Info -->
+      <p-panel header="Additional Info" toggleable="true">
+        <div class="flex align-items-center gap-3 flex-wrap">
+          <p-checkbox formControlName="urgent" binary="true" inputId="urgent"></p-checkbox>
+          <label for="urgent">Urgent</label>
+      
+          <div class="flex-1">
+            <p-floatLabel variant="on">
+              <input pInputText id="duration" formControlName="duration" />
+              <label for="duration">Duration (if urgent)</label>
+            </p-floatLabel>
+          </div>
+      
+          <div class="flex-1">
+            <p-floatLabel variant="on">
+              <input pInputText id="reportingTo" formControlName="reportingTo" />
+              <label for="reportingTo">Reporting To</label>
+            </p-floatLabel>
+          </div>
+        </div>
+      </p-panel>
+      
+  
+      
+      <p-panel header="Approvals" toggleable="true">
+        <div class="grid">
+      
+          <!-- Raised By -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': requisitionId && currentStep !== 'RAISED' }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="raisedBy" formControlName="raisedBy" [readonly]="requisitionId && currentStep !== 'RAISED'" />
+              <label for="raisedBy">Raised By</label>
+            </p-floatLabel>
+      
+            <canvas #raisedBySignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="requisitionId && currentStep !== 'RAISED'"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="raisedByDate" formControlName="raisedByDate" readonly />
+              <label for="raisedByDate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on">
+              <textarea pInputTextarea id="raisedByComments" rows="2" formControlName="raisedByComments" [ngClass]="{'float-active': requisitionForm.get('raisedByComments')?.value}"
+                        [readonly]="requisitionId && currentStep !== 'RAISED'"></textarea>
+              <label for="raisedByComments">Comments</label>
+            </p-floatLabel>
+      
+            <!-- Submit button only when Raised -->
+            <div class="p-mt-3 flex gap-3" *ngIf="!requisitionId || currentStep === 'RAISED'">
+              <button pButton type="button" label="Submit" icon="pi pi-check"
+                      (click)="onSubmit()"></button>
+            </div>
+          </div>
+      
+          <!-- Approved by HoD -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': currentStep !== 'HOD' }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedByHoD" formControlName="approvedByHoD" [readonly]="currentStep !== 'HOD'" />
+              <label for="approvedByHoD">Approved by HoD</label>
+            </p-floatLabel>
+      
+            <canvas #hodSignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="currentStep !== 'HOD'"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedByHoDDate" formControlName="approvedByHoDDate" readonly />
+              <label for="approvedByHoDDate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on">
+              <textarea 
+                pInputTextarea 
+                id="approvedByHoDComments" 
+                rows="2"
+                formControlName="approvedByHoDComments"
+                [readonly]="currentStep !== 'HOD'">
+              </textarea>
+              <label for="approvedByHoDComments">Comments</label>
+            </p-floatLabel>
+            
+      
+            <!-- Approve/Reject buttons -->
+            <div class="p-mt-3 flex gap-3" *ngIf="currentStep === 'HOD'">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('HOD')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('HOD')"></button>
+            </div>
+          </div>
+      
+          <!-- Approved by SMO -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': currentStep !== 'SMO' }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedBySMO" formControlName="approvedBySMO" [readonly]="currentStep !== 'SMO'" />
+              <label for="approvedBySMO">Approved by SMO</label>
+            </p-floatLabel>
+      
+            <canvas #smoSignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="currentStep !== 'SMO'"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedBySMODate" formControlName="approvedBySMODate" readonly />
+              <label for="approvedBySMODate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on">
+              <textarea pInputTextarea id="approvedBySMOComments" rows="2" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value}"
+                        formControlName="approvedBySMOComments"
+                        [readonly]="currentStep !== 'SMO'"></textarea>
+              <label for="approvedBySMOComments">Comments</label>
+            </p-floatLabel>
+      
+            <!-- Approve/Reject buttons -->
+            <div class="p-mt-3" *ngIf="currentStep === 'SMO'">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('SMO')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('SMO')"></button>
+            </div>
+          </div>
+      
+          <!-- Received by HR -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': currentStep !== 'HR' }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="receivedByHR" formControlName="receivedByHR" [readonly]="currentStep !== 'HR'" />
+              <label for="receivedByHR">Received by HR</label>
+            </p-floatLabel>
+      
+            <canvas #hrSignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="currentStep !== 'HR'"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="receivedByHRDate" formControlName="receivedByHRDate" readonly />
+              <label for="receivedByHRDate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on">
+              <textarea pInputTextarea id="receivedByHRComments" rows="2" [ngClass]="{'float-active': requisitionForm.get('receivedByHRComments')?.value}"
+                        formControlName="receivedByHRComments"
+                        [readonly]="currentStep !== 'HR'"></textarea>
+              <label for="receivedByHRComments">Comments</label>
+            </p-floatLabel>
+      
+            <!-- Approve/Reject buttons -->
+            <div class="p-mt-3 flex gap-3" *ngIf="currentStep === 'HR'">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('HR')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('HR')"></button>
+            </div>
+          </div>
+      
+        </div>
+      </p-panel>
+      
+  
+      <!-- HR Use Only -->
+      <p-panel header="HR Use Only" toggleable="true" *ngIf="currentStep === 'HR' || currentStep === 'CLOSED'">
+        <div class="grid">
+          <div class="col-12 md:col-3">
+            <p-floatLabel variant="on">
+              <input pInputText id="hrReferenceNo" formControlName="hrReferenceNo" />
+              <label for="hrReferenceNo">Reference No</label>
+            </p-floatLabel>
+          </div>
+          <div class="col-12 md:col-3">
+            <p-floatLabel variant="on">
+              <input pInputText id="salaryRange" formControlName="salaryRange" />
+              <label for="salaryRange">Salary Range</label>
+            </p-floatLabel>
+          </div>
+          <div class="col-12 md:col-3">
+            <p-floatLabel variant="on">
+              <p-select [options]="sourceOptions" id="source" formControlName="source"></p-select>
+              <label for="source">Source</label>
+            </p-floatLabel>
+          </div>
+          <div class="col-12 md:col-3">
+            <p-floatLabel variant="on">
+              <input pInputText id="actionTaken" formControlName="actionTaken" />
+              <label for="actionTaken">Action Taken</label>
+            </p-floatLabel>
+          </div>
+          <div class="col-12 md:col-3">
+            <p-floatLabel variant="on">
+              <p-datepicker id="closedOn" formControlName="closedOn" dateFormat="mm/dd/yy"></p-datepicker>
+              <label for="closedOn">Closed On</label>
+            </p-floatLabel>
+          </div>
+        </div>
+          
+      <div class="p-mt-3">
+        <button pButton label="Submit" class="p-button-success" (click)="submitHRUseOnly()" [disabled]="!requisitionForm.valid"></button>
+      </div>
+      </p-panel>
+      <p-panel header="Rejection Details" *ngIf="currentStep === 'REJECTED'">
+        <div class="p-field">
+          <label>Rejected By:</label>
+          <span>{{ getRejectedBy() }}</span>
+        </div>
+        <div class="p-field">
+          <label>Reason:</label>
+          <span>{{ getRejectedReason() }}</span>
+        </div>
+        <div class="p-field">
+          <label>Date:</label>
+          <span>{{ getRejectedDate() }}</span>
+        </div>
+      </p-panel>
+    </form>
+  </p-card>
+
+  
+  <!-- Reject confirmation popup -->
+  <p-dialog header="Reject Requisition"
+  [(visible)]="rejectDialogVisible"
+  [modal]="true"
+  [closable]="false"
+  [style]="{width: '400px'}">
+
+<div class="p-fluid">
+<p-floatLabel variant="on">
+<textarea pInputTextarea rows="4" [(ngModel)]="rejectionComments"></textarea>
+<label>Reason for Rejection</label>
+</p-floatLabel>
+</div>
+
+<!-- Footer section -->
+<ng-template pTemplate="footer">
+<div class="flex justify-content-end gap-2">
+<button pButton label="Cancel" icon="pi pi-times" severity="secondary"
+     (click)="rejectDialogVisible=false"></button>
+<button pButton label="Submit Rejection" icon="pi pi-check" severity="danger"
+     (click)="confirmReject()"></button>
+</div>
+</ng-template>
+</p-dialog>
+

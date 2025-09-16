@@ -34,6 +34,7 @@ export class ApplicationCreate implements OnInit {
       resumeUrl: [''],  
       qualification: [''],
       experience: [''],
+      address:[''],
     }),
   });
 
@@ -44,23 +45,68 @@ export class ApplicationCreate implements OnInit {
     this.api.listJobs({ status: 'OPEN', pageSize: 100 }).subscribe(res => (this.jobs = res.rows));
   }
 
+  // submit() {
+  //   this.error = undefined;
+  //   if (this.form.invalid) {
+  //     this.form.markAllAsTouched();
+  //     return;
+  //   }
+  //   this.saving = true;
+  //   this.form.value.candidate?.experience?.toString() // default to 0 if not provided
+  //   this.api.createApplication(this.form.value as any).subscribe({
+  //     next: (_app: Application) => {
+  //       // alert('Application created!');
+  //       this.messageService.add({severity:'success', summary:'Success', detail:'Application created!'});
+  //       this.router.navigate(['/recruitment/jobs']);
+  //       this.form.reset();
+  //     },
+  //     error: (e) => (this.error = e?.error?.error || 'Failed to create'),
+  //     complete: () => (this.saving = false),
+  //   });
+  // }
   submit() {
     this.error = undefined;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
+  
     this.saving = true;
-    this.form.value.candidate?.experience?.toString() // default to 0 if not provided
-    this.api.createApplication(this.form.value as any).subscribe({
+  
+    // build FormData for multipart
+    const formData = new FormData();
+    formData.append("jobId", this.form.value.jobId!.toString());
+  
+    // stringify candidate group
+    formData.append("candidate", JSON.stringify(this.form.value.candidate));
+  
+    // attach resume file if selected
+    if (this.selectedResumeFile) {
+      formData.append("resume", this.selectedResumeFile);
+    }
+  
+    this.api.createApplication(formData).subscribe({
       next: (_app: Application) => {
-        // alert('Application created!');
-        this.messageService.add({severity:'success', summary:'Success', detail:'Application created!'});
-        this.router.navigate(['/recruitment/jobs']);
+        this.messageService.add({
+          severity: "success",
+          summary: "Success",
+          detail: "Application created!",
+        });
+        this.router.navigate(["/recruitment/jobs"]);
         this.form.reset();
+        this.selectedResumeFile = undefined;
       },
-      error: (e) => (this.error = e?.error?.error || 'Failed to create'),
+      error: (e) => (this.error = e?.error?.error || "Failed to create"),
       complete: () => (this.saving = false),
     });
   }
+  
+  selectedResumeFile?: File;
+
+onFileSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.selectedResumeFile = input.files[0];
+  }
+}
 }

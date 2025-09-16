@@ -74,15 +74,39 @@
                         </span>
                     </td>
                     <td class="t-data">
-                        {{leaveData.status || '-'}}
-                    </td>
+                        {{ getStatusLabel(leaveData) }}
+                      </td>
+                      
                     <td>
                         <div class="btns">
-                            <button class="btn-1 btn" (click)="acceptLeave(leaveData.id)">Accept</button>
+                            <!-- <button class="btn-1 btn" (click)="acceptLeave(leaveData.id)">Accept</button>
                             <button class="btn-2 btn" (click)="openDeclineDialog(leaveData.id)">
                                 Decline
                             </button>
-                            <button class="btn-3" (click)="openLeaveDetails(leaveData)">Leave Details</button>
+                            <button class="btn-3" (click)="openLeaveDetails(leaveData)">Leave Details</button> -->
+                            <div class="btns">
+                                <!-- Manager stage -->
+                                <ng-container *ngIf="role === 'Reporting Manager' || role === 'Manager'">
+                                  <button *ngIf="leaveData.hodDecision === 'PENDING'" class="btn-1 btn"
+                                          (click)="acceptLeave(leaveData.id, 'MANAGER')">Approve</button>
+                                  <button *ngIf="leaveData.hodDecision === 'PENDING'" class="btn-2 btn"
+                                          (click)="openDeclineDialog(leaveData.id, 'MANAGER')">Decline</button>
+                                </ng-container>
+                              
+                                <!-- HR stage -->
+                                <ng-container *ngIf="isHR">
+                                  <button *ngIf="leaveData.hodDecision === 'APPROVED' && leaveData.hrDecision === 'PENDING'"
+                                          class="btn-1 btn"
+                                          (click)="acceptLeave(leaveData.id, 'HR')">Approve</button>
+                                  <button *ngIf="leaveData.hodDecision === 'APPROVED' && leaveData.hrDecision === 'PENDING'"
+                                          class="btn-2 btn"
+                                          (click)="openDeclineDialog(leaveData.id, 'HR')">Decline</button>
+                                </ng-container>
+                              
+                                <!-- Always visible -->
+                                <button class="btn-3" (click)="openLeaveDetails(leaveData)">Leave Details</button>
+                              </div>
+                              
                         </div>
                     </td>
 

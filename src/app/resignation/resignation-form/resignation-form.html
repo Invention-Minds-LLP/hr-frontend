@@ -81,9 +81,14 @@
                             }}</span>
                     </td>
                     <td class="action-cell">
-                        <button pButton label="Withdraw" class="p-button-danger p-button-sm" [disabled]="!withdrawable(r)"
-                            (click)="askWithdraw(r)">
-                        </button>
+                        <button
+                        pButton
+                        label="Request Withdraw"
+                        class="p-button-danger p-button-sm"
+                        [disabled]="!withdrawable(r)"
+                        (click)="askWithdraw(r)">
+                      </button>
+                      
                     </td>
                 </tr>
             </ng-template>

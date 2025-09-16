@@ -17,6 +17,7 @@ export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
 
 
+
 interface WFHTable {
   empID: string
   empName: string;
@@ -53,6 +54,7 @@ export class WorkFromHome {
   buckets: { today: any[]; thisWeek: any[]; nextMonth: any[] } = {
     today: [], thisWeek: [], nextMonth: []
   };
+  currentDeclineRole: 'MANAGER' | 'HR' | null = null; // Stores the role for decline action
 
 
   expanded: Record<BucketKey, boolean> = {
@@ -104,7 +106,9 @@ export class WorkFromHome {
           status: wfh.status,
           startDate: wfh.startDate,
           endDate: wfh.endDate,
-          reportingManagerId: wfh.reportingManager ?? null, 
+          reportingManagerId: wfh.employee.reportingManager ?? null, 
+          hodDecision: wfh.hodDecision,
+          hrDecision: wfh.hrDecision,
           }
         });
         this.wfhData = this.isHR
@@ -118,7 +122,21 @@ export class WorkFromHome {
     });
   }
 
-
+  getStatusLabel(req: any): string {
+    if (req.hodDecision === 'REJECTED') {
+      return 'Manager Rejected';
+    }
+    if (req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING') {
+      return 'Manager Approved (Waiting HR)';
+    }
+    if (req.hrDecision === 'APPROVED') {
+      return 'HR Approved';
+    }
+    if (req.hrDecision === 'REJECTED') {
+      return 'HR Rejected';
+    }
+    return 'Pending';
+  }
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
     const searchText = input.value.trim().toLowerCase();;
@@ -163,25 +181,29 @@ export class WorkFromHome {
   getDepartmentName(id: number): string {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
-  acceptWFH(id: number) {
-    const currentUserId = Number(localStorage.getItem('userId'));
-
-    this.wfhService.updateWFHStatus(id, 'APPROVED', currentUserId).subscribe({
+  acceptWFH(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+    if (!normalized) return;
+  
+    this.wfhService.updateWFHStatus(id, 'Approved', this.currentUserId, normalized).subscribe({
       next: () => this.loadWFHRequests(),
       error: (err) => console.error('Error approving WFH:', err)
     });
   }
-  openDeclineDialog(id: number) {
+  
+  openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+    if (!normalized) return;
     this.currentDeclineId = id;
+    this.currentDeclineRole = normalized;
     this.declineDialogVisible = true;
   }
-
+  
   confirmDecline() {
     if (!this.declineReason.trim()) return;
-
-    const currentUserId = Number(localStorage.getItem('userId'));
-
-    this.wfhService.updateWFHStatus(this.currentDeclineId!, 'REJECTED', currentUserId, this.declineReason).subscribe({
+    this.wfhService.updateWFHStatus(
+      this.currentDeclineId!, 'Declined', this.currentUserId, this.currentDeclineRole!, this.declineReason
+    ).subscribe({
       next: () => {
         this.declineDialogVisible = false;
         this.declineReason = '';
@@ -191,6 +213,14 @@ export class WorkFromHome {
       error: (err) => console.error('Error declining WFH:', err)
     });
   }
+  
+  private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
+    const norm = role.toUpperCase().replace(/\s+/g, '_');
+    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
+    if (norm === 'HR' || norm === 'HR_MANAGER') return 'HR';
+    return null;
+  }
+  
   openWFHDetails(wfh: any) {
     this.selectedWFH = {
       ...wfh,

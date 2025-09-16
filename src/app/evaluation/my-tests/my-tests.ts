@@ -32,8 +32,9 @@ export class MyTests {
     // this.ct.getCandidateAssignedTests(candidateId).subscribe(rows => this.tests = rows);
   }
 
-  startTest(assignedId: number): void {
-    this.testService.startAttempt(assignedId).subscribe({
+  startTest(assignedId: any): void {
+    console.log(assignedId)
+    this.testService.startAttempt(assignedId.id).subscribe({
       next: ({ attemptId }) => {
         this.router.navigate(['/take-test', assignedId], { queryParams: { attemptId } });
       },

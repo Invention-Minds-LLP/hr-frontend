@@ -18,7 +18,22 @@ export class Permission {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  updatePermissionStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/status`, { status, userId, declineReason });
+  // updatePermissionStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
+  //   return this.http.patch(`${this.apiUrl}/${id}/status`, { status, userId, declineReason });
+  // }
+  updatePermissionStatus(
+    id: number,
+    status: string,
+    userId: number,
+    role: 'MANAGER' | 'HR',
+    declineReason?: string
+  ): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/status`, {
+      status,
+      userId,
+      role,
+      declineReason,
+    });
   }
+  
 }

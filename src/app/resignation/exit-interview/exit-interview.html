@@ -128,8 +128,9 @@
               {id:'supportReceived', label:'Support received'},
               {id:'newJobOffers', label:'New job offers'}
             ]">
-              <p-floatlabel variant="on">
-                <textarea pInputTextarea [id]="reason.id" rows="2" [formControlName]="reason.id"></textarea>
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get(reason.id)?.value}">
+                <textarea pInputTextarea [id]="reason.id" autoResize="true" rows="2"
+                  [formControlName]="reason.id"></textarea>
                 <label [for]="reason.id">{{reason.label}}</label>
               </p-floatlabel>
             </div>
@@ -143,13 +144,13 @@
         <p-accordion-content>
           <div class="grid">
             <div class="col-6">
-              <p-floatlabel variant="on">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('expectationsMet')?.value}">
                 <textarea pInputTextarea id="expectationsMet" rows="2" formControlName="expectationsMet"></textarea>
                 <label for="expectationsMet">Expectations met?</label>
               </p-floatlabel>
             </div>
             <div class="col-6">
-              <p-floatlabel variant="on">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('skillUtilization')?.value}">
                 <textarea pInputTextarea id="skillUtilization" rows="2" formControlName="skillUtilization"></textarea>
                 <label for="skillUtilization">Skill utilization</label>
               </p-floatlabel>
@@ -308,24 +309,24 @@
         <p-accordion-content>
           <div class="grid">
             <div class="col-6">
-              <p-floatlabel variant="on">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('likedMost')?.value}">
                 <textarea pInputTextarea id="likedMost" rows="2" formControlName="likedMost"></textarea>
                 <label for="likedMost">What did you like most?</label>
               </p-floatlabel>
             </div>
             <div class="col-6">
-              <p-floatlabel variant="on">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('stayEncouragement')?.value}">
                 <textarea pInputTextarea id="stayEncouragement" rows="2" formControlName="stayEncouragement"></textarea>
                 <label for="stayEncouragement">What could encourage you to stay?</label>
               </p-floatlabel>
             </div>
-            <div class="field-checkbox">
+            <div class="field-checkbox" [ngClass]="{'float-active': form.get('recommendCompany')?.value}">
               <p-checkbox formControlName="recommendCompany" binary="true" inputId="recommendCompany"></p-checkbox>
               <label for="recommendCompany">Would you recommend this company?</label>
             </div>
 
             <div class="col-12">
-              <p-floatlabel variant="on">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('recommendReason')?.value}">
                 <textarea pInputTextarea id="recommendReason" rows="2" formControlName="recommendReason"></textarea>
                 <label for="recommendReason">Why / Why not?</label>
               </p-floatlabel>

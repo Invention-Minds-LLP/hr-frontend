@@ -9,7 +9,7 @@ import { ResignPost } from '../resign-post/resign-post';
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DatePipe,DialogModule, ResignPost],
+  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -19,10 +19,10 @@ export class ResignationList {
   employeeId = Number(localStorage.getItem('empId') || 0);
   managerId = this.employeeId; // assumes logged in user is potential manager
   showPostHr = false;
-  isHR = ['HR','HR MANAGER'].includes((localStorage.getItem('role') || '').toUpperCase());
+  isHR = ['HR', 'HR MANAGER'].includes((localStorage.getItem('role') || '').toUpperCase());
 
 
-  constructor(private api: Resignation) {}
+  constructor(private api: Resignation) { }
 
   ngOnInit() {
     // const norm = this.normalize(this.role);
@@ -76,8 +76,19 @@ export class ResignationList {
   }
   dialogOpen: Record<number, boolean> = {};
 
-openDialog(id: number)  { this.dialogOpen[id] = true; }
-closeDialog(id: number) { this.dialogOpen[id] = false; }
-isOpen(id: number)      { return !!this.dialogOpen[id]; }
-  
+  openDialog(id: number) { this.dialogOpen[id] = true; }
+  closeDialog(id: number) { this.dialogOpen[id] = false; }
+  isOpen(id: number) { return !!this.dialogOpen[id]; }
+  approveWithdrawHR(r: any) {
+    const note = prompt('Optional note for approving withdraw?') || '';
+    this.api.hrApproveWithdraw(r.id, { note, approvedBy: this.employeeId })
+      .subscribe(upd => this.replace(upd));
+  }
+
+  rejectWithdrawHR(r: any) {
+    const note = prompt('Reason for rejecting withdraw?') || '';
+    this.api.hrRejectWithdraw(r.id, { note, rejectedBy: this.employeeId })
+      .subscribe(upd => this.replace(upd));
+  }
+
 }

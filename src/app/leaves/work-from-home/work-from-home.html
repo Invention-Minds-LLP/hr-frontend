@@ -1,183 +1,206 @@
 <div class="WFH-request">
-    <div class="header">
-        <div class="heading">Work From Home</div>
-        <div class="flex">
-            <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
-            </p-iconfield>
-            <div (click)="toggleFilterDropdown()">
-                <i class="pi pi-align-center"><span class="filter">{{ selectedFilter?.label || 'Filter' }}</span></i>
-                <ul *ngIf="showFilterDropdown" class="menu-list">
-                    <li class="list" *ngFor="let option of filterOption"
-                        (click)="selectFiler(option); $event.stopPropagation()"
-                        [ngClass]="{'active': selectedFilter?.value === option.value}">
-                        {{option.label}}
-                    </li>
-                </ul>
-            </div>
+  <div class="header">
+    <div class="heading">Work From Home</div>
+    <div class="flex">
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
+      </p-iconfield>
+      <div (click)="toggleFilterDropdown()">
+        <i class="pi pi-align-center"><span class="filter">{{ selectedFilter?.label || 'Filter' }}</span></i>
+        <ul *ngIf="showFilterDropdown" class="menu-list">
+          <li class="list" *ngFor="let option of filterOption" (click)="selectFiler(option); $event.stopPropagation()"
+            [ngClass]="{'active': selectedFilter?.value === option.value}">
+            {{option.label}}
+          </li>
+        </ul>
+      </div>
 
-        </div>
     </div>
+  </div>
 
-    <div class="table">
-        <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="10">
-            <ng-template #header>
-                <tr>
-                    <th>No</th>
-                    <th>Emp ID</th>
-                    <th>Employee Name</th>
-                    <th>Department</th>
-                    <th>Job Title</th>
-                    <th>WFH Date</th>
-                    <th>Reason</th>
-                    <th>Status</th>
-                    <th style="text-align: center;">Action</th>
-                </tr>
-            </ng-template>
-            <ng-template #body let-wfhData let-rowIndex="rowIndex">
-                <tr>
-                    <td>{{ rowIndex + 1 }}</td>
-                    <td>{{ wfhData.empID }}</td>
-                    <td class="empname">
-                        <img src="/img.png" alt="">
-                        <div class="">
-                            <div class="name">{{ wfhData.empName }}</div>
-                            <span class="email">{{wfhData.email}}</span>
-                        </div>
-                    </td>
-                    <td class="t-data al">
-                        <span class="dept-badge"
-                            [ngStyle]="{ backgroundColor: getDepartmentColors(wfhData.department).badgeColor }">
-                            <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDepartmentColors(wfhData.department).dotColor }">
-                            </span>
-                            {{ getDepartmentName(wfhData.department) }}
-                        </span>
-                    </td>
+  <div class="table">
+    <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="10">
+      <ng-template #header>
+        <tr>
+          <th>No</th>
+          <th>Emp ID</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Job Title</th>
+          <th>WFH Date</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th style="text-align: center;">Action</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-wfhData let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ rowIndex + 1 }}</td>
+          <td>{{ wfhData.empID }}</td>
+          <td class="empname">
+            <img src="/img.png" alt="">
+            <div class="">
+              <div class="name">{{ wfhData.empName }}</div>
+              <span class="email">{{wfhData.email}}</span>
+            </div>
+          </td>
+          <td class="t-data al">
+            <span class="dept-badge"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(wfhData.department).badgeColor }">
+              <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(wfhData.department).dotColor }">
+              </span>
+              {{ getDepartmentName(wfhData.department) }}
+            </span>
+          </td>
 
-                    <td class="t-data">{{ wfhData.jobTitle }}</td>
-                    <td class="t-data">{{ wfhData.WFHDate }}</td>
-                    <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
-                            {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
-                        </span></td>
-                    <td>{{wfhData.status || '-'}}</td>
+          <td class="t-data">{{ wfhData.jobTitle }}</td>
+          <td class="t-data">{{ wfhData.WFHDate }}</td>
+          <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
+              {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
+            </span></td>
+            <td class="t-data">
+              {{ getStatusLabel(wfhData) }}
+            </td>
 
-                    <td>
-                        <div class="btns">
+          <td>
+            <!-- <div class="btns">
                             <button class="btn-1 btn" (click)="acceptWFH(wfhData.id)">Accept</button>
                             <button class="btn-2 btn" (click)="openDeclineDialog(wfhData.id)">Decline</button>
                             <button class="btn-3" (click)="openWFHDetails(wfhData)">WFH Details</button>
                             
-                        </div>
-                    </td>
+                        </div> -->
+            <div class="btns">
+              <!-- Manager stage -->
+              <ng-container *ngIf="role === 'Reporting Manager' || role === 'Manager'">
+                <button *ngIf="wfhData.hodDecision === 'PENDING'" class="btn-1 btn"
+                  (click)="acceptWFH(wfhData.id, 'MANAGER')">Approve</button>
+                <button *ngIf="wfhData.hodDecision === 'PENDING'" class="btn-2 btn"
+                  (click)="openDeclineDialog(wfhData.id, 'MANAGER')">Decline</button>
+              </ng-container>
 
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td [attr.colspan]="columnCount" class="no-data-message">
-                  <i class="pi pi-info-circle"></i>
-                  No WFH requests found.
-                </td>
-              </tr>
-            </ng-template>
-        </p-table>
+              <!-- HR stage -->
+              <ng-container *ngIf="isHR">
+                <button *ngIf="wfhData.hodDecision === 'APPROVED' && wfhData.hrDecision === 'PENDING'" class="btn-1 btn"
+                  (click)="acceptWFH(wfhData.id, 'HR')">Approve</button>
+                <button *ngIf="wfhData.hodDecision === 'APPROVED' && wfhData.hrDecision === 'PENDING'" class="btn-2 btn"
+                  (click)="openDeclineDialog(wfhData.id, 'HR')">Decline</button>
+              </ng-container>
 
-    </div>
+              <!-- Always visible -->
+              <button class="btn-3" (click)="openWFHDetails(wfhData)">Leave Details</button>
+            </div>
+
+          </td>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="columnCount" class="no-data-message">
+            <i class="pi pi-info-circle"></i>
+            No WFH requests found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
 </div>
 
 <div class="custom-popup" *ngIf="declineDialogVisible">
-    <div class="popup-content">
-      <h3>WFH Request Decline Reason</h3>
-      <hr>
-      <textarea
-        placeholder="Type your reason here..."
-        [(ngModel)]="declineReason"
-        rows="4"
-      ></textarea>
-  
-      <div class="popup-actions">
-        <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
-        <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
-      </div>
+  <div class="popup-content">
+    <h3>WFH Request Decline Reason</h3>
+    <hr>
+    <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+    <div class="popup-actions">
+      <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+      <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
     </div>
   </div>
+</div>
 
 <div class="leave-dashboard-popup" *ngIf="showWFHPopup">
-    <div class="leave-dashboard-container">
-        <div class="layout">
-            <app-wfh-popup [showPopup]="true" [wfhData]="selectedWFH" [isViewOnly]="viewMode" [hasBackDrop]="false"
-            (close)="showWFHPopup=false">
-        </app-wfh-popup>
-        <aside class="who-panel">
-            <div class="who-title"><i class="pi pi-users"></i> Who’s on WFH</div>
-        
-            <hr/>
-          
-            <!-- Today -->
-            <div class="who-section">
-              <div class="section-title">Today</div>
-              <ng-container *ngIf="buckets.today.length; else emptyToday">
-                <div class="who-item" *ngFor="let p of visible(buckets.today,'today')">
-                  <img [src]="'/img.png'" alt="" />
-                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
-                </div>
-          
-                <button
-                  *ngIf="moreCount(buckets.today) > 0"
-                  class="more-btn"
-                  (click)="toggle('today')">
-                  <ng-container *ngIf="!expanded.today">+{{ moreCount(buckets.today) }} more</ng-container>
-                  <ng-container *ngIf="expanded.today">show less</ng-container>
-                  <i class="pi" [ngClass]="expanded.today ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                </button>
-              </ng-container>
-              <ng-template #emptyToday><div class="muted">—</div></ng-template>
+  <div class="leave-dashboard-container">
+    <div class="layout">
+      <app-wfh-popup [showPopup]="true" [wfhData]="selectedWFH" [isViewOnly]="viewMode" [hasBackDrop]="false"
+        (close)="showWFHPopup=false">
+      </app-wfh-popup>
+      <aside class="who-panel">
+        <div class="who-title"><i class="pi pi-users"></i> Who’s on WFH</div>
+
+        <hr />
+
+        <!-- Today -->
+        <div class="who-section">
+          <div class="section-title">Today</div>
+          <ng-container *ngIf="buckets.today.length; else emptyToday">
+            <div class="who-item" *ngFor="let p of visible(buckets.today,'today')">
+              <img [src]="'/img.png'" alt="" />
+              <div>
+                <div class="name">{{ p.name }}</div>
+                <div class="role">{{ p.title || '—' }}</div>
+              </div>
             </div>
-          
-            <!-- This week -->
-            <div class="who-section">
-              <div class="section-title">This week</div>
-              <ng-container *ngIf="buckets.thisWeek.length; else emptyWeek">
-                <div class="who-item" *ngFor="let p of visible(buckets.thisWeek,'thisWeek')">
-                  <img [src]="'/img.png'" alt="" />
-                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
-                </div>
-          
-                <button
-                  *ngIf="moreCount(buckets.thisWeek) > 0"
-                  class="more-btn"
-                  (click)="toggle('thisWeek')">
-                  <ng-container *ngIf="!expanded.thisWeek">+{{ moreCount(buckets.thisWeek) }} more</ng-container>
-                  <ng-container *ngIf="expanded.thisWeek">show less</ng-container>
-                  <i class="pi" [ngClass]="expanded.thisWeek ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                </button>
-              </ng-container>
-              <ng-template #emptyWeek><div class="muted">—</div></ng-template>
-            </div>
-          
-            <!-- Next month -->
-            <div class="who-section">
-              <div class="section-title">Next Month</div>
-              <ng-container *ngIf="buckets.nextMonth.length; else emptyNext">
-                <div class="who-item" *ngFor="let p of visible(buckets.nextMonth,'nextMonth')">
-                  <img [src]="'/img.png'" alt="" />
-                  <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
-                </div>
-          
-                <button
-                  *ngIf="moreCount(buckets.nextMonth) > 0"
-                  class="more-btn"
-                  (click)="toggle('nextMonth')">
-                  <ng-container *ngIf="!expanded.nextMonth">+{{ moreCount(buckets.nextMonth) }} more</ng-container>
-                  <ng-container *ngIf="expanded.nextMonth">show less</ng-container>
-                  <i class="pi" [ngClass]="expanded.nextMonth ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                </button>
-              </ng-container>
-              <ng-template #emptyNext><div class="muted">—</div></ng-template>
-            </div>
-          </aside>
+
+            <button *ngIf="moreCount(buckets.today) > 0" class="more-btn" (click)="toggle('today')">
+              <ng-container *ngIf="!expanded.today">+{{ moreCount(buckets.today) }} more</ng-container>
+              <ng-container *ngIf="expanded.today">show less</ng-container>
+              <i class="pi" [ngClass]="expanded.today ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+          </ng-container>
+          <ng-template #emptyToday>
+            <div class="muted">—</div>
+          </ng-template>
         </div>
+
+        <!-- This week -->
+        <div class="who-section">
+          <div class="section-title">This week</div>
+          <ng-container *ngIf="buckets.thisWeek.length; else emptyWeek">
+            <div class="who-item" *ngFor="let p of visible(buckets.thisWeek,'thisWeek')">
+              <img [src]="'/img.png'" alt="" />
+              <div>
+                <div class="name">{{ p.name }}</div>
+                <div class="role">{{ p.title || '—' }}</div>
+              </div>
+            </div>
+
+            <button *ngIf="moreCount(buckets.thisWeek) > 0" class="more-btn" (click)="toggle('thisWeek')">
+              <ng-container *ngIf="!expanded.thisWeek">+{{ moreCount(buckets.thisWeek) }} more</ng-container>
+              <ng-container *ngIf="expanded.thisWeek">show less</ng-container>
+              <i class="pi" [ngClass]="expanded.thisWeek ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+          </ng-container>
+          <ng-template #emptyWeek>
+            <div class="muted">—</div>
+          </ng-template>
+        </div>
+
+        <!-- Next month -->
+        <div class="who-section">
+          <div class="section-title">Next Month</div>
+          <ng-container *ngIf="buckets.nextMonth.length; else emptyNext">
+            <div class="who-item" *ngFor="let p of visible(buckets.nextMonth,'nextMonth')">
+              <img [src]="'/img.png'" alt="" />
+              <div>
+                <div class="name">{{ p.name }}</div>
+                <div class="role">{{ p.title || '—' }}</div>
+              </div>
+            </div>
+
+            <button *ngIf="moreCount(buckets.nextMonth) > 0" class="more-btn" (click)="toggle('nextMonth')">
+              <ng-container *ngIf="!expanded.nextMonth">+{{ moreCount(buckets.nextMonth) }} more</ng-container>
+              <ng-container *ngIf="expanded.nextMonth">show less</ng-container>
+              <i class="pi" [ngClass]="expanded.nextMonth ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+          </ng-container>
+          <ng-template #emptyNext>
+            <div class="muted">—</div>
+          </ng-template>
+        </div>
+      </aside>
     </div>
+  </div>
 </div>

@@ -1,158 +1,142 @@
-<div class="appraisal-container">
-    <!-- Appraisal Form -->
-    <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()">
-        <div class="appraisal-form">
-            <div class="heading">Appraisal Form</div>
-            <div class="sub-heading">Employee Personal Information</div>
-            <div class="input-box-1">
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="fullName" readonly />
-                    <label for="on_label">Full Name</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="employeeCode" readonly />
-                    <label for="on_label">Employee ID</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="department" readonly />
-                    <label for="department">Department</label>
-                </p-floatlabel>
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="designation" readonly />
-                    <label for="on_label">Designation</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="dateOfJoining" readonly />
-                    <label for="on_label">Date Of Joining</label>
-                </p-floatlabel>
-
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="cycle" readonly />
-                    <label for="on_label">Appraisal Cycle</label>
-                </p-floatlabel>
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="managerName" readonly />
-                    <label for="on_label">Reviewer (Manager Name)</label>
-                </p-floatlabel>
+<div class="appraisal-container ">
+    <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()" class="p-fluid">
+      <div class="appraisal-form">
+        <h2 class="text-center mb-4">Appraisal Form</h2>
+  
+        <!-- ================= Employee Info ================= -->
+        <h3 class="mb-3">Employee Personal Information</h3>
+        <div class="grid formgrid mb-4 gap-3">
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="fullName" readonly />
+                <label>Full Name</label>
+              </p-floatlabel>
             </div>
-
-
-            <!-- Manager Remarks -->
-
-            <div class="heading">Manager Remarks</div>
-            <div class="sub-heading">Manager Rating ( Out of 10 )</div>
-            <div class="input-box" style="width: 100%;">
-                <div class="input-box-2">
-                    <div>
-                        <p-floatlabel variant="on">
-                            <input pInputText type="number" formControlName="communication" max="10" min="0" />
-                            <label for="on_label">Communication</label>
-                        </p-floatlabel>
-                        <div
-                            *ngIf="appraisalForm.get('communication')?.hasError('max') && appraisalForm.get('communication')?.touched">
-                            <small class="error-text">Must be 10 or less</small>
-                        </div>
-                    </div>
-
-
-                    <div>
-                        <p-floatlabel variant="on">
-                            <input pInputText type="number" formControlName="teamwork" max="10" min="0" />
-                            <label for="on_label">Teamwork</label>
-                        </p-floatlabel>
-                        <div
-                            *ngIf="appraisalForm.get('teamwork')?.hasError('max') && appraisalForm.get('teamwork')?.touched">
-                            <small class="error-text">Must be 10 or less</small>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p-floatlabel variant="on">
-                            <input pInputText type="number" formControlName="problemSolving" max="10" min="0" />
-                            <label for="on_label">Problem Solving</label>
-                        </p-floatlabel>
-                        <div
-                            *ngIf="appraisalForm.get('problemSolving')?.hasError('max') && appraisalForm.get('problemSolving')?.touched">
-                            <small class="error-text">Must be 10 or less</small>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p-floatlabel variant="on">
-                            <input pInputText type="number" formControlName="initiative" max="10" min="0" />
-                            <label for="on_label">Initiative</label>
-                        </p-floatlabel>
-                        <div
-                            *ngIf="appraisalForm.get('initiative')?.hasError('max') && appraisalForm.get('initiative')?.touched">
-                            <small class="error-text">Must be 10 or less</small>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p-floatlabel variant="on">
-                            <input pInputText type="number" formControlName="reliability" max="10" min="0" />
-                            <label for="on_label">Reliability</label>
-                        </p-floatlabel>
-                        <div
-                            *ngIf="appraisalForm.get('reliability')?.hasError('max') && appraisalForm.get('reliability')?.touched">
-                            <small class="error-text">Must be 10 or less</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-box-2">
-
-                    <p-floatlabel variant="on">
-                        <textarea pTextarea formControlName="comments" rows="5" cols="30" style="resize: none"
-                            class="h-full"></textarea>
-                        <label for="on_label">Comments</label>
-                    </p-floatlabel>
-
-                    <p-floatlabel variant="on">
-                        <textarea pTextarea formControlName="recommendations" rows="5" cols="30" style="resize: none"
-                            class="h-full"></textarea>
-                        <label for="on_label">Recommendations</label>
-                    </p-floatlabel>
-                </div>
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="employeeCode" readonly />
+                <label>Employee ID</label>
+              </p-floatlabel>
             </div>
-
-
-            <!-- Final Decision -->
-
-            <div class="heading">Final Decision</div>
-            <div class="sub-heading">Final Score</div>
-            <div class="input-box-1">
-                <div>
-                    <p-floatlabel variant="on">
-                        <input pInputText type="number" formControlName="overallScore" max="10" min="0" />
-                        <label for="on_label">Over All Score</label>
-                    </p-floatlabel>
-                    <div *ngIf="appraisalForm.get('overallScore')?.hasError('max') && appraisalForm.get('overallScore')?.touched">
-                        <small class="error-text">Must be 10 or less</small>
-                      </div>
-                </div>
-
-                <p-floatlabel variant="on">
-                    <input pInputText formControlName="finalDecision" />
-                    <label for="on_label">Final Decision</label>
-                </p-floatlabel>
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="department" readonly />
+                <label>Department</label>
+              </p-floatlabel>
             </div>
+          
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="designation" readonly />
+                <label>Designation</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="dateOfJoining" readonly />
+                <label>Date Of Joining</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="cycle" readonly />
+                <label>Appraisal Cycle</label>
+              </p-floatlabel>
+            </div>
+            <div class="col-12 md:col-2">
+              <p-floatlabel variant="on">
+                <input pInputText formControlName="managerName" readonly />
+                <label>Reviewer (Manager Name)</label>
+              </p-floatlabel>
+            </div>
+          </div>
+          
+        <h3 class="text-center mt-4 mb-3">Manager Remarks (Out of 10)</h3>
 
-            <p-floatlabel variant="on">
-                <textarea pTextarea id="over_label" formControlName="finalComments" rows="5" cols="30"
-                    style="resize: none" class="h-full"></textarea>
-                <label for="on_label">Comments</label>
-            </p-floatlabel>
-
+        <div class="grid formgrid">
+          <ng-container *ngFor="let section of sections; let i = index">
+            <div class="col-12 md:col-6 mb-4">
+              <div class="p-4 border-round surface-card shadow-1">
+                <h4 class="mb-2 mt-0">{{ section.id }}. {{ section.title }}</h4>
+                <p class="text-sm text-600 mb-2" [innerHTML]="section.desc"></p>
+                <p class="text-xs text-500 italic mb-3" [innerHTML]="section.guide"></p>
+        
+                <!-- Rating + Comments -->
+                <div class="flex flex-column gap-2 formgrid">
+                  <div class="col-12 ">
+                    <p-floatlabel variant="on">
+                      <input
+                        pInputText
+                        type="number"
+                        [formControlName]="section.ratingControl"
+                        max="10"
+                        min="0"
+                      />
+                      <label>Rating (0–10)</label>
+                    </p-floatlabel>
+                  </div>
+                  <div class="col-12">
+                    <p-floatlabel variant="on">
+                      <textarea
+                        pTextarea
+                        [formControlName]="section.commentControl"
+                        rows="2"
+                      ></textarea>
+                      <label>Comments</label>
+                    </p-floatlabel>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
         </div>
+        
+  
+        <!-- ================= Final Decision ================= -->
+        <h3 class="text-center mt-5 mb-3">Final Decision</h3>
+
+        <div class="grid formgrid gap-3">
+            <div class="col-12 mb-4 gap-3 flex">
+                          <!-- Overall Score -->
+          <div class="col-12 md:col-6">
+            <p-floatlabel variant="on">
+              <input
+                pInputText
+                type="number"
+                formControlName="overallScore"
+                max="10"
+                min="0"
+              />
+              <label>Overall Score</label>
+            </p-floatlabel>
+          </div>
+        
+          <!-- Final Decision -->
+          <div class="col-12 md:col-6">
+            <p-floatlabel variant="on">
+              <input pInputText formControlName="finalDecision" />
+              <label>Final Decision</label>
+            </p-floatlabel>
+          </div>
+            </div>
+        
+          <!-- Final Comments (full row) -->
+          <div class="col-12">
+            <p-floatlabel variant="on">
+              <textarea pTextarea formControlName="finalComments" rows="3"></textarea>
+              <label>Final Comments</label>
+            </p-floatlabel>
+          </div>
+        </div>
+        
+        
+  
+        <!-- ================= Buttons ================= -->
+        <div class="btns" *ngIf="role === 'Reporting Manager'">
+            <p-button label="Submit" severity="success" class="submit-btn" type="submit" (click)="onSubmit()" />
+            <p-button label="Cancel" severity="danger" class="submit-btn" (click)="onCancel()" />
+        </div>
+      </div>
     </form>
-
-    <!-- btns -->
-    <div class="btns" *ngIf="role === 'Reporting Manager'">
-        <p-button label="Submit" severity="success" class="submit-btn" type="submit" (click)="onSubmit()" />
-        <p-button label="Cancel" severity="danger" class="submit-btn" (click)="onCancel()" />
-    </div>
-
-</div>
+  </div>
+  

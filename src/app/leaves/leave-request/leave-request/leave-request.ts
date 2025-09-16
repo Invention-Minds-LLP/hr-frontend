@@ -63,6 +63,8 @@ export class LeaveRequest {
   isHR: boolean = false;
   role: string = '';
   loggedEmployeeId: number = 0;
+  currentDeclineRole: 'MANAGER' | 'HR' | null = null;
+
 
 
 
@@ -77,6 +79,7 @@ export class LeaveRequest {
     this.filteredLeaveData = [...this.leaveData];
     this.loadLeaves();
     this.role = localStorage.getItem('role') || '';
+    console.log(this.role)
     this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
     this.isHR = this.isHRRole(this.role);
     this.buildDisabledDates();
@@ -109,6 +112,8 @@ export class LeaveRequest {
             declineReason: leave.declineReason,
             reportingManagerId: leave.employee?.reportingManager ?? null,
             leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
+            hodDecision: leave.hodDecision,
+            hrDecision: leave.hrDecision,
           }
         });
         // Only pending rows are actionable in this screen
@@ -186,6 +191,22 @@ export class LeaveRequest {
       start.setDate(start.getDate() + 1);
     }
   }
+  getStatusLabel(leave: any): string {
+    if (leave.hodDecision === 'REJECTED') {
+      return 'Manager Rejected';
+    }
+    if (leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING') {
+      return 'Manager Approved (Waiting HR)';
+    }
+    if (leave.hrDecision === 'APPROVED') {
+      return 'HR Approved';
+    }
+    if (leave.hrDecision === 'REJECTED') {
+      return 'HR Rejected';
+    }
+    return 'Pending';
+  }
+  
 
   getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 40) % 360;
@@ -198,24 +219,68 @@ export class LeaveRequest {
   getDepartmentName(id: number): string {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
   }
-  acceptLeave(id: number) {
-    this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId).subscribe({
+  // acceptLeave(id: number) {
+  //   this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId).subscribe({
+  //     next: () => this.loadLeaves(),
+  //     error: (err) => console.error('Error approving leave:', err)
+  //   });
+  // }
+  // openDeclineDialog(id: number) {
+  //   this.currentDeclineId = id;
+  //   this.declineDialogVisible = true;
+  // }
+
+  // confirmDecline() {
+  //   if (!this.declineReason.trim()) return;
+
+  //   this.leaveService.updateLeaveStatus(
+  //     this.currentDeclineId!,
+  //     'Declined',
+  //     this.currentUserId,
+  //     this.declineReason
+  //   ).subscribe({
+  //     next: () => {
+  //       this.declineDialogVisible = false;
+  //       this.declineReason = '';
+  //       this.currentDeclineId = null;
+  //       this.loadLeaves();
+  //     },
+  //     error: (err) => console.error('Error declining leave:', err)
+  //   });
+  // }
+  acceptLeave(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+  if (!normalized) return;
+
+
+    this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId, normalized).subscribe({
       next: () => this.loadLeaves(),
       error: (err) => console.error('Error approving leave:', err)
     });
   }
-  openDeclineDialog(id: number) {
+  private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
+    const norm = role.toUpperCase().replace(/\s+/g, '_');
+    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
+    if (norm === 'HR' || norm === 'HR_MANAGER') return 'HR';
+    return null;
+  }
+  
+  
+  openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+    if (!normalized) return;
     this.currentDeclineId = id;
+    this.currentDeclineRole = normalized;   // NEW
     this.declineDialogVisible = true;
   }
-
+  
   confirmDecline() {
     if (!this.declineReason.trim()) return;
-
     this.leaveService.updateLeaveStatus(
       this.currentDeclineId!,
       'Declined',
       this.currentUserId,
+      this.currentDeclineRole!,
       this.declineReason
     ).subscribe({
       next: () => {
@@ -227,6 +292,7 @@ export class LeaveRequest {
       error: (err) => console.error('Error declining leave:', err)
     });
   }
+  
   closeDeclineDialog() {
     this.declineDialogVisible = false;
     this.declineReason = '';

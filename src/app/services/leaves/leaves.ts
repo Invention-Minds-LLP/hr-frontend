@@ -26,9 +26,20 @@ export class Leaves {
     return this.http.post(`${this.apiUrl}/types`, { name });
   }
 
-  updateLeaveStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/status`, { status, declineReason, userId });
+  // updateLeaveStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
+  //   return this.http.patch(`${this.apiUrl}/${id}/status`, { status, declineReason, userId });
+  // }
+
+  updateLeaveStatus(
+    id: number,
+    status: string,
+    userId: number,
+    role: 'MANAGER' | 'HR',
+    declineReason?: string
+  ): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/status`, { status, declineReason, userId, role });
   }
+  
 
   getDashboard(employeeId: number, date = new Date()): Observable<any> {
     const d = date.toISOString().slice(0, 10);

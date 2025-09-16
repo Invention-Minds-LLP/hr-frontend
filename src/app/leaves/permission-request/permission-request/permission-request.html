@@ -60,25 +60,52 @@
                             {{ requestData.reson | slice:0:20 }}<span *ngIf="requestData.reson.length > 20">...</span>
                         </span>
                     </td>
-                    <td>{{requestData.status || '-'}}</td>
                     <td>
-                        <div class="btns">
+                        {{ getStatusLabel(requestData) }}
+                    </td>
+
+                    <td>
+                        <!-- <div class="btns">
                             <button class="btn-1 btn" (click)="approveRequest(requestData.id)">Accept</button>
                             <button class="btn-2 btn" (click)="openDeclineDialog(requestData.id)">Decline</button>
                             <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
+                        </div> -->
+                        <div class="btns">
+                            <!-- Manager stage -->
+                            <ng-container *ngIf="role === 'Reporting Manager' || role === 'Manager'">
+                                <button *ngIf="requestData.hodDecision === 'PENDING'" class="btn-1 btn"
+                                    (click)="approveRequest(requestData.id, 'MANAGER')">Approve</button>
+                                <button *ngIf="requestData.hodDecision === 'PENDING'" class="btn-2 btn"
+                                    (click)="openDeclineDialog(requestData.id, 'MANAGER')">Decline</button>
+                            </ng-container>
+
+                            <!-- HR stage -->
+                            <ng-container *ngIf="isHR">
+                                <button
+                                    *ngIf="requestData.hodDecision === 'APPROVED' && requestData.hrDecision === 'PENDING'"
+                                    class="btn-1 btn" (click)="approveRequest(requestData.id, 'HR')">Approve</button>
+                                <button
+                                    *ngIf="requestData.hodDecision === 'APPROVED' && requestData.hrDecision === 'PENDING'"
+                                    class="btn-2 btn" (click)="openDeclineDialog(requestData.id, 'HR')">Decline</button>
+                            </ng-container>
+
+                            <!-- Always available -->
+                            <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
                         </div>
+
+
                     </td>
 
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                  <td [attr.colspan]="columnCount" class="no-data-message">
-                    <i class="pi pi-info-circle"></i>
-                    No Permission requests found.
-                  </td>
+                    <td [attr.colspan]="columnCount" class="no-data-message">
+                        <i class="pi pi-info-circle"></i>
+                        No Permission requests found.
+                    </td>
                 </tr>
-              </ng-template>
+            </ng-template>
         </p-table>
 
     </div>
@@ -100,10 +127,6 @@
     </div>
 </div>
 
-<app-permission-popup
-  *ngIf="showPopup"
-  [showPopup]="true"
-  [permissionData]="selectedPermission"
-  [isViewOnly]="viewMode"
-  (close)="closePopup()">
+<app-permission-popup *ngIf="showPopup" [showPopup]="true" [permissionData]="selectedPermission" [isViewOnly]="viewMode"
+    (close)="closePopup()">
 </app-permission-popup>

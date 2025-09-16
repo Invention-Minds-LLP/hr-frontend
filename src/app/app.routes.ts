@@ -34,18 +34,23 @@ import { SurveyForm } from './survey/survey-form/survey-form';
 import { SurveyList } from './survey/survey-list/survey-list';
 import { ExitInterview } from './resignation/exit-interview/exit-interview';
 import { ExitInterviewList } from './resignation/exit-interview-list/exit-interview-list';
+import { AppraisalTemplate } from './appraisal/appraisal-template/appraisal-template';
+import { RequisitionForm } from './recruitment/requisition-form/requisition-form';
+import { ApprasialForm } from './appraisal/appraisal-form/apprasial-form/apprasial-form';
+import { RequisitionList } from './recruitment/requisition-list/requisition-list';
+import { AppraisalTable } from './appraisal/appraisal-table/appraisal-table/appraisal-table';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
 
-  { path: 'dashboard', component: HrDashboard, canActivate: [authGuard] },
-  { path: 'individual', component: Individual, canActivate: [authGuard] },
-  { path: 'settings', component: SettingsOverview, canActivate: [authGuard] },
+  { path: 'dashboard', component: HrDashboard,},
+  { path: 'individual', component: Individual,},
+  { path: 'settings', component: SettingsOverview,},
 
   // --- Administration group ---
   {
     path: 'admin',
-    canActivate: [authGuard],
+  
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'employee' },
       { path: 'employee', component: EmployeeOverview },
@@ -56,8 +61,6 @@ export const routes: Routes = [
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm},
       { path: 'announcement', component: AnnouncementPopup},
-      { path: 'survey', component: SurveyForm},
-      { path: 'exit', component: ExitInterviewList}
 
     ],
 
@@ -66,7 +69,7 @@ export const routes: Routes = [
   // --- Recruitment group ---
   {
     path: 'recruitment',
-    canActivate: [authGuard],
+  
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'jobs' },
       { path: 'jobs', component: RecruitmentDashboard },     // main recruitment board
@@ -74,17 +77,20 @@ export const routes: Routes = [
       { path: 'my-tests', component: MyTests },              // keep tests under recruitment
       { path: 'take-test/:id', component: TestPlatform },
       { path: 'candidate-tests', component: CandidateTests }, // view candidate details
+      { path: 'recquisition', component: RequisitionList }, // requisition form
+      { path: 'survey', component: SurveyForm},
+      { path: 'exit', component: ExitInterviewList}
     ],
   },
 
   // Other standalone modules (leave sub-features, attendance, etc.)
-  { path: 'permission-request', component: PermissionRequest, canActivate: [authGuard] },
-  { path: 'wfh', component: WorkFromHome, canActivate: [authGuard] },
-  { path: 'balances-accruals', component: BalancesAccruals, canActivate: [authGuard] },
-  { path: 'attendance', component: ManageAttendance, canActivate: [authGuard] },
-  { path: 'history', component: History, canActivate: [authGuard] },
-  { path: 'resignation', component: ResignOverview, canActivate: [authGuard] },
-  { path: 'interview', component: CandidateEvalForm, canActivate: [authGuard] },
+  { path: 'permission-request', component: PermissionRequest,},
+  { path: 'wfh', component: WorkFromHome,},
+  { path: 'balances-accruals', component: BalancesAccruals,},
+  { path: 'attendance', component: ManageAttendance,},
+  { path: 'history', component: History,},
+  { path: 'resignation', component: ResignOverview,},
+  { path: 'interview', component: CandidateEvalForm,},
   { path: 'popup', component: PopUp },
 
   // ---- Backward-compat redirects (optional) ----

@@ -10,7 +10,7 @@ import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 
-type Status = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'WITHDRAWN' | 'APPROVED' | 'REJECTED';
+type Status = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'WITHDRAWN'  | 'WITHDRAW_REQUESTED' | 'APPROVED' | 'REJECTED';
 
 @Component({
   selector: 'app-resignation-form',
@@ -79,10 +79,15 @@ export class ResignationForm {
     this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => this.rows = r);
   }
 
+  // withdrawable(r: any): boolean {
+  //   const s = (r.status as Status);
+  //   return (s === 'SUBMITTED' || s === 'UNDER_REVIEW') && !r.hrConfirmedAt;
+  // }
   withdrawable(r: any): boolean {
-    const s = (r.status as Status);
-    return (s === 'SUBMITTED' || s === 'UNDER_REVIEW') && !r.hrConfirmedAt;
+    const s = r.status as Status;
+    return ['SUBMITTED', 'UNDER_REVIEW'].includes(s);
   }
+  
 
   askWithdraw(r: any) {
     this.withdrawingId = r.id;
@@ -96,7 +101,7 @@ export class ResignationForm {
 
   confirmWithdraw() {
     if (!this.withdrawingId) return;
-    this.api.withdraw(this.withdrawingId, this.employeeId, this.withdrawReason).subscribe({
+    this.api.requestWithdraw(this.withdrawingId, this.withdrawReason).subscribe({
       next: () => {
         this.withdrawingId = null;
         this.withdrawReason = '';
@@ -116,6 +121,7 @@ export class ResignationForm {
     switch (s) {
       case 'SUBMITTED': return 'b b-blue';
       case 'UNDER_REVIEW': return 'b b-amber';
+      case 'WITHDRAW_REQUESTED': return 'b b-purple';
       case 'WITHDRAWN': return 'b b-gray';
       case 'APPROVED': return 'b b-green';
       case 'REJECTED': return 'b b-red';

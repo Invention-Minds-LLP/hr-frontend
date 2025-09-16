@@ -110,3 +110,10 @@ textarea {
 ::ng-deep .p-inputtext, .p-datepicker, .textarea {
   width: 100%;
 }
+/* When we manually mark float-active, push label up */
+.p-floatlabel.float-active label {
+  top: -0.40rem;
+  font-size: 0.75rem;
+  background-color: white;
+  color: var(--text-color-secondary);
+}

@@ -112,6 +112,8 @@ export class CandidateEvalForm {
         payslip: this.fb.control<'Yes' | 'No'>('No', { nonNullable: true }),
         expectedSalary: this.fb.control<number | null>(null),
         grossOffer: this.fb.control<number | null>(null),
+        expectedDoj: this.fb.control<Date | null>(null),
+        noticePeriod: this.fb.control<number | null>(null),
       }),
     });
     // start with two panelists (you can change)
@@ -301,6 +303,8 @@ export class CandidateEvalForm {
       conclusion: v?.conclusion ?? null,
       remarks: v?.remarks ?? null,
       reviewerUserId: this.reviewerUserId, // set from auth service if you have it
+      expectedDoj: v.hr?.expectedDoj ?? null,
+      noticePeriod: v.hr?.noticePeriod ?? null,   
     };
 
     this.api.saveHrReview(this.interviewId, dto).subscribe({

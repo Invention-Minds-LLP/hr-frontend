@@ -70,6 +70,11 @@
   background: #fde68a;   /* amber-300 */
   color: #7c2d12;        /* brown-ish text */
 }
+.chip.s-WITHDRAW_REQUESTED {
+  background-color: #a855f7; /* purple */
+  color: #fff;
+}
+
 
 
 .pi{

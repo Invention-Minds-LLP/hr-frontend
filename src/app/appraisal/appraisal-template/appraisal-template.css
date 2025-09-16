@@ -1,0 +1,18 @@
+.performance-container{
+    padding: 50px;
+}
+
+::ng-deep .p-inputtext, .p-textarea{
+    width: 100%;
+}
+.final{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.p-floatlabel.float-active label {
+    top: -0.40rem;
+    font-size: 0.75rem;
+    background-color: white;
+    color: var(--text-color-secondary);
+  }

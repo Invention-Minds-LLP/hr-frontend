@@ -20,9 +20,24 @@ export class Wfh {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  updateWFHStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/status`, { status, userId, declineReason });
+  // updateWFHStatus(id: number, status: string, userId: number, declineReason?: string): Observable<any> {
+  //   return this.http.patch(`${this.apiUrl}/${id}/status`, { status, userId, declineReason });
+  // }
+  updateWFHStatus(
+    id: number,
+    status: 'Approved' | 'Declined',
+    userId: number,
+    role: 'MANAGER' | 'HR',
+    declineReason?: string
+  ): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, {
+      status,
+      userId,
+      role,
+      declineReason
+    });
   }
+
 
   getWhoIsOnWFHBuckets(date = new Date()) {
     const d = date.toISOString().slice(0, 10);

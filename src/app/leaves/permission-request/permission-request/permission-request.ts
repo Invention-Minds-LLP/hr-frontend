@@ -44,6 +44,8 @@ export class PermissionRequest {
   showPopup: boolean = false;
   selectedPermission: any = null;
   viewMode: boolean = false;
+  currentDeclineRole: 'MANAGER' | 'HR' | null = null;
+
 
 
   filterOption = [
@@ -86,7 +88,22 @@ export class PermissionRequest {
     // console.log('Data', this.filterReuqusetData)
 
   }
-
+  getStatusLabel(req: any): string {
+    if (req.hodDecision === 'REJECTED') {
+      return 'Manager Rejected';
+    }
+    if (req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING') {
+      return 'Manager Approved (Waiting HR)';
+    }
+    if (req.hrDecision === 'APPROVED') {
+      return 'HR Approved';
+    }
+    if (req.hrDecision === 'REJECTED') {
+      return 'HR Rejected';
+    }
+    return 'Pending';
+  }
+  
 
   onFilterChange() {
     this.filterReuqusetData = [...this.requestData]
@@ -125,13 +142,16 @@ export class PermissionRequest {
             day: req.day,
             startTime: req.startTime,
             endTime: req.endTime,
-            reportingManagerId: req.reportingManager ?? null,
+            reportingManagerId: req.employee.reportingManager ?? null,
+            hodDecision: req.hodDecision,
+            hrDecision: req.hrDecision,
           }
         });
         this.requestData = this.isHR
           ? pending
           : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         this.filterReuqusetData = [...this.requestData];
+        console.log(pending, this.requestData)
       },
       error: (err) => console.error('Error fetching permission requests:', err)
     });
@@ -147,49 +167,60 @@ export class PermissionRequest {
     return `${hours}h ${minutes}m`;
   }
 
-  approveRequest(id: number) {
+  private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
+    const norm = role.toUpperCase().replace(/\s+/g, '_');
+    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
+    if (norm === 'HR' || norm === 'HR_MANAGER') return 'HR';
+    return null;
+  }
+
+  approveRequest(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+    if (!normalized) return;
     const userId = Number(localStorage.getItem('userId')) || 1;
-    this.permissionService.updatePermissionStatus(id, 'APPROVED', userId).subscribe({
+    this.permissionService.updatePermissionStatus(id, 'APPROVED', userId, normalized).subscribe({
       next: () => this.loadPermissionRequests(),
       error: (err) => console.error('Error approving request:', err)
     });
   }
-
-  // Open the popup
-  openDeclineDialog(id: number) {
+  
+  openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
+    const normalized = this.normalizeRole(this.role);
+    if (!normalized) return;
     this.currentDeclineId = id;
+    this.currentDeclineRole = normalized;   // NEW
     this.declineDialogVisible = true;
   }
-
-  // Confirm decline action
+  
   confirmDecline() {
     if (!this.declineReason.trim()) {
-      // alert('Please enter a reason for declining');
       this.messageService.add({
         severity: 'warn',
         summary: 'Warning',
         detail: 'Please enter a reason for declining'
-      })
+      });
       return;
     }
-
+  
     const userId = Number(localStorage.getItem('userId')) || 1;
-
     this.permissionService.updatePermissionStatus(
       this.currentDeclineId!,
       'REJECTED',
       userId,
+      this.currentDeclineRole!,   // pass stored role
       this.declineReason
     ).subscribe({
       next: () => {
         this.declineDialogVisible = false;
         this.declineReason = '';
         this.currentDeclineId = null;
+        this.currentDeclineRole = null;
         this.loadPermissionRequests();
       },
       error: (err) => console.error('Error declining request:', err)
     });
   }
+  
 
   // Close popup
   closeDeclineDialog() {

@@ -199,6 +199,47 @@ export class ExitInterview {
       demotivating: [[]],
       demotivatingOthers: [''],
     });
+    setTimeout(() => {
+      if (this.formData) {
+        const parsedData = {
+          ...this.formData,
+          academicQualification: this.formData.academicQualification
+            ? JSON.parse(this.formData.academicQualification)
+            : [],
+          vacancySource: this.formData.vacancySource
+            ? JSON.parse(this.formData.vacancySource)
+            : [],
+          recruitmentMode: this.formData.recruitmentMode
+            ? JSON.parse(this.formData.recruitmentMode)
+            : [],
+          demotivating: this.formData.demotivating
+            ? JSON.parse(this.formData.demotivating)
+            : [],
+          jobOpinion: this.formData.jobOpinion
+            ? JSON.parse(this.formData.jobOpinion)
+            : {},
+          attitudeSuperiors: this.formData.attitudeSuperiors
+            ? JSON.parse(this.formData.attitudeSuperiors)
+            : {},
+          companyOpinion: this.formData.companyOpinion
+            ? JSON.parse(this.formData.companyOpinion)
+            : {},
+          influencedFactors: this.formData.influencedFactors
+            ? JSON.parse(this.formData.influencedFactors)
+            : {},
+          dissatisfaction: this.formData.dissatisfaction
+            ? JSON.parse(this.formData.dissatisfaction)
+            : {},
+          interviewDate: this.formData.interviewDate
+            ? new Date(this.formData.interviewDate)
+            : null,
+        };
+    
+        this.form.patchValue(parsedData);
+        console.log("✅ Form patched:", parsedData);
+      }
+    });
+    
   }
   
 
@@ -211,10 +252,10 @@ export class ExitInterview {
       console.log(this.form.value);
     }
   }
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(this.formData)
-    if (changes['formData'] && this.formData) {
-      this.form.patchValue(this.formData);
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges) {
+  //   console.log(this.formData)
+  //   if (changes['formData'] && this.formData) {
+  //     this.form.patchValue(this.formData);
+  //   }
+  // }
 }
