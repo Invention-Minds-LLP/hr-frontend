@@ -1,6 +1,6 @@
 .appraial-table {
   font-family: "Sofia Sans";
-  padding: 20px 60px;
+  padding: 50px 60px;
   background-color: transparent; /* Light background like screenshot */
 }
 
@@ -19,7 +19,7 @@
 .heading {
   font-size: 24px;
   font-weight: 600;
-  color: #2b2b2b;
+  color: white;
 }
 
 /* Search and Filter */
@@ -126,7 +126,7 @@
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #E8ECEF;
-  color: #666;
+  color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
@@ -154,11 +154,11 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: transparent;
+  background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: white;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
@@ -182,7 +182,7 @@
 .name {
   font-weight: 600;
   font-size: 16px;
-  color: #2b2b2b;
+  color: white;
 }
 
 .email {
@@ -247,7 +247,7 @@
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: #fff !important;
   border: none;
 }

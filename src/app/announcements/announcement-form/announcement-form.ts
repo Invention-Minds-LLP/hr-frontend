@@ -44,10 +44,10 @@ export class AnnouncementForm {
     this.form = this.fb.group({
       title: ['', Validators.required],
       body: ['', Validators.required],
-      type: ['GENERAL'],
-      requireAck: [false],
-      isPinned: [false],
-      startsAt: [new Date()],
+      type: ['',Validators.required],
+      requireAck: [false,Validators.required],
+      isPinned: [false, Validators.required],
+      startsAt: [new Date(),Validators.required],
       endsAt: [null],
       attachments: this.fb.control<Attachment[]>([]),
 
@@ -119,8 +119,14 @@ export class AnnouncementForm {
     list.splice(i, 1);
     this.form.patchValue({ attachments: list });
   }
+
+  submitted = false
+
   submit() {
+    this.submitted =true;
+
     if (this.form.invalid) {
+      this.form.markAllAsTouched()
       this.msg.add({ severity: 'warn', summary: 'Validation', detail: 'Fill all required fields' });
       return;
     }

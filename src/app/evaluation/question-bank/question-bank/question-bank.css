@@ -1,12 +1,14 @@
 .question-bank {
   font-family: "Sofia Sans";
-  padding: 40px 50px;
+  padding:50px 65px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  color: white;
+  align-items: center;
 }
 
 .btn-delete {
@@ -120,7 +122,7 @@ select {
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #E8ECEF;
-  color: #666;
+  color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
@@ -152,7 +154,7 @@ select {
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: white;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
@@ -279,4 +281,16 @@ select {
 .question-section .header h2 {
   margin: 0;
   font-weight: 600;
+}
+
+::ng-deep .btns .p-button{
+  width: 150px;
+  height: 45px;
+  background-color:#0062A1;
+  border: 1px solid #0062A1;
+}
+
+::ng-deep .btns .p-button:hover{
+  background-color: #0062A1;
+   border: 1px solid #0062A1;
 }

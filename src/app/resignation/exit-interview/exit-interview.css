@@ -1,7 +1,22 @@
 .exit-form {
-  max-width: 1100px;
+  /* max-width: 1100px; */
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
+  --p-radiobutton-checked-background: #003366;
+  --p-radiobutton-checked-hover-background: #003366;
+  --p-radiobutton-hover-border-color: #003366;
+  --p-radiobutton-checked-border-color: #003366;
+  --p-radiobutton-checked-hover-border-color: #003366;
+  --p-radiobutton-checked-focus-border-color: #003366;
+  --p-radiobutton-icon-size: 0.8rem;
+  --p-rating-icon-active-color: #003366;
+  --p-rating-icon-hover-color: #003366;
+  --p-checkbox-checked-background:#003366;
+  --p-checkbox-checked-hover-background:#003366;
+  --p-checkbox-focus-border-color:#003366;
+  --p-checkbox-hover-border-color:#003366;
+  --p-checkbox-checked-focus-border-color:#003366;
+  --p-checkbox-checked-border-color: #003366;
 }
 
 .exit-form .p-card {
@@ -41,6 +56,7 @@
   color: #fff !important;
   font-weight: 600;
 }
+
 /* SelectButton - Default button style */
 .p-selectbutton .p-button {
   border-radius: 6px !important;
@@ -63,13 +79,14 @@
 
 /* Selected button */
 .p-selectbutton .p-button.p-highlight {
-  background: var(--primary-500) !important;   /* Blue */
+  background: var(--primary-500) !important;
+  /* Blue */
   border-color: var(--primary-500) !important;
   color: #fff !important;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
 }
-  
+
 /* Ensure consistent spacing */
 .field-checkbox,
 .field-radiobutton {
@@ -87,13 +104,14 @@
 textarea {
   width: 100%;
 }
+
 /* Make icons and labels align nicely */
 .p-float-label label i {
   margin-right: 6px;
   font-size: 0.9rem;
 }
 
-.p-float-label{
+.p-float-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -107,8 +125,92 @@ textarea {
   margin-bottom: 1rem;
 }
 
-::ng-deep .p-inputtext, .p-datepicker, .textarea {
+::ng-deep .p-inputtext,
+.p-datepicker,
+.textarea {
   width: 100%;
+}
+
+.exit-form {
+  --p-card-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
+}
+
+::ng-deep .p-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+}
+
+::ng-deep .p-accordionpanel {
+  border: none;
+  box-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
+  border-radius: 10px;
+  /* overflow: hidden; */
+}
+
+.col-4 {
+  width: 100%;
+}
+
+.p-error {
+  color: red;
+  font-size: 13px;
+  margin-top: 5px;
+  padding-left: 5px;
+  height: 0px;
+}
+
+::ng-deep .p-checkbox{
+  border-radius: 10px;
+}
+
+.p-checkbox:hover{
+  border-color: #003366;
+}
+
+.flex1{
+  display: flex;
+  gap:15px;
+}
+
+.flex1 > p-accordion-panel,
+.flex1 > p-card {
+  flex: 1;
+  min-width: 0;      
+}
+
+
+
+::ng-deep .exit-form .p-accordionheader{
+  border-radius: 10px 10px 0 0;
+}
+
+::ng-deep .exit-form .p-accordioncontent-content {
+  border-radius: 0 0 10px 10px ;
+  border: none;
+}
+.col-8 {
+  width: 100%;
+}
+
+::ng-deep .factors .p-accordion-panel{
+  width: 50%;
+}
+
+.skills .p-accordionheader{
+  border-radius: 0px;
+}
+
+::ng-deep .Reasons .p-accordioncontent-content {
+  border-radius: 0px;
+  border-bottom: 1px solid #C4C4C4;
+}
+
+.formgrid{
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
 /* When we manually mark float-active, push label up */
 .p-floatlabel.float-active label {

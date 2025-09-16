@@ -6,19 +6,22 @@
   padding: 2rem;
   width: 100%;
 }
+
 .steps-container .step {
   width: 100%;
 }
+
 .steps-container .step[hidden] {
   display: none !important;
 }
+
 /* Force hidden step containers to not occupy space */
-.card > div[hidden] {
+.card>div[hidden] {
   display: none !important;
 }
 
 /* Ensure visible step fills container */
-.card > div {
+.card>div {
   width: 100%;
 }
 
@@ -27,6 +30,7 @@
   width: 100%;
   padding-top: 3rem;
 }
+
 .step-container {
   width: 100%;
 }
@@ -38,15 +42,18 @@
 .mt-3 {
   margin-top: 1rem;
 }
+
 .heading {
-  color: #1f1f1f;
+  color: white;
   font-feature-settings: "salt" on, "liga" off;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
-  line-height: 24px; /* 150% */
+  line-height: 24px;
+  /* 150% */
 }
+
 /* Align labels and inputs */
 .field {
   display: flex;
@@ -54,15 +61,15 @@
   margin-bottom: 1rem;
 }
 
-label {
-  color: #767676;
+/* label {
+  color: white;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   letter-spacing: 0.14px;
-}
+} */
 
 /* Uniform spacing between fields */
 .p-fluid .field input,
@@ -80,10 +87,11 @@ label {
   margin-top: 1.5rem;
 }
 
-.p-menuitem-link{
+.p-menuitem-link {
   display: flex;
   flex-direction: column;
 }
+
 .field.col-4 {
   width: 33.3333%;
   padding: 0 1rem;
@@ -101,24 +109,28 @@ label {
   display: flex;
   /* flex-wrap: wrap; */
   gap: 1rem;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   justify-content: center;
   align-items: center;
   width: 100%;
 }
+
 ::ng-deep .p-datepicker {
   height: 42px;
   width: 100%;
   flex: 1 1 auto;
 }
+
 ::ng-deep .p-datepicker {
   max-width: 100%;
 }
+
 .p-select,
 .p-calendar {
   flex: 1 1 auto;
   width: 100%;
 }
+
 .nav-btns {
   display: flex;
   justify-content: flex-end;
@@ -126,6 +138,7 @@ label {
   margin: 1.5rem 0;
   gap: 10px;
 }
+
 .active-step {
   display: flex;
   justify-content: center;
@@ -174,6 +187,18 @@ div[hidden] {
   font-size: 1rem;
 }
 
+.p-inputtext{
+  color: white !important;
+}
+
+::ng-deep .p-datepicker-input {
+  color: white ;
+}
+
+::ng-deep .p-select-label{
+  color: white;
+}
+
 /* Remove button (top-right corner) */
 .remove-btn {
   position: absolute;
@@ -194,6 +219,7 @@ div[hidden] {
 .qualification {
   width: 100%;
 }
+
 .custom-file-input {
   width: 100%;
   height: 40px;
@@ -202,11 +228,16 @@ div[hidden] {
   cursor: pointer;
 
   /* Hide the native file input appearance */
-  color: transparent;
+  color: white !important;
+}
+
+.pi-user{
+  color: white;
 }
 
 .custom-file-input::-webkit-file-upload-button {
   visibility: hidden;
+  color: white;
 }
 
 .custom-file-input::before {
@@ -218,7 +249,7 @@ div[hidden] {
   text-overflow: ellipsis;
   padding: 8px 12px;
   font-size: 14px;
-  color: #767676;
+  color: white;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -235,6 +266,7 @@ div[hidden] {
   align-items: center;
   gap: 8px;
 }
+
 .doc-img {
   width: 140px;
   height: auto;
@@ -242,11 +274,13 @@ div[hidden] {
   border: 1px solid #e5e7eb;
   object-fit: cover;
 }
+
 .doc-file {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .file-tag {
   font-size: 12px;
   padding: 2px 6px;
@@ -255,28 +289,96 @@ div[hidden] {
   color: #475569;
 }
 
-.p-button-danger{
+.p-button-danger {
   background-color: #3465b0;
   border-color: #3465b0;
 }
-.p-button-danger:hover{
-   background-color: #3465b0;
+
+.p-button-danger:hover {
+  background-color: #3465b0;
   border-color: #3465b0;
 }
 
-::ng-deep .trash-btn .p-button{
-  background-color: transparent;
-  border: 1px solid #e9144a;
-  color: #e9144a;
-  font-size: 1.2rem;
-}
-::ng-deep .trash-btn .p-button:hover{
+::ng-deep .trash-btn .p-button {
   background-color: transparent;
   border: 1px solid #e9144a;
   color: #e9144a;
   font-size: 1.2rem;
 }
 
+::ng-deep .trash-btn .p-button:hover {
+  background-color: transparent;
+  border: 1px solid #e9144a;
+  color: #e9144a;
+  font-size: 1.2rem;
+}
+
+.p-stepitem .p-steppanel {
+  gap: 30px;
+  background-color: transparent;
+}
 
 
+::ng-deep .btn .p-button {
+  background-color: #3465b0;
+  color: white;
+  border: none;
+}
 
+::ng-deep .btn .p-button:hover {
+  background-color: #3465b0;
+  color: white;
+  border: none;
+}
+
+::ng-deep .p-step-active .p-step-number {
+  background-color: #3465b0;
+  border: 1px solid #3465b0;
+}
+
+::ng-deep .p-step-active .p-step-title {
+  color: #3465b0;
+  font-size: 16px;
+  font-family: "Sofia Sans";
+}
+
+::ng-deep .p-step-title {
+  font-size: 16px;
+  font-family: "Sofia Sans";
+  color: white;
+}
+
+.flex1{
+  display: flex;
+  gap: 20px;
+}
+.py-6 {
+    padding-top: 0 !important;
+    padding-bottom: 1rem !important;
+}
+.file-upload-wrapper{
+  display: flex;
+  align-items: center;
+}
+
+.file-upload-wrapper .pi-upload{
+  position: absolute;
+  right:20px;
+  color: white;
+}
+
+.card label{
+  color: white;
+}
+
+::ng-deep .p-icon{
+  color: white;
+}
+
+.p-inputtext::placeholder {
+  color: white;
+}
+
+::ng-deep .custom-file-input{
+  color: white !important;
+}

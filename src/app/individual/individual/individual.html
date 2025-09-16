@@ -42,9 +42,9 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="action-buttons" *ngIf="selectedDate.toDateString() === today.toDateString()">
-                    <button pButton label="Log In" class="login-btn"></button>
-                    <button pButton label="Log Out" class="logout-btn"></button>
+                <div class="action-buttons">
+                    <button pButton label="Log In" class="login-btn" [disabled]="selectedDate < today"></button>
+                    <button pButton label="Log Out" class="logout-btn" [disabled]="selectedDate < today"></button>
                 </div>
             </div>
 
@@ -88,8 +88,8 @@
         </div>
         <div class="part-2">
             <div class="box-1 ">
-                <div class="holiday-card box" *ngIf="holidayDates.length > 0; else noHolidays">
-                    <div class="next">
+                <div class="holiday-card box">
+                    <div class="next" *ngIf="holidayDates.length > 0; else noHolidays">
                         <!-- Prev (always show, disabled if currentIndex == 0) -->
                         <span class="arrow prev" [class.disabled]="currentIndex === 0" (click)="prevHoliday()">
                             <i class="pi pi-chevron-left"></i>
@@ -360,6 +360,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="">
+        <app-resignation-form></app-resignation-form>
     </div>
 </div>
 

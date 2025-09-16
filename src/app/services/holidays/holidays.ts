@@ -14,10 +14,16 @@ export interface Holiday {
 })
 export class Holidays {
 
-   constructor(private http: HttpClient) {}
+  private apiKey = '11902fe721a945168e09d45be14a2ef5&country=IN&year=2025&month=12&day=25'; 
+  private baseUrl = 'https://holidays.abstractapi.com/v1/';
+
+
+  constructor(private http: HttpClient) { }
 
   getHolidays(year: number, countryCode: string): Observable<Holiday[]> {
-    const url = `https://www.abstractapi.com/holidays-api/${year}/${countryCode}`;
+    const url = `${this.baseUrl}?api_key=${this.apiKey}`;
     return this.http.get<Holiday[]>(url);
   }
+
+
 }

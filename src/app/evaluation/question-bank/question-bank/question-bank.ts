@@ -8,13 +8,15 @@ import { Questions } from '../questions/questions';
 import { BaseIcon } from "primeng/icons/baseicon";
 import { QuestionBankEditor } from "../question-bank-editor/question-bank-editor";
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { RouterLink, RouterModule } from '@angular/router';
 
 
 
 
 @Component({
   selector: 'app-question-bank',
-  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor],
+  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor, ButtonModule , RouterModule, RouterLink],
   templateUrl: './question-bank.html',
   styleUrl: './question-bank.css'
 })

@@ -39,6 +39,11 @@ import { RequisitionForm } from './recruitment/requisition-form/requisition-form
 import { ApprasialForm } from './appraisal/appraisal-form/apprasial-form/apprasial-form';
 import { RequisitionList } from './recruitment/requisition-list/requisition-list';
 import { AppraisalTable } from './appraisal/appraisal-table/appraisal-table/appraisal-table';
+import { EmployeeForm } from './employee/employee-form/employee-form';
+import { ResignationForm } from './resignation/resignation-form/resignation-form';
+import { TestCreation } from './evaluation/test-creation/test-creation';
+import { AssignedTest } from './evaluation/assigned-test/assigned-test';
+import { AllTest } from './evaluation/all-test/all-test';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -59,8 +64,10 @@ export const routes: Routes = [
       { path: 'attendance', component: ManageAttendance },
       { path: 'resignation', component: ResignOverview },
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
-      { path: 'all-announcement', component: AnnouncementForm},
-      { path: 'announcement', component: AnnouncementPopup},
+      { path: 'all-announcement', component: AnnouncementForm },
+      { path: 'announcement', component: AnnouncementPopup },
+      { path: 'survey', component: SurveyForm },
+      { path: 'exit', component: ExitInterviewList }
 
     ],
 
@@ -92,6 +99,10 @@ export const routes: Routes = [
   { path: 'resignation', component: ResignOverview,},
   { path: 'interview', component: CandidateEvalForm,},
   { path: 'popup', component: PopUp },
+   { path: 'employee-form', component: EmployeeForm },
+   {path:'resignation-from', component:ResignationForm},
+   {path:'all-test', component:AllTest},
+   {path:'assigned-test', component:AssignedTest},
 
   // ---- Backward-compat redirects (optional) ----
   { path: 'employee', redirectTo: 'admin/employee', pathMatch: 'full' },
@@ -101,7 +112,7 @@ export const routes: Routes = [
   { path: 'internship', redirectTo: 'recruitment/internships', pathMatch: 'full' },
   { path: 'my-tests', redirectTo: 'recruitment/my-tests', pathMatch: 'full' },
   { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full' },
-  
+
 
   // Default / catch-all
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },

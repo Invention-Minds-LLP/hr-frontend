@@ -32,7 +32,7 @@ export interface Announcement {
   providedIn: 'root'
 })
 export class Announcements {
-  private api = 'http://localhost:3002/api/announcement';
+  private api = 'http://192.168.1.15:3002/api/announcement';
 
   constructor(private http: HttpClient) {}
 

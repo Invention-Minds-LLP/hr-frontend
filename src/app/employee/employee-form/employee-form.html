@@ -1,7 +1,7 @@
 <div class="employee-form-container">
-    
-    <div class="step-container">
-        <!-- <p-steps [model]="steps" [(activeIndex)]="activeIndex" class="mb-3"></p-steps> -->
+
+    <!-- <p-steps [model]="steps" [(activeIndex)]="activeIndex" class="mb-3"></p-steps> -->
+    <!-- <div class="step-container">
         <p-steps [model]="steps" [(activeIndex)]="activeIndex" class="mb-3">
             <ng-template pTemplate="item" let-item let-index="index">
                 <a class="p-menuitem-link" [ngClass]="{'completed-step': completedSteps[index]}">
@@ -11,258 +11,287 @@
             </ng-template>
         </p-steps>
 
-    </div>
+    </div> -->
 
     <div class="card">
         <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+            <p-stepper [value]="1">
 
-            <!-- Step 1: Personal Info -->
-            <div [hidden]="activeIndex !== 0" class="personal-container" [class.active-step]="activeIndex === 0">
-                <div class="p-fluid formgrid grid">
-                    <div class="field-row col-12">
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input id="firstName" pInputText formControlName="firstName"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('firstName'))}" />
-                                <label for="firstName">First Name</label>
+                <!-- Step 1: Personal Info -->
+                <p-step-item [value]="1">
+                    <p-step>Personal Info</p-step>
+                    <p-step-panel>
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <div [hidden]="activeIndex !== 0" class="personal-container"
+                                [class.active-step]="activeIndex === 0">
+                                <div class="p-fluid formgrid grid">
+                                    <div class="field-row col-12">
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input id="firstName" pInputText formControlName="firstName"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('firstName'))}" />
+                                                <label for="firstName">First Name</label>
 
-                            </p-floatlabel>
+                                            </p-floatlabel>
 
-                            <div *ngIf="showError(employeeForm.get('firstName'))">
-                                <small class="error-msg">First name is required</small>
-                            </div>
-                        </div>
-
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input id="lastName" pInputText formControlName="lastName"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('lastName'))}" />
-                                <label for="lastName">Last Name</label>
-                            </p-floatlabel>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('lastName'))">Last Name is
-                                required</div>
-                        </div>
-
-                        <div class="field col-4">
-                            <p-floatlabel variant="on" style="width:100%">
-                                <label for="dob">Date of Birth</label>
-                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">Date of Birth is
-                                    required</div>
-                            </p-floatlabel>
-                        </div>
-                    </div>
-
-                    <div class="field-row col-12">
-
-                        <div class="field col-4">
-                            <p-floatLabel variant="on">
-                                <p-select id="gender" [options]="genders" formControlName="gender" optionLabel="label"
-                                    optionValue="value"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('gender'))}"></p-select>
-                                <label for="gender">Gender</label>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get('gender'))">Gender is required
-                                </div>
-                            </p-floatLabel>
-                        </div>
-
-                        <div class="field col-4">
-                            <p-floatLabel variant="on">
-
-                                <input id="email" pInputText formControlName="email"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('email'))}" />
-                                <label for="email">Email</label>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get('email'))">Email ID is required
-                                </div>
-                            </p-floatLabel>
-                        </div>
-
-                        <div class="field col-4">
-                            <p-floatLabel variant="on">
-                                <input id="phone" pInputText formControlName="phone"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}" />
-                                <label for="phone">Phone</label>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get('phone'))">Phone Number is
-                                    required</div>
-                            </p-floatLabel>
-                        </div>
-                    </div>
-                    <div class="field-row col-12">
-                        <div class="field col-6">
-                            <p-floatLabel variant="on">
-                                <p-select id="bloodGroup" [options]="bloodGroups" formControlName="bloodGroup"
-                                    optionLabel="label" optionValue="value"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('bloodGroup'))}">
-                                </p-select>
-                                <label for="bloodGroup">Blood Group</label>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get('bloodGroup'))">
-                                    Blood Group is required
-                                </div>
-                            </p-floatLabel>
-                        </div>
-                        <div class="field col-6">
-                            <p-floatLabel variant="on">
-                                <input id="age" pInputText formControlName="age" readonly />
-                                <label for="age">Age</label>
-                            </p-floatLabel>
-                        </div>
-
-
-                    </div>
-
-                    <div class="heading mb-2">Permanent Address</div>
-                    <div class="p-fluid formgrid grid" formGroupName="permanentAddress">
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="line1"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','line1']))}" />
-                                <label>Address Line 1</label>
-                                <div class="error-msg"
-                                    *ngIf="showError(employeeForm.get(['permanentAddress','line1']))">Address is
-                                    required </div>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="city"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','city']))}" />
-                                <label>City</label>
-                                <div class="error-msg" *ngIf="showError(employeeForm.get(['permanentAddress','city']))">
-                                    City is required </div>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="state"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','state']))}" />
-                                <label>State</label>
-                                <div class="error-msg"
-                                    *ngIf="showError(employeeForm.get(['permanentAddress','state']))">State is required
-                                </div>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="zipCode"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','zipCode']))}" />
-                                <label>Zip Code</label>
-                                <div class="error-msg"
-                                    *ngIf="showError(employeeForm.get(['permanentAddress','zipCode']))"> zipCode id
-                                    required </div>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="country"
-                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','country']))}" />
-                                <label>Country</label>
-                                <div class="error-msg"
-                                    *ngIf="showError(employeeForm.get(['permanentAddress','country']))"> Country is
-                                    required </div>
-                            </p-floatlabel>
-                        </div>
-                    </div>
-
-                    <div class="heading mb-2 mt-3 flex align-items-center justify-content-between">
-                        Temporary Address
-                        <p-checkbox binary="true" formControlName="sameAsPermanent" label="Same as Permanent"
-                            (onChange)="copyPermanentAddress()">
-                        </p-checkbox>
-
-                    </div>
-                    <div class="p-fluid formgrid grid" formGroupName="temporaryAddress">
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="line1" />
-                                <label>Address Line 1</label>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="city" />
-                                <label>City</label>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="state" />
-                                <label>State</label>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="zipCode" />
-                                <label>Zip Code</label>
-                            </p-floatlabel>
-                        </div>
-                        <div class="field col-4">
-                            <p-floatlabel variant="on">
-                                <input pInputText formControlName="country" />
-                                <label>Country</label>
-                            </p-floatlabel>
-                        </div>
-                    </div>
-
-
-
-                    <div class="field col-12">
-                        <div class="heading mb-2">
-                            Emergency Contact
-                        </div>
-                        <div formArrayName="emergencyContacts">
-                            <div *ngFor="let ec of emergencyContacts.controls; let i = index" [formGroupName]="i"
-                                class="p-fluid grid mb-3 mt-3">
-                                <div class="field-row">
-                                    <div class="field col-4">
-                                        <p-floatLabel variant="on">
-                                            <input pInputText formControlName="name" id="emergencyName" placeholder=""
-                                                [ngClass]="{ 'ng-invalid': showError(ec.get('name')) }" />
-                                            <label>Name</label>
-                                            <div class="error-msg" *ngIf="showError(ec.get('name'))">
-                                                Name is required
+                                            <div *ngIf="showError(employeeForm.get('firstName'))">
+                                                <small class="error-msg">First name is required</small>
                                             </div>
-                                        </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input id="lastName" pInputText formControlName="lastName"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('lastName'))}" />
+                                                <label for="lastName">Last Name</label>
+                                            </p-floatlabel>
+                                            <div class="error-msg" *ngIf="showError(employeeForm.get('lastName'))">
+                                                Last Name
+                                                is
+                                                required</div>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on" style="width:100%">
+                                                <label for="dob">Date of Birth</label>
+                                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd" showIcon iconDisplay="input" 
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
+                                                <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">
+                                                    Date of
+                                                    Birth is
+                                                    required</div>
+                                            </p-floatlabel>
+                                        </div>
                                     </div>
 
-                                    <div class="field col-4">
-                                        <p-floatLabel variant="on">
-                                            <input pInputText formControlName="phone" id="emergencyPhone" placeholder=""
-                                                [ngClass]="{ 'ng-invalid': showError(ec.get('phone')) }" />
-                                            <label>Phone</label>
-                                            <div class="error-msg" *ngIf="showError(ec.get('phone'))">
-                                                Phone Number is required
-                                            </div>
-                                        </p-floatLabel>
+                                    <div class="field-row col-12">
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-select id="gender" [options]="genders" formControlName="gender"
+                                                    optionLabel="label" optionValue="value"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('gender'))}"></p-select>
+                                                <label for="gender">Gender</label>
+                                                <div class="error-msg" *ngIf="showError(employeeForm.get('gender'))">
+                                                    Gender
+                                                    is required
+                                                </div>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+
+                                                <input id="email" pInputText formControlName="email"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('email'))}" />
+                                                <label for="email">Email</label>
+                                                <div class="error-msg" *ngIf="showError(employeeForm.get('email'))">
+                                                    Email ID
+                                                    is required
+                                                </div>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input id="phone" pInputText formControlName="phone"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}" />
+                                                <label for="phone">Phone</label>
+                                                <div class="error-msg" *ngIf="showError(employeeForm.get('phone'))">
+                                                    Phone
+                                                    Number is
+                                                    required</div>
+                                            </p-floatLabel>
+                                        </div>
+                                    </div>
+                                    <div class="field-row col-12">
+                                        <div class="field col-6">
+                                            <p-floatLabel variant="on">
+                                                <p-select id="bloodGroup" [options]="bloodGroups"
+                                                    formControlName="bloodGroup" optionLabel="label" optionValue="value"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('bloodGroup'))}">
+                                                </p-select>
+                                                <label for="bloodGroup">Blood Group</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get('bloodGroup'))">
+                                                    Blood Group is required
+                                                </div>
+                                            </p-floatLabel>
+                                        </div>
+                                        <div class="field col-6">
+                                            <p-floatLabel variant="on">
+                                                <input id="age" pInputText formControlName="age" readonly />
+                                                <label for="age">Age</label>
+                                            </p-floatLabel>
+                                        </div>
+
+
                                     </div>
 
-                                    <div class="field col-4">
-                                        <p-floatLabel variant="on">
-                                            <input pInputText formControlName="relationship" id="emergencyRelationship"
-                                                placeholder=""
-                                                [ngClass]="{ 'ng-invalid': showError(ec.get('relationship')) }" />
-                                            <label>Relationship</label>
-                                            <div class="error-msg" *ngIf="showError(ec.get('relationship'))">
-                                                Relationship is required
-                                            </div>
-                                        </p-floatLabel>
+                                    <div class="heading mb-2">Permanent Address</div>
+                                    <div class="p-fluid formgrid grid" formGroupName="permanentAddress">
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="line1"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','line1']))}" />
+                                                <label>Address Line 1</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get(['permanentAddress','line1']))">
+                                                    Address is
+                                                    required </div>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="city"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','city']))}" />
+                                                <label>City</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get(['permanentAddress','city']))">
+                                                    City is required </div>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="state"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','state']))}" />
+                                                <label>State</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get(['permanentAddress','state']))">
+                                                    State
+                                                    is required
+                                                </div>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="zipCode"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','zipCode']))}" />
+                                                <label>Zip Code</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get(['permanentAddress','zipCode']))">
+                                                    zipCode id
+                                                    required </div>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="country"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','country']))}" />
+                                                <label>Country</label>
+                                                <div class="error-msg"
+                                                    *ngIf="showError(employeeForm.get(['permanentAddress','country']))">
+                                                    Country is
+                                                    required </div>
+                                            </p-floatlabel>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-12 mt-2">
-                                    <button pButton variant="outlined"  type="button" label="Remove"
-                                        (click)="removeEmergencyContact(i)" class="p-button-danger"></button>
-                                </div>
-                            </div>
-                        </div>
+                                    <div class="heading mb-2 mt-3 flex align-items-center justify-content-between">
+                                        Temporary Address
+                                        <p-checkbox binary="true" formControlName="sameAsPermanent"
+                                            label="Same as Permanent" (onChange)="copyPermanentAddress()">
+                                        </p-checkbox>
 
-                        <div class="col-12 mt-3">
-                            <button pButton variant="outlined" severity="danger" type="button"
-                                label="+ Add Emergency Contact" (click)="addEmergencyContact()"
-                                class="p-button-secondary"></button>
-                        </div>
-                    </div>
-                    <!-- 
+                                    </div>
+                                    <div class="p-fluid formgrid grid" formGroupName="temporaryAddress">
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="line1" />
+                                                <label>Address Line 1</label>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="city" />
+                                                <label>City</label>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="state" />
+                                                <label>State</label>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="zipCode" />
+                                                <label>Zip Code</label>
+                                            </p-floatlabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatlabel variant="on">
+                                                <input pInputText formControlName="country" />
+                                                <label>Country</label>
+                                            </p-floatlabel>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="field col-12">
+                                        <div class="heading mb-2">
+                                            Emergency Contact
+                                        </div>
+                                        <div formArrayName="emergencyContacts">
+                                            <div *ngFor="let ec of emergencyContacts.controls; let i = index"
+                                                [formGroupName]="i" class="p-fluid flex1 mb-3 mt-3">
+                                                <div class="field-row">
+                                                    <div class="field col-4">
+                                                        <p-floatLabel variant="on">
+                                                            <input pInputText formControlName="name" id="emergencyName"
+                                                                placeholder=""
+                                                                [ngClass]="{ 'ng-invalid': showError(ec.get('name')) }" />
+                                                            <label>Name</label>
+                                                            <div class="error-msg" *ngIf="showError(ec.get('name'))">
+                                                                Name is required
+                                                            </div>
+                                                        </p-floatLabel>
+                                                    </div>
+
+                                                    <div class="field col-4">
+                                                        <p-floatLabel variant="on">
+                                                            <input pInputText formControlName="phone"
+                                                                id="emergencyPhone" placeholder=""
+                                                                [ngClass]="{ 'ng-invalid': showError(ec.get('phone')) }" />
+                                                            <label>Phone</label>
+                                                            <div class="error-msg" *ngIf="showError(ec.get('phone'))">
+                                                                Phone Number is required
+                                                            </div>
+                                                        </p-floatLabel>
+                                                    </div>
+
+                                                    <div class="field col-4">
+                                                        <p-floatLabel variant="on">
+                                                            <input pInputText formControlName="relationship"
+                                                                id="emergencyRelationship" placeholder=""
+                                                                [ngClass]="{ 'ng-invalid': showError(ec.get('relationship')) }" />
+                                                            <label>Relationship</label>
+                                                            <div class="error-msg"
+                                                                *ngIf="showError(ec.get('relationship'))">
+                                                                Relationship is required
+                                                            </div>
+                                                        </p-floatLabel>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex1">
+                                                    <div class="">
+                                                        <button pButton variant="outlined" type="button" label="Remove"
+                                                            (click)="removeEmergencyContact(i)"
+                                                            class="p-button-danger"></button>
+                                                    </div>
+                                                    <div class="col-12 ">
+                                                        <button pButton variant="outlined" severity="danger"
+                                                            type="button" label="+ Add" (click)="addEmergencyContact()"
+                                                            class="p-button-secondary"></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!-- 
                 <div class="field col-12">
                     <div class="heading mb-3 mt-3">
                         Profile Photo
@@ -271,244 +300,278 @@
                         (uploadHandler)="customPhotoUpload($event)"></p-fileUpload>
                 </div> -->
 
-                </div>
-                <div class="col-3 flex justify-content-center align-items-start">
-                    <div class="profile-pic-container">
-                        <!-- Circular Image -->
-                        <img *ngIf="photoUrl; else placeholder" [src]="photoUrl" class="profile-pic" />
-                        <ng-template #placeholder>
-                            <div class="profile-placeholder">
-                                <i class="pi pi-user"></i>
+                                </div>
+                                <div class="col-3 flex justify-content-center align-items-start">
+                                    <div class="profile-pic-container">
+                                        <!-- Circular Image -->
+                                        <img *ngIf="photoUrl; else placeholder" [src]="photoUrl" class="profile-pic" />
+                                        <ng-template #placeholder>
+                                            <div class="profile-placeholder">
+                                                <i class="pi pi-user"></i>
+                                            </div>
+                                        </ng-template>
+
+                                        <!-- Upload Icon -->
+                                        <label class="upload-btn">
+                                            <i class="pi pi-upload"></i>
+                                            <input type="file" accept="image/*" (change)="onProfileSelect($event)"
+                                                hidden />
+                                        </label>
+
+                                        <!-- Remove Icon -->
+                                        <button type="button" class="remove-btn" *ngIf="photoUrl"
+                                            (click)="removeProfilePhoto()">
+                                            <i class="pi pi-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-6 btn">
+                                <p-button label="Next" (onClick)="activateCallback(2)" />
                             </div>
                         </ng-template>
+                    </p-step-panel>
+                </p-step-item>
 
-                        <!-- Upload Icon -->
-                        <label class="upload-btn">
-                            <i class="pi pi-upload"></i>
-                            <input type="file" accept="image/*" (change)="onProfileSelect($event)" hidden />
-                        </label>
+                <!-- Step 2: Employment Info -->
+                <p-step-item [value]="2">
+                    <p-step>Employment Info</p-step>
+                    <p-step-panel>
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <!-- <div [hidden]="activeIndex !== 1" [class.active-step]="activeIndex === 1"> -->
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="employeeCode"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employeeCode')) }" />
+                                        <label>Employee Code</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('employeeCode'))">
+                                            Employee Code is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="referenceCode" />
+                                        <label>Reference Code</label>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="designation"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designation')) }" />
+                                        <label>Designation</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('designation'))">
+                                            Designation is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon iconDisplay="input" 
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('dateOfJoining')) }"></p-datePicker>
+                                        <label>Date of Joining</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('dateOfJoining'))">
+                                            Date of Joining is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="employmentTypes" formControlName="employmentType"
+                                            optionLabel="label" optionValue="value"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentType')) }"></p-select>
+                                        <label>Employment Type</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('employmentType'))">
+                                            Employment Type is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4"
+                                    *ngIf="employeeForm.get('employmentType')?.value === 'PROBATION'">
+                                    <p-floatLabel variant="on">
+                                        <p-datepicker formControlName="probationEndDate" [minDate]="today" 
+                                            dateFormat="dd M yy" inputId="probEndDate" [showIcon]="true"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
+                                        </p-datepicker>
+                                        <label for="probEndDate">Probation End Date</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('probationEndDate'))">
+                                            Probation end date is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="employmentStatuses" formControlName="employmentStatus"
+                                            optionLabel="label" optionValue="value"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentStatus')) }"></p-select>
+                                        <label>Employment Status</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('employmentStatus'))">
+                                            Employment Status is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="departments" formControlName="departmentId"
+                                            optionLabel="name" optionValue="id"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('departmentId')) }"></p-select>
+                                        <label>Department</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('departmentId'))">
+                                            Department is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="branches" formControlName="branchId" optionLabel="name"
+                                            optionValue="id"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('branchId')) }"></p-select>
+                                        <label>Branch</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('branchId'))">
+                                            Branch is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="roles" formControlName="roleId" optionLabel="name"
+                                            optionValue="id"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('roleId')) }"></p-select>
+                                        <label>Role</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('roleId'))">
+                                            Role is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="reportingManagers" formControlName="reportingManager"
+                                            optionLabel="label" optionValue="value"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('reportingManager')) }"></p-select>
+                                        <label>Reporting Manager</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('reportingManager'))">
+                                            Reporting Manager is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+                                <!-- Shift Mode -->
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select
+                                            [options]="[{label:'General', value:'FIXED'},{label:'Rotational', value:'ROTATIONAL'}]"
+                                            formControlName="shiftMode"></p-select>
+                                        <label>Shift Mode</label>
+                                    </p-floatLabel>
+                                </div>
 
-                        <!-- Remove Icon -->
-                        <button type="button" class="remove-btn" *ngIf="photoUrl" (click)="removeProfilePhoto()">
-                            <i class="pi pi-times"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                                <!-- If FIXED: choose a single template -->
+                                <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="shifts" formControlName="shiftId" optionLabel="name"
+                                            optionValue="id"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('shiftId')) }"></p-select>
+                                        <label>Shift Template</label>
+                                    </p-floatLabel>
+                                </div>
 
-            <!-- Step 2: Employment Info -->
-            <div [hidden]="activeIndex !== 1" [class.active-step]="activeIndex === 1">
-                <div class="p-fluid grid formgrid">
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <input pInputText formControlName="employeeCode"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employeeCode')) }" />
-                            <label>Employee Code</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('employeeCode'))">
-                                Employee Code is required.
+                                <!-- If ROTATIONAL: choose a pattern and start date -->
+                                <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="patterns" formControlName="rotationPatternId"
+                                            optionLabel="name" optionValue="id"></p-select>
+                                        <label>Rotation Pattern</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
+                                    <p-floatLabel variant="on">
+                                        <p-datePicker formControlName="rotationStartDate" showIcon iconDisplay="input"
+                                            dateFormat="yy-mm-dd"></p-datePicker>
+                                        <label>Rotation Start Date</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd" showIcon iconDisplay="input" ></p-datePicker>
+                                        <label>Shift Date</label>
+                                    </p-floatLabel>
+                                </div>
                             </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <input pInputText formControlName="referenceCode" />
-                            <label>Reference Code</label>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <input pInputText formControlName="designation"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designation')) }" />
-                            <label>Designation</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('designation'))">
-                                Designation is required.
+                            <!-- </div> -->
+                            <div class="flex py-6 gap-2 btn">
+                                <p-button label="Previous" severity="secondary" (onClick)="activateCallback(1)" />
+                                <p-button label="Next" (onClick)="activateCallback(3)" />
                             </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('dateOfJoining')) }"></p-datePicker>
-                            <label>Date of Joining</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('dateOfJoining'))">
-                                Date of Joining is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="employmentTypes" formControlName="employmentType" optionLabel="label"
-                                optionValue="value"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentType')) }"></p-select>
-                            <label>Employment Type</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('employmentType'))">
-                                Employment Type is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4" *ngIf="employeeForm.get('employmentType')?.value === 'PROBATION'">
-                        <p-floatLabel variant="on">
-                          <p-datepicker
-                            formControlName="probationEndDate"
-                            [minDate]="today"
-                            dateFormat="dd M yy"
-                            inputId="probEndDate"
-                            [showIcon]="true"
-                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
-                          </p-datepicker>
-                          <label for="probEndDate">Probation End Date</label>
-                          <div class="error-msg" *ngIf="showError(employeeForm.get('probationEndDate'))">
-                            Probation end date is required.
-                          </div>
-                        </p-floatLabel>
-                      </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="employmentStatuses" formControlName="employmentStatus"
-                                optionLabel="label" optionValue="value"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentStatus')) }"></p-select>
-                            <label>Employment Status</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('employmentStatus'))">
-                                Employment Status is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="departments" formControlName="departmentId" optionLabel="name"
-                                optionValue="id"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('departmentId')) }"></p-select>
-                            <label>Department</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('departmentId'))">
-                                Department is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="branches" formControlName="branchId" optionLabel="name"
-                                optionValue="id"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('branchId')) }"></p-select>
-                            <label>Branch</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('branchId'))">
-                                Branch is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="roles" formControlName="roleId" optionLabel="name" optionValue="id"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('roleId')) }"></p-select>
-                            <label>Role</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('roleId'))">
-                                Role is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="reportingManagers" formControlName="reportingManager"
-                                optionLabel="label" optionValue="value"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('reportingManager')) }"></p-select>
-                            <label>Reporting Manager</label>
-                            <div class="error-msg" *ngIf="showError(employeeForm.get('reportingManager'))">
-                                Reporting Manager is required.
-                            </div>
-                        </p-floatLabel>
-                    </div>
-                    <!-- Shift Mode -->
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-select
-                                [options]="[{label:'General', value:'FIXED'},{label:'Rotational', value:'ROTATIONAL'}]"
-                                formControlName="shiftMode"></p-select>
-                            <label>Shift Mode</label>
-                        </p-floatLabel>
-                    </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-item>
 
-                    <!-- If FIXED: choose a single template -->
-                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="shifts" formControlName="shiftId" optionLabel="name" optionValue="id"
-                                [ngClass]="{ 'ng-invalid': showError(employeeForm.get('shiftId')) }"></p-select>
-                            <label>Shift Template</label>
-                        </p-floatLabel>
-                    </div>
+                <!-- Step 3: Qualifications -->
+                <p-step-item [value]="3">
+                    <p-step>Qualifications</p-step>
+                    <p-step-panel>
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <!-- <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2"> -->
+                            <div formArrayName="qualifications" class="qualification">
+                                <div class="mb-5">
+                                    <button pButton variant="outlined" severity="danger" type="button"
+                                        label="+ Add Qualification" (click)="addQualification()"
+                                        class="p-button-secondary"></button>
+                                </div>
+                                <div *ngFor="let q of qualifications.controls; let i = index" [formGroupName]="i"
+                                    class="p-fluid grid mb-3 formgrid">
+                                    <div class="field col-5">
+                                        <input pInputText formControlName="degree" placeholder="Degree"
+                                            [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }" />
+                                        <div class="error-msg text-danger" *ngIf="showError(q.get('degree'))">Degree
+                                            is
+                                            required.
+                                        </div>
+                                    </div>
 
-                    <!-- If ROTATIONAL: choose a pattern and start date -->
-                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
-                        <p-floatLabel variant="on">
-                            <p-select [options]="patterns" formControlName="rotationPatternId" optionLabel="name"
-                                optionValue="id"></p-select>
-                            <label>Rotation Pattern</label>
-                        </p-floatLabel>
-                    </div>
+                                    <div class="field col-5">
+                                        <input pInputText formControlName="institution" placeholder="Institution"
+                                            [ngClass]="{ 'ng-invalid': showError(q.get('institution')) }" />
+                                        <div class="error-msg text-danger" *ngIf="showError(q.get('institution'))">
+                                            Institution is
+                                            required.</div>
+                                    </div>
 
-                    <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
-                        <p-floatLabel variant="on">
-                            <p-datePicker formControlName="rotationStartDate" dateFormat="yy-mm-dd"></p-datePicker>
-                            <label>Rotation Start Date</label>
-                        </p-floatLabel>
-                    </div>
+                                    <div class="field col-5">
+                                        <input pInputText type="number" formControlName="year" placeholder="Year"
+                                            [ngClass]="{ 'ng-invalid': showError(q.get('year')) }" />
+                                        <div class="error-msg text-danger" *ngIf="showError(q.get('year'))">
+                                            Year is required.
+                                        </div>
+                                    </div>
 
-                    <div class="field col-4">
-                        <p-floatLabel variant="on">
-                            <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd"></p-datePicker>
-                            <label>Shift Date</label>
-                        </p-floatLabel>
-                    </div>
-                </div>
-            </div>
+                                    <div class="field col-5 trash-btn">
+                                        <button variant="outlined" severity="danger" pButton type="button"
+                                            icon="pi pi-trash" (click)="removeQualification(i)"
+                                            class="p-button-danger p-button-rounded p-button-text">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- </div> -->
+                            <div class="flex py-6 gap-2 btn">
+                                <p-button label="Previous" severity="secondary" (onClick)="activateCallback(2)" />
+                                <p-button label="Next" (onClick)="activateCallback(4)" />
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-item>
 
 
-            <!-- Step 3: Qualifications -->
-            <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2">
-                <div formArrayName="qualifications" class="qualification">
-                    <div class="mb-5">
-                        <button pButton variant="outlined" severity="danger" type="button" label="+ Add Qualification"
-                            (click)="addQualification()" class="p-button-secondary"></button>
-                    </div>
-                    <div *ngFor="let q of qualifications.controls; let i = index" [formGroupName]="i"
-                        class="p-fluid grid mb-3 formgrid">
-                        <div class="field col-5">
-                            <input pInputText formControlName="degree" placeholder="Degree"
-                                [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }" />
-                            <div class="error-msg text-danger" *ngIf="showError(q.get('degree'))">Degree is required.
-                            </div>
-                        </div>
-
-                        <div class="field col-5">
-                            <input pInputText formControlName="institution" placeholder="Institution"
-                                [ngClass]="{ 'ng-invalid': showError(q.get('institution')) }" />
-                            <div class="error-msg text-danger" *ngIf="showError(q.get('institution'))">Institution is
-                                required.</div>
-                        </div>
-
-                        <div class="field col-5">
-                            <input pInputText type="number" formControlName="year" placeholder="Year"
-                                [ngClass]="{ 'ng-invalid': showError(q.get('year')) }" />
-                            <div class="error-msg text-danger" *ngIf="showError(q.get('year'))">
-                                Year is required.
-                            </div>
-                        </div>
-
-                        <div class="field col-5 trash-btn">
-                            <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
-                                (click)="removeQualification(i)" class="p-button-danger p-button-rounded p-button-text">
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 4: Documents Upload -->
-            <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3">
-                <p-fileUpload name="documents[]" [customUpload]="true" multiple="multiple"
-                    (uploadHandler)="onDocumentsUpload($event)"></p-fileUpload>
-            </div> -->
-            <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3">
-                <div formArrayName="documents" class="qualification">
-                    <div class="field col-4">
+                <p-step-item [value]="4">
+                    <p-step>Documents</p-step>
+                    <p-step-panel>
+                        <ng-template #content let-activateCallback="activateCallback">
+                            <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3"> -->
+                            <div formArrayName="documents" class="qualification">
+                                <div class="field col-4">
                         <p-floatLabel variant="on">
                           <p-select
                             [options]="[
@@ -522,115 +585,122 @@
                       </div>
                       
                     <!-- Add Document Button -->
-                    <div class="mb-5">
-                        <button variant="outlined" severity="danger" pButton type="button" label="+ Add Document"
-                            (click)="addDocument()" class="p-button-secondary">
-                        </button>
-                    </div>
-                    <div *ngFor="let doc of uploadedDocsForm.controls; let i = index" [formGroupName]="i"
-                        class="p-fluid grid mb-3 formgrid">
-
-                        <!-- Category -->
-                        <div class="field col-2">
-                            <p-floatLabel variant="on">
-                                <p-select [options]="documentCategories" formControlName="category" optionLabel="label"
-                                    optionValue="value" (onChange)="filterDocumentTypes(i)"
-                                    [ngClass]="{'ng-invalid':showError(doc.get('category'))}">
-                                </p-select>
-                                <label>Category</label>
-                                <div class="error-msg" *ngIf="showError(doc.get('category'))">Category is required.
+                                <div class="mb-5">
+                                    <button variant="outlined" severity="danger" pButton type="button"
+                                        label="+ Add Document" (click)="addDocument()" class="p-button-secondary">
+                                    </button>
                                 </div>
-                            </p-floatLabel>
-                        </div>
+                                <div *ngFor="let doc of uploadedDocsForm.controls; let i = index" [formGroupName]="i"
+                                    class="p-fluid grid mb-3 formgrid">
 
-                        <!-- Document Type -->
-                        <div class="field col-2">
-                            <p-floatLabel variant="on">
-                                <p-select [options]="filteredTypes[i]" formControlName="type" optionLabel="label"
-                                    optionValue="value" [ngClass]="{'ng-invalid':showError(doc.get('type'))}">
-                                </p-select>
-                                <label>Document Type</label>
-                                <div class="error-msg" *ngIf="showError(doc.get('type'))">Document Type is required
-                                </div>
-                            </p-floatLabel>
-                        </div>
+                                    <!-- Category -->
+                                    <div class="field col-2">
+                                        <p-floatLabel variant="on">
+                                            <p-select [options]="documentCategories" formControlName="category"
+                                                optionLabel="label" optionValue="value"
+                                                (onChange)="filterDocumentTypes(i)"
+                                                [ngClass]="{'ng-invalid':showError(doc.get('category'))}">
+                                            </p-select>
+                                            <label>Category</label>
+                                            <div class="error-msg" *ngIf="showError(doc.get('category'))">Category
+                                                is
+                                                required.
+                                            </div>
+                                        </p-floatLabel>
+                                    </div>
 
-                        <!-- Issue Date -->
-                        <div class="field col-2">
-                            <p-floatLabel variant="on">
-                                <p-datePicker formControlName="issueDate" dateFormat="yy-mm-dd"></p-datePicker>
-                                <label>Issue Date</label>
-                            </p-floatLabel>
-                        </div>
+                                    <!-- Document Type -->
+                                    <div class="field col-2">
+                                        <p-floatLabel variant="on">
+                                            <p-select [options]="filteredTypes[i]" formControlName="type"
+                                                optionLabel="label" optionValue="value"
+                                                [ngClass]="{'ng-invalid':showError(doc.get('type'))}">
+                                            </p-select>
+                                            <label>Document Type</label>
+                                            <div class="error-msg" *ngIf="showError(doc.get('type'))">Document Type
+                                                is
+                                                required
+                                            </div>
+                                        </p-floatLabel>
+                                    </div>
 
-                        <!-- Expiry Date -->
-                        <div class="field col-2">
-                            <p-floatLabel variant="on">
-                                <p-datePicker formControlName="expiryDate" dateFormat="yy-mm-dd"></p-datePicker>
-                                <label>Expiry Date</label>
-                            </p-floatLabel>
-                        </div>
+                                    <!-- Issue Date -->
+                                    <div class="field col-2">
+                                        <p-floatLabel variant="on">
+                                            <p-datePicker formControlName="issueDate" showIcon iconDisplay="input" 
+                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                            <label>Issue Date</label>
+                                        </p-floatLabel>
+                                    </div>
 
-                        <!-- File Upload -->
-                        <div class="field col-2">
-                            <div class="file-upload-wrapper">
-                                <input type="file" class="custom-file-input" title="{{
-                                    uploadedDocsForm.at(i).value.file?.name ||
+                                    <!-- Expiry Date -->
+                                    <div class="field col-2">
+                                        <p-floatLabel variant="on">
+                                            <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input" 
+                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                            <label>Expiry Date</label>
+                                        </p-floatLabel>
+                                    </div>
+
+                                    <!-- File Upload -->
+                                    <div class="field col-2">
+                                        <div class="file-upload-wrapper relative">
+                                            <input type="file" class="custom-file-input" title="{{
+                                        uploadedDocsForm.at(i).value.file?.name ||
                                     uploadedDocsForm.at(i).value.fileUrl?.split('/').pop()
                                   }}" [attr.data-file-name]="
                                     uploadedDocsForm.at(i).value.file?.name ||
                                     uploadedDocsForm.at(i).value.fileUrl?.split('/').pop() ||
                                     'Choose File'
                                   " (change)="onDocumentSelect($event, i)"
-                                    [ngClass]="{ 'ng-invalid': showError(doc.get('file')) }" />
-                            </div>
-                            <div class="error-msg" *ngIf="showError(doc.get('file'))">
-                                File is required.
-                            </div>
+                                                [ngClass]="{ 'ng-invalid': showError(doc.get('file')) }" />
+                                            <i class="pi pi-upload"></i>
+                                        </div>
+                                        <div class="error-msg" *ngIf="showError(doc.get('file'))">
+                                            File is required.
+                                        </div>
 
-                        </div>
+                                    </div>
 
 
 
-                        <!-- Remove -->
-                        <div class="field col-1 flex align-items-center trash-btn">
-                            <button variant="outlined" severity="danger" pButton type="button" icon="pi pi-trash"
-                                class="p-button-danger p-button-rounded p-button-text" (click)="removeDocument(i)">
-                            </button>
-                        </div>
+                                    <!-- Remove -->
+                                    <div class="field col-1 flex align-items-center trash-btn">
+                                        <button variant="outlined" severity="danger" pButton type="button"
+                                            icon="pi pi-trash" class="p-button-danger p-button-rounded p-button-text"
+                                            (click)="removeDocument(i)">
+                                        </button>
+                                    </div>
 
-                        <!-- Preview (image or link) -->
-                        <div class="field col-12" *ngIf="getDocPreview(i) as p">
-                            <div class="doc-preview" [ngSwitch]="p.kind">
-                                <!-- Images -->
-                                <img *ngSwitchCase="'image'" [src]="p.src" alt="Document preview" class="doc-img" />
+                                    <!-- Preview (image or link) -->
+                                    <div class="field col-12" *ngIf="getDocPreview(i) as p">
+                                        <div class="doc-preview" [ngSwitch]="p.kind">
+                                            <!-- Images -->
+                                            <img *ngSwitchCase="'image'" [src]="p.src" alt="Document preview"
+                                                class="doc-img" />
 
-                                <!-- Non-image (PDF/others) -->
-                                <!-- <div *ngSwitchDefault class="doc-file">
+                                            <!-- Non-image (PDF/others) -->
+                                            <!-- <div *ngSwitchDefault class="doc-file">
                                     <span class="file-tag">{{ p.kind.toUpperCase() }}</span>
                                     <a [href]="p.src" target="_blank" rel="noopener">View file</a>
                                 </div> -->
+                                        </div>
+                                    </div>
+
+                                </div>
+
                             </div>
-                        </div>
 
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Navigation buttons -->
-            <div class="mt-3 nav-btns">
-                <button pButton variant="outlined" severity="danger" type="button" label="Previous" (click)="prevStep()"
-                    [disabled]="activeIndex === 0"></button>
-                <button pButton variant="outlined" severity="danger" type="button" label="Next" (click)="nextStep()"
-                    *ngIf="activeIndex < steps.length - 1"></button>
-                <button pButton variant="outlined" severity="danger" type="submit" label="Submit"
-                    class="p-button-success" *ngIf="activeIndex === steps.length - 1"></button>
-            </div>
-
+                            <!-- </div> -->
+                            <div class="flex py-6 gap-2 btn">
+                                <p-button label="Previous" severity="secondary" (onClick)="activateCallback(3)" />
+                                <p-button type="submit" label="Submit" [disabled]="employeeForm.invalid"></p-button>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-item>
+            </p-stepper>
         </form>
     </div>
+
 </div>

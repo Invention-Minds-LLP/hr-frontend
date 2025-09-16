@@ -2,201 +2,150 @@
   <form [formGroup]="form" class="circular-form">
 
     <!-- Title -->
-<!-- Title -->
-<div class="form-field">
-  <label for="title">Title <span class="req">*</span></label>
-  <input
-    id="title"
-    type="text"
-    pInputText
-    formControlName="title"
-    placeholder="Enter circular title"
-    class="p-inputtext-sm"  
-  />
-</div>
+    <!-- Title -->
+    <div class="form-field title">
+      <label for="title">Title <span class="req">*</span></label>
+      <input id="title" type="text" pInputText formControlName="title" placeholder="Enter circular title"
+        class="p-inputtext-sm" [invalid]="form.get('title')?.invalid && (form.get('title')?.touched || submitted)" />
+      <div class="error-msg" *ngIf="form.get('title')?.invalid && (form.get('title')?.touched || submitted)">
+        Title is required
+      </div>
+    </div>
 
-<!-- Body -->
-<div class="form-field">
-  <label for="body">Body <span class="req">*</span></label>
-  <textarea
-  pTextarea
-    id="body"
-    formControlName="body"
-    placeholder="Write the circular content here"
-    rows="5"
-    style="width:100%"
-  ></textarea>
-</div>
+    <!-- Body -->
+    <div class="form-field">
+      <label for="body">Body <span class="req">*</span></label>
+      <textarea pTextarea id="body" formControlName="body" placeholder="Write the circular content here" rows="5"
+        style="width:100%" [invalid]="form.get('body')?.invalid && (form.get('body')?.touched || submitted)"></textarea>
+      <div class="error-msg" *ngIf="form.get('body')?.invalid && (form.get('body')?.touched || submitted)">
+        Body is required
+      </div>
+    </div>
 
 
     <!-- Type -->
     <div class="form-field">
       <label for="type">Type</label>
-      <p-select
-        id="type"
-        [options]="[
+      <p-select id="type" [options]="[
           { label: 'General', value: 'GENERAL' },
           { label: 'Policy', value: 'POLICY' },
           { label: 'Event', value: 'EVENT' },
           { label: 'Alert', value: 'ALERT' }
-        ]"
-        formControlName="type"
-        placeholder="Select Type"
-        style="width: 100%"
-      ></p-select>
+        ]" formControlName="type" placeholder="Select Type" style="width: 100%"
+        [invalid]="form.get('type')?.invalid && (form.get('type')?.touched || submitted)"></p-select>
+      <div class="error-msg" *ngIf="form.get('type')?.invalid && (form.get('type')?.touched || submitted)">
+        Type is required
+      </div>
     </div>
 
     <!-- Audience -->
-<div class="form-field">
-  <label>Audience <span class="req">*</span></label>
+    <div class="form-field ">
+      <label>Audience <span class="req">*</span></label>
 
-  <div class="p-field-radiobuttons">
-    <p-radioButton name="audienceMode" value="ALL" formControlName="audienceMode" inputId="all"></p-radioButton>
-    <label for="all">All Employees</label>
+      <div class="p-field-radiobuttons">
+        <p-radioButton name="audienceMode" value="ALL" formControlName="audienceMode" inputId="all"></p-radioButton>
+        <label for="all">All Employees</label>
 
-    <p-radioButton name="audienceMode" value="DEPARTMENTS" formControlName="audienceMode" inputId="dept"></p-radioButton>
-    <label for="dept">Departments</label>
+        <p-radioButton name="audienceMode" value="DEPARTMENTS" formControlName="audienceMode"
+          inputId="dept"></p-radioButton>
+        <label for="dept">Departments</label>
 
-    <p-radioButton name="audienceMode" value="BRANCHES" formControlName="audienceMode" inputId="branch"></p-radioButton>
-    <label for="branch">Branches</label>
+        <p-radioButton name="audienceMode" value="BRANCHES" formControlName="audienceMode"
+          inputId="branch"></p-radioButton>
+        <label for="branch">Branches</label>
 
-    <p-radioButton name="audienceMode" value="ROLES" formControlName="audienceMode" inputId="role"></p-radioButton>
-    <label for="role">Roles</label>
+        <p-radioButton name="audienceMode" value="ROLES" formControlName="audienceMode" inputId="role"></p-radioButton>
+        <label for="role">Roles</label>
 
-    <p-radioButton name="audienceMode" value="EMPLOYEES" formControlName="audienceMode" inputId="emp"></p-radioButton>
-    <label for="emp">Specific Employees</label>
-  </div>
-</div>
+        <p-radioButton name="audienceMode" value="EMPLOYEES" formControlName="audienceMode"
+          inputId="emp"></p-radioButton>
+        <label for="emp">Specific Employees</label>
+      </div>
+    </div>
 
-<!-- Departments -->
-<div *ngIf="form.value.audienceMode === 'DEPARTMENTS'" class="form-field">
-  <p-multiSelect
-    [options]="departments"
-    formControlName="audienceDepartments"
-    optionLabel="name"
-    optionValue="id"
-    placeholder="Select Departments"
-    display="chip"
-    style="width: 100%"
-  ></p-multiSelect>
-</div>
+    <!-- Departments -->
+    <div *ngIf="form.value.audienceMode === 'DEPARTMENTS'" class="form-field">
+      <p-multiSelect [options]="departments" formControlName="audienceDepartments" optionLabel="name" optionValue="id"
+        placeholder="Select Departments" display="chip" style="width: 100%"></p-multiSelect>
+    </div>
 
-<!-- Branches -->
-<div *ngIf="form.value.audienceMode === 'BRANCHES'" class="form-field">
-  <p-multiSelect
-    [options]="branches"
-    formControlName="audienceBranches"
-    optionLabel="name"
-    optionValue="id"
-    placeholder="Select Branches"
-    display="chip"
-    style="width: 100%"
-  ></p-multiSelect>
-</div>
+    <!-- Branches -->
+    <div *ngIf="form.value.audienceMode === 'BRANCHES'" class="form-field">
+      <p-multiSelect [options]="branches" formControlName="audienceBranches" optionLabel="name" optionValue="id"
+        placeholder="Select Branches" display="chip" style="width: 100%"></p-multiSelect>
+    </div>
 
-<!-- Roles -->
-<div *ngIf="form.value.audienceMode === 'ROLES'" class="form-field">
-  <p-multiSelect
-    [options]="roles"
-    formControlName="audienceRoles"
-    optionLabel="name"
-    optionValue="id"
-    placeholder="Select Roles"
-    display="chip"
-    style="width: 100%"
-  ></p-multiSelect>
-</div>
+    <!-- Roles -->
+    <div *ngIf="form.value.audienceMode === 'ROLES'" class="form-field">
+      <p-multiSelect [options]="roles" formControlName="audienceRoles" optionLabel="name" optionValue="id"
+        placeholder="Select Roles" display="chip" style="width: 100%"></p-multiSelect>
+    </div>
 
-<!-- Employees -->
-<div *ngIf="form.value.audienceMode === 'EMPLOYEES'" class="form-field">
-  <p-autoComplete
-  formControlName="audienceEmployees"
-  [suggestions]="filteredEmployees"
-  (completeMethod)="filterEmployees($event)"
-  optionLabel="fullName"
-  [multiple]="true"
-  [dropdown]="true"
-  placeholder="Search employees by name or code"
-  style="width: 100%"
->
-  <ng-template let-e pTemplate="item">
-    {{ e.firstName }} {{ e.lastName }} ({{ e.employeeCode }})
-  </ng-template>
-</p-autoComplete>
+    <!-- Employees -->
+    <div *ngIf="form.value.audienceMode === 'EMPLOYEES'" class="form-field">
+      <p-autoComplete formControlName="audienceEmployees" [suggestions]="filteredEmployees"
+        (completeMethod)="filterEmployees($event)" optionLabel="fullName" [multiple]="true" [dropdown]="true"
+        placeholder="Search employees by name or code" style="width: 100%">
+        <ng-template let-e pTemplate="item">
+          {{ e.firstName }} {{ e.lastName }} ({{ e.employeeCode }})
+        </ng-template>
+      </p-autoComplete>
 
-</div>
+    </div>
 
 
     <!-- Dates -->
-    <div class="p-grid">
+    <div class="p-grid date">
       <div class="form-field p-col-6">
         <label for="startsAt">Valid From</label>
-        <p-datepicker
-          id="startsAt"
-          formControlName="startsAt"
-          showIcon="true"
-          dateFormat="dd M yy"
-        ></p-datepicker>
+        <p-datepicker id="startsAt" formControlName="startsAt" showIcon="true" dateFormat="dd M yy"
+          [invalid]="form.get('startsAt')?.invalid && (form.get('startsAt')?.touched || submitted)"></p-datepicker>
+        <div class="error-msg" *ngIf="form.get('startsAt')?.invalid && (form.get('startsAt')?.touched || submitted)">
+          Valid Form is required
+        </div>
       </div>
       <div class="form-field p-col-6">
         <label for="endsAt">Until</label>
-        <p-datepicker
-          id="endsAt"
-          formControlName="endsAt"
-          showIcon="true"
-          dateFormat="dd M yy"
-        ></p-datepicker>
+        <p-datepicker id="endsAt" formControlName="endsAt" showIcon="true" dateFormat="dd M yy"
+          [invalid]="form.get('endsAt')?.invalid && (form.get('endsAt')?.touched || submitted)"></p-datepicker>
+
+        <div class="error-msg" *ngIf="form.get('endsAt')?.invalid && (form.get('endsAt')?.touched || submitted)">
+          Untill is required
+        </div>
       </div>
     </div>
 
     <!-- Flags -->
     <div class="p-grid flags">
       <div class="p-col-6">
-        <p-checkbox
-          binary="true"
-          formControlName="requireAck"
-          inputId="ack"
-        ></p-checkbox>
+        <p-checkbox binary="true" formControlName="requireAck" inputId="ack"
+          [invalid]="form.get('requireAck')?.invalid && (form.get('requireAck')?.touched || submitted)"></p-checkbox>
         <label for="ack">Require Acknowledgment</label>
       </div>
       <div class="p-col-6">
-        <p-checkbox
-          binary="true"
-          formControlName="isPinned"
-          inputId="pinned"
-        ></p-checkbox>
+        <p-checkbox binary="true" formControlName="isPinned" inputId="pinned"
+          [invalid]="form.get('isPinned')?.invalid && (form.get('isPinned')?.touched || submitted)"></p-checkbox>
         <label for="pinned">Pin to Top</label>
       </div>
     </div>
 
     <!-- Attachments -->
-    <div class="form-field">
+    <div class="form-field file">
       <label>Attachments</label>
       <input type="file" multiple (change)="addAttachment($event)" />
       <ul class="attachment-list" *ngIf="attachments.length">
         <li *ngFor="let f of attachments; let i = index">
           <i class="pi pi-paperclip"></i>
           {{ f.name }}
-          <button
-            type="button"
-            pButton
-            icon="pi pi-times"
-            class="p-button-rounded p-button-text p-button-danger"
-            (click)="removeAttachment(i)"
-          ></button>
+          <button type="button" pButton icon="pi pi-times" class="p-button-rounded p-button-text p-button-danger"
+            (click)="removeAttachment(i)"></button>
         </li>
       </ul>
     </div>
 
     <!-- Submit -->
     <div class="submit-btn">
-      <button
-        pButton
-        type="button"
-        label="Create Circular"
-        icon="pi pi-check"
-        (click)="submit()"
-      ></button>
+      <button pButton type="button" label="Create Circular" icon="pi pi-check" (click)="submit()"></button>
     </div>
   </form>
 </p-card>

@@ -1,57 +1,133 @@
 .employee-details {
-    margin-bottom: 20px;
-    padding: 15px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .employee-details label {
-    font-weight: bold;
-    color: #003366;
-    margin-bottom: 4px;
-    display: block;
-  }
-  
-  .employee-details input[readonly] {
-    background-color: #f5f5f5;
-    color: #333;
-    font-weight: 500;
-    border: 1px solid #ccc;
-  }
-  
-  
-  .survey-container{
-    padding: 50px;
-  }
+  margin-bottom: 20px;
+  padding: 15px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
 
-  ::ng-deep .p-datatable-table {
-    table-layout: fixed !important;  /* ensures equal column layout */
-    width: 100% !important;
-  }
-  
-  ::ng-deep .p-datatable-thead > tr > th,
-  ::ng-deep .p-datatable-tbody > tr > td {
-    text-align: left;
-    white-space: normal;   /* allow wrapping */
-    word-wrap: break-word;
-  }
-  
-  /* Adjust specific column widths */
-  ::ng-deep .p-datatable-thead > tr > th:nth-child(1),
-  ::ng-deep .p-datatable-tbody > tr > td:nth-child(1) {
-    width: 60px !important;   /* Sl No. */
-  }
-  
-  ::ng-deep .p-datatable-thead > tr > th:nth-child(2),
-  ::ng-deep .p-datatable-tbody > tr > td:nth-child(2) {
-    width: 60% !important;   /* Question column fixed */
-  }
-  
-  ::ng-deep .p-datatable-thead > tr > th:nth-child(n+3),
-  ::ng-deep .p-datatable-tbody > tr > td:nth-child(n+3) {
-    width: 10% !important;   /* Options columns */
-    text-align: center;
-  }
-  
+.employee-details label {
+  font-weight: bold;
+  color: white;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.employee-details input[readonly] {
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+  border: 1px solid #ccc;
+}
+
+
+.survey-container {
+  padding: 50px;
+}
+
+::ng-deep .p-datatable-table {
+  table-layout: fixed !important;
+  /* ensures equal column layout */
+  width: 100% !important;
+}
+
+::ng-deep .p-datatable-thead>tr>th,
+::ng-deep .p-datatable-tbody>tr>td {
+  text-align: left;
+  white-space: normal;
+  /* allow wrapping */
+  word-wrap: break-word;
+}
+
+/* Adjust specific column widths */
+::ng-deep .p-datatable-thead>tr>th:nth-child(1),
+::ng-deep .p-datatable-tbody>tr>td:nth-child(1) {
+  width: 60px !important;
+  /* Sl No. */
+}
+
+::ng-deep .p-datatable-thead>tr>th:nth-child(2),
+::ng-deep .p-datatable-tbody>tr>td:nth-child(2) {
+  width: 60% !important;
+  /* Question column fixed */
+}
+
+::ng-deep .p-datatable-thead>tr>th:nth-child(n+3),
+::ng-deep .p-datatable-tbody>tr>td:nth-child(n+3) {
+  width: 10% !important;
+  /* Options columns */
+  text-align: center;
+}
+
+::ng-deep .p-panel {
+  margin-top: 30px;
+  border: none;
+}
+
+::ng-deep .p-panel-header {
+  background: white;
+  border: none;
+  /* box-shadow: 0 .125rem .25rem rgba(29, 26, 26, 0.445); */
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+  border: none;
+  border-bottom: 1px solid #D9D9D9;
+  background: white;
+  /* background: white; */
+
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+  border: none;
+  /* border-bottom: 2px solid #D9D9D9; */
+  padding: 21px;
+  background: white;
+}
+
+
+/* ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+  border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+  border-bottom-right-radius: 10px;
+} */
+
+
+::ng-deep .p-button {
+  background-color: #003366;
+  border-color: #003366;
+  margin-top: 20px;
+}
+
+.p-button:hover {
+  background-color: #003366;
+  border-color: #003366;
+}
+
+::ng-deep .p-panel-content {
+  box-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
+  border-radius: 10px;
+}
+
+.survey-container {
+  --p-radiobutton-checked-background: #003366;
+  --p-radiobutton-checked-hover-background: #003366;
+  --p-radiobutton-hover-border-color: #003366;
+  --p-radiobutton-checked-border-color: #003366;
+  --p-radiobutton-checked-hover-border-color: #003366;
+  --p-radiobutton-checked-focus-border-color: #003366;
+  --p-radiobutton-icon-size: 0.8rem;
+}
+
+

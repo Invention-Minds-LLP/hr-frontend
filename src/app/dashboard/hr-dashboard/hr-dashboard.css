@@ -69,19 +69,26 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 .btn {
-  background: linear-gradient(135deg, var(--sky), var(--indigo));
+  background: white;
   color: #fff;
   border: none;
   padding: 10px 14px;
   border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  /* box-shadow: var(--shadow); */
 }
 .btn.ghost {
-  background: linear-gradient(180deg, #f7fafd, #f2f6fb);
+  background: white;
   border: 1px solid var(--border);
   color: var(--text);
+}
+
+.actions{
+  display: flex;
+  justify-content: end;
+  padding: 20px;
+  gap: 10px;
 }
 
 /* ---------- Cards ---------- */
@@ -530,13 +537,14 @@ border: none;
 .sheet {
   position: relative;
   overflow-y: auto;
-  width: 1000px;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(180deg, #ffffff, #f7f9fc);
   border: 1px solid var(--border);
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
-  padding: 18px;
-  max-height: 70vh;
+  padding: 20px 30px;
+  /* max-height: 70vh; */
   overflow-x: hidden;
 }
 
@@ -557,15 +565,20 @@ border: none;
 }
 .sheet h3 {
   margin: 0 0 10px;
+  font-size:25px;
 }
 .close {
   float: right;
-  background: var(--chip);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px 10px;
+  /* background: rgb(175, 169, 169); */
+  /* border: 1px solid var(--border); */
+  color: red;
+  /* padding: 8px 10px;  */
   border-radius: 10px;
   cursor: pointer;
+}
+
+.top{
+  margin-top:10px;
 }
 
 /* Modal table (sticky header + floating rows) */
@@ -653,12 +666,13 @@ border: none;
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background: #e8ecef;
+  background: white;
   color: #666;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
-  border-bottom: none;
+  border: 1px solid #d9d9d9;
+  /* text-align: center; */
   height: 60px;
   text-align: left;
   text-wrap: nowrap;
@@ -672,13 +686,13 @@ border: none;
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+/* ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
   border-bottom-left-radius: 10px;
 }
 
 ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
   border-bottom-right-radius: 10px;
-}
+} */
 ::ng-deep .p-paginator {
   background: transparent;
   justify-content: center;
@@ -712,13 +726,16 @@ border: none;
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
   background: transparent;
-  padding: 16px 20px;
+  padding:  20px;
   font-size: 16px;
   font-weight: 500;
   color: #2b2b2b;
   text-align: left;
+  background: white;
+  border: 1px solid #d9d9d9;
+  text-align: center;
   border-bottom: 2px solid #d9d9d9;
-  text-wrap: nowrap;
+  text-wrap: nowrap;  
 }
 
 

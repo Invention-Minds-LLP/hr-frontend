@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges  } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Resignation } from '../../services/resignation/resignation';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
@@ -14,11 +14,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePicker } from "primeng/datepicker";
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-exit-interview',
   imports: [CommonModule, ReactiveFormsModule, SelectModule, CheckboxModule, ButtonModule, RadioButtonModule,
-    CardModule, AccordionPanel, AccordionModule, RatingModule, SelectButtonModule, TextareaModule, InputTextModule, DatePicker,FormsModule, FloatLabelModule],
+    CardModule, AccordionPanel, AccordionModule, RatingModule, SelectButtonModule, TextareaModule, InputTextModule, DatePicker, FormsModule, FloatLabelModule, DividerModule],
   templateUrl: './exit-interview.html',
   styleUrl: './exit-interview.css'
 })
@@ -97,7 +98,7 @@ export class ExitInterview {
     { key: 'careerGrowth', label: 'Secured a Better Position / Career growth' },
     { key: 'familyReasons', label: 'Personal / Family reasons' },
   ];
-  
+
   dissatisfactionList = [
     { key: 'workProfile', label: 'Type of work / profile' },
     { key: 'workingConditions', label: 'Working conditions / environment' },
@@ -106,97 +107,106 @@ export class ExitInterview {
     { key: 'peerRelations', label: 'Relationship with peers' },
     { key: 'recognition', label: 'Recognition / acceptance of work' }
   ];
-  
+
 
   ngOnInit() {
     this.form = this.fb.group({
-      employeeId: [''],
-      interviewedBy: [''],
-      interviewDate: [null],
-      resignationId:[1],
-  
-      nextOrgName: [''],
-      nextOrgPosition: [''],
-      nextOrgCategory: [''],
-      nextOrgLocation: [''],
-      nextOrgIndustry: [''],
-  
-      academicQualification: [[]],
+      employeeId: ['', Validators.required],
+      interviewedBy: ['', Validators.required],
+      interviewDate: [null, Validators.required],
+      resignationId: [1],
+
+      nextOrgName: ['', Validators.required],
+      nextOrgPosition: ['', Validators.required],
+      nextOrgCategory: ['', Validators.required],
+      nextOrgLocation: ['', Validators.required],
+      nextOrgIndustry: ['', Validators.required],
+
+      academicQualification: [[], Validators.required],
       academicQualificationOthers: [''],
-  
-      vacancySource: [[]],
-      recruitmentMode: [[]],
+
+      vacancySource: [[], Validators.required],
+      recruitmentMode: [[], Validators.required],
       recruitmentModeOthers: [''],
-  
-      reasonForLeaving: [''],
-      triggerReason: [''],
-      mostSatisfying: [''],
-      leastSatisfying: [''],
-      supportReceived: [''],
-      newJobOffers: [''],
-      expectationsMet: [''],
-      skillUtilization: [''],
-  
+
+      reasonForLeaving: ['', Validators.required],
+      triggerReason: ['', Validators.required],
+      mostSatisfying: ['', Validators.required],
+      leastSatisfying: ['', Validators.required],
+      supportReceived: ['', Validators.required],
+      newJobOffers: ['', Validators.required],
+      expectationsMet: ['', Validators.required],
+      skillUtilization: ['', Validators.required],
+
       // ✅ Add missing groups here
       influencedFactors: this.fb.group({
-        jobSecurity: [''],
-        financialFreedom: [''],
-        firmReputation: [''],
-        workStress: [''],
-        peerRelationship: [''],
-        healthReasons: [''],
-        careerGrowth: [''],
-        familyReasons: [''],
-        others: ['']
+        jobSecurity: ['', Validators.required],
+        financialFreedom: ['', Validators.required],
+        firmReputation: ['', Validators.required],
+        workStress: ['', Validators.required],
+        peerRelationship: ['', Validators.required],
+        healthReasons: ['', Validators.required],
+        careerGrowth: ['', Validators.required],
+        familyReasons: ['', Validators.required],
+        others: ['', Validators.required]
       }),
-  
+
       dissatisfaction: this.fb.group({
-        workProfile: [''],
-        workingConditions: [''],
-        salary: [''],
-        supervision: [''],
-        peerRelations: [''],
-        recognition: [''],
-        others: ['']
+        workProfile: ['', Validators.required],
+        workingConditions: ['', Validators.required],
+        salary: ['', Validators.required],
+        supervision: ['', Validators.required],
+        peerRelations: ['', Validators.required],
+        recognition: ['', Validators.required],
+        others: ['', Validators.required]
       }),
-  
+
       jobOpinion: this.fb.group({
-        orientation: [0],
-        workingConditions: [0],
-        infrastructure: [0],
-        training: [0],
-        peers: [0],
-        teamwork: [0],
-        policies: [0],
-        communicationDept: [0],
-        communicationTop: [0],
+        orientation: [0, this.ratingRequired],
+        workingConditions: [0, this.ratingRequired],
+        infrastructure: [0, this.ratingRequired],
+        training: [0, this.ratingRequired],
+        peers: [0, this.ratingRequired],
+        teamwork: [0, this.ratingRequired],
+        policies: [0, this.ratingRequired],
+        communicationDept: [0, this.ratingRequired],
+        communicationTop: [0, this.ratingRequired],
       }),
-  
+
       attitudeSuperiors: this.fb.group({
-        fairTreatment: [0],
-        recognition: [0],
-        resolvesComplaints: [0],
-        consistentPolicy: [0],
-        clearInstructions: [0],
-        teamwork: [0],
+        fairTreatment: [0, this.ratingRequired],
+        recognition: [0, this.ratingRequired],
+        resolvesComplaints: [0, this.ratingRequired],
+        consistentPolicy: [0, this.ratingRequired],
+        clearInstructions: [0, this.ratingRequired],
+        teamwork: [0, this.ratingRequired],
       }),
-  
+
       companyOpinion: this.fb.group({
-        salary: [0],
-        growth: [0],
-        appraisal: [0],
-        policies: [0],
+        salary: [0, this.ratingRequired],
+        growth: [0, this.ratingRequired],
+        appraisal: [0, this.ratingRequired],
+        policies: [0, this.ratingRequired],
       }),
-  
-      newJobSalaryComparison: [''],
-      discrimination: [false],
-  
-      likedMost: [''],
-      stayEncouragement: [''],
-      recommendCompany: [false],
-      recommendReason: [''],
-  
-      demotivating: [[]],
+
+      exitReasons: this.fb.group({
+        reasonForLeaving: ['', Validators.required],
+        triggerReason: ['', Validators.required],
+        mostSatisfying: ['', Validators.required],
+        leastSatisfying: ['', Validators.required],
+        supportReceived: ['', Validators.required],
+        newJobOffers: ['', Validators.required],
+      }),
+
+      newJobSalaryComparison: ['', Validators.required],
+      discrimination: [false, Validators.requiredTrue],
+
+      likedMost: ['',Validators.required],
+      stayEncouragement: ['',Validators.required],
+      recommendCompany: [false,Validators.required],
+      recommendReason: ['',Validators.required],
+
+      demotivating: [[],Validators.required],
       demotivatingOthers: [''],
     });
     setTimeout(() => {
@@ -241,21 +251,31 @@ export class ExitInterview {
     });
     
   }
-  
+
+  submitted = false;
 
   onSubmit() {
+    this.submitted = true
     if (this.form.valid) {
       this.exitService.submit(this.form.value).subscribe(() => {
         alert('Exit Interview saved successfully!');
-        this.form.reset();
+        // this.form.reset();
+        this.submitted = false;
       });
       console.log(this.form.value);
+    } else {
+      console.log(this.form .errors, this.form)
+      this.form.markAllAsTouched()
     }
   }
   // ngOnChanges(changes: SimpleChanges) {
   //   console.log(this.formData)
-  //   if (changes['formData'] && this.formData) {
+  //   if (changes['formData'] && this.formData && this.form) {
   //     this.form.patchValue(this.formData);
   //   }
   // }
+
+  ratingRequired(control: AbstractControl): ValidationErrors | null {
+    return control.value && control.value > 0 ? null : { required: true }
+  }
 }

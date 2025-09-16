@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Shifts {
-  private apiUrl = 'http://localhost:3002/api/shifts';
+  private apiUrl = 'http://192.168.1.15:3002/api/shifts';
 
   constructor(private http: HttpClient) { }
 

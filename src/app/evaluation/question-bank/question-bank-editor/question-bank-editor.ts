@@ -303,6 +303,7 @@ export class QuestionBankEditor implements OnInit {
   }
 
   cancel() {
+    console.log('Cancel clicked')
     this.bankForm.reset({ level: null, createdBy: 1 });
     this.questionsFA.clear();
     this.questionsFA.push(this.createQuestionRow('MCQ'));

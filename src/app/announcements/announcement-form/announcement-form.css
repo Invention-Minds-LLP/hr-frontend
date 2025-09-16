@@ -1,21 +1,39 @@
 .circular-card {
   max-width: 800px;
   margin: 2rem auto;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 12px;
+
+  --p-radiobutton-checked-background: #003366;
+  --p-radiobutton-checked-hover-background: #003366;
+  --p-radiobutton-hover-border-color: #003366;
+  --p-radiobutton-checked-border-color: #003366;
+  --p-radiobutton-checked-hover-border-color: #003366;
+  --p-radiobutton-checked-focus-border-color: #003366;
+  --p-radiobutton-icon-size: 0.8rem;
+  --p-rating-icon-active-color: #003366;
+  --p-rating-icon-hover-color: #003366;
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
+  --p-checkbox-checked-border-color: #003366;
+  --p-card-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
+
 }
 
 .circular-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
 /* === Labels & Fields === */
 .form-field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
 }
 
 .form-field label {
@@ -39,12 +57,13 @@
 .p-field-radiobuttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.25rem;
+  gap: 1.1rem;
   margin-top: 0.5rem;
 }
 
+
 .p-field-radiobuttons label {
-  margin-left: 0.25rem;
+  /* margin-left: 0.25rem; */
   font-weight: 500;
 }
 
@@ -101,4 +120,51 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+
+::ng-deep .p-card-body {
+  padding: 10px 20px;
+}
+
+.date {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file {
+  margin-top: 10px;
+}
+
+.audience {
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .p-card-title {
+  font-size: 28px;
+}
+
+.title {
+  margin-top: 10px;
+}
+
+::ng-deep .submit-btn .p-button {
+  background: #003366;
+  border: none;
+}
+
+.p-button:hover {
+  background: #003366;
+  border: none;
+}
+.p-checkbox.p-invalid .p-checkbox-box {
+  border: 2px solid red !important;
+  border-radius: 4px;
+}
+
+.error-msg{
+  color: red;
+  margin-top: 10px;
 }

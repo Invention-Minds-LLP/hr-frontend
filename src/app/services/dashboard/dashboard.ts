@@ -74,7 +74,7 @@ export interface RecruitingExtras {
 @Injectable({ providedIn: 'root' })
 export class Dashboard {
   // Change if you host API elsewhere
-  private baseUrl = 'http://localhost:3002/api/dashboard';
+  private baseUrl = 'http://192.168.1.15:3002/api/dashboard';
 
   constructor(private http: HttpClient) {}
 

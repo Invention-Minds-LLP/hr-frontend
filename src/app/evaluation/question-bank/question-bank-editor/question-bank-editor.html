@@ -50,10 +50,10 @@
 
                 <button  type="button" class="add-btn" icon="pi pi-plus" label="Add"
                     (click)="addQuestionRow(q.get('type')!.value)">Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#767676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg></button>
 
-                <button  type="button" class="del-btn p-button-text p-button-danger" icon="pi pi-trash"
+                <button  type="button" class="del-btn p-button-text p-button-danger remove-btn" icon="pi pi-trash"
                     (click)="removeQuestionRow(i)" *ngIf="questionsFA.length > 1">Remove</button>
             </div>
 
@@ -70,9 +70,9 @@
                                 (onChange)="onCorrectChange(i, oi)"></p-checkbox>
                             <button  type="button" icon="pi pi-plus" class="p-button-text add-btn"
                                 (click)="addOption(i)">Add <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#767676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7.99967 3.33331V12.6666M3.33301 7.99998H12.6663" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                   </svg></button>
-                            <button  type="button" icon="pi pi-times" class="p-button-text p-button-danger"
+                            <button  type="button" icon="pi pi-times" class="p-button-text p-button-danger remove-btn"
                                 (click)="removeOption(i, oi)" [disabled]="optionsFA(i).length <= 2">Remove</button>
                         </div>
                     </div>

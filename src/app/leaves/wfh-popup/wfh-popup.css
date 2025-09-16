@@ -53,7 +53,7 @@
   label {
     width: 120px;
     text-align: right;
-    color: #7a7a7a;
+    color: #2C2C2C;
     font-family: "Sofia Sans";
     font-size: 20px;
     font-style: normal;
@@ -115,7 +115,7 @@
     margin-top: 20px;
   }
   .calendar-section p {
-    color: #737373;
+    color: #2C2C2C;
     font-family: "Sofia Sans";
     font-size: 14px;
     font-style: normal;
@@ -163,7 +163,7 @@
     cursor: pointer;
   }
   .calendar-grid div.selected {
-    background: #3465b0;
+    background: #FF0000;
     color: white;
   }
   .calendar-grid div.empty {

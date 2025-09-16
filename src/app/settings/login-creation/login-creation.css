@@ -9,13 +9,14 @@
 }
 
 .heading {
-    color: #000;
+    color: white;
     /* font-family: "Sofia Sans"; */
     font-size: 26px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
 }
+
 
 .form{
     display: flex;
@@ -48,10 +49,19 @@
 ::ng-deep .p-password-input,
 .p-inputtext{
     width: 20vw;
+    color: white;
+}
+
+label{
+    color: white !important;
 }
 
 ::ng-deep .btns .p-button{
     padding: 10px 40px;
+}
+
+::ng-deep .p-password-toggle-mask-icon {
+    color: white;
 }
 
 .save-btn {

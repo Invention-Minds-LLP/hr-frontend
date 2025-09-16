@@ -1,10 +1,7 @@
 <div class="question-bank">
   <!-- If editing/creating, show the editor -->
   <ng-container *ngIf="showEditor; else listView">
-    <app-question-bank-editor
-      [bankId]="editingBank?.id"
-      [bankPreset]="editingBank"
-      (saved)="onBankSaved()"
+    <app-question-bank-editor [bankId]="editingBank?.id" [bankPreset]="editingBank" (saved)="onBankSaved()"
       (closed)="closeForm()">
     </app-question-bank-editor>
   </ng-container>
@@ -13,13 +10,17 @@
   <ng-template #listView>
     <div class="header">
       <h2>Question Bank List</h2>
-      <button (click)="openForm()" class="add-btn">
-        Add New QB
-        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
+      <div class="flex gap-4 btns">
+        <p-button label="Test Creation" [routerLink]="'/all-test'"  />
+        <p-button label="Assigned Tests" [routerLink]="'/assigned-test'" />
+        <button (click)="openForm()" class="add-btn">
+          Add New QB
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+            <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <p-table [value]="questionBanks" [paginator]="true" [rows]="10">

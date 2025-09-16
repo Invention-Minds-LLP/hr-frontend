@@ -50,3 +50,9 @@ hr {
   width: 91%;
   padding: 0 4rem;
 }
+
+.box{
+  display: grid;
+  grid-template-columns:1fr 1fr;
+
+}
