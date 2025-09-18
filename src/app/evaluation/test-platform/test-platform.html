@@ -1,115 +1,144 @@
 <!-- test-take.component.html -->
 <div class="test-shell" *ngIf="test">
 
-  <ng-container *ngIf="!started; else testView">
+  <!-- <ng-container *ngIf="!started; else testView">
     <h2>{{ test?.name || 'Test' }}</h2>
     <p class="muted">
       When you begin, we’ll enter fullscreen and watch for tab switching / screenshot attempts.
       You’re allowed <strong>{{ maxViolations }}</strong> violation(s) before auto-submit.
     </p>
     <button type="button" class="btn begin" (click)="begin()">Begin in Fullscreen</button>
+  </ng-container> -->
+
+  <ng-container *ngIf="!started; else testView">
+    <p-dialog header="Ready to Begin?" [(visible)]="showIntroPopup" [modal]="true" [closable]="false"
+      [style]="{ width: '500px' }" [dismissableMask]="false">
+
+      <div class="intro-popup">
+        <h2 class="test-title">{{ test?.name || 'Test' }}</h2>
+        <p class="muted">
+          When you begin, we’ll enter fullscreen and watch for tab switching / screenshot attempts.<br />
+          You’re allowed <strong>{{ maxViolations }}</strong> violation(s) before auto-submit.
+        </p>
+
+        <div class="popup-actions">
+          <button type="button" class="btn begin" (click)="begin()">
+            Begin in Fullscreen
+          </button>
+        </div>
+      </div>
+
+    </p-dialog>
   </ng-container>
 
-<ng-template #testView>
-    <!-- Sticky header -->
-    <header class="test-header">
-      <div class="title">
-        <h2>{{ test?.name }}</h2>
-        <div class="subtitle">{{ answeredCount }} / {{ total }} answered</div>
-      </div>
-  
-      <div class="header-right">
-        <p-badge class="timer-badge" [value]="formatTime(timeLeft)" severity="danger"></p-badge>
-        <p-progressBar [value]="timeProgress" [showValue]="false"></p-progressBar>
-        <button pButton label="Submit" class="p-button-success" (click)="confirmSubmit()"></button>
-      </div>
-    </header>
-  
-    <!-- Main layout -->
+  <ng-template #testView>
     <div class="test-layout">
-      <!-- Navigator (left sidebar) -->
-      <aside class="navigator">
-        <div class="nav-header">
-          <h4>Questions</h4>
-          <div class="legend">
-            <span class="dot answered"></span> Answered
-            <span class="dot marked"></span> Marked
-            <span class="dot current"></span> Current
-            <span class="dot unanswered"></span> Unanswered
-          </div>
-        </div>
-  
-        <!-- <div class="nav-grid">
-          <button
-            *ngFor="let q of test?.questions; let idx = index"
-            pButton
-            [label]="(idx + 1).toString()"
-            [ngClass]="buttonClass(idx)"
-            (click)="goToQuestion(idx)">
-          </button>
-        </div> -->
-        <div class="nav-grid">
-          <button *ngFor="let q of test?.questions; let idx = index" type="button" class="qbtn"
-            [class.current]="idx === currentIndex" [class.marked]="responses[idx]?.marked"
-            [class.answered]="isAnswered(idx)"
-            [class.unanswered]="!isAnswered(idx) && !responses[idx].marked && idx !== currentIndex"
-            (click)="goToQuestion(idx)">
-            {{ idx + 1 }}
-          </button>
-        </div>
-  
-      </aside>
-  
-      <!-- Question area -->
-      <main class="question-area">
-        <p-card>
+
+      <!-- Question Panel -->
+      <main class="question-panel">
+        <div class="question-card">
+          <!-- Title -->
+          <h3 class="test-title">{{ test?.name }}</h3>
           <div class="q-meta">
-            <div>Question {{ currentIndex + 1 }} of {{ total }}</div>
-            <p-chip *ngIf="responses[currentIndex]?.marked" label="Marked for review" icon="pi pi-flag"></p-chip>
+            <p><strong>Question {{ currentIndex + 1 }}</strong> of {{ total }}</p>
           </div>
-  
-          <p class="q-text">
-            <strong>{{ currentQuestion?.text }}</strong>
-          </p>
-  
-          <!-- MCQ (multiple answers) -->
+          <p class="q-text">{{ currentQuestion?.text }}</p>
+
+          <!-- MCQ -->
           <div *ngIf="currentQuestion?.type === 'MCQ'" class="options">
             <div *ngFor="let o of currentQuestion.options" class="option-row">
-              <p-checkbox [inputId]="'q' + currentIndex + 'o' + o.id" [value]="o.id"
-                [(ngModel)]="responses[currentIndex].answer">
-              </p-checkbox>
-              <label [for]="'q' + currentIndex + 'o' + o.id">{{ o.text }}</label>
+              <p-checkbox [value]="o.id" [(ngModel)]="responses[currentIndex].answer"></p-checkbox>
+              <label>{{ o.text }}</label>
             </div>
           </div>
-  
+
           <!-- Descriptive -->
-          <div *ngIf="currentQuestion?.type === 'Descriptive'" class="desc-wrap">
-            <textarea pInputTextarea rows="6" [(ngModel)]="responses[currentIndex].answer"
-              placeholder="Type your answer here...">
-            </textarea>
+          <div *ngIf="currentQuestion?.type === 'Descriptive'" class="desc-box">
+            <textarea pInputTextarea rows="6" [(ngModel)]="responses[currentIndex].answer"></textarea>
           </div>
-  
-          <!-- Actions -->
-          <div class="q-actions">
-            <div class="qn-button">
-              <button pButton label="Previous" (click)="prev()" [disabled]="currentIndex === 0"
-                class="p-button-text"></button>
-  
-              <span class="spacer"></span>
-  
-              <button pButton label="Clear" class="p-button-secondary p-button-text" (click)="clearCurrent()"></button>
-            </div>
-            <div class="qn-button">
-              <button pButton label="{{ responses[currentIndex].marked ? 'Unmark' : 'Mark for review' }}"
-              class="p-button-help p-button-text" (click)="toggleMark()"></button>
-  
-            <button pButton label="Save & Next" (click)="next()" [disabled]="currentIndex === total - 1"></button>
-            </div>
+        </div>
+
+
+        <!-- Actions -->
+        <div class="q-actions">
+          <!-- Left side -->
+          <div class="left-actions">
+            <button class="btn review" (click)="toggleMark()">Mark for review</button>
+            <button class="btn prev" (click)="prev()" [disabled]="currentIndex === 0">Previous</button>
+            <button class="btn next" (click)="next()" [disabled]="currentIndex === total - 1">Next</button>
+            <button class="btn clear" (click)="clearCurrent()">Clear</button>
           </div>
-        </p-card>
+
+          <!-- Right side -->
+          <div class="right-actions">
+            <button class="btn submit" (click)="confirmSubmit()">Submit Test</button>
+          </div>
+        </div>
+
+        <!-- Legend Bar -->
+        <div class="legend-bar">
+          <span style="display: flex;align-items: center;"><span class="dot current"></span> Current</span>
+          <span style="display: flex;align-items: center;"><span class="dot not-attempted"></span> Not Attempted</span>
+          <span style="display: flex;align-items: center;"><span class="dot answered"></span> Answered</span>
+          <span style="display: flex;align-items: center;"><span class="dot not-answered"></span> Not Answered</span>
+          <span style="display: flex;align-items: center;"><span class="dot review"></span> Review</span>
+        </div>
+
       </main>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+
+        <!-- Timer -->
+        <div class="section timer-section">
+          <h4>Time Left</h4>
+          <div class="time-display">
+            <div>
+              <span>{{ getHours(timeLeft) }}</span>
+              <small>hours</small>
+            </div>
+            <div>
+              <span>{{ getMinutes(timeLeft) }}</span>
+              <small>minutes</small>
+            </div>
+            <div>
+              <span>{{ getSeconds(timeLeft) }}</span>
+              <small>seconds</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- MCQ Section -->
+        <div class="section">
+          <h4>MCQ</h4>
+          <div class="nav-grid">
+            <ng-container *ngFor="let q of test.questions; let idx = index">
+              <button *ngIf="q.type === 'MCQ'" class="qbtn" [class.current]="idx === currentIndex"
+                [class.answered]="isAnswered(idx)" [class.marked]="responses[idx]?.marked" (click)="goToQuestion(idx)">
+                {{ idx + 1 }}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Descriptive Section -->
+        <div class="section">
+          <h4>DESCRIPTIVE</h4>
+          <div class="nav-grid">
+            <ng-container *ngFor="let q of test.questions; let idx = index">
+              <button *ngIf="q.type === 'Descriptive'" class="qbtn" [class.current]="idx === currentIndex"
+                [class.answered]="isAnswered(idx)" [class.marked]="responses[idx]?.marked" (click)="goToQuestion(idx)">
+                {{ idx + 1 }}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+      </aside>
+
+
     </div>
-</ng-template>
+  </ng-template>
 
   <!-- Confirm submit -->
   <p-confirmDialog></p-confirmDialog>
@@ -120,4 +149,3 @@
     <button pButton type="button" label="OK" (click)="onPopupClose()"></button>
   </ng-template>
 </p-dialog>
-

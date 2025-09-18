@@ -54,7 +54,8 @@
                                         <div class="field col-4">
                                             <p-floatlabel variant="on" style="width:100%">
                                                 <label for="dob">Date of Birth</label>
-                                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd" showIcon iconDisplay="input" 
+                                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
+                                                    showIcon iconDisplay="input"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">
                                                     Date of
@@ -326,9 +327,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="py-6 btn">
+                            <!-- <div class="py-6 btn">
                                 <p-button label="Next" (onClick)="activateCallback(2)" />
+                            </div> -->
+                            <div class="py-6 btn">
+                                <p-button label="Next" (onClick)="goToStep(2, activateCallback)" />
                             </div>
+
                         </ng-template>
                     </p-step-panel>
                 </p-step-item>
@@ -343,11 +348,12 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <input pInputText formControlName="employeeCode"
+                                            placeholder="Leave blank for auto-generation"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employeeCode')) }" />
                                         <label>Employee Code</label>
-                                        <div class="error-msg" *ngIf="showError(employeeForm.get('employeeCode'))">
+                                        <!-- <div class="error-msg" *ngIf="showError(employeeForm.get('employeeCode'))">
                                             Employee Code is required.
-                                        </div>
+                                        </div> -->
                                     </p-floatLabel>
                                 </div>
                                 <div class="field col-4">
@@ -368,7 +374,8 @@
                                 </div>
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon iconDisplay="input" 
+                                        <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon
+                                            iconDisplay="input"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('dateOfJoining')) }"></p-datePicker>
                                         <label>Date of Joining</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('dateOfJoining'))">
@@ -390,7 +397,7 @@
                                 <div class="field col-4"
                                     *ngIf="employeeForm.get('employmentType')?.value === 'PROBATION'">
                                     <p-floatLabel variant="on">
-                                        <p-datepicker formControlName="probationEndDate" [minDate]="today" 
+                                        <p-datepicker formControlName="probationEndDate" [minDate]="today"
                                             dateFormat="dd M yy" inputId="probEndDate" [showIcon]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
                                         </p-datepicker>
@@ -494,7 +501,8 @@
 
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd" showIcon iconDisplay="input" ></p-datePicker>
+                                        <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd" showIcon
+                                            iconDisplay="input"></p-datePicker>
                                         <label>Shift Date</label>
                                     </p-floatLabel>
                                 </div>
@@ -502,8 +510,9 @@
                             <!-- </div> -->
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(1)" />
-                                <p-button label="Next" (onClick)="activateCallback(3)" />
+                                <p-button label="Next" (onClick)="goToStep(3, activateCallback)" />
                             </div>
+
                         </ng-template>
                     </p-step-panel>
                 </p-step-item>
@@ -558,8 +567,9 @@
                             <!-- </div> -->
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(2)" />
-                                <p-button label="Next" (onClick)="activateCallback(4)" />
+                                <p-button label="Next" (onClick)="goToStep(4, activateCallback)" />
                             </div>
+
                         </ng-template>
                     </p-step-panel>
                 </p-step-item>
@@ -569,22 +579,30 @@
                     <p-step>Documents</p-step>
                     <p-step-panel>
                         <ng-template #content let-activateCallback="activateCallback">
+                            <div class="mandatory-note">
+                                <strong>Note:</strong> The following documents are mandatory based on employee type:
+                                <ul>
+                                    <li *ngFor="let doc of getMandatoryDocs().required">
+                                        {{ doc }}
+                                        <span *ngIf="getMandatoryDocs().missing.includes(doc)"
+                                            class="missing">(Missing)</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="field col-4">
+                                <p-floatLabel variant="on">
+                                    <p-select [options]="[
+                          { label: 'Clinical', value: 'CLINICAL' },
+                          { label: 'Non-clinical', value: 'NONCLINICAL' }
+                        ]"  formControlName="employeeType"></p-select>
+                                    <label>Employee Type</label>
+                                </p-floatLabel>
+                            </div>
                             <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3"> -->
                             <div formArrayName="documents" class="qualification">
-                                <div class="field col-4">
-                        <p-floatLabel variant="on">
-                          <p-select
-                            [options]="[
-                              { label: 'Clinical', value: 'CLINICAL' },
-                              { label: 'Non-clinical', value: 'NONCLINICAL' }
-                            ]"
-                            formControlName="employeeType"
-                          ></p-select>
-                          <label>Employee Type</label>
-                        </p-floatLabel>
-                      </div>
-                      
-                    <!-- Add Document Button -->
+
+                                <!-- Add Document Button -->
                                 <div class="mb-5">
                                     <button variant="outlined" severity="danger" pButton type="button"
                                         label="+ Add Document" (click)="addDocument()" class="p-button-secondary">
@@ -627,7 +645,7 @@
                                     <!-- Issue Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
-                                            <p-datePicker formControlName="issueDate" showIcon iconDisplay="input" 
+                                            <p-datePicker formControlName="issueDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Issue Date</label>
                                         </p-floatLabel>
@@ -636,7 +654,7 @@
                                     <!-- Expiry Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
-                                            <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input" 
+                                            <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Expiry Date</label>
                                         </p-floatLabel>

@@ -44,6 +44,7 @@ import { ResignationForm } from './resignation/resignation-form/resignation-form
 import { TestCreation } from './evaluation/test-creation/test-creation';
 import { AssignedTest } from './evaluation/assigned-test/assigned-test';
 import { AllTest } from './evaluation/all-test/all-test';
+import { DeptPerformance } from './appraisal/dept-performance/dept-performance';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -60,7 +61,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'employee' },
       { path: 'employee', component: EmployeeOverview },
       { path: 'leave', component: LeaveOverview },
-      { path: 'appraisal', component: AppraisalOverview },
+      { path: 'appraisal', component: DeptPerformance },
       { path: 'attendance', component: ManageAttendance },
       { path: 'resignation', component: ResignOverview },
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
@@ -85,7 +86,7 @@ export const routes: Routes = [
       { path: 'take-test/:id', component: TestPlatform },
       { path: 'candidate-tests', component: CandidateTests }, // view candidate details
       { path: 'recquisition', component: RequisitionList }, // requisition form
-      { path: 'survey', component: SurveyForm},
+      { path: 'survey', component: SurveyList},
       { path: 'exit', component: ExitInterviewList}
     ],
   },

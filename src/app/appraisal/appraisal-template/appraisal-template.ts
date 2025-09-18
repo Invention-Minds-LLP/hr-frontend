@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TabsModule } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
@@ -20,10 +20,15 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 })
 export class AppraisalTemplate {
   template: any;
-  departmentId = 2; // Radiology
-  cycle = "APR-2024 TO MAR-2025";
-  employeeId = 11;
+  employeeCode!: string;
+  employeeId!: number;
+  departmentId!: number;
+  cycle!: string;
   currentPeriod: 'MONTH_1' | 'MONTH_3' | 'MONTH_6' | 'YEAR_1' | 'YEAR_2' = 'MONTH_1';
+  joiningDate:any;
+  employeeName:string = '';
+  @Input() summaryData: any;
+  @Output() closeForm = new EventEmitter<void>();
 
 
   // Overall summary structure
@@ -49,6 +54,7 @@ export class AppraisalTemplate {
 
   setCurrentPeriod(joiningDate: Date) {
     const months = Math.floor((Date.now() - joiningDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    console.log('Employee has been with us for', months, 'months');
 
     if (months < 1) return 'MONTH_1';
     if (months < 3) return 'MONTH_3';
@@ -71,6 +77,22 @@ export class AppraisalTemplate {
   constructor(private formService: PerformanceService) { }
 
   ngOnInit() {
+    if (this.summaryData) {
+      this.employeeId = this.summaryData.employeeId;
+      this.departmentId = this.summaryData.departmentId;
+      this.cycle = this.summaryData.cycle;
+      this.employeeCode = this.summaryData.employee.employeeCode;
+      console.log(this.summaryData);
+      this.employeeName = this.summaryData.employee.firstName + ' ' + this.summaryData.employee.lastName;
+    }
+    else{
+      console.error("No summary data provided to appraisal template");
+      this.employeeId = 11;
+      this.departmentId = 2;
+      this.cycle = 'APR-2024 TO MAR-2025'
+      
+
+    }
 
     this.formService.getEmployeeForm(this.employeeId, this.departmentId, this.cycle).subscribe(data => {
       this.template = {
@@ -88,8 +110,10 @@ export class AppraisalTemplate {
       };
       // ✅ auto assign currentPeriod based on employee DOJ (from API ideally)
       if (data.employee?.dateOfJoining) {
+        this.joiningDate = new Date(data.employee.dateOfJoining).toLocaleDateString();
         this.currentPeriod = this.setCurrentPeriod(new Date(data.employee.dateOfJoining));
       }
+
 
       // preload summary
       this.summary = this.mapSummaries(data.summaries);

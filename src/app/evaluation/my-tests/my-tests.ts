@@ -36,7 +36,10 @@ export class MyTests {
     console.log(assignedId)
     this.testService.startAttempt(assignedId.id).subscribe({
       next: ({ attemptId }) => {
-        this.router.navigate(['/take-test', assignedId], { queryParams: { attemptId } });
+        this.router.navigate(['/recruitment/take-test', assignedId.id], {
+          queryParams: { attemptId }
+        });
+        
       },
       error: (e) => 
         // alert(e?.error?.error || 'Cannot start test')

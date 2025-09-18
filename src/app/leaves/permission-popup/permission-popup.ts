@@ -41,7 +41,8 @@ export class PermissionPopup {
         : '';
       this.startTime = this.toTimeInput(this.permissionData.startTime);
       this.endTime = this.toTimeInput(this.permissionData.endTime);
-      this.reason = this.permissionData.reason || '';
+      this.reason = this.permissionData.reson || '';
+      console.log(this.reason, this.permissionData)
       this.declineReason = this.permissionData.declineReason || ''
 
     }

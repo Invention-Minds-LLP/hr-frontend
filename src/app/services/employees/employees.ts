@@ -42,7 +42,7 @@ export interface EmployeeRow { id: number; firstName: string; lastName: string; 
   providedIn: 'root'
 })
 export class Employees {
-  private apiUrl = 'http://192.168.1.15:3002/api/employees';
+  private apiUrl = 'http://localhost:3002/api/employees';
 
   constructor(private http: HttpClient) { }
 

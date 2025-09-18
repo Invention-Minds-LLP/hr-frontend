@@ -1,5 +1,49 @@
 <div *ngIf="template" class="p-fluid performance-container">
     <h2 class="p-mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
+
+    <div class="grid mb-4">
+      <!-- Employee Name -->
+      <div class="col-12 md:col-3">
+        <p-floatlabel variant="on">
+          <input pInputText id="empName" [value]="employeeName" disabled />
+          <label for="empName">Employee Name</label>
+        </p-floatlabel>
+      </div>
+    
+      <!-- Employee Code -->
+      <div class="col-12 md:col-3">
+        <p-floatlabel variant="on">
+          <input pInputText id="empCode" [value]="employeeCode" disabled />
+          <label for="empCode">Employee Code</label>
+        </p-floatlabel>
+      </div>
+    
+      <!-- Cycle -->
+      <div class="col-12 md:col-3">
+        <p-floatlabel variant="on">
+          <input pInputText id="cycle" [value]="cycle" disabled />
+          <label for="cycle">Cycle</label>
+        </p-floatlabel>
+      </div>
+    
+      <!-- Date of Joining -->
+      <div class="col-12 md:col-3">
+        <p-floatlabel variant="on">
+          <input pInputText id="doj" [value]="joiningDate | date:'mediumDate'" disabled />
+          <label for="doj">Date of Joining</label>
+        </p-floatlabel>
+      </div>
+    
+      <!-- Department -->
+      <div class="col-12 md:col-3">
+        <p-floatlabel variant="on">
+          <input pInputText id="dept" [value]="template.department.name" disabled />
+          <label for="dept">Department</label>
+        </p-floatlabel>
+      </div>
+    </div>
+    
+    
   
     <!-- Question Responses -->
     <p-table [value]="template.questions" responsiveLayout="scroll">
@@ -46,7 +90,7 @@
       <ng-template pTemplate="body" let-p>
         <tr>
           <td>{{ p }}</td>
-          <td><input type="number" pInputText [(ngModel)]="summary[p].marksScored" [disabled]="p !== currentPeriod" /></td>
+          <td><input type="number" pInputText placeholder="Marks Scored" [(ngModel)]="summary[p].marksScored" [disabled]="p !== currentPeriod" /></td>
           <td>
             <p-select 
               [options]="performanceOptions" 
@@ -95,21 +139,21 @@
           </div>
       
           <!-- Signatures in row -->
-          <div class="p-field p-col-12 p-md-4">
+          <div class="p-field p-col-12 md-4">
             <p-floatlabel  variant="on">
               <input id="empSig" pInputText [(ngModel)]="finalReview.employeeSig" />
               <label for="empSig">Employee Signature</label>
             </p-floatlabel>
           </div>
       
-          <div class="p-field p-col-12 p-md-4">
+          <div class="p-field p-col-12 md-4">
             <p-floatlabel  variant="on">
               <input id="supSig" pInputText [(ngModel)]="finalReview.supervisorSig" />
               <label for="supSig">Supervisor Signature</label>
             </p-floatlabel>
           </div>
       
-          <div class="p-field p-col-12 p-md-4">
+          <div class="p-field p-col-12 md-4">
             <p-floatlabel  variant="on">
               <input id="hrSig" pInputText [(ngModel)]="finalReview.hrSig" />
               <label for="hrSig">HR Signature</label>
@@ -117,8 +161,8 @@
           </div>
         </div>
     <!-- Submit Button -->
-    <div class="p-mt-4">
-      <button pButton type="button" label="Submit" icon="pi pi-check" (click)="onSubmit()"></button>
+    <div class="mt-4">
+      <button  type="button" class="new-app" label="Submit" icon="pi pi-check" (click)="onSubmit()">Submit</button>
     </div>
   </div>
-  
+  </div>

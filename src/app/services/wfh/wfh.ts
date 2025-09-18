@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Wfh {
-  private apiUrl = 'http://192.168.1.15:3002/api/wfh';
+  private apiUrl = 'http://localhost:3002/api/wfh';
 
   constructor(private http: HttpClient) { }
 

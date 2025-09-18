@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Permission {
-  private apiUrl = 'http://192.168.1.15:3002/api/permission';
+  private apiUrl = 'http://localhost:3002/api/permission';
 
   constructor(private http: HttpClient) {}
 

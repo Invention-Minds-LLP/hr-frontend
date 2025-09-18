@@ -64,6 +64,7 @@ export class TestPlatform implements OnInit, OnDestroy {
   maxViolations = 3;
   violationReasons: string[] = [];
   started = false;
+  showIntroPopup = true;
 
   // nav
   currentIndex = 0;
@@ -151,6 +152,7 @@ export class TestPlatform implements OnInit, OnDestroy {
     if (this.candidateId) {
       // For candidates, just start the test without attempt
       this.started = true;
+      this.showIntroPopup = false;
       await this.requestFullscreen();
       this.attachProctoring();
       this.startTimer();
@@ -161,8 +163,9 @@ export class TestPlatform implements OnInit, OnDestroy {
       this.attemptId = attemptId;
     }
     this.started = true;
-    await this.requestFullscreen();
-    this.attachProctoring();
+    this.showIntroPopup = false;
+    // await this.requestFullscreen();
+    // this.attachProctoring();
     this.startTimer();
   }
 
@@ -324,7 +327,16 @@ export class TestPlatform implements OnInit, OnDestroy {
     clearInterval(this.timerId);
     this.detachProctoring();
   }
-
+  getHours(seconds: number): string {
+    return Math.floor(seconds / 3600).toString().padStart(2, '0');
+  }
+  getMinutes(seconds: number): string {
+    return Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+  }
+  getSeconds(seconds: number): string {
+    return (seconds % 60).toString().padStart(2, '0');
+  }
+  
   // ---- Proctoring ----
   private attachProctoring() {
     document.addEventListener('visibilitychange', this.onVisibility);
@@ -378,11 +390,11 @@ export class TestPlatform implements OnInit, OnDestroy {
     this.violationReasons.push(`${new Date().toISOString()}: ${reason}`);
     this.violations++;
     // You can show a toast/banner here
-    if (this.violations >= this.maxViolations) {
-      this.submitMessage = 'Max policy violations reached. Your test has been auto-submitted.';
-      this.showSubmitPopup = true;
-      this.submit();
-    }
+    // if (this.violations >= this.maxViolations) {
+    //   this.submitMessage = 'Max policy violations reached. Your test has been auto-submitted.';
+    //   this.showSubmitPopup = true;
+    //   this.submit();
+    // }
   }
 
   async requestFullscreen() {

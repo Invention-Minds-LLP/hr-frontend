@@ -157,7 +157,7 @@ export class AnnouncementForm {
     formData.append('body', this.form.value.body!);
     formData.append('type', this.form.value.type!);
     formData.append('requireAck', String(this.form.value.requireAck));
-    formData.append('isPinned', String(this.form.value.isPinned));
+    formData.append('isPinned', (this.form.value.isPinned));
     formData.append('startsAt', this.form.value.startsAt?.toISOString());
     if (this.form.value.endsAt) {
       formData.append('endsAt', this.form.value.endsAt.toISOString());

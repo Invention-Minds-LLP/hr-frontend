@@ -143,7 +143,7 @@ export class EmployeeForm {
       bloodGroup: ['', Validators.required],
       age: ['', Validators.required],
 
-      employeeCode: ['', Validators.required],
+      employeeCode: [''],
       referenceCode: [''],
       designation: ['', Validators.required],
       departmentId: ['', Validators.required],
@@ -219,6 +219,10 @@ export class EmployeeForm {
         ctrl.disable();
       }
       ctrl.updateValueAndValidity({ emitEvent: false });
+    });
+
+    this.employeeForm.get('employeeType')?.valueChanges.subscribe(() => {
+      this.getMandatoryDocs();
     });
 
   }
@@ -494,27 +498,59 @@ export class EmployeeForm {
   }
 
   // Validate mandatory docs before submit
-  validateMandatoryDocs(): boolean {
-    const uploadedTypes = this.uploadedDocsForm.value.map((d: any) => d.type);
-    const employeeType = this.employeeForm.get('employeeType')?.value;
+  // validateMandatoryDocs(): boolean {
+  //   const uploadedTypes = this.uploadedDocsForm.value.map((d: any) => d.type);
+  //   const employeeType = this.employeeForm.get('employeeType')?.value;
 
-    let mandatoryDocs: string[] = [];
+  //   let mandatoryDocs: string[] = [];
   
-    if (employeeType === 'CLINICAL') {
-      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-    } else if (employeeType === 'NONCLINICAL') {
-      mandatoryDocs = ['REGISTRATION_CERT'];
-    }
+  //   if (employeeType === 'CLINICAL') {
+  //     mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+  //   } else if (employeeType === 'NONCLINICAL') {
+  //     mandatoryDocs = ['REGISTRATION_CERT'];
+  //   }
   
-    // Always required
-    mandatoryDocs.push('AADHAAR', 'PAN');
+  //   // Always required
+  //   mandatoryDocs.push('AADHAAR', 'PAN');
   
-    // Education requirement
-    mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
+  //   // Education requirement
+  //   mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
   
-    const missingMandatory = mandatoryDocs.some(m => !uploadedTypes.includes(m));
-    return !missingMandatory;
+  //   const missingMandatory = mandatoryDocs.some(m => !uploadedTypes.includes(m));
+  //   return !missingMandatory;
+  // }
+  // Return both required and missing docs
+getMandatoryDocs(): { required: string[], missing: string[] } {
+  // console.log('Checking mandatory docs...');
+  const uploadedTypes = this.uploadedDocsForm.value.map((d: any) => d.type);
+  const uploadedDocs = this.uploadedDocsForm.value;
+  const employeeType = this.employeeForm.get('employeeType')?.value;
+
+  let mandatoryDocs: string[] = [];
+
+  if (employeeType === 'CLINICAL') {
+    mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+  } else if (employeeType === 'NONCLINICAL') {
+    mandatoryDocs = ['REGISTRATION_CERT'];
   }
+
+  // Always required
+  mandatoryDocs.push('AADHAAR', 'PAN');
+
+  // Education requirement
+  mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
+
+  const missingMandatory = mandatoryDocs.filter(m => {
+    const doc = uploadedDocs.find((d: any) => d.type === m);
+    return !doc || (!doc.file && !doc.fileUrl); // 🚨 Require file/fileUrl too
+  });
+  return { required: mandatoryDocs, missing: missingMandatory };
+}
+
+validateMandatoryDocs(): boolean {
+  return this.getMandatoryDocs().missing.length === 0;
+}
+
   uploadEmployeeDocs(employeeId: number) {
     const formData = new FormData();
 
@@ -759,7 +795,127 @@ export class EmployeeForm {
     }
     return { kind: 'file', src };
   }
-
+  goToStep(stepNumber: number, activateCallback: (value: number) => void) {
+    let controlsToValidate: string[] = [];
+  
+    if (stepNumber === 2) {
+      // ✅ Step 1: Personal Info
+      controlsToValidate = [
+        'firstName', 'lastName', 'dob', 'gender',
+        'email', 'phone', 'bloodGroup',
+        'permanentAddress.line1', 'permanentAddress.city',
+        'permanentAddress.state', 'permanentAddress.zipCode',
+        'permanentAddress.country'
+      ];
+    
+      // 🔹 Emergency Contact must exist
+      if (this.emergencyContacts.length === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Validation Error',
+          detail: 'Please add at least one emergency contact.'
+        });
+        return;
+      }
+    
+      // Validate each contact
+      this.emergencyContacts.controls.forEach((ec, index) => {
+        ['name', 'phone', 'relationship'].forEach(field => {
+          const ctrl = ec.get(field);
+          ctrl?.markAsTouched();
+          ctrl?.updateValueAndValidity();
+          if (ctrl?.invalid) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Validation Error',
+              detail: `Emergency Contact #${index + 1}: ${field} is required`
+            });
+          }
+        });
+      });
+    
+      const invalidEC = this.emergencyContacts.controls.some(ec => ec.invalid);
+      if (invalidEC) return;
+    }
+    else if (stepNumber === 3) {
+      // ✅ Step 2: Employment Info
+      controlsToValidate = [
+        'employeeCode', 'designation', 'dateOfJoining',
+        'employmentType', 'employmentStatus',
+        'departmentId', 'branchId', 'roleId', 'reportingManager'
+      ];
+  
+      // Dynamic shift mode validation
+      const shiftMode = this.employeeForm.get('shiftMode')?.value;
+      if (shiftMode === 'FIXED') {
+        controlsToValidate.push('shiftId');
+      } else if (shiftMode === 'ROTATIONAL') {
+        controlsToValidate.push('rotationPatternId', 'rotationStartDate');
+      }
+    } else if (stepNumber === 4) {
+      // ✅ Step 3: Qualifications
+      // validate at least one qualification
+      if (this.qualifications.length === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Validation Error',
+          detail: 'Please add at least one qualification.'
+        });
+        return;
+      }
+  
+      // each qualification required fields
+      this.qualifications.controls.forEach((q, index) => {
+        ['degree', 'institution', 'year'].forEach(field => {
+          const ctrl = q.get(field);
+          ctrl?.markAsTouched();
+          ctrl?.updateValueAndValidity();
+          if (ctrl?.invalid) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Validation Error',
+              detail: `Qualification #${index + 1}: ${field} is required`
+            });
+          }
+        });
+      });
+  
+      const invalidQuals = this.qualifications.controls.some(q => q.invalid);
+      if (invalidQuals) return;
+    } else if (stepNumber === 5) {
+      // ✅ Step 4: Documents
+      if (!this.validateMandatoryDocs()) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Validation Error',
+          detail: 'Please upload all mandatory documents before proceeding.'
+        });
+        return;
+      }
+    }
+  
+    // Mark selected controls as touched so errors show
+    controlsToValidate.forEach(path => {
+      const ctrl = this.employeeForm.get(path);
+      ctrl?.markAsTouched();
+      ctrl?.updateValueAndValidity();
+    });
+  
+    // Check if valid
+    const invalid = controlsToValidate.some(path => this.employeeForm.get(path)?.invalid);
+    if (invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: `Please complete all required fields in Step ${stepNumber - 1}`
+      });
+      return;
+    }
+  
+    // ✅ If valid, allow navigation
+    activateCallback(stepNumber);
+  }
+  
 
 }
 

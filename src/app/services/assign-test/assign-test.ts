@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AssignTest {
-  private apiUrl = 'http://192.168.1.15:3002/api/test-assign';
+  private apiUrl = 'http://localhost:3002/api/test-assign';
 
   constructor(private http: HttpClient) {}
 

@@ -1,9 +1,11 @@
 .performance-container{
-    padding: 50px;
+    padding: 20px 60px;
 }
 
-::ng-deep .p-inputtext, .p-textarea{
+::ng-deep .p-inputtext, .p-textarea, .p-select{
     width: 100%;
+    background-color: transparent !important;
+    color: white !important;
 }
 .final{
     display: flex;
@@ -13,6 +15,108 @@
 .p-floatlabel.float-active label {
     top: -0.40rem;
     font-size: 0.75rem;
-    background-color: white;
-    color: var(--text-color-secondary);
+    background-color: transparent;
+    color: white !important;
+  }
+
+  h2, h3{
+    color: white;
+  }
+  ::ng-deep .p-datatable {
+    border: none;
+    background: transparent;
+  }
+  
+  /* Header Row */
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    background: #E8ECEF;
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px 20px;
+    border-bottom: none;
+    height: 60px;
+    text-align: left;
+    text-wrap: nowrap;
+    /* border-radius: 12px; */
+  }
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-bottom-right-radius: 10px;
+  }
+  
+  /* Body Rows */
+  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    background: #302F31;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    text-align: left;
+    border-bottom: 2px solid #d9d9d9;
+    text-wrap: nowrap;
+  }
+  
+  /* Disabled text inputs */
+:host ::ng-deep .p-inputtext:disabled {
+    background-color: #2d2d2d !important;  /* darker background */
+    color: #9ca3af !important;             /* gray text */
+    border-color: #444 !important;
+    opacity: 1 !important; /* override primeng's opacity */
+  }
+  
+  /* Disabled dropdowns (p-select) */
+  :host ::ng-deep .p-select.p-disabled {
+    background-color: #2d2d2d !important;
+    color: #9ca3af !important;
+    border-color: #444 !important;
+    opacity: 1 !important;
+  }
+  
+  /* Dropdown label text when disabled */
+  :host ::ng-deep .p-select.p-disabled .p-select-label {
+    color: #9ca3af !important;
+  }
+  :host ::ng-deep .p-select-label{
+    color: white !important;
+  }
+  :host ::ng-deep .p-inputtext{
+    color: white !important;
+  }
+  :host ::ng-deep .p-select-label.p-placeholder{
+    color: white !important;
+  }
+  :host ::ng-deep .p-textarea .p-textarea-label{
+    color: white !important;
+  }  .new-app {
+    display: flex;
+    /* width: 30%; */
+    width: 200px;
+    height: 44px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #3177a3;
+    color: #fff;
+    font-family: "Sofia Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: none;
   }

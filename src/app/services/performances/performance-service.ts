@@ -31,4 +31,18 @@ export class PerformanceService {
   submitFullForm(payload: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/full-form`, payload);
   }
+  getSummaries(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/summaries`);
+  }
+  assignForm(payload: { 
+    employeeId?: number; 
+    employeeIds?: number[]; 
+    departmentId: number; 
+    cycle: string; 
+    period: string 
+  }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/assign`, payload);
+  }
+  
+
 }

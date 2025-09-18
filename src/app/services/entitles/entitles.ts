@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Entitles {
-  private baseUrl = 'http://192.168.1.15:3002/api/entitle'; // Adjust if needed
+  private baseUrl = 'http://localhost:3002/api/entitle'; // Adjust if needed
 
   constructor(private http: HttpClient) {}
 
