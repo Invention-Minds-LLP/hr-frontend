@@ -1,12 +1,15 @@
 <!-- Submenu -->
-<!-- <nav class="sub-nav">
+<nav class="sub-nav">
+    <!-- <h2>{{tableHeading}}</h2> -->
     <ul>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Question Bank</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'test' }" (click)="show('test')">Test Creation</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'assigned' }" (click)="show('assigned')">Assigned Tests</li>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Question Bank</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'test' }" (click)="show('test')">Test Creation</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'assigned' }" (click)="show('assigned')">Assigned Tests</li></button>
     </ul>
 </nav>
-<div>
+<!-- <div>
     <hr>
 </div> -->
 

@@ -1,6 +1,8 @@
 .wrap {
   margin: 16px auto;
   padding: 30px 50px;
+  font-family: "Sofia Sans";
+
 }
 
 .wrap h2{
@@ -240,7 +242,7 @@ table.list td {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: #fff !important;
   border: none;
 }
@@ -269,6 +271,10 @@ table.list td {
     flex-direction: column;
     gap: 6px;
   }
+
+  .field{
+    margin-bottom: 10px;
+  }
   
   /* span full width for wide rows like Notes/Actions */
   .form.two-col .span-2 { grid-column: 1 / -1; }
@@ -287,6 +293,7 @@ table.list td {
     justify-content: flex-start;   /* change to flex-end if you prefer right align */
     gap: 8px;
   }
+
   
   /* stack to one column on small screens */
   @media (max-width: 640px) {

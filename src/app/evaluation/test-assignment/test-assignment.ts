@@ -6,10 +6,13 @@ import { AssignTest } from '../../services/assign-test/assign-test';
 import { Employees } from '../../services/employees/employees';
 import { MultiSelect, MultiSelectChangeEvent  } from 'primeng/multiselect';
 import { MessageService } from 'primeng/api';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FluidModule } from 'primeng/fluid';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'app-test-assignment',
-  imports: [CommonModule, FormsModule, MultiSelect],
+  imports: [CommonModule, FormsModule, MultiSelect, DatePickerModule, FluidModule, Select],
   templateUrl: './test-assignment.html',
   styleUrl: './test-assignment.css'
 })

@@ -3,12 +3,17 @@
     background: transparent;
     height: auto;
     padding: 50px 50px;
+        --p-floatlabel-active-color:#ffff
 }
 
 .appraisal-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.appraisal-form h2, h3{
+    color: white;
 }
 
 .heading {
@@ -138,3 +143,19 @@
 label{
     color: white;
 }
+
+::ng-deep .surface-card{
+    background-color: rgba(255, 250, 250, 0.3) !important;
+    /* border: 1px solid #FFFFFF; */
+    color: black;
+}
+
+.text-600,
+.text-500,
+.mb-2{
+    color: white !important;
+}
+
+
+
+

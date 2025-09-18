@@ -66,8 +66,10 @@
 }
 
 ::ng-deep .p-panel-header {
-  background: white;
-  border: none;
+  background: #302F31;
+  border: none ;
+  color: white;
+
   /* box-shadow: 0 .125rem .25rem rgba(29, 26, 26, 0.445); */
 }
 
@@ -84,6 +86,7 @@
   /* border-bottom: 2px solid #D9D9D9; */
   padding: 21px;
   background: white;
+  color: black;
 }
 
 
@@ -105,18 +108,18 @@
 
 
 ::ng-deep .p-button {
-  background-color: #003366;
-  border-color: #003366;
+  background-color: #0062A1;
+  border-color: #0062A1;
   margin-top: 20px;
 }
 
 .p-button:hover {
-  background-color: #003366;
-  border-color: #003366;
+  background-color: #0062A1;
+  border-color: #0062A1;
 }
 
 ::ng-deep .p-panel-content {
-  box-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
+  box-shadow: 0 .125rem .25rem rgba(242, 232, 232, 0.445);
   border-radius: 10px;
 }
 

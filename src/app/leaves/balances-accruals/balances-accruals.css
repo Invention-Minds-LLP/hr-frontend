@@ -1,6 +1,6 @@
 .balances-accruals {
     font-family: 'Sofia Sans';
-    padding: 40px 50px;
+    padding: 0px 60px;
 }
 
 .pi {
@@ -28,10 +28,10 @@
     line-height: normal;
 }
 
-.table {
+/* .table {
     margin-top: 20px;
     padding: 20px;
-}
+} */
 
 
 .empname {
@@ -312,9 +312,31 @@
     font-family: "Sofia Sans";
 }
 
+
+
 .filter {
-    font-family: "Sofia Sans";
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;
 }
+
+
 
 
 .modal-overlay {

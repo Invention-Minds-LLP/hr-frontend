@@ -1,5 +1,5 @@
 <div class="WFH-request">
-  <div class="header">
+  <!-- <div class="header">
     <div class="heading">Work From Home</div>
     <div class="flex">
       <p-iconfield>
@@ -17,7 +17,7 @@
       </div>
 
     </div>
-  </div>
+  </div> -->
 
   <div class="table">
     <p-table class="" [value]="filterWFHData" [paginator]="true" [rows]="10">
@@ -27,10 +27,10 @@
           <th>Emp ID</th>
           <th>Employee Name</th>
           <th>Department</th>
-          <th>Job Title</th>
+          <!-- <th>Job Title</th> -->
           <th>WFH Date</th>
-          <th>Reason</th>
-          <th>Status</th>
+          <!-- <th>Reason</th>
+          <th>Status</th> -->
           <th style="text-align: center;">Action</th>
         </tr>
       </ng-template>
@@ -54,14 +54,14 @@
             </span>
           </td>
 
-          <td class="t-data">{{ wfhData.jobTitle }}</td>
+          <!-- <td class="t-data">{{ wfhData.jobTitle }}</td> -->
           <td class="t-data">{{ wfhData.WFHDate }}</td>
-          <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
+          <!-- <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
               {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
             </span></td>
             <td class="t-data">
               {{ getStatusLabel(wfhData) }}
-            </td>
+            </td> -->
 
           <td>
             <!-- <div class="btns">

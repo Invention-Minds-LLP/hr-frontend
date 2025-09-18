@@ -188,7 +188,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="heading mb-2 mt-3 flex align-items-center justify-content-between">
+                                    <div
+                                        class="heading mb-2 mt-3  flex align-items-center gap-2 justify-content-between">
                                         Temporary Address
                                         <p-checkbox binary="true" formControlName="sameAsPermanent"
                                             label="Same as Permanent" (onChange)="copyPermanentAddress()">
@@ -525,7 +526,7 @@
                             <!-- <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2"> -->
                             <div formArrayName="qualifications" class="qualification">
                                 <div class="mb-5">
-                                    <button pButton variant="outlined" severity="danger" type="button"
+                                    <button pButton variant="outlined"  type="button"
                                         label="+ Add Qualification" (click)="addQualification()"
                                         class="p-button-secondary"></button>
                                 </div>
@@ -601,6 +602,15 @@
                             </div>
                             <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3"> -->
                             <div formArrayName="documents" class="qualification">
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[
+                              { label: 'Clinical', value: 'CLINICAL' },
+                              { label: 'Non-clinical', value: 'NONCLINICAL' }
+                            ]" formControlName="employeeType"></p-select>
+                                        <label>Employee Type</label>
+                                    </p-floatLabel>
+                                </div>
 
                                 <!-- Add Document Button -->
                                 <div class="mb-5">
@@ -645,6 +655,7 @@
                                     <!-- Issue Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
+                                           
                                             <p-datePicker formControlName="issueDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Issue Date</label>
@@ -654,6 +665,7 @@
                                     <!-- Expiry Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
+                                          
                                             <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Expiry Date</label>

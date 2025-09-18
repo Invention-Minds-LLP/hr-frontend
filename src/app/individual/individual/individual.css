@@ -1,22 +1,22 @@
 .individual-container {
   width: 100%;
   overflow: auto;
-  padding: 50px 50px;
+  padding: 30px 60px;
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 20px;
 }
 
 .individual-top {
   display: flex;
   flex-direction: row;
-  gap: 30px;
+  gap: 20px;
 }
 
 .part-1 {
   display: flex;
   flex-direction: row;
-  gap: 40px;
+  gap: 20px;
   align-items: center;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .box {
-  width: 350px;
+  width: 330px;
   height: 180px;
   flex-shrink: 0;
   border-radius: 20px;
@@ -458,6 +458,8 @@
   margin-top: 16px;
 }
 
+
+
 .p-button-text {
   background:#302F31 !important;
   border-radius: 50%;
@@ -470,7 +472,7 @@
 .attendance-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 8px 25px;
 }
 
 .day {
@@ -537,6 +539,7 @@
   justify-content: space-between;
   gap: 12px;
   min-height: 28px;
+  padding: 0 30px;
 }
 
 .lb-name {
@@ -672,6 +675,7 @@
 .border {
   height: 400px;
   border-right: 2px solid #adadad;
+  /* margin-right: 15px; */
 }
 
 
@@ -770,7 +774,7 @@
 /* Holiday  */
 .holiday-card {
   background: #417FC8;
-  width: 350px;
+  width: 330px;
   height: 180px;
   color: white;
   padding: 20px;

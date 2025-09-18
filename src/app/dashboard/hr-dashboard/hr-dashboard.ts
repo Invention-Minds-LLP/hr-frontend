@@ -10,6 +10,9 @@ import { TableModule } from 'primeng/table';
 import { Branches, Branch } from '../../services/branches/branches'  // adjust path
 import { Departments, Department } from '../../services/departments/departments';
 import { MessageService } from 'primeng/api';
+import { RouterLink, RouterModule } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
+
 
 type TileDef =
   | { key: 'leaves' | 'wfh' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
@@ -18,7 +21,7 @@ type TileDef =
 
 @Component({
   selector: 'app-hr-dashboard',
-  imports: [CommonModule, FormsModule, DatePipe, TableModule],
+  imports: [CommonModule, FormsModule, DatePipe, TableModule, RouterModule, RouterLink,TooltipModule],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })

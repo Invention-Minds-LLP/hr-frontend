@@ -113,9 +113,9 @@
     <p-accordion class="mb-3">
       <!-- Academic Qualification -->
       <div class="flex1">
-        <p-accordion-panel header="Academic Qualification">
-          <p-accordion-header>Academic Qualification</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Academic Qualification">
+          <!-- <p-accordion-header>Academic Qualification</p-accordion-header> -->
+          
             <div class="grid">
               <div class="col-8">
                 <p-selectButton [options]="academicOptions" formControlName="academicQualification" multiple="false"
@@ -129,22 +129,17 @@
                 </p-floatlabel>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+          
+        </p-card>
 
         <!-- Vacancy Source -->
-        <p-accordion-panel header="Vacancy Source" class="vacancy">
-          <p-accordion-header>Vacancy Source</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Vacancy Source" class="vacancy">          
             <p-selectButton [options]="vacancyOptions" formControlName="vacancySource" multiple="true"
               [invalid]="form.get('vacancySource') ?.invalid && (form.get('vacancySource')?.touched || submitted)"></p-selectButton>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
         <!-- Recruitment Mode -->
-        <p-accordion-panel header="Recruitment Mode" class="recruitment">
-          <p-accordion-header>Recruitment Mode</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Recruitment Mode" class="recruitment">
             <div class="grid">
               <div class="col-8">
                 <p-selectButton [options]="recruitmentOptions" formControlName="recruitmentMode" multiple="true"
@@ -158,15 +153,12 @@
                 </p-floatlabel>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
       </div>
       <div class="">
         <!-- Reasons -->
-        <p-accordion-panel header="Reasons for Leaving" class="Reasons">
-          <p-accordion-header>Reasons for Leaving</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Reasons for Leaving" class="Reasons">
             <div formGroupName="exitReasons" class="grid">
               <div class="col-6" *ngFor="let reason of [
               {id:'reasonForLeaving', label:'Primary reason'},
@@ -188,13 +180,10 @@
                 </small>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
         <!-- Expectations & Skills -->
-        <p-accordion-panel header="Expectations & Skills" class="skills">
-          <p-accordion-header>Expectations & Skills</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Expectations & Skills" class="skills">
             <div class="grid">
               <div class="col-6">
                 <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('expectationsMet')?.value}">
@@ -219,32 +208,33 @@
                 </small>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
       </div>
 
       <div class="flex1">
         <!-- ================== Factors Influencing Decision ================== -->
-        <p-accordion-panel header="Factors Influencing Decision" class="factors">
-          <p-accordion-header>Factors Influencing Decision</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Factors Influencing Decision" class="factors">
             <div formGroupName="influencedFactors" class="grid ">
               <div class="col-12" *ngFor="let factor of leaveFactorsList">
                 <div class="flex  align-items-center  justify-content-between ">
                   <label class="font-semibold">{{ factor.label }}</label>
-                  <div class="flex gap-3 ">
-                    <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+                  <div class="flex gap-6 ">
+                    <div class=" flex gap-3">
+                      <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
                       [formControlName]="factor.key"
                       [invalid]="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_yes">Yes</label>
+                    </div>
 
-                    <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                    <div class="flex gap-3">
+                      <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
                       [formControlName]="factor.key"
                       [invalid]="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_no">No</label>
+                    </div>
                   </div>
 
                 </div>
@@ -262,30 +252,31 @@
               </div>
 
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
 
         <!-- ================== Dissatisfaction Factors ================== -->
-        <p-accordion-panel header="Dissatisfaction Factors" class="dissatisfaction">
-          <p-accordion-header>Dissatisfaction Factors</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Dissatisfaction Factors" class="dissatisfaction">
             <div formGroupName="dissatisfaction" class="grid">
               <div class="col-12" *ngFor="let factor of dissatisfactionList">
                 <div class="flex align-items-center justify-content-between ">
                   <label class="font-semibold">{{ factor.label }}</label>
-                  <div class="flex gap-3">
-                    <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+                  <div class="flex gap-6">
+                   <div class="flex gap-3">
+                     <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
                       [formControlName]="factor.key"
                       [invalid]="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_yes">Yes</label>
+                   </div>
 
-                    <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                    <div class="flex gap-3">
+                      <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
                       [formControlName]="factor.key"
                       [invalid]="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_no">No</label>
+                    </div>
                   </div>
                 </div>
                 <div class="p-error mb-2"
@@ -301,16 +292,13 @@
                 </p-floatLabel>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
       </div>
 
 
       <div class="flex1">
         <!-- Job Opinions -->
-        <p-accordion-panel header="Job / Department Opinions">
-          <p-accordion-header>Job / Department Opinions</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Job / Department Opinions">
             <div formGroupName="jobOpinion" class="grid">
               <div class="col-6" *ngFor="let item of jobOpinionFields">
                 <label class="block mb-2">{{item.label}}</label>
@@ -323,13 +311,10 @@
                 </small>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
         <!-- Attitude of Superiors -->
-        <p-accordion-panel header="Attitude of Superiors" class="attitude">
-          <p-accordion-header>Attitude of Superiors</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Attitude of Superiors" class="attitude">
             <div formGroupName="attitudeSuperiors" class="grid">
               <div class="col-6" *ngFor="let item of superiorOpinionFields">
                 <label class="block mb-2">{{item.label}}</label>
@@ -341,14 +326,11 @@
                 </small>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
       </div>
 
       <!-- Company Opinions -->
-      <p-accordion-panel header="Company Opinions">
-        <p-accordion-header>Company Opinions</p-accordion-header>
-        <p-accordion-content>
+      <p-card header="Company Opinions">
           <div formGroupName="companyOpinion" class="grid">
             <div class="col-3 text-center" *ngFor="let item of companyOpinionFields">
               <label class="block mb-2">{{item.label}}</label>
@@ -361,16 +343,11 @@
             </div>
 
           </div>
-        </p-accordion-content>
-      </p-accordion-panel>
+      </p-card>
 
       <div class="flex1">
         <!-- Pay in New Job -->
-        <p-accordion-panel header="Pay in New Job">
-          <p-accordion-header>
-            Pay in New Job
-          </p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Pay in New Job">
             <div class="formgrid ">
               <div class="field-radiobutton">
                 <p-radioButton name="pay" value="More" formControlName="newJobSalaryComparison" inputId="payMore"
@@ -388,13 +365,10 @@
                 <label for="payLess">Less</label>
               </div>
             </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        </p-card>
 
         <!-- Discrimination -->
-        <p-accordion-panel header="Discrimination">
-          <p-accordion-header>Discrimination</p-accordion-header>
-          <p-accordion-content>
+        <p-card header="Discrimination">
             <div class="field-checkbox">
               <p-checkbox inputId="discrimination" formControlName="discrimination" binary="true"
                 label="Faced discrimination/harassment?"
@@ -405,15 +379,12 @@
               *ngIf="form.get('discrimination')?.invalid && (form.get('discrimination')?.touched || submitted)">
               You must confirm this field
             </small>
-          </p-accordion-content>
 
-        </p-accordion-panel>
+        </p-card>
       </div>
 
       <!-- Final -->
-      <p-accordion-panel header="Final">
-        <p-accordion-header>Final</p-accordion-header>
-        <p-accordion-content>
+      <p-card header="Final">
           <div class="grid">
             <div class="col-6">
               <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('likedMost')?.value}">
@@ -455,13 +426,10 @@
               </p-floatlabel>
             </div>
           </div>
-        </p-accordion-content>
-      </p-accordion-panel>
+      </p-card>
 
       <!-- Demotivating Factors -->
-      <p-accordion-panel header="Demotivating Factors">
-        <p-accordion-header>Demotivating Factors</p-accordion-header>
-        <p-accordion-content>
+      <p-card header="Demotivating Factors">
           <div class="grid">
             <div class="col-8">
               <p-selectButton [options]="demotivatingOptions" formControlName="demotivating" multiple="true"
@@ -474,8 +442,7 @@
               </p-floatlabel>
             </div>
           </div>
-        </p-accordion-content>
-      </p-accordion-panel>
+      </p-card>
 
     </p-accordion>
 

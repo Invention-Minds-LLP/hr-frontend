@@ -1,12 +1,13 @@
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
+  padding: 20px 60px;
 }
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #E8ECEF;
-  color: #666;
+  color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
@@ -34,15 +35,28 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  background: transparent;
+  background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: white;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
 }
+::ng-deep .details .p-datatable .p-datatable-tbody > tr > td{
+  background: white !important;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: black;
+  text-align: left;
+  border-bottom: 2px solid #d9d9d9;
+  white-space: nowrap;
+}
+
+
+
 .dept-badge {
   display: inline-flex;
   align-items: center;
@@ -62,11 +76,11 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: white !important;
 }
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #3465b0 !important;
+  background: #FF0000 !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -104,12 +118,12 @@
 }
 .btn-edit {
   border-radius: 8px;
-  border: 2px solid #c4c4c4;
-  background: #e8ecef;
+  border: 2px solid #FFFFFF;
+  background:transparent;
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: #767676;
+  color: #FFFFFF;
   cursor: pointer;
 }
 .question-bank {
@@ -155,7 +169,7 @@
 .ok { color:#16a34a; font-weight:600; }
 .bad { color:#dc2626; font-weight:600; }
 .na { color:#6b7280; font-weight:600; }
-.btn-edit {
+/* .btn-edit {
   border-radius: 8px;
   border: 2px solid #c4c4c4;
   background: #e8ecef;
@@ -164,4 +178,4 @@
   font-weight: 500;
   color: #767676;
   cursor: pointer;
-}
+} */

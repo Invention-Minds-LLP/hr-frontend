@@ -100,10 +100,7 @@ export const routes: Routes = [
   { path: 'resignation', component: ResignOverview,},
   { path: 'interview', component: CandidateEvalForm,},
   { path: 'popup', component: PopUp },
-   { path: 'employee-form', component: EmployeeForm },
-   {path:'resignation-from', component:ResignationForm},
-   {path:'all-test', component:AllTest},
-   {path:'assigned-test', component:AssignedTest},
+   
 
   // ---- Backward-compat redirects (optional) ----
   { path: 'employee', redirectTo: 'admin/employee', pathMatch: 'full' },

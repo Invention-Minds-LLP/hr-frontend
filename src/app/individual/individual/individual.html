@@ -73,6 +73,7 @@
                     <div class="attendance-list">
                         <div *ngFor="let day of attendanceData" class="attendance-row">
                             <div class="day">{{ day.dayName }}</div>
+                            
                             <ng-container [ngSwitch]="day.status">
                                 <div class="time" *ngSwitchCase="'Present'">
                                     {{ day.totalHours }}
@@ -253,8 +254,9 @@
                     </p-table>
                 </div>
             </div>
-
+            
             <div class="border"></div>
+
         </div>
 
         <!--permission  -->
@@ -362,9 +364,9 @@
         </div>
     </div>
 
-    <div class="">
+    <!-- <div class="">
         <app-resignation-form></app-resignation-form>
-    </div>
+    </div> -->
 </div>
 
 <app-leave-popup *ngIf="showLeaveDetailsPopup" [showPopup]="true" [leaveData]="selectedLeaveForView"

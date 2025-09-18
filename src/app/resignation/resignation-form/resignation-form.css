@@ -96,6 +96,10 @@ input {
   /* padding: 50px; */
 }
 
+.resignations{
+  width: 65%;
+}
+
 /* .resignations{
     padding: 50px;
 } */
@@ -309,15 +313,15 @@ input {
   display: flex;
   justify-content: center;
   /* align-items: center; */
-  width: 100%;
+  /* width: 100%; */
   padding: 0 30px 30px;
-  gap: 0px;
+  gap: 40px;
   margin-top: 20px;
 }
 
 .resignation-form {
   display: flex;
-  width: 35%;
+  /* width: 35%; */
 }
 
 .p-button {

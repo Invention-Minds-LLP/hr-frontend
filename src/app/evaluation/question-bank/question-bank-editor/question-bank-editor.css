@@ -37,20 +37,20 @@
 .q-block {
   /* background: #f6f8fb; */
   border-radius: 8px;
-  padding: 12px;
+  padding: 12px 12px 12px 0;
   margin-bottom: 14px;
 }
 .q-row.controls {
   display: grid;
   grid-template-columns: 250px 230px 180px 100px 70px; /* +180px for Answer Type */
-  gap: 10px;
+  gap: 20px;
   align-items: center;
   width: 100%;
 }
 
 .q-textarea {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 20px;
 }
 
 .options {
@@ -58,17 +58,18 @@
 }
 .opt-item {
   display: flex;
-  gap: 8px;
+  gap: 20px;
   align-items: center;
   width: 100%;
 }
 .opt-input {
   flex: 1;
+  margin-top: 10px;
 }
 .opt-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 20px;
 }
 
 .opt-row {

@@ -1,5 +1,5 @@
 .interview-table{
-    padding: 30px;
+    padding: 30px 60px;
 }
 
 .interview-table h2{
@@ -29,8 +29,31 @@
 ::ng-deep .interview-table .p-datatable-thead > tr > th{
     background: #E8ECEF;
     text-align: center;
+    color: black;
 }
 
 ::ng-deep .interview-table .p-datatable-tbody > tr > td{
     text-align: center;
+    background: #302F31;
+    color: white;
+}
+
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #e9144a !important;
+  color: white !important;
+}
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #e9144a !important;
+  color: white !important;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.p-button{
+  background-color: #0062A1;
+  border: #0062A1;
+}
+.p-button:hover{
+  background-color: #0062A1;
+  border: #0062A1;
 }

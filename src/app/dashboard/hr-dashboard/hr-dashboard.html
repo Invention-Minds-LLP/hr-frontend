@@ -36,9 +36,19 @@
         <!-- tile card: remove "as any" and use a helper to format values -->
         <div class="tile grid-3" *ngFor="let t of tiles; trackBy: trackByIndex" [attr.data-kind]="t.key"
             (click)="openList(t.key, t.label)">
-            <div class="kpi">{{ getTileValue(t) }}</div>
-            <div class="label">{{ t.label }}</div>
-            <div class="sub">Tap to view details</div>
+            <div class="flex">
+                <div class="kpi">{{ getTileValue(t) }}</div>
+                <div class="">
+                    <div class="label">{{ t.label }}</div>
+                    <div class="sub">Tap to view details</div>
+                </div>
+            </div>
+            <div class="info">
+                <i class="pi pi-info-circle info-icon"
+                    [pTooltip]="'Total ' + t.label + ': ' + getTileValue(t) + '. Tap to view details.'"
+                    tooltipPosition="top" tooltipEvent="hover">
+                </i>
+            </div>
         </div>
 
     </div>
@@ -76,8 +86,10 @@
         </div>
 
         <div class="card grid-4">
-            <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
-
+            <div class="btns">
+                <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
+                <!-- <button [routerLink]="'/all-announcement'">Announcement From</button> -->
+            </div>
             <!-- New: full list -->
             <div class="ann-list" *ngIf="announcements?.length; else noAnns">
                 <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
@@ -180,14 +192,19 @@
 <!-- Modal -->
 <div class="modal" [class.open]="modalOpen">
     <div class="sheet" *ngIf="selectedList as list">
-        <div class="top">
-            <i class="pi pi-times close" (click)="closeModal()"></i>
-            <h3>{{ list.title }}</h3>
-        </div>
-        <div class="actions" *ngIf="list.actions?.length">
-            <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex" (click)="onListAction(a)">{{
-                a
-                }}</button>
+        <div class="">
+            <div class="top">
+                <i class="pi pi-times close" (click)="closeModal()"></i>
+            </div>
+            <div class="actions" *ngIf="list.actions?.length">
+                <h3>{{ list.title }}</h3>
+                <div class="btns">
+                    <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex"
+                        (click)="onListAction(a)">{{
+                        a
+                        }}</button>
+                </div>
+            </div>
         </div>
         <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" [(selection)]="selectedRows" dataKey="id"
             [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
