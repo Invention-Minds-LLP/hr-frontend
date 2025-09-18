@@ -12,6 +12,7 @@
   gap: 20px;
 }
 
+
 .form-row label {
   font-weight: bold;
   display: block;
@@ -33,18 +34,22 @@
 }
 
 .btn-green {
+  width: 100px;
+  height: 34px;
   background-color: #3465b0;
   color: white;
   padding: 8px 14px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-family: "Sofia Sans";
 }
 
 .message {
   margin-top: 15px;
   font-weight: bold;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -73,16 +78,22 @@ select {
   border-radius: 8px;
   border: 1px solid #a6a6a6;
 }
+
 ::ng-deep .p-multiselect .dropdown {
   width: 100% !important;
 }
+
 .p-select,
-.p-multiselect,
-input {
+.p-multiselect {
   width: 100% !important;
 }
+
 :host ::ng-deep .p-multiselect .p-multiselect-label {
   white-space: normal !important;
   flex-wrap: wrap !important;
   align-items: flex-start !important;
+}
+
+::ng-deep .p-datepicker-input {
+  width: 20.9vw !important;
 }

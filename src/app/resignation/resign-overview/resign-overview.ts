@@ -11,8 +11,17 @@ import { CommonModule } from '@angular/common';
 })
 export class ResignOverview {
   active:string = 'list';
+
+  tebleHaeding: string = 'Resignations'
   
   show(value: string){
     this.active = value;
+    switch(value){
+      case 'list':
+        this.tebleHaeding = 'Resignations'
+        break;
+        case 'form':
+          this.tebleHaeding = 'Resignations From'
+    };
   }
 }

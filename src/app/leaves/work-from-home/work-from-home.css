@@ -1,7 +1,7 @@
 .WFH-request {
   font-family: "Sofia Sans";
-  padding: 40px 50px;
-  width: 100%;
+  padding:0 60px;
+  /* width: 100%; */
 }
 
 
@@ -27,9 +27,10 @@
 }
 
 .table {
-  margin-top: 20px;
+  /* margin-top: 20px; */
   /* overflow: auto; */
-  padding: 20px;
+  /* padding: 20px; */
+  /* width: 60%; */
 }
 
 .empname {
@@ -147,7 +148,7 @@
   color: black;
   font-size: 16px;
   font-weight: 600;
-  padding: 16px 20px;
+  padding: 16px 5px;
   border-bottom: none;
   height: 60px;
   text-align: left;

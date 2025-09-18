@@ -9,14 +9,17 @@
   --p-radiobutton-checked-hover-border-color: #003366;
   --p-radiobutton-checked-focus-border-color: #003366;
   --p-radiobutton-icon-size: 0.8rem;
-  --p-rating-icon-active-color: #003366;
-  --p-rating-icon-hover-color: #003366;
-  --p-checkbox-checked-background:#003366;
-  --p-checkbox-checked-hover-background:#003366;
-  --p-checkbox-focus-border-color:#003366;
-  --p-checkbox-hover-border-color:#003366;
-  --p-checkbox-checked-focus-border-color:#003366;
+  --p-rating-icon-active-color: #dab810;
+  --p-rating-icon-hover-color: #dab810;
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
   --p-checkbox-checked-border-color: #003366;
+  --p-rating-icon-color: white;
+
+
 }
 
 .exit-form .p-card {
@@ -30,6 +33,8 @@
 .exit-form textarea {
   width: 100%;
   resize: vertical;
+  background: transparent;
+  color: white;
 }
 
 .exit-form label {
@@ -49,7 +54,6 @@
   margin: 4px !important;
   padding: 0.75rem 1.5rem !important;
 }
-
 .p-selectbutton .p-button.p-highlight {
   background: var(--primary-500) !important;
   border-color: var(--primary-500) !important;
@@ -118,6 +122,13 @@ textarea {
 
 }
 
+
+label {
+  color: white !important;
+}
+
+
+
 /* Add some spacing for a clean look */
 .p-card .grid .col-4,
 .p-card .grid .col-6,
@@ -130,6 +141,7 @@ textarea {
 .textarea {
   width: 100%;
 }
+
 
 .exit-form {
   --p-card-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
@@ -161,44 +173,45 @@ textarea {
   height: 0px;
 }
 
-::ng-deep .p-checkbox{
+::ng-deep .p-checkbox {
   border-radius: 10px;
 }
 
-.p-checkbox:hover{
+.p-checkbox:hover {
   border-color: #003366;
 }
 
-.flex1{
+.flex1 {
   display: flex;
-  gap:15px;
+  gap: 15px;
 }
 
-.flex1 > p-accordion-panel,
-.flex1 > p-card {
+.flex1>p-accordion-panel,
+.flex1>p-card {
   flex: 1;
-  min-width: 0;      
+  min-width: 0;
 }
 
 
 
-::ng-deep .exit-form .p-accordionheader{
+::ng-deep .exit-form .p-accordionheader {
   border-radius: 10px 10px 0 0;
 }
 
 ::ng-deep .exit-form .p-accordioncontent-content {
-  border-radius: 0 0 10px 10px ;
+  border-radius: 0 0 10px 10px;
   border: none;
 }
+
 .col-8 {
   width: 100%;
 }
 
-::ng-deep .factors .p-accordion-panel{
+::ng-deep .factors .p-accordion-panel {
   width: 50%;
 }
 
-.skills .p-accordionheader{
+.skills .p-accordionheader {
   border-radius: 0px;
 }
 
@@ -207,15 +220,68 @@ textarea {
   border-bottom: 1px solid #C4C4C4;
 }
 
-.formgrid{
+.formgrid {
   display: flex;
   align-items: center;
   gap: 30px;
 }
+
 /* When we manually mark float-active, push label up */
 .p-floatlabel.float-active label {
   top: -0.40rem;
   font-size: 0.75rem;
-  background-color: white;
+  background-color: transparent;
   color: var(--text-color-secondary);
 }
+
+.p-button-success {
+  width: 160px;
+  height: 44px;
+  border-radius: 10px;
+  background: #003366;
+  border-color: #003366;
+}
+
+.p-button-success:hover {
+  width: 160px;
+  height: 44px;
+  border-radius: 10px;
+  background: #003366;
+  border-color: #003366;
+}
+
+
+/* Default: dark card */
+.p-card{
+  background: #656565 !important;
+  color: #fff !important;
+  display: block;
+  transition: background 0.3s ease, color 0.3s ease;
+  --p-floatlabel-focus-color: white !important;
+  --p-floatlabel-on-active-background: #656565 !important;
+
+}
+
+.p-card:focus-within {
+  background: #ffffff !important;
+  color: #000 !important;
+
+  --p-floatlabel-focus-color: black !important;
+  --p-floatlabel-on-active-background: white !important;
+
+}
+
+.p-card label,
+.p-card input,
+.p-card textarea {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.p-card:focus-within label,
+.p-card:focus-within input,
+.p-card:focus-within textarea {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+

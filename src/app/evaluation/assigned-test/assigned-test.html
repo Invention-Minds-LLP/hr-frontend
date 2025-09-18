@@ -1,6 +1,6 @@
 <div class="question-bank">
   <div class="header">
-    <h2>All Tests</h2>
+    <!-- <h2>All Tests</h2> -->
     <!-- <button (click)="openForm()" class="add-btn">Add New Test
       <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
         <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
@@ -40,20 +40,15 @@
         <td>{{ a.result || '-' }}</td>
         <td>{{ a.status }}</td>
         <td>
-          <button  label="Overview" class="btn-edit" (click)="openOverview(a)">Overview</button>
+          <button label="Overview" class="btn-edit" (click)="openOverview(a)">Overview</button>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<p-dialog
-[header]="overview ? (overview.employeeName + ' — ' + overview.testName) : 'Test Overview'"
-  [(visible)]="overviewVisible"
-  [modal]="true"
-  [style]="{ width: '900px' }"
-  [dismissableMask]="true"
->
+<p-dialog [header]="overview ? (overview.employeeName + ' — ' + overview.testName) : 'Test Overview'"
+  [(visible)]="overviewVisible" [modal]="true" [style]="{ width: '900px' }" [dismissableMask]="true">
   <ng-container *ngIf="overview as o">
     <div class="ovr-head">
       <div>
@@ -67,50 +62,52 @@
       </div>
       <div class="ovr-badges">
         <p-badge severity="success" [value]="'Correct: ' + o.totals.correct"></p-badge>
-        <p-badge severity="danger"  [value]="'Wrong: ' + o.totals.wrong"></p-badge>
+        <p-badge severity="danger" [value]="'Wrong: ' + o.totals.wrong"></p-badge>
         <p-badge severity="warn" [value]="'Unanswered: ' + o.totals.unanswered"></p-badge>
-        <p-badge severity="info"    [value]="'Total: ' + o.totals.total"></p-badge>
+        <p-badge severity="info" [value]="'Total: ' + o.totals.total"></p-badge>
       </div>
     </div>
 
-    <p-table [value]="o.rows" [rows]="10" [paginator]="true" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>#</th>
-          <th>Question</th>
-          <th>Your Answer</th>
-          <th>Correct Answer</th>
-          <th>Result</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-r>
-        <tr>
-          <td>{{ r.no }}</td>
-          <td>{{ r.text }}</td>
-          <td>
-            <ng-container *ngIf="r.type === 'MCQ'; else descAns">
-              <div *ngIf="r.selectedOptionTexts.length; else dash">
-                <div *ngFor="let t of r.selectedOptionTexts">{{ t }}</div>
+    <div class="details">
+      <p-table [value]="o.rows" [rows]="10" [paginator]="true" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Question</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+            <th>Result</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-r>
+          <tr>
+            <td>{{ r.no }}</td>
+            <td>{{ r.text }}</td>
+            <td>
+              <ng-container *ngIf="r.type === 'MCQ'; else descAns">
+                <div *ngIf="r.selectedOptionTexts.length; else dash">
+                  <div *ngFor="let t of r.selectedOptionTexts">{{ t }}</div>
+                </div>
+                <ng-template #dash> - </ng-template>
+              </ng-container>
+              <ng-template #descAns>
+                {{ r.rawAnswer || '-' }}
+              </ng-template>
+            </td>
+            <td>
+              <div *ngIf="r.correctOptionTexts.length; else na">
+                <div *ngFor="let t of r.correctOptionTexts">{{ t }}</div>
               </div>
-              <ng-template #dash> - </ng-template>
-            </ng-container>
-            <ng-template #descAns>
-              {{ r.rawAnswer || '-' }}
-            </ng-template>
-          </td>
-          <td>
-            <div *ngIf="r.correctOptionTexts.length; else na">
-              <div *ngFor="let t of r.correctOptionTexts">{{ t }}</div>
-            </div>
-            <ng-template #na> - </ng-template>
-          </td>
-          <td>
-            <span *ngIf="r.isCorrect === true" class="ok">Correct</span>
-            <span *ngIf="r.isCorrect === false" class="bad">Wrong</span>
-            <span *ngIf="r.isCorrect === null" class="na">N/A</span>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+              <ng-template #na> - </ng-template>
+            </td>
+            <td>
+              <span *ngIf="r.isCorrect === true" class="ok">Correct</span>
+              <span *ngIf="r.isCorrect === false" class="bad">Wrong</span>
+              <span *ngIf="r.isCorrect === null" class="na">N/A</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </ng-container>
 </p-dialog>

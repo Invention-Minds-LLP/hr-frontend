@@ -15,6 +15,7 @@ export class EmployeeOverview {
 
   show(value: string){
     this.active = value;
+    
   }
   onEditEmployee(employee: any) {
     this.selectedEmployee = employee;

@@ -3,11 +3,13 @@ import { Component, HostListener } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
+import { AnnouncementForm } from "../announcements/announcement-form/announcement-form";
+import { ResignationForm } from "../resignation/resignation-form/resignation-form";
 
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, CommonModule, PopUp],
+  imports: [RouterModule, CommonModule, PopUp, AnnouncementForm, ResignationForm],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
@@ -20,6 +22,7 @@ export class Navbar {
   recruitOpen = false;
   // isRestricted = true;
   // username:string = ''
+  showAnnouncement = false
 
   constructor(private router: Router) { }
 
@@ -114,6 +117,16 @@ export class Navbar {
   // Close when clicking any other main heading
   closeMenus() {
     this.activeMenu = null;
+  }
+
+  openAnnouncement(){
+    this.isOpen = false
+    this.showAnnouncement = true
+  }
+
+  closeAnnouncement(){
+    this.isOpen = false
+    this.showAnnouncement = false
   }
 
 }

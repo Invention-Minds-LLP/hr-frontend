@@ -26,9 +26,9 @@
 }
 
 .card {
-  padding: 20px;
+  padding:0 20px;
   width: 100%;
-  padding-top: 3rem;
+  /* padding-top: 3rem; */
 }
 
 .step-container {
@@ -79,7 +79,7 @@
   width: 100%;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
-  background-color: transparent;
+  background-color: transparent !important;
 }
 
 /* Make buttons consistent */
@@ -129,6 +129,10 @@
 .p-calendar {
   flex: 1 1 auto;
   width: 100%;
+}
+
+.p-select{
+  background:transparent
 }
 
 .nav-btns {
@@ -191,12 +195,12 @@ div[hidden] {
   color: white !important;
 }
 
-::ng-deep .p-datepicker-input {
-  color: white ;
+::ng-deep  .p-datepicker-input {
+  color: white !important;
 }
 
 ::ng-deep .p-select-label{
-  color: white;
+  color: white !important;
 }
 
 /* Remove button (top-right corner) */
@@ -301,14 +305,14 @@ div[hidden] {
 
 ::ng-deep .trash-btn .p-button {
   background-color: transparent;
-  border: 1px solid #e9144a;
+  border: 1px solid #e9144a !important;
   color: #e9144a;
   font-size: 1.2rem;
 }
 
 ::ng-deep .trash-btn .p-button:hover {
   background-color: transparent;
-  border: 1px solid #e9144a;
+  border: 1px solid #e9144a !important;
   color: #e9144a;
   font-size: 1.2rem;
 }
@@ -320,24 +324,24 @@ div[hidden] {
 
 
 ::ng-deep .btn .p-button {
-  background-color: #3465b0;
+  background-color: #3465b0 ;
   color: white;
   border: none;
 }
 
 ::ng-deep .btn .p-button:hover {
-  background-color: #3465b0;
+  background-color: #3465b0 ;
   color: white;
   border: none;
 }
 
 ::ng-deep .p-step-active .p-step-number {
-  background-color: #3465b0;
-  border: 1px solid #3465b0;
+  background-color: #3465b0 !important;
+  border: 1px solid #3465b0 !important;
 }
 
 ::ng-deep .p-step-active .p-step-title {
-  color: #3465b0;
+  color: #3465b0 !important;
   font-size: 16px;
   font-family: "Sofia Sans";
 }

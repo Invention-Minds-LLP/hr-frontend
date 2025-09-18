@@ -2,15 +2,17 @@
     display: flex;
     background: transparent;
     /* padding: 0.5rem 1.5rem; */
-    height: 64px;
+    /* height: 64px; */
     padding: 0 2rem;
+    position: relative;
+    top: 13px;
   }
   .sub-nav ul {
     list-style: none;
     display: flex;
     align-items: flex-end;
     gap: 2rem;
-    height: 64px;
+    /* height: 64px; */
     margin: 8px;
   }
   .sub-item {
@@ -18,6 +20,9 @@
     padding-bottom: 0.2rem;
     color: white;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .sub-item.active {
     color: #FB9C2A;

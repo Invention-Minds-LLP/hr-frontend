@@ -13,11 +13,26 @@ import { AssignedTest } from "../assigned-test/assigned-test";
   styleUrl: './evaluation-overview.css'
 })
 export class EvaluationOverview {
-  active:string = 'form';
+  active: string = 'form';
   selectedEmployee: any = null;
+  tableHeading: string = 'Question Bank List'
 
-  show(value: string){
+  show(value: string) {
     this.active = value;
+    switch (value) {
+      case 'form':
+        this.tableHeading = 'Question Bank List';
+        break;
+      case 'test':
+        this.tableHeading = 'Test Creation';
+        break
+      case 'assigned':
+        this.tableHeading = 'Assigned Tests'
+        break
+        default:
+        this.tableHeading = 'Question Bank List'
+    }
+
   }
   onEditEmployee(employee: any) {
     this.selectedEmployee = employee;

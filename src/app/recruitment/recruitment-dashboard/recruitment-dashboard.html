@@ -2,53 +2,53 @@
   <h2 class="heading">Recruiting</h2>
   <!-- Top pipeline stats -->
   <div class="stats" *ngIf="!selectedInterview()">
-    <div class="stat">
-      <div>Vacancies</div><strong>{{ stats()['vacancies'] || 0 }}</strong>
+    <div class="stat flex" data-kind="vacancies">
+      <strong>{{ stats()['vacancies'] || 0 }}</strong><div>Vacancies</div>
     </div>
-    <div class="stat">
-      <div>Applications Received</div><strong>{{ stats()['applicationsReceived'] || 0 }}</strong>
+    <div class="stat flex" data-kind="applicationsReceived">
+      <strong>{{ stats()['applicationsReceived'] || 0 }}</strong><div>Applications Received</div>
     </div>
-    <div class="stat">
-      <div>Applied</div><strong>{{ stats()['applied'] || 0 }}</strong>
+    <div class="stat flex" data-kind="applied">
+      <strong>{{ stats()['applied'] || 0 }}</strong><div>Applied</div>
     </div>
-    <div class="stat">
-      <div>Shortlisted</div><strong>{{ stats()['shortlisted'] || 0 }}</strong>
+    <div class="stat flex" data-kind="shortlisted">
+      <strong>{{ stats()['shortlisted'] || 0 }}</strong><div>Shortlisted</div>
     </div>
-    <div class="stat">
-      <div>Interviewing</div><strong>{{ stats()['interviewing'] || 0 }}</strong>
+    <div class="stat flex" data-kind="interviewing">
+      <strong>{{ stats()['interviewing'] || 0 }}</strong><div>Interviewing</div>
     </div>
-    <div class="stat">
-      <div>Offered</div><strong>{{ stats()['offered'] || 0 }}</strong>
+    <div class="stat flex" data-kind="offered">
+      <strong>{{ stats()['offered'] || 0 }}</strong><div>Offered</div>
     </div>
-    <div class="stat">
-      <div>Accepted</div><strong>{{ stats()['accepted'] || 0 }}</strong>
+    <div class="stat flex" data-kind="accepted">
+      <strong>{{ stats()['accepted'] || 0 }}</strong><div>Accepted</div>
     </div>
-    <div class="stat">
-      <div>Declined</div><strong>{{ stats()['offerDeclined'] || 0 }}</strong>
+    <div class="stat flex" data-kind="offerDeclined">
+      <strong>{{ stats()['offerDeclined'] || 0 }}</strong><div>Declined</div>
     </div>
-    <div class="stat">
-      <div>Hired</div><strong>{{ stats()['hired'] || 0 }}</strong>
+    <div class="stat flex" data-kind="hired">
+      <strong>{{ stats()['hired'] || 0 }}</strong><div>Hired</div>
     </div>
-    <div class="stat">
-      <div>Rejected</div><strong>{{ stats()['rejected'] || 0 }}</strong>
+    <div class="stat flex" data-kind="rejected">
+      <strong>{{ stats()['rejected'] || 0 }}</strong><div>Rejected</div>
     </div>
   </div>
 
 
   <div *ngIf="!selectedInterview()" class="columns">
-    <div class="col">
-
-      <app-job-create>
-
-      </app-job-create>
-
-    </div>
     <!-- Jobs -->
 
     <div class="col">
       <app-application-create>
 
       </app-application-create>
+    </div>
+
+    <div class="col">
+      <app-requisition-list>
+
+      </app-requisition-list>
+
     </div>
 
 
@@ -94,7 +94,7 @@
       </div> -->
   </div>
   <div class=""*ngIf="!selectedInterview()" style="margin-top: 2rem;">
-    <div class="stat">
+    <div class="card">
       <h3>Jobs</h3>
       <div class="table-wrap">
         <table class=" jobs">

@@ -1,14 +1,15 @@
 <!-- Submenu -->
-<!-- <nav class="sub-nav">
-    <ul>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li>
-        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li>
+<nav class="sub-nav">
+    <ul class="nav-list">
+        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li></button>
+        <!-- <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li> -->
+         <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li></button>
     </ul>
 
-    <button class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</button>
-    <button class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</button>
+    
 </nav>
-<div>
+<!-- <div>
     <hr>
 </div> -->
 

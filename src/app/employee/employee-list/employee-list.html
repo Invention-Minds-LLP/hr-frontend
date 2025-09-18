@@ -3,7 +3,18 @@
     <div class="heading">Employee List</div>
     <div class="flex">
       <div class="add-btn" [routerLink]="'/employee-form'">
-        <p-button label="Add New Form" icon="pi pi-plus" iconPos="right"   />
+        <!-- <p-button label="Add New Form" icon="pi pi-plus" iconPos="right" /> -->
+      </div>
+
+      <!-- Filter Selector -->
+      <div class="filter" (click)="toggleFilterDropdown()">
+        <i class="pi pi-filter"></i>
+        <ul class="filter-dropdown" *ngIf="showFilterDropdown">
+          <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option);$event.stopPropagation()"
+            [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+            {{ option.label }}
+          </li>
+        </ul>
       </div>
 
       <!-- Search -->
@@ -18,8 +29,8 @@
 
       </div>
 
-      <!-- Filter Selector -->
-      <div class="filter" (click)="toggleFilterDropdown()">
+      
+      <!-- <div class="filter" >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M4.5 7.25H19.5M7.385 12H16.615M10.27 16.75H13.73" stroke="#9B9B9B" stroke-width="1.5"
             stroke-linecap="round" stroke-linejoin="round" />
@@ -28,11 +39,11 @@
           {{ selectedFilter?.label || 'Filter' }}
         </div>
       </div>
-      <ul class="filter-dropdown" *ngIf="showFilterDropdown">
+      <ul class="" *ngIf="showFilterDropdown">
         <li *ngFor="let option of filterOptions" (click)="selectFilter(option)">
           {{ option.label }}
         </li>
-      </ul>
+      </ul> -->
     </div>
 
   </div>

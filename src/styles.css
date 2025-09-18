@@ -32,7 +32,7 @@ body {
   --p-steps-item-label-active-color: var(--primary-color) !important;
   --p-inputtext-background: transparent !important;
   --p-floatlabel-focus-color: white !important;
-  --p-floatlabel-on-active-background: #555555 !important;
+  --p-floatlabel-on-active-background: #302F31 !important;
   --p-paginator-background: transparent !important;
   --p-datepicker-date-width: 1rem !important;
   --p-datepicker-date-height: 1rem !important;
@@ -134,20 +134,20 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0f0f0; /* Track color */
+  background: transparent ; /* Track color */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;     /* Scroll thumb color */
+  background: transparent;     /* Scroll thumb color */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;     /* Color on hover */
+  background: white;     /* Color on hover */
 }
 
 /* For Firefox */
 * {
   scrollbar-width: thin;       /* Thin scrollbar */
-  scrollbar-color: #888 #f0f0f0; /* Thumb color and track color */
+  scrollbar-color: #FFFFFF #302F31; /* Thumb color and track color */
 }

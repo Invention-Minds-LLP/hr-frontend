@@ -7,10 +7,12 @@
 <div class="form-container">
   <div class="form-row">
     <label>Select Test:</label>
-    <select [(ngModel)]="selectedTestId">
+    <!-- <select [(ngModel)]="selectedTestId">
       <option value="0">-- Select Test --</option>
       <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
-    </select>
+    </select> -->
+
+    <p-select [options]="tests" [(ngModel)]="selectedTestId" optionLabel="name" placeholder="Select a City" class="w-full md:w-56" />
   </div>
 
   <!-- <div class="form-row">
@@ -39,12 +41,16 @@
   </div>
   <div class="form-row">
     <label>Available From:</label>
-    <input type="date" [(ngModel)]="availFromDate" />
+    <!-- <input type="date" [(ngModel)]="availFromDate" /> -->
+    <p-datepicker [(ngModel)]="availFromDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+
   </div>
   
   <div class="form-row">
     <label>Available To:</label>
-    <input type="date" [(ngModel)]="availToDate" />
+    <!-- <input type="date" [(ngModel)]="availToDate" /> -->
+    <p-datepicker [(ngModel)]="availToDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+
   </div>
   
   
