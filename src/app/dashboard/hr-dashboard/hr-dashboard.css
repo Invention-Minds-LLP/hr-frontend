@@ -113,6 +113,14 @@ select:focus {
 
 
 }
+.btns-1 {
+  padding: 10px 16px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+
+
+}
 
 /* ---------- Cards ---------- */
 .card {
@@ -745,6 +753,20 @@ select:focus {
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
   padding: 10px 30px 20px;
+  /* max-height: 70vh; */
+  overflow-x: hidden;
+}
+.sheet-1 {
+  position: relative;
+  overflow-y: auto;
+  width: 50%;
+  height: 100%;
+  background: white;
+  /* border: 1px solid #828282; */
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
+  /* padding: 10px 30px 20px; */
+  padding: 0;
   /* max-height: 70vh; */
   overflow-x: hidden;
 }

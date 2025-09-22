@@ -1,9 +1,9 @@
 <!-- Submenu -->
 <nav class="sub-nav">
     <ul>
-        <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">All Appraisal</li></button>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Managerial Appraisal</li></button>
         <div class="br"></div>
-       <button> <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Appraisal</li></button>
+       <button> <li class="sub-item" [ngClass]="{ 'active': active === 'dept' }" (click)="show('dept')">Dept Performance Appraisal</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -14,4 +14,5 @@
 <div>
     <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"></app-apprasial-form>
     <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
+    <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>
 </div>

@@ -1,0 +1,21 @@
+
+::ng-deep .p-inputtext, .p-textarea, .p-select{
+    width: 100%;
+    background-color: transparent !important;
+    color: black !important;
+}
+.final{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.p-floatlabel.float-active label {
+    top: -0.40rem;
+    font-size: 0.75rem;
+    background-color: transparent;
+    color: white !important;
+  }
+
+  h2, h3{
+    color: white;
+  }

@@ -70,7 +70,13 @@
         <tr>
           <td class="t-data al">{{ rowIndex + 1 }}</td>
           <td class="empname">
-            <img src="/img.png" alt="">
+            <img *ngIf="employeeData.photoUrl; else defaultPhoto" 
+            [src]="employeeData.photoUrl" 
+            alt="Profile" />
+     
+       <ng-template #defaultPhoto>
+         <img src="/img.png" alt="Default Profile" />
+       </ng-template>
             <div class="">
               <div class="name">{{ employeeData.firstName }} {{employeeData.lastName}}</div>
               <span class="email">{{employeeData.email}}</span>

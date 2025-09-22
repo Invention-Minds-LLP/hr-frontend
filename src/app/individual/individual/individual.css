@@ -234,6 +234,12 @@
   height: 380px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  color: #FFF;
+font-family: "Sofia Sans";
+font-size: 12px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
 }
 
 .date-header {
@@ -632,6 +638,12 @@
   border-radius: 6px;
   border: 1px solid #d9d9d9;
   display: inline-flex;
+  color: #FFF;
+font-family: "Sofia Sans";
+font-size: 12px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -640,11 +652,11 @@
 }
 
 .style {
-  color: #2b2b2b;
+  color: #FFF;
   font-family: "Sofia Sans";
   font-size: 12px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 600;
   line-height: normal;
 }
 
@@ -737,8 +749,8 @@
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); Subtle shadow */
   border-radius: 6px;
   border: 1px solid #d9d9d9;
-  color: #2b2b2b;
-  font-family: "Sofia Sans";
+  color: #FFF;
+  font-family: "Sofia Sans" !important;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
@@ -746,6 +758,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: Kanit;
+
 }
 
 /* Hover and focus effects */
@@ -759,6 +772,8 @@
 .dropdown-in-table option {
   font-size: 14px;
   padding: 4px;
+  background-color: #fff;
+  color: #000;
 }
 
 

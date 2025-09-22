@@ -50,7 +50,7 @@ export class Employees {
     return this.http.get<Employee[]>(this.apiUrl);
   }
 
-  getEmployeeById(id: number): Observable<Employee> {
+  getEmployeeById(id: number): Observable<any> {
     return this.http.get<Employee>(`${this.apiUrl}/${id}`);
   }
 
@@ -106,4 +106,8 @@ export class Employees {
     if (q.status) params = params.set('status', q.status);
     return this.http.get<EmployeeRow[]>(`${this.apiUrl}/dept`, { params });
   }
+  uploadEmployeePhoto(employeeId: number, formData: FormData) {
+    return this.http.post(`${this.apiUrl}/${employeeId}/photo`, formData);
+  }
+  
 }

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PerformanceService {
-  private baseUrl = "http://192.168.1.17:3002/api/performance";
+  private baseUrl = "http://localhost:3002/api/performance";
 
   constructor(private http: HttpClient) {}
 

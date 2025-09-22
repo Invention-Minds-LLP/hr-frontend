@@ -195,6 +195,12 @@ div[hidden] {
   color: white !important;
 }
 
+.p-textarea{
+  color: white !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
 ::ng-deep  .p-datepicker-input {
   color: white !important;
 }

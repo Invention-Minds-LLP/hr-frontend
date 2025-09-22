@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { AppraisalTable} from '../appraisal-table/appraisal-table/appraisal-table';
 import { ApprasialForm } from '../appraisal-form/apprasial-form/apprasial-form';
 import { CommonModule } from '@angular/common';
+import { DeptPerformance } from "../dept-performance/dept-performance";
 
 @Component({
   selector: 'app-appraisal-overview',
-  imports: [CommonModule, AppraisalTable, ApprasialForm],
+  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance],
   templateUrl: './appraisal-overview.html',
   styleUrl: './appraisal-overview.css'
 })

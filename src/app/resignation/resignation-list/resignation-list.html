@@ -33,8 +33,8 @@
         <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
         <td class="actions">
           <ng-container *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
-            <button pButton size="small" label="CEO Approve" (click)="approveManager(r)"></button>
-            <button pButton size="small" label="CEO Reject" class="p-button-danger" (click)="rejectManager(r)"></button>
+            <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
+            <button pButton size="small" label="Manager Reject" class="p-button-danger" (click)="rejectManager(r)"></button>
           </ng-container>
           <ng-container
             *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">

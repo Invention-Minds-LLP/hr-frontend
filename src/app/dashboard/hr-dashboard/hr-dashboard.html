@@ -86,9 +86,9 @@
         </div>
 
         <div class="card grid-4">
-            <div class="btns">
+            <div class="btns-1">
                 <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
-                <!-- <button [routerLink]="'/all-announcement'">Announcement From</button> -->
+                <button class="btn" (click)="showAnnouncementForm = true">New Announcement</button>
             </div>
             <!-- New: full list -->
             <div class="ann-list" *ngIf="announcements?.length; else noAnns">
@@ -232,5 +232,12 @@
             </ng-template>
         </p-table>
 
+    </div>
+
+</div>
+
+<div class="modal" [class.open]="showAnnouncementForm">
+    <div *ngIf="showAnnouncementForm" class="sheet-1 small">
+        <app-announcement-form></app-announcement-form>
     </div>
 </div>

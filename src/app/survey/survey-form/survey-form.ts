@@ -58,6 +58,7 @@ export class SurveyForm {
       role: localStorage.getItem('role'),
       deptId: localStorage.getItem('deptId'),
       empId: localStorage.getItem('empId'),
+      departmentName: localStorage.getItem('departmentName') || ''
     };
 
     // init form
@@ -71,12 +72,15 @@ export class SurveyForm {
 
     if (this.surveyData) {
       this.employeeApi.getEmployeeById(this.surveyData.employee.id).subscribe(emp => {
+        console.log(emp)
         this.employeeDetails = {
           name: emp.firstName + ' ' + emp.lastName,
           employeeId: emp.employeeCode,      // or emp.id if you want DB id
           role: emp.designation,
-          deptId: emp.departmentId,
+          deptId: this.surveyData.employee.Department?.id,
+          departmentName: this.surveyData.employee.Department?.name || '',
         };
+        console.log(this.employeeDetails)
 
         const arr = this.surveyData.responses.map((r: any) =>
           this.fb.group({

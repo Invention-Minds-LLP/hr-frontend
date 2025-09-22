@@ -20,11 +20,13 @@ import { Checkbox } from 'primeng/checkbox';
 import { StepperModule } from 'primeng/stepper';
 import { Shifts } from '../../services/shifts/shifts';
 import { AbstractControl } from '@angular/forms';
+import { TextareaModule } from 'primeng/textarea';
 
 
 @Component({
   selector: 'app-employee-form',
-  imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule, StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule],
+  imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
+     StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css'
 })
@@ -87,6 +89,17 @@ export class EmployeeForm {
     { label: 'Verification Certificate', value: 'VERIFICATION_CERT', category: 'CERTIFICATE', mandatory: false },
     { label: 'Bank Document', value: 'BANK', category: 'FINANCIAL', mandatory: false }
   ];
+
+  qualificationTypes = [
+    { label: 'SSLC', value: 'SSLC' },
+    { label: 'PUC / 12th', value: 'PU' },
+    { label: 'Diploma', value: 'DIPLOMA' },
+    { label: 'Bachelor’s Degree', value: 'BACHELOR' },
+    { label: 'Master’s Degree', value: 'MASTER' },
+    { label: 'Doctorate (PhD)', value: 'PHD' },
+    { label: 'Other', value: 'OTHER' }
+  ];
+
 
 
 
@@ -151,7 +164,7 @@ export class EmployeeForm {
       roleId: ['', Validators.required],
       dateOfJoining: ['', Validators.required],
       employmentType: ['PERMANENT', Validators.required],
-      employeeType: ['CLINICAL', Validators.required],  
+      employeeType: ['CLINICAL', Validators.required],
       probationEndDate: [{ value: null, disabled: true }],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
@@ -187,6 +200,30 @@ export class EmployeeForm {
       shiftDate: ['']                              // keep (optional for fixed)
 
     });
+    this.employeeForm.addControl('preEmploymentCheckDate', this.fb.control(null));
+    this.employeeForm.addControl('height', this.fb.control(''));
+    this.employeeForm.addControl('weight', this.fb.control(''));
+    this.employeeForm.addControl('bmi', this.fb.control(''));
+    this.employeeForm.addControl('bloodPressure', this.fb.control(''));
+    this.employeeForm.addControl('bloodSugar', this.fb.control(''));
+    this.employeeForm.addControl('cholesterol', this.fb.control(''));
+    this.employeeForm.addControl('allergies', this.fb.control(''));
+    this.employeeForm.addControl('chronicConditions', this.fb.control(''));
+    this.employeeForm.addControl('smoking', this.fb.control(false));
+    this.employeeForm.addControl('alcohol', this.fb.control(false));
+    this.employeeForm.addControl('exerciseFrequency', this.fb.control(''));
+    this.employeeForm.addControl('preferredHospital', this.fb.control(''));
+    this.employeeForm.addControl('primaryPhysician', this.fb.control(''));
+    this.employeeForm.addControl('emergencyNotes', this.fb.control(''));
+
+    // Add new FormArrays
+    this.employeeForm.addControl('healthIssues', this.fb.array([]));
+    this.employeeForm.addControl('vaccinations', this.fb.array([]));
+
+    // Auto-calc BMI
+    this.employeeForm.get('weight')?.valueChanges.subscribe(() => this.updateBMI());
+    this.employeeForm.get('height')?.valueChanges.subscribe(() => this.updateBMI());
+
     this.employeeForm.get('shiftMode')!.valueChanges.subscribe(mode => {
       this.applyShiftValidators(mode);
     });
@@ -225,6 +262,14 @@ export class EmployeeForm {
       this.getMandatoryDocs();
     });
 
+
+  }
+  // FormArray getters
+  get healthIssues(): FormArray {
+    return this.employeeForm.get('healthIssues') as FormArray;
+  }
+  get vaccinations(): FormArray {
+    return this.employeeForm.get('vaccinations') as FormArray;
   }
   sameAsPermanent = false;
 
@@ -238,6 +283,85 @@ export class EmployeeForm {
       this.employeeForm.get('temporaryAddress')?.reset();
     }
   }
+
+  // Add/Remove Health Issues
+  addHealthIssue() {
+    this.healthIssues.push(this.fb.group({
+      condition: ['', Validators.required],
+      checkupFrequency: ['3M', Validators.required],
+      lastCheckupDate: [null]
+    }));
+  }
+  removeHealthIssue(i: number) {
+    this.healthIssues.removeAt(i);
+  }
+
+// Dropdown for vaccine names
+availableVaccines = [
+  { label: 'Hepatitis B', value: 'HEP_B' },
+  { label: 'Tetanus', value: 'TETANUS' },
+  { label: 'COVID-19', value: 'COVID19' },
+  { label: 'Influenza (Flu)', value: 'FLU' },
+  { label: 'MMR', value: 'MMR' },
+  { label: 'Other', value: 'OTHER' }
+];
+
+
+
+// Add Vaccination
+addVaccination() {
+  this.vaccinations.push(
+    this.fb.group({
+      vaccineName: ['', Validators.required],
+      vaccinated: [null, Validators.required],
+      firstDose: [null],
+      secondDose: [null],
+      thirdDose: [null],
+      boosterDose: [null],
+      testDate: [null],
+      titerLevel: [''],
+      proofFile: [null],
+      proofFileName: ['']
+    })
+  );
+}
+
+// Remove Vaccination
+removeVaccination(index: number) {
+  this.vaccinations.removeAt(index);
+}
+
+// Handle Proof Upload
+onVaccineProofSelect(event: any, index: number) {
+  const file = event.target.files[0];
+  if (file) {
+    this.vaccinations.at(index).patchValue({
+      proofFile: file,
+      proofFileName: file.name
+    });
+  }
+}
+
+
+  // BMI calculation
+  updateBMI() {
+    const weight = this.employeeForm.get('weight')?.value;
+    const height = this.employeeForm.get('height')?.value;
+    if (weight && height) {
+      const bmi = (weight / ((height / 100) * (height / 100))).toFixed(1);
+      this.employeeForm.patchValue({ bmi }, { emitEvent: false });
+    }
+  }
+
+  // Optional: Calculate next checkup date
+  calculateNextCheckup(issue: any): Date | null {
+    if (!issue.lastCheckupDate) return null;
+    const last = new Date(issue.lastCheckupDate);
+    let months = issue.checkupFrequency === '2M' ? 2 : issue.checkupFrequency === '3M' ? 3 : 6;
+    last.setMonth(last.getMonth() + months);
+    return last;
+  }
+
 
   loadReportingManagers() {
     this.employeeService.getEmployeesWithSpecificRoles().subscribe((data: any[]) => {
@@ -309,7 +433,9 @@ export class EmployeeForm {
       this.fb.group({
         degree: ['', Validators.required],
         institution: ['', Validators.required],
-        year: ['', Validators.required]
+        year: ['', Validators.required],
+        grade: [''],
+        degreeName: ['']
       })
     );
   }
@@ -332,6 +458,29 @@ export class EmployeeForm {
         this.photoUrl = e.target.result; // Show preview
       };
       reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      this.employeeForm.patchValue({ photoUrl: file });
+
+      // this.employeeService.uploadEmployeePhoto(this.employeeData?.id, formData).subscribe({
+      //   next: (res: any) => {
+      //     this.photoUrl = res.photoUrl; // update preview
+      //     this.employeeForm.patchValue({ photoUrl: res.photoUrl }); // persist in form
+      //     this.messageService.add({
+      //       severity: 'success',
+      //       summary: 'Uploaded',
+      //       detail: 'Profile photo uploaded successfully!'
+      //     });
+      //   },
+      //   error: () => {
+      //     this.messageService.add({
+      //       severity: 'error',
+      //       summary: 'Error',
+      //       detail: 'Failed to upload profile photo'
+      //     });
+      //   }
+      // });
+
 
       // TODO: Send file to backend if needed
     }
@@ -373,7 +522,7 @@ export class EmployeeForm {
       });
       return;
     }
-    
+
 
     if (this.employeeForm.valid) {
       const formValue = this.employeeForm.value;
@@ -390,11 +539,28 @@ export class EmployeeForm {
         temporaryAddress,
         documents,
         shiftId, shiftDate, shiftMode, rotationPatternId, rotationStartDate,
+        photoUrl,
         ...rest
       } = this.employeeForm.value;
 
       const payload = {
         ...rest,
+        healthIssues: this.healthIssues.value.map((i: any) => ({
+          ...i,
+          nextCheckup: this.calculateNextCheckup(i)
+        })),
+        vaccinations: this.vaccinations.value.map((v: any) => ({
+          vaccineName: v.vaccineName,
+          vaccinated: v.vaccinated,
+          firstDose: v.firstDose,
+          secondDose: v.secondDose,
+          thirdDose: v.thirdDose,
+          boosterDose: v.boosterDose,
+          testDate: v.testDate,
+          titerLevel: v.titerLevel,
+          proofFileName: v.proofFileName
+          // you can also handle uploading v.proofFile separately via FormData
+        })),
         // documents: documentsPayload,
         addresses: [
           { type: 'PERMANENT', ...formValue.permanentAddress },
@@ -405,6 +571,13 @@ export class EmployeeForm {
         rotationPatternId: shiftMode === 'ROTATIONAL' ? rotationPatternId : undefined,
         rotationStartDate: shiftMode === 'ROTATIONAL' ? rotationStartDate : undefined
       };
+      const formData = new FormData();
+      formData.append('metadata', JSON.stringify(payload));
+
+      // ✅ Add profile photo only if user selected a new one
+      if (photoUrl instanceof File) {
+        formData.append('photo', photoUrl);
+      }
 
       console.log(payload)
       if (this.employeeData && this.employeeData.id) {
@@ -412,6 +585,10 @@ export class EmployeeForm {
         this.employeeService.updateEmployee(this.employeeData.id, payload).subscribe({
           next: (updatedEmployee: any) => {
             console.log('Employee updated:', updatedEmployee);
+            if (this.employeeForm.value.photoUrl instanceof File) {
+              this.uploadProfilePhoto(updatedEmployee.id, this.employeeForm.value.photoUrl);
+            }
+
 
             if (this.haveDocumentsChanged(this.employeeData.documents, this.uploadedDocsForm.value)) {
               this.uploadEmployeeDocs(updatedEmployee.id);
@@ -448,6 +625,9 @@ export class EmployeeForm {
       else {
         this.employeeService.createEmployee(payload).subscribe({
           next: (employee: any) => {
+            if (this.employeeForm.value.photoUrl instanceof File) {
+              this.uploadProfilePhoto(employee.id, this.employeeForm.value.photoUrl);
+            }
             // Call document upload API after employee is successfully created
             this.uploadEmployeeDocs(employee.id);
             // Assign shift
@@ -468,6 +648,29 @@ export class EmployeeForm {
 
     }
   }
+  uploadProfilePhoto(employeeId: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.employeeService.uploadEmployeePhoto(employeeId, formData).subscribe({
+      next: (res: any) => {
+        this.photoUrl = res.photoUrl; // set the new URL from backend
+        this.employeeForm.patchValue({ photoUrl: res.photoUrl }); // update form
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Profile photo uploaded successfully!'
+        });
+      },
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to upload profile photo'
+        })
+    });
+  }
+
   addDocument() {
     this.uploadedDocsForm.push(this.createDocumentGroup());
   }
@@ -503,53 +706,66 @@ export class EmployeeForm {
   //   const employeeType = this.employeeForm.get('employeeType')?.value;
 
   //   let mandatoryDocs: string[] = [];
-  
+
   //   if (employeeType === 'CLINICAL') {
   //     mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
   //   } else if (employeeType === 'NONCLINICAL') {
   //     mandatoryDocs = ['REGISTRATION_CERT'];
   //   }
-  
+
   //   // Always required
   //   mandatoryDocs.push('AADHAAR', 'PAN');
-  
+
   //   // Education requirement
   //   mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
-  
+
   //   const missingMandatory = mandatoryDocs.some(m => !uploadedTypes.includes(m));
   //   return !missingMandatory;
   // }
   // Return both required and missing docs
-getMandatoryDocs(): { required: string[], missing: string[] } {
-  // console.log('Checking mandatory docs...');
-  const uploadedTypes = this.uploadedDocsForm.value.map((d: any) => d.type);
-  const uploadedDocs = this.uploadedDocsForm.value;
-  const employeeType = this.employeeForm.get('employeeType')?.value;
+  getMandatoryDocs(): { required: string[], missing: string[] } {
+    const uploadedDocs = this.uploadedDocsForm.value;
+    const employeeType = this.employeeForm.get('employeeType')?.value;
 
-  let mandatoryDocs: string[] = [];
+    let mandatoryDocs: string[] = [];
 
-  if (employeeType === 'CLINICAL') {
-    mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-  } else if (employeeType === 'NONCLINICAL') {
-    mandatoryDocs = ['REGISTRATION_CERT'];
+    // Employee type specific
+    if (employeeType === 'CLINICAL') {
+      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    } else if (employeeType === 'NONCLINICAL') {
+      mandatoryDocs = ['REGISTRATION_CERT'];
+    }
+
+    // Always required
+    mandatoryDocs.push('AADHAAR', 'PAN', 'BANK');
+
+    // 🔹 Only qualifications entered in Step 3
+    (this.qualifications.value || []).forEach((q: any) => {
+      switch (q.degree) {
+        case 'SSLC': mandatoryDocs.push('SSLC'); break;
+        case 'PU': mandatoryDocs.push('PU'); break;
+        case 'DIPLOMA': mandatoryDocs.push('DIPLOMA'); break;
+        case 'BACHELOR':
+        case 'MASTER':
+        case 'PHD': mandatoryDocs.push('DEGREE'); break;
+      }
+    });
+
+    // Deduplicate in case multiple qualifications map to same doc
+    mandatoryDocs = [...new Set(mandatoryDocs)];
+
+    const missingMandatory = mandatoryDocs.filter(m => {
+      const doc = uploadedDocs.find((d: any) => d.type === m);
+      return !doc || (!doc.file && !doc.fileUrl);
+    });
+
+    return { required: mandatoryDocs, missing: missingMandatory };
   }
 
-  // Always required
-  mandatoryDocs.push('AADHAAR', 'PAN');
 
-  // Education requirement
-  mandatoryDocs.push('SSLC', 'PU', 'DEGREE', 'DIPLOMA');
-
-  const missingMandatory = mandatoryDocs.filter(m => {
-    const doc = uploadedDocs.find((d: any) => d.type === m);
-    return !doc || (!doc.file && !doc.fileUrl); // 🚨 Require file/fileUrl too
-  });
-  return { required: mandatoryDocs, missing: missingMandatory };
-}
-
-validateMandatoryDocs(): boolean {
-  return this.getMandatoryDocs().missing.length === 0;
-}
+  validateMandatoryDocs(): boolean {
+    return this.getMandatoryDocs().missing.length === 0;
+  }
 
   uploadEmployeeDocs(employeeId: number) {
     const formData = new FormData();
@@ -639,7 +855,7 @@ validateMandatoryDocs(): boolean {
       bloodGroup: data.bloodGroup,
       age: data.age,
       reportingManager: data.reportingManager,
-
+      employeeType: data.employeeType,
       shiftMode: mode,
       shiftId: mode === 'FIXED' ? (fixedShiftFromSetting ?? fixedShiftFallback) : null,
       rotationPatternId: mode === 'ROTATIONAL' ? setting?.rotationPatternId ?? null : null,
@@ -674,7 +890,9 @@ validateMandatoryDocs(): boolean {
       this.qualifications.push(this.fb.group({
         degree: q.degree,
         institution: q.institution,
-        year: q.year
+        year: q.year,
+        grade: q.grade,
+        degreeName: q.degreeName
       }));
     });
 
@@ -797,7 +1015,7 @@ validateMandatoryDocs(): boolean {
   }
   goToStep(stepNumber: number, activateCallback: (value: number) => void) {
     let controlsToValidate: string[] = [];
-  
+
     if (stepNumber === 2) {
       // ✅ Step 1: Personal Info
       controlsToValidate = [
@@ -807,7 +1025,7 @@ validateMandatoryDocs(): boolean {
         'permanentAddress.state', 'permanentAddress.zipCode',
         'permanentAddress.country'
       ];
-    
+
       // 🔹 Emergency Contact must exist
       if (this.emergencyContacts.length === 0) {
         this.messageService.add({
@@ -817,7 +1035,7 @@ validateMandatoryDocs(): boolean {
         });
         return;
       }
-    
+
       // Validate each contact
       this.emergencyContacts.controls.forEach((ec, index) => {
         ['name', 'phone', 'relationship'].forEach(field => {
@@ -833,7 +1051,7 @@ validateMandatoryDocs(): boolean {
           }
         });
       });
-    
+
       const invalidEC = this.emergencyContacts.controls.some(ec => ec.invalid);
       if (invalidEC) return;
     }
@@ -844,7 +1062,7 @@ validateMandatoryDocs(): boolean {
         'employmentType', 'employmentStatus',
         'departmentId', 'branchId', 'roleId', 'reportingManager'
       ];
-  
+
       // Dynamic shift mode validation
       const shiftMode = this.employeeForm.get('shiftMode')?.value;
       if (shiftMode === 'FIXED') {
@@ -863,10 +1081,10 @@ validateMandatoryDocs(): boolean {
         });
         return;
       }
-  
+
       // each qualification required fields
       this.qualifications.controls.forEach((q, index) => {
-        ['degree', 'institution', 'year'].forEach(field => {
+        ['degree', 'institution', 'year', 'grade'].forEach(field => {
           const ctrl = q.get(field);
           ctrl?.markAsTouched();
           ctrl?.updateValueAndValidity();
@@ -879,7 +1097,7 @@ validateMandatoryDocs(): boolean {
           }
         });
       });
-  
+
       const invalidQuals = this.qualifications.controls.some(q => q.invalid);
       if (invalidQuals) return;
     } else if (stepNumber === 5) {
@@ -893,14 +1111,14 @@ validateMandatoryDocs(): boolean {
         return;
       }
     }
-  
+
     // Mark selected controls as touched so errors show
     controlsToValidate.forEach(path => {
       const ctrl = this.employeeForm.get(path);
       ctrl?.markAsTouched();
       ctrl?.updateValueAndValidity();
     });
-  
+
     // Check if valid
     const invalid = controlsToValidate.some(path => this.employeeForm.get(path)?.invalid);
     if (invalid) {
@@ -911,11 +1129,11 @@ validateMandatoryDocs(): boolean {
       });
       return;
     }
-  
+
     // ✅ If valid, allow navigation
     activateCallback(stepNumber);
   }
-  
+
 
 }
 

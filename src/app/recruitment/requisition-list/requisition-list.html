@@ -1,9 +1,13 @@
 <div *ngIf="!selectedRequisition" class="card">
+  <div class="header">
+    <h2>Man Power Requisition List</h2>
+    <!-- <button pButton label="Refresh" (click)="load()"></button> -->
+  </div>
     <div class="table-wrap">
       <p-table [value]="requisitions" [loading]="loading"  [rows]="10" [scrollable]="true" scrollDirection="both">
         <ng-template pTemplate="header">
           <tr>
-            <th>ID</th>
+            <th>No</th>
             <th>Title</th>
             <th>Department</th>
             <th>Status</th>
@@ -12,9 +16,9 @@
           </tr>
         </ng-template>
       
-        <ng-template pTemplate="body" let-row>
+        <ng-template pTemplate="body" let-row let-i="rowIndex">
           <tr>
-            <td>{{ row.id }}</td>
+            <td>{{ i + 1 }}</td>
             <td>{{ row.title || row.designation }}</td>
             <td>{{ row.departmentId }}</td>
             <td>

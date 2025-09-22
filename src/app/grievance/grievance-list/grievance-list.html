@@ -1,0 +1,71 @@
+  <div class="performance-container">
+    
+    <h2>Employee Grievances</h2>
+    <div class="flex justify-content-end mb-3">
+      <button label="Raise Grievance" icon="pi pi-plus" class="new-app" (click)="openForm()"> Raise Grievance<svg xmlns="http://www.w3.org/2000/svg"
+        width="21" height="20" viewBox="0 0 21 20" fill="none">
+        <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </svg></button>
+    </div>
+  
+    <p-table [value]="grievances" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th style="text-align: center;">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-g>
+        <tr>
+          <td>{{ g.id }}</td>
+          <td>{{ g.title }}</td>
+          <td>
+            <p-tag [severity]="g.status === 'OPEN' ? 'info' : g.status === 'RESOLVED' ? 'success' : 'danger'">
+              {{ g.status }}
+            </p-tag>
+          </td>
+          <td>{{ g.createdAt | date:'short' }}</td>
+          <td class="flex align-items-center justify-content-center gap-2">
+            <p-button icon="pi pi-eye" label="View" (onClick)="view(g)" ></p-button>
+            <div>
+              <p-select 
+              [options]="statusOptions"
+              [(ngModel)]="g.status"
+              appendTo="body"
+              (onChange)="updateStatus(g)">
+            </p-select>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <p-dialog header="Raise Grievance" [(visible)]="showForm" [modal]="true" [style]="{width: '40vw'}">
+    <app-grievance-form (saved)="loadGrievances(); showForm=false"></app-grievance-form>
+  </p-dialog>
+  <p-dialog header="Grievance Details" [(visible)]="showDetails" [modal]="true" [style]="{width: '50vw'}">
+    <ng-container *ngIf="selected">
+      <h3>{{ selected.title }}</h3>
+      <p>{{ selected.description }}</p>
+  
+      <h4>Comments</h4>
+      <ul>
+        <li *ngFor="let c of selected.comments">
+          <b>{{ c.employee?.name || 'Employee ' + c.employeeId }}</b>: {{ c.comment }}
+          <small>({{ c.createdAt | date:'short' }})</small>
+        </li>
+      </ul>
+  
+      <div class="p-inputgroup">
+        <input type="text" pInputText [(ngModel)]="newComment" placeholder="Add comment...">
+      </div>
+      <div class="mt-4">
+        <button pButton type="button" icon="pi pi-send" (click)="addComment()"></button>
+      </div>
+    </ng-container>
+  </p-dialog>

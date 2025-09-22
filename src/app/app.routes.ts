@@ -45,6 +45,9 @@ import { TestCreation } from './evaluation/test-creation/test-creation';
 import { AssignedTest } from './evaluation/assigned-test/assigned-test';
 import { AllTest } from './evaluation/all-test/all-test';
 import { DeptPerformance } from './appraisal/dept-performance/dept-performance';
+import { GrievanceList } from './grievance/grievance-list/grievance-list';
+import { Posh } from './services/posh/posh';
+import { PoshList } from './posh/posh-list/posh-list';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -61,14 +64,16 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'employee' },
       { path: 'employee', component: EmployeeOverview },
       { path: 'leave', component: LeaveOverview },
-      { path: 'appraisal', component: DeptPerformance },
+      { path: 'appraisal', component: AppraisalOverview },
       { path: 'attendance', component: ManageAttendance },
       { path: 'resignation', component: ResignOverview },
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm },
       { path: 'announcement', component: AnnouncementPopup },
       { path: 'survey', component: SurveyForm },
-      { path: 'exit', component: ExitInterviewList }
+      { path: 'exit', component: ExitInterviewList },
+      { path: 'grievance', component: GrievanceList},
+      { path: 'posh', component: PoshList}
 
     ],
 

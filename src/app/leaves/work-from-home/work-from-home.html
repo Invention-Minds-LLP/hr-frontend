@@ -29,8 +29,8 @@
           <th>Department</th>
           <!-- <th>Job Title</th> -->
           <th>WFH Date</th>
-          <!-- <th>Reason</th>
-          <th>Status</th> -->
+           <!-- <th>Reason</th> -->
+          <th>Status</th>
           <th style="text-align: center;">Action</th>
         </tr>
       </ng-template>
@@ -58,10 +58,10 @@
           <td class="t-data">{{ wfhData.WFHDate }}</td>
           <!-- <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
               {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
-            </span></td>
+            </span></td> -->
             <td class="t-data">
               {{ getStatusLabel(wfhData) }}
-            </td> -->
+            </td>
 
           <td>
             <!-- <div class="btns">

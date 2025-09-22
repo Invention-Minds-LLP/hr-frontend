@@ -11,11 +11,14 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { AppraisalTemplate } from '../appraisal-template/appraisal-template';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { TextareaModule } from 'primeng/textarea';
+import { InputText, InputTextModule } from 'primeng/inputtext';
 
 
 @Component({
   selector: 'app-dept-performance',
-  imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule, ButtonModule, AppraisalTemplate, MultiSelectModule],
+  imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
+     ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })

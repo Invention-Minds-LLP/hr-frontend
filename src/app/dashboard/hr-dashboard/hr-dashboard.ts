@@ -12,6 +12,7 @@ import { Departments, Department } from '../../services/departments/departments'
 import { MessageService } from 'primeng/api';
 import { RouterLink, RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
+import { AnnouncementForm } from "../../announcements/announcement-form/announcement-form";
 
 
 type TileDef =
@@ -21,7 +22,7 @@ type TileDef =
 
 @Component({
   selector: 'app-hr-dashboard',
-  imports: [CommonModule, FormsModule, DatePipe, TableModule, RouterModule, RouterLink,TooltipModule],
+  imports: [CommonModule, FormsModule, DatePipe, TableModule, RouterModule, RouterLink, TooltipModule, AnnouncementForm],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })
@@ -36,6 +37,7 @@ export class HrDashboard implements OnInit {
   // filters
   location = 'ALL';
   department = 'ALL';
+  showAnnouncementForm: boolean = false;
 
   // modal
   modalOpen = false;
@@ -131,6 +133,9 @@ export class HrDashboard implements OnInit {
 
   onLocationChange(v: string) { this.location = v; this.load(); }
   onDeptChange(v: string) { this.department = v; this.load(); }
+  openAnnoucementForm() {
+    this.showAnnouncementForm = true;
+  }
 
   // ack helpers
   ackPercent(): number {

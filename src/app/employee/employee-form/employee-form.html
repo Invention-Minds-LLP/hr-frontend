@@ -526,19 +526,32 @@
                             <!-- <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2"> -->
                             <div formArrayName="qualifications" class="qualification">
                                 <div class="mb-5">
-                                    <button pButton variant="outlined"  type="button"
-                                        label="+ Add Qualification" (click)="addQualification()"
-                                        class="p-button-secondary"></button>
+                                    <button pButton variant="outlined" type="button" label="+ Add Qualification"
+                                        (click)="addQualification()" class="p-button-secondary"></button>
                                 </div>
                                 <div *ngFor="let q of qualifications.controls; let i = index" [formGroupName]="i"
                                     class="p-fluid grid mb-3 formgrid">
                                     <div class="field col-5">
-                                        <input pInputText formControlName="degree" placeholder="Degree"
-                                            [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }" />
+                                        <p-floatLabel variant="on">
+                                            <p-select [options]="qualificationTypes" formControlName="degree"
+                                                optionLabel="label"
+                                                [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }"
+                                                optionValue="value">
+                                            </p-select>
+                                            <label>Qualification Type</label>
+                                        </p-floatLabel>
                                         <div class="error-msg text-danger" *ngIf="showError(q.get('degree'))">Degree
                                             is
                                             required.
                                         </div>
+                                    </div>
+                                    <div class="field col-5"
+                                        *ngIf="['BACHELOR','MASTER','OTHER'].includes(q.value.degree)">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="degreeName"
+                                                placeholder="Degree Name (e.g., B.Tech, MBA)" />
+                                            <label>Degree Name</label>
+                                        </p-floatLabel>
                                     </div>
 
                                     <div class="field col-5">
@@ -556,6 +569,11 @@
                                             Year is required.
                                         </div>
                                     </div>
+
+                                    <div class="field col-5">
+                                        <input pInputText type="text" formControlName="grade" placeholder="Grade" />
+                                    </div>
+
 
                                     <div class="field col-5 trash-btn">
                                         <button variant="outlined" severity="danger" pButton type="button"
@@ -596,13 +614,13 @@
                                     <p-select [options]="[
                           { label: 'Clinical', value: 'CLINICAL' },
                           { label: 'Non-clinical', value: 'NONCLINICAL' }
-                        ]"  formControlName="employeeType"></p-select>
+                        ]" formControlName="employeeType"></p-select>
                                     <label>Employee Type</label>
                                 </p-floatLabel>
                             </div>
                             <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3"> -->
                             <div formArrayName="documents" class="qualification">
-                                <div class="field col-4">
+                                <!-- <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="[
                               { label: 'Clinical', value: 'CLINICAL' },
@@ -610,7 +628,7 @@
                             ]" formControlName="employeeType"></p-select>
                                         <label>Employee Type</label>
                                     </p-floatLabel>
-                                </div>
+                                </div> -->
 
                                 <!-- Add Document Button -->
                                 <div class="mb-5">
@@ -655,7 +673,7 @@
                                     <!-- Issue Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
-                                           
+
                                             <p-datePicker formControlName="issueDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Issue Date</label>
@@ -665,7 +683,7 @@
                                     <!-- Expiry Date -->
                                     <div class="field col-2">
                                         <p-floatLabel variant="on">
-                                          
+
                                             <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input"
                                                 dateFormat="yy-mm-dd"></p-datePicker>
                                             <label>Expiry Date</label>
@@ -724,11 +742,296 @@
                             <!-- </div> -->
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(3)" />
+                                <div class="py-6 btn">
+                                    <p-button label="Next" (onClick)="goToStep(5, activateCallback)" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-item>
+                <!-- Step 5: Health & Wellness -->
+                <p-step-item [value]="5">
+                    <p-step>Health & Wellness</p-step>
+                    <p-step-panel>
+                        <ng-template #content let-activateCallback="activateCallback">
+
+                            <!-- Pre-Employment Check -->
+                            <div class="heading mb-2">Pre-Employment Health Check</div>
+                            <div class="field col-4">
+                                <p-floatLabel variant="on">
+                                    <p-datePicker formControlName="preEmploymentCheckDate" showIcon iconDisplay="input"
+                                        dateFormat="yy-mm-dd"></p-datePicker>
+                                    <label>Pre-Employment Check Date</label>
+                                </p-floatLabel>
+                            </div>
+
+                            <!-- General Health Info -->
+                            <div class="heading mb-2 mt-3">General Health Information</div>
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="height" id="height" />
+                                        <label for="height">Height (cm)</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="weight" id="weight" />
+                                        <label for="weight">Weight (kg)</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="bmi" id="bmi" readonly />
+                                        <label for="bmi">BMI</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="bloodPressure" id="bloodPressure" />
+                                        <label for="bloodPressure">Blood Pressure (e.g., 120/80)</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="bloodSugar" id="bloodSugar" />
+                                        <label for="bloodSugar">Blood Sugar (mg/dL)</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-3">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="cholesterol" id="cholesterol" />
+                                        <label for="cholesterol">Cholesterol (mg/dL)</label>
+                                    </p-floatLabel>
+                                </div>
+                            </div>
+
+                            <!-- Allergies & Chronic Conditions -->
+                            <div class="heading mb-2 mt-3">Medical History</div>
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-6">
+                                    <p-floatLabel variant="on">
+                                        <textarea pInputTextarea formControlName="allergies"></textarea>
+                                        <label>Allergies</label>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-6">
+                                    <p-floatLabel variant="on">
+                                        <textarea pInputTextarea formControlName="chronicConditions"></textarea>
+                                        <label>Chronic Conditions</label>
+                                    </p-floatLabel>
+                                </div>
+                            </div>
+
+                            <!-- Lifestyle -->
+                            <div class="heading mb-2 mt-3">Lifestyle</div>
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[{label:'Yes', value:true},{label:'No', value:false}]"
+                                            formControlName="smoking"></p-select>
+                                        <label>Smoker</label>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[{label:'Yes', value:true},{label:'No', value:false}]"
+                                            formControlName="alcohol"></p-select>
+                                        <label>Consumes Alcohol</label>
+                                    </p-floatLabel>
+                                </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="exerciseFrequency" />
+                                        <label>Exercise Frequency (e.g., 3 times/week)</label>
+                                    </p-floatLabel>
+                                </div>
+                            </div>
+
+                            <!-- Health Issues -->
+                            <div class="heading mb-2 mt-3">Health Issues</div>
+                            <div formArrayName="healthIssues">
+                                <div class="mb-3">
+                                    <button pButton type="button" label="+ Add Health Issue" class="p-button-secondary"
+                                        (click)="addHealthIssue()"></button>
+                                </div>
+                                <div *ngFor="let issue of healthIssues.controls; let i = index" [formGroupName]="i"
+                                    class="p-fluid grid formgrid mb-2">
+                                    <div class="field col-3">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="condition" />
+                                            <label>Condition (e.g., BP, Diabetes)</label>
+                                        </p-floatLabel>
+
+                                    </div>
+                                    <div class="field col-3">
+                                        <p-floatLabel variant="on">
+                                            <p-select
+                                                [options]="[{label:'2 Months', value:'2M'},{label:'3 Months', value:'3M'},{label:'6 Months', value:'6M'}]"
+                                                formControlName="checkupFrequency">
+                                            </p-select>
+                                            <label>Checkup Frequency</label>
+                                        </p-floatLabel>
+                                    </div>
+                                    <div class="field col-3">
+                                        <p-floatLabel variant="on">
+                                            <p-datePicker formControlName="lastCheckupDate" showIcon iconDisplay="input"
+                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                            <label>Last Checkup Date</label>
+                                        </p-floatLabel>
+                                    </div>
+                                    <div class="field col-2 trash-btn">
+                                        <button pButton type="button" icon="pi pi-trash"
+                                            class="p-button-danger p-button-rounded p-button-text"
+                                            (click)="removeHealthIssue(i)"></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vaccination History -->
+                            <div class="heading mb-2 mt-4">Vaccination History</div>
+
+                            <div formArrayName="vaccinations">
+                                <div class="mb-3">
+                                    <button pButton type="button" label="+ Add Vaccination" class="p-button-secondary"
+                                        (click)="addVaccination()"></button>
+                                </div>
+
+                                <div *ngFor="let vac of vaccinations.controls; let i = index" [formGroupName]="i"
+                                    class="p-fluid grid formgrid mb-3">
+                                    <!-- Vaccine Name -->
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <p-select [options]="availableVaccines" formControlName="vaccineName"
+                                                inputId="vaccineName{{i}}">
+                                            </p-select>
+                                            <label for="vaccineName{{i}}">Vaccine</label>
+                                        </p-floatLabel>
+                                    </div>
+
+                                    <!-- Vaccinated (Yes/No) -->
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <p-select [options]="[{label:'Yes', value:true},{label:'No', value:false}]"
+                                                formControlName="vaccinated" inputId="vaccinated{{i}}">
+                                            </p-select>
+                                            <label for="vaccinated{{i}}">Vaccinated?</label>
+                                        </p-floatLabel>
+                                    </div>
+                                    <!-- Remove button -->
+                                    <div class="field col-2 trash-btn">
+                                        <button pButton type="button" icon="pi pi-trash"
+                                            class="p-button-danger p-button-rounded p-button-text"
+                                            (click)="removeVaccination(i)"></button>
+                                    </div>
+
+                                    <!-- Dose Dates (if vaccinated) -->
+                                    <div *ngIf="vac.get('vaccinated')?.value" class="p-fluid mt-2">
+                                        <div class="p-fluid grid formgrid mt-2">
+                                            <div class="field col-3">
+                                                <p-floatLabel variant="on">
+                                                    <p-datePicker formControlName="firstDose" dateFormat="yy-mm-dd"
+                                                        inputId="firstDose{{i}}"></p-datePicker>
+                                                    <label for="firstDose{{i}}">First Dose</label>
+                                                </p-floatLabel>
+                                            </div>
+                                            <div class="field col-3">
+                                                <p-floatLabel variant="on">
+                                                    <p-datePicker formControlName="secondDose" dateFormat="yy-mm-dd"
+                                                        inputId="secondDose{{i}}"></p-datePicker>
+                                                    <label for="secondDose{{i}}">Second Dose</label>
+                                                </p-floatLabel>
+                                            </div>
+                                            <div class="field col-3">
+                                                <p-floatLabel variant="on">
+                                                    <p-datePicker formControlName="thirdDose" dateFormat="yy-mm-dd"
+                                                        inputId="thirdDose{{i}}"></p-datePicker>
+                                                    <label for="thirdDose{{i}}">Third Dose</label>
+                                                </p-floatLabel>
+                                            </div>
+                                            <div class="field col-3">
+                                                <p-floatLabel variant="on">
+                                                    <p-datePicker formControlName="boosterDose" dateFormat="yy-mm-dd"
+                                                        inputId="boosterDose{{i}}"></p-datePicker>
+                                                    <label for="boosterDose{{i}}">Booster Dose(s)</label>
+                                                </p-floatLabel>
+                                            </div>
+                                        </div>
+
+                                        <!-- Optional: Test Info -->
+                                        <div class="p-fluid grid formgrid mt-2">
+                                            <div class="field col-4">
+                                                <p-floatLabel variant="on">
+                                                    <p-datePicker formControlName="testDate" dateFormat="yy-mm-dd"
+                                                        inputId="testDate{{i}}"></p-datePicker>
+                                                    <label for="testDate{{i}}">Date of Test</label>
+                                                </p-floatLabel>
+                                            </div>
+                                            <div class="field col-4">
+                                                <p-floatLabel variant="on">
+                                                    <input pInputText formControlName="titerLevel"
+                                                        id="titerLevel{{i}}" />
+                                                    <label for="titerLevel{{i}}">Titer Level</label>
+                                                </p-floatLabel>
+                                            </div>
+                                        </div>
+
+                                        <!-- Proof Upload -->
+                                        <div class="field col-4 mt-2">
+                                            <div class="file-upload-wrapper relative">
+                                                <input type="file" class="custom-file-input"
+                                                    (change)="onVaccineProofSelect($event, i)" />
+                                                <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName
+                                                    }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <!-- Emergency Info -->
+                            <div class="heading mb-2 mt-3">Emergency Medical Info</div>
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-6">
+                                    <p-floatlabel variant="on">
+                                        <input pInputText formControlName="preferredHospital" />
+                                        <label>
+                                            Preferred Hospital
+                                        </label>
+                                    </p-floatlabel>
+                                </div>
+                                <div class="field col-6">
+                                    <p-floatlabel variant="on">
+                                        <input pInputText formControlName="primaryPhysician" />
+                                        <label>
+                                            Primary Physician Contact
+                                        </label>
+                                    </p-floatlabel>
+                                </div>
+                                <div class="field col-12">
+                                    <p-floatlabel variant="on">
+                                        <textarea pInputTextarea formControlName="emergencyNotes"></textarea>
+                                        <label>Special Notes (e.g., pacemaker, allergy)</label>
+                                    </p-floatlabel>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex py-6 gap-2 btn">
+                                <p-button label="Previous" severity="secondary" (onClick)="activateCallback(4)" />
                                 <p-button type="submit" label="Submit" [disabled]="employeeForm.invalid"></p-button>
                             </div>
                         </ng-template>
                     </p-step-panel>
                 </p-step-item>
+
             </p-stepper>
         </form>
     </div>
