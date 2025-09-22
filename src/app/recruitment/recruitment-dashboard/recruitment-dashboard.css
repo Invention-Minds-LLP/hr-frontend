@@ -1,9 +1,10 @@
 .wrap {
-  padding: 50px;
+  padding: 60px;
 }
 
 .heading {
   color: white;
+  
 }
 
 .stats {
@@ -77,7 +78,7 @@
 .stat:hover {
   background: linear-gradient(135deg, var(--hover1, #22c55e), var(--hover2, #14b8a6));
   border-color: transparent;
-  color: #ffffff;
+  color:black;
   /* makes text readable */
 }
 

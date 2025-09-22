@@ -4,45 +4,48 @@
 }
 
 /* Header Row */
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: #E8ECEF;
   color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
-  border-bottom: none;
+  border: none !important;
   height: 60px;
   text-align: left;
   text-wrap: nowrap;
   /* border-radius: 12px; */
 }
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-bottom-right-radius: 10px;
 }
 
 /* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
   color: white;
   text-align: left;
-  border-bottom: 2px solid #d9d9d9;
+  border: none;
+  border-bottom: 2px solid #d9d9d9 !important;
   text-wrap: nowrap;
 }
+
 .dept-badge {
   display: inline-flex;
   align-items: center;
@@ -65,6 +68,7 @@
   background: #e9144a !important;
   color: white !important;
 }
+
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
   background: #e9144a !important;
   color: white !important;
@@ -81,10 +85,11 @@
   margin-top: 1rem;
   background: transparent;
 }
+
 .add-btn {
   display: flex;
-  width: 200px;
-  height: 44px;
+  width: 158px;
+  height: 42px;
   padding: 0 16px;
   justify-content: center;
   align-items: center;
@@ -94,13 +99,14 @@
   background: #3177a3;
   color: #fff;
   font-family: "Sofia Sans";
-  font-size: 18px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   letter-spacing: 0.18px;
   border: none;
 }
+
 .btn-edit {
   border-radius: 8px;
   border: 2px solid #FFFFFF;
@@ -111,6 +117,7 @@
   color: #FFFFFF;
   cursor: pointer;
 }
+
 .question-bank {
   font-family: "Sofia Sans";
   padding: 20px 60px;
@@ -121,8 +128,19 @@
   justify-content: end;
   margin-bottom: 20px;
   color: white;
+  align-items: center;
+  gap: 20px;
 }
-.overlay{
+
+.flex1 {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+      position: relative;
+    top: -0px;
+}
+
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -133,7 +151,8 @@
   justify-content: center;
   align-items: center;
 }
-.content{
+
+.content {
   background: white;
   padding: 20px;
   max-width: 500px;
@@ -141,9 +160,72 @@
   border-radius: 10px;
 }
 
-.button-div{
+.button-div {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
+}
+
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-list {
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  min-width: 160px;
+  background: var(--surface-ground);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 0.30rem 0.5rem;
+  list-style: none;
+  margin: 0;
+  background: white;
+}
+
+.menu-list li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  color: black;
+}
+
+
+.menu-list .list:hover {
+  background-color: #eee;
+  border-radius: 20px;
+}
+
+.menu-list .list.active {
+  background-color: #d0ebff;
+  font-weight: bold;
+  color: black;
+  border-radius: 20px;
+}
+
+
+.p-inputtext {
+  background-color: white;
+  color: black;
 }

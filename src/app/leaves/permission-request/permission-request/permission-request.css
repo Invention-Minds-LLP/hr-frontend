@@ -6,7 +6,7 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
 }
 
@@ -15,6 +15,8 @@
   flex-direction: row;
   align-items: center;
   gap: 20px;
+  position: relative;
+  top: -55px;
 }
 
 .heading {
@@ -90,9 +92,10 @@
   line-height: normal;
   letter-spacing: 0.18px;
   cursor: pointer;
-  
+
 }
-.p-inputtext{
+
+.p-inputtext {
   background: white;
 }
 
@@ -116,6 +119,7 @@
   align-items: center;
   gap: 10px;
 }
+
 ::ng-deep .p-paginator-pages {
   gap: 20px;
 }
@@ -126,8 +130,8 @@
 
 .menu-list {
   position: absolute;
-  top: 52%;
-  right: 10px;
+    top: 100%;
+    right: 140px;
   min-width: 160px;
   background: var(--surface-ground);
   border-radius: 8px;
@@ -144,6 +148,7 @@
   cursor: pointer;
   transition: background 0.2s;
   font-size: 14px;
+  color: black;
 }
 
 
@@ -201,7 +206,7 @@
 }
 
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th {
+::ng-deep .permission-request .p-datatable .p-datatable-thead>tr>th {
   padding: 20px 30px;
   text-align: center;
   background: #E8ECEF;
@@ -211,12 +216,15 @@
   font-weight: 600;
   line-height: normal;
   position: static;
+  border: none !important;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep .permission-request .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
   background: #302F31;
-  border-bottom: 2px solid #D9D9D9;
+  border: none !important;
+  border-bottom: 2px solid #D9D9D9 !important;
+  color: white !important;
 }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {

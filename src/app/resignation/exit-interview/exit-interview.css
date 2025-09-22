@@ -259,6 +259,7 @@ label {
   transition: background 0.3s ease, color 0.3s ease;
   --p-floatlabel-focus-color: white !important;
   --p-floatlabel-on-active-background: #656565 !important;
+  --p-rating-icon-color: white;
 
 }
 
@@ -268,6 +269,7 @@ label {
 
   --p-floatlabel-focus-color: black !important;
   --p-floatlabel-on-active-background: white !important;
+  --p-rating-icon-color: #302F31;
 
 }
 

@@ -8,6 +8,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px;
   }
   
   .round-header {
@@ -32,5 +33,9 @@
   .muted {
     color: #666;
     font-size: 0.9rem;
+  }
+
+  ::ng-deep .p-card-content{
+    padding: 15px;
   }
   

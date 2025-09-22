@@ -1,14 +1,15 @@
 .WFH-request {
   font-family: "Sofia Sans";
-  padding:0 60px;
+  padding: 0 60px;
   /* width: 100%; */
 }
 
 
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
+
 }
 
 .flex {
@@ -16,6 +17,8 @@
   flex-direction: row;
   align-items: center;
   gap: 20px;
+  position: relative;
+  top: -55px;
 }
 
 .heading {
@@ -151,7 +154,7 @@
   padding: 16px 5px;
   border-bottom: none;
   height: 60px;
-  text-align: left;
+  text-align: center;
   text-wrap: nowrap;
   /* border-radius: 12px; */
 }
@@ -373,10 +376,31 @@ hr {
   background: #FF0000;
 }
 
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
 .menu-list {
   position: absolute;
-  top: 52%;
-  right: 10px;
+  top: 100%;
+  right: 140px;
   min-width: 160px;
   background: var(--surface-ground);
   border-radius: 8px;
@@ -393,6 +417,7 @@ hr {
   cursor: pointer;
   transition: background 0.2s;
   font-size: 14px;
+  color: black;
 }
 
 .menu-list .list:hover {

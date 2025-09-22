@@ -70,7 +70,7 @@ export const routes: Routes = [
       { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm },
       { path: 'announcement', component: AnnouncementPopup },
-      { path: 'survey', component: SurveyForm },
+      { path: 'survey', component: SurveyList },
       { path: 'exit', component: ExitInterviewList },
       { path: 'grievance', component: GrievanceList},
       { path: 'posh', component: PoshList}

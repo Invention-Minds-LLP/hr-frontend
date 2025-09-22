@@ -1,6 +1,6 @@
 .question-bank {
   font-family: "Sofia Sans";
-  padding:20px 60px;
+  padding: 20px 60px;
 }
 
 .header {
@@ -30,24 +30,34 @@
   align-items: center;
 }
 
+.flex1 {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  top: 0px;
+}
+
 .popup-content {
   background: white;
   padding: 20px;
   width: 500px;
   border-radius: 10px;
 }
-.popup-title{
+
+.popup-title {
   color: #000;
-font-family: "Sofia Sans";
-font-size: 26px;
-font-style: normal;
-font-weight: 600;
-line-height: normal;
+  font-family: "Sofia Sans";
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
 }
 
-.form-container{
+.form-container {
   margin-top: 30px;
 }
+
 .form-row {
   margin-bottom: 15px;
   display: flex;
@@ -90,6 +100,7 @@ line-height: normal;
   width: 130px;
   height: 40px;
 }
+
 .button-div {
   display: flex;
   gap: 10px;
@@ -97,6 +108,7 @@ line-height: normal;
   align-items: center;
   width: 100%;
 }
+
 .form-row label {
   display: block;
   width: 150px;
@@ -107,6 +119,7 @@ line-height: normal;
   font-weight: 600;
   line-height: normal;
 }
+
 input,
 select {
   width: 100%;
@@ -114,51 +127,55 @@ select {
   border-radius: 8px;
   border: 2px solid #c4c4c4;
 }
+
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
 }
 
 /* Header Row */
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: #E8ECEF;
   color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
-  border-bottom: none;
+  border: none !important;
   height: 60px;
   text-align: left;
   text-wrap: nowrap;
   /* border-radius: 12px; */
 }
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-bottom-right-radius: 10px;
 }
 
 /* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
   color: white;
   text-align: left;
-  border-bottom: 2px solid #d9d9d9;
+  border: none !important;
+  border-bottom: 2px solid #d9d9d9 !important;
   text-wrap: nowrap;
 }
+
 .dept-badge {
   display: inline-flex;
   align-items: center;
@@ -182,6 +199,7 @@ select {
   background: #FF0000 !important;
   color: white !important;
 }
+
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
   background: #FF0000 !important;
   color: white !important;
@@ -198,10 +216,11 @@ select {
   margin-top: 1rem;
   background: transparent;
 }
+
 .add-btn {
   display: flex;
-  width: 200px;
-  height: 44px;
+  width: 158px;
+  height: 42px;
   padding: 0 16px;
   justify-content: center;
   align-items: center;
@@ -211,13 +230,14 @@ select {
   background: #3177a3;
   color: #fff;
   font-family: "Sofia Sans";
-  font-size: 18px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   letter-spacing: 0.18px;
   border: none;
 }
+
 .btn-edit {
   border-radius: 8px;
   border: 2px solid #FFFFFF;
@@ -228,6 +248,7 @@ select {
   color: #FFFFFF;
   cursor: pointer;
 }
+
 /* Header where the back button sits */
 .question-section .header {
   display: flex;
@@ -242,9 +263,11 @@ select {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;          /* gray-300 */
+  border: 1px solid #d1d5db;
+  /* gray-300 */
   background: #fff;
-  color: #111827;                      /* gray-900 */
+  color: #111827;
+  /* gray-900 */
   border-radius: 8px;
   font: inherit;
   cursor: pointer;
@@ -260,16 +283,22 @@ select {
 
 /* Hover / active / focus */
 .btn-back:hover {
-  background: #f9fafb;                 /* gray-50 */
-  border-color: #cbd5e1;               /* gray-300/200 mix */
+  background: #f9fafb;
+  /* gray-50 */
+  border-color: #cbd5e1;
+  /* gray-300/200 mix */
 }
+
 .btn-back:active {
   transform: translateY(1px);
 }
+
 .btn-back:focus-visible {
-  outline: 3px solid #93c5fd55;        /* blue-300 with alpha */
+  outline: 3px solid #93c5fd55;
+  /* blue-300 with alpha */
   outline-offset: 2px;
-  border-color: #60a5fa;               /* blue-400 */
+  border-color: #60a5fa;
+  /* blue-400 */
 }
 
 /* Optional compact variant */
@@ -284,14 +313,76 @@ select {
   font-weight: 600;
 }
 
-::ng-deep .btns .p-button{
+::ng-deep .btns .p-button {
   width: 150px;
   height: 45px;
-  background-color:#0062A1;
+  background-color: #0062A1;
   border: 1px solid #0062A1;
 }
 
-::ng-deep .btns .p-button:hover{
+::ng-deep .btns .p-button:hover {
   background-color: #0062A1;
-   border: 1px solid #0062A1;
+  border: 1px solid #0062A1;
+}
+
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-list {
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  min-width: 160px;
+  background: var(--surface-ground);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 0.30rem 0.5rem;
+  list-style: none;
+  margin: 0;
+  background: white;
+}
+
+.menu-list li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  color: black;
+}
+
+
+.menu-list .list:hover {
+  background-color: #eee;
+  border-radius: 20px;
+}
+
+.menu-list .list.active {
+  background-color: #d0ebff;
+  font-weight: bold;
+  color: black;
+  border-radius: 20px;
+}
+
+.p-inputtext {
+  background-color: white;
+  color: black;
 }

@@ -167,7 +167,7 @@ color: white;
   color: white;
 }
 
-::ng-deep .p-inputnumber-input{
+::ng-deep .p-inputnumber-input::placeholder{
   color: white;
 }
 

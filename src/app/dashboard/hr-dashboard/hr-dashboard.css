@@ -6,9 +6,9 @@
 
 /* ---------- Layout ---------- */
 .wrap {
-  width:100%;
+  width: 100%;
   /* margin: 0 auto; */
-  padding:20px 65px;
+  padding: 20px 65px;
 }
 
 header {
@@ -80,15 +80,27 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
+.p-paginator .p-dropdown-label {
+  color: red !important;   /* change to any color */
+}
+
+.p-dropdown-items .p-dropdown-item {
+  color: blue !important;
+}
+
 .btn {
   border-radius: 8px;
   background: #0062A1;
   color: #fff;
   border: none;
   padding: 10px 14px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   /* box-shadow: var(--shadow); */
+}
+
+::ng-deep .p-select-label{
+  color: black !important;
 }
 
 /* .btn.ghost {
@@ -110,8 +122,10 @@ select:focus {
   display: flex;
   gap: 20px;
   justify-content: start;
+}
 
-
+::ng-deep .pi {
+  font-size: 14px;
 }
 .btns-1 {
   padding: 10px 16px;
@@ -745,7 +759,7 @@ select:focus {
 
 .sheet {
   position: relative;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   width: 80%;
   height: 100%;
   background: white;
@@ -754,7 +768,7 @@ select:focus {
   box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
   padding: 10px 30px 20px;
   /* max-height: 70vh; */
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 .sheet-1 {
   position: relative;
@@ -976,13 +990,13 @@ select:focus {
   text-wrap: nowrap;
 }
 
-.info{
+.info {
   position: relative;
   top: -20px;
   /* right: -100px; */
 }
 
-.flex{
+.flex {
   display: flex;
   align-items: center;
   gap: 10px;

@@ -502,7 +502,7 @@ line-height: normal;
 .wfh,
 .permission {
   padding: 10px;
-  width: 33.33%;
+  /* width: 33.33%; */
 }
 
 .individual-bottom {
@@ -516,9 +516,7 @@ line-height: normal;
   padding: 50px 30px;
   display: flex;
   flex-direction: row;
-  gap: 20px;
-  justify-content: flex-start;
-  align-items: flex-start;
+  gap: 30px;
 }
 
 /* title */
@@ -661,7 +659,7 @@ line-height: normal;
 }
 
 ::ng-deep  .table .p-datatable .p-datatable-thead>tr>th  {
-  background: #555555;
+  background: #555555 !important;
   border: none;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
@@ -676,7 +674,7 @@ line-height: normal;
 ::ng-deep .table .p-datatable .p-datatable-tbody>tr>td {
   border: none;
   text-align: center;
-  background: #555555;
+  background: #555555 !important;
   color: white;
 }
 
@@ -693,11 +691,12 @@ line-height: normal;
 
 .leave-table,
 .permission-table {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  max-height: 400px;
-  width: 33.333%;
+  /* display: flex; */
+  /* flex-direction: row; */
+  gap: 70px;
+  /* max-height: 400px; */
+  /* width: 33.333%; */
+  width: 100%;
 }
 
 .status-pending {

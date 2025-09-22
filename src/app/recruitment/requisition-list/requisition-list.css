@@ -10,10 +10,13 @@
 ::ng-deep .card .p-datatable-thead > tr > th{
     padding: 20px;
     text-align: center;
+
+
 }
 
 ::ng-deep .card .p-datatable .p-datatable-tbody>tr>td {
     text-align: center;
+    background-color: white !important;
 }
 
 .table-wrap {
