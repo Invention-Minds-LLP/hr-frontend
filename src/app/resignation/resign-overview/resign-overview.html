@@ -5,6 +5,10 @@
         <button (click)="show('list')"><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" >All Resignation</li></button>
         <div class="br"></div>
        <button (click)="show('form')"> <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" >My Resignation</li></button>
+        <div class="br"></div>
+       <button (click)="show('exit')"> <li class="sub-item" [ngClass]="{ 'active': active === 'exit' }" >Exit Interview</li></button>
+        <div class="br"></div>
+       <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -15,4 +19,6 @@
 <div>
     <app-resignation-form *ngIf="active === 'form'"></app-resignation-form>
     <app-resignation-list *ngIf="active === 'list'"></app-resignation-list>
+    <app-exit-interview-list *ngIf="active === 'exit'"></app-exit-interview-list>
+    <app-survey-list *ngIf="active === 'survey'"></app-survey-list>
 </div>  

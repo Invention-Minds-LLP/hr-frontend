@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 import { ResignationForm } from "../resignation-form/resignation-form";
 import { ResignationList } from "../resignation-list/resignation-list";
 import { CommonModule } from '@angular/common';
+import { ExitInterviewList } from "../exit-interview-list/exit-interview-list";
+import { SurveyList } from "../../survey/survey-list/survey-list";
 
 @Component({
   selector: 'app-resign-overview',
-  imports: [ResignationForm, ResignationList, CommonModule],
+  imports: [ResignationForm, ResignationList, CommonModule, ExitInterviewList, SurveyList],
   templateUrl: './resign-overview.html',
   styleUrl: './resign-overview.css'
 })

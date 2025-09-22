@@ -6,11 +6,16 @@ import { Resignation } from '../../services/resignation/resignation';
 import { DialogModule } from 'primeng/dialog';
 import { ResignPost } from '../resign-post/resign-post';
 import { RouterLink, RouterModule } from '@angular/router';
+import { label } from '@primeuix/themes/aura/metergroup';
+import { value } from '@primeuix/themes/aura/knob';
+import { IconField, IconFieldModule } from 'primeng/iconfield';
+import { InputIcon, InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DatePipe,  DialogModule, ResignPost, RouterModule, RouterLink],
+  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost, RouterModule, IconFieldModule, InputIconModule, InputTextModule],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -22,18 +27,39 @@ export class ResignationList {
   showPostHr = false;
   isHR = ['HR', 'HR MANAGER'].includes((localStorage.getItem('role') || '').toUpperCase());
 
+  filteredRows: any[] = []
+  showFilterDropdown = false
+  selectedFilter: any = null
+
+  filterOptions = [
+    { label: 'Name', value: 'name' },
+    { label: 'Status', value: 'status' },
+    { label: 'Department', value: 'managerId' }
+  ]
+
 
   constructor(private api: Resignation) { }
 
   ngOnInit() {
     // const norm = this.normalize(this.role);
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
-      this.api.list({ scope: 'all' }).subscribe(r => this.rows = r);
+      this.api.list({ scope: 'all' }).subscribe(r => {this.rows = r;
+        this.filteredRows = [...this.rows]
+        // console.log(this.filteredRows)
+      });
     } else if (this.role === 'Reporting Manager' || this.role === 'Manager') {
-      this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => this.rows = r);
+      this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {this.rows = r
+        this.filteredRows = [...this.rows]
+        // console.log(this.filteredRows)
+      });
     } else {
-      this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => this.rows = r);
+      this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => {this.rows = r
+        this.filteredRows = [...this.rows]
+        // console.log(this.filteredRows)
+      });
     }
+
+    this.filteredRows = [...this.rows]
   }
 
   approveManager(r: any) {
@@ -90,6 +116,43 @@ export class ResignationList {
     const note = prompt('Reason for rejecting withdraw?') || '';
     this.api.hrRejectWithdraw(r.id, { note, rejectedBy: this.employeeId })
       .subscribe(upd => this.replace(upd));
+  }
+
+
+
+  toggleFilterDropdown() {
+    this.showFilterDropdown = !this.showFilterDropdown;
+  }
+
+  selectFilter(option: any) {
+    this.selectedFilter = option;
+    this.showFilterDropdown = false;
+  }
+
+  onSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const searchText = input.value.trim().toLowerCase();
+
+    if (!this.selectedFilter || !searchText) {
+      this.filteredRows = [...this.rows]; 
+      return;
+    }
+
+    const filterKey = this.selectedFilter.value;
+
+    this.filteredRows = this.rows.filter(r => {
+       if (filterKey === 'name') {
+      const fullName = `${r.firstName || ''} ${r.lastName || ''}`.toLowerCase();
+      return fullName.includes(searchText);
+    } else if (filterKey) {
+      const val = r[filterKey];
+      return val?.toString().toLowerCase().includes(searchText);
+    }
+        console.log(this.filteredRows)
+    }
+
+    )
+  
   }
 
 }

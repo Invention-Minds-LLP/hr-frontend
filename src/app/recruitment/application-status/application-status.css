@@ -31,6 +31,13 @@ button {
   background: #3465b0;
   color: #fff;
 }
+
+.p-button:hover{
+  background: #3465b0;
+  color: #fff;
+  border: 1px solid #e5e7eb;
+
+}
 button.ghost {
   background: #fff;
   color: #0f172a;
@@ -402,6 +409,10 @@ td.actions {
 :host ::ng-deep .p-dialog .p-dialog-content {
   overflow-x: hidden;
 }
+
+/* ::ng-deep .p-dialog{
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.00) 100%);
+} */
 
 /* in case your theme has a low overlay z-index, nudge it up */
 :host ::ng-deep .p-datepicker {

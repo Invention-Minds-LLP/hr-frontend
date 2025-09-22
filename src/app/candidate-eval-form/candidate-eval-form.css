@@ -1,14 +1,20 @@
 /* card & page title (match the second image vibe) */
 .eval-form {
-  padding: 30px 50px;
+  padding: 0px 0px;
 }
 .eval-card {
   border-radius: 16px;
+  background: transparent;
+  color: white;
+}
+::ng-deep .p-card-body{
+  padding: 0;
 }
 .page-title {
   margin: 0 0 14px 0;
   font-weight: 800;
   letter-spacing: 0.2px;
+  color: white;
 }
 
 /* sections */
@@ -20,7 +26,7 @@
   margin: 8px 0 10px;
 }
 .muted {
-  color: #6b7280;
+  color: white;
   font-weight: 400;
 }
 
@@ -35,9 +41,13 @@
   flex-direction: column;
   gap: 6px;
 }
+
+.field .p-select{
+  background-color: transparent;
+}
 .field > label {
   font-size: 13px;
-  color: #374151;
+  color:white;
 }
 .req {
   color: #ef4444;
@@ -62,7 +72,16 @@
 }
 .panel-toolbar .overall {
   margin-left: auto;
-  color: #111;
+  color: white;
+}
+
+.panel-toolbar button{
+  background-color: #0062A1;
+  border: none;
+}
+.panel-toolbar button:hover{
+  background-color: #0062A1;
+  border: none;
 }
 
 .panel-grid {
@@ -71,7 +90,7 @@
   align-items: start;
 }
 .panel-cell {
-  background: #fafafa;
+  background:transparent;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 10px;
@@ -90,7 +109,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #374151;
+  color: white;
 }
 
 /* actions */
@@ -140,16 +159,53 @@
   border: 1px dashed #e5e7eb;
   border-radius: 8px;
   padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .score-label {
   font-weight: 600;
-  color: #374151;
+  color: white;
 }
 .score-value {
   margin: 4px 0 6px;
-  color: #111827;
+  color: white;
 }
 
+textarea{
+  background-color: transparent;
+}
+
+textarea::placeholder{
+  color: white;
+}
+
+.p-button-text{
+  background: #0062A1;
+  color: white;
+}
+.p-button-text:hover{
+  background: #0062A1;
+  color: white;
+}
+.panel-header input::placeholder{
+  color: white;
+}
+
+::ng-deep .p-inputnumber-button{
+  background: transparent;
+  color: white;
+}
+
+::ng-deep .p-inputnumber-button:hover{
+  background: transparent;
+}
+
+::ng-deep .p-select-dropdown{
+  color: white;
+}
+
+  
 /* responsive */
 @media (max-width: 980px) {
   .form-grid {

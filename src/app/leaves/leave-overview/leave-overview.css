@@ -3,6 +3,7 @@
   align-items: center;
   padding: 0px 60px 0;
   gap: 20px;
+ 
 }
 h2{
   color: white;
@@ -88,8 +89,8 @@ button {
 
 .menu-list {
     position: absolute;
-    top: 30%;
-    right: 280px;
+    top: 37%;
+    right: 198px;
     min-width: 160px;
     background: var(--surface-ground);
     border-radius: 8px;
@@ -124,8 +125,9 @@ button {
 
 
 ::ng-deep .p-inputtext {
-    background: white;
+    background: white !important;
     font-family: "Sofia Sans";
+    color: black !important;
 }
 .filter {
   color: #9b9b9b;

@@ -1,260 +1,280 @@
 .performance-container {
-    padding: 40px;
-    background: transparent;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* DataTable Styles */
-
-::ng-deep .p-datatable {
-    border: none;
-    background: transparent;
-  }
-  
-  /* Header Row */
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    background: #E8ECEF;
-    color: black;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 16px 20px;
-    border-bottom: none;
-    height: 60px;
-    text-align: left;
-    text-wrap: nowrap;
-    /* border-radius: 12px; */
-  }
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
-    border-top-left-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
-    border-top-right-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
-    border-bottom-left-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
-    border-bottom-right-radius: 10px;
-  }
-  
-  /* Body Rows */
-  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31;
-    padding: 16px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    color: white;
-    text-align: left;
-    border-bottom: 2px solid #d9d9d9;
-    text-wrap: nowrap;
-  }
-  
-  /* Employee Name Column with Image */
-  .empname {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-  }
-
-  .input {
-    border: none;
-    outline: none;
-    padding: 6px;
-    font-size: 14px;
-    /* background-color: #fafafa !important; */
-  }
-
-  
-  .empname img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .name {
-    font-weight: 600;
-    font-size: 16px;
-    color: white;
-  }
-  
-  .email {
-    font-size: 12px;
-    color: #a1a1a1;
-  }
-  
-  /* Department Badge */
-  .dept-badge {
-    display: inline-flex;
-    align-items: center;
-    background-color: #b9f6ca; /* default (Design) */
-    color: #004d40;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  
-  /* Button */
-  .btn {
-    border-radius: 8px;
-    border: 2px solid #c4c4c4;
-    background: transparent;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    cursor: pointer;
-  }
-  .heading {
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
-  }
-  .search {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    display: flex;
-    width: 250px;
-    height: 44px;
-    padding: 20px 16px;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    color: #9b9b9b;
-    font-family: "Sofia Sans";
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border-radius: 8px;
-    border: 1px solid #c4c4c4;
-    background: white;
-  }
-  
-  .filter {
-    color: #9b9b9b;
-    font-size: 18px;
-    font-family: "Sofia Sans";
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 6px 14px;
-    background-color: white !important;
-    cursor: pointer;
-    width: 210px;
-    height: 44px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-  }
-  .filter {
-    position: relative;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-  .pi {
-    font-family: "primeicons" !important;
-  }
-  
-  
-  .filter-dropdown {
-    position: absolute;
-    top: 45.1%; /* below the filter div */
-    right: 4%;
-    background: #fafafa;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 210px;
-    margin-top: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    padding: 0;
-  }
-  .filter-dropdown li {
-    padding: 8px;
-    cursor: pointer;
-    list-style: none;
-  }
-  
-  .filter-dropdown li:hover {
-    background-color: #f0f0f0;
-  }
-  .new-app {
-    display: flex;
-    /* width: 30%; */
-    width: 200px;
-    height: 44px;
-    padding: 0 16px;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: #3177a3;
-    color: #fff;
-    font-family: "Sofia Sans";
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: none;
-  }
-  /* Paginator */
-  ::ng-deep .p-paginator {
-    background: transparent;
-    justify-content: center;
-    padding: 16px 0;
-    gap: 8px;
-  }
-  
-  ::ng-deep .p-paginator-pages {
-    display: flex;
-    gap: 8px;
-  }
-  
-  ::ng-deep .p-paginator .p-paginator-page {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-    border: 1px solid #ddd;
-    background-color: #E8ECEF;
-    cursor: pointer;
-  }
-  
-  ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
-    color: #fff !important;
-    border: none;
-  }
-  ::ng-deep .p-inputtext {
-    width: 100%;
-    color: white !important;
+  padding: 40px;
+  background: transparent;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-::ng-deep .p-select, .p-multiselect {
-    width: 100% !important;
+/* DataTable Styles */
+
+::ng-deep .p-datatable {
+  border: none;
+  background: transparent;
+}
+
+/* Header Row */
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+  background: #E8ECEF;
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 20px;
+  border: none !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  /* border-radius: 12px; */
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+  border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Body Rows */
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+  background: #302F31;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+  border: none !important;
+  border-bottom: 2px solid #d9d9d9 !important;
+  text-wrap: nowrap;
+}
+
+/* Employee Name Column with Image */
+.empname {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.input {
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+  /* background-color: #fafafa !important; */
+}
+
+
+.empname img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.email {
+  font-size: 12px;
+  color: #a1a1a1;
+}
+
+/* Department Badge */
+.dept-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #b9f6ca;
+  /* default (Design) */
+  color: #004d40;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Button */
+.btn {
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  background: transparent;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  width: 250px;
+  height: 44px;
+  padding: 20px 16px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #9b9b9b;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: white;
+}
+
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pi {
+  font-family: "primeicons" !important;
+}
+
+
+.filter-dropdown {
+  position: absolute;
+  top: 95%;
+  left: 0%;
+  background: #fafafa;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 210px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 10px;
+}
+
+.filter-dropdown li {
+  padding: 8px;
+  cursor: pointer;
+  list-style: none;
+  color: black;
+}
+
+.filter-dropdown li:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-dropdown li.active {
+  background-color: #d0ebff;
+  font-weight: bold;
+  color: black;
+  border-radius: 20px;
+}
+
+.new-app {
+  display: flex;
+  /* width: 30%; */
+  width: 162px;
+  height: 42px;
+  padding: 0 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #3177a3;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: none;
+}
+
+/* Paginator */
+::ng-deep .p-paginator {
+  background: transparent;
+  justify-content: center;
+  padding: 16px 0;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator-pages {
+  display: flex;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator .p-paginator-page {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #ddd;
+  background-color: #E8ECEF;
+  cursor: pointer;
+}
+
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #FF0000 !important;
+  color: #fff !important;
+  border: none;
+}
+
+::ng-deep .p-inputtext {
+  width: 100%;
+  color: white !important;
+}
+
+::ng-deep .p-select,
+.p-multiselect {
+  width: 100% !important;
 }

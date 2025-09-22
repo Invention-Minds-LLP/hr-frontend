@@ -132,29 +132,29 @@
             <div class="score-item">
               <div class="score-label">Job skills</div>
               <div class="score-value">{{ panelGroup(g).get('scores.jobSkills')?.value ?? '—' }}/10</div>
-              <p-progressBar *ngIf="panelGroup(g).get('scores.jobSkills')?.value != null"
-                             [value]="(panelGroup(g).get('scores.jobSkills')?.value || 0) * 10"></p-progressBar>
+              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.jobSkills')?.value != null"
+                             [value]="(panelGroup(g).get('scores.jobSkills')?.value || 0) * 10"></p-progressBar> -->
             </div>
       
             <div class="score-item">
               <div class="score-label">Job knowledge</div>
               <div class="score-value">{{ panelGroup(g).get('scores.jobKnowledge')?.value ?? '—' }}/10</div>
-              <p-progressBar *ngIf="panelGroup(g).get('scores.jobKnowledge')?.value != null"
-                             [value]="(panelGroup(g).get('scores.jobKnowledge')?.value || 0) * 10"></p-progressBar>
+              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.jobKnowledge')?.value != null"
+                             [value]="(panelGroup(g).get('scores.jobKnowledge')?.value || 0) * 10"></p-progressBar> -->
             </div>
       
             <div class="score-item">
               <div class="score-label">Attitude</div>
               <div class="score-value">{{ panelGroup(g).get('scores.attitude')?.value ?? '—' }}/10</div>
-              <p-progressBar *ngIf="panelGroup(g).get('scores.attitude')?.value != null"
-                             [value]="(panelGroup(g).get('scores.attitude')?.value || 0) * 10"></p-progressBar>
+              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.attitude')?.value != null"
+                             [value]="(panelGroup(g).get('scores.attitude')?.value || 0) * 10"></p-progressBar> -->
             </div>
       
             <div class="score-item">
               <div class="score-label">Communication</div>
               <div class="score-value">{{ panelGroup(g).get('scores.communication')?.value ?? '—' }}/10</div>
-              <p-progressBar *ngIf="panelGroup(g).get('scores.communication')?.value != null"
-                             [value]="(panelGroup(g).get('scores.communication')?.value || 0) * 10"></p-progressBar>
+              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.communication')?.value != null"
+                             [value]="(panelGroup(g).get('scores.communication')?.value || 0) * 10"></p-progressBar> -->
             </div>
           </div>
         </div>
@@ -225,7 +225,7 @@
       <div class="actions" *ngIf="isRestricted">
         <button pButton type="button" label="Reset" class="p-button-text" (click)="reset()"></button>
         <span class="spacer"></span>
-        <button pButton type="submit" label="Save Evaluation" icon="pi pi-check"></button>
+        <button pButton type="submit" label="Save Evaluation"class="p-button-text"  icon="pi pi-check"></button>
       </div>
     </p-card>
   </form>

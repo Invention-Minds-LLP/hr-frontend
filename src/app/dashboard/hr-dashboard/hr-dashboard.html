@@ -44,10 +44,10 @@
                 </div>
             </div>
             <div class="info">
-                <i class="pi pi-info-circle info-icon"
-                    [pTooltip]="'Total ' + t.label + ': ' + getTileValue(t) + '. Tap to view details.'"
-                    tooltipPosition="top" tooltipEvent="hover">
+                <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage(t)" tooltipPosition="top"
+                    tooltipEvent="hover">
                 </i>
+
             </div>
         </div>
 
@@ -207,7 +207,7 @@
             </div>
         </div>
         <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" [(selection)]="selectedRows" dataKey="id"
-            [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
+            [paginator]="true" [rows]="8" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
             [tableStyle]="{ width: '100%' }" styleClass="p-datatable-gridlines p-datatable-striped">
             <ng-template pTemplate="header">
                 <tr>

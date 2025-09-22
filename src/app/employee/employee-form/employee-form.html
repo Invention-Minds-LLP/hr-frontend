@@ -96,7 +96,7 @@
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
                                                 <input id="phone" pInputText formControlName="phone"
-                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}" />
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}" maxlength="10" />
                                                 <label for="phone">Phone</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('phone'))">
                                                     Phone

@@ -1,435 +1,491 @@
 .card {
-    background: white;
-    box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
-    border-radius: 12px;
-    padding: 16px;
-  }
-  .filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-    align-items: flex-end;
-  }
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  label.grow {
-    flex: 1;
-  }
-  select,
-  input {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 2px solid #c4c4c4;
-  }
-  button {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: #3465b0;
-    color: #fff;
-  }
-  button.ghost {
-    background: #fff;
-    color: #0f172a;
-  }
-  /* Outer wrapper: nice border + scroll on small screens */
-  .table-wrap {
-    border: 1px solid var(--border, #e5e7eb);
-    border-radius: 10px;
-    background: var(--panel, #fff);
-    overflow: auto;
-    max-width: 900px;
-    width: 100%;
-    box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
-  }
-  
-  /* Fixed layout keeps columns aligned even with many buttons */
-  table.apps {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    font-size: 14px;
-  }
-  
-  /* Head */
-  table.apps thead th {
-    text-align: left;
-    padding: 12px 14px;
-    font-weight: 700;
-    color: #2a3344;
-    background: #f8fafc;
-    border-bottom: 1px solid var(--border, #e5e7eb);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-  
-  /* Body cells */
-  table.apps td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border, #e5e7eb);
-    vertical-align: middle;
-    background: var(--panel, #fff);
-  }
-  
-  /* Hover row */
-  table.apps tbody tr:hover {
-    background: #f6f9ff;
-  }
-  
-  /* Candidate cell: name + email with ellipsis */
-  td.candidate .name {
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  td.candidate .email {
-    color: #64748b;
-    font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  /* Status pill */
-  .pill {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--border, #e5e7eb);
-    background: #eef2ff;
-    font-weight: 700;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  .pill.good {
-    background: #ecfdf5;
-    color: #065f46;
-    border-color: rgba(16, 185, 129, 0.25);
-  }
-  .pill.warn {
-    background: #fff7ed;
-    color: #92400e;
-    border-color: rgba(245, 158, 11, 0.25);
-  }
-  .pill.danger {
-    background: #fef2f2;
-    color: #991b1b;
-    border-color: rgba(239, 68, 68, 0.25);
-  }
-  
-  /* Actions column: compact chips, wrap nicely, right aligned */
-  td.actions {
-    text-align: center;
-  }
-  td.actions {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  
-  /* Chip buttons */
-  .chip {
-    border: 1px solid var(--border, #e5e7eb);
-    /* background: #fff; */
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    line-height: 1;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .chip:hover {
-    background: #f3f4f6;
-    color: #000;
-  }
-  .chip.danger {
-    border-color: rgba(239, 68, 68, 0.35);
-    color: #b91c1c;
-  }
-  
-  /* Utility */
-  .right {
-    text-align: right;
-  }
-  /* container */
-  .review-dialog {
-    padding: 0.25rem 0.25rem 0;
-  }
-  
-  /* summary */
-  .summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  .summary-main {
-    min-width: 0;
-  }
-  .test-name {
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.25rem;
-  }
-  .meta {
-    margin-top: 0.25rem;
-    font-size: 0.85rem;
-    color: var(--text-color-secondary, #6b7280);
-    display: flex;
-    gap: 0.4rem;
-    align-items: center;
-  }
-  
-  /* score tag bigger */
-  :host ::ng-deep .score-tag .p-tag {
-    font-size: 1rem;
-    padding: 0.35rem 0.6rem;
-    border-radius: 8px;
-  }
-  
-  /* form fields */
-  .form .field {
-    margin-bottom: 1rem;
-  }
-  .label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.35rem;
-  }
-  .req {
-    color: var(--red-500, #ef4444);
-  }
-  .muted {
-    color: var(--text-color-secondary, #6b7280);
-  }
-  
-  /* radios inline */
-  .radio-row {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 0.25rem;
-  }
-  .field-radiobutton {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  /* hint */
-  .hint {
-    color: var(--red-500, #ef4444);
-  }
-  
-  /* info box */
-  .next-step {
-    margin-top: 0.25rem;
-    font-size: 0.9rem;
-    color: var(--text-color-secondary, #6b7280);
-    background: var(--surface-100, #f3f4f6);
-    padding: 0.6rem 0.75rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  ::ng-deep .p-textarea {
-    width: 100%;
-    height: 100px;
-    background-color: transparent !important;
-  }
-  .dialog-body {
-    padding: 0 0.25rem;
-  }
-  .field {
-    margin-bottom: 1rem;
-  }
-  .label {
-    font-weight: 600;
-    display: inline-block;
-    margin-bottom: 0.5rem;
-  }
-  .req {
-    color: var(--red-500, #f44336);
-  }
-  .muted {
-    color: var(--text-color-secondary, #6b7280);
-  }
-  .hint {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.85rem;
-    color: var(--text-color-secondary, #6b7280);
-  }
-  .option-row {
-    display: flex;
-    align-items: center;
-  }
-  .name {
-    font-weight: 600;
-  }
-  
-  /* container + rhythm */
-  .si-body {
-    padding: 0.25rem 0.25rem 0 0.25rem;
-  }
-  .si-field {
-    margin-bottom: 1rem;
-  }
-  .si-label {
-    font-weight: 600;
-    display: inline-block;
-    margin-bottom: 0.5rem;
-  }
-  .si-req {
-    color: var(--red-500, #f44336);
-  }
-  .si-hint {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.85rem;
-    color: var(--text-color-secondary, #6b7280);
-  }
-  .si-divider {
-    margin: 0.25rem 0 1rem 0;
-  }
-  
-  /* grid for dates */
-  .si-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .si-col {
-  }
-  .si-input :is(input, .p-datepicker, .p-calendar) {
-    width: 100%;
-  }
-  
-  /* multiselect list items */
-  .si-multi .p-multiselect-items {
-    padding: 0.25rem 0.25rem 0.5rem 0.25rem;
-  }
-  .si-opt {
-    display: flex;
-    align-items: center;
-    padding: 0.25rem 0.35rem;
-  }
-  .si-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: var(--surface-200, #eef2ff);
-    color: var(--primary-color, #6366f1);
-    margin-right: 0.5rem;
-    flex: 0 0 28px;
-  }
-  .si-opt-text {
-    display: flex;
-    flex-direction: column;
-  }
-  .si-opt-name {
-    font-weight: 600;
-    line-height: 1.15;
-  }
-  .si-opt-sub {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary, #6b7280);
-    line-height: 1.2;
-  }
-  
-  /* selected chips inside trigger */
-  .si-multi .p-multiselect-token {
-    margin: 0.15rem 0.25rem 0.15rem 0;
-  }
-  /* tidy spacing */
-  .at-body {
-    padding: 0.25rem 0.25rem 0 0.25rem;
-  }
-  .at-field {
-    margin-bottom: 1rem;
-  }
-  .at-label {
-    font-weight: 600;
-    display: inline-block;
-    margin-bottom: 0.5rem;
-  }
-  .at-req {
-    color: var(--red-500, #f44336);
-  }
-  .at-muted {
-    color: var(--text-color-secondary, #6b7280);
-  }
-  .at-hint {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.85rem;
-    color: var(--text-color-secondary, #6b7280);
-  }
-  
-  /* date pickers side-by-side, stack on small screens */
+  background: white;
+  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: flex-end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label.grow {
+  flex: 1;
+}
+
+select,
+input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+}
+
+button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #3465b0;
+  color: #fff;
+}
+
+.p-button:hover {
+  border: 1px solid #e5e7eb;
+  background: #3465b0;
+  color: #fff;
+}
+
+button.ghost {
+  background: #fff;
+  color: #0f172a;
+}
+
+/* Outer wrapper: nice border + scroll on small screens */
+.table-wrap {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  background: var(--panel, #fff);
+  overflow: auto;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+}
+
+/* Fixed layout keeps columns aligned even with many buttons */
+table.apps {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+/* Head */
+table.apps thead th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 700;
+  color: #2a3344;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Body cells */
+table.apps td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  vertical-align: middle;
+  background: var(--panel, #fff);
+}
+
+/* Hover row */
+table.apps tbody tr:hover {
+  background: #f6f9ff;
+}
+
+/* Candidate cell: name + email with ellipsis */
+td.candidate .name {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+td.candidate .email {
+  color: #64748b;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Status pill */
+.pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: #eef2ff;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.pill.good {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.pill.warn {
+  background: #fff7ed;
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.pill.danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Actions column: compact chips, wrap nicely, right aligned */
+td.actions {
+  text-align: center;
+}
+
+td.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Chip buttons */
+.chip {
+  border: 1px solid var(--border, #e5e7eb);
+  /* background: #fff; */
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: #f3f4f6;
+  color: #000;
+}
+
+.chip.danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #b91c1c;
+}
+
+/* Utility */
+.right {
+  text-align: right;
+}
+
+/* container */
+.review-dialog {
+  padding: 0.25rem 0.25rem 0;
+}
+
+/* summary */
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summary-main {
+  min-width: 0;
+}
+
+.test-name {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.25rem;
+}
+
+.meta {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* score tag bigger */
+:host ::ng-deep .score-tag .p-tag {
+  font-size: 1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+}
+
+/* form fields */
+.form .field {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.req {
+  color: var(--red-500, #ef4444);
+}
+
+.muted {
+  color: var(--text-color-secondary, #6b7280);
+}
+
+/* radios inline */
+.radio-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.field-radiobutton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* hint */
+.hint {
+  color: var(--red-500, #ef4444);
+}
+
+/* info box */
+.next-step {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary, #6b7280);
+  background: var(--surface-100, #f3f4f6);
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+::ng-deep .p-textarea {
+  width: 100%;
+  height: 100px;
+  background-color: transparent !important;
+}
+
+.dialog-body {
+  padding: 0 0.25rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.label {
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.req {
+  color: var(--red-500, #f44336);
+}
+
+.muted {
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+}
+
+.name {
+  font-weight: 600;
+}
+
+/* container + rhythm */
+.si-body {
+  padding: 0.25rem 0.25rem 0 0.25rem;
+}
+
+.si-field {
+  margin-bottom: 1rem;
+}
+
+.si-label {
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.si-req {
+  color: var(--red-500, #f44336);
+}
+
+.si-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.si-divider {
+  margin: 0.25rem 0 1rem 0;
+}
+
+/* grid for dates */
+.si-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.si-col {}
+
+.si-input :is(input, .p-datepicker, .p-calendar) {
+  width: 100%;
+}
+
+/* multiselect list items */
+.si-multi .p-multiselect-items {
+  padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+}
+
+.si-opt {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.35rem;
+}
+
+.si-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--surface-200, #eef2ff);
+  color: var(--primary-color, #6366f1);
+  margin-right: 0.5rem;
+  flex: 0 0 28px;
+}
+
+.si-opt-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.si-opt-name {
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.si-opt-sub {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary, #6b7280);
+  line-height: 1.2;
+}
+
+/* selected chips inside trigger */
+.si-multi .p-multiselect-token {
+  margin: 0.15rem 0.25rem 0.15rem 0;
+}
+
+/* tidy spacing */
+.at-body {
+  padding: 0.25rem 0.25rem 0 0.25rem;
+}
+
+.at-field {
+  margin-bottom: 1rem;
+}
+
+.at-label {
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.at-req {
+  color: var(--red-500, #f44336);
+}
+
+.at-muted {
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.at-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+/* date pickers side-by-side, stack on small screens */
+.at-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.si-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+
+@media (max-width: 640px) {
   .at-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr;
   }
-  .si-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .5rem;
-  }
-  
-  @media (max-width: 640px) {
-    .at-row {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  /* prevent horizontal scroll in the dialog */
-  :host ::ng-deep .p-dialog .p-dialog-content {
-    overflow-x: hidden;
-  }
-  
-  /* in case your theme has a low overlay z-index, nudge it up */
-  :host ::ng-deep .p-datepicker {
-    z-index: 1200 !important;
-  }
-  :host ::ng-deep .p-multiselect-panel,
-  :host ::ng-deep .p-dropdown-panel {
-    z-index: 1200 !important;
-  }
-  ::ng-deep  .p-datepicker-panel {
-    border-radius: 10px;
-    /* Rounded calendar popup */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    /* Shadow for calendar popup */
-    background-color: white;
-    font-size: 12px;
-    /* Smaller font for calendar */
-    width: 300px;
-    /* Adjusted width for calendar popup */
-  }
-  
-  ::ng-deep  .p-datepicker table {
-    font-size: 14px;
-    /* Smaller font for dates */
-  }
-  
-  ::ng-deep  .p-datepicker-header {
-    padding: 5px;
-    /* Adjust header padding */
-  }
-  
+}
+
+/* prevent horizontal scroll in the dialog */
+:host ::ng-deep .p-dialog .p-dialog-content {
+  overflow-x: hidden;
+}
+
+/* in case your theme has a low overlay z-index, nudge it up */
+:host ::ng-deep .p-datepicker {
+  z-index: 1200 !important;
+}
+
+:host ::ng-deep .p-multiselect-panel,
+:host ::ng-deep .p-dropdown-panel {
+  z-index: 1200 !important;
+}
+
+::ng-deep .p-datepicker-panel {
+  border-radius: 10px;
+  /* Rounded calendar popup */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Shadow for calendar popup */
+  background-color: white;
+  font-size: 12px;
+  /* Smaller font for calendar */
+  width: 300px;
+  /* Adjusted width for calendar popup */
+}
+
+::ng-deep .p-datepicker table {
+  font-size: 14px;
+  /* Smaller font for dates */
+}
+
+::ng-deep .p-datepicker-header {
+  padding: 5px;
+  /* Adjust header padding */
+}

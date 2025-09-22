@@ -295,6 +295,21 @@ export class HrDashboard implements OnInit {
     // --- Default fallback
     this.toast(action);
   }
+
+ getTooltipMessage(tile: any): string {
+ const tooltips: { [key: string]: string } = {
+  leaves: "Number of employees on approved leave today.",
+  wfh: "Number of employees working from home with approval today.",
+  permissions: "Number of employees with approved short permissions (late arrival or early exit) today.",
+  late: "Number of employees who arrived later than their scheduled start time today.",
+  otYesterday: "Number of employees who worked overtime yesterday.",
+  newJoiners: "Number of employees whose joining date is today.",
+  birthdays: "Number of employees celebrating their birthday today.",
+  anniversaries: "Number of employees completing a work anniversary today."
+};
+
+  return tooltips[tile.key] || "";
+}
   
 
 }
