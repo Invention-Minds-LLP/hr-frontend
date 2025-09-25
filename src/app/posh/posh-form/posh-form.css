@@ -19,3 +19,16 @@
   h2, h3{
     color: white;
   }
+
+  .form{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+ ::ng-deep .btn .p-button{
+    margin-top: 20px;
+    background-color: #0062A1;
+    border-color: #0062A1;
+  }
+  

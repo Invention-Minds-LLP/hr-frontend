@@ -5,6 +5,12 @@
   justify-content: flex-start;
   padding: 0 2rem 2rem 2rem;
   width: 100%;
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
+  --p-checkbox-checked-border-color: #003366;
 }
 
 .steps-container .step {
@@ -196,13 +202,13 @@ div[hidden] {
   color: white !important;
 }
 
-.p-textarea{
+.p-textarea {
   color: white !important;
   background: transparent !important;
   width: 100% !important;
 }
 
-::ng-deep  .p-datepicker-input {
+::ng-deep .p-datepicker-input {
   color: white !important;
 }
 
@@ -351,6 +357,7 @@ div[hidden] {
   color: #3465b0 !important;
   font-size: 20px;
   font-family: "Sofia Sans";
+  font-weight: 700;
 }
 
 ::ng-deep .p-step-title {

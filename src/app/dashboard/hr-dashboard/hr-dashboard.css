@@ -9,6 +9,7 @@
   width: 100%;
   /* margin: 0 auto; */
   padding: 20px 65px;
+
 }
 
 header {
@@ -81,7 +82,8 @@ select:focus {
 }
 
 .p-paginator .p-dropdown-label {
-  color: red !important;   /* change to any color */
+  color: red !important;
+  /* change to any color */
 }
 
 .p-dropdown-items .p-dropdown-item {
@@ -99,7 +101,7 @@ select:focus {
   /* box-shadow: var(--shadow); */
 }
 
-::ng-deep .p-select-label{
+::ng-deep .p-select-label {
   color: black !important;
 }
 
@@ -127,6 +129,7 @@ select:focus {
 ::ng-deep .pi {
   font-size: 14px;
 }
+
 .btns-1 {
   padding: 10px 16px;
   display: flex;
@@ -181,16 +184,18 @@ select:focus {
   position: relative;
   padding: 16px;
   border-radius: 18px;
-  background: linear-gradient(180deg, #ffffff, #fafcff);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+  background: linear-gradient(135deg, var(--hover1, #fff), var(--hover2, #fafafa));
 }
+
+
 
 .tile:hover {
   transform: translateY(-4px);
@@ -216,12 +221,8 @@ select:focus {
   position: absolute;
   inset: auto -20% -35% -20%;
   height: 46%;
-  background: radial-gradient(1000px 200px at 50% 0%,
-      var(--tile-g1, transparent),
-      transparent 70%),
-    radial-gradient(1000px 200px at 30% 0%,
-      var(--tile-g2, transparent),
-      transparent 70%);
+  background: radial-gradient(1000px 200px at 50% 0%, var(--tile-g1, transparent), transparent 70%),
+    radial-gradient(1000px 200px at 30% 0%, var(--tile-g2, transparent), transparent 70%);
   filter: blur(18px);
   opacity: 0.7;
   pointer-events: none;
@@ -761,7 +762,7 @@ select:focus {
   position: relative;
   /* overflow-y: auto; */
   width: 80%;
-  height: 100%;
+  height: 99vh;
   background: white;
   /* border: 1px solid #828282; */
   border-radius: 18px;
@@ -769,7 +770,14 @@ select:focus {
   padding: 10px 30px 20px;
   /* max-height: 70vh; */
   /* overflow-x: hidden; */
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
+  --p-checkbox-checked-border-color: #003366;
 }
+
 .sheet-1 {
   position: relative;
   overflow-y: auto;
@@ -922,7 +930,7 @@ select:focus {
   font-size: 16px;
   font-weight: 800;
   padding: 16px 20px;
-  border: 1px solid #828282;
+  border: 1px solid #828282 !important;
   /* text-align: center; */
   height: 60px;
   text-align: left;
@@ -948,7 +956,7 @@ select:focus {
 ::ng-deep .p-paginator {
   background: transparent;
   justify-content: center;
-  padding: 16px 0;
+  padding: 0;
   gap: 8px;
 }
 
@@ -964,7 +972,7 @@ select:focus {
   font-size: 14px;
   font-weight: 500;
   color: #333;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   background-color: transparent;
   cursor: pointer;
 }
@@ -984,7 +992,7 @@ select:focus {
   color: #2b2b2b;
   text-align: left;
   background: white;
-  border: 1px solid #828282;
+  border: 1px solid #828282 !important;
   text-align: center;
   /* border-bottom: 2px solid #d9d9d9; */
   text-wrap: nowrap;

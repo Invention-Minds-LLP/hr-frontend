@@ -84,23 +84,22 @@ export class SurveyList {
 
     const filterKey = this.selectedFilter.value;
 
-      this.filterSurveyData = this.surveys.filter(s => {
-        if (filterKey === 'name') {
-          const fullName = `${s.employee?.firstName || ''} ${s.employee?.lastName || ''}`.toLowerCase();
-          return fullName.includes(searchText); 
-        } else if (filterKey === 'employeeCode') {
-          return s.employee?.employeeCode?.toLowerCase().includes(searchText);
-        } else if (filterKey === 'department') {
-          return s.employee?.department?.name?.toLowerCase().includes(searchText);
-        } else if (filterKey) {
-          const val = s[filterKey];
-          return val?.toString().toLowerCase().includes(searchText);
-        }
-        return false;
-      });
-
-      console.log(this.filterSurveyData)
-    }
+    this.filterSurveyData = this.surveys.filter(s => {
+      if (filterKey === 'name') {
+        const fullName = `${s.employee?.firstName || ''} ${s.employee?.lastName || ''}`.toLowerCase();
+        return fullName.includes(searchText);
+      } else if (filterKey === 'employeeCode') {
+        return s.employee?.employeeCode?.toLowerCase().includes(searchText);
+      } else if (filterKey === 'department') {
+        return s.employee?.department?.name?.toLowerCase().includes(searchText);
+      } else if (filterKey) {
+        const val = s[filterKey];
+        return val?.toString().toLowerCase().includes(searchText);
+      }
+      return false;
+    });
+    console.log(this.filterSurveyData)
+  }
 
 
 

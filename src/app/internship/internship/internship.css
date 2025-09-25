@@ -5,9 +5,10 @@
 
 }
 
-.wrap h2{
+.wrap h2 {
   color: white;
 }
+
 .filters {
   display: flex;
   gap: 8px;
@@ -16,12 +17,14 @@
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
+
 .input {
   padding: 6px 8px;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
   height: 38px;
 }
+
 .btn {
   padding: 6px 10px;
   border: 1px solid #ccc;
@@ -29,28 +32,31 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
 .btn.primary {
   border-radius: 8px;
   background: #3177a3;
-  color: #fff;
-  width: 160px;
+  width: 143px;
   height: 44px;
   border-color: #3177a3;
   color: #FFF;
-font-family: "Sofia Sans";
-font-size: 18px;
-font-style: normal;
-font-weight: 500;
-line-height: normal;
-letter-spacing: 0.18px;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
 }
+
 .btn.ghost {
   background: transparent;
 }
+
 .btn.danger,
 .link.danger {
   color: #b00020;
 }
+
 .spacer {
   flex: 1 1 auto;
 }
@@ -61,6 +67,7 @@ letter-spacing: 0.18px;
   border-radius: 8px;
   margin: 8px 0;
 }
+
 .card.danger {
   border-color: #ffcccc;
   background: #fff5f5;
@@ -71,10 +78,12 @@ letter-spacing: 0.18px;
   border: 1px solid #eee;
   border-radius: 8px;
 }
+
 table.list {
   width: 100%;
   border-collapse: collapse;
 }
+
 table.list th,
 table.list td {
   padding: 8px;
@@ -82,9 +91,11 @@ table.list td {
   text-align: left;
   vertical-align: top;
 }
+
 .bold {
   font-weight: 600;
 }
+
 .sub {
   opacity: 0.7;
   font-size: 12px;
@@ -104,6 +115,7 @@ table.list td {
   cursor: pointer;
   padding: 0;
 }
+
 .actions .link {
   margin-right: 6px;
 }
@@ -113,18 +125,22 @@ table.list td {
   border-radius: 999px;
   font-size: 12px;
 }
+
 .pill.good {
   background: #e7f5e8;
   color: #2e7d32;
 }
+
 .pill.warn {
   background: #fff4e5;
   color: #a15c00;
 }
+
 .pill.danger {
   background: #ffe6e8;
   color: #b00020;
 }
+
 .pill.muted {
   background: #f1f3f5;
   color: #555;
@@ -137,9 +153,11 @@ table.list td {
   background: rgba(0, 0, 0, 0.35);
   z-index: 1000;
 }
+
 .modal.open {
   display: block;
 }
+
 .sheet {
   background: #fff;
   max-width: 720px;
@@ -150,6 +168,7 @@ table.list td {
   border-radius: 10px;
   position: relative;
 }
+
 .close {
   position: absolute;
   right: 12px;
@@ -164,11 +183,13 @@ table.list td {
   display: grid;
   gap: 8px;
 }
+
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+
 .bar-sep {
   text-align: center;
   opacity: 0.6;
@@ -178,45 +199,54 @@ table.list td {
 .muted {
   opacity: 0.7;
 }
-.actions-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; padding: 20px; }
+
+.actions-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 20px;
+}
 
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
 }
 
-.al{
+.al {
   text-align: center;
 }
 
 /* Header Row */
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: #e8ecef;
   color: #666;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 20px;
-  border-bottom: none;
+  border: none !important;
   height: 60px;
   text-align: left;
   text-wrap: nowrap;
   /* border-radius: 12px; */
 }
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-bottom-right-radius: 10px;
 }
+
 ::ng-deep .p-paginator {
   background: transparent;
   justify-content: center;
@@ -248,55 +278,63 @@ table.list td {
 }
 
 /* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
   color: white;
   text-align: center;
-  border-bottom: 2px solid #d9d9d9;
+  border: none !important;
+  border-bottom: 2px solid #d9d9d9 !important;
   text-wrap: nowrap;
 }
+
 /* 2-column grid for the modal form */
 .form.two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;   /* two equal columns */
-    gap: 12px 16px;                   /* row/column gaps */
-    align-items: start;
-  }
-  
-  .form.two-col .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* two equal columns */
+  gap: 12px 16px;
+  /* row/column gaps */
+  align-items: start;
+}
 
-  .field{
-    margin-bottom: 10px;
-  }
-  
-  /* span full width for wide rows like Notes/Actions */
-  .form.two-col .span-2 { grid-column: 1 / -1; }
-  
-  /* make controls fill the cell width (works with native and PrimeNG) */
-  .form.two-col .input,
-  .form.two-col select,
-  .form.two-col textarea,
-  .form.two-col :where(.p-inputtext, .p-dropdown, .p-calendar, .p-datepicker) {
-    width: 100%;
-  }
-  
-  /* align the button bar */
-  .form.two-col .actions {
-    display: flex;
-    justify-content: flex-start;   /* change to flex-end if you prefer right align */
-    gap: 8px;
-  }
+.form.two-col .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-  
-  /* stack to one column on small screens */
-  @media (max-width: 640px) {
-    .form.two-col { grid-template-columns: 1fr; }
+.field {
+  margin-bottom: 10px;
+}
+
+/* span full width for wide rows like Notes/Actions */
+.form.two-col .span-2 {
+  grid-column: 1 / -1;
+}
+
+/* make controls fill the cell width (works with native and PrimeNG) */
+.form.two-col .input,
+.form.two-col select,
+.form.two-col textarea,
+.form.two-col :where(.p-inputtext, .p-dropdown, .p-calendar, .p-datepicker) {
+  width: 100%;
+}
+
+/* align the button bar */
+.form.two-col .actions {
+  display: flex;
+  justify-content: flex-start;
+  /* change to flex-end if you prefer right align */
+  gap: 8px;
+}
+
+
+/* stack to one column on small screens */
+@media (max-width: 640px) {
+  .form.two-col {
+    grid-template-columns: 1fr;
   }
-  
+}

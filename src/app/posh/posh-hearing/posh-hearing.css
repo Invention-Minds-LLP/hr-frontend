@@ -1,8 +1,8 @@
 .performance-container {
     padding: 40px;
     background: transparent;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* border-radius: 12px; */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
   }
   
   /* DataTable Styles */
@@ -14,12 +14,13 @@
   
   /* Header Row */
   ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    background: #E8ECEF;
-    color: black;
+    background: #E8ECEF !important;
+    color: black !important;
     font-size: 16px;
     font-weight: 600;
     padding: 16px 20px;
-    border-bottom: none;
+    border: none !important;
+    border-bottom: 2px solid #d9d9d9 !important;
     height: 60px;
     text-align: left;
     text-wrap: nowrap;
@@ -43,14 +44,19 @@
   
   /* Body Rows */
   ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31;
+    background: white;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;
-    color: white;
+    color: black !important ;
     text-align: left;
-    border-bottom: 2px solid #d9d9d9;
+    border: none !important;
+    /* border-bottom: 2px solid #d9d9d9 !important; */
     text-wrap: nowrap;
+  }
+
+  ::ng-deep .p-dialog{
+    max-height: 95%;
   }
   
   /* Employee Name Column with Image */
@@ -67,6 +73,16 @@
     padding: 6px;
     font-size: 14px;
     /* background-color: #fafafa !important; */
+  }
+
+  .flex{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .date{
+    font-size: 16px;
   }
 
   
@@ -86,6 +102,10 @@
   .email {
     font-size: 12px;
     color: #a1a1a1;
+  }
+
+  label{
+    padding-bottom:5px ;
   }
   
   /* Department Badge */
@@ -244,10 +264,12 @@
     background-color: #E8ECEF;
     cursor: pointer;
   }
-  
+  .p-field{
+    padding-top: 10px;
+  }
+
   ::ng-deep .p-paginator-page.p-paginator-page-selected {
     background: #FF0000 !important;
-
     border: none;
   }
   ::ng-deep .p-inputtext, .p-textarea, .p-datepicker {
@@ -258,4 +280,24 @@
 ::ng-deep .p-select, .p-multiselect {
     width: 100% !important;
     color: black !important;
+}
+
+::ng-deep .btn1 .p-button{
+  background-color: #0062A1 !important;
+  border-color:#0062A1 !important;
+}
+::ng-deep .btn1 .p-button:hover{
+  background-color: #0062A1 !important;
+  border-color: #0062A1 !important;
+}
+
+::ng-deep .p-dialog-header{
+  padding:20px 20px 0;
+}
+::ng-deep .p-dialog-content{
+  padding: 0;
+}
+
+::ng-deep .p-card-body{
+  padding-top: 0;
 }

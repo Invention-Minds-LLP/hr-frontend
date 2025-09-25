@@ -45,7 +45,7 @@
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31;
-  padding: 16px 20px;
+  padding:20px;
   font-size: 16px;
   font-weight: 500;
   color: white;
@@ -271,7 +271,7 @@
 
 ::ng-deep .p-inputtext {
   width: 100%;
-  color: white !important;
+  color: black !important;
 }
 
 ::ng-deep .p-select,

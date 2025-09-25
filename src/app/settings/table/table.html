@@ -1,28 +1,31 @@
 <div class="empl-table">
-    <div class="heading">Employee Table</div>
-    <div class="header">
-        <div class="filter-part">
-            <div class="filter" (click)="toggleFilterDropdown()">
-                <i class="pi pi-filter"></i>
-                <ul class="menu-list" *ngIf="showDropdown">
-                    <li class="list" *ngFor="let option of filterOption" (click)="selectFilter(option);$event.stopPropagation()"
-                        [ngClass]="{ 'active': selectedFilter?.value === option.value }">
-                        {{ option.label }}
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <p-floatlabel variant="on">
-                    <p-iconfield>
-                        <p-inputicon class="pi pi-search" />
-                        <input pInputText id="Search" autocomplete="off" type="text" (input)="onSearch($event)" />
-                    </p-iconfield>
-                    <label for="Search">Search Employee</label>
-                </p-floatlabel>
+    <div class="flex">
+        <div class="heading">Employee Table</div>
+        <div class="header">
+            <div class="filter-part">
+                <div class="filter" (click)="toggleFilterDropdown()">
+                    <i class="pi pi-filter"></i>
+                    <ul class="menu-list" *ngIf="showDropdown">
+                        <li class="list" *ngFor="let option of filterOption"
+                            (click)="selectFilter(option);$event.stopPropagation()"
+                            [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+                            {{ option.label }}
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <p-floatlabel variant="on">
+                        <p-iconfield>
+                            <p-inputicon class="pi pi-search" />
+                            <input pInputText id="Search" autocomplete="off" type="text" (input)="onSearch($event)" />
+                        </p-iconfield>
+                        <label for="Search">Search Employee</label>
+                    </p-floatlabel>
+                </div>
             </div>
         </div>
     </div>
-    <div class="table" >
+    <div class="table">
         <p-table [value]="filterEmployeeData" [paginator]="true" [rows]="15">
             <ng-template #header>
                 <tr>

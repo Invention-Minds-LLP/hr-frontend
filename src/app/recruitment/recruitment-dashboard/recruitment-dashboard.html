@@ -44,13 +44,6 @@
       </app-application-create>
     </div>
 
-    <div class="col">
-      <app-requisition-list>
-
-      </app-requisition-list>
-
-    </div>
-
 
     <!-- Applications -->
     <!-- <div class="col" *ngIf="selectedJob">
@@ -92,54 +85,54 @@
           </tbody>
         </table>
       </div> -->
-  </div>
-  <div class=""*ngIf="!selectedInterview()" style="margin-top: 2rem;">
-    <div class="card">
-      <h3>Jobs</h3>
-      <div class="table-wrap">
-        <table class=" jobs">
-          <colgroup>
-            <col style="width:20%">
-            <col style="width:16%">
-            <col style="width:14%">
-            <col style="width:14%">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Dept</th>
-              <th>Headcount</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let j of jobs" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id">
-              <td class="title"><span class="text">{{ j.title }}</span></td>
-              <td class="left"><span class="pill" [class.warn]="j.status!=='OPEN'">{{ j.status }}</span>
-              </td>
-              <td class="left">{{ j.departmentName }}</td>
-              <td class="left">{{ j.headcount }}</td>
-              <td class="left">
-                <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
-                  (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '10rem' }"
-                  [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
-                  optionLabel="label" optionValue="value" [placeholder]="j.status">
-                  <ng-template pTemplate="selectedItem">
-                    <span class="pill" [class.warn]="j.status !== 'OPEN'">{{ j.status }}</span>
-                  </ng-template>
-                  <ng-template let-opt pTemplate="item">
-                    <span>{{ opt.label }}</span>
-                  </ng-template>
-                </p-select>
-              </td>
-
-            </tr>
-          </tbody>
-        </table>
+      <div class="col"*ngIf="!selectedInterview()">
+        <div class="card">
+          <h3>Jobs</h3>
+          <div class="table-wrap">
+            <table class=" jobs">
+              <colgroup>
+                <col style="width:20%">
+                <col style="width:16%">
+                <col style="width:14%">
+                <col style="width:14%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Dept</th>
+                  <th>Headcount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let j of jobs" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id">
+                  <td class="title"><span class="text">{{ j.title }}</span></td>
+                  <td class="left"><span class="pill" [class.warn]="j.status!=='OPEN'">{{ j.status }}</span>
+                  </td>
+                  <td class="left">{{ j.departmentName }}</td>
+                  <td class="left">{{ j.headcount }}</td>
+                  <td class="left">
+                    <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
+                      (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '10rem' }"
+                      [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
+                      optionLabel="label" optionValue="value" [placeholder]="j.status">
+                      <ng-template pTemplate="selectedItem">
+                        <span class="pill" [class.warn]="j.status !== 'OPEN'">{{ j.status }}</span>
+                      </ng-template>
+                      <ng-template let-opt pTemplate="item">
+                        <span>{{ opt.label }}</span>
+                      </ng-template>
+                    </p-select>
+                  </td>
+    
+                </tr>
+              </tbody>
+            </table>
+          </div>
+    
+        </div>
       </div>
-
-    </div>
   </div>
   <div *ngIf="!selectedInterview()" class="" style="margin-top: 2rem;">
     <app-application-status></app-application-status>

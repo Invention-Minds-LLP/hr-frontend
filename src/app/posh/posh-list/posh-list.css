@@ -1,8 +1,10 @@
 .performance-container {
-    padding:20px 60px;
-    background: transparent;
+    padding:20px 30px;
+    background: #555555;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 96%;
+    --p-paginator-nav-button-color:white;
   }
 
   h2{
@@ -15,15 +17,21 @@
     border: none;
     background: transparent;
   }
+
+  .header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
   
   /* Header Row */
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    background: #E8ECEF;
-    color: black;
+  ::ng-deep .performance-container .p-datatable .p-datatable-thead > tr > th {
+    background: transparent !important;
+    color: white !important;
     font-size: 16px;
     font-weight: 600;
     padding: 16px 20px;
-    border-bottom: none;
+    border-bottom: 2px solid #d9d9d9;
     height: 60px;
     text-align: left;
     text-wrap: nowrap;
@@ -46,14 +54,14 @@
   }
   
   /* Body Rows */
-  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31;
+  ::ng-deep .performance-container .p-datatable .p-datatable-tbody > tr > td {
+    background: transparent !important;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;
-    color: white;
+    color: white !important;
     text-align: left;
-    border-bottom: 2px solid #d9d9d9;
+    border-bottom: none;
     text-wrap: nowrap;
   }
   
@@ -206,18 +214,18 @@
   .new-app {
     display: flex;
     /* width: 30%; */
-    width: 200px;
-    height: 44px;
-    padding: 0 16px;
+    /* width: 200px;
+    height: 44px; */
+    padding: 10px 16px;
     justify-content: center;
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
     border-radius: 8px;
-    background: #3177a3;
+    background: #0062A1;
     color: #fff;
     font-family: "Sofia Sans";
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
