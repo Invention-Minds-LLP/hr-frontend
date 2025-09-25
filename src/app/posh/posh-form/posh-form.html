@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
-    <div class="p-fluid">
+    <div class="p-fluid form">
       <div class="p-field">
         <label for="accusedId">Accused</label>
-        <p-select 
+        <p-select class="mt-1"
           [options]="employees" 
           optionLabel="name" 
           optionValue="id" 
@@ -13,10 +13,10 @@
   
       <div class="p-field">
         <label for="description">Description</label>
-        <textarea id="description" rows="5" pInputTextarea formControlName="description"></textarea>
+        <textarea id="description" class="mt-1" rows="5" pInputTextarea formControlName="description"></textarea>
       </div>
     </div>
   
-    <p-button label="Submit" icon="pi pi-check" type="submit" [disabled]="form.invalid"></p-button>
+    <p-button label="Submit" icon="pi pi-check" type="submit" class="flex justify-content-end btn"[disabled]="form.invalid"></p-button>
   </form>
   

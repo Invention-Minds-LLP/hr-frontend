@@ -1,10 +1,17 @@
 .card {
-  background: white;
+ background: #656565;
+ color: white;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   border-radius: 12px;
   padding: 30px;
   max-width: 860px;
 }
+.card:focus-within,
+input:focus-within{
+ background: white;
+ color: black;
+}
+
 label {
   display: flex;
   flex-direction: column;
@@ -13,16 +20,30 @@ label {
 }
 input,
 select {
+  background-color: transparent;
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #C4C4C4;
+  color: white;
 }
+
+input:focus-within,
+select:focus-within{
+  color: black;
+}
+
+input::placeholder{
+  color: white;
+}
+
 textarea{
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #C4C4C4;
+  background: transparent;
 }
+
 fieldset {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -49,10 +70,12 @@ legend {
 button {
   padding: 8px 14px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #3465b0;
   background: #3465b0;
   color: #fff;
 }
+
+
 .error {
   color: #dc2626;
 }

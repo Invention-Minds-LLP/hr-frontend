@@ -19,3 +19,19 @@
   h2, h3{
     color: white;
   }
+
+ ::ng-deep  .p-dialog-content{
+    padding: 20px !important;
+}
+
+::ng-deep .btn .p-button{
+    margin-top: 20px;
+    background-color: #0062A1;
+    border-color: #0062A1;
+  }
+
+  .flex1{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }

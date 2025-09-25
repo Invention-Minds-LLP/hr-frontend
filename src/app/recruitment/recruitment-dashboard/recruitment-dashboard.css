@@ -18,10 +18,13 @@
 .stat div{
   font-size: 16px;
   font-weight: 700;
+  color: #5c6a80;
+  font-family: "Sofia Sans";
 }
 
 .stat strong {
   font-size: 50px;
+  font-weight:900;
 }
 
 .flex{
@@ -33,34 +36,22 @@
 /* Base stat card */
 .stat {
   position: relative;
-  padding: 10px 20px;
+  padding:  20px;
   border-radius: 18px;
-  background: linear-gradient(to bottom, #ffffff 70%, var(--tile-g1));
+  background: linear-gradient(to bottom right, var(--tile-g1), var(--tile-g2));
   border: 1px solid var(--border, transparent);
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  transition: 
+    background 0.3s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
-.stat>* {
-  position: relative;
-  z-index: 1;
-  /* keep text above glow */
-}
 
 /* Glow effect – hidden by default */
-.stat::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--hover1, #22c55e), var(--hover2, #14b8a6));
-  opacity: 0;
-  /* hidden */
-  transition: opacity .4s ease;
-  z-index: 0;
-}
+
 
 /* Show glow on hover */
 .stat:hover::after {
@@ -158,11 +149,20 @@
 }
 
 .card {
-  background: white;
+  background: #656565;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 30px;
+  height: 725px;
+  color: white;
 }
+
+.card:focus-within{
+  background: white;
+  color: black;
+}
+
+
 
 .columns {
   display: grid;
@@ -214,16 +214,22 @@ table.jobs thead th {
   text-align: left;
   padding: 12px 14px;
   font-weight: 700;
-  color: #334155;
-  background: #f8fafc;
+  color: white;
+  background: #656565;
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
 table.jobs td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border, #e5e7eb);
-  vertical-align: middle;
-  background: var(--panel, #fff);
+ color: white;
+  background: #656565;
+}
+
+table.jobs thead th:focus-within,
+table.jobs td:focus-within{
+  background: white;
+  color: black;
 }
 
 table.jobs tbody tr:hover {

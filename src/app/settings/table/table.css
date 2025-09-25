@@ -1,6 +1,8 @@
 .table {
-    margin: 20px 50px;
+    /* margin: 20px 50px; */
+    padding: 0 60px 20px;
     overflow: hidden;
+
 }
 
 .heading {
@@ -11,13 +13,13 @@
     font-weight: 600;
     line-height: normal;
     text-align: center;
-    margin-top: 50px;
+    /* margin-top: 50px; */
 }
 
 .header {
     display: flex;
     justify-content: end;
-    margin-right: 50px;
+    /* margin-right: 50px; */
 
 }
 
@@ -29,8 +31,8 @@
 
 .menu-list {
     position: absolute;
-    top: 45%;
-    right: 180px;
+    top: 38%;
+    right: 192px;
     min-width: 160px;
     background: var(--surface-ground);
     border-radius: 8px;
@@ -94,7 +96,7 @@
     flex-shrink: 0;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th {
+::ng-deep .empl-table .p-datatable .p-datatable-thead>tr>th {
     background: #E8ECEF;
    color: #666;
     font-family: "Sofia Sans";
@@ -104,10 +106,11 @@
     line-height: normal;
     text-align: center;
     padding: 20px 30px;
+    border: none !important;
 
 }
 
-::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep .empl-table .p-datatable .p-datatable-tbody>tr>td {
     color: white;
     font-family: "Sofia Sans";
     font-size: 16px;
@@ -116,7 +119,8 @@
     line-height: normal;
     text-align: center;
     background: #302F31;
-    border-bottom: 2px solid #D9D9D9;
+    border: none !important;
+    border-bottom: 2px solid #D9D9D9 !important;
     padding: 20px 30px;
 }
 
@@ -164,6 +168,13 @@
     gap: 4px;
     margin-top: 1rem;
     background: transparent;
+}
+
+.flex{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px 10px;
 }
 
 

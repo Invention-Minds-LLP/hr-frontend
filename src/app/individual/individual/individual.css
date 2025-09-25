@@ -249,11 +249,11 @@ line-height: normal;
 }
 
 .arrow-btn {
-  background: #302F31;
+  background: #302F31 !important;
   border-radius: 50%;
   width: 39px;
   height: 39px;
-  color: white;
+  color: white !important;
   border: none;
   font-size: 12px;
   box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
@@ -472,6 +472,7 @@ line-height: normal;
   width: 35px;
   height: 35px;
   box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
+  border-color:#302F31 !important ;
   color: white !important;
 }
 
@@ -590,7 +591,7 @@ line-height: normal;
   flex-direction: row;
   gap: 10px;
   border-radius: 8px;
-  background: #3177a3;
+  background: #0062A1;
   padding: 10px 16px;
   cursor: pointer;
 }
@@ -663,7 +664,7 @@ line-height: normal;
   border: none;
   border-bottom: 1px solid #d9d9d9;
   text-align: center;
-  color:white;
+  color:white !important;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -675,7 +676,7 @@ line-height: normal;
   border: none;
   text-align: center;
   background: #555555 !important;
-  color: white;
+  color: white !important;
 }
 
 ::ng-deep .pi-chevron-down {
@@ -905,6 +906,13 @@ line-height: normal;
     overflow: auto;
   }
 } */
+
+.bottom{
+  display:grid;
+  grid-template-columns: 40% 60%;
+  gap: 30px;
+
+}
 
 /* Tab */
 

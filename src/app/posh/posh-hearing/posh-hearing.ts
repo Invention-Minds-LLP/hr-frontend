@@ -28,6 +28,7 @@ export class PoshHearing {
       date: [null, Validators.required],
       notes: [''],
       outcome: [''],
+      createdAt: [new Date()]
     });
   }
 
@@ -54,7 +55,9 @@ export class PoshHearing {
     if (this.form.valid) {
       this.poshService.addHearing(this.caseId, this.form.value).subscribe(() => {
         this.loadHearings();
-        this.form.reset();
+        this.form.reset({
+          createdAt : new Date()
+        });
       });
     }
   }

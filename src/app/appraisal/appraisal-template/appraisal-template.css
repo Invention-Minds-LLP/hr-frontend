@@ -19,6 +19,10 @@
     color: white !important;
   }
 
+  label{
+    color: white;
+  }
+
   h2, h3{
     color: white;
   }
@@ -71,7 +75,7 @@
   /* Disabled text inputs */
 :host ::ng-deep .p-inputtext:disabled {
     background-color: #2d2d2d !important;  /* darker background */
-    color: #9ca3af !important;             /* gray text */
+    color: white !important;             /* gray text */
     border-color: #444 !important;
     opacity: 1 !important; /* override primeng's opacity */
   }
