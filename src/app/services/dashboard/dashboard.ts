@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 // ---- TYPES (match your API)
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
-  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending' | 'otPending';
+  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending' | 'otPending' | 'feedback';
 
 
 export interface List {
@@ -129,5 +129,52 @@ export class Dashboard {
       `${this.baseUrl}/ot/approve-reject`,
       { ids, action }
     );
+  }
+  // 1. Unmarked attendance
+  messageUnmarked(employeeIds: number[], message: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/unmarked/message`, { employeeIds, message });
+  }
+  markUnmarkedException(attendanceIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/unmarked/exception`, { attendanceIds });
+  }
+
+  // 2. Pending approvals
+  approveApprovals(payload: { leaveIds?: number[]; wfhIds?: number[]; permissionIds?: number[] }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/approvals/approve`, payload);
+  }
+  rejectApprovals(payload: { leaveIds?: number[]; wfhIds?: number[]; permissionIds?: number[]; reason?: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/approvals/reject`, payload);
+  }
+
+  // 3. Probation
+  requestFeedback(employeeIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/probation/request-feedback`, { employeeIds });
+  }
+  extendProbation(employeeId: number, newEndDate: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/probation/extend`, { employeeId, newEndDate });
+  }
+
+  // 4. Documents expiring
+  notifyDocs(documentIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/documents/notify`, { documentIds });
+  }
+  createRenewalTickets(documentIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/documents/renewal`, { documentIds });
+  }
+
+  // 5. Interview feedback
+  nudgePanel(interviewIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/feedback/nudge`, { interviewIds });
+  }
+  reassignReviewer(interviewId: number, newReviewerIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/feedback/reassign`, { interviewId, newReviewerIds });
+  }
+
+  // 6. Exit clearances
+  escalateClearances(clearanceIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/clearances/escalate`, { clearanceIds });
+  }
+  assignDelegate(clearanceId: number, delegateId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/clearances/assign`, { clearanceId, delegateId });
   }
 }

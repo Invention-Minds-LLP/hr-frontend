@@ -69,7 +69,7 @@ export class HrDashboard implements OnInit {
   constructor(private api: Dashboard, private announcement: Announcements,
     private branchesSvc: Branches,
     private departmentsSvc: Departments,
-    private messageService : MessageService
+    private messageService: MessageService
   ) { }
   branchId: number | null = null;
   departmentId: number | null = null;
@@ -216,7 +216,7 @@ export class HrDashboard implements OnInit {
       summary: 'Action',
       detail: msg
     })
-    }
+  }
   // inside DashboardComponent class:
   calcPipeWidth(p: PipelineItem, arr: PipelineItem[]): number {
     const applied = arr.find(x => x.name === 'Applied')?.value || 1;
@@ -273,13 +273,51 @@ export class HrDashboard implements OnInit {
 
   selectedRows: any[] = [];
 
+  // onListAction(action: string) {
+  //   // --- Case 1: Announcement Acks → View pending
+  //   if (this.selectedListKey === ('annAck' as any) && action === 'View pending' && this.selectedAnnId) {
+  //     this.openAnnAckPending(this.selectedAnnId); // no dept filter = whole audience
+  //     return;
+  //   }
+
+  //   // --- Case 2: OT Approval/Rejection
+  //   if ((action === 'Approve selected' || action === 'Reject selected') && this.selectedRows.length) {
+  //     const ids = this.selectedRows.map(r => r.id);
+  //     this.api
+  //       .approveOrRejectOT(ids, action.startsWith('Approve') ? 'APPROVE' : 'REJECT')
+  //       .subscribe(() => {
+  //         this.closeModal();
+  //         // this.reloadData(); // refresh dashboard
+  //       });
+  //     return;
+  //   }
+
+  //   // --- Default fallback
+  //   this.toast(action);
+  // }
+
+  getTooltipMessage(tile: any): string {
+    const tooltips: { [key: string]: string } = {
+      leaves: "Number of employees on approved leave today.",
+      wfh: "Number of employees working from home with approval today.",
+      permissions: "Number of employees with approved short permissions (late arrival or early exit) today.",
+      late: "Number of employees who arrived later than their scheduled start time today.",
+      otYesterday: "Number of employees who worked overtime yesterday.",
+      newJoiners: "Number of employees whose joining date is today.",
+      birthdays: "Number of employees celebrating their birthday today.",
+      anniversaries: "Number of employees completing a work anniversary today."
+    };
+
+    return tooltips[tile.key] || "";
+  }
   onListAction(action: string) {
+    if (!this.selectedListKey) return;
     // --- Case 1: Announcement Acks → View pending
     if (this.selectedListKey === ('annAck' as any) && action === 'View pending' && this.selectedAnnId) {
       this.openAnnAckPending(this.selectedAnnId); // no dept filter = whole audience
       return;
     }
-  
+
     // --- Case 2: OT Approval/Rejection
     if ((action === 'Approve selected' || action === 'Reject selected') && this.selectedRows.length) {
       const ids = this.selectedRows.map(r => r.id);
@@ -291,25 +329,100 @@ export class HrDashboard implements OnInit {
         });
       return;
     }
-  
-    // --- Default fallback
-    this.toast(action);
+
+    switch (this.selectedListKey) {
+      case 'unmarked':
+        if (action === 'Message all') {
+          const employeeIds = this.selectedRows.map(r => r.id);
+          this.api.messageUnmarked(employeeIds, 'Please mark attendance').subscribe(() => {
+            this.toast('Message sent to unmarked employees');
+          });
+        }
+        if (action === 'Mark exception') {
+          const attendanceIds = this.selectedRows.map(r => r.id);
+          this.api.markUnmarkedException(attendanceIds).subscribe(() => {
+            this.toast('Attendance exceptions marked');
+          });
+        }
+        break;
+
+      case 'approvals':
+        if (action === 'Approve all') {
+          this.api.approveApprovals({ leaveIds: [], wfhIds: [], permissionIds: [] }).subscribe(() => {
+            this.toast('All pending approvals approved');
+          });
+        }
+        if (action === 'Reject all') {
+          this.api.rejectApprovals({ leaveIds: [], wfhIds: [], permissionIds: [], reason: 'Rejected by HR' }).subscribe(() => {
+            this.toast('All pending approvals rejected');
+          });
+        }
+        break;
+
+      case 'probation':
+        if (action === 'Request feedback') {
+          const employeeIds = this.selectedRows.map(r => r.id);
+          this.api.requestFeedback(employeeIds).subscribe(() => {
+            this.toast('Feedback requested from managers');
+          });
+        }
+        if (action === 'Extend probation') {
+          const employee = this.selectedRows[0];
+          this.api.extendProbation(employee.id, '2025-12-31').subscribe(() => {
+            this.toast('Probation extended');
+          });
+        }
+        break;
+
+      case 'docs':
+        if (action === 'Notify all') {
+          const documentIds = this.selectedRows.map(r => r.id);
+          this.api.notifyDocs(documentIds).subscribe(() => {
+            this.toast('Employees notified about expiring documents');
+          });
+        }
+        if (action === 'Create renewal tickets') {
+          const documentIds = this.selectedRows.map(r => r.id);
+          this.api.createRenewalTickets(documentIds).subscribe(() => {
+            this.toast('Renewal tickets created');
+          });
+        }
+        break;
+
+      case 'feedback':
+        if (action === 'Nudge panel') {
+          const interviewIds = this.selectedRows.map(r => r.id);
+          this.api.nudgePanel(interviewIds).subscribe(() => {
+            this.toast('Panels nudged for feedback');
+          });
+        }
+        if (action === 'Reassign reviewer') {
+          const interview = this.selectedRows[0];
+          this.api.reassignReviewer(interview.id, [123, 456]).subscribe(() => {
+            this.toast('Reviewer reassigned');
+          });
+        }
+        break;
+
+      case 'clearances':
+        if (action === 'Escalate') {
+          const clearanceIds = this.selectedRows.map(r => r.id);
+          this.api.escalateClearances(clearanceIds).subscribe(() => {
+            this.toast('Clearances escalated');
+          });
+        }
+        if (action === 'Assign delegate') {
+          const clearance = this.selectedRows[0];
+          this.api.assignDelegate(clearance.id, 99).subscribe(() => {
+            this.toast('Delegate assigned');
+          });
+        }
+        break;
+
+      default:
+        this.toast(action);
+    }
   }
 
- getTooltipMessage(tile: any): string {
- const tooltips: { [key: string]: string } = {
-  leaves: "Number of employees on approved leave today.",
-  wfh: "Number of employees working from home with approval today.",
-  permissions: "Number of employees with approved short permissions (late arrival or early exit) today.",
-  late: "Number of employees who arrived later than their scheduled start time today.",
-  otYesterday: "Number of employees who worked overtime yesterday.",
-  newJoiners: "Number of employees whose joining date is today.",
-  birthdays: "Number of employees celebrating their birthday today.",
-  anniversaries: "Number of employees completing a work anniversary today."
-};
-
-  return tooltips[tile.key] || "";
-}
-  
 
 }

@@ -931,40 +931,38 @@
                                     </div>
 
                                     <!-- Dose Dates (if vaccinated) -->
-                                    <div *ngIf="vac.get('vaccinated')?.value" class="p-fluid mt-2">
-                                        <div class="p-fluid grid formgrid mt-2">
-                                            <div class="field col-3">
+                                    <div *ngIf="vac.get('vaccinated')?.value" class="p-fluid grid formgrid mt-2">
+
+                                            <div class="field col-4">
                                                 <p-floatLabel variant="on">
                                                     <p-datePicker formControlName="firstDose" dateFormat="yy-mm-dd"
                                                         inputId="firstDose{{i}}"></p-datePicker>
                                                     <label for="firstDose{{i}}">First Dose</label>
                                                 </p-floatLabel>
                                             </div>
-                                            <div class="field col-3">
+                                            <div class="field col-4">
                                                 <p-floatLabel variant="on">
                                                     <p-datePicker formControlName="secondDose" dateFormat="yy-mm-dd"
                                                         inputId="secondDose{{i}}"></p-datePicker>
                                                     <label for="secondDose{{i}}">Second Dose</label>
                                                 </p-floatLabel>
                                             </div>
-                                            <div class="field col-3">
+                                            <div class="field col-4">
                                                 <p-floatLabel variant="on">
                                                     <p-datePicker formControlName="thirdDose" dateFormat="yy-mm-dd"
                                                         inputId="thirdDose{{i}}"></p-datePicker>
                                                     <label for="thirdDose{{i}}">Third Dose</label>
                                                 </p-floatLabel>
                                             </div>
-                                            <div class="field col-3">
+                                            <div class="field col-4">
                                                 <p-floatLabel variant="on">
                                                     <p-datePicker formControlName="boosterDose" dateFormat="yy-mm-dd"
                                                         inputId="boosterDose{{i}}"></p-datePicker>
                                                     <label for="boosterDose{{i}}">Booster Dose(s)</label>
                                                 </p-floatLabel>
                                             </div>
-                                        </div>
 
-                                        <!-- Optional: Test Info -->
-                                        <div class="p-fluid grid formgrid mt-2">
+    
                                             <div class="field col-4">
                                                 <p-floatLabel variant="on">
                                                     <p-datePicker formControlName="testDate" dateFormat="yy-mm-dd"
@@ -979,18 +977,44 @@
                                                     <label for="titerLevel{{i}}">Titer Level</label>
                                                 </p-floatLabel>
                                             </div>
-                                        </div>
-
-                                        <!-- Proof Upload -->
-                                        <div class="field col-4 mt-2">
+                                                                              <!-- Proof Upload -->
+                                        <!-- <div class="field col-4 mt-2">
                                             <div class="file-upload-wrapper relative">
                                                 <input type="file" class="custom-file-input"
                                                     (change)="onVaccineProofSelect($event, i)" />
-                                                <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName
+                                                <small *ngIf="!vac.value.proofUrl && vac.value.proofFileName">{{ vac.value.proofFileName
                                                     }}</small>
+                                                  <ng-container *ngIf="vac.value.proofUrl">
+                                                    <a [href]="vac.value.proofUrl" target="_blank" rel="noopener noreferrer">
+                                                      <i class="pi pi-file"></i> View Proof
+                                                    </a>
+                                                  </ng-container>
                                             </div>
+                                        </div> -->
+                                        <div class="field col-4 mt-2">
+                                            <div class="file-upload-wrapper relative">
+                                              <!-- File input (for uploading new proof) -->
+                                              <input 
+                                                type="file" 
+                                                class="custom-file-input"
+                                                (change)="onVaccineProofSelect($event, i)" 
+                                              />
+                                          
+                                              <!-- Show local file name if user just selected -->
+                                              <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName }}</small>
+                                          
+                                              <!-- OR show existing proofUrl as link -->
+                                              <ng-container *ngIf="vac.value.proofUrl && vac.value.proofFileName">
+                                                <a [href]="vac.value.proofUrl" target="_blank" rel="noopener noreferrer">
+                                                  <i class="pi pi-file"></i> View Proof
+                                                </a>
+                                              </ng-container>
+                                            </div>
+                                          </div>
+                                          
                                         </div>
-                                    </div>
+
+                                  
 
                                 </div>
                             </div>

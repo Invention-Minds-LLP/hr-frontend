@@ -331,16 +331,16 @@ removeVaccination(index: number) {
   this.vaccinations.removeAt(index);
 }
 
-// Handle Proof Upload
-onVaccineProofSelect(event: any, index: number) {
-  const file = event.target.files[0];
-  if (file) {
-    this.vaccinations.at(index).patchValue({
-      proofFile: file,
-      proofFileName: file.name
-    });
-  }
-}
+// // Handle Proof Upload
+// onVaccineProofSelect(event: any, index: number) {
+//   const file = event.target.files[0];
+//   if (file) {
+//     this.vaccinations.at(index).patchValue({
+//       proofFile: file,
+//       proofFileName: file.name
+//     });
+//   }
+// }
 
 
   // BMI calculation
@@ -585,6 +585,18 @@ onVaccineProofSelect(event: any, index: number) {
         this.employeeService.updateEmployee(this.employeeData.id, payload).subscribe({
           next: (updatedEmployee: any) => {
             console.log('Employee updated:', updatedEmployee);
+            if (this.vaccinations) {
+              this.vaccinations.controls.forEach((vac, index) => {
+                if (vac.value.proofFile instanceof File) {
+                  this.employeeService.uploadVaccineProof(updatedEmployee.id, index, vac.value.proofFile)
+                    .subscribe({
+                      next: (res) => console.log('Vaccine proof uploaded:', res.fileUrl),
+                      error: (err) => console.error('Error uploading proof:', err)
+                    });
+                }
+              });
+            }
+            
             if (this.employeeForm.value.photoUrl instanceof File) {
               this.uploadProfilePhoto(updatedEmployee.id, this.employeeForm.value.photoUrl);
             }
@@ -625,11 +637,21 @@ onVaccineProofSelect(event: any, index: number) {
       else {
         this.employeeService.createEmployee(payload).subscribe({
           next: (employee: any) => {
+            
             if (this.employeeForm.value.photoUrl instanceof File) {
               this.uploadProfilePhoto(employee.id, this.employeeForm.value.photoUrl);
             }
             // Call document upload API after employee is successfully created
             this.uploadEmployeeDocs(employee.id);
+            this.vaccinations.controls.forEach((vac, index) => {
+              if (vac.value.proofFile instanceof File) {
+                this.employeeService.uploadVaccineProof(employee.id, index, vac.value.proofFile)
+                  .subscribe({
+                    next: (res) => console.log(`Vaccine proof uploaded for index ${index}:`, res.fileUrl),
+                    error: (err) => console.error('Error uploading vaccine proof:', err)
+                  });
+              }
+            });
             // Assign shift
             if (shiftId && shiftDate) {
               this.assignEmployeeShift(employee.id, shiftId, shiftDate);
@@ -648,6 +670,28 @@ onVaccineProofSelect(event: any, index: number) {
 
     }
   }
+  onVaccineProofSelect(event: any, index: number) {
+    const file = event.target.files[0];
+    if (file) {
+      this.vaccinations.at(index).patchValue({
+        proofFile: file,
+        proofFileName: file.name
+      });
+    }
+  }
+  
+  uploadVaccineProof(employeeId: string, vaccineIndex: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    // this.employeeService.uploadVaccineProof(Number(employeeId), vaccineIndex, formData)
+    //   .subscribe({
+    //     next: (res) => {
+    //       this.vaccinations.at(vaccineIndex).patchValue({ proofUrl: res.fileUrl });
+    //     },
+    //     error: (err) => console.error('Error uploading proof:', err)
+    //   });
+  }
+  
   uploadProfilePhoto(employeeId: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -860,8 +904,73 @@ onVaccineProofSelect(event: any, index: number) {
       shiftId: mode === 'FIXED' ? (fixedShiftFromSetting ?? fixedShiftFallback) : null,
       rotationPatternId: mode === 'ROTATIONAL' ? setting?.rotationPatternId ?? null : null,
       rotationStartDate: mode === 'ROTATIONAL' && setting?.startDate ? new Date(setting.startDate) : null,
-      shiftDate: latestAssignDate
+      shiftDate: latestAssignDate,
+      preEmploymentCheckDate: data.preEmploymentCheckDate ? new Date(data.preEmploymentCheckDate) : null,
+      height: data.height,
+      weight: data.weight,
+      bmi: data.bmi,
+      bloodPressure: data.bloodPressure,
+      bloodSugar: data.bloodSugar,
+      cholesterol: data.cholesterol,
+      allergies: data.allergies,
+      chronicConditions: data.chronicConditions,
+      smoking: data.smoking,
+      alcohol: data.alcohol,
+      exerciseFrequency: data.exerciseFrequency,
+      preferredHospital: data.preferredHospital,
+      primaryPhysician: data.primaryPhysician,
+      emergencyNotes: data.emergencyNotes
     });
+// 🔹 Patch health issues array
+this.healthIssues.clear();
+let parsedHealthIssues: any[] = [];
+try {
+  parsedHealthIssues = typeof data.healthIssues === 'string'
+    ? JSON.parse(data.healthIssues)
+    : data.healthIssues || [];
+} catch {
+  parsedHealthIssues = [];
+}
+
+parsedHealthIssues.forEach((h: any) => {
+  this.healthIssues.push(
+    this.fb.group({
+      condition: [h.condition, Validators.required],
+      checkupFrequency: [h.checkupFrequency, Validators.required],
+      lastCheckupDate: h.lastCheckupDate ? new Date(h.lastCheckupDate) : null
+    })
+  );
+});
+
+// 🔹 Patch vaccinations array
+this.vaccinations.clear();
+let parsedVaccinations: any[] = [];
+try {
+  parsedVaccinations = typeof data.vaccinations === 'string'
+    ? JSON.parse(data.vaccinations)
+    : data.vaccinations || [];
+} catch {
+  parsedVaccinations = [];
+}
+
+parsedVaccinations.forEach((v: any) => {
+  this.vaccinations.push(
+    this.fb.group({
+      vaccineName: [v.vaccineName, Validators.required],
+      vaccinated: [v.vaccinated, Validators.required],
+      firstDose: v.firstDose ? new Date(v.firstDose) : null,
+      secondDose: v.secondDose ? new Date(v.secondDose) : null,
+      thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
+      boosterDose: v.boosterDose ? new Date(v.boosterDose) : null,
+      testDate: v.testDate ? new Date(v.testDate) : null,
+      titerLevel: v.titerLevel,
+      proofFile: null,
+      proofFileName: v.proofFileName || '',
+      proofUrl: v.proofUrl || ''
+    })
+  );
+});
+
 
     // Patch addresses
     const permanent = data.Address?.find((a: any) => a.type === 'PERMANENT');

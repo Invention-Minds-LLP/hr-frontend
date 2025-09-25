@@ -109,5 +109,15 @@ export class Employees {
   uploadEmployeePhoto(employeeId: number, formData: FormData) {
     return this.http.post(`${this.apiUrl}/${employeeId}/photo`, formData);
   }
+
+  uploadVaccineProof(employeeId: number, vaccineIndex: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);  // must match backend
+    return this.http.post<any>(
+      `${this.apiUrl}/${employeeId}/vaccinations/${vaccineIndex}/proof`,
+      formData
+    );
+  }
+  
   
 }

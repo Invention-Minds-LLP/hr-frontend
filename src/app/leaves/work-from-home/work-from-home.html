@@ -68,10 +68,9 @@
           <td class="t-data">{{ wfhData.WFHDate }}</td>
           <td class="t-data"><span [pTooltip]="wfhData.reson" tooltipPosition="top">
               {{ wfhData.reson | slice:0:20 }}<span *ngIf="wfhData.reson.length > 20">...</span>
-            </span></td> -->
+            </span></td>+
             <td class="t-data">
               {{ getStatusLabel(wfhData) }}
-            </td>
             </td>
 
           <td>

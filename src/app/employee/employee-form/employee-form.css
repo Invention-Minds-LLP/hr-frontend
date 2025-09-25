@@ -429,3 +429,8 @@ div[hidden] {
   font-weight: 600;
   margin-left: 4px;
 }
+a{
+  color: #fff;
+  text-decoration: none;
+
+}
