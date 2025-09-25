@@ -11,6 +11,7 @@ import { value } from '@primeuix/themes/aura/knob';
 import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIcon, InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { Departments } from '../../services/departments/departments';
 
 @Component({
   selector: 'app-resignation-list',
@@ -34,30 +35,45 @@ export class ResignationList {
   filterOptions = [
     { label: 'Name', value: 'name' },
     { label: 'Status', value: 'status' },
-    { label: 'Department', value: 'managerId' }
+    { label: 'Department', value: 'department' }
+
   ]
 
+  departments: any[] = [];
+  departmentMap: Record<number, string> = {};
 
-  constructor(private api: Resignation) { }
+  constructor(private api: Resignation, private dept: Departments) { }
 
   ngOnInit() {
     // const norm = this.normalize(this.role);
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
-      this.api.list({ scope: 'all' }).subscribe(r => {this.rows = r;
+      this.api.list({ scope: 'all' }).subscribe(r => {
+        this.rows = r;
         this.filteredRows = [...this.rows]
         // console.log(this.filteredRows)
       });
     } else if (this.role === 'Reporting Manager' || this.role === 'Manager') {
-      this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {this.rows = r
+      this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {
+        this.rows = r
         this.filteredRows = [...this.rows]
         // console.log(this.filteredRows)
       });
     } else {
-      this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => {this.rows = r
+      this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => {
+        this.rows = r
         this.filteredRows = [...this.rows]
         // console.log(this.filteredRows)
       });
     }
+
+    this.dept.getDepartments().subscribe((depts: any[]) => {
+      this.departments = depts;
+
+      this.departmentMap = this.departments.reduce((map, dept) => {
+        map[dept.id] = dept.name;
+        return map;
+      }, {} as Record<number, string>);
+    });
 
     this.filteredRows = [...this.rows]
   }
@@ -134,25 +150,29 @@ export class ResignationList {
     const searchText = input.value.trim().toLowerCase();
 
     if (!this.selectedFilter || !searchText) {
-      this.filteredRows = [...this.rows]; 
+      this.filteredRows = [...this.rows];
       return;
     }
 
     const filterKey = this.selectedFilter.value;
 
     this.filteredRows = this.rows.filter(r => {
-       if (filterKey === 'name') {
-      const fullName = `${r.firstName || ''} ${r.lastName || ''}`.toLowerCase();
-      return fullName.includes(searchText);
-    } else if (filterKey) {
-      const val = r[filterKey];
-      return val?.toString().toLowerCase().includes(searchText);
-    }
-        console.log(this.filteredRows)
+      if (filterKey === 'name') {
+        const fullName = `${r.employee?.firstName || ''} ${r.employee?.lastName || ''}`.toLowerCase();
+        return fullName.includes(searchText);
+      } else if (filterKey === 'department') {
+        const deptName = this.departmentMap[r.employee?.departmentId] || '';
+        return deptName.toLowerCase().includes(searchText);
+      }
+      else if (filterKey) {
+        const val = r[filterKey];
+        return val?.toString().toLowerCase().includes(searchText);
+      }
+      console.log(this.filteredRows)
     }
 
     )
-  
+
   }
 
 }
