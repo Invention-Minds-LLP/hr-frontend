@@ -14,10 +14,11 @@ import { SelectModule } from 'primeng/select';
 import { Interview } from '../interview/interview';
 import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form';
 import { RequisitionList } from "../requisition-list/requisition-list";
+import { Tooltip, TooltipModule } from "primeng/tooltip";
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList],
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers:[MessageService]
@@ -189,4 +190,21 @@ export class RecruitmentDashboard implements OnInit {
     // (optional) scroll the form into view
     setTimeout(() => document.getElementById('eval-form')?.scrollIntoView({ behavior: 'smooth' }), 0);
   };
+getTooltipMessage(key: string): string {
+  const tooltips: { [key: string]: string } = {
+    vacancies: "Number of open job positions available for recruitment.",
+    applicationsReceived: "Total number of applications submitted for current vacancies.",
+    applied: "Number of candidates who have applied for a position.",
+    shortlisted: "Candidates selected for the next stage after application review.",
+    interviewing: "Candidates currently scheduled or undergoing interviews.",
+    offered: "Number of candidates who have been given a job offer.",
+    accepted: "Candidates who have accepted the job offer.",
+    offerDeclined: "Candidates who declined or did not respond to the job offer.",
+    hired: "Number of candidates who have officially joined as employees.",
+    rejected: "Candidates not selected to move forward in the recruitment process."
+  };
+
+  return tooltips[key] || "";
+}
+
 }

@@ -31,12 +31,18 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  width: 100%;
 }
+
+::ng-deep .pi {
+  font-size: 14px;
+}
+
 
 /* Base stat card */
 .stat {
   position: relative;
-  padding:  20px;
+  padding:20px;
   border-radius: 18px;
   background: linear-gradient(to bottom right, var(--tile-g1), var(--tile-g2));
   border: 1px solid var(--border, transparent);
@@ -149,20 +155,17 @@
 }
 
 .card {
-  background: #656565;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.00) 100%
+  ) ;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 30px;
   height: 725px;
   color: white;
 }
-
-.card:focus-within{
-  background: white;
-  color: black;
-}
-
-
 
 .columns {
   display: grid;
@@ -190,6 +193,8 @@ table.jobs {
   table-layout: fixed;
   font-size: 14px;
 }
+
+
 
 /* 🔧 Force proper table display (undo any global flex/block styles) */
 table.jobs thead {
@@ -222,12 +227,15 @@ table.jobs thead th {
 table.jobs td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border, #e5e7eb);
- color: white;
+  vertical-align: middle;
+  /* background: var(--panel, #fff); */
   background: #656565;
+  color: white;
 }
 
-table.jobs thead th:focus-within,
-table.jobs td:focus-within{
+.card:focus-within,
+.card:focus-within table.jobs thead th,
+.card:focus-within table.jobs tbody td{
   background: white;
   color: black;
 }
@@ -239,6 +247,7 @@ table.jobs tbody tr:hover {
 table.jobs tbody tr.active {
   background: #eef6ff;
 }
+
 
 table.jobs tbody tr:last-child td {
   border-bottom: none;
@@ -271,6 +280,7 @@ td.title .text {
   background: #eef2ff;
   font-weight: 700;
   font-size: 12px;
+  color: black;
 }
 
 .pill.warn {
@@ -305,4 +315,20 @@ td.title .text {
 
 .p-dropdown {
   width: 100%;
+}
+
+.info {
+  position: relative;
+  top: -20px;
+  /* right: -100px; */
+}
+
+.flex1{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.col{
+  padding: 0;
 }

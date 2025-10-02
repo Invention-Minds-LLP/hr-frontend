@@ -6,6 +6,7 @@
     gap: 50px;
     font-family: "Sofia Sans";
     height: 100vh;
+     --p-floatlabel-on-active-background: #302F31 !important;
 }
 
 .heading {

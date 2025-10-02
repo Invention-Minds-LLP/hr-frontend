@@ -25,12 +25,12 @@
         <th>#</th>
         <th>Employee</th>
         <th>Department</th>
-        <!-- <th>Reason</th> -->
-        <th>Status</th>
+        <th>Reason</th>
         <th>Manager</th>
         <th>HR</th>
         <th>Proposed LWD</th>
         <th>Actual LWD</th>
+        <th>Status</th>
         <th style="text-align:center">Actions</th>
         <th>Proceeding</th>
       </tr>
@@ -40,17 +40,29 @@
       <tr>
         <td>{{ i + 1 }}</td>
         <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
-        <td>{{ departmentMap[r.employee?.departmentId]}}</td>
-        <!-- <td><span class="reason" [title]="r.reason">{{ r.reason }}</span></td> -->
-        <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
+        <td>
+          <span class="dept-badge"
+            [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).badgeColor }">
+            <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).dotColor }">
+            </span>
+            {{ departmentMap[r.employee?.departmentId] }}
+          </span>
+        </td>
+        <td>
+          <span class="reason" pTooltip="{{ r.reason }}" tooltipPosition="top">
+            {{ r.reason?.length > 6 ? (r.reason | slice:0:6) + '…' : r.reason }}
+          </span>
+        </td>
         <td>{{ r.managerDecision }}</td>
         <td>{{ r.hrDecision }}</td>
         <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
         <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
+        <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
         <td class="actions">
           <ng-container *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
             <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
-            <button pButton size="small" label="Manager Reject" class="p-button-danger" (click)="rejectManager(r)"></button>
+            <button pButton size="small" label="Manager Reject" class="p-button-danger"
+              (click)="rejectManager(r)"></button>
           </ng-container>
           <ng-container
             *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">

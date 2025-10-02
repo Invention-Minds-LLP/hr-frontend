@@ -168,3 +168,18 @@
   color: red;
   margin-top: 10px;
 }
+
+
+.header{
+  display: flex;
+  justify-content:end ;
+  position: relative;
+  top: -40px;
+}
+
+.pi-times{
+  font-size: 16px;
+  cursor: pointer;
+  color: red;
+ 
+}

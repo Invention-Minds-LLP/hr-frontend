@@ -125,8 +125,8 @@ input,
   width: 100%;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
-  background-color: transparent;
-  color: white;
+  background-color: transparent !important;
+  color: white !important;
 }
 
 
@@ -169,6 +169,11 @@ color: white;
 
 ::ng-deep .p-inputnumber-input::placeholder{
   color: white;
+}
+
+::ng-deep.p-inputnumber-input{
+  background: transparent !important;
+  color: white !important;
 }
 
 .remove-btn{

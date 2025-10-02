@@ -254,24 +254,24 @@
   border: none;
 }
 .new-app {
-  display: flex;
-  width: 30%;
-  height: 44px;
-  padding: 0 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #3177a3;
-  color: #fff;
-  font-family: "Sofia Sans";
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: 0.18px;
-  border: none;
+    display: flex;
+    width: 162px;
+    height: 42px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #3177a3;
+    color: #fff;
+    font-family: "Sofia Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: none;
 }
 .popup-backdrop {
   position: fixed;

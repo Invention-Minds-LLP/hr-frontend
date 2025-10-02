@@ -3,7 +3,7 @@
     background: #555555;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 96%;
+    width: 97.5%;
     --p-paginator-nav-button-color:white;
   }
 
@@ -270,3 +270,26 @@
 /* ::ng-deep .p-select, .p-multiselect {
     width: 100% !important;
 } */
+
+
+@media(max-width:767px){
+  .new-app{
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  h2{
+    font-size: 16px;
+  }
+
+  .performance-container{
+    padding: 20px;
+    width: 100%;
+  }
+}
+
+
+@media(max-width:768px){
+  .performance-container{
+    width: 100%;
+  }
+}

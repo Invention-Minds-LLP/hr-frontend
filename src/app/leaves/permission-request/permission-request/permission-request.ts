@@ -52,7 +52,7 @@ export class PermissionRequest {
     { label: 'Employee ID', value: 'empId' },
     { label: 'Name', value: 'empName' },
     { label: 'Departmnent', value: 'deptName' },
-    { label: 'JobTitle', value: 'jobTitle' },
+    // { label: 'JobTitle', value: 'jobTitle' },
   ]
 
   requestData: requestTable[] = [];
