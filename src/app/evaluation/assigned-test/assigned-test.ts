@@ -12,10 +12,13 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
+import { FormsModule } from '@angular/forms';
+import { TestAttempt } from '../../services/test-attempt/test-attempt';
 
 @Component({
   selector: 'app-assigned-test',
-  imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule, InputTextModule, IconFieldModule, InputIconModule],
+  imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule,
+     InputTextModule, IconFieldModule, InputIconModule, FormsModule],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css',
 
@@ -35,7 +38,7 @@ export class AssignedTest {
     { label: 'Status', value: 'status' }
   ]
 
-  constructor(private assignedService: AssignTest, private messageService: MessageService) { }
+  constructor(private assignedService: AssignTest, private messageService: MessageService, private attemptService: TestAttempt) { }
 
   ngOnInit(): void {
     this.assignedService.getAll().subscribe({
@@ -48,7 +51,13 @@ export class AssignedTest {
   }
   openOverview(a: any) {
     this.assignedService.getOverview(a.id).subscribe({
-      next: data => { this.overview = data; this.overviewVisible = true; },
+      next: data => { 
+          data.rows.forEach((r: any) => {
+        r.isEditing = false;
+      });
+        this.overview = data;
+         this.overviewVisible = true; 
+        },
       error: err =>
         // alert('Failed to load overview')
         this.messageService.add({
@@ -58,6 +67,10 @@ export class AssignedTest {
         })
     });
   }
+  hasDescriptive(o: any): boolean {
+    return o?.rows?.some((r: any) => r.type === 'DESCRIPTIVE');
+  }
+  
   fmtDuration(s?: number | null) {
     if (!s && s !== 0) return '-';
     const h = Math.floor(s / 3600);
@@ -98,6 +111,45 @@ export class AssignedTest {
 
     console.log(this.filteredAssignedtest);
   }
+  saveEvaluation(o: any) {
+    const evaluations = o.rows
+      .filter((r: any) => r.type === 'DESCRIPTIVE' && r.manualScore != null)
+      .map((r: any) => ({
+        questionId: r.questionId,
+        manualScore: r.manualScore,
+        remarks: r.remarks || ''
+      }));
+  
+    if (!evaluations.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No scores',
+        detail: 'Please enter scores for descriptive questions.'
+      });
+      return;
+    }
+
+    console.log('Evaluations to save:', evaluations);
+  
+    this.attemptService.evaluateAttempt(o.attemptId, evaluations).subscribe({
+      next: res => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Evaluation Saved',
+          detail: `Final Score: ${res.finalScore}`
+        });
+        this.overviewVisible = false;
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to save evaluation'
+        });
+      }
+    });
+  }
+  
 
 }
 

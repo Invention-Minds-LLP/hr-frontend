@@ -13,6 +13,11 @@ import { MessageService } from 'primeng/api';
 import { RouterLink, RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { AnnouncementForm } from "../../announcements/announcement-form/announcement-form";
+import { DialogModule } from 'primeng/dialog';
+import { DatePicker, DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { Employees } from '../../services/employees/employees';
+import { Select } from "primeng/select";
 
 
 type TileDef =
@@ -22,7 +27,9 @@ type TileDef =
 
 @Component({
   selector: 'app-hr-dashboard',
-  imports: [CommonModule, FormsModule, DatePipe, TableModule, RouterModule, RouterLink, TooltipModule, AnnouncementForm],
+  imports: [CommonModule, FormsModule, DatePipe, TableModule,
+    DialogModule, DatePickerModule, ButtonModule,
+    RouterModule, RouterLink, TooltipModule, AnnouncementForm, Select],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })
@@ -48,6 +55,10 @@ export class HrDashboard implements OnInit {
 
   today = new Date();
   private selectedAnnId?: number;
+  assignDelegateDialog = false;
+selectedDelegateId: number | null = null;
+employeeOptions: any[] = [];
+selectedClearance: any = null; // the row we are assigning delegate for
 
   // tiles like your sample
   tiles: TileDef[] = [
@@ -69,7 +80,8 @@ export class HrDashboard implements OnInit {
   constructor(private api: Dashboard, private announcement: Announcements,
     private branchesSvc: Branches,
     private departmentsSvc: Departments,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private employees: Employees,
   ) { }
   branchId: number | null = null;
   departmentId: number | null = null;
@@ -93,6 +105,12 @@ export class HrDashboard implements OnInit {
     this.branchesSvc.getBranches().subscribe({
       next: (rows) => (this.branches = rows || []),
       error: () => (this.branches = []),
+    });
+    this.employees.getEmployees().subscribe(list => {
+      this.employeeOptions = list.map(e => ({
+        id: e.id,
+        label: `${e.firstName} ${e.lastName} (${e.employeeCode})`
+      }));
     });
     this.load();
   }
@@ -161,6 +179,8 @@ export class HrDashboard implements OnInit {
 
   // drilldown modal
   openList(key: ListKey | string, labelFallback?: string) {
+    console.log('openList called with:', key, labelFallback);
+    console.trace();
     // NEW: include the tile-specific keys we add on the server
     const map: Record<string, ListKey> = {
       'Leaves Today': 'leaves',
@@ -202,7 +222,7 @@ export class HrDashboard implements OnInit {
     });
   }
 
-  closeModal() { this.modalOpen = false; this.selectedList = undefined; this.selectedListKey = undefined; }
+  closeModal() { this.modalOpen = false; this.selectedList = undefined; this.selectedListKey = undefined; this.selectedRows = null; }
 
   // utils for *ngFor
   trackByIndex(_i: number) { return _i; }
@@ -271,7 +291,8 @@ export class HrDashboard implements OnInit {
     });
   }
 
-  selectedRows: any[] = [];
+  selectedRows: any = null;
+  selectedRow: any;
 
   // onListAction(action: string) {
   //   // --- Case 1: Announcement Acks → View pending
@@ -310,6 +331,34 @@ export class HrDashboard implements OnInit {
 
     return tooltips[tile.key] || "";
   }
+  reloadData() {
+    this.load();
+    this.closeModal();
+    this.selectedRows = null;
+  }
+  extendProbationDialog = false;
+  selectedDate: Date | null = null;
+  minDate: Date = new Date();   // prevents picking past dates
+
+  // Open dialog when action triggered
+
+
+  // Confirm API call after choosing date
+  confirmExtendProbation() {
+    if (this.selectedRows && this.selectedDate) {
+      const employee = this.selectedRows;
+      const formattedDate = this.selectedDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+      this.api.extendProbation(employee.id, formattedDate).subscribe(() => {
+        this.toast('Probation extended');
+        this.reloadData();
+        this.extendProbationDialog = false;
+        this.selectedDate = null;
+      });
+    }
+  }
+
+
   onListAction(action: string) {
     if (!this.selectedListKey) return;
     // --- Case 1: Announcement Acks → View pending
@@ -320,28 +369,32 @@ export class HrDashboard implements OnInit {
 
     // --- Case 2: OT Approval/Rejection
     if ((action === 'Approve selected' || action === 'Reject selected') && this.selectedRows.length) {
-      const ids = this.selectedRows.map(r => r.id);
+      const ids = this.selectedRows.map((r: any) => r.id);
       this.api
         .approveOrRejectOT(ids, action.startsWith('Approve') ? 'APPROVE' : 'REJECT')
         .subscribe(() => {
-          this.closeModal();
-          // this.reloadData(); // refresh dashboard
+          // this.closeModal();
+          this.reloadData(); // refresh dashboard
         });
       return;
     }
 
+    console.log(this.selectedListKey, action, this.selectedRows);
+
     switch (this.selectedListKey) {
       case 'unmarked':
         if (action === 'Message all') {
-          const employeeIds = this.selectedRows.map(r => r.id);
+          const employeeIds = this.selectedRows.map((r: any) => r.id);
           this.api.messageUnmarked(employeeIds, 'Please mark attendance').subscribe(() => {
             this.toast('Message sent to unmarked employees');
+            this.reloadData();
           });
         }
         if (action === 'Mark exception') {
-          const attendanceIds = this.selectedRows.map(r => r.id);
-          this.api.markUnmarkedException(attendanceIds).subscribe(() => {
+          const employeeIds = this.selectedRows.map((r: any) => r.id);
+          this.api.markUnmarkedException(employeeIds).subscribe(() => {
             this.toast('Attendance exceptions marked');
+            this.reloadData();
           });
         }
         break;
@@ -350,79 +403,111 @@ export class HrDashboard implements OnInit {
         if (action === 'Approve all') {
           this.api.approveApprovals({ leaveIds: [], wfhIds: [], permissionIds: [] }).subscribe(() => {
             this.toast('All pending approvals approved');
+            this.reloadData();
           });
         }
         if (action === 'Reject all') {
           this.api.rejectApprovals({ leaveIds: [], wfhIds: [], permissionIds: [], reason: 'Rejected by HR' }).subscribe(() => {
             this.toast('All pending approvals rejected');
+            this.reloadData();
           });
         }
         break;
 
       case 'probation':
         if (action === 'Request feedback') {
-          const employeeIds = this.selectedRows.map(r => r.id);
+          const employeeIds = this.selectedRows.map((r: any) => r.id);
           this.api.requestFeedback(employeeIds).subscribe(() => {
             this.toast('Feedback requested from managers');
+            this.reloadData();
           });
         }
         if (action === 'Extend probation') {
-          const employee = this.selectedRows[0];
-          this.api.extendProbation(employee.id, '2025-12-31').subscribe(() => {
-            this.toast('Probation extended');
-          });
+          // if (!this.selectedRow || this.selectedRow.length !== 1) {
+          //   this.toast('Please select exactly one employee');
+          //   return;
+          // }
+          // const employee = this.selectedRow;
+          // console.log('Extending probation for employee:', employee);
+          // this.api.extendProbation(employee.id, '2025-12-31').subscribe(() => {
+          //   this.toast('Probation extended');
+          //   this.reloadData();
+          // });
+          this.extendProbationDialog = true;
         }
         break;
 
       case 'docs':
         if (action === 'Notify all') {
-          const documentIds = this.selectedRows.map(r => r.id);
+          const documentIds = this.selectedRows.map((r: any) => r.id);
           this.api.notifyDocs(documentIds).subscribe(() => {
             this.toast('Employees notified about expiring documents');
+            this.reloadData();
           });
         }
         if (action === 'Create renewal tickets') {
-          const documentIds = this.selectedRows.map(r => r.id);
+          const documentIds = this.selectedRows.map((r: any) => r.id);
           this.api.createRenewalTickets(documentIds).subscribe(() => {
             this.toast('Renewal tickets created');
+            this.reloadData();
           });
         }
         break;
 
       case 'feedback':
         if (action === 'Nudge panel') {
-          const interviewIds = this.selectedRows.map(r => r.id);
+          const interviewIds = this.selectedRows.map((r: any) => r.id);
           this.api.nudgePanel(interviewIds).subscribe(() => {
             this.toast('Panels nudged for feedback');
+            this.reloadData();
           });
         }
         if (action === 'Reassign reviewer') {
           const interview = this.selectedRows[0];
           this.api.reassignReviewer(interview.id, [123, 456]).subscribe(() => {
             this.toast('Reviewer reassigned');
+            this.reloadData();
           });
         }
         break;
-
       case 'clearances':
         if (action === 'Escalate') {
-          const clearanceIds = this.selectedRows.map(r => r.id);
-          this.api.escalateClearances(clearanceIds).subscribe(() => {
+          // Collect resignationId + type pairs
+          const items = this.selectedRows.map((r: any) => ({
+            resignationId: r.resignationId,
+            type: r.data[3]
+          }));
+
+          this.api.escalateClearances(items).subscribe(() => {
             this.toast('Clearances escalated');
+            this.reloadData();
           });
         }
         if (action === 'Assign delegate') {
-          const clearance = this.selectedRows[0];
-          this.api.assignDelegate(clearance.id, 99).subscribe(() => {
-            this.toast('Delegate assigned');
-          });
+          this.selectedClearance = this.selectedRows[0]; // store row
+          this.assignDelegateDialog = true; // open dialog
         }
+
         break;
+
 
       default:
         this.toast(action);
     }
   }
 
-
+  confirmAssignDelegate() {
+    if (this.selectedClearance && this.selectedDelegateId) {
+      this.api.assignDelegate(
+        this.selectedClearance.resignationId,   // resignationId
+        this.selectedClearance.data[3],         // clearance type
+        this.selectedDelegateId                 // picked delegate
+      ).subscribe(() => {
+        this.toast('Delegate assigned');
+        this.reloadData();
+        this.assignDelegateDialog = false;
+        this.selectedDelegateId = null;
+      });
+    }
+  }
 }

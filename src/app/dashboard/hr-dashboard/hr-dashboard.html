@@ -75,7 +75,7 @@
                             <td class="left"><strong [ngClass]="a.severity">{{ a.count }}</strong></td>
                             <td class="left">
                                 <button class="open-table"
-                                    (click)="$event.preventDefault(); openList(a.modal)">Open</button>
+                                    (click)="$event.preventDefault();  $event.stopPropagation(); openList(a.modal)">Open</button>
                             </td>
                         </tr>
                     </tbody>
@@ -196,9 +196,9 @@
             <div class="top">
                 <i class="pi pi-times close" (click)="closeModal()"></i>
             </div>
-            <div class="actions" *ngIf="list.actions?.length">
+            <div class="actions" *ngIf="list">
                 <h3>{{ list.title }}</h3>
-                <div class="btns">
+                <div class="btns" *ngIf="list.actions?.length">
                     <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex"
                         (click)="onListAction(a)">{{
                         a
@@ -206,13 +206,18 @@
                 </div>
             </div>
         </div>
-        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" [(selection)]="selectedRows" dataKey="id"
+        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'"  dataKey="id"
             [paginator]="true" [rows]="8" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
-            [tableStyle]="{ width: '100%' }" styleClass="p-datatable-gridlines p-datatable-striped">
+            [tableStyle]="{ width: '100%' }" styleClass="p-datatable-gridlines p-datatable-striped"
+            [(selection)]="selectedRows"> 
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="width:3rem" *ngIf="list?.selectable">
+                    <!-- <th style="width:3rem" *ngIf="list?.selectable">
                         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th> -->
+                    <th style="width:3rem" *ngIf="selectedListKey === 'probation'"></th>
+                    <th style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
+                      <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
                     <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
                         {{ c }}
@@ -222,9 +227,14 @@
 
             <ng-template pTemplate="body" let-row>
                 <tr>
-                    <td style="width:3rem" *ngIf="list?.selectable">
+                    <td style="width:3rem" *ngIf="selectedListKey === 'probation'">
+                        <p-tableRadioButton [value]="row"></p-tableRadioButton>
+                      </td>
+                
+                      <!-- ✅ Checkbox for other lists -->
+                      <td style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
                         <p-tableCheckbox [value]="row"></p-tableCheckbox>
-                    </td>
+                      </td>
                     <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
                         {{ row.data ? row.data[i] : row[i] }}
                     </td>
@@ -235,6 +245,55 @@
     </div>
 
 </div>
+<p-dialog header="Extend Probation"
+          [(visible)]="extendProbationDialog"
+          [modal]="true"
+          [closable]="true"
+          [style]="{width: '400px'}">
+  
+  <div class="p-field">
+    <label for="probationDate">Select new probation end date</label>
+    <p-datepicker id="probationDate"
+                [(ngModel)]="selectedDate"
+                dateFormat="yy-mm-dd"
+                appendTo="body"
+                [minDate]="minDate"></p-datepicker>
+  </div>
+
+  <div class="p-d-flex p-jc-end p-mt-3">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
+            (click)="extendProbationDialog=false"></button>
+    <button pButton label="Confirm" icon="pi pi-check" class="p-ml-2"
+            (click)="confirmExtendProbation()" [disabled]="!selectedDate"></button>
+  </div>
+</p-dialog>
+<p-dialog header="Assign Delegate"
+          [(visible)]="assignDelegateDialog"
+          [modal]="true"
+          [closable]="true"
+          [style]="{width: '400px'}">
+
+  <div class="p-field">
+    <label for="delegate">Select Delegate</label>
+    <p-select id="delegate"
+                [options]="employeeOptions"
+                appendTo="body"
+                optionLabel="label"
+                optionValue="id"
+                [(ngModel)]="selectedDelegateId"
+                placeholder="Choose an employee">
+    </p-select>
+  </div>
+
+  <div class="p-d-flex p-jc-end p-mt-3">
+    <button pButton label="Cancel" class="p-button-text"
+            (click)="assignDelegateDialog=false"></button>
+    <button pButton label="Confirm" icon="pi pi-check"
+            (click)="confirmAssignDelegate()" [disabled]="!selectedDelegateId"></button>
+  </div>
+</p-dialog>
+
+
 
 <div class="modal" [class.open]="showAnnouncementForm">
     <div *ngIf="showAnnouncementForm" class="sheet-1 small">

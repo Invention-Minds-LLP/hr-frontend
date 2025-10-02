@@ -48,6 +48,7 @@ import { DeptPerformance } from './appraisal/dept-performance/dept-performance';
 import { GrievanceList } from './grievance/grievance-list/grievance-list';
 import { Posh } from './services/posh/posh';
 import { PoshList } from './posh/posh-list/posh-list';
+import { HrEvaluate } from './evaluation/hr-evaluate/hr-evaluate';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -92,7 +93,8 @@ export const routes: Routes = [
       { path: 'candidate-tests', component: CandidateTests }, // view candidate details
       { path: 'recquisition', component: RequisitionList }, // requisition form
       { path: 'survey', component: SurveyList},
-      { path: 'exit', component: ExitInterviewList}
+      { path: 'exit', component: ExitInterviewList},
+      { path: 'hr-review/:id', component: HrEvaluate},
     ],
   },
 

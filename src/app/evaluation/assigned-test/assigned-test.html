@@ -106,24 +106,66 @@
                 </div>
                 <ng-template #dash> - </ng-template>
               </ng-container>
+            
               <ng-template #descAns>
-                {{ r.rawAnswer || '-' }}
+                <div *ngIf="r.rawAnswer">{{ r.rawAnswer }}</div>
+                <div *ngIf="r.fileUrl">
+                  <a [href]="r.fileUrl" target="_blank">📎 Open Answer</a>
+                </div>
+                <div *ngIf="!r.rawAnswer && !r.fileUrl"> - </div>
               </ng-template>
             </td>
+            
             <td>
               <div *ngIf="r.correctOptionTexts.length; else na">
                 <div *ngFor="let t of r.correctOptionTexts">{{ t }}</div>
               </div>
               <ng-template #na> - </ng-template>
             </td>
-            <td>
+            <!-- <td>
               <span *ngIf="r.isCorrect === true" class="ok">Correct</span>
               <span *ngIf="r.isCorrect === false" class="bad">Wrong</span>
               <span *ngIf="r.isCorrect === null" class="na">N/A</span>
+            </td> -->
+            <td>
+              <ng-container *ngIf="r.isCorrect === null; else autoEval">
+                <div *ngIf="!r.isEditing; else editMode">
+                  <span *ngIf="r.manualScore !== null">Score: {{ r.manualScore }}</span>
+                  <small *ngIf="r.remarks"><br/>Remarks: {{ r.remarks }}</small>
+                  <button pButton type="button" label="Edit" (click)="r.isEditing = true"></button>
+                </div>
+                <ng-template #editMode>
+                  <input type="number" [(ngModel)]="r.manualScore"
+                         min="0" [max]="r.weight || 100"
+                         style="width:70px" placeholder="Score" />
+                            <span>/ {{ r.weight }}</span> 
+                  <input type="text" [(ngModel)]="r.remarks"
+                         style="width:150px" placeholder="Remarks" />
+                  <button pButton type="button" label="Save" (click)="r.isEditing = false"></button>
+                </ng-template>
+              </ng-container>
+              <ng-template #autoEval>
+                <span *ngIf="r.isCorrect === true" class="ok">Correct</span>
+                <span *ngIf="r.isCorrect === false" class="bad">Wrong</span>
+              </ng-template>
             </td>
+            
+            
+            
+            
           </tr>
+          
         </ng-template>
+        
       </p-table>
+      <div class="mt-3" style="text-align:right"
+      *ngIf="hasDescriptive(o)">
+   <button pButton label="Save Evaluation"
+           class="p-button-success"
+           (click)="saveEvaluation(o)">
+   </button>
+ </div>
+ 
     </div>
   </ng-container>
 </p-dialog>

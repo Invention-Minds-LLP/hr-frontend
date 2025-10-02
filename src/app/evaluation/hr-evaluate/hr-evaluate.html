@@ -1,0 +1,39 @@
+<div class="hr-eval" *ngIf="!loading && attempt; else loadingTpl">
+
+    <h2>Evaluate Attempt #{{ attempt.id }}</h2>
+    <p>Candidate: <strong>{{ attempt.candidateName }}</strong></p>
+    <p>Test: <strong>{{ attempt.testName }}</strong></p>
+  
+    <div *ngFor="let r of attempt.responses; let i = index" class="question-block">
+      <h3>Q{{ i + 1 }}: {{ r.text }}</h3>
+  
+      <!-- MCQ -->
+      <div *ngIf="r.type === 'MCQ'">
+        <p><strong>Answer:</strong> {{ r.answerText || '—' }}</p>
+        <p><strong>Score:</strong> {{ r.autoScore }}</p>
+      </div>
+  
+      <!-- Descriptive -->
+      <div *ngIf="r.type === 'Descriptive'">
+        <p *ngIf="r.answer"><strong>Answer:</strong> {{ r.answer }}</p>
+        <p *ngIf="r.fileUrl">
+          <a [href]="r.fileUrl" target="_blank">📄 View Uploaded Answer Sheet</a>
+        </p>
+        <label>HR Score:</label>
+        <input type="number" [(ngModel)]="r.hrScore" (change)="onScoreChange()" min="0" max="100"/>
+      </div>
+    </div>
+  
+    <div class="total">
+      <h3>Total Score: {{ totalScore }}</h3>
+    </div>
+  
+    <button class="btn save" (click)="saveEvaluation()" [disabled]="saving">
+      {{ saving ? 'Saving...' : 'Save Evaluation' }}
+    </button>
+  </div>
+  
+  <ng-template #loadingTpl>
+    <p>Loading attempt...</p>
+  </ng-template>
+  

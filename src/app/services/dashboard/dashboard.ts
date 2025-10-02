@@ -134,8 +134,8 @@ export class Dashboard {
   messageUnmarked(employeeIds: number[], message: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/unmarked/message`, { employeeIds, message });
   }
-  markUnmarkedException(attendanceIds: number[]): Observable<any> {
-    return this.http.post(`${this.baseUrl}/unmarked/exception`, { attendanceIds });
+  markUnmarkedException(employeeIds : number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/unmarked/exception`, { employeeIds  });
   }
 
   // 2. Pending approvals
@@ -174,7 +174,12 @@ export class Dashboard {
   escalateClearances(clearanceIds: number[]): Observable<any> {
     return this.http.post(`${this.baseUrl}/clearances/escalate`, { clearanceIds });
   }
-  assignDelegate(clearanceId: number, delegateId: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/clearances/assign`, { clearanceId, delegateId });
+  assignDelegate(resignationId: number, type: string, delegateId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/clearances/assign`, {
+      resignationId,
+      type,
+      delegateId
+    });
   }
+  
 }

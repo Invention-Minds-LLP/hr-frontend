@@ -22,9 +22,26 @@ export class TestAttempt {
   submit(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/submit`, payload);
   }
+  submitWithFiles(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/submit-files`, formData);
+  }
+  
   startAttempt(assignedTestId: number) {
     return this.http.post<{ attemptId: number }>(
       `${this.apiUrl}/${assignedTestId}/start`, {}
     );
   }
+  saveReview(attemptId: number, scores: any[], finalScore: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${attemptId}/review`, {
+      scores,
+      finalScore
+    });
+  }
+  evaluateAttempt(attemptId: number, evaluations: any[]) {
+    return this.http.post<any>(`${this.apiUrl}/evaluate`, {
+      attemptId,
+      evaluations
+    });
+  }
+  
 }

@@ -54,7 +54,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 })
 export class TestPlatform implements OnInit, OnDestroy {
   test: any;
-  responses: Array<{ questionId: number; answer: number[] | string; marked?: boolean }> = [];
+  responses: Array<{ questionId: number; answer: number[] | string; marked?: boolean; fileName:any; file:any }> = [];
 
   // timer
   timeLeft = 0;             // seconds
@@ -270,6 +270,13 @@ export class TestPlatform implements OnInit, OnDestroy {
     this.showSubmitPopup = false;
     this.router.navigate(['/my-tests']); // navigate back after closing
   }
+  onFileSelect(event: any, qIndex: number) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.responses[qIndex].file = file;
+      this.responses[qIndex].fileName = file.name;
+    }
+  }
 
 
   submit(): void {
@@ -280,39 +287,67 @@ export class TestPlatform implements OnInit, OnDestroy {
       this.ct.submitAssignedTest(this.assignedTestId, answers).subscribe(res => {
         this.submitMessage = 'Your test has been submitted successfully. Thank you.';
         this.showSubmitPopup = true;
-        
+
         this.router.navigate(['/candidate-tests']);
       });
       return;
     }
 
-    // quick scoring for MCQ
-    const correctCount = this.test.questions.reduce((count: number, q: any, i: number) => {
-      if (q.type === 'MCQ') {
-        const correct = q.options.filter((o: any) => o.isCorrect).map((o: any) => o.id).sort();
-        const selected = (this.responses[i].answer as number[]).slice().sort();
-        return JSON.stringify(correct) === JSON.stringify(selected) ? count + 1 : count;
+    // // quick scoring for MCQ
+    // const correctCount = this.test.questions.reduce((count: number, q: any, i: number) => {
+    //   if (q.type === 'MCQ') {
+    //     const correct = q.options.filter((o: any) => o.isCorrect).map((o: any) => o.id).sort();
+    //     const selected = (this.responses[i].answer as number[]).slice().sort();
+    //     return JSON.stringify(correct) === JSON.stringify(selected) ? count + 1 : count;
+    //   }
+    //   return count;
+    // }, 0);
+
+    // const score = (correctCount / this.test.questions.length) * 100;
+    // const status = score >= this.test.passingPercent ? 'Pass' : 'Fail';
+
+    // const payload = {
+    //   assignedTestId: this.assignedTestId,
+    //   employeeId: 1, // TODO: replace with real user
+    //   testId: this.test.id,
+    //   responses: this.responses,
+    //   score,
+    //   status,
+    //   attemptId: this.attemptId,
+    // };
+
+    // this.attemptService.submit(payload).subscribe(() => {
+    //   this.submitMessage = 'Your test has been submitted successfully. Thank you.';
+    //   this.showSubmitPopup = true;
+
+    //   this.router.navigate(['/my-tests']);
+    // });
+    // 👉 Build FormData to include answers + files
+    const formData = new FormData();
+    formData.append('attemptId', String(this.attemptId));
+    formData.append('assignedTestId', String(this.assignedTestId));
+    formData.append('testId', String(this.test.id));
+
+    // Responses without file blobs (only meta)
+    formData.append(
+      'responses',
+      JSON.stringify(this.responses.map(r => ({
+        questionId: r.questionId,
+        answer: r.answer,
+        fileName: r.fileName || null
+      })))
+    );
+
+    // Append file blobs separately
+    this.responses.forEach(r => {
+      if (r.file) {
+        formData.append(`file_${r.questionId}`, r.file);
       }
-      return count;
-    }, 0);
+    });
 
-    const score = (correctCount / this.test.questions.length) * 100;
-    const status = score >= this.test.passingPercent ? 'Pass' : 'Fail';
-
-    const payload = {
-      assignedTestId: this.assignedTestId,
-      employeeId: 1, // TODO: replace with real user
-      testId: this.test.id,
-      responses: this.responses,
-      score,
-      status,
-      attemptId: this.attemptId,
-    };
-
-    this.attemptService.submit(payload).subscribe(() => {
+    this.attemptService.submitWithFiles(formData).subscribe(() => {
       this.submitMessage = 'Your test has been submitted successfully. Thank you.';
       this.showSubmitPopup = true;
-      
       this.router.navigate(['/my-tests']);
     });
   }
@@ -336,7 +371,7 @@ export class TestPlatform implements OnInit, OnDestroy {
   getSeconds(seconds: number): string {
     return (seconds % 60).toString().padStart(2, '0');
   }
-  
+
   // ---- Proctoring ----
   private attachProctoring() {
     document.addEventListener('visibilitychange', this.onVisibility);

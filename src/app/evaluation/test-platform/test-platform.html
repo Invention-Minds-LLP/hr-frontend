@@ -54,7 +54,11 @@
 
           <!-- Descriptive -->
           <div *ngIf="currentQuestion?.type === 'Descriptive'" class="desc-box">
-            <textarea pInputTextarea rows="6" [(ngModel)]="responses[currentIndex].answer"></textarea>
+            <!-- <textarea pInputTextarea rows="6" [(ngModel)]="responses[currentIndex].answer"></textarea> -->
+            <input type="file" (change)="onFileSelect($event, currentIndex)" />
+            <div *ngIf="responses[currentIndex].fileName">
+              Uploaded: {{ responses[currentIndex].fileName }}
+            </div>
           </div>
         </div>
 
