@@ -1,5 +1,9 @@
 .card {
- background: #656565;
+ background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
  color: white;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   border-radius: 12px;
@@ -7,10 +11,12 @@
   max-width: 860px;
 }
 .card:focus-within,
-input:focus-within{
+.card:focus-within input,
+.card:focus-within select{
  background: white;
  color: black;
 }
+
 
 label {
   display: flex;
@@ -27,13 +33,19 @@ select {
   color: white;
 }
 
-input:focus-within,
+/* input:focus-within,
 select:focus-within{
   color: black;
+} */
+
+.card input::placeholder,
+.card textarea::placeholder{
+  color: white;
 }
 
-input::placeholder{
-  color: white;
+.card:focus-within input::placeholder,
+.card:focus-within textarea::placeholder{
+  color: black;
 }
 
 textarea{

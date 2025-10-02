@@ -11,6 +11,7 @@
   --p-checkbox-hover-border-color: #003366;
   --p-checkbox-checked-focus-border-color: #003366;
   --p-checkbox-checked-border-color: #003366;
+  --p-floatlabel-on-active-background: #302F31 !important;
 }
 
 .steps-container .step {

@@ -1,4 +1,7 @@
-<p-card header="Create Circular" styleClass="circular-card">
+<p-card header="Create Circular" styleClass="circular-card" >
+  <div class="header">
+    <i class="pi pi-times" (click)="onClose()"></i>
+  </div>
   <form [formGroup]="form" class="circular-form">
 
     <!-- Title -->

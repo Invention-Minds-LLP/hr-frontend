@@ -331,6 +331,19 @@ table.list td {
   gap: 8px;
 }
 
+::ng-deep.p-select{
+  background: transparent;
+}
+
+::ng-deep.p-select-label,
+::ng-deep.p-select-dropdown{
+  color: white;
+}
+
+
+
+
+
 
 /* stack to one column on small screens */
 @media (max-width: 640px) {

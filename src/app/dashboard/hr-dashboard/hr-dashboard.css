@@ -58,6 +58,19 @@ header {
 .grid-4 {
   grid-column: span 4;
 }
+.card.grid-4:focus-within {
+  background: white;
+  color: black;
+}
+
+.card.grid-4:focus-within .kicker,
+.card.grid-4:focus-within .footer-note,
+.card.grid-4:focus-within .ann-item,
+.card.grid-4:focus-within .ann-meta,
+.card.grid-4:focus-within .ann-sub {
+  color: black;
+}
+
 
 .grid-3 {
   grid-column: span 3;
@@ -101,7 +114,7 @@ select:focus {
   /* box-shadow: var(--shadow); */
 }
 
-::ng-deep .p-select-label {
+::ng-deep .wrap .p-select-label {
   color: black !important;
 }
 
@@ -141,7 +154,9 @@ select:focus {
 
 /* ---------- Cards ---------- */
 .card {
-  background: var(--card);
+  /* background: var(--card); */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.00) 100%);
+  color: white;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
@@ -165,7 +180,8 @@ select:focus {
 .footer-note {
   margin-top: 8px;
   font-size: 12px;
-  color: var(--muted);
+  /* color: var(--muted); */
+  color: white;
 }
 
 .h {
@@ -411,10 +427,10 @@ select:focus {
 }
 
 /* Header */
-.attention th {
-  background: #f8fafc;
+.card .attention th {
+  background: #656565;
   /* or var(--panel-strong) if you have it */
-  color: #2a3344;
+  color: white;
   font-weight: 800;
   font-size: 13px;
   text-align: left;
@@ -427,12 +443,24 @@ select:focus {
 }
 
 /* Cells */
-.attention td {
+.card .attention td {
   padding: 12px 14px;
   color: var(--text);
   border-bottom: 1px solid var(--border);
-  background: var(--panel);
+  /* background: var(--panel); */
+  background: #656565;
+  color: white;
   text-align: left;
+}
+
+.card:focus-within{
+  background:white;
+  color: black;
+}
+.card:focus-within .attention td,
+.card:focus-within .attention th{
+  background: white;
+  color: black;
 }
 
 .attention tbody tr:last-child td {
@@ -666,6 +694,7 @@ select:focus {
 .pill.small {
   font-size: 12px;
   padding: 2px 8px;
+  color:black;
 }
 
 .ann-bar {
@@ -762,7 +791,7 @@ select:focus {
   position: relative;
   /* overflow-y: auto; */
   width: 80%;
-  height: 99vh;
+  height: 100vh;
   background: white;
   /* border: 1px solid #828282; */
   border-radius: 18px;
@@ -831,7 +860,7 @@ select:focus {
   max-height: 70vh;
   overflow: auto;
   margin-top: 10px;
-  padding: 2px 4px;
+  /* padding: 2px 4px; */
 }
 
 .sheet .list {
@@ -921,6 +950,7 @@ select:focus {
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
+  /* pointer-events: none; */
 }
 
 /* Header Row */

@@ -155,6 +155,10 @@ selectedClearance: any = null; // the row we are assigning delegate for
     this.showAnnouncementForm = true;
   }
 
+  closePopup() {
+    this.showAnnouncementForm = false;
+  }
+
   // ack helpers
   ackPercent(): number {
     if (!this.data) return 0;

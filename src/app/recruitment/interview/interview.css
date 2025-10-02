@@ -1,8 +1,13 @@
 .card {
-  background: white;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 16px;
+  color: white;
 }
 
 .filters {
@@ -32,13 +37,13 @@ input {
 button {
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: none;
   background: #3465b0;
   color: #fff;
 }
 
 .p-button:hover {
-  border: 1px solid #e5e7eb;
+  border: none;
   background: #3465b0;
   color: #fff;
 }
@@ -488,4 +493,9 @@ td.actions {
 ::ng-deep .p-datepicker-header {
   padding: 5px;
   /* Adjust header padding */
+}
+
+.card:focus-within{
+  background: white;
+  color: black;
 }

@@ -15,6 +15,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
   }
   
   .feedback-card {
@@ -35,7 +36,7 @@
     font-size: 0.9rem;
   }
 
-  ::ng-deep .p-card-content{
+  /* ::ng-deep .p-card-content{
     padding: 15px;
-  }
+  } */
   

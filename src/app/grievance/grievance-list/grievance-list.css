@@ -3,7 +3,7 @@
     background: #555555;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    /* width: 100%; */
     --p-paginator-nav-button-color:white;
 
   }
@@ -316,4 +316,16 @@
  .performance-container svg{
   background:none !important;
   color: red !important;
+ }
+
+
+ @media(max-width:767px){
+  .new-app{
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  h2{
+    font-size: 16px;
+  }
  }

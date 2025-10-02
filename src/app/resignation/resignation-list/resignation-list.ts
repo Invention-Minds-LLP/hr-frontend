@@ -12,11 +12,13 @@ import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIcon, InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { Departments } from '../../services/departments/departments';
+import { Tooltip, TooltipModule } from "primeng/tooltip";
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost, RouterModule, IconFieldModule, InputIconModule, InputTextModule],
+  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost, RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -173,6 +175,14 @@ export class ResignationList {
 
     )
 
+  }
+
+   getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
   }
 
 }

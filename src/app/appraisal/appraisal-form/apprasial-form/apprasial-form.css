@@ -3,7 +3,7 @@
     background: transparent;
     height: auto;
     padding: 50px 50px;
-        --p-floatlabel-active-color:#ffff
+        --p-floatlabel-active-color:#ffff;
 }
 
 .appraisal-form {
@@ -72,6 +72,7 @@
 ::ng-deep .p-inputtext {
     width: 100%;
     color: white !important;
+    background: transparent !important;
 }
 
 ::ng-deep .p-select {

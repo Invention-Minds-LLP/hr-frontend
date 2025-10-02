@@ -1,8 +1,13 @@
 .card {
-  background: white;
+  background:linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 30px ;
+  color: white;
 }
 .filters {
   display: flex;
@@ -18,24 +23,41 @@ label {
 label.grow {
   flex: 1;
 }
-select,
-input {
+.card select,
+.card input {
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
+  background: transparent;
+  color: white;
 }
+
+.card:focus-within input,
+.card:focus-within select {
+  background: white;
+  color: black;
+  border-color: #999;
+}
+
 button {
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: none;
   background: #3465b0;
   color: #fff;
+}
+
+.card input::placeholder{
+  color: white;
+}
+.card:focus-within input::placeholder{
+  color: black;
 }
 
 .p-button:hover{
   background: #3465b0;
   color: #fff;
-  border: 1px solid #e5e7eb;
+  border: none;
 
 }
 button.ghost {
@@ -114,6 +136,7 @@ td.candidate .email {
   font-weight: 700;
   font-size: 12px;
   white-space: nowrap;
+  color: black;
 }
 .pill.good {
   background: #ecfdf5;
@@ -445,8 +468,9 @@ td.actions {
 }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: white;
-  color: black;
+  /* background: white; */
+  background: #656565;
+  color: white;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 5px;
@@ -458,12 +482,45 @@ td.actions {
 }
 
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: white !important;
+  background: #656565 !important;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: black;
+  color: white;
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
 }
+
+
+::ng-deep .card:focus-within { 
+  background: white;        
+  color: black;
+}
+
+::ng-deep .card:focus-within .p-datatable .p-datatable-thead > tr > th,
+::ng-deep .card:focus-within .p-datatable .p-datatable-tbody > tr > td {
+  background: white !important;
+  color: black !important;
+}
+
+::ng-deep .card .p-select{
+  background: transparent;
+}
+
+::ng-deep .card .p-select-label.p-placeholder{
+  color: white;
+}
+::ng-deep .card:focus-within .p-select-label.p-placeholder{
+  color: black;
+}
+
+::ng-deep .card .p-select-dropdown{
+  color: white;
+}
+::ng-deep .card:focus-within .p-select-dropdown{
+  color: black;
+}
+
+
+

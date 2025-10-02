@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output, output } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, FormGroup, FormsModule } from '@angular/forms';
 import { Announcements, Attachment } from '../../services/announcement/announcements';
 import { MessageService } from 'primeng/api';
@@ -32,6 +32,14 @@ export class AnnouncementForm {
   roles: Role[] = [];
   employees: EmployeeRow[] = [];
   filteredEmployees: EmployeeRow[] = [];
+
+  @Output() close = new EventEmitter<void>();
+
+  onClose(){
+    this.close.emit()
+  }
+
+
   constructor(
     private fb: FormBuilder,
     private svc: Announcements,
@@ -191,6 +199,8 @@ export class AnnouncementForm {
       },
     });
   }
+
+
   
 
   
