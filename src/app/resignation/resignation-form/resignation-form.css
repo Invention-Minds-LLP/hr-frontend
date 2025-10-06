@@ -53,31 +53,28 @@
 
 textarea {
   width: 420px;
-  background:#D9D9D9 !important;
+  background: transparent !important;
   border-radius: 10px;
-  color: black;
+  color: black !important;
 
 }
 
-input {
-  display: flex;
-  width: 260px;
+/* input {
+  width:100%;
   height: 38px;
   padding: 0 16px;
-  align-items: center;
-  gap: 10px;
   flex-shrink: 0;
   border-radius: 8px;
-  border: 2px solid #c4c4c4;
-  color:white;
+  border: none;
+  color: black;
   font-family: "Sofia Sans";
-  font-size: 14px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   letter-spacing: 0.14px;
   background: transparent;
-}
+} */
 
 ::ng-deep .p-card {
   background: transparent !important;
@@ -92,11 +89,11 @@ input {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  color: white;
+  color: black;
   /* padding: 50px; */
 }
 
-.resignations{
+.resignations {
   width: 65%;
 }
 
@@ -179,7 +176,7 @@ input {
   margin-top: 12px;
 }
 
-.p-button-text{
+.p-button-text {
   background-color: #FF0000 !important;
   color: white;
 }
@@ -272,20 +269,21 @@ input {
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  width: 100%;
+  /* width: 100%; */
   border: none !important;
 }
 
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
-  background: #302F31;
-  color: white;
+  background: transparent;
+  color: black;
   border: none !important;
   border-bottom: 2px solid #D9D9D9 !important;
 
 }
-.heading{
-  color: white;
+
+.heading {
+  color: black;
 }
 
 
@@ -314,15 +312,16 @@ input {
   display: flex;
   justify-content: center;
   /* align-items: center; */
-  /* width: 100%; */
+  width: 100%;
   padding: 0 30px 30px;
   gap: 40px;
   margin-top: 20px;
+
 }
 
 .resignation-form {
   display: flex;
-  /* width: 35%; */
+  width: 35%;
 }
 
 .p-button {
@@ -331,46 +330,95 @@ input {
   border: none;
   width: 100%;
 }
+
 .p-button:hover {
   background-color: #3465b0;
   color: white;
   border: none;
 }
 
-::ng-deep .p-card-body{
+::ng-deep .p-card-body {
   padding: 0px;
 }
 
-.flex{
+/* .flex {
   display: flex;
   flex-direction: row;
   align-items: center;
-}
+} */
 
-.flex input{
-  position: absolute;
-  width:420px;
-}
-
-.flex label{
+/* .flex input {
   position: relative;
-  left:40px;
+  width: 420px;
+  left: -143px;
+} */
+
+.flex label {
+  position: relative;
+  left: -40%;
   top: 3px;
-  color: white;
+  color: black;
 }
 
-.readonly{
+.readonly {
   border: 2px solid #C4C4C4;
   height: 40px;
   color: white;
+  width: 420px;
+  /* position: relative; */
+  /* left: 50%; */
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+
 }
 
-.readonly div{
-  position: absolute;
+.readonly div {
+  /* position: relative; */
+  color: black;
+  top: -33px;
 }
 
-.readonly label{
-  position: relative;
-  left: 90px;
+.readonly label {
+  /* position: relative; */
+  /* left: 90px; */
+  color: black;
+
 }
+.field.flex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px; /* spacing between input and label */
+  width: 100%;
+}
+
+.field.flex input {
+  width: 180px; /* adjust width as needed */
+  border-radius: 8px;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  /* padding: 8px 12px; */
+  border: none;
+  background-color: none;
+  color: #000;
+}
+
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input:focus {
+  outline: none !important;
+}
+
+
+
+
 

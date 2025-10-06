@@ -1,0 +1,52 @@
+.complaints{
+    width: 100%;
+    display:flex ;
+    gap: 40px;
+    padding: 30px 60px;
+}
+
+::ng-deep .complaints .p-datatable {
+    border: none;
+    background: transparent;
+  }
+  
+  /* Header Row */
+  ::ng-deep .complaints .p-datatable .p-datatable-thead > tr > th {
+    background: transparent !important;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px 20px;
+    border-bottom: 2px solid #d9d9d9 !important;
+    height: 60px;
+    text-align: left;
+    text-wrap: nowrap;
+    /* border-radius: 12px; */
+  }
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+    border-bottom-right-radius: 10px;
+  }
+  
+  /* Body Rows */
+  ::ng-deep .complaints .p-datatable .p-datatable-tbody > tr > td {
+    background: transparent !important;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    text-align: left;
+    border-bottom: none !important;
+    text-wrap: nowrap;
+  }

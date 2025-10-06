@@ -6,18 +6,21 @@
                 <path fill="currentColor"
                     d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208s208-93.31 208-208S370.69 48 256 48m-50.22 116.82C218.45 151.39 236.28 144 256 144s37.39 7.44 50.11 20.94c12.89 13.68 19.16 32.06 17.68 51.82C320.83 256 290.43 288 256 288s-64.89-32-67.79-71.25c-1.47-19.92 4.79-38.36 17.57-51.93M256 432a175.5 175.5 0 0 1-126-53.22a122.9 122.9 0 0 1 35.14-33.44C190.63 329 222.89 320 256 320s65.37 9 90.83 25.34A122.9 122.9 0 0 1 382 378.78A175.45 175.45 0 0 1 256 432" />
             </svg>My Profile</li>
+            <span class="br"></span>
         <li class="sub-item" [ngClass]="{ 'active': active === 'reset' }" (click)="show('reset')"><svg
                 xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path fill="currentColor" fill-rule="evenodd"
                     d="M22 8.293c0 3.476-2.83 6.294-6.32 6.294c-.636 0-2.086-.146-2.791-.732l-.882.878c-.519.517-.379.669-.148.919c.096.105.208.226.295.399c0 0 .735 1.024 0 2.049c-.441.585-1.676 1.404-3.086 0l-.294.292s.881 1.025.147 2.05c-.441.585-1.617 1.17-2.646.146l-1.028 1.024c-.706.703-1.568.293-1.91 0l-.883-.878c-.823-.82-.343-1.708 0-2.05l7.642-7.61s-.735-1.17-.735-2.78c0-3.476 2.83-6.294 6.32-6.294S22 4.818 22 8.293m-6.319 2.196a2.2 2.2 0 0 0 2.204-2.195a2.2 2.2 0 0 0-2.204-2.196a2.2 2.2 0 0 0-2.204 2.196a2.2 2.2 0 0 0 2.204 2.195"
                     clip-rule="evenodd" />
             </svg>Reset Password</li>
+            <span class="br"></span>
         <li class="sub-item" [ngClass]="{ 'active': active === 'create' }" (click)="show('create')"
             *ngIf="!isRestricted"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path fill="currentColor" fill-rule="evenodd"
                     d="M9 4a4 4 0 1 0 0 8a4 4 0 0 0 0-8m-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1"
                     clip-rule="evenodd" />
             </svg>New User</li>
+            <span class="br"></span>
         <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')" *ngIf="!isRestricted">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path fill="currentColor"
@@ -25,9 +28,9 @@
             </svg>Login Activities</li>
     </ul>
 </nav>
-<div>
+<!-- <div>
     <hr>
-</div>
+</div> -->
 
 
 <div>

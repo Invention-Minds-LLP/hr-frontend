@@ -49,6 +49,7 @@ import { GrievanceList } from './grievance/grievance-list/grievance-list';
 import { Posh } from './services/posh/posh';
 import { PoshList } from './posh/posh-list/posh-list';
 import { HrEvaluate } from './evaluation/hr-evaluate/hr-evaluate';
+import { Complaints } from './complaints/complaints';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -74,7 +75,8 @@ export const routes: Routes = [
       { path: 'survey', component: SurveyList },
       { path: 'exit', component: ExitInterviewList },
       { path: 'grievance', component: GrievanceList},
-      { path: 'posh', component: PoshList}
+      { path: 'posh', component: PoshList},
+      { path: 'complaints', component: Complaints}
 
     ],
 

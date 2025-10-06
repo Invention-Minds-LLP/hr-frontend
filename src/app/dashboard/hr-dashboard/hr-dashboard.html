@@ -1,4 +1,4 @@
-<div class="wrap" *ngIf="data as d" tabindex="0">
+<div class="wrap" *ngIf="data as d">
 
     <header>
         <div class="title">HR Command Center</div>
@@ -92,7 +92,7 @@
             </div>
             <!-- New: full list -->
             <div class="ann-list" *ngIf="announcements?.length; else noAnns">
-                <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)" tabindex="0">
+                <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
                     <div class="ann-meta">
                         <div class="ann-title">
                             <span class="idx">#{{ i + 1 }}</span> {{ a.title }}

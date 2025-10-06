@@ -15,6 +15,7 @@ import { ResignationForm } from "../../resignation/resignation-form/resignation-
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
 import { Tooltip } from 'primeng/tooltip';
+import { MyTests } from "../../evaluation/my-tests/my-tests";
 
 interface individual {
   date: string;
@@ -35,7 +36,7 @@ type LeaveTypeCount = { label: string; count: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
      PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-      GrievanceList, PoshList, Tooltip],
+      GrievanceList, PoshList, Tooltip,MyTests],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })

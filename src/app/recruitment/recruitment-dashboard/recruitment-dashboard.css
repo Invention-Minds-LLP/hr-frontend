@@ -3,7 +3,7 @@
 }
 
 .heading {
-  color: white;
+  color:white;
   
 }
 
@@ -91,7 +91,7 @@
   --hover2: #99f6e4;
 }
 
-.stat[data-kind="applicationsReceived"] {
+.stat[data-kind="interviewing"] {
   --tile-g1: #c7d2fe;
   --tile-g2: #bae6fd;
   --hover1: #c7d2fe;
@@ -112,14 +112,14 @@
   --hover2: #fed7aa;
 }
 
-.stat[data-kind="interviewing"] {
+.stat[data-kind="rejected"] {
   --tile-g1: #bae6fd;
   --tile-g2: #a5f3fc;
   --hover1: #bae6fd;
   --hover2: #a5f3fc;
 }
 
-.stat[data-kind="offered"] {
+.stat[data-kind="applicationsReceived"] {
   --tile-g1: #99f6e4;
   --tile-g2: #d9f99d;
   --hover1: #99f6e4;
@@ -147,7 +147,7 @@
   --hover2: #bae6fd;
 }
 
-.stat[data-kind="rejected"] {
+.stat[data-kind="offered"] {
   --tile-g1: #fecaca;
   --tile-g2: #fca5a5;
   --hover1: #fecaca;
@@ -155,16 +155,12 @@
 }
 
 .card {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.00) 100%
-  ) ;
+  background: linear-gradient(135deg, #5272f0, #61bdee);
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 30px;
   height: 725px;
-  color: white;
+  color: black;
 }
 
 .columns {
@@ -219,8 +215,9 @@ table.jobs thead th {
   text-align: left;
   padding: 12px 14px;
   font-weight: 700;
-  color: white;
-  background: #656565;
+  height: 60px;
+  color: black;
+  background: transparent;
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
@@ -229,16 +226,16 @@ table.jobs td {
   border-bottom: 1px solid var(--border, #e5e7eb);
   vertical-align: middle;
   /* background: var(--panel, #fff); */
-  background: #656565;
-  color: white;
+  background: white;
+  color: black;
 }
-
+/* 
 .card:focus-within,
 .card:focus-within table.jobs thead th,
 .card:focus-within table.jobs tbody td{
   background: white;
   color: black;
-}
+} */
 
 table.jobs tbody tr:hover {
   background: #f6f9ff;

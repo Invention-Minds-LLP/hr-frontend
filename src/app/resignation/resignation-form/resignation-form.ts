@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule,FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormGroup, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Resignation } from '../../services/resignation/resignation';
 import { DatePipe } from '@angular/common';
@@ -9,13 +9,14 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { MessageService } from 'primeng/api';
+import { Dialog } from "primeng/dialog";
 
-type Status = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'WITHDRAWN'  | 'WITHDRAW_REQUESTED' | 'APPROVED' | 'REJECTED';
+type Status = 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'WITHDRAWN' | 'WITHDRAW_REQUESTED' | 'APPROVED' | 'REJECTED';
 
 @Component({
   selector: 'app-resignation-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe, ButtonModule, TextareaModule, InputNumberModule, CardModule, TableModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, ButtonModule, TextareaModule, InputNumberModule, CardModule, TableModule, FormsModule, Dialog],
   templateUrl: './resignation-form.html',
   styleUrl: './resignation-form.css'
 })
@@ -28,9 +29,10 @@ export class ResignationForm {
   submitted?: any;
   loading = false;
   form!: FormGroup;
+  visible = false;
 
 
-  constructor(private fb: FormBuilder, private api: Resignation, private messageService : MessageService) {}
+  constructor(private fb: FormBuilder, private api: Resignation, private messageService: MessageService) { }
   ngOnInit(): void {
     this.form = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]],
@@ -54,14 +56,14 @@ export class ResignationForm {
     this.api.create({ employeeId: this.employeeId, ...this.form.value as any })
       .subscribe({
         next: (rec) => { this.submitted = rec; this.loading = false; },
-        error: () => { 
+        error: () => {
           // alert('Failed to submit'); 
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
             detail: 'Failed to submit resignation'
           })
-          this.loading = false; 
+          this.loading = false;
         }
       });
     this.load();
@@ -87,7 +89,7 @@ export class ResignationForm {
     const s = r.status as Status;
     return ['SUBMITTED', 'UNDER_REVIEW'].includes(s);
   }
-  
+
 
   askWithdraw(r: any) {
     this.withdrawingId = r.id;
@@ -107,13 +109,13 @@ export class ResignationForm {
         this.withdrawReason = '';
         this.load();
       },
-      error: () => 
+      error: () =>
         // alert('Failed to withdraw')
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to withdraw resignation'
-      })
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to withdraw resignation'
+        })
     });
   }
 
@@ -127,5 +129,14 @@ export class ResignationForm {
       case 'REJECTED': return 'b b-red';
       default: return 'b';
     }
+  }
+
+
+  open() {
+    this.visible = true
+  }
+
+  close() {
+    this.visible = false
   }
 }
