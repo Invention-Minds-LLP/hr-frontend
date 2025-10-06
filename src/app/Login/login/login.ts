@@ -80,7 +80,8 @@ export class Login {
               localStorage.setItem('role', response.role);
               localStorage.setItem('userId', response.id);
               localStorage.setItem('empId', response.empId);
-              localStorage.setItem('deptId', response.deptId)
+              localStorage.setItem('deptId', response.deptId);
+              localStorage.setItem('photoUrl', response.photoUrl || '');
               this.router.navigate(['/individual']);
             } else {
               console.error('Login failed:', (response as any)?.message);

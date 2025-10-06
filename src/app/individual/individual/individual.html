@@ -4,8 +4,7 @@
         <div class="part-1">
             <!-- Attendance-card -->
 
-            <div class="attendance-card">
-                <!-- Top Date Header -->
+            <!-- <div class="attendance-card">
                 <div class="date-header">
                     <button pButton icon="pi pi-angle-left" (click)="goToPreviousDay()" class="arrow-btn"></button>
 
@@ -22,7 +21,7 @@
                     </button>
                 </div>
 
-                <!-- Week Status -->
+
                 <div class="status-title">This Week Status</div>
                 <div class="week-status">
                     <div class="days">
@@ -34,20 +33,67 @@
                                     <span *ngSwitchCase="'present'">&#10003;</span>
                                     <span *ngSwitchCase="'absent'">A</span>
                                     <span *ngSwitchCase="'holiday'">&#8211;</span>
-                                    <span *ngSwitchCase="'none'">&#9711;</span> <!-- empty circle -->
+                                    <span *ngSwitchCase="'none'">&#9711;</span>
                                 </ng-container>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button pButton label="Log In" class="login-btn" [disabled]="selectedDate < today"></button>
                     <button pButton label="Log Out" class="logout-btn" [disabled]="selectedDate < today"></button>
                 </div>
-            </div>
-
+            </div> -->
+            <div class="employee-card">
+                <!-- Profile Header -->
+                <div class="profile-header">
+                  <img
+                    [src]="employee?.photoUrl || '/img.png'"
+                    alt="Profile"
+                    class="profile-pic"
+                  />
+              
+                  <div class="employee-info mt-3">
+                    <div class="employee-name">{{ employee?.firstName }} {{ employee?.lastName }}</div>
+                    <div class="employee-role ">{{ employee?.designation }}</div>
+                    <div class="employee-code ">Code: {{ employee?.employeeCode }}</div>
+                  </div>
+                </div>
+              
+                <!-- Contact Section -->
+                <div class="employee-contact mt-3">
+                  <div class="contact-item">
+                    <i class="pi pi-phone"></i> {{ employee?.phone }}
+                  </div>
+                  <div class="contact-item">
+                    <i class="pi pi-envelope"></i> {{ employee?.email }}
+                  </div>
+                </div>
+              
+                <!-- Department / Branch / Joining -->
+                <div class="employee-meta mt-3">
+                  <div><strong>Department:</strong> {{ employee?.departmentName || '-' }}</div>
+                  <div><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date:'dd MMM yyyy' }}</div>
+                </div>
+              
+                <!-- Health Info -->
+                <div class="employee-meta mt-3">
+                  <div><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
+                  <div><strong>Age:</strong> {{ employee?.age || '-' }}</div>
+                </div>
+              
+                <!-- Emergency Contact -->
+                <div class="employee-meta mt-3" *ngIf="employee?.emergencyContacts?.length">
+                  <div><strong>Emergency Contact:</strong></div>
+                  <div>
+                    {{ employee?.emergencyContacts[0]?.name }} ({{ employee?.emergencyContacts[0]?.relationship }})
+                    - {{ employee?.emergencyContacts[0]?.phone }}
+                  </div>
+                </div>
+              </div>
+              
+              
 
             <!-- Working-Card -->
 
@@ -202,7 +248,11 @@
         <div class="leave-table">
             <div>
                 <div class="header-part">
-                    <div class="main-heading">Leaves</div>
+                    <div class="main-heading">Leaves
+                        <i class="pi pi-info-circle info-icon"
+                        pTooltip="Apply leave for personal or medical reasons. Select dates, type of leave, and submit for approval."
+                        tooltipPosition="top"></i>
+                    </div>
                     <div class="new-form" (click)="openLeaveForm()">
                         <div class="text">New Form</div>
                         <div><i class="pi pi-plus"></i></div>
@@ -265,7 +315,12 @@
         <div class="permission-table">
             <div>
                 <div class="header-part">
-                    <div class="main-heading">Permission</div>
+                    <div class="main-heading">Permission
+                        <i class="pi pi-info-circle info-icon"
+                        pTooltip="Request short-term permissions (like arriving late or leaving early). Not for full-day leave."
+                        tooltipPosition="top">
+                     </i>
+                    </div>
                     <div class="new-form" (click)="openPermissionForm()">
                         <div class="text">New Form</div>
                         <div><i class="pi pi-plus"></i></div>

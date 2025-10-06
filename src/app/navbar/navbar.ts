@@ -22,7 +22,8 @@ export class Navbar {
   recruitOpen = false;
   // isRestricted = true;
   // username:string = ''
-  showAnnouncement = false
+  showAnnouncement = false;
+  photoUrl: string = '';
 
   constructor(private router: Router) { }
 
@@ -36,6 +37,7 @@ export class Navbar {
 
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
+    this.photoUrl = localStorage.getItem('photoUrl') ?? '';
     this.role = rawRole;
     const norm = this.normalizeRole(rawRole);
 

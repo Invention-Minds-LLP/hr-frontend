@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
+import { Tooltip } from 'primeng/tooltip';
 
 interface individual {
   date: string;
@@ -32,7 +33,9 @@ type LeaveTypeCount = { label: string; count: number };
 
 @Component({
   selector: 'app-individual',
-  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup, PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm, GrievanceList, PoshList],
+  imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
+     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
+      GrievanceList, PoshList, Tooltip],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -125,6 +128,8 @@ export class Individual {
     { date: '2025-08-10', status: 'Day Off' },
   ];
 
+  employee: any = null;
+
   ngOnInit() {
     this.generateWeekDays();
     this.fetchDetails();
@@ -132,6 +137,17 @@ export class Individual {
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
+    const employeeId = Number(localStorage.getItem('empId'));
+    if (employeeId) {
+      this.employeeService.getEmployeeById(employeeId).subscribe({
+        next: (res) => {
+          this.employee = res;
+        },
+        error: (err) => {
+          console.error('Error fetching employee:', err);
+        }
+      });
+    }
   }
   loadToday(): void {
  
@@ -224,6 +240,7 @@ export class Individual {
     }
   }
 
+  
 
 
 

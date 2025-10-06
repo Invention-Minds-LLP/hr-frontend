@@ -442,3 +442,20 @@ a{
   text-decoration: none;
 
 }
+.view-link {
+  color: var(--primary-color, #007ad9);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+.doc-img {
+  max-width: 100%;
+  height: auto;
+}

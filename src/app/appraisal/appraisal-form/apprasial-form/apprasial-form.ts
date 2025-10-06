@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter,OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -17,7 +17,7 @@ interface SelectOpton {
 
 @Component({
   selector: 'app-apprasial-form',
-  imports: [FormsModule, InputTextModule, FloatLabel, TextareaModule, ButtonModule, ReactiveFormsModule,CommonModule],
+  imports: [FormsModule, InputTextModule, FloatLabel, TextareaModule, ButtonModule, ReactiveFormsModule, CommonModule],
   templateUrl: './apprasial-form.html',
   styleUrl: './apprasial-form.css'
 })
@@ -30,7 +30,7 @@ export class ApprasialForm {
   appraisalForm!: FormGroup;
   role: string = 'Reporting Manager'
 
-  constructor(private fb: FormBuilder, private appraisalService: Appraisal) {}
+  constructor(private fb: FormBuilder, private appraisalService: Appraisal) { }
 
   ngOnInit() {
     this.initForm()
@@ -45,12 +45,12 @@ export class ApprasialForm {
       setTimeout(() => this.patchEmployeeData(), 0);
     }
   }
-  
+
   sections = [
     {
       id: 1,
       title: 'Quality of Work',
-      desc: `Accuracy, neatness and thoroughness of work effort.<br />
+      desc: `Accuracy, neatness and thoroughness of work effort.<br /><br /> 
              • How frequent are mistakes or errors?<br />
              • How consistent is the accuracy and thoroughness of work?`,
       guide: `Above Average: Produces outstanding, neat and accurate work. Work must seldom be checked by others. Errors are rare and minor.<br />
@@ -62,8 +62,8 @@ export class ApprasialForm {
     {
       id: 2,
       title: 'Knowledge of Job',
-      desc: `Demonstrates the knowledge of fundamental methods and procedures of the job.<br />
-             • How often does employee have to be shown job procedures??<br />
+      desc: `Demonstrates the knowledge of fundamental methods and procedures of the job.<br /><br /> 
+             • How often does employee have to be shown job procedures?<br />
              • How does employee handle unexpected problems or breakdowns?<br />
              • Does employee retain knowledge of job or require substantial review?`,
       guide: `Above Average: Possesses broad and detailed knowledge of all aspects of the job. Rarely needs to ask for job information.<br />
@@ -75,76 +75,98 @@ export class ApprasialForm {
     {
       id: 3,
       title: 'Teamwork',
-      desc: `Ability to work well with co-workers and supervisors.`,
-      guide: `Above Average: Very cooperative, handles disagreement well.<br />
-              Average: Works willingly with others.<br />
-              Below Average: Causes friction, resists authority.`,
+      desc: `Ability to work well with co-workers and supervisors.<br /><br />  
+             • How often does employee have to be shown job procedures?<br />
+             • How does employee handle unexpected problems or breakdowns?<br />
+             • Does employee retain knowledge of job or require substantial review?`,
+      guide: `Above Average:  Very good team worker. Gets along well with most people. Cooperative and quick to offer help. Handles disagreement with restraint.<br />
+              Average: Acceptable level of cooperation. Works willingly with others. Offers help to co-workers.<br />
+              Below Average: Causes friction among workers. Responds negatively to disagreement or authority. Refuses to cooperate with or aid co-workers.`,
       ratingControl: 'teamworkRating',
       commentControl: 'teamworkComments'
     },
     {
       id: 4,
       title: 'Independence',
-      desc: `Ability to work independently, be resourceful and display initiative.`,
-      guide: `Above Average: Works independently, seeks new skills.<br />
-              Average: Satisfactory initiative, usually works without supervision.<br />
-              Below Average: Requires substantial supervision.`,
+      desc: `Ability to work independently, be resourceful and display initiative.<br /><br /> 
+      • Does employee perform functions not specifically given by superiors?<br />
+      • Can employee be trusted to work without supervision?<br />
+      • Is employee interested in acquiring new skills and knowledge?<br />
+`,
+      guide: `Above Average: Superior initiative and follow through. Does not require supervision and undertakes tasks on own. Actively seeks to acquire new skills and knowledge.<br />
+              Average: Satisfactory initiative and follow through. Usually does not require supervision or have to be told to perform job functions. Reasonably willing to learn new tasks.<br />
+              Below Average: Requires substantial supervision and direction to perform job tasks. Not interested in learning or performing any tasks but those required.`,
       ratingControl: 'independenceRating',
       commentControl: 'independenceComments'
     },
     {
       id: 5,
       title: 'Records and Reports',
-      desc: `Ability to produce and maintain written job reports and records.`,
-      guide: `Above Average: Outstanding record management, accurate & on time.<br />
-              Average: Satisfactory records, usually on time.<br />
-              Below Average: Sloppy, inaccurate or untimely.`,
+      desc: `Ability to produce and maintain written job reports and records.<br /> <br />
+      • Are written records/reports kept accurately and neatly?<br /> 
+      • Does the employee complete written records/reports promptly and without direction?<br /> `,
+      guide: `Above Average:Outstanding management of written records/reports. Completes records/reports accurately and on time. requires little or no supervision.<br />
+              Average:Completes records/reports with satisfactory accuracy. Written records/reports are usually completed on time. <br />
+              Below Average: Records/reports completed in sloppy fashion. Completes written records/reports in an untimely manner. Requires supervision to complete written tasks.`,
       ratingControl: 'recordsRating',
       commentControl: 'recordsComments'
     },
     {
       id: 6,
       title: 'Guest/Patient Service',
-      desc: `Ability to deal with guests/customers in a polite and helpful manner.`,
-      guide: `Above Average: Outstanding concern and helpfulness.<br />
-              Average: Satisfactory guest handling.<br />
-              Below Average: Unsatisfactory, rude or unhelpful.`,
+      desc: `Ability to deal with guests/customers in a polite and helpful manner.<br /> <br /> 
+          • Does employee pay attention to guest concerns and seek positive resolution?<br /> 
+          • Does employee display common courtesy and positive attitude to guests?<br /> `,
+      guide: `Above Average: Treats guests with outstanding level of concern and helpfulness. Follows through on solving customer problems. Consistently courteous and helpful to guests/customers.<br />
+              Average: Satisfactory skills in dealing with guests. Follows through on guest. problems to a satisfactory degree. Usually courteous and helpful to guests.<br />
+              Below Average: Unsatisfactory treatment of guests. Displays rude and unhelpful. behavior to guests. Unconcerned with solving guest problems.
+`,
       ratingControl: 'guestServiceRating',
       commentControl: 'guestServiceComments'
     },
     {
       id: 7,
       title: 'Safety',
-      desc: `Ability to comply with precautions for safety of self and others.`,
-      guide: `Above Average: Highly knowledgeable & safety-conscious.<br />
+      desc: `Ability to comply with precautions for safety of self and others. <br /> <br />
+      • Is employee knowledgeable of safety policies and procedures?<br />
+      • Does employee comply with established safety procedures?<br />`,
+      guide: `Above Average: Completely knowledgeable of all existing safety policies and procedures. Highly concerned with safety of self and others. Takes all precautions and strictly complies with all safety procedures.<br />
               Average: Satisfactory level of safety knowledge.<br />
-              Below Average: Unsafe, fails to follow safety procedures.`,
+              Below Average: Unsatisfactory level of knowledge of safety of policies and procedures. Fails to take precautions and causes accidents or mishaps. Fails to follow safety procedures.`,
       ratingControl: 'safetyRating',
       commentControl: 'safetyComments'
     },
     {
       id: 8,
       title: 'Attendance',
-      desc: `Regularity of attendance and absence for legitimate reasons.`,
-      guide: `Above Average: Rarely absent, minimizes disruption.<br />
-              Average: Satisfactory attendance, usually follows procedure.<br />
-              Below Average: Frequent, disruptive absences.`,
+      desc: `Regularity of attendance and absence for legitimate reasons. <br /> <br />
+      • How regular is employee’s attendance?<br />
+• When absent, does employee do everything possible to minimize disruption?<br />
+• Does employee provide satisfactory reasons for absences?<br />
+`,
+      guide: `Above Average: Rarely absent and follows established absenteeism procedures. Takes extraordinary steps to minimize disruption and allow replacements to perform tasks. Absent only for legitimate reasons and provides notice when possible.<br />
+              Average: Satisfactory attendance level. Usually follows established absenteeism procedures. Takes satisfactory steps to minimize disruption. Rarely absent for non-legitimate reasons and usually provides notice when possible.<br />
+              Below Average: Frequently absent. Fails to adhere to absenteeism policies and procedures. Causes disruption by failure to take steps to allow replacements to perform tasks. Absent for non-legitimate reasons and fails to provide notice when reasonable.`,
       ratingControl: 'attendanceRating',
       commentControl: 'attendanceComments'
     },
     {
       id: 9,
       title: 'Leadership and Supervision (Management Only)',
-      desc: `Ability to plan, organize and supervise so that jobs are completed.`,
-      guide: `Above Average: Excellent planning, delegation & results.<br />
-              Average: Satisfactory delegation and planning.<br />
-              Below Average: Poor planning, frequent crises.`,
+      desc: `Ability to plan, organize and supervise so that jobs are completed.<br /><br />
+      • Does manager delegate authority when reasonable?<br />
+      • Does manager maintain effective working relationships with employees?<br />
+      • Does manager plan and organize sufficiently to avoid crisis?<br />
+`,
+      guide: `Above Average: Superior level of planning and organization. Delegates and assigns all delegable tasks. Achieves outstanding results and maintains superior working relationship with employees. Rarely experiences crisis. <br />
+              Average: Satisfactory planning and organization. Usually delegates and assigns tasks. Maintains effective working relationship with employees. Usually avoids crisis. <br />
+              Below Average: Poor planning and organization. Fails to delegate tasks to subordinates. Fails to maintain satisfactory working relationships with employees. Frequently experiences crisis.`,
       ratingControl: 'leadershipRating',
       commentControl: 'leadershipComments'
     }
   ];
-  
-  
+
+
 
   initForm() {
     this.appraisalForm = this.fb.group({
@@ -182,7 +204,7 @@ export class ApprasialForm {
 
       leadershipRating: ['', [Validators.min(0), Validators.max(10)]],
       leadershipComments: [''],
-    
+
       // Overall score also limited to 10
       overallScore: ['', [Validators.required, Validators.min(0), Validators.max(10)]],
       comments: [''],
@@ -285,7 +307,7 @@ export class ApprasialForm {
       });
     }
   }
-  onCancel(){
+  onCancel() {
     this.appraisalForm.reset()
     this.formSubmitted.emit();
   }

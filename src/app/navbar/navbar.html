@@ -18,7 +18,7 @@
         <div class="profile" [class.active]="isOpen">
           <div class="user-profile" (click)="toggleDropdown($event)">
             <div class="flex">
-              <img src="https://i.pravatar.cc/40" alt="User Avatar" class="avatar" />
+              <img [src]="photoUrl" alt="User Avatar" class="avatar" />
               <span class="username">{{username}}</span>
               <i *ngIf="!isOpen" class="pi pi-chevron-down" (click)="toggleDropdown($event)"></i>
               <i *ngIf="isOpen" class="pi pi-chevron-up" (click)="toggleDropdown($event)"></i>

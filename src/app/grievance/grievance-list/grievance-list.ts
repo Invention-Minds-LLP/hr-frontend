@@ -11,11 +11,12 @@ import { SelectModule } from 'primeng/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-grievance-list',
   imports: [TableModule, CardModule, GrievanceForm, CardModule, ButtonModule,TagModule,
-     DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule],
+     DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule, TooltipModule],
   templateUrl: './grievance-list.html',
   styleUrl: './grievance-list.css'
 })
@@ -26,19 +27,32 @@ export class GrievanceList {
 
   selected: any = null;
   newComment = '';
+  role = '';
+  empId = '';
+
   statuses = ['OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'];
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
 
   constructor(private grievanceService: Grievance) {}
 
   ngOnInit() {
+    this.role = localStorage.getItem('role') || '';
+    this.empId = localStorage.getItem('empId') || '';
     this.loadGrievances();
+    
   }
 
   loadGrievances() {
     this.grievanceService.getAll().subscribe(data => {
-      this.grievances = data;
+      if (this.role === 'HR' || this.role === 'HR Manager') {
+        // ✅ HR & HR Manager see all grievances
+        this.grievances = data;
+      } else {
+        // ✅ Regular employee sees only their grievances
+        this.grievances = data.filter((g: any) => g.employeeId === this.empId);
+      }
     });
+
   }
 
   openForm() {

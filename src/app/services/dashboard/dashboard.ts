@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 // ---- TYPES (match your API)
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
-  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'| 'annAck' | 'annAckPending' | 'otPending' | 'feedback';
+  | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'|
+   'annAck' | 'annAckPending' | 'otPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'resignations' | 'interviewsToday';
 
 
 export interface List {
@@ -35,7 +36,7 @@ export interface PipelineItem { name: string; value: number; }
 
 export interface TodayBlock {
   leaves: number;
-  wfh: number;
+  interviewsToday: number;
   permissions: number;
   late: LateInfo;
   otYesterday: OtYesterday;

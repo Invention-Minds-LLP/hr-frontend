@@ -250,7 +250,7 @@ select:focus {
   --tile-g2: rgba(20, 184, 166, 0.3);
 }
 
-.tile[data-kind="wfh"] {
+.tile[data-kind="interviewsToday"] {
   --tile-g1: rgba(99, 102, 241, 0.35);
   --tile-g2: rgba(56, 189, 248, 0.32);
 }
@@ -314,7 +314,7 @@ select:focus {
 }
 
 /* green-200 → teal-200 */
-.tile[data-kind="wfh"] {
+.tile[data-kind="interviewsToday"] {
   --hover1: #c7d2fe;
   --hover2: #bae6fd;
 }

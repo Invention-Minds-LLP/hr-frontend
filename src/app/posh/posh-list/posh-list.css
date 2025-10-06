@@ -266,6 +266,19 @@
     width: 100%;
     color: white !important;
 }
+::ng-deep .p-select{
+  width: 50% !important;
+}
+.info-icon {
+  margin-left: 8px;
+  font-size: 1rem;
+  color: #bbb;
+  cursor: pointer;
+}
+.info-icon:hover {
+  color: #fff;
+}
+
 
 /* ::ng-deep .p-select, .p-multiselect {
     width: 100% !important;

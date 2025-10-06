@@ -109,6 +109,15 @@ export class Employees {
   uploadEmployeePhoto(employeeId: number, formData: FormData) {
     return this.http.post(`${this.apiUrl}/${employeeId}/photo`, formData);
   }
+  uploadDisabilityProof(employeeCode: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      `${this.apiUrl}/${employeeCode}/disability`,
+      formData
+    );
+  }
+  
 
   uploadVaccineProof(employeeId: number, vaccineIndex: number, file: File): Observable<any> {
     const formData = new FormData();

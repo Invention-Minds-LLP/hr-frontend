@@ -1,7 +1,11 @@
   <div class="p-m-4 performance-container">
     
    <div class="header">
-     <h2>POSH Cases</h2>
+     <h2>POSH Cases
+      <i class="pi pi-info-circle info-icon"
+      pTooltip="Report any harassment or misconduct cases confidentially under the POSH policy. These are taken seriously and investigated as per company policy"
+      tooltipPosition="top"></i>
+     </h2>
     <div class="flex justify-content-end mb-3">
       <button label="Raise Complaint" class="new-app" icon="pi pi-plus" (click)="openForm()">Raise Complaint<svg xmlns="http://www.w3.org/2000/svg"
         width="20" height="20" viewBox="0 0 21 20" fill="none">
@@ -19,7 +23,7 @@
           <th>Accused</th>
           <th>Status</th>
           <!-- <th>Created</th> -->
-          <th style="text-align: center;">Actions</th>
+          <th *ngIf="role === 'HR' || role === 'HR_Manager'" style="text-align: center;">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-c>
@@ -33,9 +37,8 @@
             </p-tag>
           </td>
           <!-- <td>{{ c.createdAt | date:'short' }}</td> -->
-          <td class="flex align-items-center justify-content-center gap-2">
+          <td *ngIf="role === 'HR' || role === 'HR_Manager'" class="flex align-items-center justify-content-center gap-2">
             <p-button icon="pi pi-calendar" label="Hearings" (onClick)="openHearings(c)"></p-button>
-            <!-- <div>
               <p-select 
               [options]="statusOptions" 
               [(ngModel)]="c.status" 
@@ -44,7 +47,6 @@
               optionValue="value"
               appendTo="body">
             </p-select>
-            </div> -->
           </td>
         </tr>
       </ng-template>

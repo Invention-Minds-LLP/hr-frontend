@@ -21,12 +21,15 @@ import { StepperModule } from 'primeng/stepper';
 import { Shifts } from '../../services/shifts/shifts';
 import { AbstractControl } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
+import { DialogModule } from 'primeng/dialog';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 
 @Component({
   selector: 'app-employee-form',
   imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
-     StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule],
+    StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule, DialogModule, ToastModule],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css'
 })
@@ -141,7 +144,8 @@ export class EmployeeForm {
     private branchService: Branches,
     private roleService: Roles,
     private shiftService: Shifts,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
 
@@ -211,10 +215,20 @@ export class EmployeeForm {
     this.employeeForm.addControl('chronicConditions', this.fb.control(''));
     this.employeeForm.addControl('smoking', this.fb.control(false));
     this.employeeForm.addControl('alcohol', this.fb.control(false));
-    this.employeeForm.addControl('exerciseFrequency', this.fb.control(''));
+    this.employeeForm.addControl('visionType', this.fb.control('NORMAL'));
+    this.employeeForm.addControl('usesGlasses', this.fb.control(false));
+    this.employeeForm.addControl('visionRemarks', this.fb.control(''));
+    this.employeeForm.addControl('pastSurgeries', this.fb.control(''));
     this.employeeForm.addControl('preferredHospital', this.fb.control(''));
     this.employeeForm.addControl('primaryPhysician', this.fb.control(''));
     this.employeeForm.addControl('emergencyNotes', this.fb.control(''));
+    this.employeeForm.addControl('hasDisability', this.fb.control(false));
+    this.employeeForm.addControl('disabilityType', this.fb.control(''));
+    this.employeeForm.addControl('disabilityDescription', this.fb.control(''));
+    this.employeeForm.addControl('disabilityProofFile', this.fb.control(null));
+    this.employeeForm.addControl('disabilityProofFileName', this.fb.control(''));
+    this.employeeForm.addControl('disabilityProofUrl', this.fb.control(''));
+
 
     // Add new FormArrays
     this.employeeForm.addControl('healthIssues', this.fb.array([]));
@@ -296,51 +310,51 @@ export class EmployeeForm {
     this.healthIssues.removeAt(i);
   }
 
-// Dropdown for vaccine names
-availableVaccines = [
-  { label: 'Hepatitis B', value: 'HEP_B' },
-  { label: 'Tetanus', value: 'TETANUS' },
-  { label: 'COVID-19', value: 'COVID19' },
-  { label: 'Influenza (Flu)', value: 'FLU' },
-  { label: 'MMR', value: 'MMR' },
-  { label: 'Other', value: 'OTHER' }
-];
+  // Dropdown for vaccine names
+  availableVaccines = [
+    { label: 'Hepatitis B', value: 'HEP_B' },
+    { label: 'Tetanus', value: 'TETANUS' },
+    { label: 'COVID-19', value: 'COVID19' },
+    { label: 'Influenza (Flu)', value: 'FLU' },
+    { label: 'MMR', value: 'MMR' },
+    { label: 'Other', value: 'OTHER' }
+  ];
 
 
 
-// Add Vaccination
-addVaccination() {
-  this.vaccinations.push(
-    this.fb.group({
-      vaccineName: ['', Validators.required],
-      vaccinated: [null, Validators.required],
-      firstDose: [null],
-      secondDose: [null],
-      thirdDose: [null],
-      boosterDose: [null],
-      testDate: [null],
-      titerLevel: [''],
-      proofFile: [null],
-      proofFileName: ['']
-    })
-  );
-}
+  // Add Vaccination
+  addVaccination() {
+    this.vaccinations.push(
+      this.fb.group({
+        vaccineName: ['', Validators.required],
+        vaccinated: [null, Validators.required],
+        firstDose: [null],
+        secondDose: [null],
+        thirdDose: [null],
+        boosterDose: [null],
+        testDate: [null],
+        titerLevel: [''],
+        proofFile: [null],
+        proofFileName: ['']
+      })
+    );
+  }
 
-// Remove Vaccination
-removeVaccination(index: number) {
-  this.vaccinations.removeAt(index);
-}
+  // Remove Vaccination
+  removeVaccination(index: number) {
+    this.vaccinations.removeAt(index);
+  }
 
-// // Handle Proof Upload
-// onVaccineProofSelect(event: any, index: number) {
-//   const file = event.target.files[0];
-//   if (file) {
-//     this.vaccinations.at(index).patchValue({
-//       proofFile: file,
-//       proofFileName: file.name
-//     });
-//   }
-// }
+  // // Handle Proof Upload
+  // onVaccineProofSelect(event: any, index: number) {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     this.vaccinations.at(index).patchValue({
+  //       proofFile: file,
+  //       proofFileName: file.name
+  //     });
+  //   }
+  // }
 
 
   // BMI calculation
@@ -366,7 +380,7 @@ removeVaccination(index: number) {
   loadReportingManagers() {
     this.employeeService.getEmployeesWithSpecificRoles().subscribe((data: any[]) => {
       this.reportingManagers = data.map(emp => ({
-        label: `${emp.firstName} ${emp.lastName}`, // Name to show
+        label: `${emp.firstName} ${emp.lastName} - ${emp.employeeCode}`, // Name to show
         value: emp.id                               // ID to store
       }));
     });
@@ -461,28 +475,6 @@ removeVaccination(index: number) {
       const formData = new FormData();
       formData.append('file', file);
       this.employeeForm.patchValue({ photoUrl: file });
-
-      // this.employeeService.uploadEmployeePhoto(this.employeeData?.id, formData).subscribe({
-      //   next: (res: any) => {
-      //     this.photoUrl = res.photoUrl; // update preview
-      //     this.employeeForm.patchValue({ photoUrl: res.photoUrl }); // persist in form
-      //     this.messageService.add({
-      //       severity: 'success',
-      //       summary: 'Uploaded',
-      //       detail: 'Profile photo uploaded successfully!'
-      //     });
-      //   },
-      //   error: () => {
-      //     this.messageService.add({
-      //       severity: 'error',
-      //       summary: 'Error',
-      //       detail: 'Failed to upload profile photo'
-      //     });
-      //   }
-      // });
-
-
-      // TODO: Send file to backend if needed
     }
   }
 
@@ -561,6 +553,7 @@ removeVaccination(index: number) {
           proofFileName: v.proofFileName
           // you can also handle uploading v.proofFile separately via FormData
         })),
+        disabilityProofFile: '',
         // documents: documentsPayload,
         addresses: [
           { type: 'PERMANENT', ...formValue.permanentAddress },
@@ -596,9 +589,29 @@ removeVaccination(index: number) {
                 }
               });
             }
-            
+
             if (this.employeeForm.value.photoUrl instanceof File) {
               this.uploadProfilePhoto(updatedEmployee.id, this.employeeForm.value.photoUrl);
+            }
+
+            if( this.employeeForm.value.disabilityProofFile instanceof File){
+              this.employeeService.uploadDisabilityProof(updatedEmployee.id, this.employeeForm.value.disabilityProofFile)
+              .subscribe({
+                next: (res :any) => {
+                  this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
+                  this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Disability proof uploaded successfully!'
+                  });
+                },
+                error: () =>
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to upload disability proof'
+                  })
+              });
             }
 
 
@@ -608,12 +621,11 @@ removeVaccination(index: number) {
 
             if (
               shiftId &&
-              shiftDate &&
               (shiftId !== this.employeeData.latestShiftAssignment?.shiftId ||
-                new Date(shiftDate).toISOString() !==
+                new Date().toISOString() !==
                 new Date(this.employeeData.latestShiftAssignment?.date).toISOString())
             ) {
-              this.assignEmployeeShift(updatedEmployee.id, shiftId, shiftDate);
+              this.assignEmployeeShift(updatedEmployee.id, shiftId);
             }
 
 
@@ -637,7 +649,7 @@ removeVaccination(index: number) {
       else {
         this.employeeService.createEmployee(payload).subscribe({
           next: (employee: any) => {
-            
+
             if (this.employeeForm.value.photoUrl instanceof File) {
               this.uploadProfilePhoto(employee.id, this.employeeForm.value.photoUrl);
             }
@@ -652,9 +664,29 @@ removeVaccination(index: number) {
                   });
               }
             });
+
+            if(this.employeeForm.value.disabilityProofFile instanceof File){
+              this.employeeService.uploadDisabilityProof(employee.id, this.employeeForm.value.disabilityProofFile)
+              .subscribe({
+                next: (res:any) => {
+                  this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
+                  this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Disability proof uploaded successfully!'
+                  });
+                },
+                error: () =>
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to upload disability proof'
+                  })
+              });
+            }
             // Assign shift
-            if (shiftId && shiftDate) {
-              this.assignEmployeeShift(employee.id, shiftId, shiftDate);
+            if (shiftId) {
+              this.assignEmployeeShift(employee.id, shiftId);
             }
             this.employeeForm.reset()
           },
@@ -679,7 +711,7 @@ removeVaccination(index: number) {
       });
     }
   }
-  
+
   uploadVaccineProof(employeeId: string, vaccineIndex: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -691,7 +723,7 @@ removeVaccination(index: number) {
     //     error: (err) => console.error('Error uploading proof:', err)
     //   });
   }
-  
+
   uploadProfilePhoto(employeeId: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -842,11 +874,11 @@ removeVaccination(index: number) {
 
 
   }
-  assignEmployeeShift(employeeId: number, shiftId: number, shiftDate: string) {
+  assignEmployeeShift(employeeId: number, shiftId: number) {
     this.shiftService.assignShift({
       employeeId: employeeId,
       shiftId: shiftId,
-      date: shiftDate,
+      date: new Date(),
       acknowledged: false
     }).subscribe({
       next: () => console.log('Shift assigned successfully'),
@@ -916,60 +948,69 @@ removeVaccination(index: number) {
       chronicConditions: data.chronicConditions,
       smoking: data.smoking,
       alcohol: data.alcohol,
-      exerciseFrequency: data.exerciseFrequency,
+      visionType: data.visionType,
+      usesGlasses: data.usesGlasses,
+      visionRemarks: data.visionRemarks,
+      pastSurgeries: data.pastSurgeries,
       preferredHospital: data.preferredHospital,
       primaryPhysician: data.primaryPhysician,
-      emergencyNotes: data.emergencyNotes
+      emergencyNotes: data.emergencyNotes,
+      hasDisability: data.hasDisability,
+      disabilityType: data.disabilityType,
+      disabilityDescription: data.disabilityDescription,
+      disabilityProofFileName: data.disabilityProofFileName,
+      disabilityProofUrl: data.disabilityProofUrl,
+
     });
-// 🔹 Patch health issues array
-this.healthIssues.clear();
-let parsedHealthIssues: any[] = [];
-try {
-  parsedHealthIssues = typeof data.healthIssues === 'string'
-    ? JSON.parse(data.healthIssues)
-    : data.healthIssues || [];
-} catch {
-  parsedHealthIssues = [];
-}
+    // 🔹 Patch health issues array
+    this.healthIssues.clear();
+    let parsedHealthIssues: any[] = [];
+    try {
+      parsedHealthIssues = typeof data.healthIssues === 'string'
+        ? JSON.parse(data.healthIssues)
+        : data.healthIssues || [];
+    } catch {
+      parsedHealthIssues = [];
+    }
 
-parsedHealthIssues.forEach((h: any) => {
-  this.healthIssues.push(
-    this.fb.group({
-      condition: [h.condition, Validators.required],
-      checkupFrequency: [h.checkupFrequency, Validators.required],
-      lastCheckupDate: h.lastCheckupDate ? new Date(h.lastCheckupDate) : null
-    })
-  );
-});
+    parsedHealthIssues.forEach((h: any) => {
+      this.healthIssues.push(
+        this.fb.group({
+          condition: [h.condition, Validators.required],
+          checkupFrequency: [h.checkupFrequency, Validators.required],
+          lastCheckupDate: h.lastCheckupDate ? new Date(h.lastCheckupDate) : null
+        })
+      );
+    });
 
-// 🔹 Patch vaccinations array
-this.vaccinations.clear();
-let parsedVaccinations: any[] = [];
-try {
-  parsedVaccinations = typeof data.vaccinations === 'string'
-    ? JSON.parse(data.vaccinations)
-    : data.vaccinations || [];
-} catch {
-  parsedVaccinations = [];
-}
+    // 🔹 Patch vaccinations array
+    this.vaccinations.clear();
+    let parsedVaccinations: any[] = [];
+    try {
+      parsedVaccinations = typeof data.vaccinations === 'string'
+        ? JSON.parse(data.vaccinations)
+        : data.vaccinations || [];
+    } catch {
+      parsedVaccinations = [];
+    }
 
-parsedVaccinations.forEach((v: any) => {
-  this.vaccinations.push(
-    this.fb.group({
-      vaccineName: [v.vaccineName, Validators.required],
-      vaccinated: [v.vaccinated, Validators.required],
-      firstDose: v.firstDose ? new Date(v.firstDose) : null,
-      secondDose: v.secondDose ? new Date(v.secondDose) : null,
-      thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
-      boosterDose: v.boosterDose ? new Date(v.boosterDose) : null,
-      testDate: v.testDate ? new Date(v.testDate) : null,
-      titerLevel: v.titerLevel,
-      proofFile: null,
-      proofFileName: v.proofFileName || '',
-      proofUrl: v.proofUrl || ''
-    })
-  );
-});
+    parsedVaccinations.forEach((v: any) => {
+      this.vaccinations.push(
+        this.fb.group({
+          vaccineName: [v.vaccineName, Validators.required],
+          vaccinated: [v.vaccinated, Validators.required],
+          firstDose: v.firstDose ? new Date(v.firstDose) : null,
+          secondDose: v.secondDose ? new Date(v.secondDose) : null,
+          thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
+          boosterDose: v.boosterDose ? new Date(v.boosterDose) : null,
+          testDate: v.testDate ? new Date(v.testDate) : null,
+          titerLevel: v.titerLevel,
+          proofFile: null,
+          proofFileName: v.proofFileName || '',
+          proofUrl: v.proofUrl || ''
+        })
+      );
+    });
 
 
     // Patch addresses
@@ -1024,6 +1065,7 @@ parsedVaccinations.forEach((v: any) => {
       this.uploadedDocsForm.push(docGroup);
     });
     this.applyShiftValidators(mode);
+    this.photoUrl = this.employeeForm.get('photoUrl')?.value || '';
   }
   private applyShiftValidators(mode: 'FIXED' | 'ROTATIONAL') {
     const shiftIdCtrl = this.employeeForm.get('shiftId')!;
@@ -1132,7 +1174,7 @@ parsedVaccinations.forEach((v: any) => {
         'email', 'phone', 'bloodGroup',
         'permanentAddress.line1', 'permanentAddress.city',
         'permanentAddress.state', 'permanentAddress.zipCode',
-        'permanentAddress.country'
+        'permanentAddress.country', 'employeeType'
       ];
 
       // 🔹 Emergency Contact must exist
@@ -1182,6 +1224,7 @@ parsedVaccinations.forEach((v: any) => {
     } else if (stepNumber === 4) {
       // ✅ Step 3: Qualifications
       // validate at least one qualification
+      const quals = this.qualifications.value || [];
       if (this.qualifications.length === 0) {
         this.messageService.add({
           severity: 'error',
@@ -1208,7 +1251,25 @@ parsedVaccinations.forEach((v: any) => {
       });
 
       const invalidQuals = this.qualifications.controls.some(q => q.invalid);
-      if (invalidQuals) return;
+  if (invalidQuals) return;
+
+  // 🔸 Custom rule:
+  // If user selected any Bachelor/Master/Other but no SSLC and (no PU or no Diploma)
+  const hasDegree = quals.some((q: any) =>
+    ['BACHELOR', 'MASTER', 'OTHER', 'PHD'].includes(q.degree)
+  );
+  const hasSSLC = quals.some((q: any) => q.degree === 'SSLC');
+  const hasPU = quals.some((q: any) => q.degree === 'PU');
+  const hasDiploma = quals.some((q: any) => q.degree === 'DIPLOMA');
+
+  if (hasDegree && (!hasSSLC || !(hasPU || hasDiploma))) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Missing Educational Levels',
+      detail: 'Please add SSLC and either PU or Diploma qualification details before proceeding.'
+    });
+    return;
+  }
     } else if (stepNumber === 5) {
       // ✅ Step 4: Documents
       if (!this.validateMandatoryDocs()) {
@@ -1241,6 +1302,58 @@ parsedVaccinations.forEach((v: any) => {
 
     // ✅ If valid, allow navigation
     activateCallback(stepNumber);
+  }
+
+  docDialogVisible = false;
+  selectedDocUrl: string | null = null;
+  safeDocUrl: SafeResourceUrl | null = null;
+
+
+  openDocPopup(index: number) {
+    const doc = this.uploadedDocsForm.at(index).value;
+    let url = doc.fileUrl || null;
+    console.log('Opening doc preview for URL:', url,doc);
+
+    if (!url && doc.file) {
+      // Local file not yet uploaded — create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedDocUrl = reader.result as string;
+        this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.selectedDocUrl);
+        this.docDialogVisible = true;
+      };
+      reader.readAsDataURL(doc.file);
+      return;
+    }
+
+    if (url) {
+      this.selectedDocUrl = url;
+      this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      this.docDialogVisible = true;
+    }
+  }
+
+
+
+  isImage(url: string): boolean {
+    const lower = url.toLowerCase();
+    return (
+      lower.endsWith('.png') ||
+      lower.endsWith('.jpg') ||
+      lower.endsWith('.jpeg') ||
+      lower.endsWith('.gif') ||
+      lower.endsWith('.webp')
+    );
+  }
+
+  onDisabilityProofSelect(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.employeeForm.patchValue({
+        disabilityProofFile: file,
+        disabilityProofFileName: file.name
+      });
+    }
   }
 
 

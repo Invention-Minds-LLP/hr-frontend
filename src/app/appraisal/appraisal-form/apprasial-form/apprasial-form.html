@@ -56,12 +56,10 @@
         <div class="grid formgrid">
           <ng-container *ngFor="let section of sections; let i = index">
             <div class="col-12 md:col-6 mb-4">
-              <div class="p-4 border-round surface-card shadow-1">
+              <div class="p-4 border-round surface-card shadow-2">
                 <h4 class="mb-2 mt-0">{{ section.id }}. {{ section.title }}</h4>
                 <p class="text-sm text-600 mb-2" [innerHTML]="section.desc"></p>
                 <p class="text-xs text-500 italic mb-3" [innerHTML]="section.guide"></p>
-        
-                <!-- Rating + Comments -->
                 <div class="flex flex-column gap-2 formgrid">
                   <div class="col-12 ">
                     <p-floatlabel variant="on">

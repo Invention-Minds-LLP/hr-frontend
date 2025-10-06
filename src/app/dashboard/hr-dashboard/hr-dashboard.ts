@@ -21,7 +21,7 @@ import { Select } from "primeng/select";
 
 
 type TileDef =
-  | { key: 'leaves' | 'wfh' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
+  | { key: 'leaves' | 'interviewsToday' | 'permissions' | 'newJoiners' | 'birthdays' | 'anniversaries'; label: string; format?: undefined }
   | { key: 'late'; label: string; format: (v: DashboardResponse['today']['late']) => string }
   | { key: 'otYesterday'; label: string; format: (v: DashboardResponse['today']['otYesterday']) => string };
 
@@ -63,13 +63,13 @@ selectedClearance: any = null; // the row we are assigning delegate for
   // tiles like your sample
   tiles: TileDef[] = [
     { key: 'leaves', label: 'Leaves Today' },
-    { key: 'wfh', label: 'WFH Today' },
     { key: 'permissions', label: 'Permissions Today' },
-    { key: 'late', label: 'Late Arrivals', format: (v) => `${v.count} · ${v.medianMins}m med` },
     { key: 'otYesterday', label: 'OT Yesterday', format: (v) => `${v.hours}h${v.cost ? ' · ' + v.cost : ''}` },
-    { key: 'newJoiners', label: 'New Joiners Today' },
+    { key: 'late', label: 'Late Arrivals', format: (v) => `${v.count} · ${v.medianMins}m med` },
     { key: 'birthdays', label: 'Birthdays' },
+    { key: 'newJoiners', label: 'New Joiners Today' },
     { key: 'anniversaries', label: 'Work Anniversaries' },
+    { key: 'interviewsToday', label: 'Interviews Today' },
   ];
   ackRate = 0; // 0..1
   latestAnnTitle = '';
@@ -195,9 +195,14 @@ selectedClearance: any = null; // the row we are assigning delegate for
       'New Joiners Today': 'joiners',
       'Birthdays Today': 'birthdays',
       'Anniversaries Today': 'anniversaries',
+      'Interviews Today' : 'interviewsToday',
 
       // keep your existing attention modals too
       'Unmarked attendance (by 11:00)': 'unmarked',
+
+      'Clinical Staff Late (>15min)': 'clinicalLate',
+      'Non-Clinical Staff Late (>15min)': 'nonClinicalLate',
+
       'Pending approvals (Leave/WFH/Perm)': 'approvals',
       'Probation ending (7 days)': 'probation',
       'Documents expiring (30 days)': 'docs',
@@ -209,12 +214,13 @@ selectedClearance: any = null; // the row we are assigning delegate for
 
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
-      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending'
+      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending',
+      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'resignations'
     ];
 
     const k = (known as string[]).includes(String(key))
       ? (key as ListKey)
-      : (map[labelFallback || String(key)] ?? 'unmarked');
+      : (map[labelFallback || String(key)] ?? 'clinicalLate');
 
     this.api.getList(k).subscribe({
       next: (list) => {
@@ -258,8 +264,8 @@ selectedClearance: any = null; // the row we are assigning delegate for
         return String(T.otYesterday.count ?? 0);
       case 'leaves':
         return String(T.leaves);
-      case 'wfh':
-        return String(T.wfh);
+      case 'interviewsToday':
+        return String(T.interviewsToday);
       case 'permissions':
         return String(T.permissions);
       case 'newJoiners':

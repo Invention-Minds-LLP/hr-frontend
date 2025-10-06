@@ -317,6 +317,15 @@
   background:none !important;
   color: red !important;
  }
+ .info-icon {
+  margin-left: 8px;
+  font-size: 1rem;
+  color: #bbb;
+  cursor: pointer;
+}
+.info-icon:hover {
+  color: #fff;
+}
 
 
  @media(max-width:767px){

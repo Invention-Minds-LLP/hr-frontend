@@ -96,7 +96,8 @@
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
                                                 <input id="phone" pInputText formControlName="phone"
-                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}" maxlength="10" />
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}"
+                                                    maxlength="10" />
                                                 <label for="phone">Phone</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('phone'))">
                                                     Phone
@@ -106,7 +107,7 @@
                                         </div>
                                     </div>
                                     <div class="field-row col-12">
-                                        <div class="field col-6">
+                                        <div class="field col-4">
                                             <p-floatLabel variant="on">
                                                 <p-select id="bloodGroup" [options]="bloodGroups"
                                                     formControlName="bloodGroup" optionLabel="label" optionValue="value"
@@ -119,11 +120,25 @@
                                                 </div>
                                             </p-floatLabel>
                                         </div>
-                                        <div class="field col-6">
+                                        <div class="field col-4">
                                             <p-floatLabel variant="on">
                                                 <input id="age" pInputText formControlName="age" readonly />
                                                 <label for="age">Age</label>
                                             </p-floatLabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-select [options]="[
+                                      { label: 'Clinical', value: 'CLINICAL' },
+                                      { label: 'Non-clinical', value: 'NONCLINICAL' }
+                                    ]" formControlName="employeeType"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('employeeType'))}"></p-select>
+                                                <label>Employee Type</label>
+                                            </p-floatLabel>
+                                            <div class="error-msg" *ngIf="showError(employeeForm.get('employeeType'))">
+                                                Employee Type
+                                                is required
+                                            </div>
                                         </div>
 
 
@@ -500,13 +515,13 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <div class="field col-4">
+                                <!-- <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd" showIcon
                                             iconDisplay="input"></p-datePicker>
                                         <label>Shift Date</label>
                                     </p-floatLabel>
-                                </div>
+                                </div> -->
                             </div>
                             <!-- </div> -->
                             <div class="flex py-6 gap-2 btn">
@@ -609,26 +624,8 @@
                                 </ul>
                             </div>
 
-                            <div class="field col-4">
-                                <p-floatLabel variant="on">
-                                    <p-select [options]="[
-                          { label: 'Clinical', value: 'CLINICAL' },
-                          { label: 'Non-clinical', value: 'NONCLINICAL' }
-                        ]" formControlName="employeeType"></p-select>
-                                    <label>Employee Type</label>
-                                </p-floatLabel>
-                            </div>
                             <!-- <div [hidden]="activeIndex !== 3" [class.active-step]="activeIndex === 3"> -->
                             <div formArrayName="documents" class="qualification">
-                                <!-- <div class="field col-4">
-                                    <p-floatLabel variant="on">
-                                        <p-select [options]="[
-                              { label: 'Clinical', value: 'CLINICAL' },
-                              { label: 'Non-clinical', value: 'NONCLINICAL' }
-                            ]" formControlName="employeeType"></p-select>
-                                        <label>Employee Type</label>
-                                    </p-floatLabel>
-                                </div> -->
 
                                 <!-- Add Document Button -->
                                 <div class="mb-5">
@@ -720,20 +717,21 @@
                                         </button>
                                     </div>
 
-                                    <!-- Preview (image or link) -->
+                                    <!-- Preview (image or link)
                                     <div class="field col-12" *ngIf="getDocPreview(i) as p">
                                         <div class="doc-preview" [ngSwitch]="p.kind">
-                                            <!-- Images -->
                                             <img *ngSwitchCase="'image'" [src]="p.src" alt="Document preview"
                                                 class="doc-img" />
-
-                                            <!-- Non-image (PDF/others) -->
-                                            <!-- <div *ngSwitchDefault class="doc-file">
-                                    <span class="file-tag">{{ p.kind.toUpperCase() }}</span>
-                                    <a [href]="p.src" target="_blank" rel="noopener">View file</a>
-                                </div> -->
                                         </div>
+                                    </div> -->
+
+                                    <!-- View Document Link -->
+                                    <div class="field col-12" *ngIf="uploadedDocsForm.at(i).value.fileUrl">
+                                        <a href="javascript:void(0)" class="view-link" (click)="openDocPopup(i)">
+                                            <i class="pi pi-eye"></i> View Document
+                                        </a>
                                     </div>
+
 
                                 </div>
 
@@ -845,13 +843,107 @@
                                         <label>Consumes Alcohol</label>
                                     </p-floatLabel>
                                 </div>
+                            </div>
+
+                            <!-- Ophthalmology Info -->
+                            <div class="heading mb-2 mt-3">Ophthalmology</div>
+                            <div class="p-fluid grid formgrid">
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <input pInputText formControlName="exerciseFrequency" />
-                                        <label>Exercise Frequency (e.g., 3 times/week)</label>
+                                        <p-select [options]="[
+          {label:'Normal', value:'NORMAL'},
+          {label:'Short-sighted (Myopia)', value:'MYOPIA'},
+          {label:'Long-sighted (Hypermetropia)', value:'HYPERMETROPIA'},
+          {label:'Other', value:'OTHER'}
+        ]" formControlName="visionType">
+                                        </p-select>
+                                        <label>Vision Type</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[{label:'Yes', value:true},{label:'No', value:false}]"
+                                            formControlName="usesGlasses">
+                                        </p-select>
+                                        <label>Uses Glasses or Contact Lens</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <div class="field col-4" *ngIf="employeeForm.get('visionType')?.value === 'OTHER'">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="visionRemarks" />
+                                        <label>Other Vision Details</label>
                                     </p-floatLabel>
                                 </div>
                             </div>
+
+                            <!-- Surgery History -->
+                            <div class="heading mb-2 mt-3">Surgery History</div>
+                            <div class="p-fluid grid formgrid">
+                                <div class="field col-12">
+                                    <p-floatLabel variant="on">
+                                        <textarea pInputTextarea formControlName="pastSurgeries" rows="3"></textarea>
+                                        <label>Previous Surgeries (if any)</label>
+                                    </p-floatLabel>
+                                </div>
+                            </div>
+
+                            <!-- Disability Information -->
+                            <div class="heading mb-2 mt-3">Disability Information</div>
+                            <div class="p-fluid grid formgrid">
+                                <!-- Has Disability -->
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[{label:'Yes', value:true}, {label:'No', value:false}]"
+                                            formControlName="hasDisability">
+                                        </p-select>
+                                        <label>Any Disability</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <!-- Type of Disability -->
+                                <div class="field col-4" *ngIf="employeeForm.get('hasDisability')?.value">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="[
+          {label:'Physical', value:'PHYSICAL'},
+          {label:'Visual', value:'VISUAL'},
+          {label:'Hearing', value:'HEARING'},
+          {label:'Cognitive', value:'COGNITIVE'},
+          {label:'Other', value:'OTHER'}
+        ]" formControlName="disabilityType">
+                                        </p-select>
+                                        <label>Disability Type</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <!-- Disability Description -->
+                                <div class="field col-4" *ngIf="employeeForm.get('hasDisability')?.value">
+                                    <p-floatLabel variant="on">
+                                        <input pInputText formControlName="disabilityDescription" />
+                                        <label>Disability Description / Assistance Needed</label>
+                                    </p-floatLabel>
+                                </div>
+
+                                <!-- Disability Certificate Upload -->
+                                <div class="field col-6 mt-2" *ngIf="employeeForm.get('hasDisability')?.value">
+                                    <div class="file-upload-wrapper relative">
+                                        <input type="file" class="custom-file-input"
+                                            (change)="onDisabilityProofSelect($event)" />
+                                        <!-- <small *ngIf="employeeForm.get('disabilityProofFileName')?.value">
+                                            {{ employeeForm.get('disabilityProofFileName')?.value }}
+                                        </small> -->
+                                        <ng-container *ngIf="employeeForm.get('disabilityProofUrl')?.value">
+                                            <a [href]="employeeForm.get('disabilityProofUrl')?.value" target="_blank"
+                                                rel="noopener noreferrer" style="text-wrap: nowrap; padding-left:20px">
+                                                <i class="pi pi-file"></i> View Proof
+                                            </a>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </div>
+
+
 
                             <!-- Health Issues -->
                             <div class="heading mb-2 mt-3">Health Issues</div>
@@ -933,51 +1025,50 @@
                                     <!-- Dose Dates (if vaccinated) -->
                                     <div *ngIf="vac.get('vaccinated')?.value" class="p-fluid grid formgrid mt-2">
 
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <p-datePicker formControlName="firstDose" dateFormat="yy-mm-dd"
-                                                        inputId="firstDose{{i}}"></p-datePicker>
-                                                    <label for="firstDose{{i}}">First Dose</label>
-                                                </p-floatLabel>
-                                            </div>
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <p-datePicker formControlName="secondDose" dateFormat="yy-mm-dd"
-                                                        inputId="secondDose{{i}}"></p-datePicker>
-                                                    <label for="secondDose{{i}}">Second Dose</label>
-                                                </p-floatLabel>
-                                            </div>
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <p-datePicker formControlName="thirdDose" dateFormat="yy-mm-dd"
-                                                        inputId="thirdDose{{i}}"></p-datePicker>
-                                                    <label for="thirdDose{{i}}">Third Dose</label>
-                                                </p-floatLabel>
-                                            </div>
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <p-datePicker formControlName="boosterDose" dateFormat="yy-mm-dd"
-                                                        inputId="boosterDose{{i}}"></p-datePicker>
-                                                    <label for="boosterDose{{i}}">Booster Dose(s)</label>
-                                                </p-floatLabel>
-                                            </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="firstDose" dateFormat="yy-mm-dd"
+                                                    inputId="firstDose{{i}}"></p-datePicker>
+                                                <label for="firstDose{{i}}">First Dose</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="secondDose" dateFormat="yy-mm-dd"
+                                                    inputId="secondDose{{i}}"></p-datePicker>
+                                                <label for="secondDose{{i}}">Second Dose</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="thirdDose" dateFormat="yy-mm-dd"
+                                                    inputId="thirdDose{{i}}"></p-datePicker>
+                                                <label for="thirdDose{{i}}">Third Dose</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="boosterDose" dateFormat="yy-mm-dd"
+                                                    inputId="boosterDose{{i}}"></p-datePicker>
+                                                <label for="boosterDose{{i}}">Booster Dose(s)</label>
+                                            </p-floatLabel>
+                                        </div>
 
-    
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <p-datePicker formControlName="testDate" dateFormat="yy-mm-dd"
-                                                        inputId="testDate{{i}}"></p-datePicker>
-                                                    <label for="testDate{{i}}">Date of Test</label>
-                                                </p-floatLabel>
-                                            </div>
-                                            <div class="field col-4">
-                                                <p-floatLabel variant="on">
-                                                    <input pInputText formControlName="titerLevel"
-                                                        id="titerLevel{{i}}" />
-                                                    <label for="titerLevel{{i}}">Titer Level</label>
-                                                </p-floatLabel>
-                                            </div>
-                                                                              <!-- Proof Upload -->
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="testDate" dateFormat="yy-mm-dd"
+                                                    inputId="testDate{{i}}"></p-datePicker>
+                                                <label for="testDate{{i}}">Date of Test</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="titerLevel" id="titerLevel{{i}}" />
+                                                <label for="titerLevel{{i}}">Titer Level</label>
+                                            </p-floatLabel>
+                                        </div>
+                                        <!-- Proof Upload -->
                                         <!-- <div class="field col-4 mt-2">
                                             <div class="file-upload-wrapper relative">
                                                 <input type="file" class="custom-file-input"
@@ -993,28 +1084,27 @@
                                         </div> -->
                                         <div class="field col-4 mt-2">
                                             <div class="file-upload-wrapper relative">
-                                              <!-- File input (for uploading new proof) -->
-                                              <input 
-                                                type="file" 
-                                                class="custom-file-input"
-                                                (change)="onVaccineProofSelect($event, i)" 
-                                              />
-                                          
-                                              <!-- Show local file name if user just selected -->
-                                              <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName }}</small>
-                                          
-                                              <!-- OR show existing proofUrl as link -->
-                                              <ng-container *ngIf="vac.value.proofUrl && vac.value.proofFileName">
-                                                <a [href]="vac.value.proofUrl" target="_blank" rel="noopener noreferrer">
-                                                  <i class="pi pi-file"></i> View Proof
-                                                </a>
-                                              </ng-container>
+                                                <!-- File input (for uploading new proof) -->
+                                                <input type="file" class="custom-file-input"
+                                                    (change)="onVaccineProofSelect($event, i)" />
+
+                                                <!-- Show local file name if user just selected -->
+                                                <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName
+                                                    }}</small>
+
+                                                <!-- OR show existing proofUrl as link -->
+                                                <ng-container *ngIf="vac.value.proofUrl && vac.value.proofFileName">
+                                                    <a [href]="vac.value.proofUrl" target="_blank"
+                                                        rel="noopener noreferrer">
+                                                        <i class="pi pi-file"></i> View Proof
+                                                    </a>
+                                                </ng-container>
                                             </div>
-                                          </div>
-                                          
                                         </div>
 
-                                  
+                                    </div>
+
+
 
                                 </div>
                             </div>
@@ -1061,3 +1151,30 @@
     </div>
 
 </div>
+
+<p-dialog header="Document Preview" [(visible)]="docDialogVisible" [modal]="true"
+    [style]="{ width: '80vw', height: '90vh' }" [contentStyle]="{ overflow: 'auto' }" [dismissableMask]="true">
+    <ng-container *ngIf="selectedDocUrl">
+        <iframe *ngIf="
+      safeDocUrl &&
+      selectedDocUrl &&
+      (selectedDocUrl.toLowerCase().includes('application/pdf') ||
+       selectedDocUrl.toLowerCase().endsWith('.pdf'))
+    " [src]="safeDocUrl" width="100%" height="600px" style="border:none"></iframe>
+
+
+        <!-- If Image -->
+        <img *ngIf="selectedDocUrl.toLowerCase().includes('image/')" [src]="selectedDocUrl" alt="Document"
+            style="max-width:100%;max-height:600px;" />
+
+        <!-- Other file types -->
+        <div class="flex align-items-center justify-content-center" *ngIf="!selectedDocUrl.toLowerCase().includes('image/') &&
+             !selectedDocUrl.toLowerCase().includes('application/pdf')">
+
+                <!-- <a [href]="selectedDocUrl" target="_blank" rel="noopener noreferrer" style="color: black;">Open in new tab</a> -->
+                 <img [src]="selectedDocUrl" alt="Document" style="max-width:100%;max-height:600px;" />
+            
+        </div>
+    </ng-container>
+
+</p-dialog>

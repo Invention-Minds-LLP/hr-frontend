@@ -10,11 +10,12 @@ import { DialogModule } from 'primeng/dialog';
 import { PoshForm } from '../posh-form/posh-form';
 import { PoshHearing } from '../posh-hearing/posh-hearing';
 import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-posh-list',
   imports: [CommonModule, ReactiveFormsModule, CardModule, TableModule, ButtonModule,
-     TagModule, DialogModule, PoshForm, PoshHearing, SelectModule, FormsModule],
+     TagModule, DialogModule, PoshForm, PoshHearing, SelectModule, FormsModule, TooltipModule],
   templateUrl: './posh-list.html',
   styleUrl: './posh-list.css'
 })
@@ -23,6 +24,8 @@ export class PoshList {
   showForm = false;
   showHearings = false;
   selectedCase: any;
+  role = '';
+  empId = '';
 
   constructor(private poshService: Posh) {}
 
@@ -32,7 +35,13 @@ export class PoshList {
 
   loadCases() {
     this.poshService.getAll().subscribe(data => {
-      this.cases = data;
+      if (this.role === 'HR' || this.role === 'HR Manager') {
+        // ✅ HR & HR Manager see all cases
+        this.cases = data;
+      } else {
+        // ✅ Regular employees see only cases they filed
+        this.cases = data.filter((c: any) => c.complainantId === this.empId);
+      }
     });
   }
 
