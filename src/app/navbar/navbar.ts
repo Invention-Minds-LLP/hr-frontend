@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
 import { AnnouncementForm } from "../announcements/announcement-form/announcement-form";
 import { ResignationForm } from "../resignation/resignation-form/resignation-form";
+
 
 
 @Component({
@@ -24,6 +25,8 @@ export class Navbar {
   // username:string = ''
   showAnnouncement = false;
   photoUrl: string = '';
+
+  @ViewChild('resignationForm') resignationForm!: ResignationForm;
 
   constructor(private router: Router) { }
 
@@ -74,7 +77,7 @@ export class Navbar {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.dropdown');
 
-    
+
     if (dropdown && !dropdown.contains(target)) {
       this.isOpen = false;
     }
@@ -121,15 +124,23 @@ export class Navbar {
     this.activeMenu = null;
   }
 
-  openAnnouncement(){
-    this.isOpen = false
-    this.showAnnouncement = true
+ openAnnouncement() {
+    this.isOpen = false;
+    if (this.resignationForm) {
+      this.resignationForm.open();
+    }
   }
 
-  closeAnnouncement(){
-    this.isOpen = false
-    this.showAnnouncement = false
+  closeAnnouncement() {
+    this.isOpen = false;
+    if (this.resignationForm) {
+      this.resignationForm.close();
+    }
   }
+
+
+
+
 
 }
 

@@ -2,10 +2,10 @@
     display: flex;
     background: transparent;
     /* padding: 0.5rem 1.5rem; */
-    /* height: 64px; */
+    height: 64px;
     padding: 0 2rem;
     position: relative;
-    top: 13px;
+    /* top: 13px; */
   }
   .sub-nav ul {
     list-style: none;
@@ -23,17 +23,16 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 16px;
   }
   .sub-item.active {
     color: #FB9C2A;
     font-feature-settings: "salt" on, "liga" off;
     font-family: "Sofia Sans";
     font-size: 16px;
-    font-style: normal;
-    font-weight: 700;
     line-height: 24px; /* 150% */
   }
-  .sub-item.active::after {
+  /* .sub-item.active::after {
     content: "";
     position: absolute;
     bottom: -2px;
@@ -48,4 +47,9 @@
     border: none;
     width: 91%;
     padding: 0 4rem;
-  }
+  } */
+
+  .br{
+  border-right: 2px solid #828282;
+  height: 25px;
+}

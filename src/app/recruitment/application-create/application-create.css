@@ -1,21 +1,17 @@
 .card {
- background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.00) 100%
-  );
- color: white;
+background: linear-gradient(135deg, #d483b1, #90549f);
+ color: black;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   border-radius: 12px;
   padding: 30px;
   max-width: 860px;
 }
-.card:focus-within,
+/* .card:focus-within,
 .card:focus-within input,
 .card:focus-within select{
  background: white;
  color: black;
-}
+} */
 
 
 label {
@@ -23,6 +19,7 @@ label {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
+  color: black;
 }
 input,
 select {
@@ -30,7 +27,7 @@ select {
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #C4C4C4;
-  color: white;
+  color: black;
 }
 
 /* input:focus-within,
@@ -40,13 +37,13 @@ select:focus-within{
 
 .card input::placeholder,
 .card textarea::placeholder{
-  color: white;
-}
-
-.card:focus-within input::placeholder,
-.card:focus-within textarea::placeholder{
   color: black;
 }
+
+/* .card:focus-within input::placeholder,
+.card:focus-within textarea::placeholder{
+  color: black;
+} */
 
 textarea{
   width: 100%;
