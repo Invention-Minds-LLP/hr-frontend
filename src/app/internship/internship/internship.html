@@ -59,7 +59,15 @@
                 </td>
 
                 <td>{{ it.title || '—' }}</td>
-                <td>{{ it.departmentName || '—' }}</td>
+                <td>
+                    <span class="dept-badge"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).badgeColor }">
+              <span class="dot"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).dotColor }">
+              </span>
+              {{ it.departmentName || '—' }}
+            </span>
+                </td>
 
                 <td>
                     <p-tag [value]="it.status" [severity]="getSeverity(it.status)"></p-tag>

@@ -450,4 +450,12 @@ export class Internship implements OnInit {
       if (!opts.some(o => o.value === this.editForm.mentorId)) this.editForm.mentorId = null;
     });
   }
+
+    getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
+  }
 }
