@@ -10,6 +10,7 @@ import { value } from '@primeuix/themes/aura/knob';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
+import { Departments } from '../../services/departments/departments';
 
 
 @Component({
@@ -26,14 +27,17 @@ export class ExitInterviewList {
   filteredInterviews: any[] = []
   showFilterDropdown = false;
   selectedFilter: any = null;
+  departments: any[] = [];
+  departmentMap: Record<number, string> = {};
 
 
   filterOptions = [
     { label: 'Employee ID', value: 'id' },
     { label: 'Name', value: 'name' },
+    { label: 'Department', value: 'department' }
   ]
 
-  constructor(private exitService: Resignation) { }
+  constructor(private exitService: Resignation, private dept: Departments) { }
 
   ngOnInit() {
     this.loading = true;
@@ -44,6 +48,15 @@ export class ExitInterviewList {
     });
 
     console.log(this.filteredInterviews)
+    this.dept.getDepartments().subscribe((depts: any[]) => {
+      this.departments = depts;
+
+      this.departmentMap = this.departments.reduce((map, dept) => {
+        map[dept.id] = dept.name;
+        return map;
+      }, {} as Record<number, string>);
+    });
+
 
   }
 
@@ -80,6 +93,9 @@ export class ExitInterviewList {
       if (filterKey === 'name') {
         const fullName = `${e.employee?.firstName || ''} ${e.employee?.lastName || ''}`.toLowerCase();
         return fullName.includes(searchText);
+      } else if (filterKey === 'department') {
+        const deptName = this.departmentMap[e.employee?.departmentId] || '';
+        return deptName.toLowerCase().includes(searchText);
       } else if (filterKey) {
         const val = e[filterKey];
         return val?.toString().toLowerCase().includes(searchText);
@@ -90,5 +106,13 @@ export class ExitInterviewList {
 
     console.log(this.filteredInterviews)
 
+  }
+
+  getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
   }
 }
