@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
 import { AnnouncementForm } from "../announcements/announcement-form/announcement-form";
 import { ResignationForm } from "../resignation/resignation-form/resignation-form";
+// import { environment } from '../../../environment/environment';
+import { Notifications } from '../services/notifications/notifications';
 
 
 
@@ -25,10 +27,17 @@ export class Navbar {
   // username:string = ''
   showAnnouncement = false;
   photoUrl: string = '';
+  private eventSource: EventSource | null = null;
+  notifications:any[] = [];
+  showNotifications = false;
+  hasNewNotification = false;
+  audio = new Audio('/notification.mp3');
 
   @ViewChild('resignationForm') resignationForm!: ResignationForm;
+  @ViewChild('notificationWrapper') notificationWrapper!: ElementRef;
 
-  constructor(private router: Router) { }
+
+  constructor(private router: Router, private notificationsService: Notifications) { }
 
   toggleDropdown(event: MouseEvent) {
     event.stopPropagation();
@@ -36,7 +45,10 @@ export class Navbar {
   }
 
   isRestricted = false;
+  isReportingManager = false;
   username = '';
+  apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
+  employeeId = localStorage.getItem('empId') || '';
 
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
@@ -51,9 +63,35 @@ export class Navbar {
 
     // Restrict only Executives not in dept 1
     this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
-
+    this.isReportingManager = this.role === 'Reporting Manager';
+    console.log('isReportingManager:', this.isReportingManager);
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
+   // ✅ Connect to Notification Stream
+   this.notificationsService.connectStream();
+
+   // Subscribe to live updates
+   this.notificationsService.notifications$.subscribe((data) => {
+     this.notifications = data;
+   });
+ 
+   // Fetch existing notifications
+   this.notificationsService.getAll(this.employeeId).subscribe((existing) => {
+    this.notifications = existing.reverse();
+   });
+  }
+
+  toggleNotificationDropdown(): void {
+    this.showNotifications = !this.showNotifications;
+    if (this.hasNewNotification) {
+      this.hasNewNotification = false;
+    }
+  }
+  handleNotificationClick(index: number): void {
+    const notification = this.notifications[index];
+    if (!notification) return;
+    this.router.navigate(['/notifications']); // customize navigation
+    this.showNotifications = false;
   }
 
   private normalizeRole(raw: any): string {
@@ -83,6 +121,26 @@ export class Navbar {
     }
   }
 
+
+  onAdminClick() {
+    if (this.isReportingManager) {
+      this.router.navigate(['/admin/leave']);
+    } else {
+      this.router.navigate(['/admin/employee']);
+    }
+  }
+
+  onRecruitClick() {
+    // Expand submenu
+    if( this.isReportingManager){
+      this.router.navigate(['/recruitment/my-interview']);
+    }
+    else{
+      this.router.navigate(['/recruitment/jobs']);
+    }
+
+    console.log(this.activeMenu);
+  }
 
   goToProfile() {
     this.isOpen = false;
@@ -139,9 +197,30 @@ export class Navbar {
   }
 
 
-
-
-
+  ngOnDestroy(): void {
+    this.notificationsService.disconnectStream();
+  }
+  markAsRead(id: number, index: number): void {
+    // Mark it as read visually first
+    this.notifications[index].isRead = true;
+  
+    // Optionally call your API
+    this.notificationsService.markAsRead(id).subscribe(() => {
+      console.log('Marked as read:', id);
+    });
+  }
+    // 👇 This detects clicks outside the dropdown and closes it
+    @HostListener('document:click', ['$event'])
+    onClickOutside(event: MouseEvent) {
+      if (
+        this.showNotifications &&
+        this.notificationWrapper &&
+        !this.notificationWrapper.nativeElement.contains(event.target)
+      ) {
+        this.showNotifications = false;
+      }
+    }
+  
 }
 
 

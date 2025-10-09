@@ -53,16 +53,8 @@
         <div class="section-title">
           Interview Panel & Scores <span class="muted">(0–10 each)</span>
         </div>
-  
-        <div class="panel-toolbar">
-          <!-- <button pButton icon="pi pi-user-plus" label="Add panelist" type="button" (click)="addPanelist()"></button> -->
-          <span class="overall" *ngIf="overallAverage != null">Overall avg: <b>{{ overallAverage }}</b></span>
-          <span class="spacer"></span>
-        <button pButton type="button" label="Submit Panel Feedback"
-        (click)="saveAllPanel(true)"></button>
-        </div>
 
-        <div class="panel-grid" [style.gridTemplateColumns]="'220px ' + '220px '.repeat(panelArr.length)">
+        <div class="panel-grid mt-6" [style.gridTemplateColumns]="'220px ' + '220px '.repeat(panelArr.length)">
           <div class="panel-cell muted">Criteria / Panel</div>
   
           <!-- ⬇️ give each column its FormGroup -->
@@ -107,6 +99,13 @@
           <div class="panel-cell" *ngFor="let p of panelArr.controls" [formGroup]="panelGroup(p)">
             <textarea pInputTextarea rows="2" formControlName="signature" placeholder="Notes / Signature"></textarea>
           </div>
+        </div>
+        <div class="panel-toolbar">
+          <!-- <button pButton icon="pi pi-user-plus" label="Add panelist" type="button" (click)="addPanelist()"></button> -->
+          <span class="overall" *ngIf="overallAverage != null">Overall avg: <b>{{ overallAverage }}</b></span>
+          <span class="spacer"></span>
+        <button pButton type="button" label="Submit Panel Feedback"
+        (click)="saveAllPanel(true)"></button>
         </div>
       </ng-template>
       <section *ngIf="viewAllPanelReadOnly; else myPanel">

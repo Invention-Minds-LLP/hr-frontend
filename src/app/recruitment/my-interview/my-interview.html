@@ -1,0 +1,71 @@
+<div class="card" *ngIf="!selectedInterview()">
+    <div class="header">
+        <h2 style="color: white">Interviews Scheduled</h2>
+        <!-- <button pButton label="Refresh" (click)="load()"></button> -->
+    </div>
+
+    <p-table [value]="rows()" *ngIf="rows().length; else empty" paginator="true" [rows]="10" [scrollable]="true"
+        [tableStyle]="{ 'min-width': '1200px' }">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th>No</th>
+                <th>Candidate</th>
+                <th>Job</th>
+                <th>Round</th>
+                <th>Start</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Action</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-r let-i="rowIndex">
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ r.application?.candidate?.name || '—' }}</td>
+                <td>{{ r.application?.job?.title || '—' }}</td>
+
+                <!-- Round type -->
+                <td>
+                    <ng-container *ngIf="r.candidateAssignedTestId; else panel">
+                        Test Round
+                    </ng-container>
+                    <ng-template #panel>
+                        {{ r.stage }} Round
+                    </ng-template>
+                </td>
+
+                <td>{{ r.startTime | date:'medium' }}</td>
+
+                <!-- Status -->
+                <td>
+                    <p-tag [severity]="r.displayStatus === 'Interviewed' ? 'success' : 'warning'"
+                        [value]="r.displayStatus">
+                    </p-tag>
+                </td>
+
+                <!-- Score -->
+                <td>
+                    {{ r.avgScore }}
+                </td>
+
+
+                <td>
+                    <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+    <ng-template #empty>
+        <p>No interviews found.</p>
+    </ng-template>
+</div>
+
+<div class="" style="margin-top: 2rem; padding: 40px 60px;">
+    <app-candidate-eval-form id="eval-form" *ngIf="selectedInterview()" [interviewId]="selectedInterview()?.id"
+        [interview]="selectedInterview()">
+    </app-candidate-eval-form>
+</div>

@@ -51,7 +51,7 @@
                 <tr>
                     <td class="t-data al">{{ rowIndex + 1 }}</td>
                     <td class="empname">
-                        <img src="/img.png" alt="">
+                        <img class="image" src="/img.png" alt="">
                         <div class="">
                             <div class="name">{{ leaveData.empName }}</div>
                             <span class="email">{{leaveData.email}}</span>
@@ -185,7 +185,7 @@
               <div class="section-title">Today</div>
               <ng-container *ngIf="buckets.today.length; else emptyToday">
                 <div class="who-item" *ngFor="let p of visible(buckets.today,'today')">
-                  <img [src]="'/img.png'" alt="" />
+                  <img class="image" [src]="'/img.png'" alt="" />
                   <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
                 </div>
           
@@ -206,7 +206,7 @@
               <div class="section-title">This week</div>
               <ng-container *ngIf="buckets.thisWeek.length; else emptyWeek">
                 <div class="who-item" *ngFor="let p of visible(buckets.thisWeek,'thisWeek')">
-                  <img [src]="'/img.png'" alt="" />
+                  <img class="image" [src]="'/img.png'" alt="" />
                   <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
                 </div>
           
@@ -227,7 +227,7 @@
               <div class="section-title">Next Month</div>
               <ng-container *ngIf="buckets.nextMonth.length; else emptyNext">
                 <div class="who-item" *ngFor="let p of visible(buckets.nextMonth,'nextMonth')">
-                  <img [src]="'/img.png'" alt="" />
+                  <img class="image" [src]="'/img.png'" alt="" />
                   <div><div class="name">{{ p.name }}</div><div class="role">{{ p.title || '—' }}</div></div>
                 </div>
           

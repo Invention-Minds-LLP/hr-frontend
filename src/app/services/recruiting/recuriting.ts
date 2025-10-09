@@ -258,4 +258,7 @@ export class Recuriting {
   getAllInterview(): Observable<any> {
     return this.http.get<any>(`${baseUrl}/interview`);
   }
+  getPanelInterview(employeeId: any): Observable<any>{
+    return this.http.get<any>(`${baseUrl}/panel/${employeeId}`);
+  }
 }

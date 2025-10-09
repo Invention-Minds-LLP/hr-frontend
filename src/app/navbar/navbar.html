@@ -8,17 +8,53 @@
 
 
       <div class="header-actions">
-        <div class="bell">
+        <!-- <div class="bell">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path fill-rule="evenodd" clip-rule="evenodd"
               d="M9.99994 1.32828C8.3419 1.32828 6.75176 1.98693 5.57935 3.15935C4.40693 4.33176 3.74828 5.9219 3.74828 7.57994V8.14784C3.74823 8.71 3.58179 9.25957 3.26992 9.72729L2.34468 11.1172C1.26858 12.7305 2.08977 14.923 3.96043 15.4328C4.56973 15.599 5.18388 15.7396 5.80286 15.8547L5.80447 15.8588C6.42399 17.514 8.08169 18.6716 9.99994 18.6716C11.9182 18.6716 13.5759 17.514 14.1962 15.8588L14.1978 15.8547C14.8174 15.739 15.4321 15.5982 16.0403 15.4328C17.9109 14.923 18.7321 12.7305 17.656 11.1172L16.73 9.72729C16.4181 9.25957 16.2517 8.71 16.2516 8.14784V7.57994C16.2516 5.9219 15.593 4.33176 14.4205 3.15935C13.2481 1.98693 11.658 1.32828 9.99994 1.32828ZM12.7233 16.0798C10.9139 16.2957 9.08522 16.2957 7.27583 16.0798C7.84937 16.9034 8.84722 17.4616 9.99994 17.4616C11.1527 17.4616 12.1497 16.9034 12.7233 16.0798ZM4.95828 7.57994C4.95828 6.24281 5.48945 4.96044 6.43495 4.01495C7.38044 3.06945 8.66281 2.53828 9.99994 2.53828C11.3371 2.53828 12.6194 3.06945 13.5649 4.01495C14.5104 4.96044 15.0416 6.24281 15.0416 7.57994V8.14784C15.0416 8.94886 15.2788 9.73213 15.7232 10.3984L16.6493 11.7883C16.7928 12.0032 16.8831 12.2492 16.9128 12.5059C16.9425 12.7626 16.9108 13.0226 16.8202 13.2646C16.7295 13.5066 16.5827 13.7236 16.3917 13.8976C16.2006 14.0717 15.971 14.1978 15.7216 14.2656C11.9753 15.2873 8.02377 15.2873 4.27745 14.2656C4.02822 14.1978 3.79868 14.0717 3.60777 13.8977C3.41686 13.7237 3.27005 13.5068 3.17944 13.2649C3.08884 13.023 3.05703 12.7631 3.08665 12.5065C3.11626 12.2499 3.20646 12.004 3.34978 11.7891L4.27745 10.3984C4.72155 9.73188 4.95844 8.94879 4.95828 8.14784V7.57994Z"
               fill="#ADADAD" />
           </svg>
+        </div> -->
+        <div class="notification-wrapper" #notificationWrapper>
+          <div 
+            class="notification-icon" 
+            (click)="toggleNotificationDropdown()" 
+            [ngClass]="{'new-notification': hasNewNotification}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+              <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 17h2m0 0h10M7 17v-6a5 5 0 0 1 10 0v6m0 0h2M11.5 5.5V4a.5.5 0 0 1 1 0v1.5M13 20a1 1 0 1 1-2 0z" />
+            </svg>
+            <span class="notification-badge" *ngIf="notifications.length">
+              {{ notifications.length }}
+            </span>
+          </div>
+        
+          <!-- Dropdown -->
+          <div class="notification-dropdown" *ngIf="showNotifications">
+            <div *ngIf="notifications.length === 0" class="no-notifications">
+              No new notifications
+            </div>
+        
+            <div *ngFor="let notification of notifications; let i = index"
+                 class="notification-item"
+                 (click)="handleNotificationClick(i)">
+              <div class="notification-message">{{ notification.message }}</div>
+              <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
+              <span 
+              class="mark-read" 
+              *ngIf="!notification.isRead"
+              (click)="markAsRead(notification.id, i)">
+              Mark as read
+            </span>
+            </div>
+          </div>
         </div>
+        
+
         <div class="profile" [class.active]="isOpen">
           <div class="user-profile" (click)="toggleDropdown($event)">
             <div class="flex">
-              <img [src]="photoUrl" alt="User Avatar" class="avatar" />
+              <img [src]="photoUrl || '/img.png'" alt="User Avatar" class="avatar" />
               <span class="username">{{username}}</span>
               <i *ngIf="!isOpen" class="pi pi-chevron-down" (click)="toggleDropdown($event)"></i>
               <i *ngIf="isOpen" class="pi pi-chevron-up" (click)="toggleDropdown($event)"></i>
@@ -76,8 +112,9 @@
       <!-- Row 1: Main Headings -->
       <ul class="main-headings ">
         <div class="flex1">
-          <li class="nav-item"><a [routerLink]="'/dashboard'" routerLinkActive="active" class="nav-link"
-              [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenus()">
+          <li class="nav-item" *ngIf="!isRestricted && !isReportingManager"><a [routerLink]="'/dashboard'"
+              routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }"
+              (click)="closeMenus()">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M3 13H11V3H3V13ZM3 21H11V15H3V21ZM13 21H21V11H13V21ZM13 3V9H21V3H13Z" fill="currentColor" />
               </svg>
@@ -94,7 +131,7 @@
             </a>
           </li>
 
-          <li class="nav-item" [routerLink]="'/employee'">
+          <li class="nav-item" (click)="onAdminClick()" *ngIf="!isRestricted">
             <a (click)="activeMenu ='admin'" [class.active]="activeMenu === 'admin'" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24">
                 <path fill="currentColor"
@@ -105,7 +142,7 @@
             </a>
           </li>
 
-          <li class="nav-item" [routerLink]="'/recruitment'">
+          <li class="nav-item" (click)="onRecruitClick()" *ngIf="!isRestricted">
             <a (click)="activeMenu ='recruit'" [class.active]="activeMenu === 'recruit'" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -137,7 +174,7 @@
       <!-- Row 2: Sub Headings -->
       <div class="sub-headings" *ngIf="activeMenu">
         <ul *ngIf="activeMenu === 'admin'" class="sub-row flex1">
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isReportingManager">
             <a [routerLink]="'/admin/employee'" routerLinkActive="active" class="nav-link">
 
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -191,7 +228,7 @@
               <span>Resignation</span></a>
           </li>
 
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isReportingManager">
             <a [routerLink]="'/admin/evaluation'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -201,7 +238,7 @@
               <span>Training</span></a>
           </li>
 
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isReportingManager">
             <a [routerLink]="'/admin/complaints'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36">
                 <path fill="currentColor"
@@ -227,8 +264,8 @@
           </li>
         </ul>
 
-        <ul *ngIf="activeMenu === 'recruit'" class="sub-row flex1 ">
-          <li class="nav-items">
+        <ul *ngIf="activeMenu === 'recruit'" class="sub-row flex1">
+          <li class="nav-items" *ngIf="!isReportingManager">
             <a [routerLink]="'/recruitment/jobs'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -239,7 +276,7 @@
               </svg>
               <span>Recruitment</span></a>
           </li>
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isReportingManager">
             <a [routerLink]="'/recruitment/internships'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -248,12 +285,16 @@
               </svg>
               <span>Internship</span></a>
           </li>
-          <!-- <li class="nav-items">
-            <a [routerLink]="'/recruitment/exit'" routerLinkActive="active" class="nav-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 14 14"><path fill="currentColor" fill-rule="evenodd" d="M5.625 1.625c0-.207.168-.375.375-.375h6.375c.207 0 .375.168.375.375v10.75a.375.375 0 0 1-.375.375H8.5a.625.625 0 1 0 0 1.25h3.875c.898 0 1.625-.727 1.625-1.625V1.625C14 .728 13.273 0 12.375 0H6c-.897 0-1.625.728-1.625 1.625V2.5a.625.625 0 1 0 1.25 0zm2 3.375a.875.875 0 1 1 1.75 0a.875.875 0 0 1-1.75 0M8.5 2.875a2.125 2.125 0 1 0 0 4.25a2.125 2.125 0 0 0 0-4.25M3.809 8.808L5.116 7.5l-.765-.765a.38.38 0 0 0-.265-.11H2.625a.625.625 0 1 1 0-1.25h1.46c.432 0 .845.171 1.15.476L6.44 7.058h.001l.71.71l.497.497c.07.07.166.11.265.11h1.461a.625.625 0 1 1 0 1.25h-1.46c-.432 0-.845-.171-1.15-.476l-.055-.055l-.866.866l.305.305c.305.305.476.718.476 1.15v1.96a.625.625 0 1 1-1.25 0v-1.96c0-.1-.04-.196-.11-.266l-.747-.747l-.268-.268l-.015.015a1.63 1.63 0 0 1-1.15.476H.626a.625.625 0 1 1 0-1.25h2.46c.1 0 .196-.04.266-.11l.456-.456z" clip-rule="evenodd"/></svg>
-              <span>Exit Interview</span></a>
-          </li>
           <li class="nav-items">
+            <a [routerLink]="'/recruitment/my-interview'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 14 14">
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M5.625 1.625c0-.207.168-.375.375-.375h6.375c.207 0 .375.168.375.375v10.75a.375.375 0 0 1-.375.375H8.5a.625.625 0 1 0 0 1.25h3.875c.898 0 1.625-.727 1.625-1.625V1.625C14 .728 13.273 0 12.375 0H6c-.897 0-1.625.728-1.625 1.625V2.5a.625.625 0 1 0 1.25 0zm2 3.375a.875.875 0 1 1 1.75 0a.875.875 0 0 1-1.75 0M8.5 2.875a2.125 2.125 0 1 0 0 4.25a2.125 2.125 0 0 0 0-4.25M3.809 8.808L5.116 7.5l-.765-.765a.38.38 0 0 0-.265-.11H2.625a.625.625 0 1 1 0-1.25h1.46c.432 0 .845.171 1.15.476L6.44 7.058h.001l.71.71l.497.497c.07.07.166.11.265.11h1.461a.625.625 0 1 1 0 1.25h-1.46c-.432 0-.845-.171-1.15-.476l-.055-.055l-.866.866l.305.305c.305.305.476.718.476 1.15v1.96a.625.625 0 1 1-1.25 0v-1.96c0-.1-.04-.196-.11-.266l-.747-.747l-.268-.268l-.015.015a1.63 1.63 0 0 1-1.15.476H.626a.625.625 0 1 1 0-1.25h2.46c.1 0 .196-.04.266-.11l.456-.456z"
+                  clip-rule="evenodd" />
+              </svg>
+              <span>Interview</span></a>
+          </li>
+          <!-- <li class="nav-items">
             <a [routerLink]="'/recruitment/survey'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36"><path fill="currentColor" d="M21 12H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1M8 10h12V7.94H8Z" class="clr-i-outline clr-i-outline-path-1"/><path fill="currentColor" d="M21 14.08H7a1 1 0 0 0-1 1V19a1 1 0 0 0 1 1h11.36L22 16.3v-1.22a1 1 0 0 0-1-1M20 18H8v-2h12Z" class="clr-i-outline clr-i-outline-path-2"/><path fill="currentColor" d="M11.06 31.51v-.06l.32-1.39H4V4h20v10.25l2-1.89V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v28a1 1 0 0 0 1 1h8a3.4 3.4 0 0 1 .06-.49" class="clr-i-outline clr-i-outline-path-3"/><path fill="currentColor" d="m22 19.17l-.78.79a1 1 0 0 0 .78-.79" class="clr-i-outline clr-i-outline-path-4"/><path fill="currentColor" d="M6 26.94a1 1 0 0 0 1 1h4.84l.3-1.3l.13-.55v-.05H8V24h6.34l2-2H7a1 1 0 0 0-1 1Z" class="clr-i-outline clr-i-outline-path-5"/><path fill="currentColor" d="m33.49 16.67l-3.37-3.37a1.61 1.61 0 0 0-2.28 0L14.13 27.09L13 31.9a1.61 1.61 0 0 0 1.26 1.9a1.6 1.6 0 0 0 .31 0a1.2 1.2 0 0 0 .37 0l4.85-1.07L33.49 19a1.6 1.6 0 0 0 0-2.27ZM18.77 30.91l-3.66.81l.89-3.63L26.28 17.7l2.82 2.82Zm11.46-11.52l-2.82-2.82L29 15l2.84 2.84Z" class="clr-i-outline clr-i-outline-path-6"/><path fill="none" d="M0 0h36v36H0z"/></svg>
               <span>Survey</span></a>

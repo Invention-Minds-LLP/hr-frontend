@@ -174,10 +174,13 @@ export class CandidateEvalForm {
   get panelArr(): FormArray {
     return this.form.get('panel') as FormArray;
   }
-  addPanelist() {
+  addPanelist(prefill = true) {
+    const localName = localStorage.getItem('name') || '';
+    const localDesignation = localStorage.getItem('designation') || '';
+  
     const g = this.fb.group({
-      name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
-      designation: this.fb.control<string>('', { nonNullable: true }),
+      name: this.fb.control<string>(prefill ? localName : '', { validators: Validators.required, nonNullable: true }),
+      designation: this.fb.control<string>(prefill ? localDesignation : '', { nonNullable: true }),  
       scores: this.fb.group({
         jobSkills: this.fb.control<number | null>(null, { validators: score01Validator }),
         jobKnowledge: this.fb.control<number | null>(null, { validators: score01Validator }),

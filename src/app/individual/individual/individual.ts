@@ -502,6 +502,15 @@ export class Individual {
     this.showWFHPopup = false;
     this.fetchDetails();
   }
+  onImageError(event: Event) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = this.getDefaultImage(); // fallback to gender-based default
+  }
+  getDefaultImage(): string {
+    const gender = this.employee?.gender?.toUpperCase() || 'MALE';
+    return gender === 'FEMALE' ? '/img-women.png' : '/img.png';
+  }
+  
 }
 
 

@@ -16,16 +16,16 @@
     <p-table [value]="grievances" [paginator]="true" [rows]="10" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
+          <th>No.</th>
           <th>Title</th>
           <th>Status</th>
           <!-- <th>Created</th> -->
           <th style="text-align: center;" *ngIf="role === 'HR' || role === 'HR_Manager'">Actions</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-g>
+      <ng-template pTemplate="body" let-g let-rowIndex="rowIndex">
         <tr>
-          <td>{{ g.id }}</td>
+          <td>{{ rowIndex + 1}}</td>
           <td>{{ g.title }}</td>
           <td>
             <p-tag [severity]="g.status === 'OPEN' ? 'info' : g.status === 'RESOLVED' ? 'success' : 'danger'">

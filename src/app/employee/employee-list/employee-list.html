@@ -74,9 +74,12 @@
             [src]="employeeData.photoUrl" 
             alt="Profile" />
      
-       <ng-template #defaultPhoto>
-         <img src="/img.png" alt="Default Profile" />
-       </ng-template>
+            <ng-template #defaultPhoto>
+              <img style="background-color: white;"
+                [src]="getDefaultImage(employeeData?.gender)"
+                alt="Default Profile"
+              />
+            </ng-template>
             <div class="">
               <div class="name">{{ employeeData.firstName }} {{employeeData.lastName}}</div>
               <span class="email">{{employeeData.email}}</span>

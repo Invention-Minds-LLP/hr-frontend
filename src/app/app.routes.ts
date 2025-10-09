@@ -50,33 +50,34 @@ import { Posh } from './services/posh/posh';
 import { PoshList } from './posh/posh-list/posh-list';
 import { HrEvaluate } from './evaluation/hr-evaluate/hr-evaluate';
 import { Complaints } from './complaints/complaints';
+import { MyInterview } from './recruitment/my-interview/my-interview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
 
-  { path: 'dashboard', component: HrDashboard,},
-  { path: 'individual', component: Individual,},
-  { path: 'settings', component: SettingsOverview,},
+  { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
+  { path: 'individual', component: Individual, canActivate: [authGuard]},
+  { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
 
   // --- Administration group ---
   {
     path: 'admin',
   
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'employee' },
-      { path: 'employee', component: EmployeeOverview },
-      { path: 'leave', component: LeaveOverview },
-      { path: 'appraisal', component: AppraisalOverview },
-      { path: 'attendance', component: ManageAttendance },
-      { path: 'resignation', component: ResignOverview },
-      { path: 'evaluation', component: EvaluationOverview }, // evaluation overview
-      { path: 'all-announcement', component: AnnouncementForm },
-      { path: 'announcement', component: AnnouncementPopup },
-      { path: 'survey', component: SurveyList },
-      { path: 'exit', component: ExitInterviewList },
-      { path: 'grievance', component: GrievanceList},
-      { path: 'posh', component: PoshList},
-      { path: 'complaints', component: Complaints}
+      { path: '', pathMatch: 'full', redirectTo: 'individual' },
+      { path: 'employee', component: EmployeeOverview,canActivate: [authGuard]},
+      { path: 'leave', component: LeaveOverview, canActivate: [authGuard]},
+      { path: 'appraisal', component: AppraisalOverview,canActivate: [authGuard] },
+      { path: 'attendance', component: ManageAttendance,canActivate: [authGuard] },
+      { path: 'resignation', component: ResignOverview,canActivate: [authGuard] },
+      { path: 'evaluation', component: EvaluationOverview, canActivate: [authGuard] }, // evaluation overview
+      { path: 'all-announcement', component: AnnouncementForm, canActivate: [authGuard] },
+      { path: 'announcement', component: AnnouncementPopup, canActivate: [authGuard] },
+      { path: 'survey', component: SurveyList, canActivate: [authGuard] },
+      { path: 'exit', component: ExitInterviewList, canActivate: [authGuard] },
+      { path: 'grievance', component: GrievanceList, canActivate: [authGuard] },
+      { path: 'posh', component: PoshList, canActivate: [authGuard] },
+      { path: 'complaints', component: Complaints, canActivate: [authGuard] },
 
     ],
 
@@ -85,43 +86,44 @@ export const routes: Routes = [
   // --- Recruitment group ---
   {
     path: 'recruitment',
-  
+    canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'jobs' },
-      { path: 'jobs', component: RecruitmentDashboard },     // main recruitment board
-      { path: 'internships', component: Internship },        // internship module
-      { path: 'my-tests', component: MyTests },              // keep tests under recruitment
-      { path: 'take-test/:id', component: TestPlatform },
-      { path: 'candidate-tests', component: CandidateTests }, // view candidate details
-      { path: 'recquisition', component: RequisitionList }, // requisition form
-      { path: 'survey', component: SurveyList},
-      { path: 'exit', component: ExitInterviewList},
-      { path: 'hr-review/:id', component: HrEvaluate},
+      { path: '', pathMatch: 'full', redirectTo: 'jobs',},
+      { path: 'jobs', component: RecruitmentDashboard,},     // main recruitment board
+      { path: 'internships', component: Internship,},        // internship module
+      { path: 'my-tests', component: MyTests,},              // keep tests under recruitment
+      { path: 'take-test/:id', component: TestPlatform,},
+      { path: 'candidate-tests', component: CandidateTests,}, // view candidate details
+      { path: 'recquisition', component: RequisitionList,}, // requisition form
+      { path: 'survey', component: SurveyList, },
+      { path: 'exit', component: ExitInterviewList, },
+      { path: 'hr-review/:id', component: HrEvaluate, },
+      { path: 'my-interview', component: MyInterview, },
     ],
   },
 
   // Other standalone modules (leave sub-features, attendance, etc.)
-  { path: 'permission-request', component: PermissionRequest,},
-  { path: 'wfh', component: WorkFromHome,},
-  { path: 'balances-accruals', component: BalancesAccruals,},
-  { path: 'attendance', component: ManageAttendance,},
-  { path: 'history', component: History,},
-  { path: 'resignation', component: ResignOverview,},
-  { path: 'interview', component: CandidateEvalForm,},
-  { path: 'popup', component: PopUp },
+  { path: 'permission-request', component: PermissionRequest,canActivate: [authGuard]},
+  { path: 'wfh', component: WorkFromHome,canActivate: [authGuard]},
+  { path: 'balances-accruals', component: BalancesAccruals,canActivate: [authGuard]},
+  { path: 'attendance', component: ManageAttendance,canActivate: [authGuard]},
+  { path: 'history', component: History,canActivate: [authGuard]},
+  { path: 'resignation', component: ResignOverview,canActivate: [authGuard]},
+  { path: 'interview', component: CandidateEvalForm,canActivate: [authGuard]},
+  { path: 'popup', component: PopUp,canActivate: [authGuard] },
    
 
   // ---- Backward-compat redirects (optional) ----
   { path: 'employee', redirectTo: 'admin/employee', pathMatch: 'full' },
-  { path: 'leave', redirectTo: 'admin/leave', pathMatch: 'full' },
-  { path: 'appraisal', redirectTo: 'admin/appraisal', pathMatch: 'full' },
-  { path: 'evaluation', redirectTo: 'recruitment/evaluation', pathMatch: 'full' },
-  { path: 'internship', redirectTo: 'recruitment/internships', pathMatch: 'full' },
-  { path: 'my-tests', redirectTo: 'recruitment/my-tests', pathMatch: 'full' },
-  { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full' },
+  { path: 'leave', redirectTo: 'admin/leave', pathMatch: 'full',},
+  { path: 'appraisal', redirectTo: 'admin/appraisal', pathMatch: 'full', },
+  { path: 'evaluation', redirectTo: 'recruitment/evaluation', pathMatch: 'full', },
+  { path: 'internship', redirectTo: 'recruitment/internships', pathMatch: 'full', },
+  { path: 'my-tests', redirectTo: 'recruitment/my-tests', pathMatch: 'full', },
+  { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full', },
 
 
   // Default / catch-all
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '', pathMatch: 'full', redirectTo: 'individual' },
+  { path: '**', redirectTo: 'individual' },
 ];

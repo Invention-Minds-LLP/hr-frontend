@@ -82,6 +82,7 @@ export class Login {
               localStorage.setItem('empId', response.empId);
               localStorage.setItem('deptId', response.deptId);
               localStorage.setItem('photoUrl', response.photoUrl || '');
+              localStorage.setItem('designation', response.designation || '');
               this.router.navigate(['/individual']);
             } else {
               console.error('Login failed:', (response as any)?.message);

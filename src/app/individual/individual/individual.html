@@ -49,7 +49,8 @@
                 <!-- Profile Header -->
                 <div class="profile-header">
                   <img
-                    [src]="employee?.photoUrl || '/img.png'"
+                    [src]="employee?.photoUrl || getDefaultImage()"
+                    (error)="onImageError($event)"
                     alt="Profile"
                     class="profile-pic"
                   />

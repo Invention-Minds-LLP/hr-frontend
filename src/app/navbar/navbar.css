@@ -462,6 +462,135 @@ a {
   color: white;
 }
 
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e63946;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* Notification Wrapper */
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Bell Icon */
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid #C4C4C4;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.notification-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -2px;
+  background-color: #e63946;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+/* Dropdown Panel */
+.notification-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 330px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  overflow-y: auto;
+  max-height: 420px;
+  animation: dropdownFade 0.2s ease-in-out;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Each Notification */
+.notification-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notification-message {
+  font-size: 14px;
+  color: #222;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #888;
+  margin-top: 3px;
+}
+
+/* Empty State */
+.no-notifications {
+  text-align: center;
+  color: #888;
+  padding: 16px;
+  font-size: 14px;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+.notification-item.unread {
+  background-color: #eef6ff;
+}
+.mark-read {
+  font-size: 12px;
+  color: #0dbb52; /* WhatsApp green */
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 0px;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.mark-read:hover {
+  color: #089944;
+  text-decoration: underline;
+}
 
 
 @media (max-width:800px) {
