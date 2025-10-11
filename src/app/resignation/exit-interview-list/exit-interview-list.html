@@ -21,19 +21,22 @@
   <p-table [value]="filteredInterviews" [paginator]="true" [rows]="10" [loading]="loading">
     <ng-template pTemplate="header">
       <tr>
-        <th>ID</th>
-        <th>Employee</th>
+        <th>No</th>
+        <th>EMP ID</th>
+        <th>Name</th>
         <th>Department</th>
         <th>Date</th>
         <th>Interviewer</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-interview>
+    <ng-template pTemplate="body" let-interview let-i="rowIndex">
       <tr>
-        <td>{{ interview.id }}</td>
-        <td>{{ interview.employee.firstName }} {{ interview.employee.lastName }}</td>
+        <td>{{ i + 1 }}</td>
+        <td>{{ interview.employee?.employeeCode }}</td>
+        <td>{{ interview.employee?.firstName }} {{ interview.employee?.lastName }}</td>
         <td>
           <span class="dept-badge"
             [ngStyle]="{ backgroundColor: getDepartmentColors(interview.employee?.departmentId).badgeColor }">
@@ -46,6 +49,18 @@
         <td>{{ interview.scheduledAt | date:'dd-MM-yyyy' }}</td>
         <td>{{ interview.interviewerName }}</td>
         <td>
+          <p-badge
+            [value]="interview.completedAt ? 'COMPLETED' : (interview.status || 'PENDING')"
+            [severity]="
+              interview.completedAt ? 'success' :
+              interview.status === 'SCHEDULED' ? 'info' :
+              interview.status === 'CANCELLED' ? 'danger' :
+              'warn'
+            ">
+          </p-badge>
+        </td>
+        
+          <td>
           <button pButton label="View / Edit" (click)="openInterview(interview)"></button>
         </td>
       </tr>

@@ -11,11 +11,13 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { Departments } from '../../services/departments/departments';
+import { BadgeModule } from 'primeng/badge';
 
 
 @Component({
   selector: 'app-exit-interview-list',
-  imports: [ExitInterview, CommonModule, TableModule, FormsModule, ButtonModule, IconFieldModule, InputTextModule, InputIconModule],
+  imports: [ExitInterview, CommonModule, TableModule, FormsModule, ButtonModule,
+     IconFieldModule, InputTextModule, InputIconModule, BadgeModule],
   templateUrl: './exit-interview-list.html',
   styleUrl: './exit-interview-list.css'
 })
@@ -32,7 +34,7 @@ export class ExitInterviewList {
 
 
   filterOptions = [
-    { label: 'Employee ID', value: 'id' },
+    { label: 'Employee ID', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
     { label: 'Department', value: 'department' }
   ]
@@ -96,7 +98,11 @@ export class ExitInterviewList {
       } else if (filterKey === 'department') {
         const deptName = this.departmentMap[e.employee?.departmentId] || '';
         return deptName.toLowerCase().includes(searchText);
-      } else if (filterKey) {
+      } else if (filterKey === 'employeeCode') {
+        const empCode = e.employee?.employeeCode || '';
+        return empCode.toLowerCase().includes(searchText);
+      }
+      else if (filterKey) {
         const val = e[filterKey];
         return val?.toString().toLowerCase().includes(searchText);
       }

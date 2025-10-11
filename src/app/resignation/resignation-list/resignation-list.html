@@ -22,7 +22,7 @@
   <p-table [value]="filteredRows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
-        <th>#</th>
+        <th>No</th>
         <th>Employee</th>
         <th>Department</th>
         <th>Reason</th>
@@ -32,11 +32,11 @@
         <th>Actual LWD</th>
         <th>Status</th>
         <th style="text-align:center">Actions</th>
-        <th>Proceeding</th>
+        <th *ngIf="isHR">Proceeding</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-r let-i="rowIndex">
-      <ng-template #dash><span class="muted">—</span></ng-template>
+      <ng-template #dash><span class="muted" style="text-align: center;">—</span></ng-template>
       <tr>
         <td>{{ i + 1 }}</td>
         <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
@@ -59,6 +59,11 @@
         <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
         <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
         <td class="actions">
+          <ng-container *ngIf="
+      (r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')) ||
+      (r.managerDecision === 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')) ||
+      (r.status === 'WITHDRAW_REQUESTED' && isHR);
+    else dash">
           <ng-container *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
             <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
             <button pButton size="small" label="Manager Reject" class="p-button-danger"
@@ -79,8 +84,9 @@
             <button pButton size="small" label="Reject Withdraw" class="p-button-danger"
               (click)="rejectWithdrawHR(r)"></button>
           </ng-container>
+          </ng-container>
         </td>
-        <td>
+        <td *ngIf="isHR" style="text-align:center">
           <button *ngIf="isHR && r?.hrDecision=== 'APPROVED';else dash" class="btn-edit" (click)="openDialog(r.id)">
             Proceed to off-boarding
           </button>

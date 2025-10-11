@@ -97,5 +97,9 @@ export class Resignation {
   hrRejectWithdraw(id: number, payload: { note?: string; rejectedBy?: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/hr-withdraw-reject`, payload);
   }
+  listWithClearances(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/with-clearances`);
+  }
+
   
 }

@@ -102,8 +102,18 @@
         <div class="row">
             <p-datePicker [(ngModel)]="exitAt" [ngModelOptions]="{standalone:true}" [showIcon]="true" [showTime]="true"
                 dateFormat="yy-mm-dd" />
-            <input pInputText type="number" placeholder="Interviewer ID" [(ngModel)]="interviewerId"
-                [ngModelOptions]="{standalone:true}" />
+                <p-select
+                [options]="employees"
+                [(ngModel)]="interviewerId"
+                [filter]="true"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Interviewer"
+                [showClear]="true"
+                [ngModelOptions]="{ standalone: true }"
+                styleClass="w-full">
+              </p-select>
+              
         </div>
         <textarea pInputTextarea rows="3" placeholder="Notes" [(ngModel)]="exitNotes"
             [ngModelOptions]="{standalone:true}"></textarea>

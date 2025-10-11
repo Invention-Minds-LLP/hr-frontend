@@ -14,6 +14,8 @@ import { ToastModule } from 'primeng/toast';
 import { Resignation } from '../../services/resignation/resignation';
 import { MessageService } from 'primeng/api';
 
+import { Employees } from '../../services/employees/employees';
+
 type TaskStatus = 'OPEN' | 'IN_PROGRESS' | 'DONE';
 type ClearanceType = 'IT'|'FINANCE'|'HR'|'ADMIN'|'SECURITY'|'OTHER';
 type ApprovalDecision = 'PENDING'|'APPROVED'|'REJECTED';
@@ -65,15 +67,20 @@ export class ResignPost implements OnInit {
   lockedClearances: Record<ClearanceType, boolean> = {
     IT: false, FINANCE: false, HR: false, ADMIN: false, SECURITY: false, OTHER: false
   };
+  employees: any[] = [];
+allEmployees: any[] = [];
 
-  constructor(private fb: FormBuilder, private api: Resignation, private msg: MessageService) {}
+
+  constructor(private fb: FormBuilder, private api: Resignation, private msg: MessageService, private employeeService: Employees) {}
 
   ngOnInit(): void {
     if (!this.resignationId) return;
+    this.loadEmployees();
     this.taskForm = this.fb.group({
       tasks: this.fb.array([ this.newTaskRow() ])
     });
     this.loadPostHrSnapshot()
+
     
   }
   private notify(
@@ -82,6 +89,20 @@ export class ResignPost implements OnInit {
     summary = type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info'
   ) {
     this.msg.add({ severity: type, summary, detail });
+  }
+
+  loadEmployees() {
+    this.employeeService.getActiveEmployees().subscribe(res => {
+      this.allEmployees = res.map(e => ({
+        label: `${e.firstName} ${e.lastName} (${e.employeeCode})`,
+        value: e.id,
+        deptId: e.departmentId,
+        branchId: e.branchId
+      }));
+  
+      // show all by default
+      this.employees = [...this.allEmployees];
+    });
   }
 
   private loadPostHrSnapshot() {

@@ -9,6 +9,8 @@
        <button (click)="show('exit')"> <li class="sub-item" [ngClass]="{ 'active': active === 'exit' }" >Exit Interview</li></button>
         <div class="br"></div>
        <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button>
+        <div class="br"></div>
+        <button (click)="show('clearance')"> <li class="sub-item" [ngClass]="{ 'active': active === 'clearance' }" >Clearance</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -21,4 +23,5 @@
     <app-resignation-list *ngIf="active === 'list'"></app-resignation-list>
     <app-exit-interview-list *ngIf="active === 'exit'"></app-exit-interview-list>
     <app-survey-list *ngIf="active === 'survey'"></app-survey-list>
+    <app-clearances *ngIf="active === 'clearance'"></app-clearances>
 </div>  

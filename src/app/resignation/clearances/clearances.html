@@ -1,0 +1,72 @@
+    <div class="card">
+        <p-table [value]="resignations" dataKey="id" [tableStyle]="{'min-width': '90rem'}">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>No</th>
+                <th>Employee</th>
+                <th>Employee ID</th>
+                <th>Department</th>
+                <th>Manager</th>
+                <th>Last Working Day</th>
+                <th *ngFor="let c of visibleClearanceTypes">{{ c }} Clearance Status</th>
+                <th>Resignation Status</th>
+                <th>Action</th>
+              </tr>
+            </ng-template>
+          
+            <ng-template pTemplate="body" let-r let-i="rowIndex">
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ r.employee.firstName }} {{ r.employee.lastName }}</td>
+                <td>{{ r.employee.employeeCode }}</td>
+                <td>{{ r.employee.Department?.name }}</td>
+                <td>{{ getManagerName(r.managerId) }}</td>
+                <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+          
+                <!-- Clearance column -->
+                <td *ngFor="let c of visibleClearanceTypes">
+                  <div *ngIf="getClearance(r, c) as cl">
+                    {{ cl.decision }}
+                  </div>
+                </td>
+          
+                <!-- Status -->
+                <td>
+                    <p-badge
+                    [value]="r.status"
+                    [severity]="r.status === 'APPROVED' ? 'success' :
+                                r.status === 'REJECTED' ? 'danger' : 'warn'">
+                  </p-badge>
+                  
+                </td>
+          
+                <!-- Actions -->
+                <td class="flex gap-2">
+                  <button pButton label="Approve" icon="pi pi-check"
+                          class="p-button-success p-button-sm" (click)="openPopup(r, 'APPROVED')">
+                  </button>
+                  <button pButton label="Reject" icon="pi pi-times"
+                          class="p-button-danger p-button-sm" (click)="openPopup(r, 'REJECTED')">
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+    </div>
+  
+  <!-- Popup Dialog -->
+  <p-dialog header="{{ popupAction === 'APPROVED' ? 'Approve Clearance' : 'Reject Clearance' }}"
+            [(visible)]="showPopup" [modal]="true" [closable]="true" [style]="{width: '400px'}">
+    <div>
+      <h4>{{ selectedEmployee?.employee?.firstName }} {{ selectedEmployee?.employee?.lastName }}</h4>
+      <textarea pInputTextarea [(ngModel)]="popupNote"
+                placeholder="Enter your note or reason..."
+                rows="4" style="width:100%;"></textarea>
+      <div class="popup-actions flex gap-3" style="margin-top: 1rem; text-align: right;">
+        <button pButton label="Cancel" class="p-button-text" (click)="closePopup()"></button>
+        <button pButton label="Submit" class="p-button-primary"
+                (click)="submitAction()"></button>
+      </div>
+    </div>
+  </p-dialog>
+  

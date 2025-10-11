@@ -6,26 +6,20 @@
         <div class="grid col-12">
           <div class="col-4">
             <p-floatlabel variant="on">
-              <input pInputText id="employeeId" formControlName="employeeId"
-                [invalid]="form.get('employeeId') ?.invalid && (form.get('employeeId')?.touched || submitted)" />
-              <label for="employeeId"><i class="pi pi-id-card mr-2"></i>Employee ID</label>
+              <input pInputText id="employeeCodeDisplay" [value]="employeeCodeDisplay" disabled />
+              <label for="employeeCodeDisplay"><i class="pi pi-id-card mr-2"></i>Employee Code</label>
             </p-floatlabel>
-            <div class="p-error"
+            <!-- <div class="p-error"
               *ngIf="form.get('employeeId')?.invalid && (form.get('employeeId')?.touched || submitted)">
               Employee ID is required
-            </div>
+            </div> -->
           </div>
 
           <div class="col-4">
             <p-floatlabel variant="on">
-              <input pInputText id="interviewedBy" formControlName="interviewedBy"
-                [invalid]="form.get('interviewedBy') ?.invalid && (form.get('interviewedBy')?.touched || submitted)" />
-              <label for="interviewedBy"><i class="pi pi-user mr-2"></i>Interviewed By</label>
+              <input pInputText id="interviewerNameDisplay" [value]="interviewerNameDisplay"  disabled />
+              <label for="interviewerNameDisplay"><i class="pi pi-user mr-2"></i>Interviewed By</label>
             </p-floatlabel>
-            <div class="p-error"
-              *ngIf="form.get('interviewedBy')?.invalid && (form.get('interviewedBy')?.touched || submitted)">
-              Interviewed By is required
-            </div>
           </div>
 
           <div class="col-4">
@@ -39,6 +33,9 @@
               Interview Date is required
             </div>
           </div>
+          <input type="hidden" formControlName="employeeId" />
+<input type="hidden" formControlName="interviewedBy" />
+
         </div>
       </p-card>
 

@@ -107,7 +107,153 @@ export class ExitInterview {
     { key: 'peerRelations', label: 'Relationship with peers' },
     { key: 'recognition', label: 'Recognition / acceptance of work' }
   ];
+  employeeCodeDisplay: string = '';
+interviewerNameDisplay: string = '';
 
+
+
+  // ngOnInit() {
+  //   this.form = this.fb.group({
+  //     employeeId: ['', Validators.required],
+  //     interviewedBy: ['', Validators.required],
+  //     interviewDate: [null, Validators.required],
+  //     resignationId: [1],
+
+  //     nextOrgName: ['', Validators.required],
+  //     nextOrgPosition: ['', Validators.required],
+  //     nextOrgCategory: ['', Validators.required],
+  //     nextOrgLocation: ['', Validators.required],
+  //     nextOrgIndustry: ['', Validators.required],
+
+  //     academicQualification: [[], Validators.required],
+  //     academicQualificationOthers: [''],
+
+  //     vacancySource: [[], Validators.required],
+  //     recruitmentMode: [[], Validators.required],
+  //     recruitmentModeOthers: [''],
+
+  //     reasonForLeaving: ['', Validators.required],
+  //     triggerReason: ['', Validators.required],
+  //     mostSatisfying: ['', Validators.required],
+  //     leastSatisfying: ['', Validators.required],
+  //     supportReceived: ['', Validators.required],
+  //     newJobOffers: ['', Validators.required],
+  //     expectationsMet: ['', Validators.required],
+  //     skillUtilization: ['', Validators.required],
+
+  //     // ✅ Add missing groups here
+  //     influencedFactors: this.fb.group({
+  //       jobSecurity: ['', Validators.required],
+  //       financialFreedom: ['', Validators.required],
+  //       firmReputation: ['', Validators.required],
+  //       workStress: ['', Validators.required],
+  //       peerRelationship: ['', Validators.required],
+  //       healthReasons: ['', Validators.required],
+  //       careerGrowth: ['', Validators.required],
+  //       familyReasons: ['', Validators.required],
+  //       others: ['', Validators.required]
+  //     }),
+
+  //     dissatisfaction: this.fb.group({
+  //       workProfile: ['', Validators.required],
+  //       workingConditions: ['', Validators.required],
+  //       salary: ['', Validators.required],
+  //       supervision: ['', Validators.required],
+  //       peerRelations: ['', Validators.required],
+  //       recognition: ['', Validators.required],
+  //       others: ['', Validators.required]
+  //     }),
+
+  //     jobOpinion: this.fb.group({
+  //       orientation: [0, this.ratingRequired],
+  //       workingConditions: [0, this.ratingRequired],
+  //       infrastructure: [0, this.ratingRequired],
+  //       training: [0, this.ratingRequired],
+  //       peers: [0, this.ratingRequired],
+  //       teamwork: [0, this.ratingRequired],
+  //       policies: [0, this.ratingRequired],
+  //       communicationDept: [0, this.ratingRequired],
+  //       communicationTop: [0, this.ratingRequired],
+  //     }),
+
+  //     attitudeSuperiors: this.fb.group({
+  //       fairTreatment: [0, this.ratingRequired],
+  //       recognition: [0, this.ratingRequired],
+  //       resolvesComplaints: [0, this.ratingRequired],
+  //       consistentPolicy: [0, this.ratingRequired],
+  //       clearInstructions: [0, this.ratingRequired],
+  //       teamwork: [0, this.ratingRequired],
+  //     }),
+
+  //     companyOpinion: this.fb.group({
+  //       salary: [0, this.ratingRequired],
+  //       growth: [0, this.ratingRequired],
+  //       appraisal: [0, this.ratingRequired],
+  //       policies: [0, this.ratingRequired],
+  //     }),
+
+  //     exitReasons: this.fb.group({
+  //       reasonForLeaving: ['', Validators.required],
+  //       triggerReason: ['', Validators.required],
+  //       mostSatisfying: ['', Validators.required],
+  //       leastSatisfying: ['', Validators.required],
+  //       supportReceived: ['', Validators.required],
+  //       newJobOffers: ['', Validators.required],
+  //     }),
+
+  //     newJobSalaryComparison: ['', Validators.required],
+  //     discrimination: [false, Validators.requiredTrue],
+
+  //     likedMost: ['',Validators.required],
+  //     stayEncouragement: ['',Validators.required],
+  //     recommendCompany: [false,Validators.required],
+  //     recommendReason: ['',Validators.required],
+
+  //     demotivating: [[],Validators.required],
+  //     demotivatingOthers: [''],
+  //   });
+  //   setTimeout(() => {
+  //     if (this.formData) {
+  //       const parsedData = {
+  //         ...this.formData,
+  //         academicQualification: this.formData.academicQualification
+  //           ? JSON.parse(this.formData.academicQualification)
+  //           : [],
+  //         vacancySource: this.formData.vacancySource
+  //           ? JSON.parse(this.formData.vacancySource)
+  //           : [],
+  //         recruitmentMode: this.formData.recruitmentMode
+  //           ? JSON.parse(this.formData.recruitmentMode)
+  //           : [],
+  //         demotivating: this.formData.demotivating
+  //           ? JSON.parse(this.formData.demotivating)
+  //           : [],
+  //         jobOpinion: this.formData.jobOpinion
+  //           ? JSON.parse(this.formData.jobOpinion)
+  //           : {},
+  //         attitudeSuperiors: this.formData.attitudeSuperiors
+  //           ? JSON.parse(this.formData.attitudeSuperiors)
+  //           : {},
+  //         companyOpinion: this.formData.companyOpinion
+  //           ? JSON.parse(this.formData.companyOpinion)
+  //           : {},
+  //         influencedFactors: this.formData.influencedFactors
+  //           ? JSON.parse(this.formData.influencedFactors)
+  //           : {},
+  //         dissatisfaction: this.formData.dissatisfaction
+  //           ? JSON.parse(this.formData.dissatisfaction)
+  //           : {},
+  //         interviewDate: this.formData.interviewDate
+  //           ? new Date(this.formData.interviewDate)
+  //           : null,
+  //       };
+    
+  //       this.form.patchValue(parsedData);
+  //       console.log("✅ Form patched:", parsedData);
+  //     }
+  //   });
+    
+  // }
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -115,20 +261,20 @@ export class ExitInterview {
       interviewedBy: ['', Validators.required],
       interviewDate: [null, Validators.required],
       resignationId: [1],
-
+  
       nextOrgName: ['', Validators.required],
       nextOrgPosition: ['', Validators.required],
       nextOrgCategory: ['', Validators.required],
       nextOrgLocation: ['', Validators.required],
       nextOrgIndustry: ['', Validators.required],
-
+  
       academicQualification: [[], Validators.required],
       academicQualificationOthers: [''],
-
+  
       vacancySource: [[], Validators.required],
       recruitmentMode: [[], Validators.required],
       recruitmentModeOthers: [''],
-
+  
       reasonForLeaving: ['', Validators.required],
       triggerReason: ['', Validators.required],
       mostSatisfying: ['', Validators.required],
@@ -137,8 +283,7 @@ export class ExitInterview {
       newJobOffers: ['', Validators.required],
       expectationsMet: ['', Validators.required],
       skillUtilization: ['', Validators.required],
-
-      // ✅ Add missing groups here
+  
       influencedFactors: this.fb.group({
         jobSecurity: ['', Validators.required],
         financialFreedom: ['', Validators.required],
@@ -148,9 +293,9 @@ export class ExitInterview {
         healthReasons: ['', Validators.required],
         careerGrowth: ['', Validators.required],
         familyReasons: ['', Validators.required],
-        others: ['', Validators.required]
+        others: ['']
       }),
-
+  
       dissatisfaction: this.fb.group({
         workProfile: ['', Validators.required],
         workingConditions: ['', Validators.required],
@@ -158,9 +303,9 @@ export class ExitInterview {
         supervision: ['', Validators.required],
         peerRelations: ['', Validators.required],
         recognition: ['', Validators.required],
-        others: ['', Validators.required]
+        others: ['']
       }),
-
+  
       jobOpinion: this.fb.group({
         orientation: [0, this.ratingRequired],
         workingConditions: [0, this.ratingRequired],
@@ -170,87 +315,114 @@ export class ExitInterview {
         teamwork: [0, this.ratingRequired],
         policies: [0, this.ratingRequired],
         communicationDept: [0, this.ratingRequired],
-        communicationTop: [0, this.ratingRequired],
+        communicationTop: [0, this.ratingRequired]
       }),
-
+  
       attitudeSuperiors: this.fb.group({
         fairTreatment: [0, this.ratingRequired],
         recognition: [0, this.ratingRequired],
         resolvesComplaints: [0, this.ratingRequired],
         consistentPolicy: [0, this.ratingRequired],
         clearInstructions: [0, this.ratingRequired],
-        teamwork: [0, this.ratingRequired],
+        teamwork: [0, this.ratingRequired]
       }),
-
+  
       companyOpinion: this.fb.group({
         salary: [0, this.ratingRequired],
         growth: [0, this.ratingRequired],
         appraisal: [0, this.ratingRequired],
-        policies: [0, this.ratingRequired],
+        policies: [0, this.ratingRequired]
       }),
-
+  
       exitReasons: this.fb.group({
         reasonForLeaving: ['', Validators.required],
         triggerReason: ['', Validators.required],
         mostSatisfying: ['', Validators.required],
         leastSatisfying: ['', Validators.required],
         supportReceived: ['', Validators.required],
-        newJobOffers: ['', Validators.required],
+        newJobOffers: ['', Validators.required]
       }),
-
+  
       newJobSalaryComparison: ['', Validators.required],
       discrimination: [false, Validators.requiredTrue],
-
-      likedMost: ['',Validators.required],
-      stayEncouragement: ['',Validators.required],
-      recommendCompany: [false,Validators.required],
-      recommendReason: ['',Validators.required],
-
-      demotivating: [[],Validators.required],
-      demotivatingOthers: [''],
+  
+      likedMost: ['', Validators.required],
+      stayEncouragement: ['', Validators.required],
+      recommendCompany: [false, Validators.required],
+      recommendReason: ['', Validators.required],
+  
+      demotivating: [[], Validators.required],
+      demotivatingOthers: ['']
     });
-    setTimeout(() => {
-      if (this.formData) {
-        const parsedData = {
-          ...this.formData,
-          academicQualification: this.formData.academicQualification
-            ? JSON.parse(this.formData.academicQualification)
-            : [],
-          vacancySource: this.formData.vacancySource
-            ? JSON.parse(this.formData.vacancySource)
-            : [],
-          recruitmentMode: this.formData.recruitmentMode
-            ? JSON.parse(this.formData.recruitmentMode)
-            : [],
-          demotivating: this.formData.demotivating
-            ? JSON.parse(this.formData.demotivating)
-            : [],
-          jobOpinion: this.formData.jobOpinion
-            ? JSON.parse(this.formData.jobOpinion)
-            : {},
-          attitudeSuperiors: this.formData.attitudeSuperiors
-            ? JSON.parse(this.formData.attitudeSuperiors)
-            : {},
-          companyOpinion: this.formData.companyOpinion
-            ? JSON.parse(this.formData.companyOpinion)
-            : {},
-          influencedFactors: this.formData.influencedFactors
-            ? JSON.parse(this.formData.influencedFactors)
-            : {},
-          dissatisfaction: this.formData.dissatisfaction
-            ? JSON.parse(this.formData.dissatisfaction)
-            : {},
-          interviewDate: this.formData.interviewDate
-            ? new Date(this.formData.interviewDate)
-            : null,
-        };
+  
+    // ✅ Safely handle both completed and new interviews
+    if (this.formData) {
+      const parsedData = this.parseFormData(this.formData);
+      this.form.patchValue(parsedData);
+      console.log("✅ Patched exit interview data:", parsedData);
+    // ✅ Set display names (for UI only)
+    if (this.formData.employee) {
+      this.employeeCodeDisplay = this.formData.employee.employeeCode || '';
+    }
+    if (this.formData.interviewerName) {
+      this.interviewerNameDisplay = this.formData.interviewerName || '';
+    }
+    if (this.formData.scheduledAt) {
+      this.form.get('interviewDate')?.setValue(new Date(this.formData.scheduledAt));
+    }
     
-        this.form.patchValue(parsedData);
-        console.log("✅ Form patched:", parsedData);
+    console.log("✅ Employee Code:", this.form.value.interviewDate);
+      // Mark completed if `completedAt` exists
+      if (this.formData.completedAt) {
+        this.form.disable(); // make it readonly
+        console.log("✅ Form marked as completed and disabled");
       }
-    });
-    
+    }
   }
+  
+  /** Safely parse all fields with JSON and fallback defaults */
+  private parseFormData(data: any): any {
+    return {
+      ...data,
+      exitReasons: {
+        reasonForLeaving: data.reasonForLeaving || '',
+        triggerReason: data.triggerReason || '',
+        mostSatisfying: data.mostSatisfying || '',
+        leastSatisfying: data.leastSatisfying || '',
+        supportReceived: data.supportReceived || '',
+        newJobOffers: data.newJobOffers || ''
+      },
+      academicQualification: this.safeParseArray(data.academicQualification),
+      vacancySource: this.safeParseArray(data.vacancySource),
+      recruitmentMode: this.safeParseArray(data.recruitmentMode),
+      demotivating: this.safeParseArray(data.demotivating),
+  
+      jobOpinion: this.safeParseObject(data.jobOpinion),
+      attitudeSuperiors: this.safeParseObject(data.attitudeSuperiors),
+      companyOpinion: this.safeParseObject(data.companyOpinion),
+      influencedFactors: this.safeParseObject(data.influencedFactors),
+      dissatisfaction: this.safeParseObject(data.dissatisfaction),
+  
+      interviewDate: data.interviewDate ? new Date(data.interviewDate) : null,
+    };
+  }
+  
+  private safeParseArray(value: any): any[] {
+    try {
+      return value ? (typeof value === 'string' ? JSON.parse(value) : value) : [];
+    } catch {
+      return [];
+    }
+  }
+  
+  private safeParseObject(value: any): any {
+    try {
+      return value ? (typeof value === 'string' ? JSON.parse(value) : value) : {};
+    } catch {
+      return {};
+    }
+  }
+  
 
   submitted = false;
 
