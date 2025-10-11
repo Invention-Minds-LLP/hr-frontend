@@ -1,7 +1,8 @@
 .appraial-table {
   font-family: "Sofia Sans";
   padding: 20px 60px;
-  background-color: transparent; /* Light background like screenshot */
+  background-color: transparent;
+  /* Light background like screenshot */
 }
 
 .pi {
@@ -11,7 +12,7 @@
 /* Header Section */
 .heading-part {
   display: flex;
-  justify-content:end;
+  justify-content: end;
   align-items: center;
   margin-bottom: 20px;
 }
@@ -28,20 +29,21 @@
   align-items: center;
   gap: 30px;
 }
+
 .input {
-    border: none;
-    outline: none;
-    padding: 6px;
-    font-size: 14px;
-    background-color: #fafafa !important;
-  }
-  
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+  background-color: #fafafa !important;
+}
+
 .search {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   display: flex;
-  width: 300px;
+  /* width: 300px; */
   height: 44px;
   padding: 20px 16px;
   align-items: center;
@@ -58,10 +60,12 @@
   border: 1px solid #c4c4c4;
   background: white;
 }
-.image{
+
+.image {
   width: 50px;
   height: 50px;
 }
+
 .filter {
   color: #9b9b9b;
   font-size: 18px;
@@ -82,6 +86,7 @@
   align-items: center;
   gap: 10px;
 }
+
 .filter {
   position: relative;
   display: flex;
@@ -91,8 +96,9 @@
 
 .filter-dropdown {
   position: absolute;
-  top: 95%; /* below the filter div */
-  left:0%;
+  top: 95%;
+  /* below the filter div */
+  left: 0%;
   background: #fafafa;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -103,14 +109,17 @@
   padding: 0;
   color: black;
 }
+
 .filter-dropdown li {
-  padding: 8px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   list-style: none;
+  font-size: 14px;
 }
 
 .filter-dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: #eee;
+  border-radius: 20px;
 }
 
 /* Table Container */
@@ -128,38 +137,39 @@
 }
 
 /* Header Row */
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: #E8ECEF;
   color: black;
   font-size: 16px;
   font-weight: 600;
-  padding:20px;
+  padding: 20px;
   border: none !important;
   height: 60px;
   text-align: left;
   text-wrap: nowrap;
   /* border-radius: 12px; */
 }
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-bottom-right-radius: 10px;
 }
 
 /* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31;
-  padding:20px;
+  padding: 20px;
   font-size: 16px;
   font-weight: 500;
   color: white;
@@ -199,7 +209,8 @@
 .dept-badge {
   display: inline-flex;
   align-items: center;
-  background-color: #b9f6ca; /* default (Design) */
+  background-color: #b9f6ca;
+  /* default (Design) */
   color: #004d40;
   padding: 6px 12px;
   border-radius: 20px;
@@ -256,26 +267,28 @@
   color: #fff !important;
   border: none;
 }
+
 .new-app {
-    display: flex;
-    width: 162px;
-    height: 42px;
-    padding: 0 16px;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: #3177a3;
-    color: #fff;
-    font-family: "Sofia Sans";
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: none;
+  display: flex;
+  width: 162px;
+  height: 42px;
+  padding: 0 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #3177a3;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: none;
 }
+
 .popup-backdrop {
   position: fixed;
   top: 0;
@@ -334,6 +347,7 @@
 ::ng-deep .p-multiselect .dropdown {
   width: 100% !important;
 }
+
 .p-select,
 .p-multiselect,
 input {

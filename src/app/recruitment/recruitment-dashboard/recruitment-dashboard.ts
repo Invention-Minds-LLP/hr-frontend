@@ -53,6 +53,22 @@ export class RecruitmentDashboard implements OnInit {
     CLOSED: ['OPEN', 'ON_HOLD', 'DRAFT'], // or [] if you do NOT allow reopen
   };
 
+  getJobStatusColors(status: JobStatus) {
+  const statusIndexMap: Record<JobStatus, number> = {
+    OPEN: 2,
+    ON_HOLD: 1,
+    DRAFT: 3,
+    CLOSED: 4,
+  };
+
+  const baseHue = (statusIndexMap[status] * 60) % 360;
+  const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+  const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+  return { badgeColor, dotColor };
+}
+
+
   jobStatusOptionsFor(j: Job) {
     const nexts = this.jobMoves[j.status as JobStatus] || [];
     // include current (disabled) + allowed targets

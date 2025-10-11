@@ -36,7 +36,15 @@
           <td>{{ i + 1 }}</td>
           <td>{{ survey.employee.employeeCode }}</td>
           <td>{{ survey.employee.firstName }} {{ survey.employee.lastName }}</td>
-          <td>{{ survey.employee.Department?.name || '-' }}</td>
+          <td>
+            <span class="dept-badge"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(survey.departmentId).badgeColor }">
+              <span class="dot"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(survey.departmentId).dotColor }">
+              </span>
+             {{ survey.employee.Department?.name || '-' }}
+            </span>
+          </td>
           <td>{{ survey.date | date:'dd-MM-yyyy' }}</td>
           <td>
             <button pButton label="View" (click)="openSurvey(survey)"></button>

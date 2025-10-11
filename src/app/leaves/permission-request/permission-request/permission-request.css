@@ -131,17 +131,22 @@
 
 .menu-list {
   position: absolute;
-    top: 100%;
-    right: 140px;
+  top: 100%;
+  right: 140px;
   min-width: 160px;
   background: var(--surface-ground);
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10;
   padding: 0.30rem 0.5rem;
   list-style: none;
   margin: 0;
   background: white;
+}
+
+.image {
+  width: 50px;
+  height: 50px;
 }
 
 .menu-list li {

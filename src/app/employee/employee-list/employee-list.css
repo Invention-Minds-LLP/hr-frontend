@@ -2,6 +2,7 @@
   font-family: "Sofia Sans";
   padding: 0px 60px;
   background-color: transparent;
+
   /* Light background like screenshot */
 }
 
@@ -69,7 +70,7 @@ input {
   align-items: center;
   justify-content: flex-start;
   display: flex;
-  width: 300px;
+  /* width: 300px; */
   height: 44px;
   padding: 20px 16px;
   align-items: center;
@@ -129,16 +130,19 @@ input {
   z-index: 10;
   padding: 0;
   color: black;
+
 }
 
 .filter-dropdown li {
-  padding: 8px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   list-style: none;
+  font-size: 14px;
 }
 
 .filter-dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: #eee;
+  border-radius: 20px;
 }
 
 .filter-dropdown li.active {
@@ -196,7 +200,7 @@ input {
 /* Body Rows */
 ::ng-deep.history .p-datatable .p-datatable-tbody>tr>td {
   background: #302F31 !important;
-  padding:20px;
+  padding: 20px;
   font-size: 16px;
   font-weight: 500;
   color: white;

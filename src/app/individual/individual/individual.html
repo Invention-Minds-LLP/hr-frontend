@@ -73,15 +73,15 @@
                 </div>
               
                 <!-- Department / Branch / Joining -->
-                <div class="employee-meta mt-3">
-                  <div><strong>Department:</strong> {{ employee?.departmentName || '-' }}</div>
-                  <div><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date:'dd MMM yyyy' }}</div>
+                <div class="employee-meta mt-3 w-100">
+                  <div class="flex2"><strong>Department -</strong> <span class="div">{{ employee?.departmentName || '-' }}</span></div>
+                  <div class="flex2"><strong>Date of Joining -</strong> <span class="div">{{ employee?.dateOfJoining | date:'dd MMM yyyy' }}</span></div>
                 </div>
               
                 <!-- Health Info -->
-                <div class="employee-meta mt-3">
-                  <div><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
-                  <div><strong>Age:</strong> {{ employee?.age || '-' }}</div>
+                <div class="employee-meta mt-3 w-100">
+                  <div class="flex2"><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
+                  <div class="flex2"><strong>Age:</strong> {{ employee?.age || '-' }}</div>
                 </div>
               
                 <!-- Emergency Contact -->

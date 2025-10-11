@@ -326,7 +326,7 @@ export class ApplicationStatus implements OnInit {
       page: this.page,
       pageSize: this.pageSize,
     }).subscribe({
-      next: (res) => { this.apps = res.rows; this.total = res.total},
+      next: (res) => { this.apps = res.rows; this.total = res.total },
       error: (e) => this.error = e?.error?.error || 'Failed to load',
       complete: () => this.loading = false,
     });
@@ -350,15 +350,39 @@ export class ApplicationStatus implements OnInit {
     return map[s] || [];
   }
 
+  getApplicationStatusColors(status: ApplicationStatuses) {
+    const hueMap: Record<ApplicationStatuses, number> = {
+      APPLIED: 210,               // blue
+      SCREENING: 190,             // teal
+      SHORTLISTED: 120,           // green
+      INTERVIEW_SCHEDULED: 50,    // amber
+      INTERVIEWED: 40,            // orange
+      OFFERED: 25,                // orange-red
+      OFFER_ACCEPTED: 140,        // bright green
+      OFFER_DECLINED: 0,          // red
+      REJECTED: 350,              // dark red/pink
+      WITHDRAWN: 280,             // purple
+      HIRED: 160,                 // teal-green
+      NO_SHOW: 30,                // brownish
+    };
+
+    const baseHue = hueMap[status] ?? 200; // fallback color
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`; // light pastel bg
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;   // dark text/dot
+
+    return { badgeColor, dotColor };
+  }
+
+
   move(
     app: Application,
     to: ApplicationStatuses,
     extras: Partial<{ rejectReason: any; currentStage: string; shortListNote: string }> = {}
   ) {
-    const extra: { rejectReason?: any; currentStage?: string; shortListNote?:string } = {};
+    const extra: { rejectReason?: any; currentStage?: string; shortListNote?: string } = {};
     if (extras.rejectReason) extra.rejectReason = extras.rejectReason;
     if (extras.currentStage?.trim()) extra.currentStage = extras.currentStage.trim();
-    if(extras.currentStage?.trim() && to === 'SHORTLISTED'){
+    if (extras.currentStage?.trim() && to === 'SHORTLISTED') {
       extra.shortListNote = extras.shortListNote!.trim();
     }
 
@@ -576,7 +600,7 @@ export class ApplicationStatus implements OnInit {
     this.rejectDlg.visible = false;
   }
   shortlistDlg = { visible: false, app: null as Application | null, stage: '', shortListNote: '' };
-  openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '', shortListNote:'' }; }
+  openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '', shortListNote: '' }; }
   doShortlist() {
     if (!this.shortlistDlg.app || !this.shortlistDlg.stage) return;
     this.move(this.shortlistDlg.app, 'SHORTLISTED', { currentStage: this.shortlistDlg.stage.trim(), shortListNote: this.shortlistDlg.shortListNote.trim() });

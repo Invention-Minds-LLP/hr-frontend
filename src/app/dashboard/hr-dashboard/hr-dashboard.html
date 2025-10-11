@@ -69,8 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let a of d.attention; trackBy: trackByIndex" (click)="openList(a.modal)"
-                            tabindex="0">
+                        <tr *ngFor="let a of d.attention; trackBy: trackByIndex" (click)="openList(a.modal)">
                             <td class="left">{{ a.label }}</td>
                             <td class="left"><strong [ngClass]="a.severity">{{ a.count }}</strong></td>
                             <td class="left">

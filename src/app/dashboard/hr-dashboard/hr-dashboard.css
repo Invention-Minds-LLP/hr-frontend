@@ -453,7 +453,7 @@ select:focus {
   text-align: left;
 }
 
-.card:focus-within{
+/* .card:focus-within{
   background:white;
   color: black;
 }
@@ -461,7 +461,7 @@ select:focus {
 .card:focus-within .attention th{
   background: white;
   color: black;
-}
+} */
 
 .attention tbody tr:last-child td {
   border-bottom: none;
@@ -479,11 +479,10 @@ select:focus {
   /* subtle hover */
 }
 
-.attention tbody tr:focus-within {
+/* .attention tbody tr:focus-within {
   outline: 2px solid #a3c7ff;
-  /* keyboard focus */
   outline-offset: -2px;
-}
+} */
 
 /* Right-align the last column */
 .attention td.right,

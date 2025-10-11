@@ -124,7 +124,7 @@ td.candidate .email {
 /* Status pill */
 .pill {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 5px 14px;
   border-radius: 999px;
   border: 1px solid var(--border, #e5e7eb);
   background: #eef2ff;
@@ -464,7 +464,7 @@ td.actions {
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
   /* background: white; */
-  background: white;
+  background: #E8ECEF;
   color: black;
   font-size: 16px;
   font-weight: 600;

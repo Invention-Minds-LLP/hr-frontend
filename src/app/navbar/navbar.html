@@ -16,40 +16,37 @@
           </svg>
         </div> -->
         <div class="notification-wrapper" #notificationWrapper>
-          <div 
-            class="notification-icon" 
-            (click)="toggleNotificationDropdown()" 
+          <div class="notification-icon" (click)="toggleNotificationDropdown()"
             [ngClass]="{'new-notification': hasNewNotification}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
-              <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 17h2m0 0h10M7 17v-6a5 5 0 0 1 10 0v6m0 0h2M11.5 5.5V4a.5.5 0 0 1 1 0v1.5M13 20a1 1 0 1 1-2 0z" />
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.99994 1.32828C8.3419 1.32828 6.75176 1.98693 5.57935 3.15935C4.40693 4.33176 3.74828 5.9219 3.74828 7.57994V8.14784C3.74823 8.71 3.58179 9.25957 3.26992 9.72729L2.34468 11.1172C1.26858 12.7305 2.08977 14.923 3.96043 15.4328C4.56973 15.599 5.18388 15.7396 5.80286 15.8547L5.80447 15.8588C6.42399 17.514 8.08169 18.6716 9.99994 18.6716C11.9182 18.6716 13.5759 17.514 14.1962 15.8588L14.1978 15.8547C14.8174 15.739 15.4321 15.5982 16.0403 15.4328C17.9109 14.923 18.7321 12.7305 17.656 11.1172L16.73 9.72729C16.4181 9.25957 16.2517 8.71 16.2516 8.14784V7.57994C16.2516 5.9219 15.593 4.33176 14.4205 3.15935C13.2481 1.98693 11.658 1.32828 9.99994 1.32828ZM12.7233 16.0798C10.9139 16.2957 9.08522 16.2957 7.27583 16.0798C7.84937 16.9034 8.84722 17.4616 9.99994 17.4616C11.1527 17.4616 12.1497 16.9034 12.7233 16.0798ZM4.95828 7.57994C4.95828 6.24281 5.48945 4.96044 6.43495 4.01495C7.38044 3.06945 8.66281 2.53828 9.99994 2.53828C11.3371 2.53828 12.6194 3.06945 13.5649 4.01495C14.5104 4.96044 15.0416 6.24281 15.0416 7.57994V8.14784C15.0416 8.94886 15.2788 9.73213 15.7232 10.3984L16.6493 11.7883C16.7928 12.0032 16.8831 12.2492 16.9128 12.5059C16.9425 12.7626 16.9108 13.0226 16.8202 13.2646C16.7295 13.5066 16.5827 13.7236 16.3917 13.8976C16.2006 14.0717 15.971 14.1978 15.7216 14.2656C11.9753 15.2873 8.02377 15.2873 4.27745 14.2656C4.02822 14.1978 3.79868 14.0717 3.60777 13.8977C3.41686 13.7237 3.27005 13.5068 3.17944 13.2649C3.08884 13.023 3.05703 12.7631 3.08665 12.5065C3.11626 12.2499 3.20646 12.004 3.34978 11.7891L4.27745 10.3984C4.72155 9.73188 4.95844 8.94879 4.95828 8.14784V7.57994Z"
+                fill="#ADADAD" />
             </svg>
+
             <span class="notification-badge" *ngIf="notifications.length">
               {{ notifications.length }}
             </span>
           </div>
-        
+
           <!-- Dropdown -->
           <div class="notification-dropdown" *ngIf="showNotifications">
             <div *ngIf="notifications.length === 0" class="no-notifications">
               No new notifications
             </div>
-        
-            <div *ngFor="let notification of notifications; let i = index"
-                 class="notification-item"
-                 (click)="handleNotificationClick(i)">
+
+            <div *ngFor="let notification of notifications; let i = index" class="notification-item"
+              (click)="handleNotificationClick(i)">
               <div class="notification-message">{{ notification.message }}</div>
               <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
-              <span 
-              class="mark-read" 
-              *ngIf="!notification.isRead"
-              (click)="markAsRead(notification.id, i)">
-              Mark as read
-            </span>
+              <span class="mark-read" *ngIf="!notification.isRead" (click)="markAsRead(notification.id, i)">
+                Mark as read
+              </span>
             </div>
           </div>
         </div>
-        
+
 
         <div class="profile" [class.active]="isOpen">
           <div class="user-profile" (click)="toggleDropdown($event)">

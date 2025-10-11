@@ -1,5 +1,5 @@
 .wrap {
-  padding: 60px;
+  padding: 0 60px;
 }
 
 .heading {
@@ -212,7 +212,7 @@ table.jobs td {
 
 /* Header / cells */
 table.jobs thead th {
-  text-align: left;
+  text-align: center;
   padding: 12px 14px;
   font-weight: 700;
   height: 60px;
@@ -223,6 +223,7 @@ table.jobs thead th {
 
 table.jobs td {
   padding: 12px 14px;
+  text-align: center;
   border-bottom: 1px solid var(--border, #e5e7eb);
   vertical-align: middle;
   /* background: var(--panel, #fff); */
@@ -287,12 +288,13 @@ td.title .text {
 }
 
 .pill {
-  padding: 2px 8px;
+  padding: 5px 14px;
   border-radius: 999px;
   background: #eef2ff;
   border: 1px solid #e5e7eb;
   font-size: 12px;
 }
+
 
 .pill.warn {
   background: #fff7ed;
