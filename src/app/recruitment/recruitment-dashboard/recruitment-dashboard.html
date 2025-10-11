@@ -4,8 +4,9 @@
   <div class="stats" *ngIf="!selectedInterview()">
     <div class="stat flex" data-kind="vacancies">
       <strong class="flex">{{ stats()['vacancies'] || 0 }} <div>Vacancies</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('vacancies')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('vacancies')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
 
@@ -13,63 +14,72 @@
     <div class="stat flex" data-kind="applicationsReceived">
       <strong class="flex">{{ stats()['applicationsReceived'] || 0 }} <div>Applications Received</div></strong>
       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applicationsReceived')" tooltipPosition="top" tooltipEvent="hover">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applicationsReceived')"
+          tooltipPosition="top" tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="applied">
       <strong class="flex">{{ stats()['applied'] || 0 }} <div>Applied</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applied')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applied')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="shortlisted">
       <strong class="flex">{{ stats()['shortlisted'] || 0 }} <div>Shortlisted</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('shortlisted')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('shortlisted')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="interviewing">
       <strong class="flex">{{ stats()['interviewing'] || 0 }} <div>Interviewing</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('interviewing')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('interviewing')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="offered">
       <strong class="flex">{{ stats()['offered'] || 0 }} <div>Offered</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offered')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offered')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="accepted">
       <strong class="flex">{{ stats()['accepted'] || 0 }} <div>Accepted</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('accepted')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('accepted')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="offerDeclined">
       <strong class="flex">{{ stats()['offerDeclined'] || 0 }} <div>Declined</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offerDeclined')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offerDeclined')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="hired">
       <strong class="flex">{{ stats()['hired'] || 0 }} <div>Hired</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('hired')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('hired')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
     <div class="stat flex" data-kind="rejected">
       <strong class="flex">{{ stats()['rejected'] || 0 }} <div>Rejected</div></strong>
-       <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('rejected')" tooltipPosition="top" tooltipEvent="hover">
+      <div class="info">
+        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('rejected')" tooltipPosition="top"
+          tooltipEvent="hover">
         </i>
       </div>
     </div>
@@ -127,7 +137,7 @@
         </table>
       </div> -->
     <div class="col" *ngIf="!selectedInterview()">
-      <div class="card" tabindex="0">
+      <div class="card">
         <h3>Jobs</h3>
         <div class="table-wrap">
           <table class=" jobs">
@@ -139,20 +149,24 @@
             </colgroup>
             <thead>
               <tr>
+                <th>No</th>
                 <th>Title</th>
-                <th>Status</th>
                 <th>Dept</th>
                 <th>Headcount</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr *ngFor="let j of jobs" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id">
+            <tbody >
+              <tr *ngFor="let j of jobs; let i = index" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id ">
+                <td class="">{{i+ 1}}</td>
                 <td class="title"><span class="text">{{ j.title }}</span></td>
-                <td class="left"><span class="pill" [class.warn]="j.status!=='OPEN'">{{ j.status }}</span>
-                </td>
                 <td class="left">{{ j.departmentName }}</td>
                 <td class="left">{{ j.headcount }}</td>
+                <td class="left"> <span class="pill" [ngStyle]="{backgroundColor: getJobStatusColors(j.status).badgeColor,color: getJobStatusColors(j.status).dotColor}">
+                    {{ j.status }}
+                  </span>
+                </td>
                 <td class="left">
                   <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
                     (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '10rem' }"

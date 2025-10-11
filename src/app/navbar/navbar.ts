@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { NavigationEnd, RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
 import { AnnouncementForm } from "../announcements/announcement-form/announcement-form";
@@ -28,7 +28,7 @@ export class Navbar {
   showAnnouncement = false;
   photoUrl: string = '';
   private eventSource: EventSource | null = null;
-  notifications:any[] = [];
+  notifications: any[] = [];
   showNotifications = false;
   hasNewNotification = false;
   audio = new Audio('/notification.mp3');
@@ -67,19 +67,40 @@ export class Navbar {
     console.log('isReportingManager:', this.isReportingManager);
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
-   // ✅ Connect to Notification Stream
-   this.notificationsService.connectStream();
+    // ✅ Connect to Notification Stream
+    this.notificationsService.connectStream();
 
-   // Subscribe to live updates
-   this.notificationsService.notifications$.subscribe((data) => {
-     this.notifications = data;
-   });
- 
-   // Fetch existing notifications
-   this.notificationsService.getAll(this.employeeId).subscribe((existing) => {
-    this.notifications = existing.reverse();
-   });
+    // Subscribe to live updates
+    this.notificationsService.notifications$.subscribe((data) => {
+      this.notifications = data;
+    });
+
+    // Fetch existing notifications
+    this.notificationsService.getAll(this.employeeId).subscribe((existing) => {
+      this.notifications = existing.reverse();
+    });
+
+    this.activeMenu = localStorage.getItem('activeMenu') || null;
+    this.setActiveMenu(this.router.url);
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.setActiveMenu(event.urlAfterRedirects);
+      }
+    });
   }
+
+  setActiveMenu(url: string): void {
+    if (url.startsWith('/admin')) {
+      this.activeMenu = 'admin';
+    } else if (url.startsWith('/recruitment')) {
+      this.activeMenu = 'recruit';
+    } else {
+      this.activeMenu = null;
+    }
+    localStorage.setItem('activeMenu', this.activeMenu || '');
+  }
+
 
   toggleNotificationDropdown(): void {
     this.showNotifications = !this.showNotifications;
@@ -132,10 +153,10 @@ export class Navbar {
 
   onRecruitClick() {
     // Expand submenu
-    if( this.isReportingManager){
+    if (this.isReportingManager) {
       this.router.navigate(['/recruitment/my-interview']);
     }
-    else{
+    else {
       this.router.navigate(['/recruitment/jobs']);
     }
 
@@ -182,7 +203,7 @@ export class Navbar {
     this.activeMenu = null;
   }
 
- openAnnouncement() {
+  openAnnouncement() {
     this.isOpen = false;
     if (this.resignationForm) {
       this.resignationForm.open();
@@ -203,24 +224,24 @@ export class Navbar {
   markAsRead(id: number, index: number): void {
     // Mark it as read visually first
     this.notifications[index].isRead = true;
-  
+
     // Optionally call your API
     this.notificationsService.markAsRead(id).subscribe(() => {
       console.log('Marked as read:', id);
     });
   }
-    // 👇 This detects clicks outside the dropdown and closes it
-    @HostListener('document:click', ['$event'])
-    onClickOutside(event: MouseEvent) {
-      if (
-        this.showNotifications &&
-        this.notificationWrapper &&
-        !this.notificationWrapper.nativeElement.contains(event.target)
-      ) {
-        this.showNotifications = false;
-      }
+  // 👇 This detects clicks outside the dropdown and closes it
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    if (
+      this.showNotifications &&
+      this.notificationWrapper &&
+      !this.notificationWrapper.nativeElement.contains(event.target)
+    ) {
+      this.showNotifications = false;
     }
-  
+  }
+
 }
 
 

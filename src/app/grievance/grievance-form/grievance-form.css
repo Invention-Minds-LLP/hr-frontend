@@ -35,3 +35,7 @@
     flex-direction: column;
     gap: 20px;
   }
+  ::ng-deep .p-select-label,
+  ::ng-deep .p-select-dropdown{
+    color: white !important;
+  }

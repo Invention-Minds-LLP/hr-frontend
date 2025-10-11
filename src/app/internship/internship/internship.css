@@ -1,6 +1,6 @@
 .wrap {
   margin: 16px auto;
-  padding: 30px 50px;
+  padding: 0px 60px;
   font-family: "Sofia Sans";
 
 }
@@ -16,6 +16,9 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   margin-bottom: 12px;
+  position: relative;
+  top: -50px;
+  height: 0;
 }
 
 .input {
@@ -219,7 +222,7 @@ table.list td {
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: #e8ecef;
+  background: #e8ecef !important;
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -279,7 +282,7 @@ table.list td {
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31;
+  background: #302F31 !important;
   padding: 0px 15px !important;
   font-size: 16px;
   font-weight: 500;
