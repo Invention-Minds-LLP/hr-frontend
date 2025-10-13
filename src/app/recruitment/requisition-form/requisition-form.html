@@ -1,5 +1,5 @@
 <p-card header="Manpower Requisition Form">
-    <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" class="p-fluid1">
   
       <!-- Job Information -->
       <p-panel header="Job Information" toggleable="true">
@@ -307,7 +307,7 @@
             </p-floatLabel>
       
             <!-- Approve/Reject buttons -->
-            <div class="p-mt-3 flex gap-3" *ngIf="currentStep === 'HR'">
+            <div class="p-mt-3 flex gap-3 btn" *ngIf="currentStep === 'HR'">
               <button pButton type="button" label="Approve" icon="pi pi-check"
                       (click)="submitApproval('HR')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
@@ -392,7 +392,7 @@
 
 <!-- Footer section -->
 <ng-template pTemplate="footer">
-<div class="flex justify-content-end gap-2">
+<div class="flex justify-content-end gap-10">
 <button pButton label="Cancel" icon="pi pi-times" severity="secondary"
      (click)="rejectDialogVisible=false"></button>
 <button pButton label="Submit Rejection" icon="pi pi-check" severity="danger"

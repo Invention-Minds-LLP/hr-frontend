@@ -25,6 +25,11 @@ export class RequisitionList {
     this.loadRequisitions();
   }
 
+  createNewRequisition() {
+    this.selectedRequisition = {}; // or null-based blank object
+  }
+  
+
   loadRequisitions() {
     this.requisitionService.getRequisitions().subscribe({
       next: (data) => {

@@ -1,13 +1,16 @@
-.requisition-container{
-    padding: 50px;
+.requisition-container {
+  padding: 50px;
+  
 }
 
-::ng-deep .p-inputtext, .p-textarea, .p-select ,.p-datepicker{
-    width: 100%;
+::ng-deep .p-inputtext,
+.p-textarea,
+.p-select,
+.p-datepicker {
+  width: 100%;
 }
 
-
-  .field-checkbox,
+.field-checkbox,
 .field-radiobutton {
   display: flex;
   align-items: center;
@@ -19,14 +22,14 @@
   font-size: 0.9rem;
 }
 
-.p-float-label{
+.p-float-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 /* When input has value or focus, PrimeNG adds .p-float-label-active */
 ::ng-deep .p-float-label.p-float-label-over label {
-  top: -0.40rem;
+  top: -0.4rem;
   font-size: 0.75rem;
   background-color: white;
   color: var(--text-color-secondary);
@@ -34,12 +37,65 @@
 
 /* Grey-out and disable pointer events */
 .disabled-section {
-  opacity: 0.6;         
-  pointer-events: none;  
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed !important;
 }
 
 /* Optional: style for disabled signature canvases */
 .disabled-canvas {
   opacity: 0.5;
   pointer-events: none;
+  cursor: not-allowed !important;
 }
+
+
+::ng-deep .p-card-body{
+  padding: 20px 60px;
+}
+::ng-deep .p-panel ,
+::ng-deep .p-panel-header{
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  color: #fff !important;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+
+::ng-deep .p-card-title,
+::ng-deep .p-inputtext,
+::ng-deep .p-inputtext::placeholder{
+  color: white !important;
+}
+
+
+label {
+  color: white !important;
+}
+.p-fluid1{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+::ng-deep .p-inputtext:disabled,
+::ng-deep .p-select,
+::ng-deep .p-textarea{
+  background: transparent !important;
+}
+
+::ng-deep .p-select-label,
+::ng-deep .p-icon
+.p-textarea{
+  color: white;
+}
+
+.btn{
+  display: flex;
+  flex-direction: column;
+}
+

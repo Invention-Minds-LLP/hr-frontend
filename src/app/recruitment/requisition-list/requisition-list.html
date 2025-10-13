@@ -1,8 +1,16 @@
 <div *ngIf="!selectedRequisition" class="card">
-  <div class="header">
+  <div class="header flex justify-content-between align-items-center">
     <h2>Man Power Requisition List</h2>
-    <!-- <button pButton label="Refresh" (click)="load()"></button> -->
+    <button 
+      pButton 
+      type="button" 
+      icon="pi pi-plus" 
+      label="New Requisition"
+      class="p-button-success"
+      (click)="createNewRequisition()">
+    </button>
   </div>
+  
     <div class="table-wrap">
       <p-table [value]="requisitions" [loading]="loading"  [rows]="10" [scrollable]="true" scrollDirection="both">
         <ng-template pTemplate="header">

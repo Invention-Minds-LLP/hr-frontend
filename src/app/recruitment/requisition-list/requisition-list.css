@@ -1,24 +1,62 @@
 
 .card {
-  background: white !important;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
-  padding: 30px ;
-  height: 720px;
+  padding: 40px 60px;
 }
 
-::ng-deep .card .p-datatable-thead > tr > th{
-    padding: 20px;
-    text-align: center;
-
-
+h2{
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+::ng-deep .p-datatable {
+  border: none !important;
+  background: transparent !important;
 }
 
-::ng-deep .card .p-datatable .p-datatable-tbody>tr>td {
-    text-align: center;
-    background-color: white !important;
+/* Header Row */
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #DCDCDC !important;
+  color: rgb(45, 36, 36) !important;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 20px;
+  border-bottom: 2px solid #d9d9d9 !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  /* border-radius: 12px; */
+}
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 10px;
 }
 
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Body Rows */
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background: #302F31 !important;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+  border-bottom: 2px solid #d9d9d9 !important;
+  text-wrap: nowrap;
+}
 .table-wrap {
   border: 1px solid var(--border, #e5e7eb);
   border-radius: 12px;

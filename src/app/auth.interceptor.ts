@@ -24,18 +24,12 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
     return next(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 403) {
-          console.warn('403 error encountered. Redirecting to login page...');
-          localStorage.removeItem('authToken');
-          sessionStorage.removeItem('authToken');
+        if (error.status === 403 || error.status === 401) {
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
           router.navigate(['/login']);
         }
-        if( error.status === 401) {
-          console.warn('401 error encountered. Redirecting to login page...');
-          localStorage.removeItem('authToken');
-          sessionStorage.removeItem('authToken');
-          router.navigate(['/login']);
-        }
+        
         return throwError(() => error);
       })
     );
