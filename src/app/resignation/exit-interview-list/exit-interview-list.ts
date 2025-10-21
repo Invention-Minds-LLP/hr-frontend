@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Resignation } from '../../services/resignation/resignation';
 import { ExitInterview } from '../exit-interview/exit-interview';
 import { CommonModule } from '@angular/common';
@@ -22,6 +22,10 @@ import { BadgeModule } from 'primeng/badge';
   styleUrl: './exit-interview-list.css'
 })
 export class ExitInterviewList {
+
+   @Input() interviews: any[] = [];
+  @Input() employeeId!: number; 
+
   exitInterviews: any[] = [];
   loading = false;
   selectedInterview: any = null;

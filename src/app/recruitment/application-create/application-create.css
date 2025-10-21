@@ -1,6 +1,6 @@
 .card {
 background: linear-gradient(135deg, #d483b1, #90549f);
- color: black;
+ color: white;
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
   border-radius: 12px;
   padding: 30px;
@@ -19,7 +19,7 @@ label {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
-  color: black;
+  color: white;
 }
 input,
 select {
@@ -27,7 +27,12 @@ select {
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #C4C4C4;
-  color: black;
+  color: white;
+}
+
+select {
+  background-color: transparent;
+  color: black; 
 }
 
 /* input:focus-within,
@@ -37,7 +42,7 @@ select:focus-within{
 
 .card input::placeholder,
 .card textarea::placeholder{
-  color: black;
+  color: white;
 }
 
 /* .card:focus-within input::placeholder,

@@ -1,5 +1,12 @@
 .requisition-container {
-  padding: 50px;
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
+  --p-checkbox-checked-border-color: #003366;
+  --p-floatlabel-focus-color:white !important;
+  --p-floatlabel-on-active-background:#302F31 !important;
   
 }
 
@@ -47,7 +54,7 @@
   opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed !important;
-}
+} 
 
 
 ::ng-deep .p-card-body{
@@ -84,18 +91,33 @@ label {
 
 ::ng-deep .p-inputtext:disabled,
 ::ng-deep .p-select,
-::ng-deep .p-textarea{
+::ng-deep .p-textarea,
+::ng-deep .p-editor .p-editor-content .ql-editor{
   background: transparent !important;
 }
 
 ::ng-deep .p-select-label,
-::ng-deep .p-icon
-.p-textarea{
-  color: white;
+::ng-deep .p-icon,
+.p-textarea,
+::ng-deep .p-editor .p-editor-content .ql-editor{
+  color: white !important;
 }
+
 
 .btn{
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 20px;
 }
+
+
+::ng-deep .p-floatlabel-on.p-float-label-active label {
+  transform: translateY(-0.75rem) scale(0.85);
+  color: var(--primary-color) !important;
+}
+
+
+
+
+
 

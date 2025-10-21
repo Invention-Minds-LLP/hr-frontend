@@ -7,10 +7,11 @@ import { ButtonModule } from 'primeng/button';
 import { Recuriting, CandidateAssignedTest} from '../../services/recruiting/recuriting';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-my-tests',
-  imports: [DatePipe, CommonModule, TableModule, ButtonModule],
+  imports: [DatePipe, CommonModule, TableModule, ButtonModule, TooltipModule],
   templateUrl: './my-tests.html',
   styleUrl: './my-tests.css'
 

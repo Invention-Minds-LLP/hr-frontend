@@ -193,6 +193,8 @@ export class AnnouncementForm {
           audienceMode: 'ALL',
           attachments: []
         });
+
+        this.submitted= false
       },
       error: () => {
         this.msg.add({ severity: 'error', summary: 'Error', detail: 'Failed to create circular' });

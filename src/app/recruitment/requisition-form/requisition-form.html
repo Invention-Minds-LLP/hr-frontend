@@ -1,4 +1,4 @@
-<p-card header="Manpower Requisition Form">
+<p-card header="Manpower Requisition Form" class="requisition-container">
     <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" class="p-fluid1">
   
       <!-- Job Information -->
@@ -239,7 +239,7 @@
             
       
             <!-- Approve/Reject buttons -->
-            <div class="p-mt-3 flex gap-3" *ngIf="currentStep === 'HOD'">
+            <div class="btn" *ngIf="currentStep === 'HOD'">
               <button pButton type="button" label="Approve" icon="pi pi-check"
                       (click)="submitApproval('HOD')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
@@ -265,15 +265,15 @@
               <label for="approvedBySMODate">Date</label>
             </p-floatLabel>
       
-            <p-floatLabel variant="on">
-              <textarea pInputTextarea id="approvedBySMOComments" rows="2" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value}"
-                        formControlName="approvedBySMOComments"
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value?.trim()}"
+                        formControlName="approvedBySMOComments">
+              <textarea pInputTextarea id="approvedBySMOComments" rows="2" 
                         [readonly]="currentStep !== 'SMO'"></textarea>
               <label for="approvedBySMOComments">Comments</label>
             </p-floatLabel>
       
             <!-- Approve/Reject buttons -->
-            <div class="p-mt-3" *ngIf="currentStep === 'SMO'">
+            <div class="p-mt-3 btn" *ngIf="currentStep === 'SMO'">
               <button pButton type="button" label="Approve" icon="pi pi-check"
                       (click)="submitApproval('SMO')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"

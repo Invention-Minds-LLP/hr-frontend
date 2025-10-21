@@ -3,6 +3,11 @@
   background: transparent;
 }
 
+h2{
+  display: flex;
+  gap: 20px;
+}
+
 /* Header Row */
 ::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th {
   background: transparent;
