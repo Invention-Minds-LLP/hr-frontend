@@ -55,9 +55,9 @@
 
   button {
   display: flex;
-  width: 160px;
+  /* width: 160px; */
   height: 44px;
-  padding: 0 16px;
+  padding: 0 26px;
   justify-content: center;
   align-items: center;
   gap: 8px;

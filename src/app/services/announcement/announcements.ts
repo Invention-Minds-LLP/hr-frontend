@@ -50,4 +50,7 @@ export class Announcements {
     return this.http.get<any[]>(`${this.api}/live-employee`);
   }
 
+  listAllLiveForEmployee(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/live/all`);
+  }
 }

@@ -47,12 +47,6 @@
         </div>
       </p-panel>
 
-      <p-panel header="Job Profile Requirement" toggleable="true">
-        <div class="p-field">
-          <label for="skills">Requirement for the Job Profile</label>
-          <p-editor id="skills" formControlName="skills" [style]="{height:'200px'}"></p-editor>
-        </div>
-      </p-panel>
       
 
       <p-panel header="Reason Breakdown" toggleable="true">
@@ -65,8 +59,8 @@
                     <th>Count</th>
                     <th>Min Exp</th>
                     <th>Max Exp</th>
-                    <th>Details</th>
-                    <th></th>
+                    <th>Roles & Responsibilities</th>
+                    <th>Action</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-row let-i="rowIndex">
@@ -97,6 +91,12 @@
        
       </p-panel>
   
+      <p-panel header="Job Profile Requirement" toggleable="true">
+        <div class="p-field">
+          <label for="skills">Requirement for the Job Profile</label>
+          <p-editor id="skills" formControlName="skills" [style]="{height:'200px'}"></p-editor>
+        </div>
+      </p-panel>
   
       <!-- Education -->
       <p-panel header="Education" toggleable="true">

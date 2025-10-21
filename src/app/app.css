@@ -5,3 +5,51 @@
     background-color: #302F31;
     flex-direction: column;
   }
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    /* background-color: #2d2d2d; match your dark theme */
+    color: #e5e3e3;
+    font-size: 14px;
+    height: 28px;
+    border-bottom: 1px solid #444;
+    overflow: hidden;
+    padding: 0 60px;
+  }
+  
+  .label {
+    flex: 0 0 auto;
+    font-weight: 600;
+    margin-right: 10px;
+    white-space: nowrap;
+    color: #ffb347; /* highlight color */
+
+  }
+  
+  .scroll-wrapper {
+    flex: 1 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+  
+  .scroll-content {
+    display: inline-block;
+    animation: scroll-left 25s linear infinite;
+  }
+  
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .item {
+    display: inline;
+    margin-right: 30px;
+  }
+  
+  

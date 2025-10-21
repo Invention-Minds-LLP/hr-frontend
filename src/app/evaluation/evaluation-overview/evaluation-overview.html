@@ -2,6 +2,11 @@
 <nav class="sub-nav">
     <!-- <h2>{{tableHeading}}</h2> -->
     <ul>
+                
+        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Training</li></button>
+         <div class="br"></div>
+        <!-- <button><li class="sub-item" [ngClass]="{ 'active': active === 'training' }" (click)="show('training')">Training Feedback</li></button> -->
+        <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Question Bank</li></button>
         <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'test' }" (click)="show('test')">Test Creation</li></button>
@@ -15,6 +20,8 @@
 
 
 <div>
+    <app-training-overview *ngIf="active === 'training'" ></app-training-overview>
+    <app-training-list *ngIf="active === 'list'" (editEmployee)="onEditEmployee($event)"></app-training-list>
     <app-question-bank *ngIf="active === 'form'"></app-question-bank>
     <app-all-test *ngIf="active === 'test'"></app-all-test>
     <app-assigned-test *ngIf="active === 'assigned'"></app-assigned-test>

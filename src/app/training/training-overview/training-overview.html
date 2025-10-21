@@ -1,0 +1,51 @@
+<p-card *ngIf="!submitted; else thankYouCard" header="Training Feedback">
+    <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()" class="p-fluid p-formgrid p-grid">
+  
+      <div class="p-field p-col-12">
+        <label>Overall Rating</label>
+        <p-rating formControlName="rating" ></p-rating>
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label>Trainer Rating</label>
+        <p-rating formControlName="trainerRating" ></p-rating>
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label>Content Quality</label>
+        <p-rating formControlName="contentQuality" ></p-rating>
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label>Relevance</label>
+        <p-rating formControlName="relevance" ></p-rating>
+      </div>
+  
+      <div class="p-field p-col-12">
+        <label>Feedback / Comments</label>
+        <textarea pInputTextarea rows="3" formControlName="feedback"></textarea>
+      </div>
+  
+      <div class="p-field p-col-12">
+        <label>Suggestions for Improvement</label>
+        <textarea pInputTextarea rows="3" formControlName="suggestions"></textarea>
+      </div>
+  
+      <div class="p-field p-col-12 p-text-center">
+        <button
+          pButton
+          label="Submit Feedback"
+          icon="pi pi-check"
+          type="submit"
+          [disabled]="submitting"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+  
+  <ng-template #thankYouCard>
+    <p-card class="p-text-center" header="✅ Thank You!">
+      <p>Your feedback has been submitted successfully.</p>
+    </p-card>
+  </ng-template>
+  

@@ -1,0 +1,27 @@
+:host ::ng-deep {
+    .p-card {
+      background: #1e1e1e;
+      color: #fff;
+    }
+  
+    label {
+      color: #ccc;
+      font-weight: 500;
+    }
+  
+    textarea {
+      background: #2c2c2c;
+      color: #fff;
+      border: 1px solid #444;
+    }
+  
+    .p-rating .p-rating-icon {
+      color: #facc15;
+    }
+    
+  }
+  
+  :host ::ng-deep .p-rating-cancel {
+    display: none;
+  }
+  

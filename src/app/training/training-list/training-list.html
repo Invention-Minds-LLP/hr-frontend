@@ -1,0 +1,128 @@
+<p-card class="p-m-3">
+    <h3 class="p-text-center">Assigned Trainings</h3>
+      <!-- ✅ HR Only: New Training button -->
+      <button
+      *ngIf="userRole === 'HR'"
+      pButton
+      icon="pi pi-plus"
+      label="{{ showForm ? 'Back to List' : 'New Training' }}"
+      class="p-button-sm p-button-success"
+      (click)="toggleForm()"
+    ></button>
+    <div *ngIf="showForm; else trainingTable">
+        <app-training-form (ngSubmit)="onTrainingCreated()"></app-training-form>
+      </div>
+      <ng-template #trainingTable>
+        <p-table
+          [value]="trainings"
+          [paginator]="true"
+          [rows]="10"
+          [loading]="loading"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-gridlines"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No</th>
+              <th>Employee</th>
+              <th>Training</th>
+              <th>Assigned At</th>
+              <th>Completed At</th>
+              <th>Status</th>
+              <th>Feedback</th>
+              <th>Action</th>
+            </tr>
+          </ng-template>
+    
+          <ng-template pTemplate="body" let-training let-i="rowIndex">
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>{{ training.employee?.firstName }} {{ training.employee?.lastName }}</td>
+              <td>{{ training.training?.title }}</td>
+              <td>{{ training.assignedAt | date: 'short' }}</td>
+              <td>
+                {{ training.completedAt ? (training.completedAt | date: 'short') : '-' }}
+              </td>
+              <td>
+                <span
+                  class="p-tag"
+                  [ngClass]="{
+                    'p-tag-success': training.status === 'Completed',
+                    'p-tag-warning': training.status === 'InProgress',
+                    'p-tag-secondary': training.status === 'NotStarted'
+                  }"
+                  >{{ training.status }}</span
+                >
+              </td>
+              <td>
+                {{ training.training?.feedbacks?.length || 0 }}
+              </td>
+              <td>
+                <button
+                  *ngIf="userRole === 'EMPLOYEE'"
+                  pButton
+                  label="Give Feedback"
+                  icon="pi pi-comment"
+                  class="p-button-sm p-button-text"
+                  (click)="openFeedbackDialog(training)"
+                ></button>
+    
+                <button
+                  *ngIf="userRole === 'HR'"
+                  pButton
+                  label="Review Feedback"
+                  icon="pi pi-eye"
+                  class="p-button-sm p-button-text"
+                  (click)="openFeedbackDialog(training)"
+                ></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </ng-template>
+  </p-card>
+  <!-- FEEDBACK DIALOG -->
+<p-dialog
+header="{{ userRole === 'EMPLOYEE' ? 'Submit Feedback' : 'Feedback Summary' }}"
+[(visible)]="feedbackDialogVisible"
+[modal]="true"
+[style]="{ width: '50vw' }"
+[draggable]="false"
+[resizable]="false"
+>
+<ng-container *ngIf="userRole === 'EMPLOYEE'; else hrFeedbackView">
+  <app-training-overview
+    [trainingId]="selectedTraining?.training?.id"
+    [employeeId]="selectedTraining?.employee?.id"
+    (ngSubmit)="onFeedbackSubmitted()"
+  ></app-training-overview>
+</ng-container>
+
+<ng-template #hrFeedbackView>
+  <p-card *ngIf="feedbackSummary">
+    <p>
+      <strong>Total Feedbacks:</strong> {{ feedbackSummary.totalFeedbacks }}<br />
+      <strong>Average Rating:</strong> {{ feedbackSummary.averageRating }} ⭐
+    </p>
+
+    <p-table [value]="feedbackSummary.feedbacks">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Employee</th>
+          <th>Rating</th>
+          <th>Trainer</th>
+          <th>Comments</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-f>
+        <tr>
+          <td>{{ f.employee.firstName }} {{ f.employee.lastName }}</td>
+          <td>{{ f.rating }}</td>
+          <td>{{ f.trainerRating }}</td>
+          <td>{{ f.feedback }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</ng-template>
+</p-dialog>

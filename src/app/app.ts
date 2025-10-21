@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { AnnouncementPopup } from "./announcements/announcement-popup/announcement-popup";
+import { Announcement, Announcements } from './services/announcement/announcements';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,7 @@ import { AnnouncementPopup } from "./announcements/announcement-popup/announceme
 })
 export class App {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,private svc: Announcements) { }
   protected title = 'hr-frontend';
 
   dark = false;

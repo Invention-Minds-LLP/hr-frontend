@@ -102,6 +102,19 @@
       </div>
 
     </div>
+    <div class="announcement-bar" *ngIf="announcements.length">
+      <span class="label">Announcements:</span>
+      <div class="scroll-wrapper">
+        <div class="scroll-content">
+          <ng-container *ngFor="let a of announcements; let i = index">
+            <span class="item">
+              <strong>{{ a.title }}:</strong> {{ a.body }}
+              <span *ngIf="i < announcements.length - 1">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            </span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
     <div>
       <hr>
     </div>
@@ -318,6 +331,7 @@
   <div>
     <hr>
   </div>
+
 
   <!-- Submenu
     <nav class="sub-nav">

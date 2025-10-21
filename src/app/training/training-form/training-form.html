@@ -1,0 +1,55 @@
+<p-card header="Create Training" class="p-m-3">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-12 p-md-6">
+        <label for="title">Title</label>
+        <input id="title" pInputText formControlName="title" />
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label for="trainerType">Trainer Type</label>
+        <p-select
+          formControlName="trainerType"
+          [options]="[
+            { label: 'Internal', value: 'INTERNAL' },
+            { label: 'External', value: 'EXTERNAL' }
+          ]"
+        ></p-select>
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6" *ngIf="form.value.trainerType === 'EXTERNAL'">
+        <label for="trainerName">Trainer Name</label>
+        <input id="trainerName" pInputText formControlName="trainerName" />
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6" *ngIf="form.value.trainerType === 'EXTERNAL'">
+        <label for="trainerOrg">Trainer Organization</label>
+        <input id="trainerOrg" pInputText formControlName="trainerOrg" />
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label for="startDate">Start Date</label>
+        <p-datepicker formControlName="startDate" [showTime]="true" hourFormat="24"></p-datepicker>
+      </div>
+  
+      <div class="p-field p-col-12 p-md-6">
+        <label for="endDate">End Date</label>
+        <p-datepicker formControlName="endDate" [showTime]="true" hourFormat="24"></p-datepicker>
+      </div>
+  
+      <div class="p-field p-col-12">
+        <label for="description">Description</label>
+        <textarea id="description" pInputTextarea formControlName="description"></textarea>
+      </div>
+  
+      <div class="p-field p-col-12 p-text-center">
+        <button
+          pButton
+          label="Create Training"
+          icon="pi pi-check"
+          type="submit"
+          [disabled]="submitting"
+        ></button>
+      </div>
+    </form>
+  </p-card>
+  

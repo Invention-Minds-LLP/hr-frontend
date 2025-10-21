@@ -7,6 +7,7 @@ import { AnnouncementForm } from "../announcements/announcement-form/announcemen
 import { ResignationForm } from "../resignation/resignation-form/resignation-form";
 // import { environment } from '../../../environment/environment';
 import { Notifications } from '../services/notifications/notifications';
+import { Announcements, } from '../services/announcement/announcements';
 
 
 
@@ -37,7 +38,7 @@ export class Navbar {
   @ViewChild('notificationWrapper') notificationWrapper!: ElementRef;
 
 
-  constructor(private router: Router, private notificationsService: Notifications) { }
+  constructor(private router: Router, private notificationsService: Notifications, private svc: Announcements) { }
 
   toggleDropdown(event: MouseEvent) {
     event.stopPropagation();
@@ -49,6 +50,7 @@ export class Navbar {
   username = '';
   apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
+  announcements: any[] = [];
 
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
@@ -87,6 +89,16 @@ export class Navbar {
       if (event instanceof NavigationEnd) {
         this.setActiveMenu(event.urlAfterRedirects);
       }
+    });
+    this.svc.listAllLiveForEmployee().subscribe({
+      next: (data) => {
+        this.announcements = data.map(a => ({
+          title: a.title,
+          body: a.body
+        }));
+        console.log(this.announcements);
+      },
+      error: (err) => console.error('Failed to load announcements', err)
     });
   }
 

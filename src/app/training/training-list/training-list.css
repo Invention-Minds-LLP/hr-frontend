@@ -1,0 +1,21 @@
+:host ::ng-deep {
+    .p-card {
+      background: #1e1e1e;
+      color: #fff;
+    }
+  
+    .p-datatable {
+      background: #2c2c2c;
+      color: #fff;
+    }
+  
+    .p-datatable-thead > tr > th {
+      background: #333;
+      color: #ddd;
+    }
+  
+    .p-tag {
+      font-weight: 500;
+    }
+  }
+  

@@ -52,6 +52,8 @@ import { HrEvaluate } from './evaluation/hr-evaluate/hr-evaluate';
 import { Complaints } from './complaints/complaints';
 import { MyInterview } from './recruitment/my-interview/my-interview';
 import { Clearances } from './resignation/clearances/clearances';
+import { TrainingForm } from './training/training-form/training-form';
+import { TrainingOverview } from './training/training-overview/training-overview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -80,6 +82,7 @@ export const routes: Routes = [
       { path: 'posh', component: PoshList, canActivate: [authGuard] },
       { path: 'complaints', component: Complaints, canActivate: [authGuard] },
       { path: 'clearance', component: Clearances, canActivate: [authGuard] },
+      { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
     ],
 
   },

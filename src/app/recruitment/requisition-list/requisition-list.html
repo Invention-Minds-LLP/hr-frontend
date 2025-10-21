@@ -18,8 +18,8 @@
             <th>No</th>
             <th>Title</th>
             <th>Department</th>
-            <th>Status</th>
             <th>Created</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </ng-template>
@@ -27,19 +27,28 @@
         <ng-template pTemplate="body" let-row let-i="rowIndex">
           <tr>
             <td>{{ i + 1 }}</td>
-            <td>{{ row.title || row.designation }}</td>
-            <td>{{ row.departmentId }}</td>
+            <td>{{ row.title || row.designation || '-' }}</td>
+            <td class="t-data al">
+              <span class="dept-badge"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(row.departmentId).badgeColor }">
+                <span class="dot"
+                  [ngStyle]="{ backgroundColor: getDepartmentColors(row.departmentId).dotColor }">
+                </span>
+                {{ getDepartmentName(row.departmentId) }}
+              </span>
+            </td>
+            <td>{{ row.createdAt | date:'short' }}</td>
             <td>
               <p-tag [value]="row.status"
                      [severity]="row.status === 'REJECTED' ? 'danger' :
                                  row.status.includes('APPROVED') ? 'success' :
                                  'warning'"></p-tag>
             </td>
-            <td>{{ row.createdAt | date:'short' }}</td>
             <td>
               <button pButton type="button" icon="pi pi-eye" label="Open"
                       (click)="onSelect(row)"></button>
             </td>
+            
           </tr>
         </ng-template>
       </p-table>

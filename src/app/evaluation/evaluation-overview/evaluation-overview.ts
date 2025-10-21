@@ -5,10 +5,13 @@ import { TestCreation } from "../test-creation/test-creation";
 import { TestAssignment } from "../test-assignment/test-assignment";
 import { AllTest } from "../all-test/all-test";
 import { AssignedTest } from "../assigned-test/assigned-test";
+import { TrainingForm } from '../../training/training-form/training-form';
+import { TrainingList } from '../../training/training-list/training-list';
+import { TrainingOverview } from "../../training/training-overview/training-overview";
 
 @Component({
   selector: 'app-evaluation-overview',
-  imports: [CommonModule, QuestionBank, AllTest, AssignedTest],
+  imports: [CommonModule, QuestionBank, AllTest, AssignedTest, TrainingForm, TrainingList, TrainingOverview],
   templateUrl: './evaluation-overview.html',
   styleUrl: './evaluation-overview.css'
 })
