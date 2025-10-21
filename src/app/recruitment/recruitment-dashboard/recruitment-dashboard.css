@@ -160,7 +160,7 @@
   border-radius: 12px;
   padding: 30px;
   height: 725px;
-  color: black;
+  color: white;
 }
 
 .columns {
@@ -217,7 +217,7 @@ table.jobs thead th {
   font-weight: 700;
   height: 60px;
   color: black;
-  background: transparent;
+   background: #E8ECEF;
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
@@ -330,4 +330,28 @@ td.title .text {
 
 .col{
   padding: 0;
+}
+
+:ng-deep .p-select{
+  width: 100px;
+}
+
+/* Department Badge */
+.dept-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #b9f6ca;
+  /* default (Design) */
+  color: #004d40;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
 }

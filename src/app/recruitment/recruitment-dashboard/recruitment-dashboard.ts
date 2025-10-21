@@ -223,4 +223,13 @@ getTooltipMessage(key: string): string {
   return tooltips[key] || "";
 }
 
+
+getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 95) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
+  }
+
 }

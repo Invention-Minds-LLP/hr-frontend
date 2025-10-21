@@ -157,19 +157,26 @@
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody >
+            <tbody>
               <tr *ngFor="let j of jobs; let i = index" (click)="openJob(j)" [class.active]="selectedJob?.id===j.id ">
-                <td class="">{{i+ 1}}</td>
-                <td class="title"><span class="text">{{ j.title }}</span></td>
-                <td class="left">{{ j.departmentName }}</td>
+                <td class="title">{{i+ 1}}</td>
+                <td class="title"><span class="text" pTooltip="{{ j.title }}" tooltipPosition="top">{{ j.title }}</span>
+                </td>
+                <td class="left"> <span class="dept-badge"
+                    [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).badgeColor }">
+                    <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).dotColor }">
+                    </span>
+                    {{ j.departmentName }}
+                  </span></td>
                 <td class="left">{{ j.headcount }}</td>
-                <td class="left"> <span class="pill" [ngStyle]="{backgroundColor: getJobStatusColors(j.status).badgeColor,color: getJobStatusColors(j.status).dotColor}">
+                <td class="left"> <span class="pill"
+                    [ngStyle]="{backgroundColor: getJobStatusColors(j.status).badgeColor,color: getJobStatusColors(j.status).dotColor}">
                     {{ j.status }}
                   </span>
                 </td>
                 <td class="left">
                   <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
-                    (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '10rem' }"
+                    (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '7rem' }"
                     [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
                     optionLabel="label" optionValue="value" [placeholder]="j.status">
                     <ng-template pTemplate="selectedItem">

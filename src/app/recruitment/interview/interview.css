@@ -3,7 +3,7 @@
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
   padding: 16px;
-  color: black;
+  color: white;
 }
 
 .filters {
