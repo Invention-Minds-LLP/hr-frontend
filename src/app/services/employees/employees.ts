@@ -127,6 +127,10 @@ export class Employees {
       formData
     );
   }
-  
+    // 🔹 Get employees by multiple departments
+    getByDepartments(departmentIds: number[]): Observable<any[]> {
+      const ids = departmentIds.join(',');
+      return this.http.get<any[]>(`${this.apiUrl}/by-departments?ids=${ids}`);
+    }
   
 }

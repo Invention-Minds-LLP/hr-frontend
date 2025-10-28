@@ -4,18 +4,176 @@
       color: #fff;
     }
   
-    .p-datatable {
-      background: #2c2c2c;
-      color: #fff;
-    }
-  
-    .p-datatable-thead > tr > th {
-      background: #333;
-      color: #ddd;
-    }
-  
     .p-tag {
       font-weight: 500;
     }
+  }
+  ::ng-deep .p-datatable {
+    border: none;
+    background: transparent;
+  }
+  
+  /* Header Row */
+  ::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background: #E8ECEF !important;
+    color: black !important;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 20px;
+    border: none !important;
+    border-bottom: none;
+    height: 60px;
+    text-align: left;
+    text-wrap: nowrap;
+    /* border-radius: 12px; */
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  
+  ::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-bottom-right-radius: 10px;
+  }
+  
+  /* Body Rows */
+  ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+    background: #302F31 !important;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    text-align: left;
+    border: none !important;
+    border-bottom: 2px solid #d9d9d9 !important;
+    text-wrap: nowrap;
+  }
+  
+  /* Employee Name Column with Image */
+  .empname {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+  
+  .empname img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .name {
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+  }
+  
+  .email {
+    font-size: 12px;
+    color: #a1a1a1;
+  }
+  
+  /* Department Badge */
+  .dept-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #b9f6ca;
+    /* default (Design) */
+    color: #004d40;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  /* Button */
+  .btn {
+    border-radius: 8px;
+    border: 2px solid #c4c4c4;
+    background: transparent;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFFFFF;
+    cursor: pointer;
+  }
+  
+  /* Paginator */
+  ::ng-deep .p-paginator {
+    background: transparent;
+    justify-content: center;
+    padding: 16px 0;
+    gap: 8px;
+  }
+  
+  ::ng-deep .p-paginator-pages {
+    display: flex;
+    gap: 8px;
+  }
+  
+  ::ng-deep .p-paginator .p-paginator-page {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+  }
+  
+  ::ng-deep .p-paginator-page.p-paginator-page-selected {
+    background: #f00 !important;
+    color: #fff !important;
+    border: none;
+  }
+
+  .dropdown-container-in-table {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dropdown-in-table {
+    width: 100%;
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  
+  .dropdown-in-table option {
+    background-color: #2b2b2b;
+    color: #fff;
+  }
+  .count-link {
+    color: #42a5f5;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .count-link:hover {
+    color: #64b5f6;
   }
   

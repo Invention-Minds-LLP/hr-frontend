@@ -1,55 +1,238 @@
-<p-card header="Create Training" class="p-m-3">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-fluid p-formgrid p-grid">
-      <div class="p-field p-col-12 p-md-6">
+<p-card header="Create Training" class="m-3">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-fluid grid formgrid">
+
+    <!-- Title -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <input pInputText id="title" formControlName="title" class="w-full" />
         <label for="title">Title</label>
-        <input id="title" pInputText formControlName="title" />
-      </div>
-  
-      <div class="p-field p-col-12 p-md-6">
-        <label for="trainerType">Trainer Type</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Mode -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
         <p-select
-          formControlName="trainerType"
           [options]="[
-            { label: 'Internal', value: 'INTERNAL' },
-            { label: 'External', value: 'EXTERNAL' }
+            { label: 'Online', value: 'ONLINE' },
+            { label: 'Offline', value: 'OFFLINE' },
+            { label: 'Hybrid', value: 'HYBRID' }
           ]"
+          formControlName="mode"
+          class="w-full"
         ></p-select>
-      </div>
-  
-      <div class="p-field p-col-12 p-md-6" *ngIf="form.value.trainerType === 'EXTERNAL'">
-        <label for="trainerName">Trainer Name</label>
-        <input id="trainerName" pInputText formControlName="trainerName" />
-      </div>
-  
-      <div class="p-field p-col-12 p-md-6" *ngIf="form.value.trainerType === 'EXTERNAL'">
-        <label for="trainerOrg">Trainer Organization</label>
-        <input id="trainerOrg" pInputText formControlName="trainerOrg" />
-      </div>
-  
-      <div class="p-field p-col-12 p-md-6">
+        <label>Mode</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Location -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <input pInputText id="location" formControlName="location" class="w-full" />
+        <label for="location">Location</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Dates -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <p-datePicker
+          inputId="startDate"
+          formControlName="startDate"
+          showIcon
+          iconDisplay="input"
+          [showTime]="true"
+          hourFormat="24"
+          dateFormat="yy-mm-dd"
+          class="w-full"
+        ></p-datePicker>
         <label for="startDate">Start Date</label>
-        <p-datepicker formControlName="startDate" [showTime]="true" hourFormat="24"></p-datepicker>
-      </div>
-  
-      <div class="p-field p-col-12 p-md-6">
+      </p-floatLabel>
+    </div>
+
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <p-datePicker
+          inputId="endDate"
+          formControlName="endDate"
+          showIcon
+          iconDisplay="input"
+          [showTime]="true"
+          hourFormat="24"
+          dateFormat="yy-mm-dd"
+          class="w-full"
+        ></p-datePicker>
         <label for="endDate">End Date</label>
-        <p-datepicker formControlName="endDate" [showTime]="true" hourFormat="24"></p-datepicker>
-      </div>
-  
-      <div class="p-field p-col-12">
+      </p-floatLabel>
+    </div>
+
+
+    <!-- Description -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <textarea
+          pInputTextarea
+          id="description"
+          formControlName="description"
+          rows="3"
+          class="w-full"
+        ></textarea>
         <label for="description">Description</label>
-        <textarea id="description" pInputTextarea formControlName="description"></textarea>
-      </div>
-  
-      <div class="p-field p-col-12 p-text-center">
-        <button
-          pButton
-          label="Create Training"
-          icon="pi pi-check"
-          type="submit"
-          [disabled]="submitting"
-        ></button>
-      </div>
-    </form>
-  </p-card>
-  
+      </p-floatLabel>
+    </div>
+
+    <!-- Objectives -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <textarea
+          pInputTextarea
+          id="objectives"
+          formControlName="objectives"
+          rows="3"
+          class="w-full"
+        ></textarea>
+        <label for="objectives">Objectives</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- SELECT TESTS -->
+<div class="field col-12 mt-3">
+  <p-floatLabel variant="on">
+    <p-multiSelect
+      [options]="testOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select Tests"
+      appendTo="body"
+      class="w-full"
+      [loading]="loading"
+      (onChange)="onTestSelectionChange($event.value)"
+    ></p-multiSelect>
+    <label for="tests">Select Evaluation Tests</label>
+  </p-floatLabel>
+</div>
+
+<!-- TESTS TABLE -->
+<div *ngIf="tests.controls.length > 0" class="col-12 mt-2">
+  <table class="trainer-table w-full">
+    <thead>
+      <tr>
+        <th>Test Name</th>
+        <th>Mandatory</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let test of testGroups; let i = index" [formGroup]="test">
+        <td>{{ test.value.testLabel }}</td>
+        <td>
+          <p-toggleswitch formControlName="isMandatory"></p-toggleswitch>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+ <!-- TRAINERS SECTION -->
+<div class="col-12 mt-4">
+  <h3 class="mb-3">Trainers</h3>
+
+  <!-- Add Trainer Buttons -->
+  <div class="flex gap-3 mb-4">
+    <p-button
+      label="Add Internal Trainer"
+      icon="pi pi-user"
+      styleClass="p-button-info"
+      (onClick)="addTrainer('INTERNAL')"
+    ></p-button>
+
+    <p-button
+      label="Add External Trainer"
+      icon="pi pi-user-plus"
+      styleClass="p-button-secondary"
+      (onClick)="addTrainer('EXTERNAL')"
+    ></p-button>
+  </div>
+
+  <!-- Trainers Table -->
+  <div class="trainer-table-wrapper">
+    <table class="trainer-table w-full">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Internal Trainer</th>
+          <th>External Name</th>
+          <th>Organization</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let group of trainerGroups; let i = index" [formGroup]="group">
+          <!-- Type -->
+          <td class="trainer-type">{{ group.value.trainerType }}</td>
+
+          <!-- Internal Trainer Dropdown -->
+          <td *ngIf="group.value.trainerType === 'INTERNAL'">
+            <p-select
+              [options]="employees"
+              formControlName="trainerId"
+              optionLabel="label"
+              placeholder="Select Trainer"
+              class="w-full"
+              optionValue="value"
+            ></p-select>
+          </td>
+
+          <!-- Empty cell when external -->
+          <td *ngIf="group.value.trainerType === 'EXTERNAL'"></td>
+
+          <!-- External Trainer Name -->
+          <td *ngIf="group.value.trainerType === 'EXTERNAL'">
+            <input
+              pInputText
+              placeholder="Trainer Name"
+              formControlName="trainerName"
+              class="w-full"
+            />
+          </td>
+          <td *ngIf="group.value.trainerType === 'EXTERNAL'">
+            <input
+              pInputText
+              placeholder="Organization"
+              formControlName="trainerOrg"
+              class="w-full"
+            />
+          </td>
+
+          <!-- Empty cells for internal -->
+          <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
+          <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
+
+          <!-- Delete button -->
+          <td class="text-center">
+            <button
+              type="button"
+              pButton
+              icon="pi pi-trash"
+              class="p-button-text p-button-danger"
+              (click)="removeTrainer(i)"
+            ></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Submit Button -->
+<div class="col-12 flex justify-content-center mt-4">
+  <p-button
+    [label]="editing ? 'Update Training' : 'Create Training'"
+    [icon]="editing ? 'pi pi-save' : 'pi pi-check'"
+    type="submit"
+    [disabled]="submitting"
+    styleClass="p-button-success"
+  ></p-button>
+</div>
+

@@ -1,128 +1,286 @@
-<p-card class="p-m-3">
-    <h3 class="p-text-center">Assigned Trainings</h3>
-      <!-- ✅ HR Only: New Training button -->
-      <button
-      *ngIf="userRole === 'HR'"
-      pButton
-      icon="pi pi-plus"
-      label="{{ showForm ? 'Back to List' : 'New Training' }}"
-      class="p-button-sm p-button-success"
-      (click)="toggleForm()"
-    ></button>
-    <div *ngIf="showForm; else trainingTable">
-        <app-training-form (ngSubmit)="onTrainingCreated()"></app-training-form>
-      </div>
-      <ng-template #trainingTable>
-        <p-table
-          [value]="trainings"
-          [paginator]="true"
-          [rows]="10"
-          [loading]="loading"
-          responsiveLayout="scroll"
-          styleClass="p-datatable-gridlines"
-        >
-          <ng-template pTemplate="header">
-            <tr>
-              <th>No</th>
-              <th>Employee</th>
-              <th>Training</th>
-              <th>Assigned At</th>
-              <th>Completed At</th>
-              <th>Status</th>
-              <th>Feedback</th>
-              <th>Action</th>
-            </tr>
-          </ng-template>
-    
-          <ng-template pTemplate="body" let-training let-i="rowIndex">
-            <tr>
-              <td>{{ i + 1 }}</td>
-              <td>{{ training.employee?.firstName }} {{ training.employee?.lastName }}</td>
-              <td>{{ training.training?.title }}</td>
-              <td>{{ training.assignedAt | date: 'short' }}</td>
-              <td>
-                {{ training.completedAt ? (training.completedAt | date: 'short') : '-' }}
-              </td>
-              <td>
-                <span
-                  class="p-tag"
-                  [ngClass]="{
-                    'p-tag-success': training.status === 'Completed',
-                    'p-tag-warning': training.status === 'InProgress',
-                    'p-tag-secondary': training.status === 'NotStarted'
-                  }"
-                  >{{ training.status }}</span
-                >
-              </td>
-              <td>
-                {{ training.training?.feedbacks?.length || 0 }}
-              </td>
-              <td>
-                <button
-                  *ngIf="userRole === 'EMPLOYEE'"
-                  pButton
-                  label="Give Feedback"
-                  icon="pi pi-comment"
-                  class="p-button-sm p-button-text"
-                  (click)="openFeedbackDialog(training)"
-                ></button>
-    
-                <button
-                  *ngIf="userRole === 'HR'"
-                  pButton
-                  label="Review Feedback"
-                  icon="pi pi-eye"
-                  class="p-button-sm p-button-text"
-                  (click)="openFeedbackDialog(training)"
-                ></button>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </ng-template>
-  </p-card>
-  <!-- FEEDBACK DIALOG -->
-<p-dialog
-header="{{ userRole === 'EMPLOYEE' ? 'Submit Feedback' : 'Feedback Summary' }}"
-[(visible)]="feedbackDialogVisible"
-[modal]="true"
-[style]="{ width: '50vw' }"
-[draggable]="false"
-[resizable]="false"
->
-<ng-container *ngIf="userRole === 'EMPLOYEE'; else hrFeedbackView">
-  <app-training-overview
-    [trainingId]="selectedTraining?.training?.id"
-    [employeeId]="selectedTraining?.employee?.id"
-    (ngSubmit)="onFeedbackSubmitted()"
-  ></app-training-overview>
-</ng-container>
+<p-card header="Training Management">
+  <!-- HR: Create Training -->
+  <div *ngIf="userRole === 'HR'" class="p-mb-3">
+    <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
+      class="p-button-sm p-button-success" (click)="toggleForm()"></button>
+  </div>
 
-<ng-template #hrFeedbackView>
-  <p-card *ngIf="feedbackSummary">
-    <p>
-      <strong>Total Feedbacks:</strong> {{ feedbackSummary.totalFeedbacks }}<br />
-      <strong>Average Rating:</strong> {{ feedbackSummary.averageRating }} ⭐
-    </p>
+  <!-- FORM -->
+  <div *ngIf="showForm; else trainingTable">
+    <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef></app-training-form>
+  </div>
 
-    <p-table [value]="feedbackSummary.feedbacks">
+  <!-- TABLE -->
+  <ng-template #trainingTable>
+    <p-table [value]="trainings" [loading]="loading" [paginator]="true" [rows]="10" styleClass="p-datatable-gridlines">
       <ng-template pTemplate="header">
         <tr>
-          <th>Employee</th>
-          <th>Rating</th>
+          <th>No</th>
+          <th>Title</th>
           <th>Trainer</th>
-          <th>Comments</th>
+          <th *ngIf="userRole === 'HR'">Tests</th>
+          <th *ngIf="userRole === 'HR'">Assigned Employees</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Status</th>
+          <th>Actions</th>
+
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-f>
+
+      <ng-template pTemplate="body" let-t let-i="rowIndex">
         <tr>
-          <td>{{ f.employee.firstName }} {{ f.employee.lastName }}</td>
-          <td>{{ f.rating }}</td>
-          <td>{{ f.trainerRating }}</td>
-          <td>{{ f.feedback }}</td>
+          <td>{{ i + 1 }}</td>
+          <td>{{ userRole === 'EMPLOYEE' ? t.training?.title : t.title }}</td>
+
+          <!-- TRAINER COLUMN (unchanged) -->
+          <td>
+            <ng-container *ngIf="t.trainers?.length; else noTrainer">
+              <div class="dropdown-container-in-table">
+                <select class="dropdown-in-table">
+                  <option disabled selected>
+                    {{ t.trainers.length }} Trainer{{ t.trainers.length > 1 ? 's' : '' }}
+                  </option>
+                  <option *ngFor="let tr of t.trainers" [value]="tr.trainerId || tr.trainerName">
+                    <ng-container [ngSwitch]="tr.trainerType">
+
+                      <!-- INTERNAL TRAINER -->
+                      <span *ngSwitchCase="'INTERNAL'">
+                        {{ getInternalTrainerName(tr.trainerId) }} (Internal)
+                      </span>
+
+                      <!-- EXTERNAL TRAINER -->
+                      <span *ngSwitchCase="'EXTERNAL'">
+                        {{ tr.trainerName }}
+                        <span *ngIf="tr.trainerOrg"> - {{ tr.trainerOrg }}</span> (External)
+                      </span>
+
+                    </ng-container>
+                  </option>
+                </select>
+              </div>
+            </ng-container>
+
+            <ng-template #noTrainer>
+              <span class="text-muted">No Trainers</span>
+            </ng-template>
+          </td>
+
+
+          <!-- ✅ TESTS COLUMN -->
+          <td *ngIf="userRole === 'HR'"> 
+            <ng-container *ngIf="t.trainingTests?.length; else noTests">
+              <span class="count-link" (click)="openTestsDialog(t)">
+                {{ t.trainingTests.length }} test{{ t.trainingTests.length > 1 ? 's' : '' }}
+              </span>
+            </ng-container>
+            <ng-template #noTests>
+              <span class="text-muted">0</span>
+            </ng-template>
+          </td>
+
+          <!-- ✅ ASSIGNED EMPLOYEES COLUMN -->
+          <td *ngIf="userRole === 'HR'">
+            <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees">
+              <span class="count-link" (click)="openEmployeesDialog(t)">
+                {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length > 1 ? 's' : '' }}
+              </span>
+            </ng-container>
+            <ng-template #noEmployees>
+              <span class="text-muted">0</span>
+            </ng-template>
+          </td>
+
+
+          <!-- REST OF YOUR COLUMNS -->
+          <td>{{ (userRole === 'EMPLOYEE' ? t.training?.startDate : t.startDate) | date: 'short' }}</td>
+          <td>{{ (userRole === 'EMPLOYEE' ? t.training?.endDate : t.endDate) | date: 'short' }}</td>
+          <td>{{ t.status }}</td>
+
+
+          <td>
+            <!-- HR ACTIONS -->
+            <ng-container *ngIf="userRole === 'HR'">
+              <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" label="Edit"
+                (click)="editTraining(t); showForm = true"></button>
+
+              <button pButton icon="pi pi-users" class="p-button-text p-button-sm" label="Assign Employees"
+                (click)="openAssignEmployees(t)"></button>
+
+              <!-- <button
+                pButton
+                icon="pi pi-book"
+                class="p-button-text p-button-sm"
+                label="Assign Tests"
+                (click)="openAssignTests(t)"
+              ></button> -->
+
+              <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" label="Review Feedback"
+                (click)="openFeedbackDialog(t)"></button>
+            </ng-container>
+
+            <!-- EMPLOYEE ACTION -->
+            <ng-container *ngIf="userRole === 'EMPLOYEE'">
+              <button pButton label="Give Feedback" icon="pi pi-comment" class="p-button-sm p-button-info"
+                (click)="openFeedback(t)"></button>
+            </ng-container>
+          </td>
         </tr>
       </ng-template>
     </p-table>
-  </p-card>
-</ng-template>
+  </ng-template>
+</p-card>
+
+<!-- ===================== -->
+<!-- ASSIGN EMPLOYEES DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Assign Employees" [(visible)]="showAssignEmpDialog" [modal]="true" [style]="{ width: '40vw' }">
+  <form [formGroup]="form" class="p-fluid grid formgrid">
+
+    <!-- Departments (Multi-Select) -->
+    <div class="field col-12">
+      <p-floatLabel variant="on">
+        <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value"
+          placeholder="Select Departments" class="w-full"></p-multiSelect>
+
+        <label>Select Departments</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Employees -->
+    <div class="field col-12">
+      <p-floatLabel variant="on">
+        <p-multiSelect [options]="employeeOptions" formControlName="employeeIds" placeholder="Select Employees"
+          [loading]="loading" optionLabel="label" class="w-full" appendTo="body" optionValue="value"></p-multiSelect>
+        <label>Select Employees</label>
+      </p-floatLabel>
+    </div>
+
+    <div class="col-12 flex justify-content-center mt-4">
+      <p-button label="Assign" icon="pi pi-check" (onClick)="onAssign()" [disabled]="!form.value.employeeIds.length" />
+    </div>
+  </form>
+</p-dialog>
+
+
+<!-- ===================== -->
+<!-- ASSIGN TESTS DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Assign Tests" [(visible)]="showAssignTestDialog" [modal]="true" [style]="{ width: '40vw' }">
+  <p-multiSelect [(ngModel)]="selectedTests" [options]="testOptions" optionLabel="label" placeholder="Select Tests"
+    appendTo="body" class="mb-3"></p-multiSelect>
+  <div class="p-d-flex p-jc-end">
+    <button pButton label="Assign" icon="pi pi-check" (click)="assignTests()"></button>
+  </div>
+</p-dialog>
+
+<!-- ===================== -->
+<!-- FEEDBACK DIALOG -->
+<!-- ===================== -->
+<p-dialog header="{{ userRole === 'EMPLOYEE' ? 'Submit Feedback' : 'Training Feedback Summary' }}"
+  [(visible)]="showFeedbackDialog" [modal]="true" [style]="{ width: '60vw' }">
+  <!-- EMPLOYEE -->
+  <ng-container *ngIf="userRole === 'EMPLOYEE'; else hrFeedbackView">
+    <app-training-overview [trainingId]="selectedTraining?.training?.id" [employeeId]="selectedTraining?.employeeId"
+      (ngSubmit)="fetchTrainings(); showFeedbackDialog = false"></app-training-overview>
+  </ng-container>
+
+  <!-- HR -->
+  <ng-template #hrFeedbackView>
+    <ng-container *ngIf="feedbackSummary; else noFeedback">
+      <p>
+        <strong>Total Feedbacks:</strong> {{ feedbackSummary.totalFeedbacks }}<br />
+        <strong>Average Rating:</strong> {{ feedbackSummary.averageRating }} ⭐
+      </p>
+
+      <p-table [value]="feedbackSummary.feedbacks" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Employee</th>
+            <th>Rating</th>
+            <th>Trainer</th>
+            <th>Content</th>
+            <th>Relevance</th>
+            <th>Comments</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-f>
+          <tr>
+            <td>{{ f.employee.firstName }} {{ f.employee.lastName }}</td>
+            <td>{{ f.rating }}</td>
+            <td>{{ f.trainerRating }}</td>
+            <td>{{ f.contentQuality }}</td>
+            <td>{{ f.relevance }}</td>
+            <td>{{ f.feedback }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-container>
+    <ng-template #noFeedback>
+      <p>No feedback received yet for this training.</p>
+    </ng-template>
+  </ng-template>
+</p-dialog>
+
+
+<!-- ===================== -->
+<!-- TESTS LIST DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Assigned Tests" [(visible)]="showTestsDialog" [modal]="true" [style]="{ width: '40vw' }">
+  <ng-container *ngIf="selectedTraining?.trainingTests?.length; else noTests">
+    <p-table [value]="selectedTraining.trainingTests" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Test Name</th>
+          <th>Mandatory</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-test let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ test.test?.title || test.test?.name || 'Untitled Test' }}</td>
+          <td>{{ test.isMandatory ? 'Yes' : 'No' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <ng-template #noTests>
+    <p>No tests assigned to this training.</p>
+  </ng-template>
+</p-dialog>
+
+
+<!-- ===================== -->
+<!-- EMPLOYEES LIST DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Assigned Employees" [(visible)]="showEmployeesDialog" [modal]="true" [style]="{ width: '40vw' }">
+  <ng-container *ngIf="selectedTraining?.assignedEmployees?.length; else noEmployees">
+    <p-table [value]="selectedTraining.assignedEmployees" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-emp let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ emp.employee?.firstName }} {{ emp.employee?.lastName }}</td>
+          <td>{{ emp.employee?.Department?.name || '-' }}</td>
+          <td>{{ emp.status }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <ng-template #noEmployees>
+    <p>No employees assigned yet.</p>
+  </ng-template>
 </p-dialog>

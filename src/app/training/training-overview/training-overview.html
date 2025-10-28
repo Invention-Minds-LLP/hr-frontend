@@ -1,51 +1,78 @@
-<p-card *ngIf="!submitted; else thankYouCard" header="Training Feedback">
-    <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()" class="p-fluid p-formgrid p-grid">
+<p-card *ngIf="!submitted; else thankYouCard" header="Training Feedback" class="m-3">
+  <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()" class="p-fluid grid formgrid">
+
+    <!-- ⭐ RATINGS SECTION -->
+    <div class="field col-6">
+
+        <label for="rating">Overall Rating</label>
+        <p-rating formControlName="rating" class="w-full"></p-rating>
   
-      <div class="p-field p-col-12">
-        <label>Overall Rating</label>
-        <p-rating formControlName="rating" ></p-rating>
-      </div>
+    </div>
+
+    <div class="field col-6">
+
+        <label for="trainerRating">Trainer Rating</label>
+        <p-rating formControlName="trainerRating" class="w-full"></p-rating>
   
-      <div class="p-field p-col-12 p-md-6">
-        <label>Trainer Rating</label>
-        <p-rating formControlName="trainerRating" ></p-rating>
-      </div>
+    </div>
+
+    <div class="field col-6">
+
+        <label for="contentQuality">Content Quality</label>
+        <p-rating formControlName="contentQuality" class="w-full"></p-rating>
   
-      <div class="p-field p-col-12 p-md-6">
-        <label>Content Quality</label>
-        <p-rating formControlName="contentQuality" ></p-rating>
-      </div>
+    </div>
+
+    <div class="field col-6">
+
+        <label for="relevance">Relevance</label>
+        <p-rating formControlName="relevance" class="w-full"></p-rating>
   
-      <div class="p-field p-col-12 p-md-6">
-        <label>Relevance</label>
-        <p-rating formControlName="relevance" ></p-rating>
-      </div>
-  
-      <div class="p-field p-col-12">
-        <label>Feedback / Comments</label>
-        <textarea pInputTextarea rows="3" formControlName="feedback"></textarea>
-      </div>
-  
-      <div class="p-field p-col-12">
-        <label>Suggestions for Improvement</label>
-        <textarea pInputTextarea rows="3" formControlName="suggestions"></textarea>
-      </div>
-  
-      <div class="p-field p-col-12 p-text-center">
-        <button
-          pButton
-          label="Submit Feedback"
-          icon="pi pi-check"
-          type="submit"
-          [disabled]="submitting"
-        ></button>
-      </div>
-    </form>
+    </div>
+
+    <!-- ⭐ FEEDBACK TEXT AREA -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <textarea
+          pInputTextarea
+          id="feedback"
+          formControlName="feedback"
+          rows="3"
+          class="w-full"
+        ></textarea>
+        <label for="feedback">Feedback / Comments</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- ⭐ SUGGESTIONS TEXT AREA -->
+    <div class="field col-6">
+      <p-floatLabel variant="on">
+        <textarea
+          pInputTextarea
+          id="suggestions"
+          formControlName="suggestions"
+          rows="3"
+          class="w-full"
+        ></textarea>
+        <label for="suggestions">Suggestions for Improvement</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- ⭐ SUBMIT BUTTON -->
+    <div class="col-12 flex justify-content-center mt-4">
+      <p-button
+        label="Submit Feedback"
+        icon="pi pi-check"
+        type="submit"
+        [disabled]="submitting"
+        styleClass="p-button-success"
+      ></p-button>
+    </div>
+  </form>
+</p-card>
+
+<ng-template #thankYouCard>
+  <p-card class="p-text-center" header="✅ Thank You!">
+    <p>Your feedback has been submitted successfully.</p>
   </p-card>
-  
-  <ng-template #thankYouCard>
-    <p-card class="p-text-center" header="✅ Thank You!">
-      <p>Your feedback has been submitted successfully.</p>
-    </p-card>
-  </ng-template>
-  
+</ng-template>

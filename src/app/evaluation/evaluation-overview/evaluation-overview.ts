@@ -16,7 +16,7 @@ import { TrainingOverview } from "../../training/training-overview/training-over
   styleUrl: './evaluation-overview.css'
 })
 export class EvaluationOverview {
-  active: string = 'form';
+  active: string = 'list';
   selectedEmployee: any = null;
   tableHeading: string = 'Question Bank List'
 

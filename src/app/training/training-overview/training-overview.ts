@@ -9,6 +9,8 @@ import { DividerModule } from 'primeng/divider';
 import { RatingModule } from 'primeng/rating';
 import { TextareaModule } from 'primeng/textarea';
 import { Trainings } from '../../services/trainings/trainings';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 
 @Component({
@@ -18,6 +20,8 @@ import { Trainings } from '../../services/trainings/trainings';
     DividerModule,
     RatingModule,
     TextareaModule,
+    ButtonModule,
+    FloatLabelModule
   ],
   templateUrl: './training-overview.html',
   styleUrl: './training-overview.css'
@@ -52,6 +56,7 @@ export class TrainingOverview {
       ...this.feedbackForm.value,
     };
 
+    console.log('🚀 Submitting feedback payload:', payload);
     this.submitting = true;
     this.trainingService.submitFeedback(payload).subscribe({
       next: () => {
