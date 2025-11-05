@@ -137,10 +137,10 @@
                 <ng-template #editMode>
                   <input type="number" [(ngModel)]="r.manualScore"
                          min="0" [max]="r.weight || 100"
-                         style="width:70px" placeholder="Score" />
+                         style="width:70px ; padding: 3px; border-radius: 3px;" placeholder="Score" />
                             <span>/ {{ r.weight }}</span> 
                   <input type="text" [(ngModel)]="r.remarks"
-                         style="width:150px" placeholder="Remarks" />
+                         style="width:150px; padding: 3px; border-radius: 3px;" placeholder="Remarks" />
                   <button pButton type="button" label="Save" (click)="r.isEditing = false"></button>
                 </ng-template>
               </ng-container>

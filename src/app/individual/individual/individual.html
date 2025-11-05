@@ -48,53 +48,51 @@
             <div class="employee-card">
                 <!-- Profile Header -->
                 <div class="profile-header">
-                  <img
-                    [src]="employee?.photoUrl || getDefaultImage()"
-                    (error)="onImageError($event)"
-                    alt="Profile"
-                    class="profile-pic"
-                  />
-              
-                  <div class="employee-info mt-3">
-                    <div class="employee-name">{{ employee?.firstName }} {{ employee?.lastName }}</div>
-                    <div class="employee-role ">{{ employee?.designation }}</div>
-                    <div class="employee-code ">Code: {{ employee?.employeeCode }}</div>
-                  </div>
+                    <img [src]="employee?.photoUrl || getDefaultImage()" (error)="onImageError($event)" alt="Profile"
+                        class="profile-pic" />
+
+                    <div class="employee-info mt-3">
+                        <div class="employee-name">{{ employee?.firstName }} {{ employee?.lastName }}</div>
+                        <div class="employee-role ">{{ employee?.designation }}</div>
+                        <div class="employee-code ">Code: {{ employee?.employeeCode }}</div>
+                    </div>
                 </div>
-              
+
                 <!-- Contact Section -->
                 <div class="employee-contact mt-3">
-                  <div class="contact-item">
-                    <i class="pi pi-phone"></i> {{ employee?.phone }}
-                  </div>
-                  <div class="contact-item">
-                    <i class="pi pi-envelope"></i> {{ employee?.email }}
-                  </div>
+                    <div class="contact-item">
+                        <i class="pi pi-phone"></i> {{ employee?.phone }}
+                    </div>
+                    <div class="contact-item">
+                        <i class="pi pi-envelope"></i> {{ employee?.email }}
+                    </div>
                 </div>
-              
+
                 <!-- Department / Branch / Joining -->
                 <div class="employee-meta mt-3 w-100">
-                  <div class="flex2"><strong>Department -</strong> <span class="div">{{ employee?.departmentName || '-' }}</span></div>
-                  <div class="flex2"><strong>Date of Joining -</strong> <span class="div">{{ employee?.dateOfJoining | date:'dd MMM yyyy' }}</span></div>
+                    <div class="flex2"><strong>Department -</strong> <span class="div">{{ employee?.departmentName ||
+                            '-' }}</span></div>
+                    <div class="flex2"><strong>Date of Joining -</strong> <span class="div">{{ employee?.dateOfJoining |
+                            date:'dd MMM yyyy' }}</span></div>
                 </div>
-              
+
                 <!-- Health Info -->
                 <div class="employee-meta mt-3 w-100">
-                  <div class="flex2"><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
-                  <div class="flex2"><strong>Age:</strong> {{ employee?.age || '-' }}</div>
+                    <div class="flex2"><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
+                    <div class="flex2"><strong>Age:</strong> {{ employee?.age || '-' }}</div>
                 </div>
-              
+
                 <!-- Emergency Contact -->
                 <div class="employee-meta mt-3" *ngIf="employee?.emergencyContacts?.length">
-                  <div><strong>Emergency Contact:</strong></div>
-                  <div>
-                    {{ employee?.emergencyContacts[0]?.name }} ({{ employee?.emergencyContacts[0]?.relationship }})
-                    - {{ employee?.emergencyContacts[0]?.phone }}
-                  </div>
+                    <div><strong>Emergency Contact:</strong></div>
+                    <div>
+                        {{ employee?.emergencyContacts[0]?.name }} ({{ employee?.emergencyContacts[0]?.relationship }})
+                        - {{ employee?.emergencyContacts[0]?.phone }}
+                    </div>
                 </div>
-              </div>
-              
-              
+            </div>
+
+
 
             <!-- Working-Card -->
 
@@ -120,7 +118,7 @@
                     <div class="attendance-list">
                         <div *ngFor="let day of attendanceData" class="attendance-row">
                             <div class="day">{{ day.dayName }}</div>
-                            
+
                             <ng-container [ngSwitch]="day.status">
                                 <div class="time" *ngSwitchCase="'Present'">
                                     {{ day.totalHours }}
@@ -228,7 +226,7 @@
 
             <div class="box box-4">
                 <div class="box-title">Pending Leaves</div>
-              
+
                 <ul class="lb-list">
                     <li class="lb-item" *ngFor="let it of leaveByTypeToday">
                         <span class="lb-name">{{ it.label }}</span>
@@ -251,8 +249,8 @@
                 <div class="header-part">
                     <div class="main-heading">Leaves
                         <i class="pi pi-info-circle info-icon"
-                        pTooltip="Apply leave for personal or medical reasons. Select dates, type of leave, and submit for approval."
-                        tooltipPosition="top"></i>
+                            pTooltip="Apply leave for personal or medical reasons. Select dates, type of leave, and submit for approval."
+                            tooltipPosition="top"></i>
                     </div>
                     <div class="new-form" (click)="openLeaveForm()">
                         <div class="text">New Form</div>
@@ -307,10 +305,10 @@
                     </p-table>
                 </div>
             </div>
-            
-            
+
+
         </div>
-        
+
         <div class="border"></div>
         <!--permission  -->
         <div class="permission-table">
@@ -318,9 +316,9 @@
                 <div class="header-part">
                     <div class="main-heading">Permission
                         <i class="pi pi-info-circle info-icon"
-                        pTooltip="Request short-term permissions (like arriving late or leaving early). Not for full-day leave."
-                        tooltipPosition="top">
-                     </i>
+                            pTooltip="Request short-term permissions (like arriving late or leaving early). Not for full-day leave."
+                            tooltipPosition="top">
+                        </i>
                     </div>
                     <div class="new-form" (click)="openPermissionForm()">
                         <div class="text">New Form</div>
@@ -329,7 +327,7 @@
                 </div>
 
                 <div class="table">
-                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical" >
+                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
                         <ng-template #header>
                             <tr>
                                 <th>No</th>
@@ -432,6 +430,16 @@
         <app-my-tests></app-my-tests>
     </div>
 
+    <div class="test-list">
+        <h1>Training Management
+            <i class="pi pi-info-circle info-icon"
+                pTooltip="Create, assign, and track employee trainings to enhance skills and performance.."
+                tooltipPosition="top"></i>
+        </h1>
+        <app-training-list [viewMode]="'individual'"></app-training-list>
+    </div>
+
+
     <div class="bottom">
         <div class="grievance">
             <app-grievance-list></app-grievance-list>
@@ -442,16 +450,26 @@
         </div>
     </div>
 
-    <div class="my-test">
-        <app-training-list></app-training-list>
-    </div>
 
-    
+    <!-- <div class="">
+        <div class="survey">
+            <h1>Survey</h1>
+            <app-survey-list></app-survey-list>
+        </div>
+
+        <div class="exit">
+            <h1>Exit Interview</h1>
+            <app-exit-interview-list></app-exit-interview-list>
+        </div>
+    </div> -->
+
+
 </div>
 
 <app-leave-popup *ngIf="showLeaveDetailsPopup" [showPopup]="true" [leaveData]="selectedLeaveForView"
-    [isViewOnly]="leaveViewMode" [hasBackdrop]="true" (close)="closePopup()">
+    [isViewOnly]="leaveViewMode" [hasBackdrop]="true"  [overlapMessage]="overlapMessage" (close)="closePopup()">
 </app-leave-popup>
+
 
 <app-permission-popup *ngIf="showPermissionPopup" [showPopup]="true" [permissionData]="selectedPermission"
     [isViewOnly]="permissionViewMode" (close)="closePopup()">

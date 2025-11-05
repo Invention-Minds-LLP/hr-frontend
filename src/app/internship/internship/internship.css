@@ -363,6 +363,9 @@ table.list td {
   margin-right: 6px;
 }
 
+.p-datepicker:has(.p-datepicker-dropdown) .p-datepicker-input{
+  color: white;
+}
 
 
 

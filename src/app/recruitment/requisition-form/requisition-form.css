@@ -5,9 +5,9 @@
   --p-checkbox-hover-border-color: #003366;
   --p-checkbox-checked-focus-border-color: #003366;
   --p-checkbox-checked-border-color: #003366;
-  --p-floatlabel-focus-color:white !important;
-  --p-floatlabel-on-active-background:#302F31 !important;
-  
+  --p-floatlabel-focus-color: white !important;
+  --p-floatlabel-on-active-background: #302F31 !important;
+
 }
 
 ::ng-deep .p-inputtext,
@@ -24,6 +24,7 @@
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .p-float-label label i {
   margin-right: 6px;
   font-size: 0.9rem;
@@ -34,6 +35,7 @@
   align-items: center;
   gap: 0.5rem;
 }
+
 /* When input has value or focus, PrimeNG adds .p-float-label-active */
 ::ng-deep .p-float-label.p-float-label-over label {
   top: -0.4rem;
@@ -54,19 +56,18 @@
   opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed !important;
-} 
+}
 
 
-::ng-deep .p-card-body{
+::ng-deep .p-card-body {
   padding: 20px 60px;
 }
-::ng-deep .p-panel ,
-::ng-deep .p-panel-header{
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0) 100%
-  ) !important;
+
+::ng-deep .p-panel,
+::ng-deep .p-panel-header {
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 100%) !important;
   color: #fff !important;
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -74,7 +75,7 @@
 
 ::ng-deep .p-card-title,
 ::ng-deep .p-inputtext,
-::ng-deep .p-inputtext::placeholder{
+::ng-deep .p-inputtext::placeholder {
   color: white !important;
 }
 
@@ -82,7 +83,8 @@
 label {
   color: white !important;
 }
-.p-fluid1{
+
+.p-fluid1 {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -92,32 +94,32 @@ label {
 ::ng-deep .p-inputtext:disabled,
 ::ng-deep .p-select,
 ::ng-deep .p-textarea,
-::ng-deep .p-editor .p-editor-content .ql-editor{
+::ng-deep .p-editor .p-editor-content .ql-editor {
   background: transparent !important;
 }
 
 ::ng-deep .p-select-label,
 ::ng-deep .p-icon,
 .p-textarea,
-::ng-deep .p-editor .p-editor-content .ql-editor{
+::ng-deep .p-editor .p-editor-content .ql-editor {
   color: white !important;
 }
 
 
-.btn{
+.btn {
   display: flex;
   flex-direction: row;
   gap: 20px;
 }
 
 
-::ng-deep .p-floatlabel-on.p-float-label-active label {
+/* ::ng-deep .p-floatlabel-on.p-float-label-active label {
   transform: translateY(-0.75rem) scale(0.85);
   color: var(--primary-color) !important;
+} */
+.p-floatlabel.float-active label {
+  top: -0.25rem;
+  font-size: 0.75rem;
+  background-color: #302F31;
+  color: var(--text-color-secondary);
 }
-
-
-
-
-
-

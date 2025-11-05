@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges  } from '@angular/core';
-import { FormBuilder, FormGroup, Validators,FormArray  } from '@angular/forms';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Trainings } from '../../services/trainings/trainings';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
@@ -33,7 +33,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     DividerModule,
     FloatLabelModule,
     TextareaModule,
-    ToggleSwitchModule 
+    ToggleSwitchModule
   ],
   templateUrl: './training-form.html',
   styleUrl: './training-form.css'
@@ -53,19 +53,27 @@ export class TrainingForm {
     private trainingService: Trainings,
     private employeeService: Employees,
     private testService: Tests // ✅ inject test service
-  ) {}
+  ) { }
+
+  minLengthArray(min: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const array = control as FormArray;
+      return array && array.length >= min ? null : { minLengthArray: true };
+    };
+  }
 
   ngOnInit() {
     this.form = this.fb.group({
       title: ['', Validators.required],
-      description: [''],
-      objectives: [''],
+      description: ['', Validators.required],
+      objectives: ['', Validators.required],
       mode: ['ONLINE', Validators.required],
-      location: [''],
+      location: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      trainers: this.fb.array([]),
-      tests: this.fb.array([]), // array of objects { testId, isMandatory }
+
+      trainers: this.fb.array([], [this.minLengthArray(1)]),
+      tests: this.fb.array([], [this.minLengthArray(1)]), // array of objects { testId, isMandatory }
     });
 
     this.fetchEmployees();
@@ -73,10 +81,10 @@ export class TrainingForm {
   }
   populateForm(training: any) {
     if (!training) return;
-  
+
     this.editing = true;
     this.trainingId = training.id;
-  
+
     // Patch simple fields
     this.form.patchValue({
       title: training.title,
@@ -87,10 +95,10 @@ export class TrainingForm {
       startDate: training.startDate ? new Date(training.startDate) : null,
       endDate: training.endDate ? new Date(training.endDate) : null,
     });
-  
+
     // Clear and re-add trainers
     this.trainers.clear();
-  
+
     if (Array.isArray(training.trainers)) {
       training.trainers.forEach((tr: any) => {
         this.trainers.push(
@@ -103,7 +111,7 @@ export class TrainingForm {
         );
       });
     }
-  
+
     this.tests.clear();
 
     // Some APIs return trainingTests = [ { test: {id, title}, isMandatory } ]
@@ -120,7 +128,7 @@ export class TrainingForm {
       });
     }
   }
-  
+
   get trainers(): FormArray {
     return this.form.get('trainers') as FormArray;
   }
@@ -146,12 +154,12 @@ export class TrainingForm {
   get tests(): FormArray {
     return this.form.get('tests') as FormArray;
   }
-  
+
   get testGroups(): FormGroup[] {
     return this.tests.controls as FormGroup[];
   }
-  
-  
+
+
   addTest(testId: number, testLabel: string) {
     this.tests.push(
       this.fb.group({
@@ -161,27 +169,27 @@ export class TrainingForm {
       })
     );
   }
-  
+
   removeTestAt(index: number) {
     this.tests.removeAt(index);
   }
-  
+
   onTestSelectionChange(selectedTestIds: number[]) {
     const selectedTests = selectedTestIds.map(
       (id) => this.testOptions.find((t) => t.value === id)!
     );
-  
+
     // clear form array first
     while (this.tests.length) {
       this.tests.removeAt(0);
     }
-  
+
     // re-add all selected tests
     selectedTests.forEach((t) => {
       this.addTest(t.value, t.label);
     });
   }
-  
+
   fetchEmployees() {
     this.employeeService.getActiveEmployees().subscribe({
       next: (res: any[]) => {
@@ -212,10 +220,22 @@ export class TrainingForm {
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
-  
+
+    this.form.markAllAsTouched()
+
+    if (this.form.invalid) {
+      if (this.tests.length < 1) {
+        alert('Please select at least one evaluation test.');
+      } else if (this.trainers.length < 1) {
+        alert('Please add at least one trainer.');
+      } else {
+        alert('Please fill all required fields.');
+      }
+      return;
+    }
+
     this.submitting = true;
-  
+
     const payload = {
       ...this.form.value,
       trainers: this.trainers.value,
@@ -225,7 +245,7 @@ export class TrainingForm {
         orderNo: index + 1,
       })),
     };
-  
+
     // ✅ UPDATE EXISTING TRAINING
     if (this.editing && this.trainingId) {
       this.trainingService.updateTraining(this.trainingId, payload).subscribe({
@@ -240,8 +260,8 @@ export class TrainingForm {
           this.submitting = false;
         },
       });
-  
-    // ✅ CREATE NEW TRAINING
+
+      // ✅ CREATE NEW TRAINING
     } else {
       this.trainingService.createTraining(payload).subscribe({
         next: () => {
@@ -264,5 +284,5 @@ export class TrainingForm {
     this.editing = false;
     this.trainingId = null;
   }
-  
+
 }

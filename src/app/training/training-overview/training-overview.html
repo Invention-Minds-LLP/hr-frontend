@@ -32,7 +32,7 @@
 
     <!-- ⭐ FEEDBACK TEXT AREA -->
     <div class="field col-6">
-      <p-floatLabel variant="on">
+      <p-floatLabel variant="on" [ngClass]="{'float-active': feedbackForm.get('feedback')?.value}">
         <textarea
           pInputTextarea
           id="feedback"
@@ -46,7 +46,7 @@
 
     <!-- ⭐ SUGGESTIONS TEXT AREA -->
     <div class="field col-6">
-      <p-floatLabel variant="on">
+      <p-floatLabel variant="on" [ngClass]="{'float-active': feedbackForm.get('suggestions')?.value}">
         <textarea
           pInputTextarea
           id="suggestions"

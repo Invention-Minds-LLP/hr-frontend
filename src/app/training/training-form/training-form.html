@@ -1,4 +1,4 @@
-<p-card header="Create Training" class="m-3">
+<p-card header="Create Training" class="m-3 training-form">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-fluid grid formgrid">
 
     <!-- Title -->
@@ -7,22 +7,24 @@
         <input pInputText id="title" formControlName="title" class="w-full" />
         <label for="title">Title</label>
       </p-floatLabel>
+      <small *ngIf="form.get('title')?.touched && form.get('title')?.hasError('required')" class="p-error">
+        Title is required.
+      </small>
     </div>
 
     <!-- Mode -->
     <div class="field col-6">
       <p-floatLabel variant="on">
-        <p-select
-          [options]="[
+        <p-select [options]="[
             { label: 'Online', value: 'ONLINE' },
             { label: 'Offline', value: 'OFFLINE' },
             { label: 'Hybrid', value: 'HYBRID' }
-          ]"
-          formControlName="mode"
-          class="w-full"
-        ></p-select>
+          ]" formControlName="mode" class="w-full"></p-select>
         <label>Mode</label>
       </p-floatLabel>
+      <small *ngIf="form.get('mode')?.touched && form.get('mode')?.hasError('required')" class="p-error">
+        Mode is required.
+      </small>
     </div>
 
     <!-- Location -->
@@ -31,208 +33,165 @@
         <input pInputText id="location" formControlName="location" class="w-full" />
         <label for="location">Location</label>
       </p-floatLabel>
+      <small *ngIf="form.get('location')?.touched && form.get('location')?.hasError('required')" class="p-error">
+        Location is required.
+      </small>
     </div>
 
     <!-- Dates -->
     <div class="field col-6">
       <p-floatLabel variant="on">
-        <p-datePicker
-          inputId="startDate"
-          formControlName="startDate"
-          showIcon
-          iconDisplay="input"
-          [showTime]="true"
-          hourFormat="24"
-          dateFormat="yy-mm-dd"
-          class="w-full"
-        ></p-datePicker>
+        <p-datePicker inputId="startDate" formControlName="startDate" showIcon iconDisplay="input" [showTime]="true"
+          hourFormat="24" dateFormat="yy-mm-dd" class="w-full"></p-datePicker>
         <label for="startDate">Start Date</label>
       </p-floatLabel>
+      <small *ngIf="form.get('startDate')?.touched && form.get('startDate')?.hasError('required')" class="p-error">
+        Start Date is required.
+      </small>
     </div>
 
     <div class="field col-6">
       <p-floatLabel variant="on">
-        <p-datePicker
-          inputId="endDate"
-          formControlName="endDate"
-          showIcon
-          iconDisplay="input"
-          [showTime]="true"
-          hourFormat="24"
-          dateFormat="yy-mm-dd"
-          class="w-full"
-        ></p-datePicker>
+        <p-datePicker inputId="endDate" formControlName="endDate" showIcon iconDisplay="input" [showTime]="true"
+          hourFormat="24" dateFormat="yy-mm-dd" class="w-full"></p-datePicker>
         <label for="endDate">End Date</label>
       </p-floatLabel>
+      <small *ngIf="form.get('endDate')?.touched && form.get('endDate')?.hasError('required')" class="p-error">
+        End Date is required.
+      </small>
     </div>
 
 
     <!-- Description -->
     <div class="field col-6">
-      <p-floatLabel variant="on">
-        <textarea
-          pInputTextarea
-          id="description"
-          formControlName="description"
-          rows="3"
-          class="w-full"
-        ></textarea>
+      <p-floatLabel variant="on" [ngClass]="{'float-active': form.get('description')?.value}">
+        <textarea pInputTextarea id="description" formControlName="description" rows="3" class="w-full"></textarea>
         <label for="description">Description</label>
       </p-floatLabel>
+      <small *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')" class="p-error">
+        Description is required.
+      </small>
     </div>
 
     <!-- Objectives -->
     <div class="field col-6">
-      <p-floatLabel variant="on">
-        <textarea
-          pInputTextarea
-          id="objectives"
-          formControlName="objectives"
-          rows="3"
-          class="w-full"
-        ></textarea>
+      <p-floatLabel variant="on" [ngClass]="{'float-active': form.get('objectives')?.value}">
+        <textarea pInputTextarea id="objectives" formControlName="objectives" rows="3" class="w-full"></textarea>
         <label for="objectives">Objectives</label>
       </p-floatLabel>
+      <small *ngIf="form.get('objectives')?.touched && form.get('objectives')?.hasError('required')" class="p-error">
+        Objectives is required.
+      </small>
     </div>
 
     <!-- SELECT TESTS -->
-<div class="field col-12 mt-3">
-  <p-floatLabel variant="on">
-    <p-multiSelect
-      [options]="testOptions"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Select Tests"
-      appendTo="body"
-      class="w-full"
-      [loading]="loading"
-      (onChange)="onTestSelectionChange($event.value)"
-    ></p-multiSelect>
-    <label for="tests">Select Evaluation Tests</label>
-  </p-floatLabel>
-</div>
+    <div class="field col-12 mt-3">
+      <p-floatLabel variant="on" [ngClass]="{'float-active': form.get('tests')?.value}">
+        <p-multiSelect [options]="testOptions" optionLabel="label" optionValue="value" placeholder="Select Tests"
+          appendTo="body" class="w-full" [loading]="loading"
+          (onChange)="onTestSelectionChange($event.value)"></p-multiSelect>
+        <label for="tests">Select Evaluation Tests</label>
+        <div *ngIf="form.get('tests')?.errors?.['minLengthArray'] && form.touched" class="text-danger">
+          Please select at least one evaluation test.
+        </div>
+      </p-floatLabel>
 
-<!-- TESTS TABLE -->
-<div *ngIf="tests.controls.length > 0" class="col-12 mt-2">
-  <table class="trainer-table w-full">
-    <thead>
-      <tr>
-        <th>Test Name</th>
-        <th>Mandatory</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let test of testGroups; let i = index" [formGroup]="test">
-        <td>{{ test.value.testLabel }}</td>
-        <td>
-          <p-toggleswitch formControlName="isMandatory"></p-toggleswitch>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    </div>
+
+    <!-- TESTS TABLE -->
+    <div *ngIf="tests.controls.length > 0" class="col-12 mt-2">
+      <table class="trainer-table w-full">
+        <thead>
+          <tr>
+            <th>Test Name</th>
+            <th>Mandatory</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let test of testGroups; let i = index" [formGroup]="test">
+            <td>{{ test.value.testLabel }}</td>
+            <td>
+              <p-toggleswitch formControlName="isMandatory"></p-toggleswitch>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
 
- <!-- TRAINERS SECTION -->
-<div class="col-12 mt-4">
-  <h3 class="mb-3">Trainers</h3>
+    <!-- TRAINERS SECTION -->
+    <div class="col-12 mt-4">
+      <h3 class="mb-3">Trainers</h3>
 
-  <!-- Add Trainer Buttons -->
-  <div class="flex gap-3 mb-4">
-    <p-button
-      label="Add Internal Trainer"
-      icon="pi pi-user"
-      styleClass="p-button-info"
-      (onClick)="addTrainer('INTERNAL')"
-    ></p-button>
+      <!-- Add Trainer Buttons -->
+      <div class="flex gap-3 mb-4">
+        <p-button label="Add Internal Trainer" icon="pi pi-user" styleClass="p-button-info"
+          (onClick)="addTrainer('INTERNAL')" class="button"></p-button>
 
-    <p-button
-      label="Add External Trainer"
-      icon="pi pi-user-plus"
-      styleClass="p-button-secondary"
-      (onClick)="addTrainer('EXTERNAL')"
-    ></p-button>
-  </div>
+        <p-button label="Add External Trainer" icon="pi pi-user-plus" class="button"
+          (onClick)="addTrainer('EXTERNAL')"></p-button>
+      </div>
 
-  <!-- Trainers Table -->
-  <div class="trainer-table-wrapper">
-    <table class="trainer-table w-full">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Internal Trainer</th>
-          <th>External Name</th>
-          <th>Organization</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </thead>
+      <!-- Trainers Table -->
+      <div class="trainer-table-wrapper">
+        <table class="trainer-table w-full">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Internal Trainer</th>
+              <th>External Name</th>
+              <th>Organization</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
 
-      <tbody>
-        <tr *ngFor="let group of trainerGroups; let i = index" [formGroup]="group">
-          <!-- Type -->
-          <td class="trainer-type">{{ group.value.trainerType }}</td>
+          <tbody>
+            <tr *ngFor="let group of trainerGroups; let i = index" [formGroup]="group">
+              <!-- Type -->
+              <td class="trainer-type">{{ group.value.trainerType }}</td>
 
-          <!-- Internal Trainer Dropdown -->
-          <td *ngIf="group.value.trainerType === 'INTERNAL'">
-            <p-select
-              [options]="employees"
-              formControlName="trainerId"
-              optionLabel="label"
-              placeholder="Select Trainer"
-              class="w-full"
-              optionValue="value"
-            ></p-select>
-          </td>
+              <!-- Internal Trainer Dropdown -->
+              <td *ngIf="group.value.trainerType === 'INTERNAL'">
+                <p-select [options]="employees" formControlName="trainerId" optionLabel="label"
+                  placeholder="Select Trainer" class="w-full" optionValue="value"></p-select>
+              </td>
 
-          <!-- Empty cell when external -->
-          <td *ngIf="group.value.trainerType === 'EXTERNAL'"></td>
+              <!-- Empty cell when external -->
+              <td *ngIf="group.value.trainerType === 'EXTERNAL'"></td>
 
-          <!-- External Trainer Name -->
-          <td *ngIf="group.value.trainerType === 'EXTERNAL'">
-            <input
-              pInputText
-              placeholder="Trainer Name"
-              formControlName="trainerName"
-              class="w-full"
-            />
-          </td>
-          <td *ngIf="group.value.trainerType === 'EXTERNAL'">
-            <input
-              pInputText
-              placeholder="Organization"
-              formControlName="trainerOrg"
-              class="w-full"
-            />
-          </td>
+              <!-- External Trainer Name -->
+              <td *ngIf="group.value.trainerType === 'EXTERNAL'">
+                <input pInputText placeholder="Trainer Name" formControlName="trainerName" class="w-full" />
+              </td>
+              <td *ngIf="group.value.trainerType === 'EXTERNAL'">
+                <input pInputText placeholder="Organization" formControlName="trainerOrg" class="w-full" />
+              </td>
 
-          <!-- Empty cells for internal -->
-          <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
-          <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
+              <!-- Empty cells for internal -->
+              <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
+              <td *ngIf="group.value.trainerType === 'INTERNAL'"></td>
 
-          <!-- Delete button -->
-          <td class="text-center">
-            <button
-              type="button"
-              pButton
-              icon="pi pi-trash"
-              class="p-button-text p-button-danger"
-              (click)="removeTrainer(i)"
-            ></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+              <!-- Delete button -->
+              <td class="text-center">
+                <button type="button" pButton icon="pi pi-trash" class="p-button-text p-button-danger"
+                  (click)="removeTrainer(i)"></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-<!-- Submit Button -->
-<div class="col-12 flex justify-content-center mt-4">
-  <p-button
-    [label]="editing ? 'Update Training' : 'Create Training'"
-    [icon]="editing ? 'pi pi-save' : 'pi pi-check'"
-    type="submit"
-    [disabled]="submitting"
-    styleClass="p-button-success"
-  ></p-button>
-</div>
+      <div *ngIf="form.get('trainers')?.errors?.['minLengthArray'] && form.touched" class="text-danger">
+        Please add at least one trainer.
+      </div>
 
+    </div>
+
+    <!-- Submit Button -->
+    <div class="col-12 flex justify-content-center mt-4">
+      <p-button [label]="editing ? 'Update Training' : 'Create Training'"
+        [icon]="editing ? 'pi pi-save' : 'pi pi-check'" type="submit" [disabled]="submitting"
+        styleClass="p-button-success" class="button"></p-button>
+    </div>
+  </form>
+</p-card>

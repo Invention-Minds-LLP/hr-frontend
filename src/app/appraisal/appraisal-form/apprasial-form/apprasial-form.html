@@ -74,7 +74,7 @@
                     </p-floatlabel>
                   </div>
                   <div class="col-12">
-                    <p-floatlabel variant="on">
+                    <p-floatlabel variant="on" [ngClass]="{'float-active':appraisalForm.get(section.commentControl)?.value}">
                       <textarea
                         pTextarea
                         [formControlName]="section.commentControl"
@@ -120,7 +120,7 @@
         
           <!-- Final Comments (full row) -->
           <div class="col-12">
-            <p-floatlabel variant="on">
+            <p-floatlabel variant="on" [ngClass]="{'float-active': appraisalForm.get('finalComments')?.value}">
               <textarea pTextarea formControlName="finalComments" rows="3"></textarea>
               <label>Final Comments</label>
             </p-floatlabel>

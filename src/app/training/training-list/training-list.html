@@ -1,10 +1,30 @@
-<p-card header="Training Management">
+<!-- <p-card header="Training Management"> -->
+<p-card class="training">
   <!-- HR: Create Training -->
-  <div *ngIf="userRole === 'HR'" class="p-mb-3">
-    <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
-      class="p-button-sm p-button-success" (click)="toggleForm()"></button>
-  </div>
 
+
+  <div class="flex">
+    <div *ngIf="userRole === 'HR' && viewMode === 'admin'" class="p-mb-3 button">
+      <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
+        class="p-button-sm p-button-success" (click)="toggleForm()"></button>
+    </div>
+    <div class="flex1" *ngIf="!showForm">
+      <div class="filter" (click)="toggleFilterDropdown()">
+        <i class="pi pi-filter"></i>
+        <ul class="menu-list" *ngIf="showFilterDropdown">
+          <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
+            [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+            {{ option.label }}
+          </li>
+        </ul>
+      </div>
+
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+      </p-iconfield>
+    </div>
+  </div>
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">
     <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef></app-training-form>
@@ -12,18 +32,19 @@
 
   <!-- TABLE -->
   <ng-template #trainingTable>
-    <p-table [value]="trainings" [loading]="loading" [paginator]="true" [rows]="10" styleClass="p-datatable-gridlines">
+    <p-table [value]="filteredTrainings" [loading]="loading" [paginator]="true" [rows]="10"
+      styleClass="p-datatable-gridlines">
       <ng-template pTemplate="header">
         <tr>
           <th>No</th>
           <th>Title</th>
           <th>Trainer</th>
-          <th *ngIf="userRole === 'HR'">Tests</th>
-          <th *ngIf="userRole === 'HR'">Assigned Employees</th>
+          <th>Tests</th>
+          <th>Assigned Employees</th>
           <th>Start</th>
           <th>End</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th style="text-align: center;">Actions</th>
 
         </tr>
       </ng-template>
@@ -31,7 +52,7 @@
       <ng-template pTemplate="body" let-t let-i="rowIndex">
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ userRole === 'EMPLOYEE' ? t.training?.title : t.title }}</td>
+          <td>{{ isIndividualOrEmployee() ? t.training?.title : t.title }}</td>
 
           <!-- TRAINER COLUMN (unchanged) -->
           <td>
@@ -68,7 +89,7 @@
 
 
           <!-- ✅ TESTS COLUMN -->
-          <td *ngIf="userRole === 'HR'"> 
+          <td>
             <ng-container *ngIf="t.trainingTests?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
                 {{ t.trainingTests.length }} test{{ t.trainingTests.length > 1 ? 's' : '' }}
@@ -79,8 +100,10 @@
             </ng-template>
           </td>
 
+
           <!-- ✅ ASSIGNED EMPLOYEES COLUMN -->
-          <td *ngIf="userRole === 'HR'">
+          <!-- <td *ngIf="userRole === 'HR'"> -->
+          <td>
             <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees">
               <span class="count-link" (click)="openEmployeesDialog(t)">
                 {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length > 1 ? 's' : '' }}
@@ -92,19 +115,25 @@
           </td>
 
 
+
           <!-- REST OF YOUR COLUMNS -->
-          <td>{{ (userRole === 'EMPLOYEE' ? t.training?.startDate : t.startDate) | date: 'short' }}</td>
-          <td>{{ (userRole === 'EMPLOYEE' ? t.training?.endDate : t.endDate) | date: 'short' }}</td>
-          <td>{{ t.status }}</td>
+          <td>{{ ( isIndividualOrEmployee() ? t.training?.startDate : t.startDate) | date: 'short' }}</td>
+          <td>{{ ( isIndividualOrEmployee() ? t.training?.endDate : t.endDate) | date: 'short' }}</td>
+          <td class="t-data al">
+            <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).badgeColor }">
+              <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).dotColor }"></span>
+              {{ t.status }}
+            </span>
+          </td>
 
 
-          <td>
+          <td class="action-btns">
             <!-- HR ACTIONS -->
-            <ng-container *ngIf="userRole === 'HR'">
-              <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" label="Edit"
+            <ng-container *ngIf="userRole === 'HR' && viewMode === 'admin'">
+              <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm edit text" label="Edit"
                 (click)="editTraining(t); showForm = true"></button>
 
-              <button pButton icon="pi pi-users" class="p-button-text p-button-sm" label="Assign Employees"
+              <button pButton icon="pi pi-users" class="p-button-text p-button-sm assign text" label="Assign Employees"
                 (click)="openAssignEmployees(t)"></button>
 
               <!-- <button
@@ -115,12 +144,12 @@
                 (click)="openAssignTests(t)"
               ></button> -->
 
-              <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" label="Review Feedback"
+              <button pButton icon="pi pi-eye" class="p-button-text p-button-sm review text" label="Review Feedback"
                 (click)="openFeedbackDialog(t)"></button>
             </ng-container>
 
             <!-- EMPLOYEE ACTION -->
-            <ng-container *ngIf="userRole === 'EMPLOYEE'">
+            <ng-container *ngIf="userRole === 'EMPLOYEE' || (userRole === 'HR' && viewMode === 'individual')">
               <button pButton label="Give Feedback" icon="pi pi-comment" class="p-button-sm p-button-info"
                 (click)="openFeedback(t)"></button>
             </ng-container>
@@ -180,7 +209,7 @@
 <p-dialog header="{{ userRole === 'EMPLOYEE' ? 'Submit Feedback' : 'Training Feedback Summary' }}"
   [(visible)]="showFeedbackDialog" [modal]="true" [style]="{ width: '60vw' }">
   <!-- EMPLOYEE -->
-  <ng-container *ngIf="userRole === 'EMPLOYEE'; else hrFeedbackView">
+  <ng-container *ngIf="isIndividualOrEmployee(); else hrFeedbackView">
     <app-training-overview [trainingId]="selectedTraining?.training?.id" [employeeId]="selectedTraining?.employeeId"
       (ngSubmit)="fetchTrainings(); showFeedbackDialog = false"></app-training-overview>
   </ng-container>
@@ -228,7 +257,7 @@
 <!-- TESTS LIST DIALOG -->
 <!-- ===================== -->
 <p-dialog header="Assigned Tests" [(visible)]="showTestsDialog" [modal]="true" [style]="{ width: '40vw' }">
-  <ng-container *ngIf="selectedTraining?.trainingTests?.length; else noTests">
+  <ng-container *ngIf="selectedTraining?.trainingTests?.length; else noTests" class="popup">
     <p-table [value]="selectedTraining.trainingTests" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
@@ -258,7 +287,7 @@
 <!-- EMPLOYEES LIST DIALOG -->
 <!-- ===================== -->
 <p-dialog header="Assigned Employees" [(visible)]="showEmployeesDialog" [modal]="true" [style]="{ width: '40vw' }">
-  <ng-container *ngIf="selectedTraining?.assignedEmployees?.length; else noEmployees">
+  <ng-container *ngIf="selectedTraining?.assignedEmployees?.length; else noEmployees" class="popup">
     <p-table [value]="selectedTraining.assignedEmployees" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>

@@ -20,7 +20,14 @@
                 <button class="close-btn" (click)="closePopup()">×</button>
 
             </div>
+
+            <div *ngIf="overlapMessage" class="overlap-warning">
+                <i class="pi pi-exclamation-triangle"></i>
+                {{ overlapMessage }}
+            </div>
         </div>
+
+
 
         <div class="leave-container">
             <div>
@@ -43,6 +50,8 @@
                         </select>
                     </div>
                 </div>
+
+
 
                 <!-- To Date -->
                 <div class="form-row">
@@ -91,7 +100,9 @@
                         Reason For Decline: {{declineReason}}
                     </div>
                 </div>
+
             </div>
+
 
             <!-- Calendar -->
             <div class="calendar-section">
@@ -119,7 +130,10 @@
                             {{ day.number || '' }}
                         </div>
                     </div>
+
                 </div>
+
+
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
@@ -154,6 +168,7 @@
                 <button class="close-btn" (click)="closePopup()">×</button>
 
             </div>
+
         </div>
 
         <div class="leave-container">

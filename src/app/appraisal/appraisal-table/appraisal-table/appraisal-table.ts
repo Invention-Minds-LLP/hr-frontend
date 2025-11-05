@@ -49,11 +49,8 @@ export class AppraisalTable {
   filterOptions = [
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
-    { label: 'Branch', value: 'branchId' },
     { label: 'Department', value: 'departmentId' },
-    { label: 'Status', value: 'employmentStatus' },
-    { label: 'Employment Type', value: 'employmentType' },
-    { label: 'Shift', value: 'shiftId' }
+
   ];
 
   selectedFilter: any = null;
@@ -77,6 +74,7 @@ export class AppraisalTable {
       branchId: ['', Validators.required],
       employeeIds: [[], Validators.required]
     });
+    this.filteredEmployees = [...this.appraisals]
 
     this.appraisalForm.get('departmentId')?.valueChanges.subscribe(() => this.filterEmployees());
     this.appraisalForm.get('branchId')?.valueChanges.subscribe(() => this.filterEmployees());
@@ -86,6 +84,7 @@ export class AppraisalTable {
 
     this.getAppraisals();
     this.loadDropdownData();
+    
   }
 
 
@@ -100,6 +99,7 @@ export class AppraisalTable {
             (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
           );
         }
+        this.filteredEmployees = [...this.appraisals]
       },
       error: () => {
         // alert('Error loading appraisals');
@@ -110,6 +110,7 @@ export class AppraisalTable {
         });
       }
     });
+
 
   }
 
@@ -180,30 +181,45 @@ export class AppraisalTable {
       (!selectedDept || emp.deptId === selectedDept) &&
       (!selectedBranch || emp.branchId === selectedBranch)
     );
+    
+    this.filteredEmployees = [...this.appraisals]
   }
   onSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const searchText = input.value;
+  const input = event.target as HTMLInputElement;
+  const searchText = input.value.trim().toLowerCase();
 
-    if (!searchText) {
-      this.filteredEmployees = [...this.appraisals];
-      return;
+
+  if (!searchText) {
+    this.filteredEmployees = [...this.appraisals];
+    return;
+  }
+
+  const filterKey = this.selectedFilter?.value || 'name';
+
+  this.filteredEmployees = this.appraisals.filter((emp: any) => {
+    const e = emp.employee; 
+    if (!e) return false;
+
+    if (filterKey === 'name') {
+      return `${e.firstName} ${e.lastName}`
+        .toLowerCase()
+        .includes(searchText);
     }
 
-    const filterKey = this.selectedFilter.value;
+    if (filterKey === 'employeeCode') {
+      return e.employeeCode?.toLowerCase().includes(searchText);
+    }
 
-    this.filteredEmployees = this.appraisals.filter(emp => {
-      if (filterKey === 'name') {
-        return (
-          `${emp.firstName} ${emp.lastName}`
-            .toLowerCase()
-            .includes(searchText.toLowerCase())
-        );
-      }
-      return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
-    });
+    if (filterKey === 'departmentId') {
+      const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
+      return deptName.includes(searchText);
+    }
 
-  }
+
+    return e[filterKey]?.toString().toLowerCase().includes(searchText);
+  });
+}
+
 
   onFilterChange() {
     this.filteredEmployees = [...this.appraisals];
