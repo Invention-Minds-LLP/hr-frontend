@@ -37,7 +37,7 @@
   text-align: left;
   white-space: normal;
   /* allow wrapping */
-  word-wrap: break-word;
+  /* word-wrap: break-word; */
 }
 
 /* Adjust specific column widths */

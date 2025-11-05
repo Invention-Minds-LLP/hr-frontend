@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, input } from '@angular/core';
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { SurveyForm } from '../survey-form/survey-form';
 import { CommonModule } from '@angular/common';
@@ -19,6 +19,9 @@ import { InputTextModule } from 'primeng/inputtext';
 export class SurveyList {
   surveys: any[] = [];
   loading = true;
+
+    @Input() SurveyList: any[] = [];
+  @Input() employeeId!: number;
 
   filterSurveyData: any = []
   showFilterDropdown = false;
