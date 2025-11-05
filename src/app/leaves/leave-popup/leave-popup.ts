@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Leaves } from '../../services/leaves/leaves';
 import { CommonModule } from '@angular/common';
@@ -29,6 +29,10 @@ export class LeavePopup {
   @Input() isViewOnly: boolean = false; // Controls editability
   @Output() close = new EventEmitter<void>();
   @Input() hasBackdrop = true;
+  @Input() overlapMessage: string = '';
+
+
+
   closePopup() {
     this.close.emit();
   }
@@ -60,7 +64,7 @@ export class LeavePopup {
   daysList = Array.from({ length: 31 }, (_, i) => i + 1);
   reason = '';
   employeeId: string = '';
-  declineReason:string = '';
+  declineReason: string = '';
 
 
 
@@ -93,6 +97,7 @@ export class LeavePopup {
     this.leaveService.getLeaveTypes().subscribe(types => {
       this.leaveTypes = types;
     });
+
   }
   populateFromLeaveData(data: any) {
     this.fromDate = new Date(data.startDate);
@@ -124,6 +129,14 @@ export class LeavePopup {
     this.currentMonthIndex = today.getMonth();
     this.currentYear = today.getFullYear();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['overlapMessage']) {
+      console.log('Popup received overlapMessage:', this.overlapMessage);
+    }
+  }
+
+
 
 
   populateYears() {
