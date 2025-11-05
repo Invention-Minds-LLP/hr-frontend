@@ -4,6 +4,7 @@
     height: auto;
     padding: 50px 50px;
         --p-floatlabel-active-color:#ffff;
+        --p-floatlabel-on-active-background:#302F31;
 }
 
 .appraisal-form {
@@ -155,6 +156,13 @@ label{
 .text-500,
 .mb-2{
     color: white !important;
+}
+
+.p-floatlabel.float-active label {
+  top: -0.25rem;
+  font-size: 0.75rem;
+  background-color: #302F31;
+  color: white;
 }
 
 

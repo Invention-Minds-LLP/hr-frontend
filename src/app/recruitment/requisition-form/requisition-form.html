@@ -2,7 +2,7 @@
     <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" class="p-fluid1">
   
       <!-- Job Information -->
-      <p-panel header="Job Information" toggleable="true">
+      <p-panel header="Job Information" toggleable="false">
         <div class="grid p-fluid">
           <div class="p-field col-6">
             <p-floatLabel variant="on">
@@ -49,7 +49,7 @@
 
       
 
-      <p-panel header="Reason Breakdown" toggleable="true">
+      <p-panel header="Reason Breakdown" toggleable="false">
         <div formArrayName="reasonBreakdown">
             <p-table  [value]="reasonBreakdown.controls">
                 <ng-template pTemplate="header">
@@ -91,7 +91,7 @@
        
       </p-panel>
   
-      <p-panel header="Job Profile Requirement" toggleable="true">
+      <p-panel header="Job Profile Requirement" toggleable="false">
         <div class="p-field">
           <label for="skills">Requirement for the Job Profile</label>
           <p-editor id="skills" formControlName="skills" [style]="{height:'200px'}"></p-editor>
@@ -99,7 +99,7 @@
       </p-panel>
   
       <!-- Education -->
-      <p-panel header="Education" toggleable="true">
+      <p-panel header="Education" toggleable="false">
         <div class="flex flex-column gap-3">
       
           <!-- Up to SSC -->
@@ -141,9 +141,9 @@
       
         <!-- Training / Projects -->
         <div class="p-field mt-3">
-          <p-floatLabel variant="on">
+          <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('training')?.value}">
             <label for="training">Training / Projects</label>
-            <textarea pInputTextarea id="training" rows="2" formControlName="training" [ngClass]="{'float-active': requisitionForm.get('training')?.value}"></textarea>
+            <textarea pInputTextarea id="training" rows="2" formControlName="training" ></textarea>
           </p-floatLabel>
         </div>
       </p-panel>
@@ -151,7 +151,7 @@
 
   
       <!-- Additional Info -->
-      <p-panel header="Additional Info" toggleable="true">
+      <p-panel header="Additional Info" toggleable="false">
         <div class="flex align-items-center gap-3 flex-wrap">
           <p-checkbox formControlName="urgent" binary="true" inputId="urgent"></p-checkbox>
           <label for="urgent">Urgent</label>
@@ -174,7 +174,7 @@
       
   
       
-      <p-panel header="Approvals" toggleable="true">
+      <p-panel header="Approvals" toggleable="false">
         <div class="grid">
       
           <!-- Raised By -->
@@ -195,8 +195,8 @@
               <label for="raisedByDate">Date</label>
             </p-floatLabel>
       
-            <p-floatLabel variant="on">
-              <textarea pInputTextarea id="raisedByComments" rows="2" formControlName="raisedByComments" [ngClass]="{'float-active': requisitionForm.get('raisedByComments')?.value}"
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('raisedByComments')?.value}">
+              <textarea pInputTextarea id="raisedByComments" rows="2" formControlName="raisedByComments" 
                         [readonly]="requisitionId && currentStep !== 'RAISED'"></textarea>
               <label for="raisedByComments">Comments</label>
             </p-floatLabel>
@@ -226,7 +226,7 @@
               <label for="approvedByHoDDate">Date</label>
             </p-floatLabel>
       
-            <p-floatLabel variant="on">
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedByHoDComments')?.value}">
               <textarea 
                 pInputTextarea 
                 id="approvedByHoDComments" 
@@ -299,8 +299,8 @@
               <label for="receivedByHRDate">Date</label>
             </p-floatLabel>
       
-            <p-floatLabel variant="on">
-              <textarea pInputTextarea id="receivedByHRComments" rows="2" [ngClass]="{'float-active': requisitionForm.get('receivedByHRComments')?.value}"
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('receivedByHRComments')?.value}">
+              <textarea pInputTextarea id="receivedByHRComments" rows="2" 
                         formControlName="receivedByHRComments"
                         [readonly]="currentStep !== 'HR'"></textarea>
               <label for="receivedByHRComments">Comments</label>
@@ -320,7 +320,7 @@
       
   
       <!-- HR Use Only -->
-      <p-panel header="HR Use Only" toggleable="true" *ngIf="currentStep === 'HR' || currentStep === 'CLOSED'">
+      <p-panel header="HR Use Only" toggleable="false" *ngIf="currentStep === 'HR' || currentStep === 'CLOSED'">
         <div class="grid">
           <div class="col-12 md:col-3">
             <p-floatLabel variant="on">

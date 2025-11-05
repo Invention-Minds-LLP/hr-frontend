@@ -24,4 +24,11 @@
   :host ::ng-deep .p-rating-cancel {
     display: none;
   }
+.p-floatlabel.float-active label {
+  top: -0.25rem;
+  font-size: 0.75rem;
+  background-color: transparent;
+  color: var(--text-color-secondary);
+}
+
   

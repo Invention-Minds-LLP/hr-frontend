@@ -15,6 +15,9 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { FormGroup } from '@angular/forms';
 import { Departments } from '../../services/departments/departments';
 import { ReactiveFormsModule } from '@angular/forms';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputTextModule } from 'primeng/inputtext';
 
 
 @Component({
@@ -31,7 +34,10 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     FloatLabelModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    InputIconModule,
+    IconFieldModule,
+    InputTextModule
   ],
   templateUrl: './training-list.html',
   styleUrl: './training-list.css'
@@ -42,6 +48,8 @@ export class TrainingList {
   loading = true;
   @Input() visible: boolean = false;
   @Input() trainingId!: number;
+  @Input() viewMode: 'admin' | 'individual' = 'admin';
+
 
   form!: FormGroup;
   departments: any[] = [];
@@ -76,7 +84,6 @@ export class TrainingList {
       departmentIds: this.fb.control<number[]>([]),
       employeeIds: this.fb.control<number[]>([])
     });
-
 
     this.loadDepartments();
 
@@ -127,9 +134,13 @@ export class TrainingList {
   }
   fetchTrainings() {
     this.loading = true;
-    if (this.userRole === 'HR') {
+
+    const empId = localStorage.getItem('empId') || '1';
+
+    if (this.userRole === 'HR' && this.viewMode === 'admin') {
       this.trainingService.getAllTrainings().subscribe({
         next: (res) => {
+          this.filteredTrainings = [...res];
           this.trainings = res;
           this.loading = false;
         },
@@ -139,10 +150,10 @@ export class TrainingList {
         },
       });
     } else {
-      const employeeId = localStorage.getItem('empId') || '1';
-      this.trainingService.getTrainingsByEmployee(employeeId).subscribe({
+      this.trainingService.getTrainingsByEmployee(empId).subscribe({
         next: (res: any) => {
           this.trainings = res;
+          this.filteredTrainings = [...res];
           this.loading = false;
         },
         error: (err: any) => {
@@ -150,9 +161,14 @@ export class TrainingList {
           this.loading = false;
         },
       });
-
     }
   }
+
+
+  isIndividualOrEmployee() {
+    return this.userRole === 'EMPLOYEE' || this.viewMode === 'individual';
+  }
+
 
   toggleForm() {
     this.showForm = !this.showForm;
@@ -296,6 +312,84 @@ export class TrainingList {
   openEmployeesDialog(training: any) {
     this.selectedTraining = training;
     this.showEmployeesDialog = true;
+  }
+
+  getDepartmentColors(departmentId: number) {
+    const baseHue = (departmentId * 40) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+
+    return { badgeColor, dotColor };
+  }
+
+  filteredTrainings: any[] = [];
+  showFilterDropdown = false;
+  selectedFilter: any = null;
+  showDateInput = false;
+
+  filterOptions = [
+    { label: 'Title', value: 'title' },
+    { label: 'Trainer', value: 'trainer' },
+    { label: 'StartDate', value: 'startDate' }
+  ];
+
+  toggleFilterDropdown() {
+    this.showFilterDropdown = !this.showFilterDropdown;
+  }
+
+  selectFilter(option: any) {
+    this.selectedFilter = option;
+    this.showFilterDropdown = false;
+    this.filteredTrainings = [...this.trainings];
+  }
+
+  onSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const searchText = input.value.trim().toLowerCase();
+
+    if (!this.selectedFilter || !searchText) {
+      this.filteredTrainings = [...this.trainings];
+      return;
+    }
+
+    const filterKey = this.selectedFilter.value;
+
+    this.filteredTrainings = this.trainings.filter(training => {
+      if (filterKey === 'title') {
+        const title = (training.title || training.name || '').toLowerCase();
+        return title.includes(searchText);
+      }
+      else if (filterKey === 'trainer') {
+        const trainerName = (training.trainer || '').toLowerCase();
+        return trainerName.includes(searchText);
+      }
+      else if (filterKey === 'startDate') {
+        const dateVal = (training.startDate || '').toString().trim();
+
+        // Normalize both date and searchText to MM/DD/YY format (2-digit year)
+        const normalizedDate = this.normalizeDateFormat(dateVal);
+        const normalizedSearch = this.normalizeDateFormat(searchText);
+
+        return normalizedDate.includes(normalizedSearch);
+      }
+      return false;
+    });
+  }
+
+  normalizeDateFormat(value: string): string {
+    if (!value) return '';
+    value = value.toLowerCase().replace(/-/g, '/').trim();
+
+    // Handle yyyy-mm-dd → mm/dd/yy
+    const isoMatch = value.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
+    if (isoMatch) {
+      const [_, year, month, day] = isoMatch;
+      const shortYear = year.slice(-2);
+      return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${shortYear}`;
+    }
+
+    // already in mm/dd/yy or partial
+    return value;
   }
 
 }

@@ -1,5 +1,7 @@
 .performance-container{
     padding: 20px 60px;
+    --p-floatlabel-on-active-background:#302F31;
+      --p-floatlabel-active-color:#ffff;
 }
 
 ::ng-deep .p-inputtext, .p-textarea, .p-select{
@@ -15,11 +17,12 @@
 .p-floatlabel.float-active label {
     top: -0.40rem;
     font-size: 0.75rem;
-    background-color: transparent;
+    background-color: #302F31;
     color: white !important;
   }
 
-  label{
+  label,
+  .p-floatlabel{
     color: white;
   }
 
@@ -103,7 +106,8 @@
   }
   :host ::ng-deep .p-textarea .p-textarea-label{
     color: white !important;
-  }  .new-app {
+  }  
+  .new-app {
     display: flex;
     /* width: 30%; */
     width: 200px;

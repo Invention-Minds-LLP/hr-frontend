@@ -932,10 +932,15 @@
 
 }
 
+h1 {
+  color: white;
+}
+
 .holiday-name {
   font-size: 20px;
 }
-.employee-card{
+
+.employee-card {
   background: #555555;
   border-radius: 8px;
   padding: 30px 20px;
@@ -944,6 +949,7 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   font-family: "Sofia Sans";
 }
+
 .profile-header {
   display: flex;
   align-items: center;
@@ -1022,6 +1028,7 @@
   color: #bbb;
   cursor: pointer;
 }
+
 .info-icon:hover {
   color: #fff;
 }
@@ -1031,6 +1038,43 @@
   background: #555;
 }
 
+::ng-deep .test-list .p-datatable .p-datatable-tbody>tr>td {
+  background: transparent !important;
+  border: none !important;
+}
+
+
+.test-list {
+  border-radius: 16px;
+  background: #555;
+  padding-top: 50px;
+}
+
+.test-list h1{
+  margin-left: 50px;
+}
+
+::ng-deep .test-list .p-datatable .p-datatable-thead>tr>th {
+  background: transparent !important;
+  color: white !important;
+  border-bottom: 2px solid #FFFFFF !important;
+}
+
+ .test-list .dropdown-in-table {
+  width: 7vw;
+  background-color: #555555 !important;
+  color: #fff;
+  border: 1px solid #FFFFFF;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+ .test-list .dropdown-in-table option {
+  background-color: transparent;
+  color: #fff;
+}
 /* Tab */
 
 @media (max-width: 1023px) {

@@ -228,4 +228,21 @@ button.reset {
   .close-btn:hover {
     color: #ff4d4f;
   }
+  .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.overlap-warning {
+  background: yellow !important;
+  border: 2px solid red !important;
+}
+
+
+.overlap-warning .pi {
+  font-size: 1.2rem;
+}
+
   

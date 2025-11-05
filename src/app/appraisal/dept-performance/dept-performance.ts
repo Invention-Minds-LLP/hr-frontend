@@ -35,7 +35,7 @@ export class DeptPerformance {
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
     { label: 'Department', value: 'departmentId' },
-    { label: 'Cycle', value: 'cycle' } 
+    // { label: 'Cycle', value: 'cycle' } 
   ];
 
   selectedFilter: any = null;

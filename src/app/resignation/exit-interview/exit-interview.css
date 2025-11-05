@@ -27,7 +27,7 @@ textarea[disabled],
 .p-inputtextarea:disabled
 .p-datepicker:disabled {
   background-color: #7f7e7e;
-  color: #5e5b5b;
+  color: white;
   font-weight: 500;
   border: 1px solid #ccc;
   cursor: not-allowed !important;
@@ -241,7 +241,7 @@ label {
 .p-floatlabel.float-active label {
   top: -0.40rem;
   font-size: 0.75rem;
-  background-color: transparent;
+  background-color: #302F31;
   color: var(--text-color-secondary);
 }
 

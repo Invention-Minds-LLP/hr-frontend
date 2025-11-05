@@ -143,17 +143,6 @@ export class Navbar {
     return map[s] ?? s.toUpperCase().replace(/ /g, '_');
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    const dropdown = document.querySelector('.dropdown');
-
-
-    if (dropdown && !dropdown.contains(target)) {
-      this.isOpen = false;
-    }
-  }
-
 
   onAdminClick() {
     if (this.isReportingManager) {
@@ -245,6 +234,14 @@ export class Navbar {
   // 👇 This detects clicks outside the dropdown and closes it
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
+
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.dropdown');
+
+    if (dropdown && !dropdown.contains(target)) {
+      this.isOpen = false;
+    }
+
     if (
       this.showNotifications &&
       this.notificationWrapper &&
