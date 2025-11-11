@@ -8,22 +8,26 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { User } from '../../services/user/user';
 import { from } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, InputTextModule, FloatLabel, PasswordModule, ButtonModule, CommonModule],
+  imports: [FormsModule, InputTextModule, FloatLabel, PasswordModule, ButtonModule, CommonModule, ToastModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
+  providers: [MessageService]
 })
 export class Login {
   loginData = {
     empId: '',
     password: ''
   };
+  isLoading = false;
 
 
 
-  constructor(private router: Router, private userService: User) { }
+  constructor(private router: Router, private userService: User, private messageService: MessageService) { }
 
   ngOnInit() {
     // Check if user is already logged in
@@ -32,7 +36,7 @@ export class Login {
     const empId = localStorage.getItem('empId')
     console.log('Token:', token);
     if (token && empId ) {
-      this.router.navigate(['/employee']); // Redirect to employee page if logged in
+      this.router.navigate(['/individual']); // Redirect to employee page if logged in
     }
     else if(token && candidateId){
       this.router.navigate(['/my-tests'])
@@ -48,6 +52,7 @@ export class Login {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
+      this.isLoading = true;
       const idOrEmail = this.loginData.empId.trim();
       const password = this.loginData.password;
 
@@ -55,6 +60,8 @@ export class Login {
         // ---- Candidate login path ----
         this.userService.login(idOrEmail, password).subscribe({
           next: (res) => {
+            this.isLoading = false;
+            this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + res.name });
             // store candidate info (as requested)
             localStorage.setItem('token', res.token);
             localStorage.setItem('candidateId',res.candidateId); // <-- the key part
@@ -65,6 +72,8 @@ export class Login {
             this.router.navigate(['/my-tests']);
           },
           error: (err) => {
+            this.isLoading = false;
+            this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid credentials. Please try again.' });
             console.error('Candidate login failed:', err);
           }
         });
@@ -72,6 +81,8 @@ export class Login {
         // ---- Employee/User login path (your existing flow) ----
         this.userService.loginUser(idOrEmail, password).subscribe({
           next: (response) => {
+            this.isLoading = false;
+            this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + response.username });
             if (response) {
               localStorage.setItem('token', response.token);
               // NOTE: you were storing employeeCode under 'employeeId'. Keep or rename as you wish.
@@ -85,10 +96,13 @@ export class Login {
               localStorage.setItem('designation', response.designation || '');
               this.router.navigate(['/individual']);
             } else {
+
               console.error('Login failed:', (response as any)?.message);
             }
           },
           error: (error) => {
+            this.isLoading = false;
+            this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid credentials. Please try again.' });
             console.error('Error during login:', error);
           }
         });

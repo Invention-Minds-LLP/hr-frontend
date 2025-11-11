@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { environment } from '../../../environment/environment.prod';
 
 
 
@@ -11,8 +11,8 @@ import { Observable } from 'rxjs';
 export class QuestionBankService {
 
 
-
-  private apiUrl = 'http://localhost:3002/api/question-banks';
+  private apiUrl = environment.apiUrl + '/question-banks';
+  // private apiUrl = 'http://localhost:3002/api/question-banks';
 
   constructor(private http: HttpClient) {}
 

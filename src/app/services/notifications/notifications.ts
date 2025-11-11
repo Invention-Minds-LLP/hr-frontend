@@ -2,13 +2,13 @@ import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
-// import { environment } from '../../../environment/environment';
-
+import { environment } from '../../../environment/environment.prod';
 @Injectable({
   providedIn: 'root'
 })
 export class Notifications {
-  private apiUrl = `http://localhost:3002/api/notifications`;
+  private apiUrl = environment.apiUrl + '/notifications';
+  // private apiUrl = `http://localhost:3002/api/notifications`;
   private eventSource: EventSource | null = null;
   private _notifications = new BehaviorSubject<any[]>([]);
   notifications$ = this._notifications.asObservable();

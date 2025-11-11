@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 export interface SurveyQuestion {
   id: number;
@@ -18,7 +19,8 @@ export interface SurveySubmitPayload {
   providedIn: 'root'
 })
 export class SurveryService {
-  private baseUrl = 'http://localhost:3002/api/survey';
+  private baseUrl = environment.apiUrl + '/survey';
+  // private baseUrl = 'http://localhost:3002/api/survey';
 
   constructor(private http: HttpClient) {}
 

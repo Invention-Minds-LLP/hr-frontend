@@ -1034,6 +1034,10 @@ export class EmployeeForm {
       }));
     });
 
+    if(this.emergencyContacts.length === 0){
+      this.addEmergencyContact();
+    }
+
     // Patch qualifications
     this.qualifications.clear();
     data.qualifications?.forEach((q: any) => {

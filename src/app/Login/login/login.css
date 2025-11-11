@@ -203,6 +203,10 @@ input.ng-invalid.ng-touched {
     margin-top: 4px;
 }
 
+::ng-deep .p-button .p-button-loading-icon {
+    margin-right: 8px;
+  }
+  
 
 
 @media (max-width:1024px) {

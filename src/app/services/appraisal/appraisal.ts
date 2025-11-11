@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 
 @Injectable({
@@ -10,7 +11,9 @@ export class Appraisal {
 
   constructor(private http: HttpClient){}
 
-  apiUrl:string = 'http://localhost:3002/api/appraisals'
+  private apiUrl= environment.apiUrl + '/appraisals'
+
+  // apiUrl:string = 'http://localhost:3002/api/appraisals'
 
   bulkCreateAppraisals(payload: any) {
     return this.http.post(`${this.apiUrl}/bulk-create`, payload);

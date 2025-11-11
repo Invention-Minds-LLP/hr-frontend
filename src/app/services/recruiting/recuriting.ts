@@ -2,10 +2,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 
 /** If you have environments: import from environments and set baseUrl = environment.apiBase */
-const baseUrl = 'http://localhost:3002/api/recruiting';
+const baseUrl = environment.apiUrl + '/recruiting';
+// const baseUrl = 'http://localhost:3002/api/recruiting';
 
 /* ---------- Shared types (mirror Prisma enums) ---------- */
 export type JobStatus = 'OPEN' | 'ON_HOLD' | 'CLOSED' | 'DRAFT';

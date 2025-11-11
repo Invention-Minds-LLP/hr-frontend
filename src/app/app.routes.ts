@@ -54,6 +54,7 @@ import { MyInterview } from './recruitment/my-interview/my-interview';
 import { Clearances } from './resignation/clearances/clearances';
 import { TrainingForm } from './training/training-form/training-form';
 import { TrainingOverview } from './training/training-overview/training-overview';
+import { AttendanceCalendars } from './attendance/attendance-calendars/attendance-calendars';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -110,7 +111,7 @@ export const routes: Routes = [
   { path: 'permission-request', component: PermissionRequest,canActivate: [authGuard]},
   { path: 'wfh', component: WorkFromHome,canActivate: [authGuard]},
   { path: 'balances-accruals', component: BalancesAccruals,canActivate: [authGuard]},
-  { path: 'attendance', component: ManageAttendance,canActivate: [authGuard]},
+  { path: 'attendance', component: AttendanceCalendars,canActivate: [authGuard]},
   { path: 'history', component: History,canActivate: [authGuard]},
   { path: 'resignation', component: ResignOverview,canActivate: [authGuard]},
   { path: 'interview', component: CandidateEvalForm,canActivate: [authGuard]},

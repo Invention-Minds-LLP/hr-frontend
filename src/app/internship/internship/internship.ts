@@ -27,7 +27,7 @@ import { MessageService } from 'primeng/api';
 
 type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert';
 // add near the top with your other types
-type PrimeSeverity = 'success' | 'info' | 'warning' | 'danger';
+type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger';
 
 type EmpPick = { id: number; firstName: string; lastName: string; employeeCode?: string | null; departmentId?: number | null };
 
@@ -99,7 +99,7 @@ export class Internship implements OnInit {
   }
   readonly severityMap: Record<InternshipStatus, PrimeSeverity> = {
     DRAFT: 'info',
-    OFFERED: 'warning',
+    OFFERED: 'warn',
     ACTIVE: 'success',
     COMPLETED: 'success',
     CONVERTED: 'success',

@@ -4,7 +4,7 @@
 
 
   <div class="flex">
-    <div *ngIf="userRole === 'HR' && viewMode === 'admin'" class="p-mb-3 button">
+    <div *ngIf="userRole === 'HR'" class="p-mb-3 button">
       <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
         class="p-button-sm p-button-success" (click)="toggleForm()"></button>
     </div>
@@ -52,7 +52,7 @@
       <ng-template pTemplate="body" let-t let-i="rowIndex">
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ isIndividualOrEmployee() ? t.training?.title : t.title }}</td>
+          <td>{{ t.training?.title }}</td>
 
           <!-- TRAINER COLUMN (unchanged) -->
           <td>

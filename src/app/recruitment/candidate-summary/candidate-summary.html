@@ -17,7 +17,7 @@
         <p-card>
           <div class="round-header">
             <h3>{{ i.stage }}</h3>
-            <p-tag [value]="i.result || 'Pending'" [severity]="i.result==='Pass' ? 'success' : i.result==='Fail' ? 'danger' : 'warning'"></p-tag>
+            <p-tag [value]="i.result || 'Pending'" [severity]="i.result==='Pass' ? 'success' : i.result==='Fail' ? 'danger' : 'warn'"></p-tag>
           </div>
           <p class="muted">{{ i.startTime | date:'MMM d, y, h:mm a' }}</p>
   
@@ -51,7 +51,7 @@
       <p>Score: <b>{{ summary.CandidateAssignedTest[0].score ?? '—' }}%</b></p>
       <p>Decision: 
         <p-tag [value]="summary.CandidateAssignedTest[0].reviewDecision || 'Pending'"
-               [severity]="summary.CandidateAssignedTest[0].reviewDecision==='PASS' ? 'success' : summary.CandidateAssignedTest[0].reviewDecision==='FAIL' ? 'danger' : 'warning'">
+               [severity]="summary.CandidateAssignedTest[0].reviewDecision==='PASS' ? 'success' : summary.CandidateAssignedTest[0].reviewDecision==='FAIL' ? 'danger' : 'warn'">
         </p-tag>
       </p>
       <p class="muted">{{ summary.CandidateAssignedTest[0].reviewNote }}</p>

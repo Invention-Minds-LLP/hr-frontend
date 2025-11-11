@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Shifts {
-  private apiUrl = 'http://localhost:3002/api/shifts';
+  private apiUrl = environment.apiUrl + '/shifts';
+  // private apiUrl = 'http://localhost:3002/api/shifts';
 
   constructor(private http: HttpClient) { }
 

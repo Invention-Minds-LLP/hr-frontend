@@ -37,7 +37,7 @@ export class LeaveRequest {
     { label: 'Leave Type', value: 'leaveType' },
   ];
   private isHRRole(norm: string): boolean {
-    return norm === 'HR' || norm === 'HR_MANAGER';
+    return norm === 'HR' || norm === 'HR MANAGER';
   }
 
   leaveData: any[] = [];
@@ -261,7 +261,7 @@ export class LeaveRequest {
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
     const norm = role.toUpperCase().replace(/\s+/g, '_');
     if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
-    if (norm === 'HR' || norm === 'HR_MANAGER') return 'HR';
+    if (norm === 'HR' || norm === 'HR MANAGER') return 'HR';
     return null;
   }
   

@@ -24,7 +24,7 @@ export class PoshList {
   showForm = false;
   showHearings = false;
   selectedCase: any;
-  role = '';
+  role = localStorage.getItem('role') || '';
   empId = '';
 
   constructor(private poshService: Posh) {}
@@ -55,15 +55,17 @@ export class PoshList {
     this.showHearings = true;
   }
 
-  statusColor(status: string): string {
-    switch (status) {
-      case 'FILED': return 'info';
-      case 'UNDER_INVESTIGATION': return 'warning';
-      case 'CLOSED': return 'success';
-      case 'REJECTED': return 'danger';
-      default: return 'secondary';
-    }
+  statusColor(status: string):
+  'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null | undefined {
+  switch (status) {
+    case 'FILED': return 'info';
+    case 'UNDER_INVESTIGATION': return 'warn';
+    case 'CLOSED': return 'success';
+    case 'REJECTED': return 'danger';
+    default: return 'secondary';
   }
+}
+
   statusOptions = [
     { label: 'Filed', value: 'FILED' },
     { label: 'Under Investigation', value: 'UNDER_INVESTIGATION' },

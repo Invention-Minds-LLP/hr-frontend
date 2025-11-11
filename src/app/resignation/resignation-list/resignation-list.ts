@@ -108,10 +108,10 @@ export class ResignationList {
     const map: Record<string, string> = {
       'hr': 'hr',
       'human resources': 'hr',
-      'hr manager': 'hr_manager',
-      'hrm': 'hr_manager',
-      'reporting manager': 'reporting_manager',
-      'manager': 'reporting_manager'
+      'hr manager': 'hr manager',
+      'hrm': 'hr manager',
+      'reporting manager': 'reporting manager',
+      'manager': 'reporting manager'
     };
     return map[n] || s.toLowerCase().replace(/\s+/g, '_');
   }

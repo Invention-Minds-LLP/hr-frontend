@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Tests {
-  private apiUrl = 'http://localhost:3002/api/tests';
+  private apiUrl = environment.apiUrl + '/tests';
+  // private apiUrl = 'http://localhost:3002/api/tests';
 
   constructor(private http: HttpClient) {}
 

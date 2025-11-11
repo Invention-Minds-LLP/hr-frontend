@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 import {
   Internships,
   InternshipListResponse,
@@ -14,7 +15,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class InternshipService {
   // Change if your API is hosted elsewhere
-  private base = 'http://localhost:3002/api/internships';
+  private base = environment.apiUrl + '/internships';
+  // private base = 'http://localhost:3002/api/internships';
 
   constructor(private http: HttpClient) {}
 

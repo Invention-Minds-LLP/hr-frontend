@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 export interface LiveAnnStat {
   id: number;
@@ -32,7 +33,7 @@ export interface Announcement {
   providedIn: 'root'
 })
 export class Announcements {
-  private api = 'http://localhost:3002/api/announcement';
+  private api = environment.apiUrl + '/announcement';
 
   constructor(private http: HttpClient) {}
 

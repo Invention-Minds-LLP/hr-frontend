@@ -152,8 +152,9 @@ export class TrainingList {
     } else {
       this.trainingService.getTrainingsByEmployee(empId).subscribe({
         next: (res: any) => {
-          this.trainings = res;
           this.filteredTrainings = [...res];
+          this.trainings = res;
+          console.log('📥 Fetched trainings for employee', empId, this.filteredTrainings);
           this.loading = false;
         },
         error: (err: any) => {

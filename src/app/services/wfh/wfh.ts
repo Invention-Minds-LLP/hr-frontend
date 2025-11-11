@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 
 
@@ -8,7 +9,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Wfh {
-  private apiUrl = 'http://localhost:3002/api/wfh';
+  private apiUrl = environment.apiUrl + '/wfh';
+  // private apiUrl = 'http://localhost:3002/api/wfh';
 
   constructor(private http: HttpClient) { }
 

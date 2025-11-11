@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PerformanceService {
-  private baseUrl = "http://localhost:3002/api/performance";
+  private baseUrl = environment.apiUrl + '/performance';
+  // private baseUrl = "http://localhost:3002/api/performance";
 
   constructor(private http: HttpClient) {}
 
