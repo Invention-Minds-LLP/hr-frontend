@@ -79,10 +79,10 @@
   color: white !important;
 }
 
-
+/* 
 label {
   color: white !important;
-}
+} */
 
 .p-fluid1 {
   display: flex;
@@ -100,7 +100,6 @@ label {
 
 ::ng-deep .p-select-label,
 ::ng-deep .p-icon,
-.p-textarea,
 ::ng-deep .p-editor .p-editor-content .ql-editor {
   color: white !important;
 }

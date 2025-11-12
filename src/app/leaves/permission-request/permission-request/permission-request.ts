@@ -168,11 +168,19 @@ export class PermissionRequest {
   }
 
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
-    const norm = role.toUpperCase().replace(/\s+/g, '_');
-    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
-    if (norm === 'HR' || norm === 'HR MANAGER') return 'HR';
+    const norm = role.trim().toUpperCase();
+
+    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') {
+      return 'MANAGER';
+    }
+
+    if (norm === 'HR' || norm === 'HR MANAGER') {
+      return 'HR';
+    }
+
     return null;
   }
+
 
   approveRequest(id: number, role: 'MANAGER' | 'HR') {
     const normalized = this.normalizeRole(this.role);
@@ -252,7 +260,8 @@ export class PermissionRequest {
     this.selectedPermission = null;
     this.viewMode = false;
   }
-  private isHRRole(norm: string): boolean {
+  private isHRRole(role: string): boolean {
+    const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
   }
 

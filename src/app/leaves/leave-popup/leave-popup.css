@@ -245,4 +245,12 @@ button.reset {
   font-size: 1.2rem;
 }
 
+.calendar-day.taken {
+  background-color: #ccc;
+  color: #777;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+
   

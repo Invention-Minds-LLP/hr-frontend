@@ -426,10 +426,6 @@
         <app-resignation-form></app-resignation-form>
     </div> -->
 
-    <div class="my-test">
-        <app-my-tests></app-my-tests>
-    </div>
-
     <div class="test-list">
         <h1>Training Management
             <i class="pi pi-info-circle info-icon"
@@ -438,6 +434,12 @@
         </h1>
         <app-training-list [viewMode]="'individual'"></app-training-list>
     </div>
+
+    <div class="my-test">
+        <app-my-tests></app-my-tests>
+    </div>
+
+    
 
 
     <div class="bottom">
@@ -467,7 +469,7 @@
 </div>
 
 <app-leave-popup *ngIf="showLeaveDetailsPopup" [showPopup]="true" [leaveData]="selectedLeaveForView"
-    [isViewOnly]="leaveViewMode" [hasBackdrop]="true"  [overlapMessage]="overlapMessage" (close)="closePopup()">
+    [isViewOnly]="leaveViewMode" [hasBackdrop]="true"   (close)="closePopup()">
 </app-leave-popup>
 
 

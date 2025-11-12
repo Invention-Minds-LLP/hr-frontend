@@ -125,10 +125,12 @@ export class EmployeeList {
           return this.getBranchName(emp.branchId)
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase());
-        case 'shift':
-          return this.getShiftName(emp.shiftId)
-            .toLowerCase()
-            .includes(searchText.toLowerCase())
+        case 'shift': {
+          let shiftName = ''; if (emp.shiftId) { shiftName = this.getShiftName(emp.shiftId) || ''; }
+          else if (emp.latestShiftAssignment?.shift?.name) { shiftName = emp.latestShiftAssignment.shift.name; }
+          else if (emp.EmployeeShiftSetting?.mode) { shiftName = emp.EmployeeShiftSetting.mode; }
+          return shiftName.toLowerCase().includes(searchText.toLowerCase());
+        }
         default:
           return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
       }

@@ -29,8 +29,6 @@ export class LeavePopup {
   @Input() isViewOnly: boolean = false; // Controls editability
   @Output() close = new EventEmitter<void>();
   @Input() hasBackdrop = true;
-  @Input() overlapMessage: string = '';
-
 
 
   closePopup() {
@@ -130,11 +128,6 @@ export class LeavePopup {
     this.currentYear = today.getFullYear();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['overlapMessage']) {
-      console.log('Popup received overlapMessage:', this.overlapMessage);
-    }
-  }
 
 
 

@@ -103,5 +103,10 @@ export class Resignation {
     return this.http.get<any[]>(`${this.apiUrl}/with-clearances`);
   }
 
+  getExitInterviewByEmployee(employeeId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/exit-interview/employee/${employeeId}`);
+}
+
+
   
 }

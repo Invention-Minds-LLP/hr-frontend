@@ -20,11 +20,6 @@
                 <button class="close-btn" (click)="closePopup()">×</button>
 
             </div>
-
-            <div *ngIf="overlapMessage" class="overlap-warning">
-                <i class="pi pi-exclamation-triangle"></i>
-                {{ overlapMessage }}
-            </div>
         </div>
 
 
@@ -125,7 +120,7 @@
 
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
-                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
+                            [class.empty]="!day.isCurrentMonth"  (mousedown)="startDrag(day)"
                             (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>

@@ -170,7 +170,6 @@ export class TrainingList {
     return this.userRole === 'EMPLOYEE' || this.viewMode === 'individual';
   }
 
-
   toggleForm() {
     this.showForm = !this.showForm;
   }
@@ -308,6 +307,8 @@ export class TrainingList {
   openTestsDialog(training: any) {
     this.selectedTraining = training;
     this.showTestsDialog = true;
+    console.log('Selected training data:', this.selectedTraining);
+
   }
 
   openEmployeesDialog(training: any) {
