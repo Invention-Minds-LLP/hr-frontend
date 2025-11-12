@@ -39,4 +39,8 @@ export class SurveryService {
   getAllSurveys(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/all`);
   }
+
+   getByEmployee(employeeId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/employee/${employeeId}`);
+  }
 }

@@ -14,11 +14,12 @@ import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { FormsModule } from '@angular/forms';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-assigned-test',
   imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule,
-     InputTextModule, IconFieldModule, InputIconModule, FormsModule],
+     InputTextModule, IconFieldModule, InputIconModule, FormsModule,FloatLabel, InputTextModule],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css',
 

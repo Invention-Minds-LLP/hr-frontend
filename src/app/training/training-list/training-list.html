@@ -90,9 +90,12 @@
 
           <!-- ✅ TESTS COLUMN -->
           <td>
-            <ng-container *ngIf="t.trainingTests?.length; else noTests">
+            <ng-container
+              *ngIf="(isIndividualOrEmployee() ? t.training?.trainingTests : t.trainingTests)?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
-                {{ t.trainingTests.length }} test{{ t.trainingTests.length > 1 ? 's' : '' }}
+                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test{{
+                (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's' : ''
+                }}
               </span>
             </ng-container>
             <ng-template #noTests>
@@ -103,16 +106,15 @@
 
           <!-- ✅ ASSIGNED EMPLOYEES COLUMN -->
           <!-- <td *ngIf="userRole === 'HR'"> -->
-          <td>
-            <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees">
-              <span class="count-link" (click)="openEmployeesDialog(t)">
-                {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length > 1 ? 's' : '' }}
-              </span>
-            </ng-container>
-            <ng-template #noEmployees>
-              <span class="text-muted">0</span>
-            </ng-template>
-          </td>
+          <td> 
+            <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees"> 
+            <span class="count-link"
+                (click)="openEmployeesDialog(t)"> {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length> 1 ? 's' : '' }} </span> 
+              </ng-container> 
+              <ng-template #noEmployees> 
+                <span class="text-muted">0</span>
+            </ng-template> </td>
+
 
 
 
@@ -257,13 +259,17 @@
 <!-- TESTS LIST DIALOG -->
 <!-- ===================== -->
 <p-dialog header="Assigned Tests" [(visible)]="showTestsDialog" [modal]="true" [style]="{ width: '40vw' }">
-  <ng-container *ngIf="selectedTraining?.trainingTests?.length; else noTests" class="popup">
-    <p-table [value]="selectedTraining.trainingTests" styleClass="p-datatable-sm">
+  <ng-container
+    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.training?.trainingTests : selectedTraining?.trainingTests)?.length; else noTests"
+    class="popup">
+    <p-table
+      [value]="isIndividualOrEmployee() ? selectedTraining?.training?.trainingTests : selectedTraining?.trainingTests"
+      styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
-          <th>No</th>
-          <th>Test Name</th>
-          <th>Mandatory</th>
+          <th style="color: black !important;">No</th>
+          <th style="color: black !important;">Test Name</th>
+          <th style="color: black !important;">Mandatory</th>
         </tr>
       </ng-template>
 
@@ -287,8 +293,12 @@
 <!-- EMPLOYEES LIST DIALOG -->
 <!-- ===================== -->
 <p-dialog header="Assigned Employees" [(visible)]="showEmployeesDialog" [modal]="true" [style]="{ width: '40vw' }">
-  <ng-container *ngIf="selectedTraining?.assignedEmployees?.length; else noEmployees" class="popup">
-    <p-table [value]="selectedTraining.assignedEmployees" styleClass="p-datatable-sm">
+  <ng-container
+    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.training?.assignedEmployees : selectedTraining?.assignedEmployees)?.length; else noEmployees"
+    class="popup">
+    <p-table
+      [value]="isIndividualOrEmployee() ? selectedTraining?.training?.assignedEmployees : selectedTraining?.assignedEmployees"
+      styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
           <th>No</th>

@@ -36,9 +36,11 @@ export class LeaveRequest {
     { label: 'Department', value: 'deptName' },
     { label: 'Leave Type', value: 'leaveType' },
   ];
-  private isHRRole(norm: string): boolean {
+  private isHRRole(role: string): boolean {
+    const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
   }
+
 
   leaveData: any[] = [];
   currentUserId = 1; // Example, replace with actual logged-in user ID
@@ -101,7 +103,7 @@ export class LeaveRequest {
             empName: `${leave.employee?.firstName} ${leave.employee?.lastName}`,
             email: leave.employee?.email || '',
             department: leave.employee?.departmentId || '',
-            deptName: dept? dept.name : '',
+            deptName: dept ? dept.name : '',
             jobTitle: leave.employee?.designation || '',
             leaveType: leave.leaveType?.name,
             reson: leave.reason,
@@ -206,7 +208,7 @@ export class LeaveRequest {
     }
     return 'Pending';
   }
-  
+
 
   getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 40) % 360;
@@ -250,7 +252,7 @@ export class LeaveRequest {
   // }
   acceptLeave(id: number, role: 'MANAGER' | 'HR') {
     const normalized = this.normalizeRole(this.role);
-  if (!normalized) return;
+    if (!normalized) return;
 
 
     this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId, normalized).subscribe({
@@ -259,13 +261,21 @@ export class LeaveRequest {
     });
   }
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
-    const norm = role.toUpperCase().replace(/\s+/g, '_');
-    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') return 'MANAGER';
-    if (norm === 'HR' || norm === 'HR MANAGER') return 'HR';
+    const norm = role.trim().toUpperCase();
+
+    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') {
+      return 'MANAGER';
+    }
+
+    if (norm === 'HR' || norm === 'HR MANAGER') {
+      return 'HR';
+    }
+
     return null;
   }
-  
-  
+
+
+
   openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
     const normalized = this.normalizeRole(this.role);
     if (!normalized) return;
@@ -273,7 +283,7 @@ export class LeaveRequest {
     this.currentDeclineRole = normalized;   // NEW
     this.declineDialogVisible = true;
   }
-  
+
   confirmDecline() {
     if (!this.declineReason.trim()) return;
     this.leaveService.updateLeaveStatus(
@@ -292,7 +302,7 @@ export class LeaveRequest {
       error: (err) => console.error('Error declining leave:', err)
     });
   }
-  
+
   closeDeclineDialog() {
     this.declineDialogVisible = false;
     this.declineReason = '';

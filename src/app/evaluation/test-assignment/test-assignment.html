@@ -12,7 +12,7 @@
       <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
     </select> -->
 
-    <p-select [options]="tests" [(ngModel)]="selectedTestId" optionLabel="name" placeholder="Select a City" class="w-full md:w-56" />
+    <p-select [options]="tests" optionValue="id" [(ngModel)]="selectedTestId" optionLabel="name" placeholder="Select a City" class="w-full md:w-56" />
   </div>
 
   <!-- <div class="form-row">

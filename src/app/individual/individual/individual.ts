@@ -52,7 +52,6 @@ export class Individual {
   showLeaveDetailsPopup = false;
   selectedLeaveForView: any = null;
   leaveViewMode = false;
-  overlapMessage: string = ''
 
   // Permission
   showPermissionPopup = false;
@@ -485,8 +484,6 @@ export class Individual {
   viewLeaveDetails(row: any) {
     this.leaveViewMode = true;
     this.selectedLeaveForView = row;
-    this.overlapMessage = this.getOverlapMessage(row);
-    console.log('Generated overlapMessage:', this.overlapMessage);
     this.showLeaveDetailsPopup = true;
 
   }
@@ -516,44 +513,8 @@ export class Individual {
   getDefaultImage(): string {
     const gender = this.employee?.gender?.toUpperCase() || 'MALE';
     return gender === 'FEMALE' ? '/img-women.png' : '/img.png';
-  }
 
-
-  getOverlapMessage(currentLeave: any): string {
-    if (!currentLeave || !this.leave?.length) return '';
-
-    const approvedLeaves = this.leave.filter(
-      l => l.status === 'Approved' && l.id !== currentLeave.id
-    );
-
-    const currStart = new Date(currentLeave.startDate).getTime();
-    const currEnd = new Date(currentLeave.endDate).getTime();
-
-    for (const l of approvedLeaves) {
-      const start = new Date(l.startDate).getTime();
-      const end = new Date(l.endDate).getTime();
-
-      if (currStart <= end && currEnd >= start) {
-        const msg = `⚠️ This leave overlaps with an approved leave from ${this.formatDate(l.startDate)} to ${this.formatDate(l.endDate)}.`;
-        console.log('OverlapMessage generated:', msg); // ✅ add this
-        return msg;
-      }
-    }
-
-    return '';
-  }
-
-
-  // ✅ Move inside class and prefix with this.
-  private formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${d.getFullYear()}`;
-  }
-
-
-
+}
 }
 
 

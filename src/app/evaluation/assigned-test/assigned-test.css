@@ -1,7 +1,7 @@
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
-  padding: 20px 60px;
+  /* padding: 20px 60px; */
 }
 
 /* Header Row */
@@ -135,7 +135,7 @@
 
 .question-bank {
   font-family: "Sofia Sans";
-  padding: 40px 50px;
+  padding: 40px 60px;
 }
 
 .header {
@@ -289,4 +289,18 @@
 .p-inputtext{
   background-color: white;
   color: black;
+  width: 200px;
 }
+
+.custom-float label {
+  background-color: white;
+  padding: 0 4px; 
+}
+
+.custom-float input:focus ~ label {
+  color: black; 
+  background-color: #f5f7ff; 
+}
+
+
+
