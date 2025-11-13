@@ -20,7 +20,7 @@
           <th>Title</th>
           <th>Status</th>
           <!-- <th>Created</th> -->
-          <th style="text-align: center;" *ngIf="role === 'HR' || role === 'HR Manager'">Actions</th>
+          <th style="text-align: center;" *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" >>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-g let-rowIndex="rowIndex">
@@ -33,7 +33,7 @@
             </p-tag>
           </td>
           <!-- <td>{{ g.createdAt | date:'short' }}</td> -->
-          <td *ngIf="role === 'HR' || role === 'HR Manager'" class="flex align-items-center justify-content-center gap-2">
+          <td *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" class="flex align-items-center justify-content-center gap-2">
             <p-button icon="pi pi-eye" label="View" (onClick)="view(g)" ></p-button>
             <div>
               <p-select 

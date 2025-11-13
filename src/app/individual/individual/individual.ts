@@ -19,6 +19,9 @@ import { MyTests } from "../../evaluation/my-tests/my-tests";
 import { TrainingList } from "../../training/training-list/training-list";
 import { SurveyList } from "../../survey/survey-list/survey-list";
 import { ExitInterviewList } from "../../resignation/exit-interview-list/exit-interview-list";
+import { AttendanceCalendar } from '../../services/attendance-calendar/attendance-calendar';
+import { SurveryService } from '../../services/surveyService/survery-service';
+import { SurveyForm } from '../../survey/survey-form/survey-form';
 
 interface individual {
   date: string;
@@ -39,7 +42,7 @@ type LeaveTypeCount = { label: string; count: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList],
+    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SurveyForm],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -72,6 +75,8 @@ export class Individual {
   noHolidaysMessage: string = '';
   year = new Date().getFullYear();
 
+  currentUserId = localStorage.getItem('empId');
+
   leaveByTypeToday: LeaveTypeCount[] = [
     { label: 'Sick Leave', count: 3 },
     { label: 'Casual Leave', count: 2 },
@@ -79,11 +84,27 @@ export class Individual {
     // { label: 'Maternity', count: 0 },
     // { label: 'Comp Off', count: 1 },
   ];
+  selectedSurvey: any = null;   // Holds the survey being taken
+  showSurveyForm = false;
+
+  // Called when "Take Survey" button clicked
+  openSurveyForm(survey?: any) {
+    this.selectedSurvey = survey || null; // optional: draft or new
+    this.showSurveyForm = true;
+  }
+
+  // Called when SurveyForm emits closeForm
+  onSurveyFormClose() {
+    this.showSurveyForm = false;
+    this.selectedSurvey = null;
+
+    // optional: refresh pending surveys list
+    // this.loadPendingSurveys();
+  }
 
 
 
-
-  constructor(private employeeService: Employees) { }
+  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, private surveyService: SurveryService) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -123,16 +144,10 @@ export class Individual {
 
 
   // Working-Card
-  rawAttendance: { date: string; login?: string; logout?: string; status: 'Present' | 'Leave' | 'Day Off' }[] = [
-    { date: '2025-08-04', login: '10:00 AM', logout: '03:50 PM', status: 'Present' },
-    { date: '2025-08-05', status: 'Leave' },
-    { date: '2025-08-06', login: '09:15 AM', logout: '05:17 PM', status: 'Present' },
-    { date: '2025-08-07', login: '09:00 AM', logout: '05:20 PM', status: 'Present' },
-    { date: '2025-08-09', login: '08:50 AM', logout: '06:20 PM', status: 'Present' },
-    { date: '2025-08-10', status: 'Day Off' },
-  ];
+  rawAttendance:any[] = [];
 
   employee: any = null;
+  pendingSurveys: any[] = []; 
 
   ngOnInit() {
     this.generateWeekDays();
@@ -169,6 +184,16 @@ export class Individual {
           // this.errorToday = "Couldn't load today's celebrants.";
           this.birthday = [];
           this.anniversary = [];
+        },
+      });
+
+      this.surveyService.getDraftSurveys(Number(this.currentUserId)).subscribe({
+        next: (res) => {
+          console.log('Draft Surveys:', res);
+          this.pendingSurveys = res;
+        },
+        error: (err) => {
+          console.error('Error fetching draft surveys:', err);
         },
       });
   }
@@ -395,33 +420,85 @@ export class Individual {
 
   // Working-Card
 
+  // setWeek(referenceDate: Date) {
+  //   const start = this.getMonday(referenceDate);
+  //   const end = new Date(start);
+  //   end.setDate(start.getDate() + 6);
+
+  //   this.weekStart = start;
+  //   this.weekEnd = end;
+
+  //   this.attendanceData = [];
+
+  //   for (let i = 0; i < 7; i++) {
+  //     const current = new Date(start);
+  //     current.setDate(start.getDate() + i);
+
+  //     const record = this.rawAttendance.find(r =>
+  //       new Date(r.date).toDateString() === current.toDateString()
+  //     );
+
+  //     if (record) {
+  //       if (record.status === 'Present' && record.login && record.logout) {
+  //         const total = this.calculateTotalHours(record.login, record.logout);
+  //         this.attendanceData.push({
+  //           dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+  //           totalHours: total,
+  //           status: 'Present'
+  //         });
+  //       } else {
+  //         this.attendanceData.push({
+  //           dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+  //           status: record.status
+  //         });
+  //       }
+  //     } else {
+  //       this.attendanceData.push({
+  //         dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+  //         status: current.getDay() === 0 ? 'Day Off' : 'Leave'
+  //       });
+  //     }
+  //   }
+  // }
   setWeek(referenceDate: Date) {
     const start = this.getMonday(referenceDate);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-
+  
     this.weekStart = start;
     this.weekEnd = end;
-
+  
+    const employeeId = Number(this.currentUserId); // however you store the logged-in user
+  
+    this.attendanceService.getWeeklyAttendance(employeeId, start, end).subscribe({
+      next: (data) => {
+        this.rawAttendance = data;
+        this.buildAttendanceData(start);
+      },
+      error: (err) => console.error('Failed to fetch attendance', err)
+    });
+  }
+  
+  private buildAttendanceData(start: Date) {
     this.attendanceData = [];
-
     for (let i = 0; i < 7; i++) {
       const current = new Date(start);
       current.setDate(start.getDate() + i);
-
+  
       const record = this.rawAttendance.find(r =>
         new Date(r.date).toDateString() === current.toDateString()
       );
-
+  
       if (record) {
-        if (record.status === 'Present' && record.login && record.logout) {
-          const total = this.calculateTotalHours(record.login, record.logout);
+        if (record.status === 'Present' && record.checkIn && record.checkOut) {
+          const total = this.calculateTotalHours(record.checkIn, record.checkOut);
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
             totalHours: total,
             status: 'Present'
           });
-        } else {
+        }
+         else {
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
             status: record.status
@@ -435,6 +512,7 @@ export class Individual {
       }
     }
   }
+  
 
   isCurrentWeek(): boolean {
     const today = new Date();
@@ -442,16 +520,20 @@ export class Individual {
   }
 
 
-  calculateTotalHours(login: string, logout: string) {
-    const [loginHour, loginMin] = login.replace(/AM|PM/, '').trim().split(':').map(Number);
-    const [logoutHour, logoutMin] = logout.replace(/AM|PM/, '').trim().split(':').map(Number);
-    const loginDate = new Date(0, 0, 0, /PM/.test(login) && loginHour !== 12 ? loginHour + 12 : loginHour, loginMin);
-    const logoutDate = new Date(0, 0, 0, /PM/.test(logout) && logoutHour !== 12 ? logoutHour + 12 : logoutHour, logoutMin);
-    const diffMs = logoutDate.getTime() - loginDate.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
-    return `${hours.toString().padStart(2, '0')} hrs ${minutes.toString().padStart(2, '0')} mins`;
+  calculateTotalHours(checkIn: string | Date, checkOut: string | Date): string {
+    const inTime = new Date(checkIn);
+    const outTime = new Date(checkOut);
+  
+    const diffMs = outTime.getTime() - inTime.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return '0 hrs 0 mins';
+  
+    const totalMinutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+  
+    return `${hours} hrs ${minutes} mins`;
   }
+  
 
   previousWeek() {
     const prevWeek = new Date(this.weekStart);

@@ -540,3 +540,10 @@
   background-color: #0062A1;
   border: 1px solid #0062A1;
 }
+
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}

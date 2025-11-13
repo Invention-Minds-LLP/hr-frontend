@@ -63,7 +63,10 @@ export class EmployeeForm {
   employmentStatuses = [
     { label: 'Active', value: 'ACTIVE' },
     { label: 'Terminated', value: 'TERMINATED' },
-    { label: 'Suspended', value: 'SUSPENDED' }
+    { label: 'Suspended', value: 'SUSPENDED' },
+    { label: 'Notice Period', value: 'NOTICE_PERIOD' },
+    { label: 'Resigned', value: 'RESIGNED' }
+
   ];
   documentCategories = [
     { label: 'Identity Proof', value: 'IDENTITY' },

@@ -1,0 +1,57 @@
+<p-dialog
+  header="{{ complaint?.type }} Complaint Acknowledgement"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '450px' }"
+>
+  <ng-container *ngIf="complaint">
+    <div class="p-fluid">
+      <!-- <div class="p-field">
+        <label><strong>ID:</strong></label>
+        <span>{{ complaint.id }}</span>
+      </div> -->
+      <div class="p-field mt-2">
+        <label><strong>Description:</strong></label>
+        <span>{{ complaint.description || 'No description' }}</span>
+      </div>
+      <div class="p-field mt-2">
+        <label><strong>Status:</strong></label>
+        <span>{{ complaint.status }}</span>
+      </div>
+    </div>
+
+    <p class="ack-text" *ngIf="complaint.type === 'POSH'">
+        A new <strong>POSH (Prevention of Sexual Harassment)</strong> case has been reported.
+        Please acknowledge this notification and ensure that the necessary
+        investigation and committee procedures are followed as per company policy.
+      </p>
+      
+      <p class="ack-text" *ngIf="complaint.type === 'GRIEVANCE'">
+        A new <strong>Grievance</strong> has been raised by an employee.
+        Kindly acknowledge this notification and review the details to take
+        appropriate action in accordance with HR grievance-handling procedures.
+      </p>
+      
+
+    <div class="p-dialog-footer" style="text-align: right;">
+      <!-- <button
+        pButton
+        type="button"
+        label="Close"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="onDialogHide()"
+      ></button> -->
+      <button
+        pButton
+        type="button"
+        label="{{ acknowledged ? 'Acknowledged' : 'Acknowledge' }}"
+        icon="pi pi-check"
+        [disabled]="acknowledged || loading"
+        (click)="acknowledge()"
+      ></button>
+    </div>
+  </ng-container>
+</p-dialog>

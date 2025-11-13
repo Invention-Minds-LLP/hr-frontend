@@ -28,3 +28,10 @@
 
 <app-announcement-popup></app-announcement-popup>
 
+<app-acknowledge-popup
+*ngIf="pendingComplaint"
+[visible]="popupVisible"
+[complaint]="pendingComplaint"
+[employeeId]="employeeId"
+(close)="onPopupClosed($event)">
+</app-acknowledge-popup>

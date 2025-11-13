@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment/environment.prod';
+import { HttpParams } from '@angular/common/http';
 
 export interface SurveyQuestion {
   id: number;
@@ -40,7 +41,8 @@ export class SurveryService {
     return this.http.get<any[]>(`${this.baseUrl}/all`);
   }
 
-   getByEmployee(employeeId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/employee/${employeeId}`);
+  getDraftSurveys(employeeId: number): Observable<any[]> {
+    const params = new HttpParams().set('employeeId', employeeId.toString());
+    return this.http.get<any[]>(`${this.baseUrl}/drafts`, { params });
   }
 }

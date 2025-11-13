@@ -18,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -69,13 +70,15 @@ export class TrainingList {
   selectedTests: any[] = [];
   employees: any[] = [];
   @ViewChild('trainingFormRef') trainingForm!: TrainingForm;
+  currentPath: string = '';
 
 
-  constructor(private trainingService: Trainings, private employeeService: Employees,
+  constructor(private trainingService: Trainings, private employeeService: Employees, private router: Router,
     private testService: Tests, private fb: FormBuilder, private departmentService: Departments) { }
 
   ngOnInit() {
     const role = localStorage.getItem('role') || 'EMPLOYEE';
+    this.currentPath = this.router.url;
     this.userRole = role === 'HR' || role === 'HR Manager' ? 'HR' : 'EMPLOYEE';
     this.fetchTrainings();
     this.loadEmployees();
@@ -136,11 +139,13 @@ export class TrainingList {
     this.loading = true;
 
     const empId = localStorage.getItem('empId') || '1';
+    const currentPath = this.router.url;
 
-    if (this.userRole === 'HR' && this.viewMode === 'admin') {
+    if (this.userRole === 'HR' && currentPath !== '/individual') {
       this.trainingService.getAllTrainings().subscribe({
         next: (res) => {
           this.filteredTrainings = [...res];
+          console.log('📥 Fetched all trainings for HR', this.filteredTrainings);
           this.trainings = res;
           this.loading = false;
         },

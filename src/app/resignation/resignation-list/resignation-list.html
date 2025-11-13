@@ -60,18 +60,18 @@
         <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
         <td class="actions">
           <ng-container *ngIf="
-      (r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')) ||
+      (r.managerDecision === 'PENDING' && ( employeeId === r?.employee?.reportingManager)) ||
       (r.managerDecision === 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')) ||
       (r.status === 'WITHDRAW_REQUESTED' && isHR);
     else dash">
-          <ng-container *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
+          <ng-container *ngIf="r.managerDecision === 'PENDING' && (employeeId === r?.employee?.reportingManager)">
             <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
             <button pButton size="small" label="Manager Reject" class="p-button-danger"
               (click)="rejectManager(r)"></button>
           </ng-container>
           <ng-container
             *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
-            <button pButton size="small" label="HR Approve" class="p-button-success" (click)="approveHR(r)"></button>
+            <button pButton size="small" label="HR Approve" class="p-button-success" (click)="openApprovePopup(r)"></button>
             <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
             <button pButton size="small" label="On Hold" class="p-button-warning"
               style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
@@ -107,3 +107,54 @@
     </ng-template>
   </p-table>
 </div>
+<p-dialog
+  header="Approve Resignation"
+  [(visible)]="showApprovePopup"
+  [modal]="true"
+  [closable]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '400px' }"
+>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="lwd">Actual Last Working Day</label>
+      <p-datepicker
+        id="lwd"
+        [(ngModel)]="selectedLwd"
+        dateFormat="yy-mm-dd"
+        [showIcon]="true"
+        inputId="lwd"
+        style="width: 100%;"
+        appendTo="body"
+        class="mt-2"
+      ></p-datepicker>
+    </div>
+
+    <!-- Optional context info -->
+    <div class="p-field" *ngIf="selectedRecord">
+      <p><strong>Employee:</strong> {{ selectedRecord?.employee?.firstName }} {{ selectedRecord?.employee?.lastName }}</p>
+      <p><strong>Proposed LWD:</strong> {{ selectedRecord?.proposedLastWorkingDay | date: 'yyyy-MM-dd' }}</p>
+    </div>
+  </div>
+
+  <!-- ✅ Footer section (modern way) -->
+  <ng-template pTemplate="footer">
+    <div class="footer-actions" style="text-align: right;">
+      <button
+        pButton
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="showApprovePopup = false"
+      ></button>
+      <button
+        pButton
+        label="Approve"
+        icon="pi pi-check"
+        class="p-button-success"
+        (click)="submitHRApproval()"
+        [disabled]="!selectedLwd"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

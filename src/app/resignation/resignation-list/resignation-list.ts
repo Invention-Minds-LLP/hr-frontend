@@ -14,11 +14,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Departments } from '../../services/departments/departments';
 import { Tooltip, TooltipModule } from "primeng/tooltip";
 import { ToolbarModule } from 'primeng/toolbar';
+import { DatePicker, DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost, RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule],
+  imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost,
+     RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, DatePickerModule, FormsModule, ToolbarModule],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -43,18 +46,37 @@ export class ResignationList {
 
   departments: any[] = [];
   departmentMap: Record<number, string> = {};
+  selectedRecord: any = null;
+
+  showApprovePopup = false;
+  selectedLwd: Date | null = null;
 
   constructor(private api: Resignation, private dept: Departments) { }
 
   ngOnInit() {
     // const norm = this.normalize(this.role);
+    this.loadResignations();
+    console.log('User Role:', this.role);
+    this.dept.getDepartments().subscribe((depts: any[]) => {
+      this.departments = depts;
+
+      this.departmentMap = this.departments.reduce((map, dept) => {
+        map[dept.id] = dept.name;
+        return map;
+      }, {} as Record<number, string>);
+    });
+
+    this.filteredRows = [...this.rows]
+  }
+
+  loadResignations(){
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
       this.api.list({ scope: 'all' }).subscribe(r => {
         this.rows = r;
         this.filteredRows = [...this.rows]
         // console.log(this.filteredRows)
       });
-    } else if (this.role === 'Reporting Manager' || this.role === 'Manager') {
+    } else if (this.role === 'Reporting Manager' || this.role === 'Manager' || this.role === 'HR Manager') {
       this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {
         this.rows = r
         this.filteredRows = [...this.rows]
@@ -68,18 +90,7 @@ export class ResignationList {
       });
     }
 
-    this.dept.getDepartments().subscribe((depts: any[]) => {
-      this.departments = depts;
-
-      this.departmentMap = this.departments.reduce((map, dept) => {
-        map[dept.id] = dept.name;
-        return map;
-      }, {} as Record<number, string>);
-    });
-
-    this.filteredRows = [...this.rows]
   }
-
   approveManager(r: any) {
     this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));
   }
@@ -99,8 +110,34 @@ export class ResignationList {
     this.api.hrCancel(r.id).subscribe(upd => this.replace(upd));
   }
 
+  openApprovePopup(r: any) {
+    this.selectedRecord = r;
+    this.selectedLwd = null;
+    this.showApprovePopup = true;
+  }
+
+  submitHRApproval() {
+    if (!this.selectedRecord) return;
+  
+    const payload = {
+      actualLastWorkingDay: this.selectedLwd
+        ? this.selectedLwd.toISOString().split('T')[0] // gives "yyyy-mm-dd"
+        : undefined,
+    };
+    
+  
+    this.api.hrApprove(this.selectedRecord.id, payload).subscribe({
+      next: (upd) => {
+        this.replace(upd);
+        this.showApprovePopup = false;
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
   private replace(upd: any) {
     this.rows = this.rows.map(x => x.id === upd.id ? upd : x);
+    this.loadResignations()
   }
 
   private normalize(s: string) {

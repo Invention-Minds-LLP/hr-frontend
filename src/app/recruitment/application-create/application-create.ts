@@ -70,6 +70,15 @@ export class ApplicationCreate implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    if(this.selectedResumeFile === undefined){
+      this.messageService.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Please upload your resume!",
+      });
+      this.saving = false;
+      return;
+    }
   
     this.saving = true;
   

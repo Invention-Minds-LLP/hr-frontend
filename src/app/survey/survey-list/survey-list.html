@@ -26,7 +26,9 @@
           <th>Employee ID</th>
           <th>Employee Name</th>
           <th>Department</th>
+          <th>Assigned Date</th>
           <th>Submitted Date</th>
+          <th>Status</th>
           <th>Action</th>
         </tr>
       </ng-template>
@@ -46,8 +48,13 @@
             </span>
           </td>
           <td>{{ survey.date | date:'dd-MM-yyyy' }}</td>
+          <td>{{ survey.submittedAt | date:'dd-MM-yyyy' }}</td>
           <td>
-            <button pButton label="View" (click)="openSurvey(survey)"></button>
+            <p-tag [severity]="getStatusColor(survey.status)">
+              {{ survey.status }}
+            </p-tag>
+          <td>
+            <button pButton label="View" [disabled]="survey.status !== 'SUBMITTED'" (click)="survey.status === 'SUBMITTED' && openSurvey(survey)"></button>
           </td>
         </tr>
       </ng-template>

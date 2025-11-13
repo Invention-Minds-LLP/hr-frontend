@@ -72,7 +72,7 @@
         </button> 
 
         <button pButton type="submit" label="Submit Survey" class="p-button-success"
-          *ngIf="currentIndex === groupedQuestions.length - 1 && !surveyData"></button>
+          *ngIf="(currentIndex === groupedQuestions.length - 1 && !surveyData) && surveyData.status === 'DRAFT'"></button>
       </div>
     </form>
   </div>

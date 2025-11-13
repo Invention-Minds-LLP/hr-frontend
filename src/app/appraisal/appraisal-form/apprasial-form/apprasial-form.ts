@@ -33,7 +33,8 @@ export class ApprasialForm {
   constructor(private fb: FormBuilder, private appraisalService: Appraisal) { }
 
   ngOnInit() {
-    this.initForm()
+    this.initForm();
+    this.setupAutoCalculation();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -331,5 +332,59 @@ export class ApprasialForm {
 
     return invalidFields;
   }
-
+  private setupAutoCalculation() {
+    const ratingControls = [
+      'qualityOfWorkRating',
+      'knowledgeOfJobRating',
+      'teamworkRating',
+      'independenceRating',
+      'recordsRating',
+      'guestServiceRating',
+      'safetyRating',
+      'attendanceRating',
+      'leadershipRating'
+    ];
+  
+    // Watch all rating fields
+    ratingControls.forEach(controlName => {
+      const control = this.appraisalForm.get(controlName);
+      if (control) {
+        control.valueChanges.subscribe(() => this.updateOverallScore());
+      }
+    });
+  }
+  
+  private updateOverallScore() {
+    const ratingControls = [
+      'qualityOfWorkRating',
+      'knowledgeOfJobRating',
+      'teamworkRating',
+      'independenceRating',
+      'recordsRating',
+      'guestServiceRating',
+      'safetyRating',
+      'attendanceRating',
+      'leadershipRating'
+    ];
+  
+    let total = 0;
+    let count = 0;
+  
+    ratingControls.forEach(field => {
+      const value = parseFloat(this.appraisalForm.get(field)?.value);
+      if (!isNaN(value)) {
+        total += value;
+        count++;
+      }
+    });
+  
+    const average = count > 0 ? total / count : 0;
+  
+    // Update the overall score (rounded to 2 decimals)
+    this.appraisalForm.patchValue(
+      { overallScore: parseFloat(average.toFixed(2)) },
+      { emitEvent: false } // avoid infinite loops
+    );
+  }
+  
 }

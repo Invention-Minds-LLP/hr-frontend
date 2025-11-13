@@ -9,10 +9,11 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { InputTextModule } from 'primeng/inputtext';
+import { Tag, TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-survey-list',
-  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule],
+  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule, TagModule],
   templateUrl: './survey-list.html',
   styleUrl: './survey-list.css'
 })
@@ -112,7 +113,21 @@ export class SurveyList {
     return { badgeColor, dotColor };
   }
 
-
+  getStatusColor(status: string): 'success' | 'warn' | 'info' | 'danger' | 'secondary' {
+    switch (status?.toLowerCase()) {
+      case 'submitted':
+        return 'success'; // Green
+      case 'draft':
+        return 'warn'; // Yellow/Orange
+      case 'pending':
+        return 'info'; // Blue (optional state)
+      case 'rejected':
+        return 'danger'; // Red
+      default:
+        return 'secondary'; // Gray for unknown statuses
+    }
+  }
+  
 
 
 }

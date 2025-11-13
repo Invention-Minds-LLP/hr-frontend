@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-grievance-list',
@@ -29,17 +30,18 @@ export class GrievanceList {
   newComment = '';
   role = '';
   empId = '';
+  currentPath: string  = ''
 
   statuses = ['OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'];
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
 
-  constructor(private grievanceService: Grievance) {}
+  constructor(private grievanceService: Grievance,private router: Router) {}
 
   ngOnInit() {
     this.role = localStorage.getItem('role') || '';
     this.empId = localStorage.getItem('empId') || '';
     this.loadGrievances();
-    
+    this.currentPath = this.router.url;
   }
 
   loadGrievances() {

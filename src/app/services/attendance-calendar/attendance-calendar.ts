@@ -15,12 +15,20 @@ export interface CalendarEventData {
   providedIn: 'root'
 })
 export class AttendanceCalendar {
-  private baseUrl = environment.apiUrl + '/attendance-calendar';
+  private baseUrl = environment.apiUrl + '/attendance';
   // private baseUrl = 'http://localhost:3002/api/attendance-calendar';
 
   constructor(private http: HttpClient) {}
 
   getCalendarData(employeeId: number, month: string): Observable<CalendarEventData[]> {
     return this.http.get<CalendarEventData[]>(`${this.baseUrl}/${employeeId}?month=${month}`);
+  }
+  getWeeklyAttendance(employeeId: number, start: Date, end: Date): Observable<any[]> {
+    const params = {
+      employeeId: employeeId.toString(),
+      start: start.toISOString(),
+      end: end.toISOString()
+    };
+    return this.http.get<any[]>(this.baseUrl, { params });
   }
 }

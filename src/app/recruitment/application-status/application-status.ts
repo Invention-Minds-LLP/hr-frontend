@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { of, switchMap } from 'rxjs';
 // RxJS
@@ -27,6 +28,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { Employees } from '../../services/employees/employees';
 import { Chip } from 'primeng/chip';
 import { CandidateSummary } from '../candidate-summary/candidate-summary';
+import { Toast } from "primeng/toast";
+
 
 type ActionKey =
   | `MOVE:${ApplicationStatuses}`
@@ -54,7 +57,7 @@ type ActionKey =
     DividerModule,
     TagModule,
     Chip,
-    DatePicker, ReactiveFormsModule],
+    DatePicker, ReactiveFormsModule, Toast],
   templateUrl: './application-status.html',
   styleUrl: './application-status.css',
   providers: [MessageService]
@@ -66,7 +69,8 @@ export class ApplicationStatus implements OnInit {
   private api = inject(Recuriting);
   private fb = inject(FormBuilder);
   private messages = inject(MessageService);
-  constructor(private sanitizer: DomSanitizer, private employeeService: Employees) { }
+  constructor(private sanitizer: DomSanitizer, private employeeService: Employees,
+     private messageService: MessageService, private cd: ChangeDetectorRef) { }
 
   jobs: Job[] = [];
   selectedJobId?: number;
@@ -225,11 +229,36 @@ export class ApplicationStatus implements OnInit {
       panelUserIds: (v.panelIds ?? []).join(','),
     };
 
-    this.api.scheduleInterview(this.currentApp.id, payload).subscribe(() => {
-      this.showInterviewDialog = false;
-      this.resetInterview();
-      this.load();
+    this.api.scheduleInterview(this.currentApp.id, payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Interview Scheduled',
+          detail: 'Interview has been successfully scheduled.',
+        });
+        this.showInterviewDialog = false;
+        this.resetInterview();
+        this.load();
+      },
+      error: (err) => {
+        if (err.status === 409 && err.error?.warning) {
+          const details = (err.error.conflicts || []).join('\n');
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Scheduling Conflict',
+            detail: `${err.error.message}\n${details}`,
+            life: 8000,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to schedule interview',
+          });
+        }
+      },
     });
+    
   }
 
 
@@ -281,7 +310,10 @@ export class ApplicationStatus implements OnInit {
   //     this.load();
   //   });
   // }
-  resetInterview() { this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelIds: [] }); }
+  resetInterview() { 
+    this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelIds: [] });
+    // this.resetAction(this.currentApp?.id!);
+ }
 
   submitOffer(skipDate: boolean) {
     if (!this.currentApp) return;
@@ -598,6 +630,7 @@ export class ApplicationStatus implements OnInit {
 
     });
     this.rejectDlg.visible = false;
+    this.resetAction(this.rejectDlg.app.id);
   }
   shortlistDlg = { visible: false, app: null as Application | null, stage: '', shortListNote: '' };
   openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '', shortListNote: '' }; }
@@ -637,4 +670,33 @@ export class ApplicationStatus implements OnInit {
     this.selectedAppId = app.id;
     this.showSummaryDialog = true;
   }
+  resetAction(appId: number) {
+    this.actionSel = { ...this.actionSel, [appId]: null };
+    this.cd.detectChanges();
+  }
+  onInterviewDialogHide() {
+    // Reset the form
+    console.log('Interview dialog closed');
+    this.resetInterview();
+  
+    // Reset dropdown selection (so you can reselect the same action)
+    if (this.currentApp) {
+      this.resetAction(this.currentApp.id);
+    }
+  
+    // Clear current app reference
+    this.currentApp = null;
+  }
+  onActionChange(a: Application, key: ActionKey | null) {
+    if (!key) return;
+  
+    // Call your handler first
+    this.handleActionSelect(a, key);
+  
+    // Reset the dropdown *after* a brief delay to ensure reactivity
+    setTimeout(() => {
+      this.actionSel = { ...this.actionSel, [a.id]: null }; // new object reference
+    }, 100);
+  }
+  
 }

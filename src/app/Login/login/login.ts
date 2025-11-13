@@ -44,6 +44,19 @@ export class Login {
     else{
       this.router.navigate(['/login'])
     }
+    const logoutReason = localStorage.getItem('logoutReason');
+    if (logoutReason === 'inactivity') {
+      console.log('Logged out due to inactivity');
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Logged Out',
+        detail: 'You were logged out due to inactivity.',
+        // life: 5000 // Display for 5 seconds
+      });
+
+      // Remove the reason after displaying it
+      localStorage.removeItem('logoutReason');
+    }
   }
   private isEmail(value: string): boolean {
     // simple email check; good enough for routing logic

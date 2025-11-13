@@ -1,5 +1,5 @@
 <div class="appraisal-container ">
-    <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <form [formGroup]="appraisalForm" class="p-fluid">
       <div class="appraisal-form">
         <h2 class="text-center mb-4">Appraisal Form</h2>
   
@@ -104,6 +104,7 @@
                 formControlName="overallScore"
                 max="10"
                 min="0"
+                readonly
               />
               <label>Overall Score</label>
             </p-floatlabel>

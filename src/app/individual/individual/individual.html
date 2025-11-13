@@ -1,4 +1,4 @@
-<div class="individual-container">
+<div class="individual-container" *ngIf="!showSurveyForm">
 
     <div class="individual-top">
         <div class="part-1">
@@ -90,6 +90,19 @@
                         - {{ employee?.emergencyContacts[0]?.phone }}
                     </div>
                 </div>
+
+                <div class="employee-meta flex" *ngIf="pendingSurveys.length > 0 && !showSurveyForm">
+                    <!-- <div><strong>Take Survey</strong></div> -->
+                  
+                    <div *ngFor="let survey of pendingSurveys">
+                      <p-button
+                        label="Take Survey"
+                        icon="pi pi-file-edit"
+                        (click)="openSurveyForm(survey)">
+                      </p-button>
+                    </div>
+                  </div>
+                  
             </div>
 
 
@@ -121,8 +134,8 @@
 
                             <ng-container [ngSwitch]="day.status">
                                 <div class="time" *ngSwitchCase="'Present'">
-                                    {{ day.totalHours }}
-                                </div>
+                                    {{ day.totalHours || '0 hrs 0 mins' }}
+                                  </div>                                
                                 <div class="status leave" *ngSwitchCase="'Leave'">Leave</div>
                                 <div class="status off" *ngSwitchCase="'Day Off'">Day Off</div>
                                 <div class="status empty" *ngSwitchCase="'Empty'"></div>
@@ -480,3 +493,9 @@
 <!-- <app-wfh-popup *ngIf="showWFHPopup" [showPopup]="true" [wfhData]="selectedWFH" [isViewOnly]="wfhViewMode"
     [hasBackDrop]="true" (close)="closePopup()">
 </app-wfh-popup> -->
+
+<app-survey-form
+  *ngIf="showSurveyForm"
+  [surveyData]="selectedSurvey"
+  (closeForm)="onSurveyFormClose()">
+</app-survey-form>

@@ -40,7 +40,7 @@
           <th>Title</th>
           <th>Trainer</th>
           <th>Tests</th>
-          <th>Assigned Employees</th>
+          <th *ngIf="userRole === 'HR' && currentPath !== '/individual'">Assigned Employees</th>
           <th>Start</th>
           <th>End</th>
           <th>Status</th>
@@ -52,7 +52,7 @@
       <ng-template pTemplate="body" let-t let-i="rowIndex">
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ t.training?.title }}</td>
+          <td>{{ t.title }}</td>
 
           <!-- TRAINER COLUMN (unchanged) -->
           <td>
@@ -91,11 +91,9 @@
           <!-- ✅ TESTS COLUMN -->
           <td>
             <ng-container
-              *ngIf="(isIndividualOrEmployee() ? t.training?.trainingTests : t.trainingTests)?.length; else noTests">
+              *ngIf="t.trainingTests?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
-                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test{{
-                (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's' : ''
-                }}
+                {{  t.trainingTests?.length }} test{{t.trainingTests?.length  > 1 ? 's' : ''}}
               </span>
             </ng-container>
             <ng-template #noTests>
@@ -106,7 +104,7 @@
 
           <!-- ✅ ASSIGNED EMPLOYEES COLUMN -->
           <!-- <td *ngIf="userRole === 'HR'"> -->
-          <td> 
+          <td *ngIf="userRole === 'HR' && currentPath !== '/individual'"> 
             <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees"> 
             <span class="count-link"
                 (click)="openEmployeesDialog(t)"> {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length> 1 ? 's' : '' }} </span> 
@@ -119,8 +117,8 @@
 
 
           <!-- REST OF YOUR COLUMNS -->
-          <td>{{ ( isIndividualOrEmployee() ? t.training?.startDate : t.startDate) | date: 'short' }}</td>
-          <td>{{ ( isIndividualOrEmployee() ? t.training?.endDate : t.endDate) | date: 'short' }}</td>
+          <td>{{ ( isIndividualOrEmployee() ? t.startDate : t.startDate) | date: 'short' }}</td>
+          <td>{{ ( isIndividualOrEmployee() ? t.endDate : t.endDate) | date: 'short' }}</td>
           <td class="t-data al">
             <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).badgeColor }">
               <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).dotColor }"></span>
@@ -212,7 +210,7 @@
   [(visible)]="showFeedbackDialog" [modal]="true" [style]="{ width: '60vw' }">
   <!-- EMPLOYEE -->
   <ng-container *ngIf="isIndividualOrEmployee(); else hrFeedbackView">
-    <app-training-overview [trainingId]="selectedTraining?.training?.id" [employeeId]="selectedTraining?.employeeId"
+    <app-training-overview [trainingId]="selectedTraining?.id" [employeeId]="selectedTraining?.employeeId"
       (ngSubmit)="fetchTrainings(); showFeedbackDialog = false"></app-training-overview>
   </ng-container>
 
@@ -260,10 +258,10 @@
 <!-- ===================== -->
 <p-dialog header="Assigned Tests" [(visible)]="showTestsDialog" [modal]="true" [style]="{ width: '40vw' }">
   <ng-container
-    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.training?.trainingTests : selectedTraining?.trainingTests)?.length; else noTests"
+    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests)?.length; else noTests"
     class="popup">
     <p-table
-      [value]="isIndividualOrEmployee() ? selectedTraining?.training?.trainingTests : selectedTraining?.trainingTests"
+      [value]="isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests"
       styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
@@ -294,10 +292,10 @@
 <!-- ===================== -->
 <p-dialog header="Assigned Employees" [(visible)]="showEmployeesDialog" [modal]="true" [style]="{ width: '40vw' }">
   <ng-container
-    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.training?.assignedEmployees : selectedTraining?.assignedEmployees)?.length; else noEmployees"
+    *ngIf="(isIndividualOrEmployee() ? selectedTraining?.assignedEmployees : selectedTraining?.assignedEmployees)?.length; else noEmployees"
     class="popup">
     <p-table
-      [value]="isIndividualOrEmployee() ? selectedTraining?.training?.assignedEmployees : selectedTraining?.assignedEmployees"
+      [value]="isIndividualOrEmployee() ? selectedTraining?.assignedEmployees : selectedTraining?.assignedEmployees"
       styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>

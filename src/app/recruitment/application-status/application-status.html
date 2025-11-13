@@ -72,7 +72,7 @@
         <td class="actions">
           <p-select [options]="actionOptionsFor(a)" [(ngModel)]="actionSel[a.id]" placeholder="Choose action"
             appendTo="body" [style]="{ width: '10rem' }"
-            (onChange)="handleActionSelect(a, $event.value); actionSel[a.id]=null">
+            (onChange)="onActionChange(a, $event.value)">
           </p-select>
         </td>
         <td>
@@ -94,7 +94,7 @@
 <!-- ====================== -->
 <p-dialog header="Schedule Interview" [(visible)]="showInterviewDialog" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'48vw', '640px':'92vw' }" [style]="{ width:'640px' }"
-  (onHide)="resetInterview()">
+  (onHide)="onInterviewDialogHide()">
   <form [formGroup]="interviewForm" class="si-body p-fluid">
     <!-- Stage -->
     <div class="si-field">
@@ -166,7 +166,7 @@
 <!-- ====================== -->
 <p-dialog header="Send Offer" [(visible)]="showOfferDialog" [modal]="true" [dismissableMask]="true" [draggable]="false"
   [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }" [style]="{ width:'420px' }"
-  (onHide)="offerForm.reset()">
+  (onHide)="offerForm.reset(); currentApp && resetAction(currentApp.id)">
   <form [formGroup]="offerForm" class="dialog-body p-fluid">
     <div class="field">
       <label class="label">Proposed Join <span class="muted">(optional)</span></label>
@@ -187,7 +187,7 @@
 <!-- ====================== -->
 <p-dialog [header]="reasonDialogTitle" [(visible)]="showReasonDialog" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }" [style]="{ width:'480px' }"
-  (onHide)="reasonForm.reset()">
+  (onHide)="reasonForm.reset(); currentApp && resetAction(currentApp.id)">
   <form [formGroup]="reasonForm" class="dialog-body p-fluid">
     <div class="field">
       <label class="label">{{ reasonDialogLabel }}</label>
@@ -212,7 +212,7 @@
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'520px', '640px':'95vw' }"
   [style]="{ width:'560px' }"
   [contentStyle]="{ 'max-height':'72vh','overflow-y':'auto','overflow-x':'hidden','padding-bottom':'0' }"
-  (onHide)="assignTestForm.reset()">
+  (onHide)="assignTestForm.reset(); currentApp && resetAction(currentApp.id)">
   <form [formGroup]="assignTestForm" class="at-body p-fluid">
     <div class="at-field">
       <label class="at-label">Evaluation Test <span class="at-req">*</span></label>
@@ -265,7 +265,7 @@
 
 <p-dialog header="Move to Shortlisted" [(visible)]="shortlistDlg.visible" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }"
-  [style]="{ width:'480px' }">
+  [style]="{ width:'480px' }" (onHide)="shortlistDlg.app && resetAction(shortlistDlg.app.id)">
   <div class="dialog-body">
     ️<p>Are you sure you want to move this application to <b>Shortlisted</b>?</p>
     <div class="field">
@@ -293,7 +293,7 @@
 
 <p-dialog header="Reject Application" [(visible)]="rejectDlg.visible" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }"
-  [style]="{ width:'520px' }">
+  [style]="{ width:'520px' }" (onHide)="rejectDlg.app && resetAction(rejectDlg.app.id)">
   <div class="dialog-body p-fluid">
     <div class="field">
       <label class="label">Reason <span class="req">*</span></label>
@@ -324,3 +324,5 @@
     <button pButton label="Close" class="p-button-text" (click)="showSummaryDialog=false"></button>
   </ng-template>
 </p-dialog>
+
+<p-toast></p-toast>
