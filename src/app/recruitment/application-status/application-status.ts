@@ -28,6 +28,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { Employees } from '../../services/employees/employees';
 import { Chip } from 'primeng/chip';
 import { CandidateSummary } from '../candidate-summary/candidate-summary';
+import { SkeletonModule } from 'primeng/skeleton';
 import { Toast } from "primeng/toast";
 
 
@@ -57,7 +58,7 @@ type ActionKey =
     DividerModule,
     TagModule,
     Chip,
-    DatePicker, ReactiveFormsModule, Toast],
+    DatePicker, ReactiveFormsModule, SkeletonModule, Toast],
   templateUrl: './application-status.html',
   styleUrl: './application-status.css',
   providers: [MessageService]
@@ -86,8 +87,6 @@ export class ApplicationStatus implements OnInit {
   resumeSafeUrl?: SafeResourceUrl;
   showSummaryDialog = false;
   selectedAppId: number | null = null;
-
-
 
 
 
@@ -155,8 +154,12 @@ export class ApplicationStatus implements OnInit {
 
 
   ngOnInit() {
-    this.api.listJobs({ pageSize: 200 }).subscribe(res => (this.jobs = res.rows));
-    this.load();
+    this.loading = true
+    setTimeout(() => {
+      this.api.listJobs({ pageSize: 200 }).subscribe(res => (this.jobs = res.rows));
+      this.load();
+    },2000)
+
   }
   // scheduleInterview(app: Application) {
   //   this.currentApp = app;

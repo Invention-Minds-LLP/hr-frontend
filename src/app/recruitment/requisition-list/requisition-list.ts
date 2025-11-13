@@ -6,10 +6,11 @@ import { RequisitionService } from '../../services/requisition-service/requisiti
 import { Tag } from 'primeng/tag';
 import { RequisitionForm } from '../requisition-form/requisition-form';
 import { Departments } from '../../services/departments/departments';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-requisition-list',
-  imports: [CommonModule, TableModule, ButtonModule, Tag, RequisitionForm],
+  imports: [CommonModule, TableModule, ButtonModule, Tag, RequisitionForm, SkeletonModule],
   templateUrl: './requisition-list.html',
   styleUrl: './requisition-list.css'
 })
@@ -44,10 +45,14 @@ export class RequisitionList {
   }
 
   loadRequisitions() {
+    this.loading = true
     this.requisitionService.getRequisitions().subscribe({
       next: (data) => {
         this.requisitions = data;
-        this.loading = false;
+        // this.loading = false;
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
       },
       error: (err) => {
         console.error('Error fetching requisitions:', err);

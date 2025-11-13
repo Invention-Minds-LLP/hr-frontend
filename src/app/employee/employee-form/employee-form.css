@@ -211,10 +211,11 @@ div[hidden] {
 
 ::ng-deep .p-datepicker-input {
   color: white !important;
+  border: none !important;
 }
 
-::ng-deep .p-select-label {
-  color: white !important;
+.p-datepicker-input:focus{
+  border: none !important;
 }
 
 /* Remove button (top-right corner) */
@@ -249,7 +250,8 @@ div[hidden] {
   color: white !important;
 }
 
-.pi-user {
+.pi-user,
+::ng-deep .p-select-label {
   color: white;
 }
 

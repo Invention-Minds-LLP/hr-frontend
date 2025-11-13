@@ -12,12 +12,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { Departments } from '../../services/departments/departments';
 import { BadgeModule } from 'primeng/badge';
+import { SkeletonModule } from 'primeng/skeleton';
 
 
 @Component({
   selector: 'app-exit-interview-list',
   imports: [ExitInterview, CommonModule, TableModule, FormsModule, ButtonModule,
-     IconFieldModule, InputTextModule, InputIconModule, BadgeModule],
+     IconFieldModule, InputTextModule, InputIconModule, BadgeModule, SkeletonModule],
   templateUrl: './exit-interview-list.html',
   styleUrl: './exit-interview-list.css'
 })

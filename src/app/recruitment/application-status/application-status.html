@@ -30,60 +30,101 @@
     <button (click)="load()">Load</button>
   </div>
 
-  <p-table [value]="apps" [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
-    [tableStyle]="{ 'min-width': '1200px' }" styleClass="p-datatable-gridlines p-datatable-striped">
+  <ng-container *ngIf="loading; else status">
+    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let h of ['No','Candidate','Job Title','Offer','Resume','Status','Actions','Overview']">
+            {{ h }}
+          </th>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="header">
-      <tr>
-        <th>No</th>
-        <th>Candidate</th>
-        <th>Job Title</th>
-        <!-- <th>Stage</th> -->
-        <th>Offer</th>
-        <th>Resume</th>
-        <th>Status</th>
-        <th class="center">Actions</th>
-        <th class="center">Overview</th>
-      </tr>
-    </ng-template>
+      <!-- Body -->
+      <ng-template pTemplate="body">
+        <tr>
+          <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
 
-    <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
-      <tr>
-        <td>{{rowIndex + 1}}</td>
-        <td>
-          <div class="name">{{ a.candidate?.name }}</div>
-          <div class="email" [title]="a.candidate?.email">{{ a.candidate?.email }}</div>
-        </td>
-        <td [title]="a.job?.title">{{ a.job?.title }}</td>
+          <!-- <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+                                <div class="profile-text">
+                                    <p-skeleton width="90px" height="12px" styleClass="mb-1"></p-skeleton>
+                                    <p-skeleton width="60px" height="10px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td> -->
 
-        <!-- <td>{{ a.status || '—' }}</td> -->
-        <td>{{ a.offer?.status || '—' }}</td>
-        <td class="resume">
-          <a *ngIf="resumeUrl(a)" [href]="resumeUrl(a)!" target="_blank" rel="noopener" pTooltip="View Resume"
-            tooltipPosition="top">
-            <i class="pi pi-external-link"></i>
-          </a>
-        </td>
-        <td><span class="pill" [ngStyle]="{
-      backgroundColor: getApplicationStatusColors(a.status).badgeColor,
-      color: getApplicationStatusColors(a.status).dotColor}">{{ a.status }}</span></td>
+          <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+          <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <ng-template #status>
+    <p-table [value]="apps" [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
+      [tableStyle]="{ 'min-width': '1200px' }" styleClass="p-datatable-gridlines p-datatable-striped">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Candidate</th>
+          <th>Job Title</th>
+          <!-- <th>Stage</th> -->
+          <th>Offer</th>
+          <th>Resume</th>
+          <th>Status</th>
+          <th class="center">Actions</th>
+          <th class="center">Overview</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
+        <tr>
+          <td>{{rowIndex + 1}}</td>
+          <td>
+            <div class="name">{{ a.candidate?.name }}</div>
+            <div class="email" [title]="a.candidate?.email">{{ a.candidate?.email }}</div>
+          </td>
+          <td [title]="a.job?.title">{{ a.job?.title }}</td>
+
+          <!-- <td>{{ a.status || '—' }}</td> -->
+          <td>{{ a.offer?.status || '—' }}</td>
+          <td class="resume">
+            <a *ngIf="resumeUrl(a)" [href]="resumeUrl(a)!" target="_blank" rel="noopener" pTooltip="View Resume"
+              tooltipPosition="top">
+              <i class="pi pi-external-link"></i>
+            </a>
+          </td>
+          <td><span class="pill" [ngStyle]="{
+          backgroundColor: getApplicationStatusColors(a.status).badgeColor,
+          color: getApplicationStatusColors(a.status).dotColor}">{{ a.status }}</span></td>
 
 
-        <td class="actions">
-          <p-select [options]="actionOptionsFor(a)" [(ngModel)]="actionSel[a.id]" placeholder="Choose action"
-            appendTo="body" [style]="{ width: '10rem' }"
-            (onChange)="onActionChange(a, $event.value)">
-          </p-select>
-        </td>
-        <td>
-          <button pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
-          </button>
-        </td>
+          <td class="actions">
+            <p-select [options]="actionOptionsFor(a)" [(ngModel)]="actionSel[a.id]" placeholder="Choose action"
+              appendTo="body" [style]="{ width: '10rem' }"
+              (onChange)="onActionChange(a, $event.value)">
+            </p-select>
+          </td>
+          <td>
+            <button pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
+            </button>
+          </td>
 
-      </tr>
+        </tr>
 
-    </ng-template>
-  </p-table>
+      </ng-template>
+    </p-table>
+  </ng-template>
 
 
 </div>

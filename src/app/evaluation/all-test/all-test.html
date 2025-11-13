@@ -29,7 +29,8 @@
       </div>
     </div>
 
-    <p-table [value]="filteredTest">
+    <p-table [value]="loading ? [1,2,3,4,5] : filteredTest" [paginator]="!loading" [rows]="10">
+
       <ng-template pTemplate="header">
         <tr>
           <th>No</th>
@@ -43,7 +44,8 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-test let-i="rowIndex">
-        <tr>
+
+        <tr *ngIf="!loading; else skeletonRow">
           <td>{{ i + 1 }}</td>
           <td>{{ test.name }}</td>
           <td>{{ test.duration }} min</td>
@@ -55,8 +57,24 @@
             <button class="btn-edit" (click)="openAssign(test)">Assign</button>
           </td>
         </tr>
+
+        <!-- Skeleton Row -->
+        <ng-template #skeletonRow>
+          <tr>
+            <td><p-skeleton width="2rem" ></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="50px" ></p-skeleton></td>
+            <td><p-skeleton width="50px" ></p-skeleton></td>
+            <td><p-skeleton width="50px"></p-skeleton></td>
+            <td><p-skeleton width="100px" ></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+          </tr>
+        </ng-template>
+
       </ng-template>
+
     </p-table>
+
   </ng-container>
 
   <!-- Creation / Edit view -->

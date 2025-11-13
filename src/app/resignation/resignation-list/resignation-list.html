@@ -19,7 +19,7 @@
     </div>
   </div>
   <!-- <button [routerLink]="'/resignation-from'">new form</button> -->
-  <p-table [value]="filteredRows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+  <p-table [value]="loading ? [1,2,3,4,5] : filteredRows" [paginator]="!loading" [rows]="10" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
@@ -35,77 +35,68 @@
         <th *ngIf="isHR">Proceeding</th>
       </tr>
     </ng-template>
+
     <ng-template pTemplate="body" let-r let-i="rowIndex">
-      <ng-template #dash><span class="muted" style="text-align: center;">—</span></ng-template>
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
-        <td>
-          <span class="dept-badge"
-            [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).badgeColor }">
-            <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).dotColor }">
+
+      <ng-container *ngIf="!loading; else skeletonRow">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
+          <td>
+            <span class="dept-badge"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).badgeColor }">
+              <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).dotColor }">
+              </span>
+              {{ departmentMap[r.employee?.departmentId] }}
             </span>
-            {{ departmentMap[r.employee?.departmentId] }}
-          </span>
-        </td>
-        <td>
-          <span class="reason" pTooltip="{{ r.reason }}" tooltipPosition="top">
-            {{ r.reason?.length > 6 ? (r.reason | slice:0:6) + '…' : r.reason }}
-          </span>
-        </td>
-        <td>{{ r.managerDecision }}</td>
-        <td>{{ r.hrDecision }}</td>
-        <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
-        <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
-        <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
-        <td class="actions">
-          <ng-container *ngIf="
-      (r.managerDecision === 'PENDING' && ( employeeId === r?.employee?.reportingManager)) ||
-      (r.managerDecision === 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')) ||
-      (r.status === 'WITHDRAW_REQUESTED' && isHR);
-    else dash">
-          <ng-container *ngIf="r.managerDecision === 'PENDING' && (employeeId === r?.employee?.reportingManager)">
-            <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
-            <button pButton size="small" label="Manager Reject" class="p-button-danger"
-              (click)="rejectManager(r)"></button>
-          </ng-container>
-          <ng-container
-            *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
-            <button pButton size="small" label="HR Approve" class="p-button-success" (click)="openApprovePopup(r)"></button>
-            <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
-            <button pButton size="small" label="On Hold" class="p-button-warning"
-              style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
-            <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"></button>
-          </ng-container>
-          <!-- HR withdraw request actions -->
-          <ng-container *ngIf="r.status === 'WITHDRAW_REQUESTED' && isHR">
-            <button pButton size="small" label="Approve Withdraw" class="p-button-success"
-              (click)="approveWithdrawHR(r)"></button>
-            <button pButton size="small" label="Reject Withdraw" class="p-button-danger"
-              (click)="rejectWithdrawHR(r)"></button>
-          </ng-container>
-          </ng-container>
-        </td>
-        <td *ngIf="isHR" style="text-align:center">
-          <button *ngIf="isHR && r?.hrDecision=== 'APPROVED';else dash" class="btn-edit" (click)="openDialog(r.id)">
-            Proceed to off-boarding
-          </button>
-          <p-dialog [visible]="isOpen(r.id)" (visibleChange)="dialogOpen[r.id] = $event" [modal]="true"
-            header="Off-boarding" [style]="{ width: '80vw' }">
-            <app-resign-post [resignationId]="r?.id"
-              [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
-            </app-resign-post>
-          </p-dialog>
-        </td>
-      </tr>
+          </td>
+          <td>
+            <span class="reason" pTooltip="{{ r.reason }}" tooltipPosition="top">
+              {{ r.reason?.length > 6 ? (r.reason | slice:0:6) + '…' : r.reason }}
+            </span>
+          </td>
+          <td>{{ r.managerDecision }}</td>
+          <td>{{ r.hrDecision }}</td>
+          <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+          <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
+          <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
+          <td class="actions">...</td>
+          <td *ngIf="isHR" style="text-align:center">...</td>
+        </tr>
+      </ng-container>
+
+      <ng-template #skeletonRow>
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+              <div class="skeleton">
+                <p-skeleton width="80px" height="12px"></p-skeleton>
+                <p-skeleton width="60px" height="10px"></p-skeleton>
+              </div>
+            </div>
+          </td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="70px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="50px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="100px"></p-skeleton></td>
+          <td *ngIf="isHR"><p-skeleton width="100px"></p-skeleton></td>
+        </tr>
+      </ng-template>
     </ng-template>
 
-    <ng-template pTemplate="emptymessage">
+    <ng-template pTemplate="emptymessage" *ngIf="!loading">
       <tr>
-        <td colspan="10" class="no-data">No resignations.</td>
+        <td colspan="11" class="no-data">No resignations.</td>
       </tr>
     </ng-template>
   </p-table>
+
 </div>
 <p-dialog
   header="Approve Resignation"

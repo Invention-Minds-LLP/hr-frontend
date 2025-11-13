@@ -1,64 +1,73 @@
-  <div class="p-m-4 performance-container">
-    
-   <div class="header">
-     <h2>POSH Cases
+<div class="p-m-4 performance-container">
+
+  <div class="header">
+    <h2>POSH Cases
       <i class="pi pi-info-circle info-icon"
-      pTooltip="Report any harassment or misconduct cases confidentially under the POSH policy. These are taken seriously and investigated as per company policy"
-      tooltipPosition="top"></i>
-     </h2>
+        pTooltip="Report any harassment or misconduct cases confidentially under the POSH policy. These are taken seriously and investigated as per company policy"
+        tooltipPosition="top"></i>
+    </h2>
     <div class="flex justify-content-end mb-3">
-      <button label="Raise Complaint" class="new-app" icon="pi pi-plus" (click)="openForm()">Raise Complaint<svg xmlns="http://www.w3.org/2000/svg"
-        width="20" height="20" viewBox="0 0 21 20" fill="none">
-        <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+      <button label="Raise Complaint" class="new-app" icon="pi pi-plus" (click)="openForm()">Raise Complaint<svg
+          xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round" />
-    </svg></button>
+        </svg></button>
     </div>
-   </div>
-  
-    <p-table [value]="cases" [paginator]="true" [rows]="10" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>No.</th>
-          <th>Complainant</th>
-          <th>Accused</th>
-          <th>Status</th>
-          <!-- <th>Created</th> -->
-          <th *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" style="text-align: center;">Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-c let-rowIndex="rowIndex">
-        <tr>
-          <td>{{ rowIndex + 1 }}</td>
-          <td>{{ c.complainant?.firstName }} {{ c.complainant?.lastName }}</td>
-          <td>{{ c.accused?.firstName }} {{ c.accused?.lastName }}</td>
-          <td>
-            <p-tag [severity]="statusColor(c.status)">
-              {{ c.status }}
-            </p-tag>
-          </td>
-          <!-- <td>{{ c.createdAt | date:'short' }}</td> -->
-          <td *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" class="flex align-items-center justify-content-center gap-2">
-            <p-button icon="pi pi-calendar" label="Hearings" (onClick)="openHearings(c)"></p-button>
-              <p-select 
-              [options]="statusOptions" 
-              [(ngModel)]="c.status" 
-              (onChange)="changeStatus(c)" 
-              optionLabel="label" 
-              optionValue="value"
-              appendTo="body">
-            </p-select>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
   </div>
 
-  
-  <p-dialog header="Raise POSH Complaint" [(visible)]="showForm" [modal]="true" [style]="{width: '40vw' ,height:'52vh'}">
-    <app-posh-form (saved)="loadCases(); showForm=false"></app-posh-form>
-  </p-dialog>
-  
-  <p-dialog header="Hearings" [(visible)]="showHearings" [modal]="true" [style]="{width: '50vw'}">
-    <app-posh-hearing [caseId]="selectedCase?.id"></app-posh-hearing>
-  </p-dialog>
-  
+  <p-table [value]="loading ? [1,2,3,4,5] : cases" [paginator]="!loading" [rows]="10" responsiveLayout="scroll">
+
+    <!-- Header -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th>No.</th>
+        <th>Complainant</th>
+        <th>Accused</th>
+        <th>Status</th>
+        <th *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" style="text-align: center;">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-c let-rowIndex="rowIndex">
+      <tr *ngIf="!loading; else skeletonRow">
+        <td>{{ rowIndex + 1 }}</td>
+        <td>{{ c.complainant?.firstName }} {{ c.complainant?.lastName }}</td>
+        <td>{{ c.accused?.firstName }} {{ c.accused?.lastName }}</td>
+        <td>
+          <p-tag [severity]="statusColor(c.status)">
+            {{ c.status }}
+          </p-tag>
+        </td>
+        <td *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" class="flex align-items-center justify-content-center gap-2">
+          <p-button icon="pi pi-calendar" label="Hearings" (onClick)="openHearings(c)"></p-button>
+          <p-select [options]="statusOptions" [(ngModel)]="c.status" (onChange)="changeStatus(c)" optionLabel="label"
+            optionValue="value" appendTo="body">
+          </p-select>
+        </td>
+      </tr>
+
+      <!-- Skeleton Row -->
+      <ng-template #skeletonRow>
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td><p-skeleton width="110px"></p-skeleton></td>
+          <td><p-skeleton width="110px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td *ngIf="role === 'HR' || role === 'HR Manager'"><p-skeleton width="150px"></p-skeleton></td>
+        </tr>
+      </ng-template>
+
+    </ng-template>
+
+  </p-table>
+
+</div>
+
+
+<p-dialog header="Raise POSH Complaint" [(visible)]="showForm" [modal]="true" [style]="{width: '40vw' ,height:'52vh'}">
+  <app-posh-form (saved)="loadCases(); showForm=false"></app-posh-form>
+</p-dialog>
+
+<p-dialog header="Hearings" [(visible)]="showHearings" [modal]="true" [style]="{width: '50vw'}">
+  <app-posh-hearing [caseId]="selectedCase?.id"></app-posh-hearing>
+</p-dialog>

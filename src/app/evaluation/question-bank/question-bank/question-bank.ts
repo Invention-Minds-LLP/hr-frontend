@@ -15,13 +15,14 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
+import { SkeletonModule } from 'primeng/skeleton';
 
 
 
 
 @Component({
   selector: 'app-question-bank',
-  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor, ButtonModule, RouterModule, InputTextModule, InputIconModule, IconFieldModule],
+  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor, ButtonModule, RouterModule, InputTextModule, InputIconModule, IconFieldModule,SkeletonModule],
   templateUrl: './question-bank.html',
   styleUrl: './question-bank.css'
 })
@@ -38,6 +39,7 @@ export class QuestionBank {
   filteredQuestonbank: any[] = [];
   showFilterDropdown = false;
   selectedFilter: any = null
+  loading = true
 
   filterOptions = [
     { label: 'Name', value: 'name' },
@@ -71,6 +73,9 @@ export class QuestionBank {
     this.fetchQuestionBanks();
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
     // this.filteredQuestonbank = [...this.questionBanks]
+    setTimeout(()=>{
+      this.loading = false
+    }, 2000)
 
 
   }

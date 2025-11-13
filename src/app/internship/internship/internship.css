@@ -364,7 +364,18 @@ table.list td {
 }
 
 .p-datepicker:has(.p-datepicker-dropdown) .p-datepicker-input{
+  color: white !important;
+}
+
+::ng-deep .p-inputtext{
   color: white;
+}
+:host ::ng-deep .p-skeleton {
+  background-color: #ced6d7 !important; /* Light teal background */
+}
+
+:host ::ng-deep .p-skeleton::after {
+  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
 
 

@@ -9,10 +9,11 @@ import { value } from '@primeuix/themes/aura/knob';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-all-test',
-  imports: [CommonModule, TableModule, TestCreation, TestAssignment, IconFieldModule, InputTextModule, InputIconModule],
+  imports: [CommonModule, TableModule, TestCreation, TestAssignment, IconFieldModule, InputTextModule, InputIconModule, SkeletonModule],
   templateUrl: './all-test.html',
   styleUrl: './all-test.css'
 })
@@ -27,6 +28,7 @@ export class AllTest {
   filteredTest: any[] = []
   showFilterDropdown = false;
   selectedFilter: any = null
+  loading = true
 
   filterOptions = [
     { label: 'Name', value: 'name' },
@@ -36,22 +38,41 @@ export class AllTest {
   constructor(private testService: Tests) { }
 
   ngOnInit(): void {
+    this.loading = true
     this.testService.getAll().subscribe({
       next: data => {
         this.tests = data
         this.filteredTest = [...this.tests]
+        setTimeout(() => {
+          this.loading = false
+        }, 2000)
       },
-      error: err => console.error('Failed to load tests', err)
+      error: err => {
+        console.error('Failed to load tests', err)
+        this.loading = false
+      }
     });
+
   }
 
   fetchTests() {
+    this.loading = true
     this.testService.getAll().subscribe({
-      next: data => this.tests = data,
-      error: err => console.error('Failed to load tests', err)
+      next: data => {
+        this.tests = data
+        setTimeout(() => {
+          this.loading = false
+        }, 2000)
+      },
+
+      error: err => {
+        console.error('Failed to load tests', err)
+        this.loading = false
+      }
     });
 
     this.filteredTest = [...this.tests]
+
   }
   openTest(test: any) {
     this.editingTest = test;

@@ -23,101 +23,140 @@
     </div>
 
     <!-- Loading / error -->
-    <div *ngIf="loading" class="card">Loading…</div>
+    <!-- <div *ngIf="loading" class="card">Loading…</div> -->
     <div *ngIf="error" class="card danger">{{ error }}</div>
 
-    <!-- Table -->
-    <!-- Table -->
-    <p-table [value]="items" [loading]="loading" [paginator]="true" [rows]="pageSize" [totalRecords]="total"
-        [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="true" [first]="(page - 1) * pageSize" [rowHover]="true"
-        responsiveLayout="scroll" (onLazyLoad)="onLazyLoad($event)">
-        <!-- HEADER -->
-        <ng-template pTemplate="header">
-            <tr>
-                <th>No</th>
-                <th>Candidate</th>
-                <th>Title</th>
-                <th>Department</th>
-                <th>Status</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Stipend</th>
-                <th>Employee</th>
-                <th>Mentor</th>
-                <th class="al">Actions</th>
-            </tr>
-        </ng-template>
+    <ng-container *ngIf="isLoading; else intership">
+        <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+            <!-- Header -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let h of ['No','Candidate','Job Title','Offer','Resume','Status','Actions','Overview']">
+                        {{ h }}
+                    </th>
+                </tr>
+            </ng-template>
 
-        <!-- BODY -->
-        <ng-template pTemplate="body" let-it let-index="rowIndex">
-            <tr>
-                <td>{{ index + 1 }}</td>
+            <!-- Body -->
+            <ng-template pTemplate="body">
+                <tr>
+                    <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
 
-                <td>
-                    <div class="bold">{{ it.candidateName }}</div>
-                    <div class="sub">{{ it.email || it.phone || '—' }}</div>
-                </td>
+                    <!-- <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+                                <div class="profile-text">
+                                    <p-skeleton width="90px" height="12px" styleClass="mb-1"></p-skeleton>
+                                    <p-skeleton width="60px" height="10px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td> -->
 
-                <td>{{ it.title || '—' }}</td>
-                <td>
-                    <span class="dept-badge"
-              [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).badgeColor }">
-              <span class="dot"
-                [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).dotColor }">
-              </span>
-              {{ it.departmentName || '—' }}
-            </span>
-                </td>
+                    <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+                    <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+    <ng-template #intership>
+        <!-- Table -->
+        <p-table [value]="items" [paginator]="true" [rows]="pageSize" [totalRecords]="total"
+            [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="true" [first]="(page - 1) * pageSize" [rowHover]="true"
+            responsiveLayout="scroll" (onLazyLoad)="onLazyLoad($event)">
+            <!-- HEADER -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>No</th>
+                    <th>Candidate</th>
+                    <th>Title</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Stipend</th>
+                    <th>Employee</th>
+                    <th>Mentor</th>
+                    <th class="al">Actions</th>
+                </tr>
+            </ng-template>
 
-                <td>
-                    <p-tag [value]="it.status" [severity]="getSeverity(it.status)"></p-tag>
-                </td>
+            <!-- BODY -->
+            <ng-template pTemplate="body" let-it let-index="rowIndex">
+                <tr>
+                    <td>{{ index + 1 }}</td>
+
+                    <td>
+                        <div class="bold">{{ it.candidateName }}</div>
+                        <div class="sub">{{ it.email || it.phone || '—' }}</div>
+                    </td>
+
+                    <td>{{ it.title || '—' }}</td>
+                    <td>
+                        <span class="dept-badge"
+                            [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).badgeColor }">
+                            <span class="dot"
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(it.departmentId).dotColor }">
+                            </span>
+                            {{ it.departmentName || '—' }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="it.status" [severity]="getSeverity(it.status)"></p-tag>
+                    </td>
 
 
 
-                <td>{{ it.startDate | date: 'yyyy-MM-dd' }}</td>
-                <td>{{ it.endDate | date: 'yyyy-MM-dd' }}</td>
-                <td>{{ it.stipend || '—' }}</td>
-                <td>{{ it.employeeName || '—' }}</td>
-                <td>{{ it.mentorName || '—' }}</td>
+                    <td>{{ it.startDate | date: 'yyyy-MM-dd' }}</td>
+                    <td>{{ it.endDate | date: 'yyyy-MM-dd' }}</td>
+                    <td>{{ it.stipend || '—' }}</td>
+                    <td>{{ it.employeeName || '—' }}</td>
+                    <td>{{ it.mentorName || '—' }}</td>
 
-                <td class="actions">
-                    <!-- <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(it)"></button>
-                    <button pButton type="button" class="p-button-text" label="Offer" [disabled]="it.status !== 'DRAFT'"
-                        (click)="openAction('offer', it)"></button>
-                    <button pButton type="button" class="p-button-text" label="Activate"
-                        [disabled]="!(it.status==='DRAFT' || it.status==='OFFERED')"
-                        (click)="openAction('activate', it)"></button>
-                    <button pButton type="button" class="p-button-text" label="Extend"
-                        [disabled]="it.status !== 'ACTIVE'" (click)="openAction('extend', it)"></button>
-                    <button pButton type="button" class="p-button-text" label="Complete"
-                        [disabled]="it.status !== 'ACTIVE'" (click)="openAction('complete', it)"></button>
-                    <button pButton type="button" class="p-button-text p-button-danger" label="Drop"
-                        [disabled]="it.status==='DROPPED' || it.status==='COMPLETED' || it.status==='CONVERTED'"
-                        (click)="openAction('drop', it)"></button>
-                    <button pButton type="button" class="p-button-text" label="Convert"
-                        [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
-                        (click)="openAction('convert', it)"></button> -->
-                    <div class="actions-wrap ">
-                        <p-select [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
-                            optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
-                            appendTo="body" (onChange)="onStatusChange(it, $event)">
-                        </p-select>
-                        <button pButton type="button" class="p-button-text" icon="pi pi-pencil" label="Edit"
-                            (click)="openEdit(it)">
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
+                    <td class="actions">
+                        <!-- <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(it)"></button>
+                        <button pButton type="button" class="p-button-text" label="Offer" [disabled]="it.status !== 'DRAFT'"
+                            (click)="openAction('offer', it)"></button>
+                        <button pButton type="button" class="p-button-text" label="Activate"
+                            [disabled]="!(it.status==='DRAFT' || it.status==='OFFERED')"
+                            (click)="openAction('activate', it)"></button>
+                        <button pButton type="button" class="p-button-text" label="Extend"
+                            [disabled]="it.status !== 'ACTIVE'" (click)="openAction('extend', it)"></button>
+                        <button pButton type="button" class="p-button-text" label="Complete"
+                            [disabled]="it.status !== 'ACTIVE'" (click)="openAction('complete', it)"></button>
+                        <button pButton type="button" class="p-button-text p-button-danger" label="Drop"
+                            [disabled]="it.status==='DROPPED' || it.status==='COMPLETED' || it.status==='CONVERTED'"
+                            (click)="openAction('drop', it)"></button>
+                        <button pButton type="button" class="p-button-text" label="Convert"
+                            [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
+                            (click)="openAction('convert', it)"></button> -->
+                        <div class="actions-wrap ">
+                            <p-select [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
+                                optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
+                                appendTo="body" (onChange)="onStatusChange(it, $event)">
+                            </p-select>
+                            <button pButton type="button" class="p-button-text" icon="pi pi-pencil" label="Edit"
+                                (click)="openEdit(it)">
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
 
-        <!-- EMPTY -->
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="10" class="p-text-center">No internships found.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+            <!-- EMPTY -->
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="10" class="p-text-center">No internships found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
 
 </div>
 

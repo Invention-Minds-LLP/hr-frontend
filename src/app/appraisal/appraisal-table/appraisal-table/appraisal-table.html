@@ -52,8 +52,8 @@
     </div>
 
     <div class="table">
-        <p-table class="" [value]="filteredEmployees" [paginator]="true" [rows]="10">
-            <ng-template #header>
+        <p-table [value]="loading ? [1, 2, 3, 4, 5] : filteredEmployees" [paginator]="!loading" [rows]="10">
+            <ng-template pTemplate="header">
                 <tr>
                     <th>No</th>
                     <th>Emp ID</th>
@@ -68,38 +68,64 @@
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-appraisal let-rowIndex="rowIndex">
-                <tr>
-                    <td class="t-data al">{{ rowIndex + 1}}</td>
-                    <td class="t-data al">{{ appraisal.employee.employeeCode }}</td>
-                    <td class="empname"><img class="image" src="/img.png" alt="">
-                        <div class="">
-                            <div class="name"> {{ appraisal.employee.firstName }} {{ appraisal.employee.lastName }}
+
+            <ng-template pTemplate="body" let-appraisal let-rowIndex="rowIndex">
+
+                <ng-container *ngIf="loading; else realDataRows">
+                    <tr *ngFor="let i of [1, 2, 3, 4, 5]">
+                        <td><p-skeleton width="2rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                        <td class="empname">
+                            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+                            <div>
+                                <p-skeleton width="6rem" class="mb-2"></p-skeleton>
+                                <p-skeleton width="8rem"></p-skeleton>
                             </div>
-                            <span class="email">{{appraisal.employee.email}}</span>
-                        </div>
-                    <td class="t-data al">
-                        <span class="dept-badge"
-                            [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).badgeColor }">
-                            <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).dotColor }">
+                        </td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                        <td><p-skeleton width="4rem"></p-skeleton></td>
+                        <td><p-skeleton width="4rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                        <td><p-skeleton width="4rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                    </tr>
+                </ng-container>
+
+                <ng-template #realDataRows>
+                    <tr>
+                        <td>{{ rowIndex + 1 }}</td>
+                        <td>{{ appraisal.employee.employeeCode }}</td>
+                        <td class="empname">
+                            <img class="image" src="/img.png" alt="">
+                            <div>
+                                <div class="name">{{ appraisal.employee.firstName }} {{ appraisal.employee.lastName }}
+                                </div>
+                                <span class="email">{{ appraisal.employee.email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="dept-badge"
+                                [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).badgeColor }">
+                                <span class="dot"
+                                    [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).dotColor }"></span>
+                                {{ getDepartmentName(appraisal.employee.departmentId) }}
                             </span>
-                            {{ getDepartmentName(appraisal.employee.departmentId) }}
-                        </span>
-                    </td>
-
-                    <td>{{ appraisal.cycle }}</td>
-                    <td>{{appraisal.managerName || '-'}}</td>
-                    <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
-                    <td>{{ appraisal.finalDecision || '-' }}</td>
+                        </td>
+                        <td>{{ appraisal.cycle }}</td>
+                        <td>{{ appraisal.managerName || '-' }}</td>
+                        <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
+                            <td>{{ appraisal.finalDecision || '-' }}</td>
                     <!-- <td>{{ appraisal.finalComments || '-' }}</td> -->
-                    <td>{{ appraisal.status || '-' }}</td>
-                    <td><button class="btn" (click)="onEditClick(appraisal)">See Details</button></td>
-
-                </tr>
+                        <td>{{ appraisal.status || '-' }}</td>
+                        <td>
+                            <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
+                        </td>
+                    </tr>
+                </ng-template>
             </ng-template>
         </p-table>
-
     </div>
 </div>
 

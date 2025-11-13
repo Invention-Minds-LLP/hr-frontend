@@ -14,13 +14,14 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Leaves } from '../../../services/leaves/leaves';
 import { Departments } from '../../../services/departments/departments';
 import { LeavePopup } from '../../leave-popup/leave-popup';
+import { SkeletonModule } from 'primeng/skeleton';
 
 export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup, SkeletonModule],
   templateUrl: './leave-request.html',
   styleUrl: './leave-request.css'
 })
@@ -53,6 +54,8 @@ export class LeaveRequest {
   buckets: { today: any[]; thisWeek: any[]; nextMonth: any[] } = {
     today: [], thisWeek: [], nextMonth: []
   };
+
+  loading = true;
 
 
   expanded: Record<BucketKey, boolean> = {
@@ -87,6 +90,11 @@ export class LeaveRequest {
     this.buildDisabledDates();
 
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
+    this.loading = true;
+    setTimeout(() => {
+      this.loadLeaves();
+      this.loading = false;
+    }, 2000);
   }
 
   loadLeaves() {

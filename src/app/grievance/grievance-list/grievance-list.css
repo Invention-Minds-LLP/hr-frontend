@@ -327,6 +327,14 @@
   color: #fff;
 }
 
+:host ::ng-deep .p-skeleton {
+  background-color: #ced6d7 !important; /* Light teal background */
+}
+
+:host ::ng-deep .p-skeleton::after {
+  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}
+
 
  @media(max-width:767px){
   .new-app{

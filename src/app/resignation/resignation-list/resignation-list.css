@@ -541,6 +541,36 @@
   border: 1px solid #0062A1;
 }
 
+.profile-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.skeleton{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+:host ::ng-deep .p-skeleton {
+  background-color: #ced6d7 !important; /* Light teal background */
+}
+
+:host ::ng-deep .p-skeleton::after {
+  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}
+
 .footer-actions {
   display: flex;
   justify-content: flex-end;

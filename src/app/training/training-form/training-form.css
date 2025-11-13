@@ -150,5 +150,7 @@ h3{
 .text-danger{
   color: red;
 }
-
+::ng-deep .p-datepicker-input {
+  border: none !important;
+}
 

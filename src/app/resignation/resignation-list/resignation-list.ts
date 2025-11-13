@@ -14,6 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Departments } from '../../services/departments/departments';
 import { Tooltip, TooltipModule } from "primeng/tooltip";
 import { ToolbarModule } from 'primeng/toolbar';
+import { SkeletonModule } from 'primeng/skeleton';
 import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 
@@ -21,7 +22,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-resignation-list',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost,
-     RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, DatePickerModule, FormsModule, ToolbarModule],
+     RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, SkeletonModule, DatePickerModule, FormsModule, ToolbarModule],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -43,6 +44,8 @@ export class ResignationList {
     { label: 'Department', value: 'department' }
 
   ]
+
+  loading = true
 
   departments: any[] = [];
   departmentMap: Record<number, string> = {};
@@ -90,6 +93,10 @@ export class ResignationList {
       });
     }
 
+
+    setTimeout(()=>{
+      this.loading = false
+    }, 2000)
   }
   approveManager(r: any) {
     this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));

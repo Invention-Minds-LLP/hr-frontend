@@ -18,7 +18,8 @@
       </p-iconfield>
     </div>
   </div>
-  <p-table [value]="filteredInterviews" [paginator]="true" [rows]="10" [loading]="loading">
+  <p-table [value]="loading ? [1, 2, 3, 4, 5] : filteredInterviews" [paginator]="!loading" [rows]="10"
+    responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
@@ -32,40 +33,77 @@
       </tr>
     </ng-template>
 
+
     <ng-template pTemplate="body" let-interview let-i="rowIndex">
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ interview.employee?.employeeCode }}</td>
-        <td>{{ interview.employee?.firstName }} {{ interview.employee?.lastName }}</td>
-        <td>
-          <span class="dept-badge"
-            [ngStyle]="{ backgroundColor: getDepartmentColors(interview.employee?.departmentId).badgeColor }">
-            <span class="dot"
-              [ngStyle]="{ backgroundColor: getDepartmentColors(interview.employee?.departmentId).dotColor }">
+
+      <ng-container *ngIf="!loading; else skeletonRow">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ interview.employee?.employeeCode }}</td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <img class="profile-pic" src="/img.png" alt="Employee photo" />
+              <div>
+                {{ interview.employee?.firstName }} {{ interview.employee?.lastName }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="dept-badge"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(interview.employee?.departmentId).badgeColor }">
+              <span class="dot"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(interview.employee?.departmentId).dotColor }">
+              </span>
+              {{ departmentMap[interview.employee?.departmentId] }}
             </span>
-            {{ departmentMap[interview.employee?.departmentId] }}
-          </span>
-        </td>
-        <td>{{ interview.scheduledAt | date:'dd-MM-yyyy' }}</td>
-        <td>{{ interview.interviewerName }}</td>
-        <td>
-          <p-badge
-            [value]="interview.completedAt ? 'COMPLETED' : (interview.status || 'PENDING')"
-            [severity]="
+          </td>
+          <td>{{ interview.scheduledAt | date: 'dd-MM-yyyy' }}</td>
+          <td>{{ interview.interviewerName }}</td>
+          <td>
+            <p-badge [value]="interview.completedAt ? 'COMPLETED' : (interview.status || 'PENDING')" [severity]="
               interview.completedAt ? 'success' :
               interview.status === 'SCHEDULED' ? 'info' :
               interview.status === 'CANCELLED' ? 'danger' :
               'warn'
             ">
-          </p-badge>
-        </td>
-        
+            </p-badge>
+          </td>
           <td>
-          <button pButton label="View / Edit" (click)="openInterview(interview)"></button>
-        </td>
+            <button pButton label="View / Edit" (click)="openInterview(interview)"></button>
+          </td>
+        </tr>
+      </ng-container>
+
+      <ng-template #skeletonRow>
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td><p-skeleton width="4rem"></p-skeleton></td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+              <div class="skeleton">
+                <p-skeleton width="80px" height="12px"></p-skeleton>
+                <p-skeleton width="60px" height="10px"></p-skeleton>
+              </div>
+            </div>
+          </td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="70px"></p-skeleton></td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+        </tr>
+      </ng-template>
+    </ng-template>
+
+    <!-- Empty message (only when not loading) -->
+    <ng-template pTemplate="emptymessage" *ngIf="!loading">
+      <tr>
+        <td colspan="8" class="no-data">No interviews found.</td>
       </tr>
     </ng-template>
   </p-table>
+
 </div>
 
 <div *ngIf="selectedInterview">

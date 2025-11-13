@@ -26,10 +26,11 @@
             </div> -->
         </div>
     </div>
-
     <div class="table">
-        <p-table class="" [value]="filterBalancesData" [paginator]="true" [rows]="10" class="custom-table">
-            <ng-template #header>
+        <p-table [value]="loading ? [1, 2, 3, 4, 5] : filterBalancesData" [paginator]="true" [rows]="10"
+            class="custom-table">
+            <!-- Header (always visible) -->
+            <ng-template pTemplate="header">
                 <tr>
                     <th>No</th>
                     <th>Emp ID</th>
@@ -39,47 +40,79 @@
                     <th>Job Title</th>
                     <th>Shift Type</th>
                     <th>Total Leave Taken</th>
-                    <!-- <th>Total WFH Taken</th> -->
                     <th>Total Perm. Taken</th>
                     <th>Action</th>
                 </tr>
             </ng-template>
-            <ng-template #body let-balancesData let-rowIndex="rowIndex" class="t-body">
-                <tr>
-                    <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ balancesData.employeeCode }}</td>
-                    <td class="empname">
-                        <img class="image" src="/img.png" alt="">
-                        <div class="">
-                            <div class="name">{{ balancesData.name }}</div>
-                            <span class="email">{{balancesData.email}}</span>
-                        </div>
-                    </td>
-                    <td class="t-data al">{{ balancesData.phone }}</td>
-                    <td class="t-data al">
-                        <span class="dept-badge"
-                            [ngStyle]="{ backgroundColor: getDepartmentColors(balancesData.department).badgeColor }">
-                            <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDepartmentColors(balancesData.department).dotColor }">
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-balancesData let-rowIndex="rowIndex">
+                <!-- Show Skeleton Rows While Loading -->
+                <ng-container *ngIf="loading; else dataRow">
+                    <tr>
+                        <td><p-skeleton width="2rem"></p-skeleton></td>
+                        <td><p-skeleton width="4rem"></p-skeleton></td>
+
+                        <!-- Profile (photo + name) -->
+                        <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+                                <div class="profile-text">
+                                    <p-skeleton width="100px" styleClass="mb-1"></p-skeleton>
+                                    <p-skeleton width="80px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="8rem"></p-skeleton></td>
+                        <td><p-skeleton width="7rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                    </tr>
+                </ng-container>
+
+                <!-- Actual Data After Loading -->
+                <ng-template #dataRow>
+                    <tr>
+                        <td class="t-data al">{{ rowIndex + 1 }}</td>
+                        <td class="t-data al">{{ balancesData.employeeCode }}</td>
+                        <td class="empname">
+                            <img class="image" src="/img.png" alt="" />
+                            <div>
+                                <div class="name">{{ balancesData.name }}</div>
+                                <span class="email">{{ balancesData.email }}</span>
+                            </div>
+                        </td>
+                        <td class="t-data al">{{ balancesData.phone }}</td>
+                        <td class="t-data al">
+                            <span class="dept-badge" [ngStyle]="{
+                backgroundColor: getDepartmentColors(balancesData.department).badgeColor}">
+                                <span class="dot" [ngStyle]="{
+                  backgroundColor: getDepartmentColors(balancesData.department).dotColor}"></span>
+                                {{ getDepartmentName(balancesData.department) }}
                             </span>
-                            {{ getDepartmentName(balancesData.department) }}
-                        </span>
-                    </td>
-                    <td class="t-data al">{{ balancesData.designation }}</td>
-                    <td class="t-data al">{{ balancesData.shiftType }}</td>
-                    <td class="t-data al">{{ balancesData.totalLeaveDays }}</td>
-                    <!-- <td class="t-data al">{{ balancesData.totalWFHDays }}</td> -->
-                    <td class="t-data al">{{balancesData.totalPermissionHours }}</td>
-
-                    <td>
-                        <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
-                    </td>
-
-                </tr>
+                        </td>
+                        <td class="t-data al">{{ balancesData.designation }}</td>
+                        <td class="t-data al">{{ balancesData.shiftType }}</td>
+                        <td class="t-data al">{{ balancesData.totalLeaveDays }}</td>
+                        <td class="t-data al">{{ balancesData.totalPermissionHours }}</td>
+                        <td>
+                            <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
+                        </td>
+                    </tr>
+                </ng-template>
             </ng-template>
         </p-table>
-
     </div>
+
+    <!-- Modal for Details -->
+    <div *ngIf="selectedEmployee" class="modal-overlay">
+        <app-employee-details [employee]="selectedEmployee" (close)="handleClose()"></app-employee-details>
+    </div>
+
 </div>
 
 <div *ngIf="selectedEmployee" class="modal-overlay">

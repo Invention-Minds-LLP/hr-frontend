@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Departments } from '../../../services/departments/departments';
 import { PermissionPopup } from '../../permission-popup/permission-popup';
 import { MessageService } from 'primeng/api';
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface requestTable {
   empName: string;
@@ -26,7 +27,7 @@ interface requestTable {
 
 @Component({
   selector: 'app-permission-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup, SkeletonModule],
   templateUrl: './permission-request.html',
   styleUrl: './permission-request.css'
 })
@@ -45,7 +46,7 @@ export class PermissionRequest {
   selectedPermission: any = null;
   viewMode: boolean = false;
   currentDeclineRole: 'MANAGER' | 'HR' | null = null;
-
+  loading = true
 
 
   filterOption = [
@@ -68,6 +69,9 @@ export class PermissionRequest {
     this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
     this.isHR = this.isHRRole(this.role);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
+    setTimeout(()=>{
+      this.loading = false
+    }, 2000)
   }
 
   onSearch(event: Event) {
@@ -103,7 +107,7 @@ export class PermissionRequest {
     }
     return 'Pending';
   }
-  
+
 
   onFilterChange() {
     this.filterReuqusetData = [...this.requestData]
@@ -130,7 +134,7 @@ export class PermissionRequest {
             empId: req.employee.employeeCode,
             empName: `${req.employee.firstName} ${req.employee.lastName}`,
             department: req.employee.departmentId || '',
-            deptName: dept? dept.name : '',
+            deptName: dept ? dept.name : '',
             jobTitle: req.employee.designation,
             premDate: new Date(req.day).toLocaleDateString(),
             reson: req.reason,
@@ -191,7 +195,7 @@ export class PermissionRequest {
       error: (err) => console.error('Error approving request:', err)
     });
   }
-  
+
   openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
     const normalized = this.normalizeRole(this.role);
     if (!normalized) return;
@@ -199,7 +203,7 @@ export class PermissionRequest {
     this.currentDeclineRole = normalized;   // NEW
     this.declineDialogVisible = true;
   }
-  
+
   confirmDecline() {
     if (!this.declineReason.trim()) {
       this.messageService.add({
@@ -209,7 +213,7 @@ export class PermissionRequest {
       });
       return;
     }
-  
+
     const userId = Number(localStorage.getItem('userId')) || 1;
     this.permissionService.updatePermissionStatus(
       this.currentDeclineId!,
@@ -228,7 +232,7 @@ export class PermissionRequest {
       error: (err) => console.error('Error declining request:', err)
     });
   }
-  
+
 
   // Close popup
   closeDeclineDialog() {

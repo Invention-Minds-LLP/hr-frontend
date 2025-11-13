@@ -15,10 +15,11 @@ import { Interview } from '../interview/interview';
 import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form';
 import { RequisitionList } from "../requisition-list/requisition-list";
 import { Tooltip, TooltipModule } from "primeng/tooltip";
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule],
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule,  SkeletonModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers:[MessageService]
@@ -36,6 +37,7 @@ export class RecruitmentDashboard implements OnInit {
   totalJobs = 0;
   page = 1; pageSize = 10;
   selectedJob?: Job;
+  skeletonRows = Array(5);
 
   // applications for the selected job
   apps: Application[] = [];
@@ -119,7 +121,11 @@ export class RecruitmentDashboard implements OnInit {
   loadJobs() {
     this.loading = true;
     this.api.listJobs({ page: this.page, pageSize: this.pageSize }).subscribe({
-      next: (res) => { this.jobs = res.rows; this.totalJobs = res.total; },
+      next: (res) => { this.jobs = res.rows; this.totalJobs = res.total; 
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
+      },
       complete: () => this.loading = false,
     });
   }

@@ -19,11 +19,12 @@ import {
   CreateInternshipDto,
   UpdateInternshipDto,
   ConvertPayload,
-  InternshipListResponse
+  InternshipListResponse,
 } from '../../services/internship/internship-service.model';
 import { InternshipService } from '../../services/internship/internship-service';
 import { Select } from "primeng/select";
 import { MessageService } from 'primeng/api';
+import { SkeletonModule } from 'primeng/skeleton';
 
 type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert';
 // add near the top with your other types
@@ -37,7 +38,7 @@ type EmpPick = { id: number; firstName: string; lastName: string; employeeCode?:
 
 @Component({
   selector: 'app-internship',
-  imports: [CommonModule, FormsModule, DatePipe, DatePicker, TableModule, ButtonModule, TagModule, Select],
+  imports: [CommonModule, FormsModule, DatePipe, DatePicker, TableModule, ButtonModule, TagModule, Select, SkeletonModule],
   templateUrl: './internship.html',
   styleUrl: './internship.css'
 })
@@ -51,6 +52,8 @@ export class Internship implements OnInit {
   loading = false;
   error = '';
 
+  isLoading = true
+
   // Filters
   q = '';
   status: string = ''; // CSV or single
@@ -60,6 +63,8 @@ export class Internship implements OnInit {
   startTo?: string;
   endFrom?: string;
   endTo?: string;
+
+
 
   // Modal
   modalOpen = false;
@@ -162,12 +167,19 @@ export class Internship implements OnInit {
   private search$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.isLoading = true
     this.dept.getDepartments().subscribe({
       next: (rows) => {
         this.departments = rows || [];
         this.deptOptions = this.departments.map(d => ({ label: d.name, value: d.id! }));
+        setTimeout(()=>{
+          this.isLoading = false
+        }, 2000)
       },
-      error: () => { this.departments = []; this.deptOptions = []; }
+      error: () => { this.departments = []; this.deptOptions = []; 
+        this.isLoading = false
+      }
+
     });
     this.search$.pipe(debounceTime(300)).subscribe(() => {
       this.page = 1;

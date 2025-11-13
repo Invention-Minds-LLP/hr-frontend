@@ -25,7 +25,9 @@
     </div>
   </div>
 
-  <p-table [value]="filteredAssignedtest" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+  <p-table [value]="loading ? [1,2,3,4,5] : filteredAssignedtest" [paginator]="!loading" [rows]="10"
+    responsiveLayout="scroll">
+
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
@@ -39,13 +41,13 @@
         <th>Result</th>
         <th>Status</th>
         <th>Action</th>
-
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-a let-i="rowIndex">
-      <tr>
-        <td>{{ i + 1}}</td>
+
+      <tr *ngIf="!loading; else skeletonRow">
+        <td>{{ i + 1 }}</td>
         <td>{{ a.employee?.firstName }} {{ a.employee?.lastName }}</td>
         <td>{{ a.test?.name }}</td>
         <td>{{ a.attempts }}</td>
@@ -59,8 +61,33 @@
           <button label="Overview" class="btn-edit" (click)="openOverview(a)">Overview</button>
         </td>
       </tr>
+
+      <!-- Skeleton Row -->
+      <ng-template #skeletonRow>
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <!-- <p-skeleton shape="circle" size="2rem"></p-skeleton> -->
+              <p-skeleton width="80px" height="12px"></p-skeleton>
+            </div>
+          </td>
+          <td><p-skeleton width="100px"></p-skeleton></td>
+          <td><p-skeleton width="40px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="50px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="50px"></p-skeleton></td>
+          <td><p-skeleton width="100px"></p-skeleton></td>
+        </tr>
+      </ng-template>
+
     </ng-template>
+
   </p-table>
+
 </div>
 
 <p-dialog [header]="overview ? (overview.employeeName + ' — ' + overview.testName) : 'Test Overview'"
@@ -135,27 +162,29 @@
                   <button pButton type="button" style="width: 60px;" label="Edit" (click)="r.isEditing = true"></button>
                 </div>
                 <ng-template #editMode>
-                 <div class="flex flex-column gap-2">
-                   <div class="flex align-items-center gap-2">
-                    <p-floatlabel variant="on" style="width: 100px;" class="custom-float">
-                    <input pInputText id="on_label" style="width: 100%;" inputmode="numeric" [(ngModel)]="r.manualScore" maxlength="3" autocomplete="off" />
-                    <label for="on_label">Score</label>
-                  </p-floatlabel>
-                  <!-- <input type="number" [(ngModel)]="r.manualScore"
+                  <div class="flex flex-column gap-2">
+                    <div class="flex align-items-center gap-2">
+                      <p-floatlabel variant="on" style="width: 100px;" class="custom-float">
+                        <input pInputText id="on_label" style="width: 100%;" inputmode="numeric"
+                          [(ngModel)]="r.manualScore" maxlength="3" autocomplete="off" />
+                        <label for="on_label">Score</label>
+                      </p-floatlabel>
+                      <!-- <input type="number" [(ngModel)]="r.manualScore"
                          min="0" [max]="r.weight || 100"
                          style="width:70px ; padding: 3px; border-radius: 3px;" placeholder="Score" /> -->
-                  <span>/ {{ r.weight }}</span>
+                      <span>/ {{ r.weight }}</span>
+                    </div>
+                    <p-floatlabel variant="on" class="custom-float">
+                      <input pInputText id="on_label" [(ngModel)]="r.remarks" autocomplete="off" />
+                      <label for="on_label">Remarks</label>
+                    </p-floatlabel>
+                    <button pButton type="button" style="width: 60px;" label="Save"
+                      (click)="r.isEditing = false"></button>
                   </div>
-                  <p-floatlabel variant="on" class="custom-float">
-                    <input pInputText id="on_label" [(ngModel)]="r.remarks" autocomplete="off" />
-                    <label for="on_label">Remarks</label>
-                  </p-floatlabel>
-                   <button pButton type="button" style="width: 60px;" label="Save" (click)="r.isEditing = false"></button>
-                 </div>
                   <!-- <input type="text" [(ngModel)]="r.remarks" style="width:150px; padding: 3px; border-radius: 3px;"
                     placeholder="Remarks" /> -->
-                  
-                 
+
+
                 </ng-template>
               </ng-container>
               <ng-template #autoEval>

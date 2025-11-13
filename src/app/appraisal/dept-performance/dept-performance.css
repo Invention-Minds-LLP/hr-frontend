@@ -279,3 +279,25 @@
 .p-multiselect {
   width: 100% !important;
 }
+
+.profile-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.skeleton{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

@@ -46,50 +46,93 @@
                 </div>
             </div> -->
             <div class="employee-card">
-                <!-- Profile Header -->
-                <div class="profile-header">
-                    <img [src]="employee?.photoUrl || getDefaultImage()" (error)="onImageError($event)" alt="Profile"
-                        class="profile-pic" />
-
-                    <div class="employee-info mt-3">
-                        <div class="employee-name">{{ employee?.firstName }} {{ employee?.lastName }}</div>
-                        <div class="employee-role ">{{ employee?.designation }}</div>
-                        <div class="employee-code ">Code: {{ employee?.employeeCode }}</div>
+                <!-- Show skeletons while loading -->
+                <ng-container *ngIf="!employee; else employeeLoaded">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <p-skeleton shape="circle" size="6rem" class="profile-pic mb-3"></p-skeleton>
+                        <div class="employee-info mt-3">
+                            <p-skeleton width="10rem" class="mb-2"></p-skeleton>
+                            <p-skeleton width="6rem" class="mb-2"></p-skeleton>
+                            <p-skeleton width="8rem" class="mb-2"></p-skeleton>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Contact Section -->
-                <div class="employee-contact mt-3">
-                    <div class="contact-item">
-                        <i class="pi pi-phone"></i> {{ employee?.phone }}
+                    <!-- Contact Section -->
+                    <div class="employee-contact mt-3">
+                        <p-skeleton width="12rem" class="mb-2"></p-skeleton>
+                        <p-skeleton width="15rem" class="mb-2"></p-skeleton>
                     </div>
-                    <div class="contact-item">
-                        <i class="pi pi-envelope"></i> {{ employee?.email }}
+
+                    <!-- Department / Branch / Joining -->
+                    <div class="employee-meta mt-3 w-100">
+                        <p-skeleton width="18rem" class="mb-2"></p-skeleton>
+                        <p-skeleton width="14rem" class="mb-2"></p-skeleton>
                     </div>
-                </div>
 
-                <!-- Department / Branch / Joining -->
-                <div class="employee-meta mt-3 w-100">
-                    <div class="flex2"><strong>Department -</strong> <span class="div">{{ employee?.departmentName ||
-                            '-' }}</span></div>
-                    <div class="flex2"><strong>Date of Joining -</strong> <span class="div">{{ employee?.dateOfJoining |
-                            date:'dd MMM yyyy' }}</span></div>
-                </div>
-
-                <!-- Health Info -->
-                <div class="employee-meta mt-3 w-100">
-                    <div class="flex2"><strong>Blood Group:</strong> {{ employee?.bloodGroup || '-' }}</div>
-                    <div class="flex2"><strong>Age:</strong> {{ employee?.age || '-' }}</div>
-                </div>
-
-                <!-- Emergency Contact -->
-                <div class="employee-meta mt-3" *ngIf="employee?.emergencyContacts?.length">
-                    <div><strong>Emergency Contact:</strong></div>
-                    <div>
-                        {{ employee?.emergencyContacts[0]?.name }} ({{ employee?.emergencyContacts[0]?.relationship }})
-                        - {{ employee?.emergencyContacts[0]?.phone }}
+                    <!-- Health Info -->
+                    <div class="employee-meta mt-3 w-100">
+                        <p-skeleton width="10rem" class="mb-2"></p-skeleton>
+                        <p-skeleton width="8rem" class="mb-2"></p-skeleton>
                     </div>
-                </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="employee-meta mt-3">
+                        <p-skeleton width="10rem" class="mb-2"></p-skeleton>
+                    </div>
+                </ng-container>
+
+                <!-- Show real data when employee is loaded -->
+                <ng-template #employeeLoaded>
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <img [src]="employee.photoUrl || getDefaultImage()" (error)="onImageError($event)" alt="Profile"
+                            class="profile-pic" />
+                        <div class="employee-info mt-3">
+                            <div class="employee-name">{{ employee.firstName }} {{ employee.lastName }}</div>
+                            <div class="employee-role">{{ employee.designation }}</div>
+                            <div class="employee-code">Code: {{ employee.employeeCode }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Section -->
+                    <div class="employee-contact mt-3">
+                        <div class="contact-item">
+                            <i class="pi pi-phone"></i> {{ employee.phone }}
+                        </div>
+                        <div class="contact-item">
+                            <i class="pi pi-envelope"></i> {{ employee.email }}
+                        </div>
+                    </div>
+
+                    <!-- Department / Branch / Joining -->
+                    <div class="employee-meta mt-3 w-100">
+                        <div class="flex2">
+                            <strong>Department -</strong>
+                            <span class="div">{{ employee.departmentName || '-' }}</span>
+                        </div>
+                        <div class="flex2">
+                            <strong>Date of Joining -</strong>
+                            <span class="div">{{ employee.dateOfJoining | date: 'dd MMM yyyy' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Health Info -->
+                    <div class="employee-meta mt-3 w-100">
+                        <div class="flex2"><strong>Blood Group:</strong> {{ employee.bloodGroup || '-' }}</div>
+                        <div class="flex2"><strong>Age:</strong> {{ employee.age || '-' }}</div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="employee-meta mt-3" *ngIf="employee.emergencyContacts?.length">
+                        <div><strong>Emergency Contact:</strong></div>
+                        <div>
+                            {{ employee.emergencyContacts[0]?.name }} ({{ employee.emergencyContacts[0]?.relationship
+                            }}) -
+                            {{ employee.emergencyContacts[0]?.phone }}
+                        </div>
+                    </div>
+                </ng-template>
 
                 <div class="employee-meta flex" *ngIf="pendingSurveys.length > 0 && !showSurveyForm">
                     <!-- <div><strong>Take Survey</strong></div> -->
@@ -105,77 +148,113 @@
                   
             </div>
 
-
-
             <!-- Working-Card -->
-
             <div class="working-hours">
-                <div class="working-card">
-                    <div class="header">
-                        <div class="title">
-                            <h3>Working Hours</h3>
-                            <div class="">
-                                <span class="shift">{{ shiftName }}</span>
+                <ng-container *ngIf="!attendanceData; else workingCard">
+                    <div class="title">
+                        <p-skeleton width="8rem" height="1.5rem" class="mb-2"></p-skeleton>
+                        <p-skeleton width="5rem" height="1rem"></p-skeleton>
+                    </div>
+                    <div class="flex">
+                        <p-skeleton shape="circle" size="2rem" class="mr-2"></p-skeleton>
+                        <p-skeleton width="10rem" height="1rem" class="mr-2"></p-skeleton>
+                        <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                    </div>
+
+                </ng-container>
+                <ng-template #workingCard>
+                    <div class="working-card">
+                        <div class="header">
+                            <div class="title">
+                                <h3>Working Hours</h3>
+                                <div class="">
+                                    <span class="shift">{{ shiftName }}</span>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <button pButton icon="pi pi-chevron-left" (click)="previousWeek()"
+                                    class="p-button-text"></button>
+                                <p>{{ weekStart | date:'dd MMM yyyy' }} - {{ weekEnd | date:'dd MMM yyyy' }}</p>
+                                <button pButton icon="pi pi-chevron-right" (click)="nextWeek()" class="p-button-text"
+                                    [disabled]="isCurrentWeek()">
+                                </button>
                             </div>
                         </div>
-                        <div class="flex">
-                            <button pButton icon="pi pi-chevron-left" (click)="previousWeek()"
-                                class="p-button-text"></button>
-                            <p>{{ weekStart | date:'dd MMM yyyy' }} - {{ weekEnd | date:'dd MMM yyyy' }}</p>
-                            <button pButton icon="pi pi-chevron-right" (click)="nextWeek()" class="p-button-text"
-                                [disabled]="isCurrentWeek()">
-                            </button>
+
+                        <div class="attendance-list">
+                            <div *ngFor="let day of attendanceData" class="attendance-row">
+                                <div class="day">{{ day.dayName }}</div>
+
+                                <ng-container [ngSwitch]="day.status">
+                                    <div class="time" *ngSwitchCase="'Present'">
+                                        {{ day.totalHours || '0 hrs 0 mins' }}
+                                      </div>                                
+                                    <div class="status leave" *ngSwitchCase="'Leave'">Leave</div>
+                                    <div class="status off" *ngSwitchCase="'Day Off'">Day Off</div>
+                                    <div class="status empty" *ngSwitchCase="'Empty'"></div>
+                                </ng-container>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="attendance-list">
-                        <div *ngFor="let day of attendanceData" class="attendance-row">
-                            <div class="day">{{ day.dayName }}</div>
-
-                            <ng-container [ngSwitch]="day.status">
-                                <div class="time" *ngSwitchCase="'Present'">
-                                    {{ day.totalHours || '0 hrs 0 mins' }}
-                                  </div>                                
-                                <div class="status leave" *ngSwitchCase="'Leave'">Leave</div>
-                                <div class="status off" *ngSwitchCase="'Day Off'">Day Off</div>
-                                <div class="status empty" *ngSwitchCase="'Empty'"></div>
-                            </ng-container>
-                        </div>
-                    </div>
-                </div>
+                </ng-template>
             </div>
         </div>
+
+
         <div class="part-2">
-            <div class="box-1 ">
+            <div class="box-1">
                 <div class="holiday-card box">
-                    <div class="next" *ngIf="holidayDates.length > 0; else noHolidays">
-                        <!-- Prev (always show, disabled if currentIndex == 0) -->
-                        <span class="arrow prev" [class.disabled]="currentIndex === 0" (click)="prevHoliday()">
-                            <i class="pi pi-chevron-left"></i>
-                        </span>
+                    <!-- Skeleton Loader -->
+                    <ng-container *ngIf="!holidayDates?.length; else holidayContent">
+                        <div class="skeleton-wrapper">
+                            <!-- Header Skeleton -->
+                            <div class="header flex justify-content-between align-items-center mb-3">
+                                <div class="flex align-items-center gap-2">
+                                    <p-skeleton width="9rem" height="1.5rem"></p-skeleton>
+                                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                                </div>
+                            </div>
 
-                        <h2>Nearest Holiday</h2>
+                            <!-- Holiday Info Skeleton -->
+                            <div class="holiday-display">
+                                <p-skeleton width="8rem" height="1.5rem" class="mb-2"></p-skeleton>
+                                <p-skeleton width="10rem" height="1.2rem"></p-skeleton>
+                            </div>
+                        </div>
+                    </ng-container>
 
-                        <!-- Next (always show, disabled if currentIndex is last) -->
-                        <span class="arrow next" [class.disabled]="currentIndex === holidayDates.length - 1"
-                            (click)="nextHoliday()">
-                            <i class="pi pi-chevron-right"></i>
-                        </span>
+                    <!-- Actual Holiday Data -->
+                    <ng-template #holidayContent>
+                        <div class="next" *ngIf="holidayDates.length > 0; else noHolidays">
+                            <span class="arrow prev" [class.disabled]="currentIndex === 0" (click)="prevHoliday()">
+                                <i class="pi pi-chevron-left"></i>
+                            </span>
 
-                    </div>
+                            <h2>Nearest Holiday</h2>
 
-                    <div class="holiday-display">
-                        <div class="holiday-date">{{ nearestHoliday?.date | date:'dd MMM yyyy' }}</div>
-                        <div class="holiday-name">{{ nearestHoliday?.name }}</div>
-                    </div>
+                            <span class="arrow next" [class.disabled]="currentIndex === holidayDates.length - 1"
+                                (click)="nextHoliday()">
+                                <i class="pi pi-chevron-right"></i>
+                            </span>
+                        </div>
+
+                        <div class="holiday-display">
+                            <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd MMM yyyy' }}</div>
+                            <div class="holiday-name">{{ nearestHoliday?.name }}</div>
+                        </div>
+                    </ng-template>
+
+                    <ng-template #noHolidays>
+                        <p>{{ noHolidaysMessage }}</p>
+                    </ng-template>
                 </div>
 
-                <ng-template #noHolidays>
-                    <p>{{ noHolidaysMessage }}</p>
-                </ng-template>
-
             </div>
+
             <!-- Today Birthday -->
+
+            <!-- <ng-template > -->
             <div class="box box-2">
                 <h4 class="box-title">Today Birthday</h4>
 
@@ -201,6 +280,7 @@
                     </ng-template>
                 </p-carousel>
             </div>
+            <!-- </ng-template> -->
 
             <!-- Today Work Anniversary -->
             <div class="box box-3">
@@ -270,53 +350,78 @@
                         <div><i class="pi pi-plus"></i></div>
                     </div>
                 </div>
-
-                <div class="table">
-                    <p-table [value]="leave" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
-                        <ng-template #header>
+                <ng-container *ngIf="loading; else leaveTable">
+                    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+                        <!-- Header -->
+                        <ng-template pTemplate="header">
                             <tr>
-                                <th>NO</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th *ngFor="let h of ['No','Date','Status','Actions']">
+                                    {{ h }}
+                                </th>
                             </tr>
                         </ng-template>
-                        <ng-template #body let-leave let-rowIndex="rowIndex">
-                            <tr>
-                                <td>{{rowIndex + 1}}</td>
-                                <td>
-                                    <div class="dropdown-container-in-table"
-                                        *ngIf="leave.dates?.length > 0; else noLeaveDates">
-                                        <select class="dropdown-in-table">
-                                            <option disabled>
-                                                {{ leave.dates[0] }} — {{ leave.dates[leave.dates.length - 1] }}
-                                            </option>
-                                            <option *ngFor="let d of leave.dates" [value]="d">
-                                                {{ d }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <ng-template #noLeaveDates>
-                                        <span>-</span>
-                                    </ng-template>
-                                </td>
 
-
-                                <td><span class="status style" [ngClass]="getStatusClass(leave.status)">{{
-                                        leave.status }}</span></td>
-                                <td><span class="btn style" (click)="viewLeaveDetails(leave)">See details</span></td>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="emptymessage">
+                        <!-- Body -->
+                        <ng-template pTemplate="body">
                             <tr>
-                                <td colspan="3" class="no-data-message">
-                                    <i class="pi pi-info-circle"></i>
-                                    No leave requests found.
-                                </td>
+                                <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
+
+                                <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
+                                <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
+                                <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
                             </tr>
                         </ng-template>
                     </p-table>
-                </div>
+                </ng-container>
+                <ng-template #leaveTable>
+                    <div class="table">
+                        <p-table [value]="leave" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
+                            <ng-template #header>
+                                <tr>
+                                    <th>NO</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-leave let-rowIndex="rowIndex">
+                                <tr>
+                                    <td>{{rowIndex + 1}}</td>
+                                    <td>
+                                        <div class="dropdown-container-in-table"
+                                            *ngIf="leave.dates?.length > 0; else noLeaveDates">
+                                            <select class="dropdown-in-table">
+                                                <option disabled>
+                                                    {{ leave.dates[0] }} — {{ leave.dates[leave.dates.length - 1] }}
+                                                </option>
+                                                <option *ngFor="let d of leave.dates" [value]="d">
+                                                    {{ d }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <ng-template #noLeaveDates>
+                                            <span>-</span>
+                                        </ng-template>
+                                    </td>
+
+
+                                    <td><span class="status style" [ngClass]="getStatusClass(leave.status)">{{
+                                            leave.status }}</span></td>
+                                    <td><span class="btn style" (click)="viewLeaveDetails(leave)">See details</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="3" class="no-data-message">
+                                        <i class="pi pi-info-circle"></i>
+                                        No leave requests found.
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
             </div>
 
 
@@ -338,42 +443,67 @@
                         <div><i class="pi pi-plus"></i></div>
                     </div>
                 </div>
+                <ng-container *ngIf="loading; else permissionTable">
+                    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+                        <!-- Header -->
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th *ngFor="let h of ['No','Date','Status','Actions']">
+                                    {{ h }}
+                                </th>
+                            </tr>
+                        </ng-template>
 
-                <div class="table">
-                    <p-table [value]="permission" [scrollable]="true" scrollHeight="300px" scrollDirection="vertical">
-                        <ng-template #header>
+                        <!-- Body -->
+                        <ng-template pTemplate="body">
                             <tr>
-                                <th>No</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template #body let-permission let-rowIndex="rowIndex">
-                            <tr>
-                                <td>{{rowIndex + 1}}</td>
-                                <td>
-                                    <div class="date date-btn style">
-                                        <span class="">{{ permission.date }}</span>
-                                        <!-- <i class="pi pi-chevron-down"></i> -->
-                                    </div>
-                                </td>
-                                <td><span class="status style" [ngClass]="getStatusClass(permission.status)">{{
-                                        permission.status }}</span></td>
-                                <td><span class="btn style" (click)="viewPermissionDetails(permission)">See
-                                        details</span></td>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="3" class="no-data-message">
-                                    <i class="pi pi-info-circle"></i>
-                                    No Permission requests found.
-                                </td>
+                                <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
+
+                                <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
+                                <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
+                                <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
                             </tr>
                         </ng-template>
                     </p-table>
-                </div>
+                </ng-container>
+                <ng-template #permissionTable>
+                    <div class="table">
+                        <p-table [value]="permission" [scrollable]="true" scrollHeight="300px"
+                            scrollDirection="vertical">
+                            <ng-template #header>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-permission let-rowIndex="rowIndex">
+                                <tr>
+                                    <td>{{rowIndex + 1}}</td>
+                                    <td>
+                                        <div class="date date-btn style">
+                                            <span class="">{{ permission.date }}</span>
+                                            <!-- <i class="pi pi-chevron-down"></i> -->
+                                        </div>
+                                    </td>
+                                    <td><span class="status style" [ngClass]="getStatusClass(permission.status)">{{
+                                            permission.status }}</span></td>
+                                    <td><span class="btn style" (click)="viewPermissionDetails(permission)">See
+                                            details</span></td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="3" class="no-data-message">
+                                        <i class="pi pi-info-circle"></i>
+                                        No Permission requests found.
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
             </div>
             <!-- <div class="border"></div> -->
         </div>
@@ -452,7 +582,7 @@
         <app-my-tests></app-my-tests>
     </div>
 
-    
+
 
 
     <div class="bottom">
@@ -482,7 +612,7 @@
 </div>
 
 <app-leave-popup *ngIf="showLeaveDetailsPopup" [showPopup]="true" [leaveData]="selectedLeaveForView"
-    [isViewOnly]="leaveViewMode" [hasBackdrop]="true"   (close)="closePopup()">
+    [isViewOnly]="leaveViewMode" [hasBackdrop]="true" (close)="closePopup()">
 </app-leave-popup>
 
 

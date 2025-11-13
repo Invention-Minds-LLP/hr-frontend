@@ -42,5 +42,5 @@ h3 {
 
 ::ng-deep .p-select-label,
 ::ng-deep .p-select-dropdown {
-  color: black !important;
+  color: white !important;
 }
