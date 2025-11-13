@@ -4,10 +4,11 @@ import { Recuriting, Job, Candidate, Application } from '../../services/recruiti
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-application-create',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule,ProgressSpinnerModule],
   templateUrl: './application-create.html',
   styleUrl: './application-create.css',
   providers: [MessageService],
@@ -23,6 +24,7 @@ export class ApplicationCreate implements OnInit {
   jobs: Job[] = [];
   saving = false;
   error?: string;
+  loading = true
 
   form = this.fb.group({
     jobId: [null as number | null, Validators.required],
@@ -41,8 +43,12 @@ export class ApplicationCreate implements OnInit {
   ngOnInit() {
     const jobIdFromQuery = Number(this.route.snapshot.queryParamMap.get('jobId'));
     if (jobIdFromQuery) this.form.patchValue({ jobId: jobIdFromQuery });
+    this.loading = true
 
     this.api.listJobs({ status: 'OPEN', pageSize: 100 }).subscribe(res => (this.jobs = res.rows));
+    setTimeout(()=>{
+      this.loading = false
+    }, 2000)
   }
 
   // submit() {

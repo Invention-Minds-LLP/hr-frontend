@@ -14,6 +14,7 @@ import { Branches } from '../../../services/branches/branches';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface Table {
   empName: string;
@@ -31,7 +32,7 @@ interface Table {
 
 @Component({
   selector: 'app-appraisal-table',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule],
   templateUrl: './appraisal-table.html',
   styleUrl: './appraisal-table.css'
 })
@@ -58,6 +59,7 @@ export class AppraisalTable {
   showFilterDropdown = false;
   role: string = '';
   loggedEmployeeId: number = 0;
+  loading = true
 
 
   constructor(private fb: FormBuilder,
@@ -82,13 +84,14 @@ export class AppraisalTable {
     this.role = localStorage.getItem('role') || '';
     this.loggedEmployeeId = Number(localStorage.getItem('empId'));
 
-    this.getAppraisals();
     this.loadDropdownData();
+    this.getAppraisals();
     
   }
 
 
   getAppraisals() {
+    this.loading = true
     this.appraisalService.getAllAppraisals().subscribe({
       next: (data) => {
         if (this.role === 'HR' || this.role === 'HR Manager') {
@@ -99,7 +102,10 @@ export class AppraisalTable {
             (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
           );
         }
-        this.filteredEmployees = [...this.appraisals]
+        setTimeout(() => {
+        this.filteredEmployees = [...this.appraisals];
+        this.loading = false; // 👈 stop loading
+      }, 800); 
       },
       error: () => {
         // alert('Error loading appraisals');
@@ -108,6 +114,7 @@ export class AppraisalTable {
           summary: 'Error',
           detail: 'Error loading appraisals'
         });
+        this.loading = false
       }
     });
 

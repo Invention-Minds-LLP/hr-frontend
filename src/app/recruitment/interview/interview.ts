@@ -15,11 +15,12 @@ import { ButtonModule } from 'primeng/button';
 import {Tag} from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { TextareaModule } from 'primeng/textarea';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-interview',
   imports: [CommonModule, DatePipe, TableModule, CardModule, ButtonModule, RadioButtonModule,DividerModule,
-     FormsModule, DialogModule, Tag, ReactiveFormsModule, TextareaModule],
+     FormsModule, DialogModule, Tag, ReactiveFormsModule, TextareaModule, SkeletonModule],
   templateUrl: './interview.html',
   styleUrl: './interview.css'
 })
@@ -33,6 +34,7 @@ export class Interview {
   reviewCtx: any | null = null;
   currentApp: any | null = null;
   readOnlyReview = false;
+  loading = true
 
 
   reviewForm = this.fb.group({
@@ -46,9 +48,16 @@ export class Interview {
   ngOnInit() { this.load(); }
 
   load() {
+    this.loading = true
     this.svc.getAllInterview().subscribe({
-      next: (data) => this.rows.set(data || []),
-      error: () => this.rows.set([]),
+      next: (data) =>{ this.rows.set(data || [])
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
+      },
+      error: () => {this.rows.set([])
+        this.loading = false
+      },
     });
   }
   onEvaluate(row: any) {

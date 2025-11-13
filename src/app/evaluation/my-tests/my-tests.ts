@@ -8,10 +8,11 @@ import { Recuriting, CandidateAssignedTest} from '../../services/recruiting/recu
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-my-tests',
-  imports: [DatePipe, CommonModule, TableModule, ButtonModule, TooltipModule],
+  imports: [DatePipe, CommonModule, TableModule, ButtonModule, TooltipModule,SkeletonModule],
   templateUrl: './my-tests.html',
   styleUrl: './my-tests.css'
 
@@ -19,13 +20,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export class MyTests {
   employeeId = Number(localStorage.getItem('empId')); // Replace with logged-in user
   tests: any[] = [];
+  loading = true
 
   constructor(private testService: TestAttempt, private router: Router, private ct: Recuriting , private messageService : MessageService) {}
 
   ngOnInit(): void {
+    this.loading = true
     if(this.employeeId){
       this.testService.getForEmployee(this.employeeId).subscribe(data => {
         this.tests = data;
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
       });
       return;
     }

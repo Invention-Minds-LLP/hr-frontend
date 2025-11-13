@@ -13,12 +13,13 @@ import { AppraisalTemplate } from '../appraisal-template/appraisal-template';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { InputText, InputTextModule } from 'primeng/inputtext';
+import { SkeletonModule } from 'primeng/skeleton';
 
 
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
-     ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule],
+     ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })
@@ -41,6 +42,7 @@ export class DeptPerformance {
   selectedFilter: any = null;
   showFilterDropdown = false;
   filteredSummaries: any[] = [];
+  loading = true
 
   periods = [
     { label: 'Month 1', value: 'MONTH_1' },
@@ -117,10 +119,15 @@ export class DeptPerformance {
   }
 
   loadSummaries() {
+    this.loading = true
     this.performanceService.getSummaries().subscribe(res => {
       this.summaries = res;
       this.filteredSummaries = [...res];
     });
+   
+    setTimeout(()=>{
+      this.loading = false
+    }, 2000)
 
   }
 

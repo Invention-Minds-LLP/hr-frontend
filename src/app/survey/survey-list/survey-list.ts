@@ -9,11 +9,12 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { InputTextModule } from 'primeng/inputtext';
+import { SkeletonModule } from 'primeng/skeleton';
 import { Tag, TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-survey-list',
-  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule, TagModule],
+  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule, SkeletonModule, TagModule],
   templateUrl: './survey-list.html',
   styleUrl: './survey-list.css'
 })
@@ -21,7 +22,7 @@ export class SurveyList {
   surveys: any[] = [];
   loading = true;
 
-    @Input() SurveyList: any[] = [];
+  @Input() SurveyList: any[] = [];
   @Input() employeeId!: number;
 
   filterSurveyData: any = []
@@ -42,20 +43,21 @@ export class SurveyList {
   constructor(private surveyApi: SurveryService) { }
 
   ngOnInit() {
+    this.loading = true
     this.surveyApi.getAllSurveys().subscribe({
       next: (res) => {
         this.surveys = res;
-        this.loading = false;
         this.filterSurveyData = [...this.surveys]
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
+
       },
       error: (err) => {
         console.error('Error fetching surveys:', err);
-        this.loading = false;
+        this.loading = false
       },
     });
-
-
-
     console.log(this.filterSurveyData)
   }
 
@@ -105,7 +107,7 @@ export class SurveyList {
     console.log(this.filterSurveyData)
   }
 
-    getDepartmentColors(departmentId: number) {
+  getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;

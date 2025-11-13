@@ -655,3 +655,43 @@ section {
     margin-top: 16px;
   }
 }
+
+:host ::ng-deep .profile-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+:host ::ng-deep .profile-avatar {
+  border-radius: 50% !important;
+  flex-shrink: 0;
+}
+
+:host ::ng-deep .profile-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+:host ::ng-deep .p-skeleton {
+  border-radius: 6px;
+  background-color: #e3e6ea !important;
+}
+
+:host ::ng-deep .p-skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  ) !important;
+}
+:host ::ng-deep .p-skeleton {
+  background-color: #ced6d7 !important; /* Light teal background */
+}
+
+:host ::ng-deep .p-skeleton::after {
+  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}

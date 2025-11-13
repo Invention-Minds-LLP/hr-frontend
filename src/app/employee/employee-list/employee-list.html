@@ -48,61 +48,108 @@
 
   </div>
 
-  <div class="table">
-    <p-table class="" [value]="filteredEmployees" [paginator]="true" [rows]="10" class="custom-table">
-      <ng-template #header>
+<div class="table">
+  <p-table
+    [value]="loading ? [1, 2, 3, 4, 5] : filteredEmployees" [paginator]="true" [rows]="10" class="custom-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>No</th>
+        <th>Employee Name</th>
+        <th style="text-align: center;">Emp ID</th>
+        <th>Phone Number</th>
+        <th>Branch</th>
+        <th>Department</th>
+        <th>Role</th>
+        <th>Job Title</th>
+        <th>Employment Type</th>
+        <th style="width: 160px;">Shift Type</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+
+    <!-- Body -->
+    <ng-template pTemplate="body" let-employeeData let-rowIndex="rowIndex">
+  
+      <ng-container *ngIf="loading; else employeeRow">
         <tr>
-          <th>No</th>
-          <th>Employee Name</th>
-          <th style="text-align: center;">Emp ID</th>
-          <th>Phone Number</th>
-          <th>Branch</th>
-          <th>Department</th>
-          <th>Role</th>
-          <th>Job Title</th>
-          <th>Employment Type</th>
-          <th style="width: 160px;">Shift Type</th>
-          <th>Status</th>
-          <th>Action</th>
+          <td><p-skeleton width="2rem" height="1rem"></p-skeleton></td>
+
+          <td>
+            <div class="profile-skeleton">
+              <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+              <div class="profile-text">
+                <p-skeleton width="100px" height="12px" styleClass="mb-1"></p-skeleton>
+                <p-skeleton width="80px" height="10px"></p-skeleton>
+              </div>
+            </div>
+          </td>
+
+          <td><p-skeleton width="4rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="5rem" height="1rem"></p-skeleton></td>
+          <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
         </tr>
-      </ng-template>
-      <ng-template #body let-employeeData let-rowIndex="rowIndex">
+      </ng-container>
+
+      <ng-template #employeeRow>
         <tr>
           <td class="t-data al">{{ rowIndex + 1 }}</td>
           <td class="empname">
-            <img *ngIf="employeeData.photoUrl; else defaultPhoto" 
-            [src]="employeeData.photoUrl" 
-            alt="Profile" />
-     
+            <img
+              *ngIf="employeeData.photoUrl; else defaultPhoto"
+              [src]="employeeData.photoUrl"
+              alt="Profile"
+            />
             <ng-template #defaultPhoto>
-              <img style="background-color: white;"
+              <img
+                style="background-color: white;"
                 [src]="getDefaultImage(employeeData?.gender)"
                 alt="Default Profile"
               />
             </ng-template>
-            <div class="">
-              <div class="name">{{ employeeData.firstName }} {{employeeData.lastName}}</div>
-              <span class="email">{{employeeData.email}}</span>
+            <div>
+              <div class="name">{{ employeeData.firstName }} {{ employeeData.lastName }}</div>
+              <span class="email">{{ employeeData.email }}</span>
             </div>
           </td>
-          <td class="t-data al" style="text-align: center;">{{ employeeData.employeeCode }}</td>
+
+          <td class="t-data al" style="text-align: center;">
+            {{ employeeData.employeeCode }}
+          </td>
           <td class="t-data al">{{ employeeData.phone }}</td>
           <td>{{ getBranchName(employeeData.branchId) }}</td>
+
           <td class="t-data al">
-            <span class="dept-badge"
-              [ngStyle]="{ backgroundColor: getDepartmentColors(employeeData.departmentId).badgeColor }">
-              <span class="dot"
-                [ngStyle]="{ backgroundColor: getDepartmentColors(employeeData.departmentId).dotColor }">
-              </span>
+            <span
+              class="dept-badge"
+              [ngStyle]="{
+                backgroundColor: getDepartmentColors(employeeData.departmentId).badgeColor}"
+            >
+              <span
+                class="dot"
+                [ngStyle]="{
+                  backgroundColor: getDepartmentColors(employeeData.departmentId).dotColor}"
+              ></span>
               {{ getDepartmentName(employeeData.departmentId) }}
             </span>
           </td>
+
           <td>{{ getRoleName(employeeData.roleId) }}</td>
           <td class="t-data al">{{ employeeData.designation }}</td>
           <td class="t-data al">{{ employeeData.employmentType }}</td>
-          <!-- <td class="t-data al">{{ getShiftName(employeeData.shiftId) }}</td> -->
+
           <td class="t-data al" style="width: 130px;">
-            <span class="mode-chip" [ngClass]="{ gen: !isRotational(employeeData), rot: isRotational(employeeData) }">
+            <span
+              class="mode-chip"
+              [ngClass]="{ gen: !isRotational(employeeData), rot: isRotational(employeeData) }"
+            >
               {{ isRotational(employeeData) ? 'Rotational' : 'General' }}
               <ng-container *ngIf="isRotational(employeeData)">
                 &nbsp;– {{ getRotationalAbbrev(employeeData) }}
@@ -110,16 +157,15 @@
             </span>
           </td>
 
-
-          <td>{{employeeData.employmentStatus}}</td>
+          <td>{{ employeeData.employmentStatus }}</td>
 
           <td>
             <button class="btn" (click)="openEdit(employeeData)">See Details</button>
           </td>
-
         </tr>
       </ng-template>
-    </p-table>
+    </ng-template>
+  </p-table>
+</div>
 
-  </div>
 </div>

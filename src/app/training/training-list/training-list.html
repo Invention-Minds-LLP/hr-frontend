@@ -32,8 +32,10 @@
 
   <!-- TABLE -->
   <ng-template #trainingTable>
-    <p-table [value]="filteredTrainings" [loading]="loading" [paginator]="true" [rows]="10"
+    <p-table [value]="loading ? [1,2,3,4,5] : filteredTrainings" [paginator]="!loading" [rows]="10"
       styleClass="p-datatable-gridlines">
+
+      <!-- Header -->
       <ng-template pTemplate="header">
         <tr>
           <th>No</th>
@@ -45,16 +47,16 @@
           <th>End</th>
           <th>Status</th>
           <th style="text-align: center;">Actions</th>
-
         </tr>
       </ng-template>
 
+      <!-- Body -->
       <ng-template pTemplate="body" let-t let-i="rowIndex">
-        <tr>
+        <tr *ngIf="!loading; else skeletonRow">
           <td>{{ i + 1 }}</td>
           <td>{{ t.title }}</td>
 
-          <!-- TRAINER COLUMN (unchanged) -->
+          <!-- Trainer Column -->
           <td>
             <ng-container *ngIf="t.trainers?.length; else noTrainer">
               <div class="dropdown-container-in-table">
@@ -64,36 +66,31 @@
                   </option>
                   <option *ngFor="let tr of t.trainers" [value]="tr.trainerId || tr.trainerName">
                     <ng-container [ngSwitch]="tr.trainerType">
-
-                      <!-- INTERNAL TRAINER -->
                       <span *ngSwitchCase="'INTERNAL'">
                         {{ getInternalTrainerName(tr.trainerId) }} (Internal)
                       </span>
-
-                      <!-- EXTERNAL TRAINER -->
                       <span *ngSwitchCase="'EXTERNAL'">
                         {{ tr.trainerName }}
                         <span *ngIf="tr.trainerOrg"> - {{ tr.trainerOrg }}</span> (External)
                       </span>
-
                     </ng-container>
                   </option>
                 </select>
               </div>
             </ng-container>
-
             <ng-template #noTrainer>
               <span class="text-muted">No Trainers</span>
             </ng-template>
           </td>
 
-
-          <!-- ✅ TESTS COLUMN -->
+          <!-- Tests Column -->
           <td>
             <ng-container
               *ngIf="t.trainingTests?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
-                {{  t.trainingTests?.length }} test{{t.trainingTests?.length  > 1 ? 's' : ''}}
+                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test
+                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's' :
+                '' }}
               </span>
             </ng-container>
             <ng-template #noTests>
@@ -101,24 +98,23 @@
             </ng-template>
           </td>
 
+          <!-- Assigned Employees Column -->
+          <td *ngIf="userRole === 'HR' && currentPath !== '/individual'">
+            <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees">
+              <span class="count-link" (click)="openEmployeesDialog(t)">
+                {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length > 1 ? 's' : '' }}
+              </span>
+            </ng-container>
+            <ng-template #noEmployees>
+              <span class="text-muted">0</span>
+            </ng-template>
+          </td>
 
-          <!-- ✅ ASSIGNED EMPLOYEES COLUMN -->
-          <!-- <td *ngIf="userRole === 'HR'"> -->
-          <td *ngIf="userRole === 'HR' && currentPath !== '/individual'"> 
-            <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees"> 
-            <span class="count-link"
-                (click)="openEmployeesDialog(t)"> {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length> 1 ? 's' : '' }} </span> 
-              </ng-container> 
-              <ng-template #noEmployees> 
-                <span class="text-muted">0</span>
-            </ng-template> </td>
+          <!-- Dates -->
+          <td>{{ (isIndividualOrEmployee() ? t.startDate : t.startDate) | date: 'short' }}</td>
+          <td>{{ (isIndividualOrEmployee() ? t.endDate : t.endDate) | date: 'short' }}</td>
 
-
-
-
-          <!-- REST OF YOUR COLUMNS -->
-          <td>{{ ( isIndividualOrEmployee() ? t.startDate : t.startDate) | date: 'short' }}</td>
-          <td>{{ ( isIndividualOrEmployee() ? t.endDate : t.endDate) | date: 'short' }}</td>
+          <!-- Status -->
           <td class="t-data al">
             <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).badgeColor }">
               <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).dotColor }"></span>
@@ -126,38 +122,42 @@
             </span>
           </td>
 
-
+          <!-- Actions -->
           <td class="action-btns">
-            <!-- HR ACTIONS -->
             <ng-container *ngIf="userRole === 'HR' && viewMode === 'admin'">
               <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm edit text" label="Edit"
                 (click)="editTraining(t); showForm = true"></button>
-
               <button pButton icon="pi pi-users" class="p-button-text p-button-sm assign text" label="Assign Employees"
                 (click)="openAssignEmployees(t)"></button>
-
-              <!-- <button
-                pButton
-                icon="pi pi-book"
-                class="p-button-text p-button-sm"
-                label="Assign Tests"
-                (click)="openAssignTests(t)"
-              ></button> -->
-
               <button pButton icon="pi pi-eye" class="p-button-text p-button-sm review text" label="Review Feedback"
                 (click)="openFeedbackDialog(t)"></button>
             </ng-container>
-
-            <!-- EMPLOYEE ACTION -->
             <ng-container *ngIf="userRole === 'EMPLOYEE' || (userRole === 'HR' && viewMode === 'individual')">
               <button pButton label="Give Feedback" icon="pi pi-comment" class="p-button-sm p-button-info"
                 (click)="openFeedback(t)"></button>
             </ng-container>
           </td>
         </tr>
+
+        <!-- Skeleton Row -->
+        <ng-template #skeletonRow>
+          <tr>
+            <td><p-skeleton width="2rem"></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="80px"></p-skeleton></td>
+            <td><p-skeleton width="100px"></p-skeleton></td>
+            <td><p-skeleton width="80px"></p-skeleton></td>
+            <td><p-skeleton width="80px"></p-skeleton></td>
+            <td><p-skeleton width="80px"></p-skeleton></td>
+            <td><p-skeleton width="120px"></p-skeleton></td>
+          </tr>
+        </ng-template>
+
       </ng-template>
     </p-table>
   </ng-template>
+
 </p-card>
 
 <!-- ===================== -->

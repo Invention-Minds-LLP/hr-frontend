@@ -18,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
+import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
 
 
@@ -38,7 +39,8 @@ import { Router } from '@angular/router';
     FormsModule,
     InputIconModule,
     IconFieldModule,
-    InputTextModule
+    InputTextModule,
+    SkeletonModule
   ],
   templateUrl: './training-list.html',
   styleUrl: './training-list.css'
@@ -147,7 +149,9 @@ export class TrainingList {
           this.filteredTrainings = [...res];
           console.log('📥 Fetched all trainings for HR', this.filteredTrainings);
           this.trainings = res;
-          this.loading = false;
+          setTimeout(() => {
+            this.loading = false;
+          }, 3000)
         },
         error: (err) => {
           console.error(err);
@@ -160,7 +164,9 @@ export class TrainingList {
           this.filteredTrainings = [...res];
           this.trainings = res;
           console.log('📥 Fetched trainings for employee', empId, this.filteredTrainings);
-          this.loading = false;
+          setTimeout(() => {
+            this.loading = false;
+          }, 3000)
         },
         error: (err: any) => {
           console.error(err);

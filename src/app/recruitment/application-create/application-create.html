@@ -1,34 +1,40 @@
-<div class="card" tabindex="0">
-    <h2>Create Application</h2>
-  
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <label>
-        <span>Job *</span>
-        <select formControlName="jobId">
-          <option [ngValue]="null">Select a job</option>
-          <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }} (Dept #{{ j.departmentId }})</option>
-        </select>
-      </label>
-  
-      <fieldset formGroupName="candidate">
-        <legend>Candidate</legend>
-        <div class="grid">
-          <label><span>Name *</span><input formControlName="name" placeholder="Full name" /></label>
-          <label><span>Email *</span><input formControlName="email" placeholder="name@example.com" /></label>
-          <label><span>Phone</span><input formControlName="phone" /></label>
-          <label><span>Higher Qualification</span><input formControlName="qualification" placeholder="Higher Qualification" /></label>
-          <label><span>Experience (years)</span><input formControlName="experience" type="number" min="0" placeholder="Years of Experience" /></label>
-          <label><span>Source</span><input formControlName="source" placeholder="Referral / LinkedIn / ..." /></label>
-          <label><span>Address</span><textarea formControlName="address" placeholder="Address" ></textarea></label>
-          <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)" /></label>
+<div class="card form-card" tabindex="0">
+  <h2>Create Application</h2>
 
-        </div>
-      </fieldset>
-  
-      <div class="actions">
-        <button type="submit" [disabled]="saving">Create</button>
-        <span class="error" *ngIf="error">{{ error }}</span>
-      </div>
-    </form>
+  <!-- Spinner overlay while loading -->
+  <div *ngIf="loading" class="spinner-overlay">
+    <p-progressSpinner></p-progressSpinner>
   </div>
+
+  <!-- Form -->
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      <span>Job *</span>
+      <select formControlName="jobId">
+        <option [ngValue]="null">Select a job</option>
+        <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }} (Dept #{{ j.departmentId }})</option>
+      </select>
+    </label>
+
+    <fieldset formGroupName="candidate">
+      <legend>Candidate</legend>
+      <div class="grid">
+        <label><span>Name *</span><input formControlName="name" placeholder="Full name" /></label>
+        <label><span>Email *</span><input formControlName="email" placeholder="name@example.com" /></label>
+        <label><span>Phone</span><input formControlName="phone" /></label>
+        <label><span>Higher Qualification</span><input formControlName="qualification" placeholder="Higher Qualification" /></label>
+        <label><span>Experience (years)</span><input formControlName="experience" type="number" min="0" placeholder="Years of Experience" /></label>
+        <label><span>Source</span><input formControlName="source" placeholder="Referral / LinkedIn / ..." /></label>
+        <label><span>Address</span><textarea formControlName="address" placeholder="Address"></textarea></label>
+        <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)" /></label>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" [disabled]="saving">Create</button>
+      <span class="error" *ngIf="error">{{ error }}</span>
+    </div>
+  </form>
+</div>
+
   

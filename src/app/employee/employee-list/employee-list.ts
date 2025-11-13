@@ -14,10 +14,11 @@ import { label } from '@primeuix/themes/aura/metergroup';
 import { value } from '@primeuix/themes/aura/knob';
 import { RouterLink, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-employee-list',
-  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule],
+  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule, SkeletonModule],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
@@ -45,6 +46,7 @@ export class EmployeeList {
   filteredEmployees: any[] = [];
   showFilterDropdown = false;
 
+  loading = true
 
 
 
@@ -54,15 +56,17 @@ export class EmployeeList {
         console.log('Employees fetched successfully:', response);
         this.employee = response;
         this.filteredEmployees = [...this.employee];
+        this.loading = false
       },
       error: (err) => {
         console.error('Error fetching employees:', err);
+        this.loading = false
       }
     });
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
     this.branchService.getBranches().subscribe(data => this.branches = data);
     this.roleService.getRoles().subscribe(data => this.roles = data);
-    this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data);
+    this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data)
   }
 
 

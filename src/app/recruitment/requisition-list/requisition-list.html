@@ -1,18 +1,52 @@
 <div *ngIf="!selectedRequisition" class="card">
   <div class="header flex justify-content-between align-items-center">
     <h2>Man Power Requisition List</h2>
-    <button 
-      pButton 
-      type="button" 
-      icon="pi pi-plus" 
-      label="New Requisition"
-      class="p-button-success"
+    <button pButton type="button" icon="pi pi-plus" label="New Requisition" class="p-button-success"
       (click)="createNewRequisition()">
     </button>
   </div>
-  
-    <div class="table-wrap">
-      <p-table [value]="requisitions" [loading]="loading"  [rows]="10" [scrollable]="true" scrollDirection="both">
+
+  <div class="table-wrap">
+    <ng-container *ngIf="loading; else requisition">
+      <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+        <!-- Header -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th *ngFor="let h of ['No','Title','Department','Created','Status','Action']">
+              {{ h }}
+            </th>
+          </tr>
+        </ng-template>
+
+        <!-- Body -->
+        <ng-template pTemplate="body">
+          <tr>
+            <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
+
+            <!-- <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+                                <div class="profile-text">
+                                    <p-skeleton width="90px" height="12px" styleClass="mb-1"></p-skeleton>
+                                    <p-skeleton width="60px" height="10px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td> -->
+
+            <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
+            <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
+            <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+            <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+            <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td>
+            <!-- <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td> -->
+            <!-- <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+                        <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-container>
+    <ng-template #requisition>
+      <p-table [value]="requisitions" [loading]="loading" [rows]="10" [scrollable]="true" scrollDirection="both">
         <ng-template pTemplate="header">
           <tr>
             <th>No</th>
@@ -23,7 +57,7 @@
             <th>Action</th>
           </tr>
         </ng-template>
-      
+
         <ng-template pTemplate="body" let-row let-i="rowIndex">
           <tr>
             <td>{{ i + 1 }}</td>
@@ -31,34 +65,30 @@
             <td class="t-data al">
               <span class="dept-badge"
                 [ngStyle]="{ backgroundColor: getDepartmentColors(row.departmentId).badgeColor }">
-                <span class="dot"
-                  [ngStyle]="{ backgroundColor: getDepartmentColors(row.departmentId).dotColor }">
+                <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(row.departmentId).dotColor }">
                 </span>
                 {{ getDepartmentName(row.departmentId) }}
               </span>
             </td>
             <td>{{ row.createdAt | date:'short' }}</td>
             <td>
-              <p-tag [value]="row.status"
-                     [severity]="row.status === 'REJECTED' ? 'danger' :
-                                 row.status.includes('APPROVED') ? 'success' :
-                                 'warn'"></p-tag>
+              <p-tag [value]="row.status" [severity]="row.status === 'REJECTED' ? 'danger' :
+                                     row.status.includes('APPROVED') ? 'success' :
+                                     'warn'"></p-tag>
             </td>
             <td>
-              <button pButton type="button" icon="pi pi-eye" label="Open"
-                      (click)="onSelect(row)"></button>
+              <button pButton type="button" icon="pi pi-eye" label="Open" (click)="onSelect(row)"></button>
             </td>
-            
+
           </tr>
         </ng-template>
       </p-table>
-    </div>
-</div>
-  
-
-  <div *ngIf="selectedRequisition">
-    <app-requisition-form
-      [requisition]="selectedRequisition"
-      (closeForm)="closeRequisition()">
-    </app-requisition-form>
+    </ng-template>
   </div>
+</div>
+
+
+<div *ngIf="selectedRequisition">
+  <app-requisition-form [requisition]="selectedRequisition" (closeForm)="closeRequisition()">
+  </app-requisition-form>
+</div>

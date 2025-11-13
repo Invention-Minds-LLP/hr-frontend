@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { Departments } from '../../services/departments/departments';
 import { Entitles } from '../../services/entitles/entitles';
 import { EmployeeDetails } from "../employee-details/employee-details";
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface balancesTable {
   empName: string;
@@ -25,7 +26,7 @@ interface balancesTable {
 
 @Component({
   selector: 'app-balances-accruals',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, EmployeeDetails],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, EmployeeDetails, SkeletonModule],
   templateUrl: './balances-accruals.html',
   styleUrl: './balances-accruals.css'
 })
@@ -47,6 +48,7 @@ export class BalancesAccruals {
     { label: 'JobTitle', value: 'designation' },
     { label: 'ShiftType', value: 'shiftType' }
   ]
+  loading = true
 
 
 
@@ -60,7 +62,9 @@ export class BalancesAccruals {
       this.filterBalancesData = [...this.balancesData];
     });
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
-
+    setTimeout(()=>{
+      this.loading = false
+    }, 3000)
   }
 
   onSearch(event: Event) {

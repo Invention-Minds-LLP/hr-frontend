@@ -15,11 +15,12 @@ import { value } from '@primeuix/themes/aura/knob';
 import { FormsModule } from '@angular/forms';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
 import { FloatLabel } from 'primeng/floatlabel';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-assigned-test',
   imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule,
-     InputTextModule, IconFieldModule, InputIconModule, FormsModule,FloatLabel, InputTextModule],
+     InputTextModule, IconFieldModule, InputIconModule, FormsModule,FloatLabel, InputTextModule, SkeletonModule],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css',
 
@@ -33,6 +34,7 @@ export class AssignedTest {
   filteredAssignedtest: any[] = []
   selectedFilter: any = null;
   showFilterDropdown = false
+  loading = true
 
   filterOptions = [
     { label: 'Employee Name', value: 'name' },
@@ -42,12 +44,18 @@ export class AssignedTest {
   constructor(private assignedService: AssignTest, private messageService: MessageService, private attemptService: TestAttempt) { }
 
   ngOnInit(): void {
+    this.loading =true
     this.assignedService.getAll().subscribe({
       next: data => {
         this.assignedTests = data
         this.filteredAssignedtest = [...this.assignedTests]
+        setTimeout(()=>{
+          this.loading = false
+        }, 2000)
       },
-      error: err => console.error('Failed to load assigned tests', err)
+      error: err => {console.error('Failed to load assigned tests', err)
+        this.loading = false
+      }
     });
   }
   openOverview(a: any) {

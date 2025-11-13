@@ -19,6 +19,7 @@ import { MyTests } from "../../evaluation/my-tests/my-tests";
 import { TrainingList } from "../../training/training-list/training-list";
 import { SurveyList } from "../../survey/survey-list/survey-list";
 import { ExitInterviewList } from "../../resignation/exit-interview-list/exit-interview-list";
+import { SkeletonModule, Skeleton } from 'primeng/skeleton';
 import { AttendanceCalendar } from '../../services/attendance-calendar/attendance-calendar';
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { SurveyForm } from '../../survey/survey-form/survey-form';
@@ -42,7 +43,7 @@ type LeaveTypeCount = { label: string; count: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SurveyForm],
+    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SkeletonModule, SurveyForm],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -74,6 +75,7 @@ export class Individual {
   currentIndex = 0;
   noHolidaysMessage: string = '';
   year = new Date().getFullYear();
+  loading = true
 
   currentUserId = localStorage.getItem('empId');
 
@@ -161,9 +163,13 @@ export class Individual {
       this.employeeService.getEmployeeById(employeeId).subscribe({
         next: (res) => {
           this.employee = res;
+          setTimeout(()=>{
+            this.loading = false
+          },2000)
         },
         error: (err) => {
           console.error('Error fetching employee:', err);
+          this.loading = false
         }
       });
     }
