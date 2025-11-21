@@ -11,6 +11,7 @@ interface CalendarDay {
   number: number;
   selected: boolean;
   isCurrentMonth: boolean;
+  blocked?: boolean; // new optional flag
 }
 
 @Component({
@@ -63,6 +64,9 @@ export class LeavePopup {
   reason = '';
   employeeId: string = '';
   declineReason: string = '';
+  blockedRanges: { startDate: Date, endDate: Date }[] = [];
+  today = new Date();
+
 
 
 
@@ -84,6 +88,22 @@ export class LeavePopup {
 
   ngOnInit(): void {
     this.employeeId = localStorage.getItem('empId') || '';
+    console.log(Number(this.employeeId))
+    this.leaveService.getBlockedDates(Number(localStorage.getItem('empId')))
+      .subscribe((res: any[]) => {
+        console.log('Blocked Dates Response:', res);
+        this.blockedRanges = res.map(r => ({
+          startDate: new Date(r.startDate),
+          endDate: new Date(r.endDate)
+        }));
+
+        console.log('Blocked Ranges:', this.blockedRanges);
+
+        this.generateCalendar();
+      });
+
+
+
     if (this.leaveData) {
       this.populateFromLeaveData(this.leaveData);
     } else {
@@ -95,7 +115,6 @@ export class LeavePopup {
     this.leaveService.getLeaveTypes().subscribe(types => {
       this.leaveTypes = types;
     });
-
   }
   populateFromLeaveData(data: any) {
     this.fromDate = new Date(data.startDate);
@@ -130,7 +149,32 @@ export class LeavePopup {
 
 
 
+  remainingLeave = 0;
 
+  checkLeaveBalance() {
+    const selected = this.leaveTypes.find(t => t.name === this.leaveType);
+    if (!selected) return;
+  
+    const year = this.fromDate.getFullYear();
+  
+    this.leaveService.getLeaveBalance(Number(this.employeeId), year)
+      .subscribe((balances: any) => {
+        const bal = balances.find((b:any) => b.leaveTypeId === selected.id);
+        if (!bal) return;
+  
+        this.remainingLeave = bal.remaining;
+  
+        if (this.days > bal.remaining) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Insufficient Balance',
+            detail: `Only ${bal.remaining} days left for ${this.leaveType}`
+          });
+          this.leaveType = '';
+        }
+      });
+  }
+  
 
   populateYears() {
     const currentYear = new Date().getFullYear();
@@ -141,16 +185,43 @@ export class LeavePopup {
     return this.monthsList.indexOf(month);
   }
 
+  // calculateDays() {
+  //   if (this.toDate >= this.fromDate) {
+  //     this.days =
+  //       Math.floor(
+  //         (this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 60 * 60 * 24)
+  //       ) + 1;
+  //   } else {
+  //     this.days = 0;
+  //   }
+  // }
   calculateDays() {
-    if (this.toDate >= this.fromDate) {
-      this.days =
-        Math.floor(
-          (this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 60 * 60 * 24)
-        ) + 1;
-    } else {
+    if (this.toDate < this.fromDate) {
       this.days = 0;
+      return;
     }
+  
+    let total = 0;
+  
+    // Loop through each date in the selected range
+    for (
+      let d = new Date(this.fromDate);
+      d <= this.toDate;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const current = new Date(d);
+  
+      // Skip blocked days
+      if (this.isDayBlocked(current)) {
+        continue;
+      }
+  
+      total++;
+    }
+  
+    this.days = total;
   }
+  
 
   generateCalendar() {
     const firstDayOfMonth = new Date(this.currentYear, this.currentMonthIndex, 1).getDay();
@@ -175,18 +246,44 @@ export class LeavePopup {
       const isSelected =
         dateObj >= this.fromDate && dateObj <= this.toDate;
 
+      const isBlocked = this.isDayBlocked(dateObj);
+
       this.calendarDays.push({
         date: dateObj,
         number: day,
         selected: isSelected,
-        isCurrentMonth: true
+        isCurrentMonth: true,
+        blocked: isBlocked   // add new flag
       });
+
+
+      // this.calendarDays.push({
+      //   date: dateObj,
+      //   number: day,
+      //   selected: isSelected,
+      //   isCurrentMonth: true
+      // });
     }
+
   }
+  isDayBlocked(date: Date): boolean {
+    return this.blockedRanges.some(range =>
+      date >= range.startDate && date <= range.endDate
+    );
+  }
+
 
   // Handle date click
   onDateClick(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
+    if (day.blocked || !day.isCurrentMonth) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Date Unavailable',
+        detail: 'This date is already applied or approved'
+      });
+      return;
+    }
 
     if (!this.fromDate || (this.fromDate && this.toDate)) {
       // Reset range
@@ -266,6 +363,15 @@ export class LeavePopup {
   toMonth!: string;
   toYear!: number;
 
+  isRangeBlocked(from: Date, to: Date): boolean {
+    for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+      if (this.isDayBlocked(new Date(d))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   applyLeave() {
     if (!this.leaveType) {
@@ -277,6 +383,15 @@ export class LeavePopup {
       })
       return;
     }
+    if (this.isRangeBlocked(this.fromDate, this.toDate)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Blocked Range',
+        detail: 'Your selected dates overlap with existing leave request.'
+      });
+      return;
+    }
+
     const payload = {
       employeeId: parseInt(this.employeeId), // Replace with actual logged-in employee ID (or @Input() if coming from parent)
       leaveTypeId: this.leaveTypes.find(type => type.name === this.leaveType)?.id,
@@ -315,4 +430,19 @@ export class LeavePopup {
     this.leaveType = '';
     this.reason = ''
   }
+  isDisabledDay(day: number, monthStr: string, year: number): boolean {
+    const monthIndex = this.monthToIndex(monthStr);
+    const dateObj = new Date(year, monthIndex, day);
+  
+    // Block past dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (dateObj < today) return true;
+  
+    // Block already applied days
+    if (this.isDayBlocked(dateObj)) return true;
+  
+    return false;
+  }
+  
 }

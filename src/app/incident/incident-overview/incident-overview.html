@@ -1,0 +1,19 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <!-- <h2>{{tableHeading}}</h2> -->
+    <ul>
+                
+        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">New Incident</li></button>
+         <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Incident List</li></button>
+    </ul>
+</nav>
+<!-- <div>
+    <hr>
+</div> -->
+
+
+<div>
+    <app-incident-form *ngIf="active === 'form'" ></app-incident-form>
+    <app-incident-table *ngIf="active === 'list'" [reporterId]="reporterId"></app-incident-table>
+</div>

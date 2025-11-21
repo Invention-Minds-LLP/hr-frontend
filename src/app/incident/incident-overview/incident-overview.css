@@ -1,0 +1,76 @@
+.sub-nav {
+    display: flex;
+    background: transparent;
+    /* padding: 0.5rem 1.5rem; */
+    /* height: 64px;
+    padding: 0 2rem; */
+    padding: 0 60px;
+    position: absolute;
+  }
+
+  h2{
+    color: white;
+    font-family: "Sofia Sans";
+    width: 30%;
+  }
+  .sub-nav ul {
+    list-style: none;
+    display: flex;
+    align-items: flex-end;
+    /* gap: 2rem; */
+    align-items: center;
+    padding: 0;
+    /* height: 64px;
+    margin: 8px; */
+    
+  }
+  .sub-item {
+    cursor: pointer;
+    padding-bottom: 0.2rem;
+    color: white;
+    position: relative;
+  }
+  .sub-item.active {
+    color: #FB9C2A;
+    font-feature-settings: "salt" on, "liga" off;
+    font-family: "Sofia Sans";
+
+  }
+  /* .sub-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #E9144A;
+  } */
+  hr {
+    background: #d9d9d9;
+    height: 2px;
+    border: none;
+    width: 93%;
+    padding: 0 4rem;
+  }
+
+  button {
+  display: flex;
+  /* width: 160px; */
+  height: 44px;
+  padding: 0 26px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: none;
+  font-family: "Sofia Sans";
+  border: none;
+   font-size: 18px;
+  font-weight: 600;
+}
+
+.br{
+  border-right: 2px solid #828282;
+  height: 25px;
+}

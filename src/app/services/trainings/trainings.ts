@@ -68,5 +68,18 @@ export class Trainings {
   updateTraining(id: number, data: any) {
     return this.http.put(`${this.baseUrl}/${id}`, data);
   }
+
+  getTrainingAttendance(trainingId: number) {
+    return this.http.get(`${this.baseUrl}/attendance/${trainingId}`);
+  }
+  
+  bulkMarkTrainingAttendance(trainingId: number, data: any) {
+    return this.http.post(`${this.baseUrl}/attendance/bulk/${trainingId}`, data);
+  }
+  
+  getAssignedEmployees(trainingId: number) {
+    return this.http.get(`${this.baseUrl}/${trainingId}/employees`);
+  }
+  
   
 }

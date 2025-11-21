@@ -1,0 +1,30 @@
+<p-card header="Incident Records">
+
+    <p-table [value]="incidents" [paginator]="true" [rows]="10">
+  
+      <ng-template pTemplate="header">
+        <tr>
+            <th>No</th>
+          <th>Title</th>
+          <th>Employee</th>
+          <th>Reporter</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr>
+            <td>{{ i + 1 }}</td>
+          <td>{{ row.title }}</td>
+          <td>{{ row.employee?.firstName }} {{ row.employee?.lastName }}</td>
+          <td>{{ row.reporter?.firstName }} {{ row.reporter?.lastName }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.createdAt | date:'medium' }}</td>
+        </tr>
+      </ng-template>
+  
+    </p-table>
+  
+  </p-card>
+  

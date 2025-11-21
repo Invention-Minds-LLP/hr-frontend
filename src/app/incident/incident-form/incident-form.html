@@ -1,0 +1,44 @@
+<p-card header="File an Incident Report">
+
+    <div class="p-fluid grid">
+  
+        <div class="col-12">
+            <label>Employee</label>
+            <p-select 
+              [options]="employees" 
+              [(ngModel)]="incident.employeeId"
+              placeholder="Select Employee"
+              optionLabel="label"
+              optionValue="value"
+              filter="true"
+              [showClear]="true">
+            </p-select>
+          </div>
+          
+  
+      <div class="col-12">
+        <label>Title</label>
+        <input pInputText [(ngModel)]="incident.title" placeholder="Incident title" />
+      </div>
+  
+      <div class="col-12">
+        <label>Description</label>
+        <textarea pInputTextarea rows="5" [(ngModel)]="incident.description"></textarea>
+      </div>
+  
+      <!-- <div class="col-12">
+        <label>Attachment</label>
+        <input type="file" (change)="onFileSelected($event)" />
+      </div> -->
+      
+  
+      <div class="col-12 text-right">
+        <button pButton label="Submit Incident" class="p-button-primary" (click)="submitIncident()"></button>
+      </div>
+  
+    </div>
+  
+  </p-card>
+  
+  <p-toast></p-toast>
+  

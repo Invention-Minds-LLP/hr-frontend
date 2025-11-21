@@ -146,5 +146,29 @@ export class PermissionPopup {
     const mm = String(d.getMinutes()).padStart(2, '0');
     return `${hh}:${mm}`;
   }
+  remainingPermission = 0;
 
+  checkPermissionBalance() {
+    const year = new Date(this.day).getFullYear();
+    const type = this.permissionType;
+  
+    this.permissionService.getPermissionBalance(Number(this.employeeId), year)
+      .subscribe((balances: any) => {
+        const bal = balances.find((b:any) => b.permissionType === type);
+  
+        if (!bal) return;
+  
+        this.remainingPermission = bal.remaining;
+  
+        if (bal.remaining <= 0) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'No Permission Balance',
+            detail: `You do not have available permissions for ${type}.`
+          });
+          this.permissionType = '';
+        }
+      });
+  }
+  
 }

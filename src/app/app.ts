@@ -91,4 +91,8 @@ export class App {
       setTimeout(() => this.showNextPopup(), 400); // brief pause before next popup
     }
   }
+  isCandidateTestsRoute(): boolean {
+    return this.router.url.startsWith('/candidate-tests');
+  }
+  
 }

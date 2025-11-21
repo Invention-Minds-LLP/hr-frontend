@@ -17,7 +17,7 @@
     
             <div class="form-group">
                 <label>Select Timing :</label>
-                <select [(ngModel)]="timing">
+                <select [(ngModel)]="timing" (change)="checkPermissionBalance()">
                     <option value="">Select Timing</option>
                     <!-- <option value="FULLDAY">Full Day</option> -->
                     <option value="HALFDAY">Half Day</option>

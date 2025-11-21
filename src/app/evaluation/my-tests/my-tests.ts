@@ -41,6 +41,27 @@ export class MyTests {
 
   startTest(assignedId: any): void {
     console.log(assignedId)
+    const now = new Date();
+    const startTime = new Date(assignedId.testDate);
+    const endTime = new Date(assignedId.deadlineDate);
+  
+    if (now < startTime) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Test Not Started',
+        detail: `This test will be available after ${startTime.toLocaleString()}`
+      });
+      return;
+    }
+  
+    if (now > endTime) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Test Expired',
+        detail: `The test window closed at ${endTime.toLocaleString()}`
+      });
+      return;
+    }
     this.testService.startAttempt(assignedId.id).subscribe({
       next: ({ attemptId }) => {
         this.router.navigate(['/recruitment/take-test', assignedId.id], {

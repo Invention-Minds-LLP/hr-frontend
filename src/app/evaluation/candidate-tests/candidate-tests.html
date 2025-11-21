@@ -1,7 +1,36 @@
+<div class="nav-bar-container">
+  <header class="header">
+    <div class="header-top">
+      <div class="logo">
+        <span class="logo-red">HR</span> <span>MINDS</span>
+      </div>
+
+
+
+      <div class="header-actions">
+
+
+
+        <div class="profile" [class.active]="isOpen">
+          <div class="user-profile" >
+            <div class="flex">
+              <img [src]="'/img.png'" alt="User Avatar" class="avatar" />
+              <span class="username">{{username}}</span>
+              <i *ngIf="!isOpen" class="pi pi-chevron-down" ></i>
+              <i *ngIf="isOpen" class="pi pi-chevron-up" ></i>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    </header>
+      </div>
 <div class="question-bank">
     <div class="header">
   
-      <h2>My Assigned Tests</h2>
+      <h2 class="heading">My Assigned Tests</h2>
     </div>
   
     <p-table [value]="tests" [paginator]="true" [rows]="10" responsiveLayout="scroll">
@@ -12,6 +41,8 @@
           <th>Duration</th>
           <th>Status</th>
           <th>Assigned On</th>
+          <th>Start Date/Time</th>
+          <th>Deadline Date/Time</th>
           <th style="text-align: center;">Action</th>
         </tr>
       </ng-template>
@@ -23,6 +54,8 @@
           <td>{{ t.test?.duration }} min</td>
           <td>{{ t.status }}</td>
           <td>{{ t.assignedAt | date:'short' }}</td>
+          <td>{{ t.testDate | date:'short' }}</td>
+          <td>{{ t.deadlineDate | date:'short' }}</td>
           <td class="action-cell">
             <ng-container *ngIf="t.canStart; else maxMsg">
               <button class="button" (click)="start(t)">Start</button>
@@ -36,3 +69,5 @@
       </ng-template>
     </p-table>
   </div>
+
+  <p-toast></p-toast>

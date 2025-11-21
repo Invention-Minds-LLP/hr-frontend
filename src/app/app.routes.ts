@@ -55,6 +55,7 @@ import { Clearances } from './resignation/clearances/clearances';
 import { TrainingForm } from './training/training-form/training-form';
 import { TrainingOverview } from './training/training-overview/training-overview';
 import { AttendanceCalendars } from './attendance/attendance-calendars/attendance-calendars';
+import { IncidentOverview } from './incident/incident-overview/incident-overview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -84,6 +85,7 @@ export const routes: Routes = [
       { path: 'complaints', component: Complaints, canActivate: [authGuard] },
       { path: 'clearance', component: Clearances, canActivate: [authGuard] },
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
+      { path: 'incidents', component: IncidentOverview, canActivate: [authGuard] },
     ],
 
   },
@@ -98,7 +100,7 @@ export const routes: Routes = [
       { path: 'internships', component: Internship,},        // internship module
       { path: 'my-tests', component: MyTests,},              // keep tests under recruitment
       { path: 'take-test/:id', component: TestPlatform,},
-      { path: 'candidate-tests', component: CandidateTests,}, // view candidate details
+      // { path: 'candidate-tests', component: CandidateTests}, // view candidate details
       { path: 'recquisition', component: RequisitionList,}, // requisition form
       { path: 'survey', component: SurveyList, },
       { path: 'exit', component: ExitInterviewList, },
@@ -126,6 +128,8 @@ export const routes: Routes = [
   { path: 'internship', redirectTo: 'recruitment/internships', pathMatch: 'full', },
   { path: 'my-tests', redirectTo: 'recruitment/my-tests', pathMatch: 'full', },
   { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full', },
+
+  { path: 'candidate-tests', component: CandidateTests, canActivate: [authGuard]},
 
 
   // Default / catch-all

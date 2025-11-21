@@ -20,6 +20,9 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
+import { SelectModule } from 'primeng/select';
+import { DatePicker, DatePickerModule } from 'primeng/datepicker';
+import { CheckboxModule } from 'primeng/checkbox';
 
 
 @Component({
@@ -40,7 +43,11 @@ import { Router } from '@angular/router';
     InputIconModule,
     IconFieldModule,
     InputTextModule,
-    SkeletonModule
+    SkeletonModule,
+    SelectModule,
+    DatePickerModule,
+    CheckboxModule,
+    TableModule
   ],
   templateUrl: './training-list.html',
   styleUrl: './training-list.css'
@@ -73,6 +80,27 @@ export class TrainingList {
   employees: any[] = [];
   @ViewChild('trainingFormRef') trainingForm!: TrainingForm;
   currentPath: string = '';
+  role = localStorage.getItem('role') || 'EMPLOYEE';
+
+  showAttendanceDialog = false;
+  attendanceList: any[] = [];
+  attendanceDate: Date = new Date();
+  selectAll = false;
+  bulkStatus: string | null = null;
+
+  statusOptions = [
+    { label: "Present", value: "PRESENT" },
+    { label: "Absent", value: "ABSENT" }
+  ];
+
+  selectedTrainingId!: number;
+  today = new Date();
+  minDate = this.today;
+  maxDate = this.today;
+  selectedRows: any[] = [];
+
+  
+
 
 
   constructor(private trainingService: Trainings, private employeeService: Employees, private router: Router,
@@ -143,7 +171,7 @@ export class TrainingList {
     const empId = localStorage.getItem('empId') || '1';
     const currentPath = this.router.url;
 
-    if (this.userRole === 'HR' && currentPath !== '/individual') {
+    if ((this.userRole === 'HR' || this.role === 'Reporting Manager') && currentPath !== '/individual') {
       this.trainingService.getAllTrainings().subscribe({
         next: (res) => {
           this.filteredTrainings = [...res];
@@ -404,5 +432,98 @@ export class TrainingList {
     // already in mm/dd/yy or partial
     return value;
   }
+  openAttendanceDialog(training: any) {
+    this.selectedTrainingId = training.id;
+    this.selectedTraining = training;
+    this.showAttendanceDialog = true;
+  }
+  loadAttendance() {
+
+    this.attendanceDate.setHours(0, 0, 0, 0);
+
+
+    const employees = this.selectedTraining.assignedEmployees || [];
+
+    console.log('Assigned employees:', employees);
+
+    // Load existing attendance for the selected date
+    this.trainingService.getTrainingAttendance(this.selectedTrainingId).subscribe((att: any) => {
+
+      this.attendanceList = employees.map((emp: any) => {
+        const match = att.find((x: any) =>
+          x.employeeId === emp.employeeId &&
+          new Date(x.date).toDateString() === this.attendanceDate.toDateString()
+        );
+
+        return {
+          employeeId: emp.employeeId,
+          employeeName: emp.employee.firstName + " " + emp.employee.lastName,
+          department: emp.employee.Department?.name || "-",
+          status: match ? match.status : null,
+          alreadyMarked: !!match,
+          selected: false
+        };
+      });
+    });
+  }
+
+  // toggleSelectAll() {
+  //   this.attendanceList.forEach(a => {
+  //     a.selected = this.selectAll;
+  
+  //     if (this.selectAll && this.bulkStatus) {
+  //       // Only apply if:
+  //       // 1. It was NOT marked before OR
+  //       // 2. New status = previous status
+  //       if (!a.alreadyMarked || a.status === this.bulkStatus) {
+  //         a.status = this.bulkStatus;
+  //       }
+  //     }
+  //   });
+  // }
+  
+  applyBulkStatus() {
+    this.selectedRows.forEach(row => {
+      if (!row.alreadyMarked || row.status === this.bulkStatus) {
+        row.status = this.bulkStatus;
+      }
+    });
+  }
+  
+  saveAttendance() {
+    const formatted = {
+      attendanceList: this.attendanceList
+        .filter(a => a.status !== null && a.status !== undefined)
+        .map(a => ({
+          employeeId: a.employeeId,
+          status: a.status
+        })),
+      date: this.attendanceDate
+    };
+  
+    this.trainingService.bulkMarkTrainingAttendance(this.selectedTrainingId, formatted)
+      .subscribe(() => {
+        this.showAttendanceDialog = false;
+        this.closeAttendanceDialog();
+      });
+  }
+  
+  closeAttendanceDialog() {
+    this.attendanceList = [];
+    this.selectedRows = [];
+    this.bulkStatus = null;
+    this.selectedTraining = null;
+  
+    // Reset date
+    this.attendanceDate = new Date();
+    this.attendanceDate.setHours(0, 0, 0, 0);
+  
+    // If you're using selectAll somewhere
+    this.selectAll = false;
+  
+    console.log("Attendance dialog reset");
+  }
+  
+
 
 }

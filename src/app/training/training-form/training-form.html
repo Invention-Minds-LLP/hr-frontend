@@ -152,7 +152,7 @@
 
               <!-- Internal Trainer Dropdown -->
               <td *ngIf="group.value.trainerType === 'INTERNAL'">
-                <p-select [options]="employees" formControlName="trainerId" optionLabel="label"
+                <p-select [options]="employees" formControlName="trainerId" optionLabel="label" appendTo="body"
                   placeholder="Select Trainer" class="w-full" optionValue="value"></p-select>
               </td>
 

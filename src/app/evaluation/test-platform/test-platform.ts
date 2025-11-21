@@ -348,7 +348,7 @@ export class TestPlatform implements OnInit, OnDestroy {
     this.attemptService.submitWithFiles(formData).subscribe(() => {
       this.submitMessage = 'Your test has been submitted successfully. Thank you.';
       this.showSubmitPopup = true;
-      this.router.navigate(['/my-tests']);
+      this.router.navigate(['/individual']);
     });
   }
   isAnswered(i: number): boolean {

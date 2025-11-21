@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
+import { environment } from '../../../environment/environment.prod';
 
 @Component({
   selector: 'app-hr-evaluate',
@@ -21,6 +22,7 @@ export class HrEvaluate implements OnInit {
   saving = false;
   error = '';
   totalScore = 0;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,7 +65,7 @@ export class HrEvaluate implements OnInit {
 
   saveEvaluation(): void {
     this.saving = true;
-    this.http.post(`/api/tests/attempts/${this.attemptId}/review`, {
+    this.http.post(`${this.apiUrl}/tests/attempts/${this.attemptId}/review`, {
       scores: this.attempt.responses.map((r: any) => ({
         questionId: r.questionId,
         hrScore: r.hrScore ?? null

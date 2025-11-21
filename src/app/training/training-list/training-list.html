@@ -4,7 +4,7 @@
 
 
   <div class="flex">
-    <div *ngIf="userRole === 'HR'" class="p-mb-3 button">
+    <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager')" class="p-mb-3 button">
       <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
         class="p-button-sm p-button-success" (click)="toggleForm()"></button>
     </div>
@@ -42,7 +42,8 @@
           <th>Title</th>
           <th>Trainer</th>
           <th>Tests</th>
-          <th *ngIf="userRole === 'HR' && currentPath !== '/individual'">Assigned Employees</th>
+          <th *ngIf="(userRole === 'HR' || role === 'Reporting Manager')  && currentPath !== '/individual'">Assigned
+            Employees</th>
           <th>Start</th>
           <th>End</th>
           <th>Status</th>
@@ -85,8 +86,7 @@
 
           <!-- Tests Column -->
           <td>
-            <ng-container
-              *ngIf="t.trainingTests?.length; else noTests">
+            <ng-container *ngIf="t.trainingTests?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
                 {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test
                 {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's' :
@@ -99,7 +99,7 @@
           </td>
 
           <!-- Assigned Employees Column -->
-          <td *ngIf="userRole === 'HR' && currentPath !== '/individual'">
+          <td *ngIf="(userRole === 'HR' || role === 'Reporting Manager')  && currentPath !== '/individual'">
             <ng-container *ngIf="t.assignedEmployees?.length; else noEmployees">
               <span class="count-link" (click)="openEmployeesDialog(t)">
                 {{ t.assignedEmployees.length }} employee{{ t.assignedEmployees.length > 1 ? 's' : '' }}
@@ -124,7 +124,7 @@
 
           <!-- Actions -->
           <td class="action-btns">
-            <ng-container *ngIf="userRole === 'HR' && viewMode === 'admin'">
+            <ng-container *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && viewMode === 'admin'">
               <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm edit text" label="Edit"
                 (click)="editTraining(t); showForm = true"></button>
               <button pButton icon="pi pi-users" class="p-button-text p-button-sm assign text" label="Assign Employees"
@@ -135,6 +135,12 @@
             <ng-container *ngIf="userRole === 'EMPLOYEE' || (userRole === 'HR' && viewMode === 'individual')">
               <button pButton label="Give Feedback" icon="pi pi-comment" class="p-button-sm p-button-info"
                 (click)="openFeedback(t)"></button>
+            </ng-container>
+            <ng-container *ngIf="role === 'Reporting Manager'">
+              <button pButton icon="pi pi-check-square" class="p-button-text p-button-sm attendance text"
+                label="Mark Attendance" (click)="openAttendanceDialog(t)">
+              </button>
+
             </ng-container>
           </td>
         </tr>
@@ -169,7 +175,7 @@
     <!-- Departments (Multi-Select) -->
     <div class="field col-12">
       <p-floatLabel variant="on">
-        <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value"
+        <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value" appendTo="body"
           placeholder="Select Departments" class="w-full"></p-multiSelect>
 
         <label>Select Departments</label>
@@ -260,8 +266,7 @@
   <ng-container
     *ngIf="(isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests)?.length; else noTests"
     class="popup">
-    <p-table
-      [value]="isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests"
+    <p-table [value]="isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests"
       styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
@@ -320,4 +325,67 @@
   <ng-template #noEmployees>
     <p>No employees assigned yet.</p>
   </ng-template>
+</p-dialog>
+
+<!-- ===================== -->
+<!-- ATTENDANCE DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Mark Attendance" [(visible)]="showAttendanceDialog" [modal]="true" [style]="{ width: '50vw' }"
+  (onShow)="loadAttendance()"  (onHide)="closeAttendanceDialog()">
+
+  <!-- Select Date -->
+  <div class="mb-3">
+    <p-datepicker [(ngModel)]="attendanceDate" [minDate]="minDate" [maxDate]="maxDate" dateFormat="dd-mm-yy"
+      placeholder="Select Date" [showIcon]="true">
+    </p-datepicker>
+  </div>
+
+  <!-- Select All -->
+  <div class="my-2 flex align-items-center">
+    <!-- <p-checkbox [(ngModel)]="selectAll" (onChange)="toggleSelectAll()">
+    </p-checkbox>
+    <label class="ml-2">Select All</label> -->
+
+    <div class="ml-auto">
+      <p-select [options]="statusOptions" [(ngModel)]="bulkStatus" placeholder="Mark All As"
+        (onChange)="applyBulkStatus()">
+      </p-select>
+    </div>
+  </div>
+
+  <p-table [value]="attendanceList" selectionMode="multiple" [(selection)]="selectedRows" dataKey="employeeId">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+
+        <th>No</th>
+        <th>Employee</th>
+        <th>Department</th>
+        <th>Status</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-a let-i="rowIndex">
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="a"></p-tableCheckbox>
+        </td>
+
+        <td>{{ i + 1 }}</td>
+        <td>{{ a.employeeName }}</td>
+        <td>{{ a.department }}</td>
+        <td>
+          <p-select [options]="statusOptions" [(ngModel)]="a.status">
+          </p-select>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="flex justify-content-end mt-3">
+    <button pButton label="Save" icon="pi pi-check" class="mt-3" (click)="saveAttendance()"></button>
+  </div>
+
 </p-dialog>

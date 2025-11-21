@@ -53,4 +53,11 @@ export class Leaves {
     return this.http.get<{today: any[]; thisWeek: any[]; nextMonth: any[]}>(`${this.apiUrl}/leave-today?date=${d}`);
   }
   
+  getBlockedDates(employeeId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/blocked/${employeeId}`);
+  }
+  getLeaveBalance(employeeId: number, year: number) {
+    return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
+  }
+  
 }

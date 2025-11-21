@@ -25,6 +25,14 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
+.calendar-day.blocked {
+  background-color: #f5a8a8;
+  color: #555;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+
 /* Title */
 .title {
   display: flex;

@@ -8,7 +8,7 @@
 </ng-template>
 <app-announcement-popup></app-announcement-popup> -->
 
-<div class="app-container" *ngIf="!hideNavbar() && !isTestRoute(); else specialTemplate">
+<div class="app-container" *ngIf="!hideNavbar() && !isTestRoute() && !isCandidateTestsRoute();  else specialTemplate">
   <p-toast></p-toast>
   <app-navbar></app-navbar>
   

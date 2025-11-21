@@ -37,5 +37,9 @@ export class Permission {
       declineReason,
     });
   }
+  getPermissionBalance(employeeId: number, year: number) {
+    return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
+  }
+  
   
 }

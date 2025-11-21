@@ -30,9 +30,18 @@
                 <div class="form-row">
                     <label>From</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
+                        <!-- <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
+                        </select> -->
+                        <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
+
+                            <option *ngFor="let d of daysList" [value]="d"
+                                [disabled]="isDisabledDay(d, fromMonth, fromYear)">
+                                {{ d }}
+                            </option>
+
                         </select>
+
 
                         <select [(ngModel)]="fromMonth" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
@@ -52,9 +61,18 @@
                 <div class="form-row">
                     <label>To</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
+                        <!-- <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
+                        </select> -->
+                        <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
+
+                            <option *ngFor="let d of daysList" [value]="d"
+                                [disabled]="isDisabledDay(d, toMonth, toYear)">
+                                {{ d }}
+                            </option>
+
                         </select>
+
 
                         <select [(ngModel)]="toMonth" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
@@ -79,7 +97,7 @@
                 <!-- Leave Type -->
                 <div class="form-row">
                     <label>Leave Type</label>
-                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}">
+                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}" (change)="checkLeaveBalance()">
                         <option value="">Select Leave Type</option>
                         <option *ngFor="let type of leaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
@@ -120,8 +138,9 @@
 
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
-                            [class.empty]="!day.isCurrentMonth"  (mousedown)="startDrag(day)"
-                            (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
+                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
+                            [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
+                            (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
                     </div>
@@ -132,7 +151,7 @@
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
-                    <button class="apply" (click)="applyLeave()">Apply Leave</button>
+                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button>
                     <button class="reset" (click)="resetForm()">Reset</button>
                 </div>
             </div>
@@ -173,7 +192,12 @@
                     <label>From</label>
                     <div class="date-selectors">
                         <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
+
+                            <option *ngFor="let d of daysList" [value]="d"
+                                [disabled]="isDisabledDay(d, fromMonth, fromYear)">
+                                {{ d }}
+                            </option>
+
                         </select>
 
                         <select [(ngModel)]="fromMonth" (change)="onDropdownChange()"
@@ -193,7 +217,12 @@
                     <label>To</label>
                     <div class="date-selectors">
                         <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
+
+                            <option *ngFor="let d of daysList" [value]="d"
+                                [disabled]="isDisabledDay(d, toMonth, toYear)">
+                                {{ d }}
+                            </option>
+
                         </select>
 
                         <select [(ngModel)]="toMonth" (change)="onDropdownChange()"
@@ -219,7 +248,7 @@
                 <!-- Leave Type -->
                 <div class="form-row">
                     <label>Leave Type</label>
-                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}">
+                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}" (change)="checkLeaveBalance()">
                         <option value="">Select Leave Type</option>
                         <option *ngFor="let type of leaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
@@ -257,7 +286,7 @@
 
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
-                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
+                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"  [class.blocked]="day.blocked" 
                             (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
@@ -266,7 +295,7 @@
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
-                    <button class="apply" (click)="applyLeave()">Apply Leave</button>
+                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button>
                     <button class="reset" (click)="resetForm()">Reset</button>
                 </div>
             </div>

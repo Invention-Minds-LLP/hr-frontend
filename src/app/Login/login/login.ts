@@ -39,7 +39,7 @@ export class Login {
       this.router.navigate(['/individual']); // Redirect to employee page if logged in
     }
     else if(token && candidateId){
-      this.router.navigate(['/my-tests'])
+      this.router.navigate(['/candidate-tests'])
     }
     else{
       this.router.navigate(['/login'])
@@ -67,7 +67,10 @@ export class Login {
     if (form.valid) {
       this.isLoading = true;
       const idOrEmail = this.loginData.empId.trim();
+      console.log('Logging in with:', idOrEmail);
       const password = this.loginData.password;
+
+      console.log('Determining login path for:', this.isEmail(idOrEmail) ? 'Candidate' : 'Employee/User');
 
       if (this.isEmail(idOrEmail)) {
         // ---- Candidate login path ----
@@ -82,7 +85,7 @@ export class Login {
             localStorage.setItem('role', 'candidate');
 
             // go to your candidate area; change route if needed
-            this.router.navigate(['/my-tests']);
+            this.router.navigate(['/candidate-tests']);
           },
           error: (err) => {
             this.isLoading = false;

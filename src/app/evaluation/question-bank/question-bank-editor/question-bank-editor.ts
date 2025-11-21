@@ -81,7 +81,7 @@ export class QuestionBankEditor implements OnInit {
   ];
   qTypes = [
     { label: 'MCQ', value: 'MCQ' as QType },
-    { label: 'Single Choice', value: 'SingleChoice' as QType },
+    // { label: 'Single Choice', value: 'SingleChoice' as QType },
     { label: 'Descriptive', value: 'Descriptive' as QType }
   ];
 
