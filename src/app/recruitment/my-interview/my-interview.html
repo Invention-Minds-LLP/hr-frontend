@@ -4,64 +4,95 @@
         <!-- <button pButton label="Refresh" (click)="load()"></button> -->
     </div>
 
-    <p-table [value]="rows()" *ngIf="rows().length; else empty" paginator="true" [rows]="10" [scrollable]="true"
-        [tableStyle]="{ 'min-width': '1200px' }">
+    <ng-container *ngIf="loading; else interview">
+        <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+            <!-- Header -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let h of ['No','Candidate','Job','Round','Start','Status','Score','Action']">
+                        {{ h }}
+                    </th>
+                </tr>
+            </ng-template>
 
-        <ng-template pTemplate="header">
-            <tr>
-                <th>No</th>
-                <th>Candidate</th>
-                <th>Job</th>
-                <th>Round</th>
-                <th>Start</th>
-                <th>Status</th>
-                <th>Score</th>
-                <th>Action</th>
-            </tr>
-        </ng-template>
+            <!-- Body -->
+            <ng-template pTemplate="body">
+                <tr>
+                    <td><p-skeleton width="2rem"></p-skeleton></td>
 
-        <ng-template pTemplate="body" let-r let-i="rowIndex">
-            <tr>
-                <td>{{ i + 1 }}</td>
-                <td>{{ r.application?.candidate?.name || '—' }}</td>
-                <td>{{ r.application?.job?.title || '—' }}</td>
-
-                <!-- Round type -->
-                <td>
-                    <ng-container *ngIf="r.candidateAssignedTestId; else panel">
-                        Test Round
-                    </ng-container>
-                    <ng-template #panel>
-                        {{ r.stage }} Round
-                    </ng-template>
-                </td>
-
-                <td>{{ r.startTime | date:'medium' }}</td>
-
-                <!-- Status -->
-                <td>
-                    <p-tag [severity]="r.displayStatus === 'Interviewed' ? 'success' : 'warn'"
-                        [value]="r.displayStatus">
-                    </p-tag>
-                </td>
-
-                <!-- Score -->
-                <td>
-                    {{ r.avgScore }}
-                </td>
+                    <td><p-skeleton width="70px"></p-skeleton></td>
+                    <td><p-skeleton width="90px"></p-skeleton></td>
+                    <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
+                    <td><p-skeleton width="80px"></p-skeleton></td>
+                    <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
+                    <!-- <td><p-skeleton width="80px"></p-skeleton></td> -->
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
 
 
-                <td>
-                    <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+    <ng-template #interview>
+        <p-table [value]="rows()" [paginator]="true" [rows]="10" [scrollable]="true"
+            [tableStyle]="{ 'min-width': '1200px' }">
 
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>No</th>
+                    <th>Candidate</th>
+                    <th>Job</th>
+                    <th>Round</th>
+                    <th>Start</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th>Action</th>
+                </tr>
+            </ng-template>
 
-    <ng-template #empty>
-        <p>No interviews found.</p>
+            <ng-template pTemplate="body" let-r let-i="rowIndex">
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ r.application?.candidate?.name || '—' }}</td>
+                    <td>{{ r.application?.job?.title || '—' }}</td>
+
+                    <td>
+                        <ng-container *ngIf="r.candidateAssignedTestId; else panel">
+                            Test Round
+                        </ng-container>
+                        <ng-template #panel>
+                            {{ r.stage }} Round
+                        </ng-template>
+                    </td>
+
+                    <td>{{ r.startTime | date:'medium' }}</td>
+
+                    <td>
+                        <p-tag [severity]="r.displayStatus === 'Interviewed' ? 'success' : 'warn'"
+                            [value]="r.displayStatus">
+                        </p-tag>
+                    </td>
+
+                    <td>{{ r.avgScore }}</td>
+
+                    <td>
+                        <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="10" class="no-data-message">
+                        <i class="pi pi-info-circle"></i> No interviews found.
+                    </td>
+                </tr>
+            </ng-template>
+
+        </p-table>
     </ng-template>
+
 </div>
 
 <div class="" style="margin-top: 2rem; padding: 40px 60px;">

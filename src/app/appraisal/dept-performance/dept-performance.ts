@@ -19,7 +19,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
-     ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule],
+    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })
@@ -66,7 +66,19 @@ export class DeptPerformance {
     this.loadEmployees();
     this.loadDepartments();
     this.role = localStorage.getItem('role') || '';
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
   }
+
+  closeDropdownOnClickOutside = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -114,6 +126,8 @@ export class DeptPerformance {
   }
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
     this.showFilterDropdown = false; // hide after selecting
     this.onFilterChange(); // trigger filter logic
   }
@@ -124,8 +138,8 @@ export class DeptPerformance {
       this.summaries = res;
       this.filteredSummaries = [...res];
     });
-   
-    setTimeout(()=>{
+
+    setTimeout(() => {
       this.loading = false
     }, 2000)
 

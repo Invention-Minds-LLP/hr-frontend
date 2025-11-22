@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CommonModule } from '@angular/common';
 import { User } from '../../services/user/user';
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface TableData {
   empId: string;
@@ -19,7 +20,7 @@ interface TableData {
 
 @Component({
   selector: 'app-table',
-  imports: [TableModule,InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule,CommonModule],
+  imports: [TableModule,InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule,CommonModule, SkeletonModule],
   templateUrl: './table.html',
   styleUrl: './table.css'
 })
@@ -35,6 +36,7 @@ export class Table {
   ]
 
   tableData: any[] = [];
+  loading = true
 
 
   constructor(private userService: User){}
@@ -81,6 +83,7 @@ export class Table {
     this.onFilterChange();
   }
   fetchUsers() {
+    this.loading = true
     this.userService.listAllUsers().subscribe({
       next: (users) => {
         this.tableData = (users ?? []).map((u:any) => {
@@ -98,11 +101,15 @@ export class Table {
           };
         });
         this.filterEmployeeData = [...this.tableData];
+        setTimeout(()=>{
+          this.loading = false
+        },2000)
       },
       error: (err) => {
         console.error('Failed to load users', err);
         this.tableData = [];
         this.filterEmployeeData = [];
+        this.loading = false
       }
     });
   }

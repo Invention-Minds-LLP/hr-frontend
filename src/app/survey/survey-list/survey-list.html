@@ -2,9 +2,12 @@
   <div class="header">
     <!-- <h2>All Surveys</h2> -->
     <div class="flex1">
-      <div class="filter" (click)="toggleFilterDropdown()">
+
+      <!-- FILTER -->
+      <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
         <i class="pi pi-filter"></i>
-        <ul class="menu-list" *ngIf="showFilterDropdown">
+
+        <ul id="filterDropdown" class="menu-list" *ngIf="showFilterDropdown">
           <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
             [ngClass]="{ 'active': selectedFilter?.value === option.value }">
             {{ option.label }}
@@ -12,11 +15,14 @@
         </ul>
       </div>
 
+      <!-- SEARCH -->
       <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+        <p-inputicon class="pi pi-search"></p-inputicon>
+        <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
       </p-iconfield>
+
     </div>
+
   </div>
 
   <p-table [value]="filterSurveyData" [paginator]="true" [rows]="10">
@@ -26,9 +32,9 @@
         <th>Employee ID</th>
         <th>Employee Name</th>
         <th>Department</th>
-          <th>Assigned Date</th>
+        <th>Assigned Date</th>
         <th>Submitted Date</th>
-          <th>Status</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -40,6 +46,8 @@
         <td><p-skeleton width="5rem"></p-skeleton></td>
         <td><p-skeleton width="10rem"></p-skeleton></td>
         <td><p-skeleton width="8rem"></p-skeleton></td>
+        <td><p-skeleton width="6rem"></p-skeleton></td>
+        <td><p-skeleton width="4rem"></p-skeleton></td>
         <td><p-skeleton width="6rem"></p-skeleton></td>
         <td><p-skeleton width="4rem"></p-skeleton></td>
       </tr>
@@ -57,13 +65,14 @@
           </span>
         </td>
         <td>{{ survey.date | date:'dd-MM-yyyy' }}</td>
-          <td>{{ survey.submittedAt | date:'dd-MM-yyyy' }}</td>
-          <td>
-            <p-tag [severity]="getStatusColor(survey.status)">
-              {{ survey.status }}
-            </p-tag>
+        <td>{{ survey.submittedAt | date:'dd-MM-yyyy' }}</td>
         <td>
-          <button pButton label="View" [disabled]="survey.status !== 'SUBMITTED'" (click)="survey.status === 'SUBMITTED' && openSurvey(survey)"></button>
+          <p-tag [severity]="getStatusColor(survey.status)">
+            {{ survey.status }}
+          </p-tag>
+        <td>
+          <button pButton label="View" [disabled]="survey.status !== 'SUBMITTED'"
+            (click)="survey.status === 'SUBMITTED' && openSurvey(survey)"></button>
         </td>
       </tr>
     </ng-template>

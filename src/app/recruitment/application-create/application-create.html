@@ -1,10 +1,9 @@
 <div class="card form-card" tabindex="0">
   <h2>Create Application</h2>
 
-  <!-- Spinner overlay while loading -->
-  <div *ngIf="loading" class="spinner-overlay">
+ <!-- <div *ngIf="loading" class="spinner-overlay">
     <p-progressSpinner></p-progressSpinner>
-  </div>
+  </div> -->
 
   <!-- Form -->
   <form [formGroup]="form" (ngSubmit)="submit()">
@@ -19,14 +18,31 @@
     <fieldset formGroupName="candidate">
       <legend>Candidate</legend>
       <div class="grid">
-        <label><span>Name *</span><input formControlName="name" placeholder="Full name" /></label>
-        <label><span>Email *</span><input formControlName="email" placeholder="name@example.com" /></label>
-        <label><span>Phone</span><input formControlName="phone" /></label>
-        <label><span>Higher Qualification</span><input formControlName="qualification" placeholder="Higher Qualification" /></label>
-        <label><span>Experience (years)</span><input formControlName="experience" type="number" min="0" placeholder="Years of Experience" /></label>
+        <div class="div">
+          <label><span>Name *</span><input formControlName="name" placeholder="Full name" /></label>
+          <small class="error" *ngIf="isInvalid('candidate.name')">Name is required</small>
+        </div> 
+        <div class="div">
+          <label><span>Email *</span><input formControlName="email" placeholder="name@example.com" /></label>
+          <small class="error" *ngIf="isInvalid('candidate.email')">Email is required</small>
+        </div>
+        <div class="div">
+          <label><span>Phone</span><input formControlName="phone" type="number" placeholder="Phone Number" /></label>
+          <small class="error" *ngIf="isInvalid('candidate.phone')">Phone Number is required </small>
+        </div>
+        <div class="div">
+          <label><span>Higher Qualification</span><input formControlName="qualification"
+              placeholder="Higher Qualification" /></label>
+          <small class="error" *ngIf="isInvalid('candidate.qualification')">Higher Qualification is required</small>
+        </div>
+        <div class="div">
+          <label><span>Experience (years)</span><input formControlName="experience" type="number" min="0"
+              placeholder="Years of Experience" /></label>
+          <small class="error" *ngIf="isInvalid('candidate.experience')">Experience is required</small>
+        </div>
         <label><span>Source</span><input formControlName="source" placeholder="Referral / LinkedIn / ..." /></label>
         <label><span>Address</span><textarea formControlName="address" placeholder="Address"></textarea></label>
-        <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)" /></label>
+        <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)"/></label>
       </div>
     </fieldset>
 
@@ -36,5 +52,3 @@
     </div>
   </form>
 </div>
-
-  

@@ -36,7 +36,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31;
+  background: #302F31 !important;
   padding:20px;
   font-size: 16px;
   font-weight: 500;
@@ -47,8 +47,8 @@
   text-wrap: nowrap;
 }
 
-::ng-deep .details .p-datatable .p-datatable-tbody>tr>td {
-  background: white !important;
+/* ::ng-deep .details .p-datatable .p-datatable-tbody>tr>td {
+  background: #302F31 !important;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
@@ -56,7 +56,7 @@
   text-align: left;
   border-bottom: 2px solid #d9d9d9;
   white-space: nowrap;
-}
+} */
 
 
 

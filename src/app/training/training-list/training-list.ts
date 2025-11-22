@@ -128,7 +128,20 @@ export class TrainingList {
         this.employeeOptions = [];
       }
     });
+    document.addEventListener('click', this.handleOutsideClick);
   }
+
+  handleOutsideClick = (event: any) => {
+    const drop = document.getElementById('filterDropdown');
+    const btn = document.getElementById('filterButton');
+
+    if (!drop || !btn) return;
+
+    if (!drop.contains(event.target) && !btn.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
+
   loadEmployees() {
     this.loading = true;
     this.employeeService.getActiveEmployees().subscribe({
@@ -381,6 +394,8 @@ export class TrainingList {
   selectFilter(option: any) {
     this.selectedFilter = option;
     this.showFilterDropdown = false;
+    const sb = document.getElementById('searchBox') as HTMLInputElement;
+    if (sb) sb.value = '';
     this.filteredTrainings = [...this.trainings];
   }
 
@@ -400,22 +415,21 @@ export class TrainingList {
         const title = (training.title || training.name || '').toLowerCase();
         return title.includes(searchText);
       }
-      else if (filterKey === 'trainer') {
+
+      if (filterKey === 'trainer') {
         const trainerName = (training.trainer || '').toLowerCase();
         return trainerName.includes(searchText);
       }
-      else if (filterKey === 'startDate') {
-        const dateVal = (training.startDate || '').toString().trim();
 
-        // Normalize both date and searchText to MM/DD/YY format (2-digit year)
-        const normalizedDate = this.normalizeDateFormat(dateVal);
-        const normalizedSearch = this.normalizeDateFormat(searchText);
-
-        return normalizedDate.includes(normalizedSearch);
+      if (filterKey === 'startDate') {
+        const dateText = training.startDate?.toString()?.toLowerCase() || '';
+        return dateText.includes(searchText);
       }
+
       return false;
     });
   }
+
 
   normalizeDateFormat(value: string): string {
     if (!value) return '';

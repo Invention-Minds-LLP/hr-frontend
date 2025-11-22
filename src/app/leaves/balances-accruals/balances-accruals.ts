@@ -61,10 +61,22 @@ export class BalancesAccruals {
       this.balancesData = data;
       this.filterBalancesData = [...this.balancesData];
     });
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.loading = false
     }, 3000)
+  }
+
+  closeDropdownOnClickOutside = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.filterDropdown = false;
+    }
   }
 
   onSearch(event: Event) {
@@ -103,8 +115,11 @@ export class BalancesAccruals {
   selectFilter(option: any) {
     this.selectedFilter = option;
     this.filterDropdown = false;
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
     this.onFilterChange()
   }
+
 
 
   getDepartmentColors(departmentId: number) {

@@ -8,7 +8,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-application-create',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule,ProgressSpinnerModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, ProgressSpinnerModule],
   templateUrl: './application-create.html',
   styleUrl: './application-create.css',
   providers: [MessageService],
@@ -31,12 +31,12 @@ export class ApplicationCreate implements OnInit {
     candidate: this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
+      phone: ['', [Validators.required ,Validators.pattern(/^[0-9]{10}$/)]],
       source: [''],
-      resumeUrl: [''],  
-      qualification: [''],
-      experience: [''],
-      address:[''],
+      resumeUrl: [''],
+      qualification: ['',[Validators.required]],
+      experience: ['',[Validators.required]],
+      address: [''],
     }),
   });
 
@@ -46,7 +46,7 @@ export class ApplicationCreate implements OnInit {
     this.loading = true
 
     this.api.listJobs({ status: 'OPEN', pageSize: 100 }).subscribe(res => (this.jobs = res.rows));
-    setTimeout(()=>{
+    setTimeout(() => {
       this.loading = false
     }, 2000)
   }
@@ -76,7 +76,7 @@ export class ApplicationCreate implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    if(this.selectedResumeFile === undefined){
+    if (this.selectedResumeFile === undefined) {
       this.messageService.add({
         severity: "error",
         summary: "Error",
@@ -85,21 +85,21 @@ export class ApplicationCreate implements OnInit {
       this.saving = false;
       return;
     }
-  
+
     this.saving = true;
-  
+
     // build FormData for multipart
     const formData = new FormData();
     formData.append("jobId", this.form.value.jobId!.toString());
-  
+
     // stringify candidate group
     formData.append("candidate", JSON.stringify(this.form.value.candidate));
-  
+
     // attach resume file if selected
     if (this.selectedResumeFile) {
       formData.append("resume", this.selectedResumeFile);
     }
-  
+
     this.api.createApplication(formData).subscribe({
       next: (_app: Application) => {
         this.messageService.add({
@@ -115,13 +115,18 @@ export class ApplicationCreate implements OnInit {
       complete: () => (this.saving = false),
     });
   }
-  
+
   selectedResumeFile?: File;
 
-onFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    this.selectedResumeFile = input.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedResumeFile = input.files[0];
+    }
   }
-}
+
+  isInvalid(form: string) {
+    const control = this.form.get(form);
+    return control?.invalid && (control.touched || control.dirty)
+  }
 }

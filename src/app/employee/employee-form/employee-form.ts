@@ -810,9 +810,11 @@ export class EmployeeForm {
 
     // Employee type specific
     if (employeeType === 'CLINICAL') {
-      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-    } else if (employeeType === 'NONCLINICAL') {
       mandatoryDocs = ['REGISTRATION_CERT'];
+      // mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    } else if (employeeType === 'NONCLINICAL') {
+      // mandatoryDocs = ['REGISTRATION_CERT'];
+      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
     }
 
     // Always required

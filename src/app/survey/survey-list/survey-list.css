@@ -36,7 +36,7 @@
 
 ::ng-deep .interview-table .p-datatable-tbody > tr > td{
     text-align: center;
-    background: #302F31;
+    background: #302F31 !important;
     color: white;
     padding: 20px;
     border: none !important;
@@ -65,6 +65,7 @@
     display: flex;
     justify-content: end;
     align-items: center;
+    height: 0;
 }
 
 .flex1 {
@@ -72,7 +73,7 @@
     align-items: center;
     gap: 20px;
     position: relative;
-    top: -60px;
+    top: -38px;
 }
 
 .filter {

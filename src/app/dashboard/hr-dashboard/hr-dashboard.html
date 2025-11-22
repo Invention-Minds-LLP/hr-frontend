@@ -1,5 +1,9 @@
 <div class="wrap" *ngIf="data as d">
 
+    <div *ngIf="loading" class="spinner-overlay">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+
     <header>
         <div class="title">HR Command Center</div>
         <div class="chip date">{{ today | date:'EEE, MMM dd' }}</div>
@@ -28,7 +32,7 @@
     </header>
 
     <!-- Loading / error -->
-    <div *ngIf="loading" class="card">Loading…</div>
+    <!-- <div *ngIf="loading" class="card">Loading…</div> -->
     <div *ngIf="error" class="card danger">{{ error }}</div>
 
     <!-- ROW: Today strip -->
@@ -205,10 +209,9 @@
                 </div>
             </div>
         </div>
-        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'"  dataKey="id"
-            [paginator]="true" [rows]="8" [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true"
-            [tableStyle]="{ width: '100%' }" styleClass="p-datatable-gridlines p-datatable-striped"
-            [(selection)]="selectedRows"> 
+        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" dataKey="id" [paginator]="true" [rows]="8"
+            [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true" [tableStyle]="{ width: '100%' }"
+            styleClass="p-datatable-gridlines p-datatable-striped" [(selection)]="selectedRows">
             <ng-template pTemplate="header">
                 <tr>
                     <!-- <th style="width:3rem" *ngIf="list?.selectable">
@@ -216,7 +219,7 @@
                     </th> -->
                     <th style="width:3rem" *ngIf="selectedListKey === 'probation'"></th>
                     <th style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
-                      <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
                     <th *ngFor="let c of list.cols; trackBy: trackByIndex" style="text-align:left;">
                         {{ c }}
@@ -228,12 +231,12 @@
                 <tr>
                     <td style="width:3rem" *ngIf="selectedListKey === 'probation'">
                         <p-tableRadioButton [value]="row"></p-tableRadioButton>
-                      </td>
-                
-                      <!-- ✅ Checkbox for other lists -->
-                      <td style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
+                    </td>
+
+                    <!-- ✅ Checkbox for other lists -->
+                    <td style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
                         <p-tableCheckbox [value]="row"></p-tableCheckbox>
-                      </td>
+                    </td>
                     <td *ngFor="let _ of list.cols; index as i; trackBy: trackByIndex" style="text-align:left;">
                         {{ row.data ? row.data[i] : row[i] }}
                     </td>
@@ -244,52 +247,37 @@
     </div>
 
 </div>
-<p-dialog header="Extend Probation"
-          [(visible)]="extendProbationDialog"
-          [modal]="true"
-          [closable]="true"
-          [style]="{width: '400px'}">
-  
-  <div class="p-field">
-    <label for="probationDate">Select new probation end date</label>
-    <p-datepicker id="probationDate"
-                [(ngModel)]="selectedDate"
-                dateFormat="yy-mm-dd"
-                appendTo="body"
-                [minDate]="minDate"></p-datepicker>
-  </div>
+<p-dialog header="Extend Probation" [(visible)]="extendProbationDialog" [modal]="true" [closable]="true"
+    [style]="{width: '400px'}">
 
-  <div class="p-d-flex p-jc-end p-mt-3">
-    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
+    <div class="p-field">
+        <label for="probationDate">Select new probation end date</label>
+        <p-datepicker id="probationDate" [(ngModel)]="selectedDate" dateFormat="yy-mm-dd" appendTo="body"
+            [minDate]="minDate"></p-datepicker>
+    </div>
+
+    <div class="p-d-flex p-jc-end p-mt-3">
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
             (click)="extendProbationDialog=false"></button>
-    <button pButton label="Confirm" icon="pi pi-check" class="p-ml-2"
-            (click)="confirmExtendProbation()" [disabled]="!selectedDate"></button>
-  </div>
+        <button pButton label="Confirm" icon="pi pi-check" class="p-ml-2" (click)="confirmExtendProbation()"
+            [disabled]="!selectedDate"></button>
+    </div>
 </p-dialog>
-<p-dialog header="Assign Delegate"
-          [(visible)]="assignDelegateDialog"
-          [modal]="true"
-          [closable]="true"
-          [style]="{width: '400px'}">
+<p-dialog header="Assign Delegate" [(visible)]="assignDelegateDialog" [modal]="true" [closable]="true"
+    [style]="{width: '400px'}">
 
-  <div class="p-field">
-    <label for="delegate">Select Delegate</label>
-    <p-select id="delegate"
-                [options]="employeeOptions"
-                appendTo="body"
-                optionLabel="label"
-                optionValue="id"
-                [(ngModel)]="selectedDelegateId"
-                placeholder="Choose an employee">
-    </p-select>
-  </div>
+    <div class="p-field">
+        <label for="delegate">Select Delegate</label>
+        <p-select id="delegate" [options]="employeeOptions" appendTo="body" optionLabel="label" optionValue="id"
+            [(ngModel)]="selectedDelegateId" placeholder="Choose an employee">
+        </p-select>
+    </div>
 
-  <div class="p-d-flex p-jc-end p-mt-3">
-    <button pButton label="Cancel" class="p-button-text"
-            (click)="assignDelegateDialog=false"></button>
-    <button pButton label="Confirm" icon="pi pi-check"
-            (click)="confirmAssignDelegate()" [disabled]="!selectedDelegateId"></button>
-  </div>
+    <div class="p-d-flex p-jc-end p-mt-3">
+        <button pButton label="Cancel" class="p-button-text" (click)="assignDelegateDialog=false"></button>
+        <button pButton label="Confirm" icon="pi pi-check" (click)="confirmAssignDelegate()"
+            [disabled]="!selectedDelegateId"></button>
+    </div>
 </p-dialog>
 
 

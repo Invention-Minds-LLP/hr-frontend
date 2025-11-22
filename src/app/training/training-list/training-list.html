@@ -9,22 +9,29 @@
         class="p-button-sm p-button-success" (click)="toggleForm()"></button>
     </div>
     <div class="flex1" *ngIf="!showForm">
-      <div class="filter" (click)="toggleFilterDropdown()">
+
+      <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
+
         <i class="pi pi-filter"></i>
-        <ul class="menu-list" *ngIf="showFilterDropdown">
+
+        <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
+
           <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
             [ngClass]="{ 'active': selectedFilter?.value === option.value }">
             {{ option.label }}
           </li>
+
         </ul>
       </div>
 
       <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+        <p-inputicon class="pi pi-search"></p-inputicon>
+        <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
       </p-iconfield>
+
     </div>
   </div>
+
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">
     <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef></app-training-form>
@@ -89,7 +96,8 @@
             <ng-container *ngIf="t.trainingTests?.length; else noTests">
               <span class="count-link" (click)="openTestsDialog(t)">
                 {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test
-                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's' :
+                {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's'
+                :
                 '' }}
               </span>
             </ng-container>

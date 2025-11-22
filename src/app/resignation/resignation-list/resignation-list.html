@@ -2,9 +2,12 @@
   <div class="header">
     <!-- <h2>Resignations</h2> -->
     <div class="flex1">
-      <div class="filter" (click)="toggleFilterDropdown()">
+
+      <!-- Filter Dropdown -->
+      <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
         <i class="pi pi-filter"></i>
-        <ul class="menu-list" *ngIf="showFilterDropdown">
+
+        <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
           <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
             [ngClass]="{ 'active': selectedFilter?.value === option.value }">
             {{ option.label }}
@@ -12,33 +15,68 @@
         </ul>
       </div>
 
+      <!-- Search -->
       <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+        <p-inputicon class="pi pi-search"></p-inputicon>
+        <input id="searchBox" class="input" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
       </p-iconfield>
+
     </div>
+
   </div>
+  <ng-container *ngIf="loading; else resignation">
+    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th
+            *ngFor="let h of ['No','Employee','Department','Reason','Manager','HR','Proposed LWD','Actual LWD','Status','Actions','Proceeding']">
+            {{ h }}
+          </th>
+        </tr>
+      </ng-template>
+
+      <!-- Body -->
+      <ng-template pTemplate="body">
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+
+          <td><p-skeleton width="70px"></p-skeleton></td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="100px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="100px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+
   <!-- <button [routerLink]="'/resignation-from'">new form</button> -->
-  <p-table [value]="loading ? [1,2,3,4,5] : filteredRows" [paginator]="!loading" [rows]="10" responsiveLayout="scroll">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>No</th>
-        <th>Employee</th>
-        <th>Department</th>
-        <th>Reason</th>
-        <th>Manager</th>
-        <th>HR</th>
-        <th>Proposed LWD</th>
-        <th>Actual LWD</th>
-        <th>Status</th>
-        <th style="text-align:center">Actions</th>
-        <th *ngIf="isHR">Proceeding</th>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="body" let-r let-i="rowIndex">
-
-      <ng-container *ngIf="!loading; else skeletonRow">
+  <ng-template #resignation>
+    <p-table [value]="filteredRows" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Reason</th>
+          <th>Manager</th>
+          <th>HR</th>
+          <th>Proposed LWD</th>
+          <th>Actual LWD</th>
+          <th>Status</th>
+          <th style="text-align:center">Actions</th>
+          <th *ngIf="isHR">Proceeding</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-r let-i="rowIndex">
+        <ng-template #dash><span class="muted" style="text-align: center;">—</span></ng-template>
         <tr>
           <td>{{ i + 1 }}</td>
           <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
@@ -60,70 +98,72 @@
           <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
           <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
           <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
-          <td class="actions">...</td>
-          <td *ngIf="isHR" style="text-align:center">...</td>
-        </tr>
-      </ng-container>
-
-      <ng-template #skeletonRow>
-        <tr>
-          <td><p-skeleton width="2rem"></p-skeleton></td>
-          <td>
-            <div class="flex align-items-center gap-2">
-              <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-              <div class="skeleton">
-                <p-skeleton width="80px" height="12px"></p-skeleton>
-                <p-skeleton width="60px" height="10px"></p-skeleton>
-              </div>
-            </div>
+          <td class="actions">
+            <ng-container *ngIf="
+         (r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')) ||
+         (r.managerDecision === 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')) ||
+         (r.status === 'WITHDRAW_REQUESTED' && isHR);
+       else dash">
+              <ng-container
+                *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
+                <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
+                <button pButton size="small" label="Manager Reject" class="p-button-danger"
+                  (click)="rejectManager(r)"></button>
+              </ng-container>
+              <ng-container
+                *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
+                <button pButton size="small" label="HR Approve" class="p-button-success"
+                  (click)="approveHR(r)"></button>
+                <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
+                <button pButton size="small" label="On Hold" class="p-button-warning"
+                  style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
+                <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"></button>
+              </ng-container>
+              <!-- HR withdraw request actions -->
+              <ng-container *ngIf="r.status === 'WITHDRAW_REQUESTED' && isHR">
+                <button pButton size="small" label="Approve Withdraw" class="p-button-success"
+                  (click)="approveWithdrawHR(r)"></button>
+                <button pButton size="small" label="Reject Withdraw" class="p-button-danger"
+                  (click)="rejectWithdrawHR(r)"></button>
+              </ng-container>
+            </ng-container>
           </td>
-          <td><p-skeleton width="90px"></p-skeleton></td>
-          <td><p-skeleton width="70px"></p-skeleton></td>
-          <td><p-skeleton width="60px"></p-skeleton></td>
-          <td><p-skeleton width="50px"></p-skeleton></td>
-          <td><p-skeleton width="80px"></p-skeleton></td>
-          <td><p-skeleton width="80px"></p-skeleton></td>
-          <td><p-skeleton width="60px"></p-skeleton></td>
-          <td><p-skeleton width="100px"></p-skeleton></td>
-          <td *ngIf="isHR"><p-skeleton width="100px"></p-skeleton></td>
+          <td *ngIf="isHR" style="text-align:center">
+            <button *ngIf="isHR && r?.hrDecision=== 'APPROVED';else dash" class="btn-edit" (click)="openDialog(r.id)">
+              Proceed to off-boarding
+            </button>
+            <p-dialog [visible]="isOpen(r.id)" (visibleChange)="dialogOpen[r.id] = $event" [modal]="true"
+              header="Off-boarding" [style]="{ width: '80vw' }">
+              <app-resign-post [resignationId]="r?.id"
+                [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
+              </app-resign-post>
+            </p-dialog>
+          </td>
         </tr>
       </ng-template>
-    </ng-template>
 
-    <ng-template pTemplate="emptymessage" *ngIf="!loading">
-      <tr>
-        <td colspan="11" class="no-data">No resignations.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" class="no-data">No resignations.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
 
 </div>
-<p-dialog
-  header="Approve Resignation"
-  [(visible)]="showApprovePopup"
-  [modal]="true"
-  [closable]="true"
-  [dismissableMask]="true"
-  [style]="{ width: '400px' }"
->
+<p-dialog header="Approve Resignation" [(visible)]="showApprovePopup" [modal]="true" [closable]="true"
+  [dismissableMask]="true" [style]="{ width: '400px' }">
   <div class="p-fluid">
     <div class="p-field">
       <label for="lwd">Actual Last Working Day</label>
-      <p-datepicker
-        id="lwd"
-        [(ngModel)]="selectedLwd"
-        dateFormat="yy-mm-dd"
-        [showIcon]="true"
-        inputId="lwd"
-        style="width: 100%;"
-        appendTo="body"
-        class="mt-2"
-      ></p-datepicker>
+      <p-datepicker id="lwd" [(ngModel)]="selectedLwd" dateFormat="yy-mm-dd" [showIcon]="true" inputId="lwd"
+        style="width: 100%;" appendTo="body" class="mt-2"></p-datepicker>
     </div>
 
     <!-- Optional context info -->
     <div class="p-field" *ngIf="selectedRecord">
-      <p><strong>Employee:</strong> {{ selectedRecord?.employee?.firstName }} {{ selectedRecord?.employee?.lastName }}</p>
+      <p><strong>Employee:</strong> {{ selectedRecord?.employee?.firstName }} {{ selectedRecord?.employee?.lastName }}
+      </p>
       <p><strong>Proposed LWD:</strong> {{ selectedRecord?.proposedLastWorkingDay | date: 'yyyy-MM-dd' }}</p>
     </div>
   </div>
@@ -131,21 +171,10 @@
   <!-- ✅ Footer section (modern way) -->
   <ng-template pTemplate="footer">
     <div class="footer-actions" style="text-align: right;">
-      <button
-        pButton
-        label="Cancel"
-        icon="pi pi-times"
-        class="p-button-text"
-        (click)="showApprovePopup = false"
-      ></button>
-      <button
-        pButton
-        label="Approve"
-        icon="pi pi-check"
-        class="p-button-success"
-        (click)="submitHRApproval()"
-        [disabled]="!selectedLwd"
-      ></button>
+      <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
+        (click)="showApprovePopup = false"></button>
+      <button pButton label="Approve" icon="pi pi-check" class="p-button-success" (click)="submitHRApproval()"
+        [disabled]="!selectedLwd"></button>
     </div>
   </ng-template>
 </p-dialog>

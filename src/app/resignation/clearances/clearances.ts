@@ -11,12 +11,13 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { Employee, Employees } from '../../services/employees/employees';
+import { SkeletonModule } from 'primeng/skeleton';
 
 
 @Component({
   selector: 'app-clearances',
   imports: [TableModule, CommonModule, TextareaModule, ReactiveFormsModule, FormsModule,
-    SelectModule, DialogModule, BadgeModule, ButtonModule],
+    SelectModule, DialogModule, BadgeModule, ButtonModule,SkeletonModule],
   templateUrl: './clearances.html',
   styleUrl: './clearances.css'
 })
@@ -40,6 +41,7 @@ export class Clearances {
   popupNote = '';
   selectedEmployee: any = null;
   employees: Employee[] = [];
+  loading = true
 
 
   constructor(
@@ -53,8 +55,14 @@ export class Clearances {
     this.loadDepartments();
     this.loadResignations();
     this.employeeService.getActiveEmployees().subscribe({
-      next: (data) => this.employees = data,
-      error: () => this.notify('error', 'Failed to load employees')
+      next: (data) =>{ this.employees = data
+        setTimeout(()=>{
+          this.loading = false
+        },2000)
+      },
+      error: () => {this.notify('error', 'Failed to load employees')
+        this.loading = false
+      }
     });
   }
   loadDepartments(): void {

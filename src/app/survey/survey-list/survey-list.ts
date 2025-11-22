@@ -48,7 +48,7 @@ export class SurveyList {
       next: (res) => {
         this.surveys = res;
         this.filterSurveyData = [...this.surveys]
-        setTimeout(()=>{
+        setTimeout(() => {
           this.loading = false
         }, 2000)
 
@@ -58,8 +58,20 @@ export class SurveyList {
         this.loading = false
       },
     });
+    document.addEventListener('click', this.handleOutsideClick);
     console.log(this.filterSurveyData)
   }
+
+  handleOutsideClick = (event: any) => {
+    const drop = document.getElementById('filterDropdown');
+    const btn = document.getElementById('filterButton');
+
+    if (!drop || !btn) return;
+
+    if (!drop.contains(event.target) && !btn.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   openSurvey(survey: any) {
     this.selectedSurvey = survey;
@@ -76,6 +88,10 @@ export class SurveyList {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const sb = document.getElementById('searchBox') as HTMLInputElement;
+    if (sb) sb.value = '';
+    this.filterSurveyData = [...this.surveys];
+
     this.showFilterDropdown = false
   }
 
@@ -86,6 +102,11 @@ export class SurveyList {
     if (!this.selectedFilter || !searchText) {
       this.filterSurveyData = [...this.surveys]
       return
+    }
+
+    if (!searchText) {
+      this.filterSurveyData = [...this.surveys];
+      return;
     }
 
     const filterKey = this.selectedFilter.value;
@@ -129,7 +150,7 @@ export class SurveyList {
         return 'secondary'; // Gray for unknown statuses
     }
   }
-  
+
 
 
 }

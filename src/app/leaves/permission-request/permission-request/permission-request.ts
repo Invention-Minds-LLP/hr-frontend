@@ -65,14 +65,27 @@ export class PermissionRequest {
 
   ngOnInit() {
     this.loadPermissionRequests();
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
     this.role = localStorage.getItem('role') || '';
     this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
     this.isHR = this.isHRRole(this.role);
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.loading = false
     }, 2000)
+
   }
+
+  closeDropdownOnClickOutside = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.filterDropdown = false;
+    }
+  };
 
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -119,9 +132,12 @@ export class PermissionRequest {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
+    this.filterReuqusetData = [...this.requestData];
     this.filterDropdown = false;
-    this.onFilterChange()
   }
+
   loadPermissionRequests() {
     this.permissionService.getPermissions().subscribe({
       next: (data) => {

@@ -175,8 +175,6 @@ export class Individual {
     }
   }
   loadToday(): void {
-
-
     this.employeeService.getToday()
       .pipe(finalize(() => (this.loadingToday = false)))
       .subscribe({
