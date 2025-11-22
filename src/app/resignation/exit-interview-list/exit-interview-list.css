@@ -5,7 +5,7 @@
 .header {
   display: flex;
   justify-content: end;
-
+  height: 0;
 }
 
 .interview-table h2 {
@@ -42,7 +42,7 @@
 
 ::ng-deep .interview-table .p-datatable-tbody>tr>td {
   text-align: center;
-  background: #302F31;
+  background: #302F31 !important;
   color: white;
   border: none !important;
   border-bottom: 2px solid #D9D9D9 !important;
@@ -132,7 +132,7 @@
   align-items: center;
   gap: 20px;
   position: relative;
-  top: -59px;
+  top: -38px;
 }
 
 .p-inputtext{
@@ -188,4 +188,9 @@
 
 :host ::ng-deep .p-skeleton::after {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}
+
+.profile-pic{
+  width: 50px;
+  height: 50px;
 }

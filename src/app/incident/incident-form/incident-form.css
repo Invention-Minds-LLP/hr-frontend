@@ -1,0 +1,68 @@
+.incident-form {
+    /* padding: 70px 60px; */
+    padding: 20px;
+}
+
+.header {
+    color: white;
+    font-family: "Sofia Sans";
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.flex {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+label{
+    color: white;
+}
+
+input,
+textarea{
+    background:transparent !important;
+    color: white;
+}
+
+::ng-deep .p-select{
+    background:transparent;
+}
+
+input::placeholder{
+    color: white;
+}
+
+.p-button{
+    background: #0062A1;
+    border-color: #0062A1;
+
+}
+.p-button:hover{
+    background: #0062A1;
+    border-color: #0062A1;
+}
+
+::ng-deep .p-select{
+    background:transparent !important;
+}
+
+::ng-deep .p-select-label.p-placeholder,
+::ng-deep .p-select-label ,
+::ng-deep .p-select-dropdown{
+    color: white !important;
+}
+
+::ng-deep .p-card-body{
+    padding: 0;
+}

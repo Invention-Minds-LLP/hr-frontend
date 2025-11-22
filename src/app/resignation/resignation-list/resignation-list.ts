@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-resignation-list',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost,
-     RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, SkeletonModule, DatePickerModule, FormsModule, ToolbarModule],
+    RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, SkeletonModule, DatePickerModule, FormsModule, ToolbarModule],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })
@@ -70,9 +70,22 @@ export class ResignationList {
     });
 
     this.filteredRows = [...this.rows]
+    document.addEventListener('click', this.handleOutsideClick);
   }
 
-  loadResignations(){
+  handleOutsideClick = (event: Event) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const btn = document.getElementById('filterButton');
+
+    if (!dropdown || !btn) return;
+
+    if (!dropdown.contains(event.target as Node) &&
+      !btn.contains(event.target as Node)) {
+      this.showFilterDropdown = false;
+    }
+  };
+
+  loadResignations() {
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
       this.api.list({ scope: 'all' }).subscribe(r => {
         this.rows = r;
@@ -94,7 +107,7 @@ export class ResignationList {
     }
 
 
-    setTimeout(()=>{
+    setTimeout(() => {
       this.loading = false
     }, 2000)
   }
@@ -125,14 +138,14 @@ export class ResignationList {
 
   submitHRApproval() {
     if (!this.selectedRecord) return;
-  
+
     const payload = {
       actualLastWorkingDay: this.selectedLwd
         ? this.selectedLwd.toISOString().split('T')[0] // gives "yyyy-mm-dd"
         : undefined,
     };
-    
-  
+
+
     this.api.hrApprove(this.selectedRecord.id, payload).subscribe({
       next: (upd) => {
         this.replace(upd);
@@ -188,6 +201,9 @@ export class ResignationList {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const sb = document.getElementById('searchBox') as HTMLInputElement;
+    if (sb) sb.value = '';
+    this.filteredRows = [...this.rows];
     this.showFilterDropdown = false;
   }
 
@@ -196,6 +212,10 @@ export class ResignationList {
     const searchText = input.value.trim().toLowerCase();
 
     if (!this.selectedFilter || !searchText) {
+      this.filteredRows = [...this.rows];
+      return;
+    }
+    if (!searchText) {
       this.filteredRows = [...this.rows];
       return;
     }
@@ -221,7 +241,7 @@ export class ResignationList {
 
   }
 
-   getDepartmentColors(departmentId: number) {
+  getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;

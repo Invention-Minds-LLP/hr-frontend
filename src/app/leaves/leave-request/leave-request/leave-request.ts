@@ -95,7 +95,19 @@ export class LeaveRequest {
       this.loadLeaves();
       this.loading = false;
     }, 2000);
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
   }
+
+  closeDropdownOnClickOutside = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   loadLeaves() {
     this.leaveService.getLeaves().subscribe({
@@ -171,9 +183,18 @@ export class LeaveRequest {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+
+    // Clear the search input
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
+
+    // Reset table
+    this.filteredLeaveData = [...this.leaveData];
+
+    // Close dropdown
     this.showFilterDropdown = false;
-    this.onFilterChange();
   }
+
 
 
   availableDates: Date[] = [

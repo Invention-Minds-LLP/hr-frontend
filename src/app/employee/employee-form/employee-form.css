@@ -252,7 +252,7 @@ div[hidden] {
 
 .pi-user,
 ::ng-deep .p-select-label {
-  color: white;
+  color: white !important;
 }
 
 .custom-file-input::-webkit-file-upload-button {

@@ -56,6 +56,7 @@ textarea{
   border-radius: 8px;
   border: 2px solid #C4C4C4;
   background: transparent;
+  color: white;
 }
 
 fieldset {
@@ -92,7 +93,12 @@ button {
 
 .error {
   color: #dc2626;
-}
+ }
+
+ .div{
+  display: flex;
+  flex-direction: column;
+ }
 
 .spinner-overlay {
   position: absolute;
@@ -111,4 +117,5 @@ button {
   position: relative;
   min-height: 600px; /* Adjust height as needed */
 }
+
 

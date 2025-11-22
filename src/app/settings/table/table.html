@@ -25,28 +25,60 @@
             </div>
         </div>
     </div>
-    <div class="table">
-        <p-table [value]="filterEmployeeData" [paginator]="true" [rows]="15">
-            <ng-template #header>
+    <ng-container *ngIf="loading; else table">
+        <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+            <!-- Header -->
+            <ng-template pTemplate="header">
                 <tr>
-                    <th>No</th>
-                    <th>Emp ID</th>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Login Time</th>
-                    <th>Login Date</th>
+                    <th
+                        *ngFor="let h of ['No','Emp ID','Name','Role','TypLogin Timee','Login Date']">
+                        {{ h }}
+                    </th>
                 </tr>
             </ng-template>
-            <ng-template #body let-row let-rowIndex="rowIndex">
+
+            <!-- Body -->
+            <ng-template pTemplate="body">
                 <tr>
-                    <td>{{ rowIndex + 1 }}</td>
-                    <td>{{ row.empId }}</td>
-                    <td>{{ row.name }}</td>
-                    <td>{{ row.role }}</td>
-                    <td>{{ row.loginTime }}</td>
-                    <td>{{ row.loginDate }}</td>
+                    <td><p-skeleton width="2rem"></p-skeleton></td>
+
+                    <td><p-skeleton width="70px"></p-skeleton></td>
+                    <td><p-skeleton width="90px"></p-skeleton></td>
+                    <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
+                    <td><p-skeleton width="80px"></p-skeleton></td>
+                    <!-- <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
+                    <td><p-skeleton width="80px"></p-skeleton></td> -->
                 </tr>
             </ng-template>
         </p-table>
-    </div>
+    </ng-container>
+
+    <ng-template #table>
+        <div class="table">
+            <p-table [value]="filterEmployeeData" [paginator]="true" [rows]="15">
+                <ng-template #header>
+                    <tr>
+                        <th>No</th>
+                        <th>Emp ID</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Login Time</th>
+                        <th>Login Date</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-row let-rowIndex="rowIndex">
+                    <tr>
+                        <td>{{ rowIndex + 1 }}</td>
+                        <td>{{ row.empId }}</td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.role }}</td>
+                        <td>{{ row.loginTime }}</td>
+                        <td>{{ row.loginDate }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </ng-template>
 </div>

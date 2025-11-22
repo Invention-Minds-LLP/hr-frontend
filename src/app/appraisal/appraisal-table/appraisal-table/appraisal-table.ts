@@ -76,6 +76,7 @@ export class AppraisalTable {
       branchId: ['', Validators.required],
       employeeIds: [[], Validators.required]
     });
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
     this.filteredEmployees = [...this.appraisals]
 
     this.appraisalForm.get('departmentId')?.valueChanges.subscribe(() => this.filterEmployees());
@@ -86,8 +87,19 @@ export class AppraisalTable {
 
     this.loadDropdownData();
     this.getAppraisals();
-    
+
   }
+
+  closeDropdownOnClickOutside = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
 
   getAppraisals() {
@@ -103,9 +115,9 @@ export class AppraisalTable {
           );
         }
         setTimeout(() => {
-        this.filteredEmployees = [...this.appraisals];
-        this.loading = false; // 👈 stop loading
-      }, 800); 
+          this.filteredEmployees = [...this.appraisals];
+          this.loading = false; // 👈 stop loading
+        }, 800);
       },
       error: () => {
         // alert('Error loading appraisals');
@@ -152,12 +164,12 @@ export class AppraisalTable {
           });
           this.showPopup = false;
         },
-        error: () => 
+        error: () =>
           // alert('Error creating appraisals')
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Error creating appraisals' 
+            detail: 'Error creating appraisals'
           })
       });
     }
@@ -188,44 +200,44 @@ export class AppraisalTable {
       (!selectedDept || emp.deptId === selectedDept) &&
       (!selectedBranch || emp.branchId === selectedBranch)
     );
-    
+
     this.filteredEmployees = [...this.appraisals]
   }
   onSearch(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const searchText = input.value.trim().toLowerCase();
+    const input = event.target as HTMLInputElement;
+    const searchText = input.value.trim().toLowerCase();
 
 
-  if (!searchText) {
-    this.filteredEmployees = [...this.appraisals];
-    return;
+    if (!searchText) {
+      this.filteredEmployees = [...this.appraisals];
+      return;
+    }
+
+    const filterKey = this.selectedFilter?.value || 'name';
+
+    this.filteredEmployees = this.appraisals.filter((emp: any) => {
+      const e = emp.employee;
+      if (!e) return false;
+
+      if (filterKey === 'name') {
+        return `${e.firstName} ${e.lastName}`
+          .toLowerCase()
+          .includes(searchText);
+      }
+
+      if (filterKey === 'employeeCode') {
+        return e.employeeCode?.toLowerCase().includes(searchText);
+      }
+
+      if (filterKey === 'departmentId') {
+        const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
+        return deptName.includes(searchText);
+      }
+
+
+      return e[filterKey]?.toString().toLowerCase().includes(searchText);
+    });
   }
-
-  const filterKey = this.selectedFilter?.value || 'name';
-
-  this.filteredEmployees = this.appraisals.filter((emp: any) => {
-    const e = emp.employee; 
-    if (!e) return false;
-
-    if (filterKey === 'name') {
-      return `${e.firstName} ${e.lastName}`
-        .toLowerCase()
-        .includes(searchText);
-    }
-
-    if (filterKey === 'employeeCode') {
-      return e.employeeCode?.toLowerCase().includes(searchText);
-    }
-
-    if (filterKey === 'departmentId') {
-      const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
-      return deptName.includes(searchText);
-    }
-
-
-    return e[filterKey]?.toString().toLowerCase().includes(searchText);
-  });
-}
 
 
   onFilterChange() {
@@ -239,6 +251,8 @@ export class AppraisalTable {
   selectFilter(option: any) {
     this.selectedFilter = option;
     this.showFilterDropdown = false; // hide after selecting
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
     this.onFilterChange(); // trigger filter logic
   }
 

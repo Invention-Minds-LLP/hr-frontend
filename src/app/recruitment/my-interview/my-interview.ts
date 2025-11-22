@@ -7,10 +7,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-my-interview',
-  imports: [CardModule, TableModule, CommonModule, ReactiveFormsModule, CandidateEvalForm, ButtonModule, TagModule],
+  imports: [CardModule, TableModule, CommonModule, ReactiveFormsModule, CandidateEvalForm, ButtonModule, TagModule, SkeletonModule],
   templateUrl: './my-interview.html',
   styleUrl: './my-interview.css'
 })
@@ -19,8 +20,15 @@ export class MyInterview {
   rows = signal<any[]>([]);
   @Output() evaluate = new EventEmitter<any>();
   selectedInterview = signal<any | null>(null);
+  loading = true
 
-  ngOnInit() { this.load(); }
+  ngOnInit() { 
+    setTimeout(()=>{
+    this.loading = true
+    this.load();
+      this.loading = false
+    }, 4000)
+   }
 
   load() {
     const empId = Number(localStorage.getItem('empId'));

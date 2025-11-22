@@ -15,6 +15,8 @@ import { value } from '@primeuix/themes/aura/knob';
 import { RouterLink, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
+import * as XLSX from 'xlsx';
+
 
 @Component({
   selector: 'app-employee-list',
@@ -56,6 +58,7 @@ export class EmployeeList {
         console.log('Employees fetched successfully:', response);
         this.employee = response;
         this.filteredEmployees = [...this.employee];
+        console.log(this.employee)
         this.loading = false
       },
       error: (err) => {
@@ -67,7 +70,18 @@ export class EmployeeList {
     this.branchService.getBranches().subscribe(data => this.branches = data);
     this.roleService.getRoles().subscribe(data => this.roles = data);
     this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data)
+    document.addEventListener('click', this.handleOutsideClick);
   }
+
+  handleOutsideClick = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (dropdown && !dropdown.contains(event.target) &&
+      button && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
 
   getDepartmentColors(departmentId: number) {
@@ -95,9 +109,12 @@ export class EmployeeList {
   openEdit(employee: any) {
     this.editEmployee.emit(employee);
   }
+
   onSearch(event: Event) {
+    if (!this.selectedFilter) return;
+
     const input = event.target as HTMLInputElement;
-    const searchText = input.value;
+    const searchText = input.value.toLowerCase();
 
     if (!searchText) {
       this.filteredEmployees = [...this.employee];
@@ -107,40 +124,34 @@ export class EmployeeList {
     const filterKey = this.selectedFilter.value;
 
     this.filteredEmployees = this.employee.filter(emp => {
-      // if (filterKey === 'name') {
-      //   return (
-      //     `${emp.firstName} ${emp.lastName}`
-      //       .toLowerCase()
-      //       .includes(searchText.toLowerCase())
-      //   );
-      // }
-      // return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
       switch (filterKey) {
         case 'name':
-          return `${emp.firstName} ${emp.lastName}`
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
+          return (`${emp.firstName} ${emp.lastName}`.toLowerCase())
+            .includes(searchText);
+
         case 'department':
           return this.getDepartmentName(emp.departmentId)
             .toLowerCase()
-            .includes(searchText.toLowerCase());
+            .includes(searchText);
 
         case 'branch':
           return this.getBranchName(emp.branchId)
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase());
+            .toLowerCase()
+            .includes(searchText);
+
         case 'shift': {
-          let shiftName = ''; if (emp.shiftId) { shiftName = this.getShiftName(emp.shiftId) || ''; }
-          else if (emp.latestShiftAssignment?.shift?.name) { shiftName = emp.latestShiftAssignment.shift.name; }
-          else if (emp.EmployeeShiftSetting?.mode) { shiftName = emp.EmployeeShiftSetting.mode; }
-          return shiftName.toLowerCase().includes(searchText.toLowerCase());
+          let shiftName = '';
+          if (emp.shiftId) shiftName = this.getShiftName(emp.shiftId);
+          else if (emp.latestShiftAssignment?.shift?.name) shiftName = emp.latestShiftAssignment.shift.name;
+          return shiftName.toLowerCase().includes(searchText);
         }
+
         default:
-          return emp[filterKey]?.toString().toLowerCase().includes(searchText.toLowerCase());
+          return emp[filterKey]?.toString().toLowerCase().includes(searchText);
       }
     });
-    console.log(this.filteredEmployees)
   }
+
 
   onFilterChange() {
     this.filteredEmployees = [...this.employee];
@@ -152,9 +163,15 @@ export class EmployeeList {
   }
   selectFilter(option: any) {
     this.selectedFilter = option;
-    this.showFilterDropdown = false; // hide after selecting
-    this.onFilterChange(); // trigger filter logic
+
+    // 👇 Clear input after selecting new filter
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
+
+    this.filteredEmployees = [...this.employee];
+    this.showFilterDropdown = false;
   }
+
   isRotational(emp: any): boolean {
     return emp?.EmployeeShiftSetting?.mode === 'ROTATIONAL';
   }
@@ -198,4 +215,139 @@ export class EmployeeList {
       ? '/img-women.png'
       : '/img.png';
   }
+
+  formatDateOnly(date: any): string {
+    if (!date) return 'N/A';
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? 'N/A' : d.toISOString().split('T')[0];
+  }
+
+
+  convertBool(value: any): string {
+    if (value === true) return 'Yes';
+    if (value === false) return 'No';
+    return value; // return original if not boolean
+  }
+
+  flatten(obj: any, parent = '', res: any = {}) {
+    for (const key in obj) {
+      if (!obj.hasOwnProperty(key)) continue;
+
+      const propName = parent ? `${parent}.${key}` : key;
+
+      // ❌ skip nested objects we don't need
+      if (['department', 'branch', 'role', 'address'].includes(key)) continue;
+      if (key === 'latestShiftAssignment' || key === 'EmployeeShiftSetting') continue;
+
+      const value = obj[key];
+
+      if (typeof value === 'object' && value !== null) {
+        this.flatten(value, propName, res);
+      } else {
+        res[propName] = value;
+      }
+    }
+    return res;
+  }
+
+
+  getReportingManagerName(id: number): string {
+    if (!id) return 'N/A';
+    const mgr = this.employee?.find(e => e.id === Number(id));
+    return mgr ? `${mgr.firstName} ${mgr.lastName}` : 'N/A';
+  }
+
+
+
+
+  getShiftReadableName(emp: any): string {
+    if (emp.shiftId) return this.getShiftName(emp.shiftId);
+
+    if (emp.latestShiftAssignment?.shift?.name)
+      return emp.latestShiftAssignment.shift.name;
+
+    return 'N/A';
+  }
+
+
+
+  downloadEmployeeData(): void {
+    const sourceData =
+      this.filteredEmployees && this.filteredEmployees.length > 0
+        ? this.filteredEmployees
+        : this.employee;
+
+    if (!sourceData || sourceData.length === 0) return;
+
+    const finalRows = sourceData.map((emp: any) => {
+      let flat = this.flatten(emp);
+
+      // ⭐ Department / Branch / Role Names
+      flat['Department'] = this.getDepartmentName(emp.departmentId);
+      flat['Branch'] = this.getBranchName(emp.branchId);
+      flat['Role'] = this.getRoleName(emp.roleId);
+
+      // ⭐ Reporting Manager Name
+      flat['Reporting Manager'] = this.getReportingManagerName(emp.reportingManagerId);
+
+      // ⭐ Shift Fields
+      flat['Shift Name'] = this.getShiftReadableName(emp);
+      flat['Shift Type'] = emp.latestShiftAssignment?.shift?.shiftType || 'N/A';
+      flat['Shift Mode'] = emp.EmployeeShiftSetting?.mode || 'General';
+      flat['Shift Start Date'] = emp.EmployeeShiftSetting?.startDate || 'N/A';
+      flat['Shift End Date'] = emp.EmployeeShiftSetting?.endDate || 'N/A';
+
+      // ⭐ Employee Name
+      flat['Employee Name'] = `${emp.firstName} ${emp.lastName}`;
+
+      // ⭐ Date of Birth
+      flat['Date of Birth'] = this.formatDateOnly(emp.dateOfBirth);
+
+      // ⭐ Employee Created Date (ROOT createdAt only)
+      flat['Employee Created Date'] = this.formatDateOnly(emp.createdAt);
+
+      // ⭐ Convert Boolean → Yes/No
+      Object.keys(flat).forEach(key => {
+        flat[key] = this.convertBool(flat[key]);
+      });
+
+      // ❌ Remove unwanted fields NOW (AFTER using them)
+      const removePrefixes = [
+        'shifts',
+        'latestShiftAssignment',
+        'EmployeeShiftSetting',
+        'shiftId'
+      ];
+
+      Object.keys(flat).forEach(key => {
+
+        // remove nested shift fields
+        if (removePrefixes.some(prefix => key.startsWith(prefix))) delete flat[key];
+
+        // remove raw ids EXCEPT departmentId/branchId/roleId (already mapped)
+        if (key.toLowerCase().endsWith('id')) delete flat[key];
+
+        // remove images
+        if (key.includes('photo') || key.includes('image')) delete flat[key];
+
+        // remove dateOfJoining
+        if (key.includes('dateOfJoining')) delete flat[key];
+
+        // keep only Employee Created Date
+        if (key.toLowerCase().includes('createdat') && key !== 'Employee Created Date') {
+          delete flat[key];
+        }
+      });
+
+      return flat;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(finalRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+    XLSX.writeFile(workbook, 'Employee_Full_Data.xlsx');
+  }
+
+
+
 }

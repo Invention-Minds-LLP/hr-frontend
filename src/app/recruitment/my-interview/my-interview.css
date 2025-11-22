@@ -492,3 +492,10 @@
     background: white;
     color: black;
   } */
+
+  .no-data-message {
+  text-align: center !important;
+  vertical-align: middle !important;
+  font-style: italic;
+  color:white;
+}

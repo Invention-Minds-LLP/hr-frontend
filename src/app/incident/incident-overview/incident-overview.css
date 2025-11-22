@@ -1,76 +1,49 @@
-.sub-nav {
-    display: flex;
-    background: transparent;
-    /* padding: 0.5rem 1.5rem; */
-    /* height: 64px;
-    padding: 0 2rem; */
-    padding: 0 60px;
-    position: absolute;
-  }
-
-  h2{
-    color: white;
-    font-family: "Sofia Sans";
-    width: 30%;
-  }
-  .sub-nav ul {
-    list-style: none;
-    display: flex;
-    align-items: flex-end;
-    /* gap: 2rem; */
-    align-items: center;
-    padding: 0;
-    /* height: 64px;
-    margin: 8px; */
-    
-  }
-  .sub-item {
-    cursor: pointer;
-    padding-bottom: 0.2rem;
-    color: white;
-    position: relative;
-  }
-  .sub-item.active {
-    color: #FB9C2A;
-    font-feature-settings: "salt" on, "liga" off;
-    font-family: "Sofia Sans";
-
-  }
-  /* .sub-item.active::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #E9144A;
-  } */
-  hr {
-    background: #d9d9d9;
-    height: 2px;
-    border: none;
-    width: 93%;
-    padding: 0 4rem;
-  }
-
-  button {
-  display: flex;
-  /* width: 160px; */
-  height: 44px;
-  padding: 0 26px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: none;
-  font-family: "Sofia Sans";
-  border: none;
-   font-size: 18px;
-  font-weight: 600;
+.table {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    padding: 30px 60px;
+    gap: 30px;
 }
 
-.br{
-  border-right: 2px solid #828282;
-  height: 25px;
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background: #E8ECEF !important;
+    color: black !important;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 20px;
+    border: none !important;
+    border-bottom: none;
+    height: 60px;
+    text-align: left;
+    text-wrap: nowrap;
+    /* border-radius: 12px; */
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+/* Body Rows */
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+    background: #302F31 !important;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    text-align: left;
+    border: none !important;
+    border-bottom: 2px solid #d9d9d9 !important;
+    text-wrap: nowrap;
 }

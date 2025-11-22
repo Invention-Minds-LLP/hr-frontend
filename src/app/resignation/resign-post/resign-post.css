@@ -102,7 +102,7 @@
 
 .save-btn {
   border-radius: 8px;
-  background: #17b226;
+  background: #0062A1;
   border: none;
   display: flex;
   width: 160px;
@@ -180,6 +180,15 @@
   border: none;
   border-bottom: 2px solid #D9D9D9;
 
+}
+
+::ng-deep .p-button{
+  background-color: #0062A1;
+  border-color: #0062A1;
+}
+ .p-button:hover{
+  background-color: #0062A1;
+  border-color: #0062A1;
 }
 
 

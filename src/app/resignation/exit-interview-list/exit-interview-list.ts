@@ -18,14 +18,14 @@ import { SkeletonModule } from 'primeng/skeleton';
 @Component({
   selector: 'app-exit-interview-list',
   imports: [ExitInterview, CommonModule, TableModule, FormsModule, ButtonModule,
-     IconFieldModule, InputTextModule, InputIconModule, BadgeModule, SkeletonModule],
+    IconFieldModule, InputTextModule, InputIconModule, BadgeModule, SkeletonModule],
   templateUrl: './exit-interview-list.html',
   styleUrl: './exit-interview-list.css'
 })
 export class ExitInterviewList {
 
-   @Input() interviews: any[] = [];
-  @Input() employeeId!: number; 
+  @Input() interviews: any[] = [];
+  @Input() employeeId!: number;
 
   exitInterviews: any[] = [];
   loading = false;
@@ -63,9 +63,21 @@ export class ExitInterviewList {
         return map;
       }, {} as Record<number, string>);
     });
-
+    document.addEventListener('click', this.handleOutsideClick)
 
   }
+
+  handleOutsideClick = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) &&
+      !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   openInterview(interview: any) {
     this.selectedInterview = interview;
@@ -82,6 +94,9 @@ export class ExitInterviewList {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const sb = document.getElementById('searchBox') as HTMLInputElement;
+    if (sb) sb.value = '';
+    this.filteredInterviews = [...this.exitInterviews];
     this.showFilterDropdown = false
   }
 
@@ -92,6 +107,10 @@ export class ExitInterviewList {
     if (!this.selectedFilter || !searchText) {
       this.filteredInterviews = [...this.exitInterviews]
       return
+    }
+    if (!searchText) {
+      this.filteredInterviews = [...this.exitInterviews];
+      return;
     }
 
     const filterKey = this.selectedFilter.value;

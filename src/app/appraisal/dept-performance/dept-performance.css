@@ -1,5 +1,5 @@
 .performance-container {
-  padding: 40px;
+  padding:20px 60px;
   background: transparent;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -44,7 +44,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31;
+  background: #302F31 !important;
   padding:20px;
   font-size: 16px;
   font-weight: 500;
@@ -71,6 +71,9 @@
   /* background-color: #fafafa !important; */
 }
 
+.flex1{
+  margin-bottom: 20px;
+}
 
 .empname img {
   width: 40px;

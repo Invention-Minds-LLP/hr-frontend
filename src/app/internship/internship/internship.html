@@ -27,7 +27,7 @@
     <div *ngIf="error" class="card danger">{{ error }}</div>
 
     <ng-container *ngIf="isLoading; else intership">
-        <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+        <p-table class="skeleton-table" [value]="[1, 2, 3, 4, 5]" [scrollable]="true">
             <!-- Header -->
             <ng-template pTemplate="header">
                 <tr>
@@ -39,31 +39,22 @@
 
             <!-- Body -->
             <ng-template pTemplate="body">
-                <tr>
-                    <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
+                <tr class="skeleton"> 
+                    <td><p-skeleton width="2rem"></p-skeleton></td>
 
-                    <!-- <td>
-                            <div class="profile-skeleton">
-                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
-                                <div class="profile-text">
-                                    <p-skeleton width="90px" height="12px" styleClass="mb-1"></p-skeleton>
-                                    <p-skeleton width="60px" height="10px"></p-skeleton>
-                                </div>
-                            </div>
-                        </td> -->
-
-                    <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
-                    <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
+                    <td><p-skeleton width="70px"></p-skeleton></td>
+                    <td><p-skeleton width="90px"></p-skeleton></td>
+                    <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
+                    <td><p-skeleton width="80px"></p-skeleton></td>
+                    <td><p-skeleton width="100px"></p-skeleton></td>
+                    <td><p-skeleton width="60px"></p-skeleton></td>
                     <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
                 </tr>
             </ng-template>
         </p-table>
     </ng-container>
+
     <ng-template #intership>
         <!-- Table -->
         <p-table [value]="items" [paginator]="true" [rows]="pageSize" [totalRecords]="total"

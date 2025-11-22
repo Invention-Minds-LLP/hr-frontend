@@ -1,8 +1,8 @@
-<p-card header="File an Incident Report">
-
-    <div class="p-fluid grid">
+<p-card class="incident-form">
+  <div class="header">File an Incident Report</div>
+    <div class="form">
   
-        <div class="col-12">
+        <div class="col-12 flex">
             <label>Employee</label>
             <p-select 
               [options]="employees" 
@@ -16,12 +16,12 @@
           </div>
           
   
-      <div class="col-12">
+      <div class="col-12 flex">
         <label>Title</label>
         <input pInputText [(ngModel)]="incident.title" placeholder="Incident title" />
       </div>
   
-      <div class="col-12">
+      <div class="col-12 flex">
         <label>Description</label>
         <textarea pInputTextarea rows="5" [(ngModel)]="incident.description"></textarea>
       </div>

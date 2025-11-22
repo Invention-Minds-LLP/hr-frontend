@@ -527,5 +527,11 @@ td.actions {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
 
-
+::ng-deep .p-timeline-event-content{
+  box-shadow: var(--shadow, 0 8px 24px rgba(52, 52, 53, 0.06));
+  border-radius: 10px;
+}
+::ng-deep .p-timeline-event {
+  gap: 20px;
+}
 

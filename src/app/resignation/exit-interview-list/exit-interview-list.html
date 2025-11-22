@@ -2,9 +2,12 @@
   <div class="header">
     <!-- <h2>Exit Interviews</h2> -->
     <div class="flex1">
-      <div class="filter" (click)="toggleFilterDropdoen()">
+
+      <!-- FILTER DROPDOWN -->
+      <div class="filter" id="filterButton" (click)="toggleFilterDropdoen(); $event.stopPropagation()">
         <i class="pi pi-filter"></i>
-        <ul class="menu-list" *ngIf="showFilterDropdown">
+
+        <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
           <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
             [ngClass]="{ 'active': selectedFilter?.value === option.value }">
             {{ option.label }}
@@ -12,11 +15,14 @@
         </ul>
       </div>
 
+      <!-- SEARCH BOX -->
       <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+        <p-inputicon class="pi pi-search"></p-inputicon>
+        <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
       </p-iconfield>
+
     </div>
+
   </div>
   <p-table [value]="loading ? [1, 2, 3, 4, 5] : filteredInterviews" [paginator]="!loading" [rows]="10"
     responsiveLayout="scroll">
@@ -83,7 +89,7 @@
               <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
               <div class="skeleton">
                 <p-skeleton width="80px" height="12px"></p-skeleton>
-                <p-skeleton width="60px" height="10px"></p-skeleton>
+                <!-- <p-skeleton width="60px" height="10px"></p-skeleton> -->
               </div>
             </div>
           </td>
@@ -102,6 +108,8 @@
         <td colspan="8" class="no-data">No interviews found.</td>
       </tr>
     </ng-template>
+
+
   </p-table>
 
 </div>

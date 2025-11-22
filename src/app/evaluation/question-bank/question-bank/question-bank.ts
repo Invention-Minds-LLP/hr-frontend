@@ -22,7 +22,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-question-bank',
-  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor, ButtonModule, RouterModule, InputTextModule, InputIconModule, IconFieldModule,SkeletonModule],
+  imports: [CommonModule, FormsModule, TableModule, Questions, QuestionBankEditor, ButtonModule, RouterModule, InputTextModule, InputIconModule, IconFieldModule, SkeletonModule],
   templateUrl: './question-bank.html',
   styleUrl: './question-bank.css'
 })
@@ -73,12 +73,25 @@ export class QuestionBank {
     this.fetchQuestionBanks();
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
     // this.filteredQuestonbank = [...this.questionBanks]
-    setTimeout(()=>{
+    document.addEventListener('click', this.handleOutsideClick);
+    setTimeout(() => {
       this.loading = false
     }, 2000)
 
 
   }
+
+
+  handleOutsideClick = (event: any) => {
+    const drop = document.getElementById('filterDropdown');
+    const btn = document.getElementById('filterButton');
+
+    if (!drop || !btn) return;
+
+    if (!drop.contains(event.target) && !btn.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   fetchQuestionBanks(): void {
     this.qService.getAll().subscribe({
@@ -179,36 +192,39 @@ export class QuestionBank {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const sb = document.getElementById('searchBox') as HTMLInputElement;
+    if (sb) sb.value = '';
+    this.filteredQuestonbank = [...this.questionBanks];
     this.showFilterDropdown = false
   }
 
   onSearch(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const searchText = input.value.trim().toLowerCase();
+    const input = event.target as HTMLInputElement;
+    const searchText = input.value.trim().toLowerCase();
 
-  if (!this.selectedFilter || !searchText) {
-    this.filteredQuestonbank = [...this.questionBanks];
-    return;
-  }
-
-  const filterKey = this.selectedFilter.value;
-
-  this.filteredQuestonbank = this.questionBanks.filter(q => {
-    if (filterKey === 'name') {
-      return q.name.toLowerCase().includes(searchText);
-    } else if (filterKey === 'role') {
-      return q.role.toLowerCase().includes(searchText);
-    } else if (filterKey === 'department') {
-      return this.getDepartmentName(q.departmentId).toLowerCase().includes(searchText);
-    } else if (filterKey) {
-      const val = q[filterKey];
-      return val?.toString().toLowerCase().includes(searchText);
+    if (!this.selectedFilter || !searchText) {
+      this.filteredQuestonbank = [...this.questionBanks];
+      return;
     }
-    return false;
-  });
 
-  console.log(this.filteredQuestonbank);
-}
+    const filterKey = this.selectedFilter.value;
+
+    this.filteredQuestonbank = this.questionBanks.filter(q => {
+      if (filterKey === 'name') {
+        return q.name.toLowerCase().includes(searchText);
+      } else if (filterKey === 'role') {
+        return q.role.toLowerCase().includes(searchText);
+      } else if (filterKey === 'department') {
+        return this.getDepartmentName(q.departmentId).toLowerCase().includes(searchText);
+      } else if (filterKey) {
+        const val = q[filterKey];
+        return val?.toString().toLowerCase().includes(searchText);
+      }
+      return false;
+    });
+
+    console.log(this.filteredQuestonbank);
+  }
 
 
 

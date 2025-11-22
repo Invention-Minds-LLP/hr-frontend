@@ -18,6 +18,7 @@ import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { Employees } from '../../services/employees/employees';
 import { Select } from "primeng/select";
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 
 type TileDef =
@@ -29,7 +30,7 @@ type TileDef =
   selector: 'app-hr-dashboard',
   imports: [CommonModule, FormsModule, DatePipe, TableModule,
     DialogModule, DatePickerModule, ButtonModule,
-    RouterModule, RouterLink, TooltipModule, AnnouncementForm, Select],
+    RouterModule, RouterLink, TooltipModule, AnnouncementForm, Select, ProgressSpinnerModule],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })
@@ -37,7 +38,7 @@ type TileDef =
 
 
 export class HrDashboard implements OnInit {
-  loading = false;
+  loading = true;
   error?: string;
 
   data?: DashboardResponse;
@@ -56,9 +57,9 @@ export class HrDashboard implements OnInit {
   today = new Date();
   private selectedAnnId?: number;
   assignDelegateDialog = false;
-selectedDelegateId: number | null = null;
-employeeOptions: any[] = [];
-selectedClearance: any = null; // the row we are assigning delegate for
+  selectedDelegateId: number | null = null;
+  employeeOptions: any[] = [];
+  selectedClearance: any = null; // the row we are assigning delegate for
 
   // tiles like your sample
   tiles: TileDef[] = [
@@ -98,6 +99,7 @@ selectedClearance: any = null; // the row we are assigning delegate for
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.departmentsSvc.getDepartments().subscribe({
       next: (rows) => (this.departments = rows || []),
       error: () => (this.departments = []),
@@ -112,7 +114,11 @@ selectedClearance: any = null; // the row we are assigning delegate for
         label: `${e.firstName} ${e.lastName} (${e.employeeCode})`
       }));
     });
+    setTimeout(() => {
+      this.loading = false
+    }, 2000)
     this.load();
+
   }
 
   load(): void {
@@ -195,7 +201,7 @@ selectedClearance: any = null; // the row we are assigning delegate for
       'New Joiners Today': 'joiners',
       'Birthdays Today': 'birthdays',
       'Anniversaries Today': 'anniversaries',
-      'Interviews Today' : 'interviewsToday',
+      'Interviews Today': 'interviewsToday',
 
       // keep your existing attention modals too
       'Unmarked attendance (by 11:00)': 'unmarked',

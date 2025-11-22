@@ -37,7 +37,7 @@ export class ResignationForm {
     this.form = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]],
       additionalNotes: [''],
-      noticePeriodDays: [30, [Validators.required, Validators.min(0), Validators.max(180)]],
+      noticePeriodDays: [60, [Validators.required, Validators.min(0), Validators.max(180)]],
     });
     this.employeeId = Number(localStorage.getItem('empId'))
     this.load();

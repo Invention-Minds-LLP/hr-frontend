@@ -53,7 +53,20 @@ export class AllTest {
       }
     });
 
+    document.addEventListener('click', this.handleOutsideClick);
+
   }
+
+  handleOutsideClick = (event: any) => {
+    const dropdown = document.getElementById('filterDropdown');
+    const button = document.getElementById('filterButton');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
 
   fetchTests() {
     this.loading = true
@@ -102,6 +115,9 @@ export class AllTest {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    if (searchBox) searchBox.value = '';
+    this.filteredTest = [...this.tests];
     this.showFilterDropdown = false
   }
 

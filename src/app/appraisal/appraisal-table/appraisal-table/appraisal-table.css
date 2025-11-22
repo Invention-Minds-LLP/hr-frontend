@@ -168,7 +168,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31;
+  background: #302F31 !important;
   padding: 20px;
   font-size: 16px;
   font-weight: 500;

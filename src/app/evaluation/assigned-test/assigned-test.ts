@@ -20,7 +20,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 @Component({
   selector: 'app-assigned-test',
   imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule,
-     InputTextModule, IconFieldModule, InputIconModule, FormsModule,FloatLabel, InputTextModule, SkeletonModule],
+    InputTextModule, IconFieldModule, InputIconModule, FormsModule, FloatLabel, InputTextModule, SkeletonModule],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css',
 
@@ -44,29 +44,42 @@ export class AssignedTest {
   constructor(private assignedService: AssignTest, private messageService: MessageService, private attemptService: TestAttempt) { }
 
   ngOnInit(): void {
-    this.loading =true
+    this.loading = true
     this.assignedService.getAll().subscribe({
       next: data => {
         this.assignedTests = data
         this.filteredAssignedtest = [...this.assignedTests]
-        setTimeout(()=>{
+        setTimeout(() => {
           this.loading = false
         }, 2000)
       },
-      error: err => {console.error('Failed to load assigned tests', err)
+      error: err => {
+        console.error('Failed to load assigned tests', err)
         this.loading = false
       }
     });
+    document.addEventListener('click', this.handleOutsideClick);
   }
+
+  handleOutsideClick = (event: any) => {
+    const dropdown = document.querySelector('.menu-list');
+    const button = document.querySelector('.filter');
+
+    if (!dropdown || !button) return;
+
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      this.showFilterDropdown = false;
+    }
+  };
   openOverview(a: any) {
     this.assignedService.getOverview(a.id).subscribe({
-      next: data => { 
-          data.rows.forEach((r: any) => {
-        r.isEditing = false;
-      });
+      next: data => {
+        data.rows.forEach((r: any) => {
+          r.isEditing = false;
+        });
         this.overview = data;
-         this.overviewVisible = true; 
-        },
+        this.overviewVisible = true;
+      },
       error: err =>
         // alert('Failed to load overview')
         this.messageService.add({
@@ -79,7 +92,7 @@ export class AssignedTest {
   hasDescriptive(o: any): boolean {
     return o?.rows?.some((r: any) => r.type === 'DESCRIPTIVE');
   }
-  
+
   fmtDuration(s?: number | null) {
     if (!s && s !== 0) return '-';
     const h = Math.floor(s / 3600);
@@ -94,6 +107,9 @@ export class AssignedTest {
 
   selectFilter(option: any) {
     this.selectedFilter = option;
+    const input = document.getElementById('assignedSearch') as HTMLInputElement;
+    if (input) input.value = '';
+    this.filteredAssignedtest = [...this.assignedTests];
     this.showFilterDropdown = false
   }
 
@@ -128,7 +144,7 @@ export class AssignedTest {
         manualScore: r.manualScore,
         remarks: r.remarks || ''
       }));
-  
+
     if (!evaluations.length) {
       this.messageService.add({
         severity: 'warn',
@@ -139,7 +155,7 @@ export class AssignedTest {
     }
 
     console.log('Evaluations to save:', evaluations);
-  
+
     this.attemptService.evaluateAttempt(o.attemptId, evaluations).subscribe({
       next: res => {
         this.messageService.add({
@@ -158,7 +174,7 @@ export class AssignedTest {
       }
     });
   }
-  
+
 
 }
 

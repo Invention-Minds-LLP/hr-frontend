@@ -227,7 +227,7 @@
 
 ::ng-deep .permission-request .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
-  background: #302F31;
+  background: #302F31 !important;
   border: none !important;
   border-bottom: 2px solid #D9D9D9 !important;
   color: white !important;
