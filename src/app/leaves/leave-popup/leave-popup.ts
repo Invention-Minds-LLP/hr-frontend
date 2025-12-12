@@ -36,7 +36,7 @@ export class LeavePopup {
     this.close.emit();
   }
 
-
+  isLoading = false;
 
   monthsList = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -392,6 +392,8 @@ export class LeavePopup {
       return;
     }
 
+    this.isLoading = true;
+
     const payload = {
       employeeId: parseInt(this.employeeId), // Replace with actual logged-in employee ID (or @Input() if coming from parent)
       leaveTypeId: this.leaveTypes.find(type => type.name === this.leaveType)?.id,
@@ -408,11 +410,14 @@ export class LeavePopup {
           detail: 'Leave applied successfully!'
         });
         console.log('API response:', res);
+        this.isLoading = false;
+        this.closePopup();
         this.resetForm();
       },
       error: (err) => {
         console.error('Error applying leave:', err);
         // alert('Failed to apply leave. Please try again.');
+        this.isLoading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',

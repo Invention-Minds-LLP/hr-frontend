@@ -42,6 +42,8 @@ export class IncidentForm {
 
   selectedFile: File | null = null;
 
+  isLoading = false;
+
   constructor(private incidentService: Incident, private toast: MessageService, private employeeService: Employees) {}
 
   ngOnInit() {
@@ -88,6 +90,7 @@ fetchEmployees() {
       reportedBy: reportedById,
       attachment: null      // because you are NOT using attachment now
     };
+    this.isLoading = true;
   
     this.incidentService.createIncident(payload).subscribe({
       next: () => {
@@ -96,7 +99,7 @@ fetchEmployees() {
           summary: 'Success',
           detail: 'Incident created successfully'
         });
-  
+        this.isLoading = false;
         this.incident = { employeeId: null, title: '', description: '', attachment: null };
       },
       error: () => {
@@ -105,6 +108,7 @@ fetchEmployees() {
           summary: 'Error',
           detail: 'Failed to create incident'
         });
+        this.isLoading = false;
       }
     });
   }

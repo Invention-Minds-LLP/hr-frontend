@@ -1,21 +1,21 @@
-<p-card class="card">
+<div class="card">
   <div class="header">
     <h2>Interviews Scheduled</h2>
     <!-- <button pButton label="Refresh" (click)="load()"></button> -->
   </div>
   <ng-container *ngIf="loading; else interview">
-    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+    <table>
       <!-- Header -->
-      <ng-template pTemplate="header">
+      <thead>
         <tr>
           <th *ngFor="let h of ['No','Candidate','Job','Round','Start','Status','Score','Action']">
             {{ h }}
           </th>
         </tr>
-      </ng-template>
+      </thead>
 
       <!-- Body -->
-      <ng-template pTemplate="body">
+      <tbody>
         <tr>
           <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
 
@@ -38,71 +38,93 @@
           <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
           <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
         </tr>
-      </ng-template>
-    </p-table>
+      </tbody>
+    </table>
   </ng-container>
   <ng-template #interview>
-    <p-table [value]="rows()" *ngIf="rows().length; else empty" [scrollable]="true" scrollDirection="both"
-      [scrollHeight]="'60vh'" [tableStyle]="{ 'min-width': '1200px' }"
-      styleClass="p-datatable-gridlines p-datatable-striped">
+    <div class="table-wrap" *ngIf="rows().length > 0; else empty">
+      <table>
+        <colgroup>
+          <col style="width:5.5%">
+          <col style="width:12.5%">
+          <col style="width:12.5%">
+          <col style="width:12.5%">
+          <col style="width:19.5%">
+          <col style="width:12.5%">
+          <col style="width:12.5%">
+          <col style="width:12.5%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Candidate</th>
+            <th>Job</th>
+            <th>Round</th>
+            <th>Start</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-      <ng-template pTemplate="header">
-        <tr>
-          <th>No</th>
-          <th>Candidate</th>
-          <th>Job</th>
-          <th>Round</th>
-          <th>Start</th>
-          <th>Status</th>
-          <th>Score</th>
-          <th>Action</th>
-        </tr>
-      </ng-template>
+        <tbody>
+          <tr *ngFor="let r of rows(); let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ r.application?.candidate?.name || '—' }}</td>
+            <!-- <td>{{ r.application?.job?.title || '—' }}</td> -->
+            <td>
+              <span pTooltip="{{ r.application?.job?.title }}"
+                    tooltipPosition="top">
+                {{ truncate(r.application?.job?.title, 10) }}
+              </span>
+            </td>
+            
 
-      <ng-template pTemplate="body" let-r let-i="rowIndex">
-        <tr>
-          <td>{{ i + 1 }}</td>
-          <td>{{ r.application?.candidate?.name || '—' }}</td>
-          <td>{{ r.application?.job?.title || '—' }}</td>
 
-          <!-- Round type -->
-          <td>
-            <ng-container *ngIf="r.candidateAssignedTestId; else panel">
-              Test Round
-            </ng-container>
-            <ng-template #panel>
-              {{ r.stage }} Round
-            </ng-template>
-          </td>
+            <!-- Round type -->
+            <td>
+              <ng-container *ngIf="r.candidateAssignedTestId; else panel">
+                Test Round
+              </ng-container>
+              <ng-template #panel>
+                {{ r.stage }} Round
+              </ng-template>
+            </td>
 
-          <td>{{ r.startTime | date:'medium' }}</td>
+            <td>{{ r.startTime | date:'medium' }}</td>
 
-          <!-- Status -->
-          <td>
-            <ng-container *ngIf="r.candidateAssignedTest; else panelStatus">
-              {{ r.candidateAssignedTest.status }}
-            </ng-container>
-            <ng-template #panelStatus>
-              {{ r.result || 'Pending' }}
-            </ng-template>
-          </td>
+            <!-- Status -->
+            <td>
+              <ng-container *ngIf="r.candidateAssignedTest; else panelStatus">
+                {{ r.candidateAssignedTest.status }}
+              </ng-container>
+              <ng-template #panelStatus>
+                {{ r.result || 'Pending' }}
+              </ng-template>
+            </td>
 
-          <!-- Score -->
-          <td>
-            <ng-container *ngIf="r.candidateAssignedTest">
-              {{ r.candidateAssignedTest.score || '—' }}
-            </ng-container>
-            <ng-container *ngIf="!r.candidateAssignedTest && r.InterviewFeedback?.length">
-              {{ r.InterviewFeedback[0]?.average || '—' }}
-            </ng-container>
-          </td>
+            <!-- Score -->
+            <td>
+              <ng-container *ngIf="r.candidateAssignedTest">
+                {{ r.candidateAssignedTest.score || '—' }}
+              </ng-container>
+              <ng-container *ngIf="!r.candidateAssignedTest && r.InterviewFeedback?.length">
+                {{ r.InterviewFeedback[0]?.average || '—' }}
+              </ng-container>
+            </td>
 
-          <td>
-            <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <td>
+              <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+    </div>
+    <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" [rowsPerPageOptions]="[5, 10, 20]"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
   </ng-template>
 
 
@@ -110,11 +132,20 @@
   <ng-template #empty>
     <p>No interviews found.</p>
   </ng-template>
-</p-card>
+</div>
 <!-- inside Interview component -->
 <p-dialog header="Review Test" [(visible)]="showReviewDialog" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'60vw', '640px':'90vw' }" [style]="{ width:'560px' }"
-  (onHide)="reviewForm.reset()">
+  (onHide)="reviewForm.reset()" [closable]="false">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Review Test</span>
+
+      <button class="dialog-close-btn" (click)="showReviewDialog = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
 
   <div class="review-dialog" *ngIf="reviewCtx">
     <div class="summary">
@@ -173,6 +204,7 @@
 
     <!-- Only show Save if editable -->
     <button *ngIf="!readOnlyReview" pButton type="button" label="Save Review" icon="pi pi-check"
-      (click)="submitReview()" [disabled]="reviewForm.invalid"></button>
+      (click)="submitReview()" [loading]="isLoading" [label]="isLoading ? 'Saving Review..': 'Save Review'"
+      [disabled]="reviewForm.invalid"></button>
   </ng-template>
 </p-dialog>

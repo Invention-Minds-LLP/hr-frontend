@@ -1,4 +1,4 @@
-<form class="eval-form" *ngIf="form" [formGroup]="form" (ngSubmit)="submit()">
+<form class="eval-form" *ngIf="form" [formGroup]="form" >
     <p-card class="eval-card">
       <h2 class="page-title">Candidate Evaluation Form</h2>
   
@@ -104,7 +104,7 @@
           <!-- <button pButton icon="pi pi-user-plus" label="Add panelist" type="button" (click)="addPanelist()"></button> -->
           <span class="overall" *ngIf="overallAverage != null">Overall avg: <b>{{ overallAverage }}</b></span>
           <span class="spacer"></span>
-        <button pButton type="button" label="Submit Panel Feedback"
+        <button pButton type="button" label="Submit Panel Feedback" [loading]="saving" [label]="saving? 'Submitting' : 'Submit Panel Feedback' " [disabled]="saving"  icon="pi pi-save"
         (click)="saveAllPanel(true)"></button>
         </div>
       </ng-template>
@@ -224,7 +224,7 @@
       <div class="actions" *ngIf="isRestricted">
         <button pButton type="button" label="Reset" class="p-button-text" (click)="reset()"></button>
         <span class="spacer"></span>
-        <button pButton type="submit" label="Save Evaluation"class="p-button-text"  icon="pi pi-check"></button>
+        <button pButton type="submit" label="Save Evaluation" class="p-button-text" [loading]="saving" [label]="saving? 'Saving' : 'Save Evaluation'" (click)="submit()"  icon="pi pi-check"></button>
       </div>
     </p-card>
   </form>

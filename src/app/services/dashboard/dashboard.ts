@@ -12,10 +12,14 @@ export type ListKey =
    'annAck' | 'annAckPending' | 'otPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'resignations' | 'interviewsToday';
 
 
-export interface List {
+   export interface ListRow {
+    data: any[];
+    [key: string]: any; // allow extra fields like id, resignationId, etc.
+  }
+  export interface List {
   title: string;
   cols: string[];
-  rows: string[][];
+  rows: ListRow[];
   actions?: string[];
   selectable?: boolean;
 }

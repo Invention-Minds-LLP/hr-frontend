@@ -1,228 +1,167 @@
-::ng-deep .p-datatable {
-  border: none;
-  background: transparent;
-}
-
-h2{
-  display: flex;
-  gap: 20px;
-}
-
-/* Header Row */
-::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th {
-  background: transparent;
-  color:white !important;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 16px 20px;
-  border: none !important;
- border-bottom: 2px solid #d9d9d9 !important;
-  height: 60px;
-  text-align: left;
-  text-wrap: nowrap;
-  /* border-radius: 12px; */
-}
-::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th:first-child {
-  border-top-left-radius: 10px;
-}
-
-::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th:last-child {
-  border-top-right-radius: 10px;
-}
-
-::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-::ng-deep .question-bank .p-datatable .p-datatable-thead > tr > th:last-child {
-  border-bottom-right-radius: 10px;
-}
-
-/* Body Rows */
-::ng-deep .question-bank .p-datatable .p-datatable-tbody > tr > td {
-  background: transparent !important;
-  padding: 25px !important;
-  font-size: 16px;
-  font-weight: 500;
-  color: white !important;
-  text-align: left;
-  border: none !important;
-  /* border-bottom: 2px solid #d9d9d9 !important; */
-  text-wrap: nowrap;
-}
-.dept-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Dot style */
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-::ng-deep .pi-align-center {
-    border-radius: 8px;
-    border: 1px solid #9B9B9B;
-    background: white;
-    display: flex;
-    width: auto;
-    height: 30px;
-    padding: 20px 16px;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    color: #9B9B9B;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    cursor: pointer;
-}
 
 
-
-
-::ng-deep .p-paginator .p-paginator-page {
-    width: 40px;
-    height: 40px;
-    line-height: 26px;
-    padding: 0;
-    text-align: center;
-    border-radius: 8px;
-    background-color: #E8ECEF;
-    color: #333;
-    font-weight: 600;
-    font-size: 13px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease-in-out;
-}
-
-/* Active page */
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
-    color: white !important;
-}
-
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
-    color: white !important;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-/* Optional: center paginator */
-::ng-deep .p-paginator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    margin-top: 1rem;
-    background: transparent;
-}
-.add-btn {
-  display: flex;
-  width: 200px;
-  height: 44px;
-  padding: 0 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #3177a3;
-  color: #fff;
-  font-family: "Sofia Sans";
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: 0.18px;
-  border: none;
-}
-.btn-edit {
-  border-radius: 8px;
-  border: 2px solid #c4c4c4;
-  background: #e8ecef;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #767676;
-  cursor: pointer;
-}
 .question-bank {
   font-family: "Sofia Sans";
-  padding: 40px 50px;
+  /* padding: 40px 50px; */
+  color: white;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
-  color: white;
-}
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.content {
-  background: white;
-  padding: 20px;
-  max-width: 500px;
-  width: 100%;
-  border-radius: 10px;
 }
 
-.button-div {
+h2 {
   display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 20px;
 }
-.action-cell{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+.info-icon {
+  font-size: 18px;
+  color: #d9d9d9;
+  cursor: pointer;
 }
-.button {
-  border-radius: 8px;
-  background: #17b226;
-  display: flex;
-  width: 160px;
-  height: 44px;
-  padding: 0 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  border: none;
-  color: #fff;
+
+/* ---------- TABLE ---------- */
+
+.table-container{
+  max-height: 400px;
+  max-width: 100%;
+  overflow: auto;
+  border-radius: 16px;
+}
+.no-data.center-right {
+  text-align: center;        /* moves text to right */
+  padding-right: 2rem;      /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic;
+  font-size: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: auto;
+}
+
+thead{
+  background: linear-gradient(96deg, #FED6AC 0%, #FFA090 100%);
+  /* border-radius: 10px; */
+}
+
+thead th {
+  /* background: transparent; */
+  color: #000;
   font-family: "Sofia Sans";
   font-size: 18px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  padding: 16px 20px;
+  height: 60px;
+  text-align: left;
+  white-space: nowrap;
+  /* border-radius: 10px; */
+}
+tbody{
+  background: rgba(85, 85, 85, 0.40);
+}
+tbody td {
+  background: transparent;
+  padding: 16px;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
   line-height: normal;
   letter-spacing: 0.18px;
+  border: none;
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid #727272;
+}
+ thead tr th:first-child {
+  border-top-left-radius: 16px;
 }
 
-:host ::ng-deep .p-skeleton {
-  background-color: #ced6d7 !important; /* Light teal background */
+ thead tr th:last-child {
+  border-top-right-radius: 16px;
 }
 
-:host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+ tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+ tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+ table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* ---------- "Start" button ---------- */
+
+.button {
+  border-radius: 6px;
+  background: #0B9629;
+  width: 60px;
+  height: 29px;
+  border: none;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.14px;
+  cursor: pointer;
+}
+
+.action-cell {
+  text-align: center;
+}
+
+/* ---------- Pagination ---------- */
+
+.paginator {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 8px;
+}
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background: #ff0000;
+  color: #fff;
+}
+
+/* ---------- Skeleton ---------- */
+
+.skeleton {
+  background: #ced6d7;
+  height: 20px;
+  border-radius: 4px;
+  animation: shine 1.2s infinite linear;
+}
+
+@keyframes shine {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
 }

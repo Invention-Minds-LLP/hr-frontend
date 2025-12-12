@@ -13,6 +13,15 @@
   <ng-container *ngIf="!started; else testView">
     <p-dialog header="Ready to Begin?" [(visible)]="showIntroPopup" [modal]="true" [closable]="false"
       [style]="{ width: '500px' }" [dismissableMask]="false">
+      <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+          <span>Ready to Begin?</span>
+    
+          <button class="dialog-close-btn" (click)="showIntroPopup = false">
+            ✕
+          </button>
+        </div>
+        </ng-template>
 
       <div class="intro-popup">
         <h2 class="test-title">{{ test?.name || 'Test' }}</h2>
@@ -148,6 +157,15 @@
   <p-confirmDialog></p-confirmDialog>
 </div>
 <p-dialog header="Test Submitted" [(visible)]="showSubmitPopup" [modal]="true" [closable]="false">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Test Submitted</span>
+
+      <button class="dialog-close-btn" (click)="showSubmitPopup = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
   <p>{{ submitMessage }}</p>
   <ng-template pTemplate="footer">
     <button pButton type="button" label="OK" (click)="onPopupClose()"></button>

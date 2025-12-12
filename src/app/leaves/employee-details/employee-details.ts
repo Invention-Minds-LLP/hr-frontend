@@ -74,9 +74,9 @@ export class EmployeeDetails {
       this.entitles.getEmployeeRequests(this.employee.id).subscribe((data) => {
         this.leaveRequests = data.leaveRequests || [];
         this.permissionRequests = data.permissionRequests || [];
-        this.wfhRequests = data.wfhRequests || [];
+        // this.wfhRequests = data.wfhRequests || [];
         this.totalLeave = data.totals?.totalLeaveDays ?? 0;
-        this.totalWFH   = data.totals?.totalWFHDays ?? 0;
+        // this.totalWFH   = data.totals?.totalWFHDays ?? 0;
         this.entitlements = data.entitlements || this.entitlements;
         this.applyFilters();
       });
@@ -102,7 +102,7 @@ export class EmployeeDetails {
       console.log(this.selectedDates)
       this.filtered.leave = [...this.leaveRequests];
       this.filtered.permission = [...this.permissionRequests];
-      this.filtered.wfh = [...this.wfhRequests];
+      // this.filtered.wfh = [...this.wfhRequests];
 
       console.log(this.filtered.leave)
       return;
@@ -121,11 +121,11 @@ export class EmployeeDetails {
       selectedSet.has(this.toKey(row.day))
     );
 
-    // WFH: range overlap with any selected day
-    this.filtered.wfh = this.wfhRequests.filter(row => {
-      const rangeKeys = this.daysBetween(row.startDate, row.endDate);
-      return rangeKeys.some(k => selectedSet.has(k));
-    });
+    // // WFH: range overlap with any selected day
+    // this.filtered.wfh = this.wfhRequests.filter(row => {
+    //   const rangeKeys = this.daysBetween(row.startDate, row.endDate);
+    //   return rangeKeys.some(k => selectedSet.has(k));
+    // });
   }
 
   clearFilters() {

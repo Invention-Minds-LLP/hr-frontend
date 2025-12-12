@@ -5,7 +5,7 @@
         pTooltip="Raise official concerns, complaints, or suggestions regarding workplace issues. These requests are confidential and will be reviewed by HR"
         tooltipPosition="top"></i></h2>
     <div class="flex justify-content-end mb-3">
-      <button label="Raise Grievance" icon="pi pi-plus" class="new-app" (click)="openForm()"> Raise Grievance<svg
+      <button label="Raise Grievance" style="cursor: pointer" icon="pi pi-plus" class="new-app" (click)="openForm()"> Raise Grievance<svg
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
           <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round" />
@@ -13,6 +13,38 @@
     </div>
   </div>
 
+  <div *ngIf="currentPath === '/individual'" class="grievance-table-container">
+    <table class="individual-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Title</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+  
+      <tbody>
+        <tr *ngFor="let g of grievances; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ g.title }}</td>
+  
+          <td>
+            <span class="status-badge status-open" *ngIf="g.status === 'OPEN'">Open</span>
+            <span class="status-badge status-resolved" *ngIf="g.status === 'RESOLVED'">Resolved</span>
+          </td>
+        </tr>
+        <tr *ngIf="grievances?.length === 0">
+          <td colspan="3" class="no-data center-right">
+            No grievances raised.
+          </td>
+        </tr>
+      </tbody>
+  
+    </table>
+  
+  </div>
+  <div *ngIf = "currentPath !== '/individual'" class="grievance-table-container">
+    
   <p-table [value]="loading ? [1,2,3,4,5] : grievances" [paginator]="!loading" [rows]="10" responsiveLayout="scroll">
 
     <!-- Header -->
@@ -57,19 +89,36 @@
     </ng-template>
 
   </p-table>
+  </div>
 
 </div>
 
-<p-dialog header="Raise Grievance" [(visible)]="showForm" [modal]="true" [style]="{width: '40vw'}">
+<p-dialog header="" [(visible)]="showForm" [closable]="false" [modal]="true" [style]="{width: '40vw'}">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Raise Grievance</span>
+
+      <button class="dialog-close-btn" (click)="showForm = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <app-grievance-form (saved)="loadGrievances(); showForm=false"></app-grievance-form>
 </p-dialog>
-<p-dialog [(visible)]="showDetails" [modal]="true" [style]="{width: '50vw'}">
+<p-dialog [(visible)]="showDetails" [modal]="true" [style]="{width: '50vw'}" [closable]="false">
+  
   <ng-template pTemplate="header">
-    <div class="dialog-header">
-      <span>Grievance Details</span>
-      <span class="created-date">
-        {{ selected?.createdAt | date:'short' }}
+    <div class="dialog-header-custom">
+      <span>
+        <span>Grievance Details</span>
+        <span class="created-date">
+          Raised At:
+          {{ selected?.createdAt | date:'short' }}
+        </span>
       </span>
+      <button class="dialog-close-btn" (click)="showDetails = false">
+        ✕
+      </button>
     </div>
   </ng-template>
   <ng-container *ngIf="selected">
@@ -88,7 +137,7 @@
       <input type="text" pInputText [(ngModel)]="newComment" placeholder="Add comment...">
     </div>
     <div class="mt-4 flex justify-content-end">
-      <button pButton type="button" icon="pi pi-send" (click)="addComment()"></button>
+      <button pButton type="button" icon="pi pi-send" [loading]="isLoading" [label]="isLoading ? 'Adding Comment': 'Add Comment'" (click)="addComment()"></button>
     </div>
   </ng-container>
 </p-dialog>

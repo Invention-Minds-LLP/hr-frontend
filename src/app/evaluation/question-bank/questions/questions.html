@@ -85,7 +85,17 @@
   <p-dialog [(visible)]="showForm" [modal]="true" [style]="{width:'640px'}"
             [dismissableMask]="true"
             [header]="isEditing ? 'Edit Question' : 'Add Question'"
+            [closable]="false"
             (onHide)="onDialogHide()">
+            <ng-template pTemplate="header">
+              <div class="dialog-header-custom">
+                <span>{{isEditing ? 'Edit Question' : 'Add Question'}}</span>
+          
+                <button class="dialog-close-btn" (click)="showForm = false">
+                  ✕
+                </button>
+              </div>
+              </ng-template>
     <div class="form-grid">
       <div class="form-row">
         <label>Question Text <span class="req">*</span></label>
@@ -135,7 +145,7 @@
 
     <ng-template pTemplate="footer">
       <button pButton label="Cancel" class="p-button-text" (click)="showForm=false"></button>
-      <button pButton label="Save" (click)="saveQuestion()" [disabled]="saving"></button>
+      <button pButton label="Save" (click)="saveQuestion()" [loading]="saving" [label]="saving ? 'Saving': 'Save'" [disabled]="saving"></button>
     </ng-template>
   </p-dialog>
 

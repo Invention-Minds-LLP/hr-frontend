@@ -58,11 +58,9 @@
     </div>
 
     <!-- ROW: Attention + Announcements -->
-    <div class="row">
+    <!-- <div class="row">
         <div class="card grid-8">
             <div class="kicker"><span class="dot"></span><strong>Attention needed</strong></div>
-
-            <!-- NEW wrapper gives rounded outer border + scroll + sticky header support -->
             <div class="table-wrap">
                 <table class="attention">
                     <thead>
@@ -93,7 +91,7 @@
                 <div class="kicker"><span class="dot"></span><strong>Announcements</strong></div>
                 <button class="btn" (click)="showAnnouncementForm = true">New Announcement</button>
             </div>
-            <!-- New: full list -->
+ 
             <div class="ann-list" *ngIf="announcements?.length; else noAnns">
                 <div class="ann-item" *ngFor="let a of announcements; let i = index" (click)="openAnnAckSummary(a.id)">
                     <div class="ann-meta">
@@ -119,7 +117,68 @@
         </div>
 
 
+    </div> -->
+
+    <div class="row">
+        <div class=" grid-6">
+            <div class="kicker">Attention needed <i class="pi pi-info-circle info-icon"
+                    pTooltip="Key items that require immediate review or action."
+                    tooltipPosition="top"></i></div>
+            <div class="table-wrap">
+                <table class="attention">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Count</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of d.attention" (click)="openList(a.modal)">
+                            <td>{{ a.label }}</td>
+                            <td><strong>{{ a.count }}</strong></td>
+                            <td><button class="open-btn">Open</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="announcement-card grid-6">
+            <div class="kicker">Announcements <i class="pi pi-info-circle info-icon"
+                    pTooltip="Create and publish a new announcement for employees."
+                    tooltipPosition="top"></i></div>
+            <!-- <div class="ann-top-header">
+                <span>Announcements</span>
+                <button class="ann-new-btn" (click)="showAnnouncementForm = true">New Announcements</button>
+            </div> -->
+
+            <div class="table-wrap">
+                <table class="attention attention-1">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Title</th>
+                            <th> <button class="btn" (click)="showAnnouncementForm = true">New Announcements</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of announcements; let i = index">
+                            <td>{{ i + 1 }}</td>
+                            <td><strong>{{ a.title }}</strong></td>
+                            <td><button class="open-btn" (click)="openAnnAckSummary(a.id)">Ack{{ ackPercentOf(a)
+                                    }}%</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+
     </div>
+
 
     <!-- ROW: Recruiting -->
     <!-- <div class="row">
@@ -146,31 +205,48 @@
 
     <!-- ROW: People Ops + Learning/Performance -->
     <div class="row">
-        <div class="card grid-6">
-            <div class="kicker"><span class="dot"></span><strong>People operations</strong></div>
-            <table class="attention">
-                <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
-                </tr>
-                <tr *ngFor="let r of d.peopleOps; trackBy: trackByIndex">
-                    <td>{{ r[0] }}</td>
-                    <td><strong [ngClass]="r[2]">{{ r[1] }}</strong></td>
-                </tr>
-            </table>
+        <div class=" grid-6">
+            <div class="kicker">People operations <i class="pi pi-info-circle info-icon"
+                    pTooltip="Workforce metrics that reflect HR activities and employee movements."
+                    tooltipPosition="top"></i></div>
+            <div class="table-wrap">
+                <table class="attention attention-2">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of d.peopleOps; trackBy: trackByIndex">
+                            <td>{{ r[0] }}</td>
+                            <td>{{ r[1] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="card grid-6">
-            <div class="kicker"><span class="dot"></span><strong>Appraisal & Compliance</strong></div>
-            <table class="attention">
-                <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
-                </tr>
-                <tr *ngFor="let r of d.learnPerf; trackBy: trackByIndex">
-                    <td>{{ r[0] }}</td>
-                    <td><strong [ngClass]="r[2]">{{ r[1] }}</strong></td>
-                </tr>
-            </table>
+        <div class=" grid-6">
+            <div class="kicker">Appraisal & Compliance <i class="pi pi-info-circle info-icon"
+                    pTooltip="Overview of appraisal status and key compliance requirements."
+                    tooltipPosition="top"></i></div>
+            <div class="table-wrap">
+                <table class="attention attention-3">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of d.learnPerf; trackBy: trackByIndex">
+                            <td>{{ r[0] }}</td>
+                            <td>{{r[1]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
@@ -195,11 +271,8 @@
 <!-- Modal -->
 <div class="modal" [class.open]="modalOpen">
     <div class="sheet" *ngIf="selectedList as list">
-        <div class="">
-            <div class="top">
-                <i class="pi pi-times close" (click)="closeModal()"></i>
-            </div>
-            <div class="actions" *ngIf="list">
+        <div class="header">
+            <span class="actions" *ngIf="list">
                 <h3>{{ list.title }}</h3>
                 <div class="btns" *ngIf="list.actions?.length">
                     <button class="btn ghost" *ngFor="let a of list.actions; trackBy: trackByIndex"
@@ -207,16 +280,18 @@
                         a
                         }}</button>
                 </div>
+            </span>
+            <div class="dialog-close-btn">
+                <i class="pi pi-times" (click)="closeModal()"></i>
             </div>
+            <!-- <div class="actions" >
+
+            </div> -->
         </div>
-        <p-table [value]="list?.rows || []" [responsiveLayout]="'scroll'" dataKey="id" [paginator]="true" [rows]="8"
-            [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true" [tableStyle]="{ width: '100%' }"
-            styleClass="p-datatable-gridlines p-datatable-striped" [(selection)]="selectedRows">
+        <p-table class="modal-table" [value]="list?.rows || []" [responsiveLayout]="'scroll'" dataKey="id" [paginator]="true" [rows]="8"
+            [rowsPerPageOptions]="[10,25,50]" [showCurrentPageReport]="true" [tableStyle]="{ width: '100%' }" [(selection)]="selectedRows">
             <ng-template pTemplate="header">
                 <tr>
-                    <!-- <th style="width:3rem" *ngIf="list?.selectable">
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                    </th> -->
                     <th style="width:3rem" *ngIf="selectedListKey === 'probation'"></th>
                     <th style="width:3rem" *ngIf="list?.selectable && selectedListKey !== 'probation'">
                         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
@@ -247,8 +322,17 @@
     </div>
 
 </div>
-<p-dialog header="Extend Probation" [(visible)]="extendProbationDialog" [modal]="true" [closable]="true"
+<p-dialog header="Extend Probation" [(visible)]="extendProbationDialog" [modal]="true" [closable]="false"
     [style]="{width: '400px'}">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+          <span>Extend Probation</span>
+    
+          <button class="dialog-close-btn" (click)="extendProbationDialog = false">
+            ✕
+          </button>
+        </div>
+        </ng-template>
 
     <div class="p-field">
         <label for="probationDate">Select new probation end date</label>
@@ -259,12 +343,21 @@
     <div class="p-d-flex p-jc-end p-mt-3">
         <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
             (click)="extendProbationDialog=false"></button>
-        <button pButton label="Confirm" icon="pi pi-check" class="p-ml-2" (click)="confirmExtendProbation()"
+        <button pButton label="Confirm" icon="pi pi-check" class="p-ml-2" [loading]="isLoading" [label]="isLoading ? 'Confirming': 'Confirm'" (click)="confirmExtendProbation()"
             [disabled]="!selectedDate"></button>
     </div>
 </p-dialog>
-<p-dialog header="Assign Delegate" [(visible)]="assignDelegateDialog" [modal]="true" [closable]="true"
+<p-dialog header="Assign Delegate" [(visible)]="assignDelegateDialog" [modal]="true" [closable]="false"
     [style]="{width: '400px'}">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+          <span>Assign Delegate</span>
+    
+          <button class="dialog-close-btn" (click)="assignDelegateDialog = false">
+            ✕
+          </button>
+        </div>
+        </ng-template>
 
     <div class="p-field">
         <label for="delegate">Select Delegate</label>
@@ -275,7 +368,7 @@
 
     <div class="p-d-flex p-jc-end p-mt-3">
         <button pButton label="Cancel" class="p-button-text" (click)="assignDelegateDialog=false"></button>
-        <button pButton label="Confirm" icon="pi pi-check" (click)="confirmAssignDelegate()"
+        <button pButton label="Confirm" icon="pi pi-check" [loading]="isLoading" [label]="isLoading ? 'Confirming': 'Confirm'" (click)="confirmAssignDelegate()"
             [disabled]="!selectedDelegateId"></button>
     </div>
 </p-dialog>

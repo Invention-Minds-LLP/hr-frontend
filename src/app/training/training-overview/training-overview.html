@@ -1,45 +1,39 @@
 <p-card *ngIf="!submitted; else thankYouCard" header="Training Feedback" class="m-3">
-  <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()" class="p-fluid grid formgrid">
+  <form [formGroup]="feedbackForm" class="p-fluid grid formgrid">
 
     <!-- ⭐ RATINGS SECTION -->
     <div class="field col-6">
 
-        <label for="rating">Overall Rating</label>
-        <p-rating formControlName="rating" class="w-full"></p-rating>
-  
+      <label for="rating">Overall Rating</label>
+      <p-rating formControlName="rating" class="w-full"></p-rating>
+
     </div>
 
     <div class="field col-6">
 
-        <label for="trainerRating">Trainer Rating</label>
-        <p-rating formControlName="trainerRating" class="w-full"></p-rating>
-  
+      <label for="trainerRating">Trainer Rating</label>
+      <p-rating formControlName="trainerRating" class="w-full"></p-rating>
+
     </div>
 
     <div class="field col-6">
 
-        <label for="contentQuality">Content Quality</label>
-        <p-rating formControlName="contentQuality" class="w-full"></p-rating>
-  
+      <label for="contentQuality">Content Quality</label>
+      <p-rating formControlName="contentQuality" class="w-full"></p-rating>
+
     </div>
 
     <div class="field col-6">
 
-        <label for="relevance">Relevance</label>
-        <p-rating formControlName="relevance" class="w-full"></p-rating>
-  
+      <label for="relevance">Relevance</label>
+      <p-rating formControlName="relevance" class="w-full"></p-rating>
+
     </div>
 
     <!-- ⭐ FEEDBACK TEXT AREA -->
     <div class="field col-6">
       <p-floatLabel variant="on" [ngClass]="{'float-active': feedbackForm.get('feedback')?.value}">
-        <textarea
-          pInputTextarea
-          id="feedback"
-          formControlName="feedback"
-          rows="3"
-          class="w-full"
-        ></textarea>
+        <textarea pInputTextarea id="feedback" formControlName="feedback" rows="3" class="w-full"></textarea>
         <label for="feedback">Feedback / Comments</label>
       </p-floatLabel>
     </div>
@@ -47,32 +41,36 @@
     <!-- ⭐ SUGGESTIONS TEXT AREA -->
     <div class="field col-6">
       <p-floatLabel variant="on" [ngClass]="{'float-active': feedbackForm.get('suggestions')?.value}">
-        <textarea
-          pInputTextarea
-          id="suggestions"
-          formControlName="suggestions"
-          rows="3"
-          class="w-full"
-        ></textarea>
+        <textarea pInputTextarea id="suggestions" formControlName="suggestions" rows="3" class="w-full"></textarea>
         <label for="suggestions">Suggestions for Improvement</label>
       </p-floatLabel>
     </div>
 
     <!-- ⭐ SUBMIT BUTTON -->
     <div class="col-12 flex justify-content-center mt-4">
-      <p-button
+      <!-- <p-button
         label="Submit Feedback"
         icon="pi pi-check"
         type="submit"
+        [label]="submitting ? 'Submitting...' : 'Submit Feedback'"
+        [loading]="submitting"
         [disabled]="submitting"
         styleClass="p-button-success"
-      ></p-button>
+      ></p-button> -->
+      <button class="submit-btn" [disabled]="submitting" type="submit"
+        (click)="submitFeedback()">
+        <i class="pi" [ngClass]="submitting ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+        <span class="p-button-label" style="padding-left: 10px;">
+          {{ submitting ? 'Submitting...' : 'Submit Feedback' }}
+        </span>
+      </button>
+
     </div>
   </form>
 </p-card>
 
 <ng-template #thankYouCard>
-  <p-card class="p-text-center" header="✅ Thank You!">
+  <p-card class="p-text-center" header="Thank You!">
     <p>Your feedback has been submitted successfully.</p>
   </p-card>
 </ng-template>

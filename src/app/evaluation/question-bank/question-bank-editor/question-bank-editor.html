@@ -106,7 +106,17 @@
 </form>
 
 <!-- Preview -->
-<p-dialog [(visible)]="showPreview" [modal]="true" [style]="{width:'760px'}" header="Preview">
+<p-dialog [(visible)]="showPreview" [modal]="true" [style]="{width:'760px'}" header="Preview" [closable]="false">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+          <span>Preview</span>
+    
+          <button class="dialog-close-btn" (click)="showPreview = false">
+            ✕
+          </button>
+        </div>
+        </ng-template>
+
     <div class="preview">
         <div class="pv-info">
             <div><b>Name:</b> {{ bankForm.value.name || '—' }}</div>

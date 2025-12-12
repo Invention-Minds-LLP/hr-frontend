@@ -113,7 +113,7 @@
               <ng-container
                 *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
                 <button pButton size="small" label="HR Approve" class="p-button-success"
-                  (click)="approveHR(r)"></button>
+                  (click)="openApprovePopup(r)"></button>
                 <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
                 <button pButton size="small" label="On Hold" class="p-button-warning"
                   style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
@@ -133,10 +133,23 @@
               Proceed to off-boarding
             </button>
             <p-dialog [visible]="isOpen(r.id)" (visibleChange)="dialogOpen[r.id] = $event" [modal]="true"
-              header="Off-boarding" [style]="{ width: '80vw' }">
-              <app-resign-post [resignationId]="r?.id"
-                [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
-              </app-resign-post>
+              header="Off-boarding" [style]="{ width: '80vw' }" [closable]="false">
+              <ng-template pTemplate="header">
+                <div class="dialog-header-custom">
+                  <span>Off-boarding</span>
+            
+                  <button class="dialog-close-btn" (click)="closeDialog(r.id)">
+                    ✕
+                  </button>
+                </div>
+              </ng-template>
+              <ng-container *ngIf="isOpen(r.id)">
+                <app-resign-post
+                  [resignationId]="r?.id"
+                  [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
+                </app-resign-post>
+              </ng-container>
+              
             </p-dialog>
           </td>
         </tr>
@@ -152,7 +165,16 @@
 
 </div>
 <p-dialog header="Approve Resignation" [(visible)]="showApprovePopup" [modal]="true" [closable]="true"
-  [dismissableMask]="true" [style]="{ width: '400px' }">
+  [dismissableMask]="true" [style]="{ width: '400px' }" [closable]="false">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Approve Resignation</span>
+
+      <button class="dialog-close-btn" (click)="showApprovePopup = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <div class="p-fluid">
     <div class="p-field">
       <label for="lwd">Actual Last Working Day</label>
@@ -176,5 +198,47 @@
       <button pButton label="Approve" icon="pi pi-check" class="p-button-success" (click)="submitHRApproval()"
         [disabled]="!selectedLwd"></button>
     </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog 
+  [(visible)]="noteDialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [closable]="true"
+  [dismissableMask]="true"
+  [closable]="false"
+  [header]="noteDialogTitle">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>{{noteDialogTitle}}</span>
+
+      <button class="dialog-close-btn" (click)="noteDialogVisible = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label>Note</label>
+      <textarea
+        rows="4"
+        [(ngModel)]="noteText"
+        pInputTextarea
+        style="width:100%;">
+      </textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel"
+      class="p-button-text"
+      (click)="noteDialogVisible=false"></button>
+
+    <button pButton label="Submit"
+      class="p-button-success"
+      (click)="submitNoteDialog()"
+      [disabled]="noteText.trim()===''">
+    </button>
   </ng-template>
 </p-dialog>

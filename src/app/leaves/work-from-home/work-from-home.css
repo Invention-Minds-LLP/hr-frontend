@@ -108,7 +108,7 @@
   padding: 0;
   text-align: center;
   border-radius: 8px;
-  background-color: #E8ECEF;
+  background-color: #fff;
   color: #333;
   font-weight: 600;
   font-size: 13px;
@@ -147,7 +147,7 @@
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF;
+  background: #fff;
   color: black;
   font-size: 16px;
   font-weight: 600;
@@ -177,7 +177,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31;
+  background: #000;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
@@ -188,23 +188,23 @@
 }
 
 ::ng-deep .p-datepicker:has(.p-datepicker-dropdown) .p-datepicker-input {
-  background: #e8ecef;
+  background: #fff;
   color: #000;
   width: 10vw;
 }
 
 ::ng-deep .p-datepicker-dropdown {
-  background: #e8ecef;
+  background: #fff;
 }
 
 ::ng-deep .p-datepicker {
-  --p-datepicker-date-selected-background: #e9144a;
+  --p-datepicker-date-selected-background: #FB9C2A;
   --p-datepicker-date-width: -1.5rem;
   --p-datepicker-date-height: -0.1rem;
 }
 
 ::ng-deep .p-datepicker-day-selected-range {
-  background: #e9144a;
+  background: #FB9C2A;
   color: #ffffff;
   padding: 5px;
 }
@@ -225,8 +225,8 @@
 
 .btn-2 {
   border-radius: 8px;
-  background: #e9144a !important;
-  background: #e9144a !important;
+  background: #FB9C2A !important;
+  background: #FB9C2A !important;
 }
 
 .btn-3 {
@@ -373,7 +373,7 @@ hr {
 
 .btn-red {
   border-radius: 8px;
-  background: #FF0000;
+  background: #FB9C2A;
 }
 
 .filter {
@@ -528,7 +528,7 @@ hr {
 }
 
 hr {
-  background: #e8ecef !important;
+  background: #fff !important;
 }
 
 .section-title {

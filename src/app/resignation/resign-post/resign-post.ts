@@ -41,7 +41,7 @@ export class ResignPost implements OnInit {
 
   // ---- CLEARANCE ----
   clearanceTypes: ClearanceType[] = ['IT','FINANCE','HR','ADMIN','SECURITY','OTHER'];
-  clearanceDrafts: Record<ClearanceType, { decision: ApprovalDecision; note?: string; verifierId?: number }> = {
+  clearanceDrafts: Record<ClearanceType, { decision: ApprovalDecision; note?: string; verifierId?: number ; verifierName?: string}> = {
     IT: { decision: 'PENDING' },
     FINANCE: { decision: 'PENDING' },
     HR: { decision: 'PENDING' },
@@ -106,6 +106,7 @@ allEmployees: any[] = [];
   }
 
   private loadPostHrSnapshot() {
+    console.log(this.resignationId)
     this.api.get(this.resignationId).subscribe({
       next: row => {
         // --- tasks ---
@@ -121,17 +122,36 @@ allEmployees: any[] = [];
           this.clearanceDrafts[t] = { decision: 'PENDING' };
           this.lockedClearances[t] = false;
         });
+        // (row.clearances || []).forEach((c: any) => {
+        //   console.log(c)
+        //   const type = c.type as ClearanceType;
+        //   this.clearanceDrafts[type] = {
+        //     decision: c.decision as ApprovalDecision,
+        //     note: c.note ?? '',
+        //     verifierId: c.verifierId ?? undefined
+        //   };
+        //   if (c.decision === 'APPROVED') {
+        //     this.lockedClearances[type] = true; // hide Save on approved
+        //   }
+        // });
         (row.clearances || []).forEach((c: any) => {
           const type = c.type as ClearanceType;
+        
+          const verifierName = c.verifier
+            ? `${c.verifier.firstName} ${c.verifier.lastName}`
+            : '';
+        
           this.clearanceDrafts[type] = {
-            decision: c.decision as ApprovalDecision,
+            decision: c.decision,
             note: c.note ?? '',
-            verifierId: c.verifierId ?? undefined
+            verifierId: c.verifierId,      // keep ID for reference
+            verifierName                   // <-- add this new field
           };
-          if (c.decision === 'APPROVED') {
-            this.lockedClearances[type] = true; // hide Save on approved
-          }
+        
+          this.lockedClearances[type] = true; // entire UI is read-only
+          
         });
+        
   
         // --- exit interview ---
         if (row.exitInterview) {

@@ -66,16 +66,27 @@ export class PoshList {
     this.showHearings = true;
   }
 
-  statusColor(status: string):
-  'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null | undefined {
+//   statusColor(status: string):
+//   'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null | undefined {
+//   switch (status) {
+//     case 'FILED': return 'info';
+//     case 'UNDER_INVESTIGATION': return 'warn';
+//     case 'CLOSED': return 'success';
+//     case 'REJECTED': return 'danger';
+//     default: return 'secondary';
+//   }
+// }
+
+statusClass(status: string) {
   switch (status) {
-    case 'FILED': return 'info';
-    case 'UNDER_INVESTIGATION': return 'warn';
-    case 'CLOSED': return 'success';
-    case 'REJECTED': return 'danger';
-    default: return 'secondary';
+    case 'FILED': return 'tag-filed';
+    case 'UNDER_INVESTIGATION': return 'tag-investigation';
+    case 'CLOSED': return 'tag-closed';
+    case 'REJECTED': return 'tag-rejected';
+    default: return 'tag-default';
   }
 }
+
 
   statusOptions = [
     { label: 'Filed', value: 'FILED' },

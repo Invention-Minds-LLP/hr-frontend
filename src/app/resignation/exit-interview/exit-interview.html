@@ -1,5 +1,5 @@
 <div class="p-fluid exit-form">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="flex1">
       <!-- ================== BASIC INFO ================== -->
       <p-card header="Basic Information" class="mb-3">
@@ -446,7 +446,7 @@
     <!-- ================== SUBMIT ================== -->
     <div class="text-center mt-4">
       <button pButton type="submit" label="Submit" icon="pi pi-check"
-        class="p-button-rounded p-button-success"></button>
+        class="p-button-rounded p-button-success" (click)="onSubmit()"></button>
     </div>
 
   </form>

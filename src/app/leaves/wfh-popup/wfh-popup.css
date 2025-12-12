@@ -163,7 +163,7 @@
     cursor: pointer;
   }
   .calendar-grid div.selected {
-    background: #FF0000;
+    background: #FB9C2A;
     color: white;
   }
   .calendar-grid div.empty {

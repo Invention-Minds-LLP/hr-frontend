@@ -1,6 +1,6 @@
 <div class="survey-container">
   <div class="p-fluid">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="form" >
       <div class="employee-details p-fluid p-formgrid p-grid">
         <div class="p-field p-col-6">
           <label>Emp Name :</label>
@@ -11,7 +11,7 @@
           <input pInputText [value]="employeeDetails.employeeId" readonly />
         </div>
         <div class="p-field p-col-3">
-          <label>Desig :</label>
+          <label>Designation :</label>
           <input pInputText [value]="employeeDetails.role" readonly />
         </div>
         <div class="p-field p-col-6">
@@ -33,7 +33,7 @@
             styleClass="p-datatable-gridlines p-datatable-striped" [responsiveLayout]="'scroll'">
             <ng-template pTemplate="header">
               <tr>
-                <th style="width:40px;">Sl No.</th>
+                <th>Sl No.</th>
                 <th>Question</th>
                 <th>Fully Agree</th>
                 <th>Mostly Agree</th>
@@ -71,8 +71,8 @@
           [disabled]="!isCurrentPanelValid()" *ngIf="currentIndex < groupedQuestions.length - 1">
         </button> 
 
-        <button pButton type="submit" label="Submit Survey" class="p-button-success"
-          *ngIf="(currentIndex === groupedQuestions.length - 1 && !surveyData) && surveyData.status === 'DRAFT'"></button>
+        <button pButton type="submit" label="Submit Survey" class="p-button-success" [loading]="isLoading" [label]="isLoading ? 'Submitting Survey' : 'Submit Survey'" [disabled]="isLoading"   (click)="onSubmit()"
+          *ngIf="(currentIndex === groupedQuestions.length - 1) && surveyData.status === 'DRAFT'"></button>
       </div>
     </form>
   </div>

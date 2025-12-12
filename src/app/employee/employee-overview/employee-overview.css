@@ -71,3 +71,40 @@
   border-right: 2px solid #828282;
   height: 25px;
 }
+.upload-section {
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+}
+
+.dropzone {
+  border: 2px dashed #888;
+  padding: 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background: #f9f9f9;
+}
+
+.dropzone:hover {
+  background: #f0f0f0;
+}
+
+.logs {
+  background: #eee;
+  padding: 15px;
+  border-radius: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.error-report a {
+  color: blue;
+  font-weight: bold;
+}
+
+.uploading {
+  font-size: 16px;
+  color: green;
+}

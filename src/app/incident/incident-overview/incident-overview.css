@@ -6,7 +6,7 @@
 }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-    background: #E8ECEF !important;
+    background: #fff !important;
     color: black !important;
     font-size: 16px;
     font-weight: 600;
@@ -37,7 +37,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-    background: #302F31 !important;
+    background: #000 !important;
     padding: 20px;
     font-size: 16px;
     font-weight: 500;

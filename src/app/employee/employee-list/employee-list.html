@@ -29,9 +29,9 @@
 
         <input id="searchBox" type="text" pInputText placeholder="Search Employee" (input)="onSearch($event)" />
       </div>
-
+      <!-- 
       <button pButton icon="pi pi-download" class="p-button-success mb-3" (click)="downloadEmployeeData()">
-      </button>
+      </button> -->
 
 
 
@@ -56,7 +56,8 @@
 
   <div class="table">
     <p-table [value]="loading ? [1, 2, 3, 4, 5] : filteredEmployees" [paginator]="true" [rows]="10"
-      class="custom-table">
+      [rowsPerPageOptions]="[10, 20, 50]" [totalRecords]="totalRecords" [lazy]="true"
+      (onLazyLoad)="onPageChange($event)" [loading]="loading" class="custom-table">
       <ng-template pTemplate="header">
         <tr>
           <th>No</th>
@@ -70,7 +71,7 @@
           <th>Employment Type</th>
           <th style="width: 160px;">Shift Type</th>
           <th>Status</th>
-          <th>Action</th>
+          <th style="text-align: center;">Action</th>
         </tr>
       </ng-template>
 
@@ -152,6 +153,9 @@
 
             <td>
               <button class="btn" (click)="openEdit(employeeData)">See Details</button>
+              <button class="btn btn-attendance ml-2" (click)="openAttendanceCalendar(employeeData)">
+                Attendance
+              </button>
             </td>
           </tr>
         </ng-template>
@@ -160,3 +164,7 @@
   </div>
 
 </div>
+
+<app-attendance-calendars *ngIf="showCalendar" [employeeId]="selectedEmployee?.id"
+  [employeeName]="selectedEmployee?.firstName + ' ' + selectedEmployee?.lastName" [(visible)]="showCalendar">
+</app-attendance-calendars>

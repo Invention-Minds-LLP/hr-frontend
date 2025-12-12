@@ -28,7 +28,9 @@ export class TestAssignment {
   selectedEmployeeIds: number[] = [];
 
   message: string = '';
-  assignedBy = 1; // replace with logged-in admin ID in real app
+  assignedBy = Number(localStorage.getItem('empId')); // replace with logged-in admin ID in real app
+  isLoading = false;
+
 
   constructor(
     private testService: Tests,
@@ -52,7 +54,7 @@ export class TestAssignment {
   }
 
   loadEmployees() {
-    this.employeeService.getEmployees().subscribe({
+    this.employeeService.getActiveEmployees().subscribe({
       next: (data) => this.employees = data,
       error: (err) => console.error('Failed to load employees', err)
     });
@@ -130,17 +132,30 @@ export class TestAssignment {
       deadlineDate: toISO      // availability end (23:59:59.999 local)
     };
 
+    this.isLoading = true
     this.assignedService.assign(payload).subscribe({
       next: () => {
-        this.message = 'Test successfully assigned!';
+        // this.message = 'Test successfully assigned!';
         this.selectedTestId = 0;
         this.selectedEmployeeIds = [];
         this.availFromDate = null
-        this.availToDate = null
+        this.availToDate = null;
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Assigned',
+          detail: '“Test successfully assigned!'
+        })
       },
       error: (err) => {
         console.error('Assignment failed', err);
-        this.message = 'Failed to assign test.';
+        // this.message = 'Failed to assign test.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: '“Failed to assign test”.'
+        })
+        this.isLoading = false;
       }
     });
   }

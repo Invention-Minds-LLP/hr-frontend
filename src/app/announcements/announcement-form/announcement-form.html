@@ -1,7 +1,15 @@
-<p-card header="Create Circular" styleClass="circular-card" >
-  <div class="header">
-    <i class="pi pi-times" (click)="onClose()"></i>
-  </div>
+<p-card styleClass="circular-card" >
+
+  <ng-template pTemplate="header">
+    <div class="card-header-custom">
+      <span>Create Circular</span>
+
+      <button class="card-close-btn" (click)="onClose()">
+        ✕
+      </button>
+    </div>
+  </ng-template>
+
   <form [formGroup]="form" class="circular-form">
 
     <!-- Title -->
@@ -42,7 +50,7 @@
     </div>
 
     <!-- Audience -->
-    <div class="form-field ">
+    <!-- <div class="form-field ">
       <label>Audience <span class="req">*</span></label>
 
       <div class="p-field-radiobuttons">
@@ -64,7 +72,40 @@
           inputId="emp"></p-radioButton>
         <label for="emp">Specific Employees</label>
       </div>
+    </div> -->
+    <div class="form-field">
+      <label>Audience <span class="req">*</span></label>
+    
+      <div class="p-field-radiobuttons">
+    
+        <div class="rb-item">
+          <p-radioButton name="audienceMode" value="ALL" formControlName="audienceMode" inputId="all"></p-radioButton>
+          <label for="all">All Employees</label>
+        </div>
+    
+        <div class="rb-item">
+          <p-radioButton name="audienceMode" value="DEPARTMENTS" formControlName="audienceMode" inputId="dept"></p-radioButton>
+          <label for="dept">Departments</label>
+        </div>
+    
+        <div class="rb-item">
+          <p-radioButton name="audienceMode" value="BRANCHES" formControlName="audienceMode" inputId="branch"></p-radioButton>
+          <label for="branch">Branches</label>
+        </div>
+    
+        <div class="rb-item">
+          <p-radioButton name="audienceMode" value="ROLES" formControlName="audienceMode" inputId="role"></p-radioButton>
+          <label for="role">Roles</label>
+        </div>
+    
+        <div class="rb-item">
+          <p-radioButton name="audienceMode" value="EMPLOYEES" formControlName="audienceMode" inputId="emp"></p-radioButton>
+          <label for="emp">Specific Employees</label>
+        </div>
+    
+      </div>
     </div>
+    
 
     <!-- Departments -->
     <div *ngIf="form.value.audienceMode === 'DEPARTMENTS'" class="form-field">
@@ -148,7 +189,7 @@
 
     <!-- Submit -->
     <div class="submit-btn">
-      <button pButton type="button" label="Create Circular" icon="pi pi-check" (click)="submit()"></button>
+      <button pButton type="button" label="Create Circular" icon="pi pi-check" [loading]="submitted" [label]="submitted ? 'Creating Circular': 'Create Circular'" [disabled]="submitted" (click)="submit()"></button>
     </div>
   </form>
 </p-card>

@@ -19,6 +19,7 @@ export class PoshHearing {
   @Input() caseId!: number;
   hearings: any[] = [];
   form: FormGroup;
+  isLoading = false;
 
   constructor(
     private poshService: Posh,
@@ -53,8 +54,10 @@ export class PoshHearing {
 
   submit() {
     if (this.form.valid) {
+      this.isLoading = true;
       this.poshService.addHearing(this.caseId, this.form.value).subscribe(() => {
         this.loadHearings();
+        this.isLoading = false;
         this.form.reset({
           createdAt : new Date()
         });

@@ -1,9 +1,9 @@
-<p-card class="posh-heearing">
+<p-card class="performance-container">
  <div class="flex">
    <h3>Hearings for Case #{{ caseId }}</h3>
    <div class="date"><b>{{ form.get('createdAt')?.value | date:'short' }}</b></div>
  </div>
-  <p-table [value]="hearings">
+  <p-table class="posh-hearing" [value]="hearings">
     <ng-template pTemplate="header">
       <tr>
         <th>Date</th>

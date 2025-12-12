@@ -1,276 +1,272 @@
 .performance-container {
-    padding:20px 30px;
-    background: #555555;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* width: 100%; */
-    --p-paginator-nav-button-color:white;
-
-  }
-
-  .header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-
-  h2{
-    color: white;
-  }
-  
-  /* DataTable Styles */
-
-::ng-deep .p-datatable {
-    border: none;
-    background: transparent;
-  }
-  
-  /* Header Row */
-  ::ng-deep .performance-container .p-datatable .p-datatable-thead > tr > th {
-    background: transparent !important;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 16px 20px;
-    border-bottom: 2px solid #d9d9d9 !important;
-    height: 60px;
-    text-align: left;
-    text-wrap: nowrap;
-    /* border-radius: 12px; */
-  }
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
-    border-top-left-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
-    border-top-right-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
-    border-bottom-left-radius: 10px;
-  }
-  
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
-    border-bottom-right-radius: 10px;
-  }
-  
-  /* Body Rows */
-  ::ng-deep .performance-container .p-datatable .p-datatable-tbody > tr > td {
-    background: transparent !important;
-    padding: 16px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    color: black;
-    text-align: left;
-    border-bottom: none !important;
-    text-wrap: nowrap;
-  }
-  
-  /* Employee Name Column with Image */
-  .empname {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-  }
-
-  .input {
-    border: none;
-    outline: none;
-    padding: 6px;
-    font-size: 14px;
-    /* background-color: #fafafa !important; */
-  }
-
-  
-  .empname img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .name {
-    font-weight: 600;
-    font-size: 16px;
-    color: white;
-  }
-  
-  .email {
-    font-size: 12px;
-    color: #a1a1a1;
-  }
-  
-  /* Department Badge */
-  .dept-badge {
-    display: inline-flex;
-    align-items: center;
-    background-color: #b9f6ca; /* default (Design) */
-    color: #004d40;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  
-  /* Button */
-  .btn {
-    border-radius: 8px;
-    border: 2px solid #c4c4c4;
-    background: transparent;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    cursor: pointer;
-  }
-  .heading {
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
-  }
-  .search {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    display: flex;
-    width: 250px;
-    height: 44px;
-    padding: 20px 16px;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    color: #9b9b9b;
-    font-family: "Sofia Sans";
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border-radius: 8px;
-    border: 1px solid #c4c4c4;
-    background: white;
-  }
-  
-  .filter {
-    color: #9b9b9b;
-    font-size: 18px;
-    font-family: "Sofia Sans";
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 6px 14px;
-    background-color: white !important;
-    cursor: pointer;
-    width: 210px;
-    height: 44px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-  }
-  .filter {
-    position: relative;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-  .pi {
-    font-family: "primeicons" !important;
-  }
-  
-  
-  .filter-dropdown {
-    position: absolute;
-    top: 45.1%; /* below the filter div */
-    right: 4%;
-    background: #fafafa;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 210px;
-    margin-top: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    padding: 0;
-  }
-  .filter-dropdown li {
-    padding: 8px;
-    cursor: pointer;
-    list-style: none;
-  }
-  
-  .filter-dropdown li:hover {
-    background-color: #f0f0f0;
-  }
-  .new-app {
-    display: flex;
-    /* width: 30%; */
-    /* width: 188px;
-    height: 42px; */
-    padding: 10px 16px;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: #0062A1;
-    color: #fff;
-    font-family: "Sofia Sans";
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: none;
-  }
-  /* Paginator */
-  ::ng-deep .p-paginator {
-    background: transparent;
-    justify-content: center;
-    padding: 16px 0;
-    gap: 8px;
-  }
-  
-  ::ng-deep .p-paginator-pages {
-    display: flex;
-    gap: 8px;
-  }
-  
-  ::ng-deep .p-paginator .p-paginator-page {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-    border: 1px solid #ddd;
-    background-color: #E8ECEF;
-    cursor: pointer;
-  }
-  
-  ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
-    color: #fff !important;
-    border: none;
-  }
-  ::ng-deep .p-inputtext, .p-select {
-    width: 100%;
-    /* color: black !important; */
-
+  /* padding:20px 30px; */
+  /* background: #555555; */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* width: 100%; */
+  --p-paginator-nav-button-color: white;
 }
 
-.p-select{
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h2 {
+  color: white;
+}
+
+/* DataTable Styles */
+
+::ng-deep .p-datatable {
+  border: none;
+  background: transparent;
+}
+
+/* Header Row */
+::ng-deep .performance-container .p-datatable .p-datatable-thead > tr > th {
+  background: #fff !important;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 20px;
+  border-bottom: 2px solid #d9d9d9 !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  /* border-radius: 12px; */
+}
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Body Rows */
+::ng-deep .performance-container .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: black;
+  text-align: left;
+  border-bottom: none !important;
+  text-wrap: nowrap;
+}
+
+/* Employee Name Column with Image */
+.empname {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.input {
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+  /* background-color: #fafafa !important; */
+}
+
+.empname img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.email {
+  font-size: 12px;
+  color: #a1a1a1;
+}
+
+/* Department Badge */
+.dept-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #b9f6ca; /* default (Design) */
+  color: #004d40;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Button */
+.btn {
+  border-radius: 8px;
+  border: 2px solid #c4c4c4;
+  background: transparent;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+}
+.heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  width: 250px;
+  height: 44px;
+  padding: 20px 16px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #9b9b9b;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: white;
+}
+
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: white !important;
+  cursor: pointer;
+  width: 210px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.pi {
+  font-family: "primeicons" !important;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 45.1%; /* below the filter div */
+  right: 4%;
+  background: #fafafa;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 210px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 0;
+}
+.filter-dropdown li {
+  padding: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.filter-dropdown li:hover {
+  background-color: #f0f0f0;
+}
+.new-app {
+  display: flex;
+  /* width: 30%; */
+  /* width: 188px;
+    height: 42px; */
+  padding: 10px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #194b9b;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: none;
+}
+/* Paginator */
+::ng-deep .p-paginator {
+  background: transparent;
+  justify-content: center;
+  padding: 16px 0;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator-pages {
+  display: flex;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator .p-paginator-page {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #ff0000 !important;
+  color: #fff !important;
+  border: none;
+}
+::ng-deep .p-inputtext,
+.p-select {
+  width: 100%;
+  /* color: black !important; */
+}
+
+.p-select {
   background-color: transparent;
   color: white !important;
 }
@@ -278,16 +274,16 @@
 /* ::ng-deep .p-select, .p-multiselect {
     width: 100% !important;
 } */
- ::ng-deep .p-button{
+::ng-deep .p-button {
   height: 34px;
-  background-color: #0062A1 !important;
-  border-color: #0062A1 !important;
- }
- ::ng-deep .p-button:hover{
-  background-color: #0062A1 !important;
-  border-color: #0062A1 !important;
+  background-color: #0062a1 !important;
+  border-color: #0062a1 !important;
+}
+::ng-deep .p-button:hover {
+  background-color: #0062a1 !important;
+  border-color: #0062a1 !important;
   color: white !important;
- }
+}
 
 .dialog-header {
   display: flex;
@@ -304,20 +300,19 @@
   color: #666;
 }
 
-
- ::ng-deep .p-tag{
+::ng-deep .p-tag {
   /* padding: 5px; */
   height: 27px;
   font-size: 14px;
   font-family: "Sofia Sans";
   font-weight: 500;
- }
+}
 
- .performance-container svg{
-  background:none !important;
+.performance-container svg {
+  background: none !important;
   color: red !important;
- }
- .info-icon {
+}
+.info-icon {
   margin-left: 8px;
   font-size: 1rem;
   color: #bbb;
@@ -332,17 +327,188 @@
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
+}
+/* Container */
+.grievance-table-container {
+  /* padding: 25px; */
+  background: #000000;
+  border-radius: 12px;
+  font-family: "Sofia Sans";
+  color: #fff;
 }
 
+/* Header */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
- @media(max-width:767px){
-  .new-app{
+.header-row h2 {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.info-icon {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* Raise Button */
+.raise-btn {
+  border-radius: 6px;
+  background: #194b9b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  /* border-radius: 8px; */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Table */
+.individual-table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+/* Header Row (Gradient) */
+.individual-table thead tr th {
+  padding: 14px;
+  text-align: left;
+  color: black;
+  font-weight: 700;
+  font-size: 16px;
+}
+.individual-table thead {
+  background: linear-gradient(to right, #ff89de, #ffa9c4);
+  height: 50px;
+}
+/* Body Rows */
+.individual-table tbody tr td {
+  padding: 16px;
+  border-bottom: 1px solid #2c2c2c;
+  color: white;
+}
+tbody tr {
+  border-bottom: 1px solid #727272;
+}
+thead tr th:first-child {
+  border-top-left-radius: 16px;
+}
+
+thead tr th:last-child {
+  border-top-right-radius: 16px;
+}
+
+tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-open {
+  border-radius: 6px;
+  background: #0041a8;
+  color: white;
+}
+
+.status-resolved {
+  border-radius: 6px;
+  background: #0b9629;
+  color: white;
+}
+
+/* Dark Table Rows */
+.individual-table tbody tr {
+  background: #111;
+}
+
+.individual-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.no-data.center-right {
+  text-align: center; /* moves text to right */
+  padding-right: 2rem; /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic;
+  font-size: 15px;
+}
+
+::ng-deep .p-dialog{
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3A1D4D !important;
+  border: none !important;
+  color: white !important;
+}
+
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+@media (max-width: 767px) {
+  .new-app {
     padding: 6px 10px;
     font-size: 12px;
   }
 
-  h2{
+  h2 {
     font-size: 16px;
   }
- }
+}

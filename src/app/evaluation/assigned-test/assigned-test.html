@@ -92,7 +92,17 @@
 </div>
 
 <p-dialog [header]="overview ? (overview.employeeName + ' — ' + overview.testName) : 'Test Overview'"
-  [(visible)]="overviewVisible" [modal]="true" [style]="{ width: '900px' }" [dismissableMask]="true">
+  [(visible)]="overviewVisible" [modal]="true" [closable]="false" [style]="{ width: '900px' }" [dismissableMask]="true">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>{{overview ? (overview.employeeName + ' — ' + overview.testName) : 'Test Overview'}}</span>
+
+      <button class="dialog-close-btn" (click)="overviewVisible = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
+
   <ng-container *ngIf="overview as o">
     <div class="ovr-head">
       <div>
@@ -113,10 +123,10 @@
     </div>
 
     <div class="details">
-      <p-table [value]="o.rows" [rows]="10" [paginator]="true" responsiveLayout="scroll">
+      <p-table class="modal-table" [value]="o.rows" [rows]="10" [paginator]="true" responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>#</th>
+            <th>No.</th>
             <th>Question</th>
             <th>Your Answer</th>
             <th>Correct Answer</th>
@@ -203,7 +213,7 @@
 
       </p-table>
       <div class="mt-3" style="text-align:right" *ngIf="hasDescriptive(o)">
-        <button pButton label="Save Evaluation" class="p-button-success" (click)="saveEvaluation(o)">
+        <button pButton label="Save Evaluation" [loading]="isLoading" [label]="isLoading ? 'Saving Evaluation': 'Save Evaluation'" class="p-button-success" (click)="saveEvaluation(o)">
         </button>
       </div>
 

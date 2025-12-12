@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-color: #000;
 }
 
 .individual-top {
@@ -26,7 +27,6 @@
   gap: 15px;
 }
 
-
 /* .flex2{
   display: flex;
   justify-content: space-between;
@@ -40,20 +40,18 @@
   border-radius: 20px;
 } */
 
-
-
 .box-2 {
-  background: #E67E22;
+  background: #d79f1f;
 }
 
 .box-3 {
-  background: #31BF6D;
+  background: #1eb578;
   display: flex;
   justify-content: center;
 }
 
 .box-4 {
-  background: #E74C3C;
+  background: #b7242b;
 }
 
 .box {
@@ -70,11 +68,10 @@
   /* align-items: center; */
 }
 
-
 .box-title {
   margin: 10px 0;
   margin-top: 0;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 24px;
   font-style: normal;
@@ -216,8 +213,8 @@
 }
 
 /* wrap long text so it doesn't create horizontal scroll */
-:host ::ng-deep .vscroll .p-datatable-thead>tr>th,
-:host ::ng-deep .vscroll .p-datatable-tbody>tr>td {
+:host ::ng-deep .vscroll .p-datatable-thead > tr > th,
+:host ::ng-deep .vscroll .p-datatable-tbody > tr > td {
   white-space: normal;
   /* allow wrapping */
   word-break: break-word;
@@ -232,7 +229,6 @@
   display: block;
 }
 
-
 .attendance-card {
   background: #555555;
   border-radius: 12px;
@@ -241,7 +237,7 @@
   height: 380px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 12px;
   font-style: normal;
@@ -256,7 +252,7 @@
 }
 
 .arrow-btn {
-  background: #302F31 !important;
+  background: #000 !important;
   border-radius: 50%;
   width: 39px;
   height: 39px;
@@ -364,7 +360,7 @@
 }
 
 .absent {
-  background-color: #E51313;
+  background-color: #e51313;
   color: white;
 }
 
@@ -382,7 +378,7 @@
 .login-btn {
   width: 119px;
   height: 34px;
-  background-color: #0DE121 !important;
+  background-color: #0de121 !important;
   border: none !important;
   color: white !important;
   font-weight: bold;
@@ -399,7 +395,7 @@
 .logout-btn {
   width: 119px;
   height: 34px;
-  background-color: #E51313 !important;
+  background-color: #e51313 !important;
   border: none !important;
   color: white !important;
   font-weight: bold;
@@ -414,8 +410,9 @@
 }
 
 .working-card {
-  background: #555555;
-  border-radius: 8px;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+  /* border-radius: 8px; */
   padding: 30px 20px;
   height: 380px;
   width: 340px;
@@ -469,42 +466,81 @@
 
 .attendance-list {
   margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-
+.date-range-box {
+  color: white;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  display: inline-flex;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 272px;
+  height: 39px;
+  text-align: center;
+  background-color: transparent;
+}
 
 .p-button-text {
-  background: #302F31 !important;
+  background: #000 !important;
   border-radius: 50%;
   width: 35px;
   height: 35px;
   box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
-  border-color: #302F31 !important;
+  border-color: #000 !important;
   color: white !important;
 }
-
+/* SINGLE ROW (Grid for perfect alignment) */
 .attendance-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 25px;
-}
-
-.day {
+  display: grid;
+  grid-template-columns: 100px 60px 1fr; /* Day | Dash | Value */
+  justify-content: center;
+  align-items: center;
+  padding: 7px 10px;
+  font-size: 17px;
   font-weight: 500;
   color: white;
 }
 
+/* Day text */
+.attendance-row .day {
+  text-align: left;
+}
+
+/* Dash */
+.attendance-row .dash {
+  text-align: center;
+  opacity: 0.6;
+}
+
+/* Default time text (present) */
 .time {
-  text-align: right;
-  color: white;
+  text-align: left;
+  color: #f8f8f8;
+}
+
+/* Status Colors */
+.status {
+  font-weight: 600;
+  text-align: left;
 }
 
 .status.leave {
-  color: red;
+  color: #ff3a3a; /* red */
 }
 
 .status.off {
-  color: blue;
+  color: #00a2ff; /* blue */
+}
+
+.status.empty {
+  visibility: hidden;
 }
 
 .wfh,
@@ -517,11 +553,9 @@
   width: 100%;
   height: 500px;
   flex-shrink: 0;
-  /* margin: 50px; */
   font-family: "Sofia Sans";
   border-radius: 20px;
-  background: #555555;
-  padding: 50px 30px;
+  padding: 50px 0px;
   display: flex;
   flex-direction: row;
   gap: 30px;
@@ -572,11 +606,10 @@
   justify-content: center;
   border-radius: 999px;
   line-height: 1;
-  background: rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, 0.22);
   color: #fff;
   font-weight: 800;
 }
-
 
 .header-part {
   display: flex;
@@ -597,8 +630,8 @@
   display: flex;
   flex-direction: row;
   gap: 10px;
-  border-radius: 8px;
-  background: #0062A1;
+  border-radius: 6px;
+  background: #194b9b;
   padding: 10px 16px;
   cursor: pointer;
 }
@@ -644,7 +677,7 @@
   border-radius: 6px;
   border: 1px solid #d9d9d9;
   display: inline-flex;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 12px;
   font-style: normal;
@@ -658,7 +691,7 @@
 }
 
 .style {
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 12px;
   font-style: normal;
@@ -666,10 +699,23 @@
   line-height: normal;
 }
 
-::ng-deep .individual-container .table .p-datatable .p-datatable-thead>tr>th {
-  background: #555555 !important;
+::ng-deep .individual-container .table .p-datatable {
+  border-collapse: collapse;
+}
+
+::ng-deep .individual-container .table .p-datatable .p-datatable-thead {
+  border-radius: 16px;
+}
+
+::ng-deep
+  .individual-container
+  .table
+  .p-datatable
+  .p-datatable-thead
+  > tr
+  > th {
+  background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
   border: none;
-  border-bottom: 1px solid #d9d9d9 !important;
   text-align: center;
   color: white !important;
   font-size: 16px;
@@ -679,10 +725,17 @@
   letter-spacing: 0.16px;
 }
 
-::ng-deep .individual-container .table .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep
+  .individual-container
+  .table
+  .p-datatable
+  .p-datatable-tbody
+  > tr
+  > td {
   border: none !important;
   text-align: center;
-  background: #555555 !important;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
   color: white !important;
 }
 
@@ -696,25 +749,272 @@
   /* margin-right: 15px; */
 }
 
+.leave-table {
+  width: 100%;
+  color: white;
+  font-family: "Sofia Sans";
+}
 
-.leave-table,
-.permission-table {
-  /* display: flex; */
-  /* flex-direction: row; */
-  gap: 70px;
-  /* max-height: 400px; */
-  /* width: 33.333%; */
+.header-part {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.main-heading {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.leave-table-container {
+  max-height: 300px;
+  overflow: auto;
+  border-radius: 14px;
   width: 100%;
 }
 
-.status-pending {
-  background-color: #fff351;
-  /* yellow */
+.permission-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 14px;
+  width: 100%;
+}
+
+.leave-normal-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* max-height: 300px; */
+  /* overflow: hidden; */
+  /* overflow-y: auto; */
+  border-radius: 14px;
+}
+
+/* Header */
+.leave-normal-table thead tr {
+  background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
+  height: 50px;
+}
+
+.leave-normal-table thead tr th:first-child {
+  border-top-left-radius: 16px;
+}
+
+.leave-normal-table thead tr th:last-child {
+  border-top-right-radius: 16px;
+}
+
+.leave-normal-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+.leave-normal-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+.leave-normal-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.permission-normal-table thead tr th:first-child {
+  border-top-left-radius: 16px;
+}
+
+.permission-normal-table thead tr th:last-child {
+  border-top-right-radius: 16px;
+}
+
+.permission-normal-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+.permission-normal-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+.permission-normal-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.leave-normal-table th {
+  padding: 14px 20px;
   color: #000;
-  border-radius: 5px;
-  font-weight: 500;
-  width: 83px;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  color: black;
+  text-align: center;
+  height: 50px;
+}
+
+/* Rows */
+.leave-normal-table tbody tr {
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+}
+
+.leave-normal-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Date display */
+.date-pill {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Status pills */
+.status-pill {
+  display: flex;
+  width: 90px;
   padding: 10px 20px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  background: #eddd00;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  border: none;
+}
+
+.pending {
+  background: #eddd00;
+}
+
+.rejected {
+  background: #e52b13;
+  color: white;
+}
+
+.approved {
+  background: #0de121;
+  color: white;
+}
+
+/* Details Button */
+.details-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  cursor: pointer;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  display: inline-flex;
+  padding: 10px 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.details-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Table Wrapper */
+.permission-table {
+  /* max-height: 300px; */
+  /* overflow-y: auto; */
+  border-radius: 14px;
+  width: 100%;
+}
+
+/* SAME TABLE STYLE AS LEAVE TABLE */
+.permission-normal-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.permission-normal-table thead tr {
+  background: linear-gradient(96deg, #dfd5fe 0%, #e6c0fc 100%);
+  height: 50px;
+}
+.permission-normal-table thead th {
+  padding: 12px 10px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.2px;
+}
+
+.permission-normal-table tbody td {
+  padding: 14px 10px;
+  font-size: 14px;
+}
+
+.permission-normal-table tbody tr {
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+}
+
+/* ACTION BUTTON */
+.details-btn {
+  background: transparent;
+  border: 1px solid #d9d9d9;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100px;
+  height: 34px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.details-btn:hover {
+  background: #ffffff22;
+}
+
+/* EMPTY MESSAGE */
+.no-data-message {
+  text-align: center;
+  padding: 18px;
+  color: #aaa;
+}
+
+.status-pending {
+  border-radius: 6px;
+  background: #eddd00;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  width: 90px;
+  height: 34px;
+  display: flex;
+  width: 90px;
+  padding: 10px 20px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .status-approved {
@@ -756,16 +1056,15 @@
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); Subtle shadow */
   border-radius: 6px;
   border: 1px solid #d9d9d9;
-  color: #FFF;
-  font-family: "Sofia Sans" !important;
+  color: #fff;
+  font-family: "Sofia Sans";
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: Kanit;
-
+}
+.date-range-box-1 {
+  width: 129px !important;
 }
 
 /* Hover and focus effects */
@@ -777,12 +1076,16 @@
 
 /* Option styling */
 .dropdown-in-table option {
-  font-size: 14px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
   padding: 4px;
   background-color: #fff;
   color: #000;
 }
-
 
 .no-data-message {
   text-align: center;
@@ -792,10 +1095,9 @@
   background-color: #f9f9f9;
 }
 
-
 /* Holiday  */
 .holiday-card {
-  background: #417FC8;
+  background: #114caa;
   width: 330px;
   height: 180px;
   color: white;
@@ -806,7 +1108,7 @@
 
 .holiday-card h2 {
   margin: 0;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 24px;
   font-style: normal;
@@ -817,7 +1119,7 @@
 
 .holiday-card p {
   margin: 5px 0 15px;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -836,7 +1138,6 @@
 
 .holiday-date {
   font-size: 18px;
-
 }
 
 .next {
@@ -857,7 +1158,7 @@
   gap: 10px;
   font-size: 12px;
   border-radius: 40px;
-  background: #FFFFFD;
+  background: #fffffd;
   box-shadow: 0 2px 10px 0 rgba(40, 21, 90, 0.35);
   border: none;
   cursor: pointer;
@@ -881,32 +1182,40 @@
 
 .flex .p-button-text:hover {
   background-color: #3465b0;
-  color: #FFF;
+  color: #fff;
   border: none;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
   border-top-left-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
   border-top-right-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
   border-bottom-left-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
   border-bottom-right-radius: 0px !important;
 }
 
-::ng-deep .p-datatable-scrollable>.p-datatable-table-container>.p-datatable-table>.p-datatable-thead,
-.p-datatable-scrollable>.p-datatable-table-container>.p-virtualscroller>.p-datatable-table>.p-datatable-thead {
+::ng-deep
+  .p-datatable-scrollable
+  > .p-datatable-table-container
+  > .p-datatable-table
+  > .p-datatable-thead,
+.p-datatable-scrollable
+  > .p-datatable-table-container
+  > .p-virtualscroller
+  > .p-datatable-table
+  > .p-datatable-thead {
   background: none !important;
 }
 
-::ng-deep .p-datatable-tbody>tr {
+::ng-deep .p-datatable-tbody > tr {
   background: none !important;
 }
 
@@ -927,9 +1236,8 @@
 
 .bottom {
   display: grid;
-  grid-template-columns: 38.5% 60%;
+  grid-template-columns: 50% 50%;
   gap: 20px;
-
 }
 
 h1 {
@@ -941,8 +1249,8 @@ h1 {
 }
 
 .employee-card {
-  background: #555555;
-  border-radius: 8px;
+  background: rgba(85, 85, 85, 0.4);
+  border-radius: 16px;
   padding: 15px 20px;
   height: 380px;
   width: 340px;
@@ -956,14 +1264,14 @@ h1 {
   margin-bottom: 15px;
 }
 
-.profile-pic {
+/* .profile-pic {
   width: 70px;
   height: 70px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 15px;
   border: 2px solid #fff;
-}
+} */
 
 .employee-info {
   flex: 1;
@@ -980,7 +1288,7 @@ h1 {
 }
 
 .employee-role {
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -990,7 +1298,7 @@ h1 {
 }
 
 .employee-code {
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -1012,7 +1320,7 @@ h1 {
 }
 
 .employee-meta {
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -1033,45 +1341,39 @@ h1 {
   color: #fff;
 }
 
-.my-test {
-  border-radius: 16px;
-  background: #555;
-}
-
-::ng-deep .test-list .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep .test-list .p-datatable .p-datatable-tbody > tr > td {
   background: transparent !important;
   border: none !important;
 }
 
-
 .test-list {
-  border-radius: 16px;
-  background: #555;
-  padding-top: 50px;
+  /* border-radius: 16px; */
+  background: transparent;
+  /* padding-top: 50px; */
 }
 
-.test-list h1{
-  margin-left: 50px;
+.test-list h1 {
+  /* margin-left: 50px; */
 }
 
-::ng-deep .test-list .p-datatable .p-datatable-thead>tr>th {
+::ng-deep .test-list .p-datatable .p-datatable-thead > tr > th {
   background: transparent !important;
   color: white !important;
-  border-bottom: 2px solid #FFFFFF !important;
+  border-bottom: 2px solid #ffffff !important;
 }
 
- .test-list .dropdown-in-table {
+.test-list .dropdown-in-table {
   width: 7vw;
   background-color: #555555 !important;
   color: #fff;
-  border: 1px solid #FFFFFF;
+  border: 1px solid #ffffff;
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 0.9rem;
   cursor: pointer;
 }
 
- .test-list .dropdown-in-table option {
+.test-list .dropdown-in-table option {
   background-color: transparent;
   color: #fff;
 }
@@ -1081,13 +1383,182 @@ h1 {
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
+}
+.slide-container {
+  height: 380px;
+  width: 340px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+/* Both cards */
+.card {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  padding: 0;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+  color: white;
+  transition: transform 0.45s ease-in-out;
+}
+
+/* --- FRONT CARD SLIDE LOGIC --- */
+.front {
+  transform: translateX(0);
+}
+.front.hide {
+  transform: translateX(-110%);
+}
+
+/* --- BACK CARD SLIDE IN --- */
+.back {
+  transform: translateX(110%);
+}
+.back.show {
+  transform: translateX(0);
+}
+
+/* ===== COVER IMAGE SECTION ===== */
+
+.cover {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-img {
+  width: 300px;
+  height: 100px;
+  object-fit: cover;
+  margin-top: 20px;
+}
+
+/* Circular icon top-right */
+.icon-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 18px;
+  color: white;
+  border: 2px solid white;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Profile picture overlapping */
+.profile-pic {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  border: 4px solid white;
+
+  position: absolute;
+  top: 90px; /* push down from cover */
+  left: 50%;
+  transform: translateX(-50%);
+
+  object-fit: cover;
+  background: #fff;
+  z-index: 3; /* ensure visible */
+}
+
+/* ===== CONTENT ===== */
+.content {
+  margin-top: 80px; /* because profile overlaps */
+  text-align: center;
+}
+
+.name {
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.26px;
+  margin-top: 5px;
+}
+
+.role {
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  margin-top: 3px;
+}
+
+.code {
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  margin-top: 3px;
+}
+
+.survey-btn {
+  margin-top: 18px;
+  width: 150px;
+  border-radius: 6px;
+  background: #194b9b !important;
+  height: 38px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+/* ===== BACK CARD DETAILS ===== */
+
+.back {
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+}
+
+.back-icon {
+  border: 2px solid white;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: #000000;
+}
+
+.detail {
+  margin: 12px 0;
+}
+
+hr {
+  border: 0;
+  border-bottom: 1px solid #555;
+  opacity: 0.3;
 }
 
 /* Tab */
 
 @media (max-width: 1023px) {
-
   .individual-top,
   .individual-bottom {
     width: 100%;
@@ -1100,7 +1571,6 @@ h1 {
     display: none;
   }
 
-  .leave-table,
   .permission-table {
     flex-direction: column;
     width: 100%;
@@ -1128,8 +1598,7 @@ h1 {
 
 /* Mobile */
 
-@media (max-width:767px) {
-
+@media (max-width: 767px) {
   .individual-container {
     padding: 20px;
   }
@@ -1153,7 +1622,6 @@ h1 {
   .part-1 {
     display: flex;
     flex-direction: column;
-
   }
 
   .attendance-card {
@@ -1175,8 +1643,8 @@ h1 {
   }
 
   .flex p {
-    font-size: 0.70rem;
-    margin-top: 40px;
+    font-size: 14px;
+    margin-top: 20px;
   }
 
   .box {
@@ -1187,7 +1655,6 @@ h1 {
     width: 90vw;
     height: auto;
     padding: 20px;
-
   }
 
   .holiday-card h2 {
@@ -1216,7 +1683,7 @@ h1 {
     font-size: 20px;
   }
 
-  ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
+  ::ng-deep .table .p-datatable .p-datatable-thead > tr > th {
     font-size: 14px;
   }
 
@@ -1228,11 +1695,9 @@ h1 {
     width: 80vw;
   }
 
-
-  .leave-table,
   .permission-table {
     flex-direction: column;
-    width: 80vw;
+    /* width: 80vw; */
     height: auto;
   }
 

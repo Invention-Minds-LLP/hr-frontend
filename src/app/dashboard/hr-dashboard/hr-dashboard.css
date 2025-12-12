@@ -3,13 +3,38 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg: #000;
+  --panel: rgba(255, 255, 255, 0.06);
+  --card: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.12);
+  --radius: 14px;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+
+  --tint-green: rgba(34, 197, 94, 0.15);
+  --tint-amber: rgba(245, 158, 11, 0.15);
+  --tint-red: rgba(239, 68, 68, 0.15);
+}
+.wrap {
+  background: #000;
+  font-family: 'Sofia Sans';
+  color: var(--text);
+  margin: 0;
+}
 
 /* ---------- Layout ---------- */
 .wrap {
   width: 100%;
   /* margin: 0 auto; */
   padding: 20px 65px;
-
 }
 
 header {
@@ -26,7 +51,6 @@ header {
   letter-spacing: 0.3px;
   color: white;
 }
-
 
 .date {
   /* opacity: 0.75; */
@@ -71,7 +95,6 @@ header {
   color: black;
 } */
 
-
 .grid-3 {
   grid-column: span 3;
 }
@@ -105,12 +128,14 @@ select:focus {
 
 .btn {
   border-radius: 8px;
-  background: #0062A1;
+  background: #0062a1;
   color: #fff;
   border: none;
-  padding: 10px 14px;
+  /* padding: 10px 14px; */
   font-weight: 700;
   cursor: pointer;
+  height: 29px;
+  width: 151px;
   /* box-shadow: var(--shadow); */
 }
 
@@ -148,19 +173,29 @@ select:focus {
   display: flex;
   gap: 20px;
   justify-content: space-between;
-
-
 }
 
 /* ---------- Cards ---------- */
-.card {
-  /* background: var(--card); */
+/* .card {
   background: linear-gradient(135deg, #dd9a82, #ff9dc3);
   color: black;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: var(--shadow);
+} */
+
+.card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.04)
+  );
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 18px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
 }
 
 .kicker {
@@ -168,6 +203,13 @@ select:focus {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+  color: #FFF;
+font-family: "Sofia Sans";
+font-size: 26px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
+letter-spacing: 0.26px;
 }
 
 .kicker .dot {
@@ -207,11 +249,13 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
-  background: linear-gradient(135deg, var(--hover1, #fff), var(--hover2, #fafafa));
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  background: linear-gradient(
+    135deg,
+    var(--hover1, #fff),
+    var(--hover2, #fafafa)
+  );
 }
-
-
 
 .tile:hover {
   transform: translateY(-4px);
@@ -237,8 +281,16 @@ select:focus {
   position: absolute;
   inset: auto -20% -35% -20%;
   height: 46%;
-  background: radial-gradient(1000px 200px at 50% 0%, var(--tile-g1, transparent), transparent 70%),
-    radial-gradient(1000px 200px at 30% 0%, var(--tile-g2, transparent), transparent 70%);
+  background: radial-gradient(
+      1000px 200px at 50% 0%,
+      var(--tile-g1, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      1000px 200px at 30% 0%,
+      var(--tile-g2, transparent),
+      transparent 70%
+    );
   filter: blur(18px);
   opacity: 0.7;
   pointer-events: none;
@@ -246,8 +298,8 @@ select:focus {
 
 /* per-kind gradients */
 .tile[data-kind="leaves"] {
-  --tile-g1: rgba(34, 197, 94, 0.35);
-  --tile-g2: rgba(20, 184, 166, 0.3);
+  --tile-g1:#B8F7D1;
+  --tile-g2:#8CF0D5;
 }
 
 .tile[data-kind="interviewsToday"] {
@@ -261,8 +313,8 @@ select:focus {
 }
 
 .tile[data-kind="late"] {
-  --tile-g1: rgba(251, 146, 60, 0.35);
-  --tile-g2: rgba(239, 68, 68, 0.3);
+  --tile-g1: #FED6AC;
+  --tile-g2: #FFA090;
 }
 
 .tile[data-kind="otYesterday"] {
@@ -287,12 +339,17 @@ select:focus {
 
 /* add 'background' to your transition for a smooth fade */
 .tile {
-  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease, background 4s ease;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease,
+    background 4s ease;
 }
 
 /* full tile becomes the solid gradient on hover */
 .tile:hover {
-  background: linear-gradient(135deg, var(--hover1, #22c55e), var(--hover2, #14b8a6));
+  background: linear-gradient(
+    135deg,
+    var(--hover1, #22c55e),
+    var(--hover2, #14b8a6)
+  );
   border-color: transparent;
   /* optional: cleaner edge */
 }
@@ -304,7 +361,7 @@ select:focus {
 
 /* optional: dim the bottom glow a bit on hover */
 .tile:hover::after {
-  opacity: .25;
+  opacity: 0.25;
 }
 
 /* light/pastel hover colors */
@@ -366,17 +423,19 @@ select:focus {
   overflow: hidden;
 }
 
-.bar>i {
+.bar > i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg,
-      var(--red),
-      var(--orange),
-      var(--amber),
-      var(--green),
-      var(--teal),
-      var(--blue),
-      var(--magenta));
+  background: linear-gradient(
+    90deg,
+    var(--red),
+    var(--orange),
+    var(--amber),
+    var(--green),
+    var(--teal),
+    var(--blue),
+    var(--magenta)
+  );
   background-size: 200% 100%;
   animation: flow 6s linear infinite;
 }
@@ -391,29 +450,29 @@ select:focus {
   }
 }
 
-.bar.warn>i {
+.bar.warn > i {
   background: linear-gradient(90deg, var(--amber), var(--orange));
   animation: none;
 }
 
-.bar.good>i {
+.bar.good > i {
   background: linear-gradient(90deg, var(--teal), var(--green));
   animation: none;
 }
 
-.bar.danger>i {
+.bar.danger > i {
   background: linear-gradient(90deg, var(--red), #ff3b6b);
   animation: none;
 }
 
 /* ---------- Table wrapper: rounded outer border + optional scroll ---------- */
 .table-wrap {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
+  /* border: 1px solid var(--border); */
+  border-radius: 16px;
+  overflow: auto;
   /* lets the radius clip the table edges */
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  /* background: var(--panel); */
+  /* box-shadow: var(--shadow); */
   /* optional max height with sticky header */
   max-height: 450px;
 }
@@ -422,123 +481,58 @@ select:focus {
 .attention {
   width: 100%;
   border-collapse: collapse;
-  /* grid-style borders */
-  table-layout: fixed;
+  font-size: 14px;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4) !important;
+  border: none !important;
+  padding: 20px;
 }
 
-/* Header */
-.card .attention th {
-  background: white;
-  /* or var(--panel-strong) if you have it */
-  color: black;
-  font-weight: 800;
-  font-size: 13px;
+.attention thead {
+  background: linear-gradient(96deg, #fbcfe9 0%, #f395fb 100%);
+  height: 50px;
+}
+
+.attention-1 thead {
+  background: linear-gradient(96deg, #9DF6DF 0%, #C2F19B 100%) !important;
+  height: 50px;
+}
+
+.attention th {
+  padding: 12px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.2px;
   text-align: left;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  /* sticks when wrapper scrolls */
-  top: 0;
-  z-index: 1;
+  padding-left: 30px;
 }
 
-/* Cells */
-.card .attention td {
-  padding: 12px 14px;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
-  /* background: var(--panel); */
-  background: white;
-  color: black;
-  text-align: left;
+.attention td {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  padding-left: 31px;
+  height: 60px;
 }
 
-/* .card:focus-within{
-  background:white;
-  color: black;
-}
-.card:focus-within .attention td,
-.card:focus-within .attention th{
-  background: white;
-  color: black;
-} */
-
-.attention tbody tr:last-child td {
-  border-bottom: none;
-  /* no extra line at the end */
-}
-
-/* Hover / focus to feel clickable */
-.attention tbody tr {
+.attention tr:hover {
+  background: rgba(255, 255, 255, 0.06);
   cursor: pointer;
-  transition: background 120ms ease, transform 120ms ease;
 }
 
-.attention tbody tr:hover {
-  background: #f6f9ff;
-  /* subtle hover */
-}
-
-/* .attention tbody tr:focus-within {
-  outline: 2px solid #a3c7ff;
-  outline-offset: -2px;
-} */
-
-/* Right-align the last column */
-.attention td.right,
-.attention th.right {
-  text-align: right;
-}
-
-/* Count pill (kept from your styles, with slight polish) */
-.attention strong {
-  display: inline-block;
-  min-width: 40px;
-  text-align: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 800;
-  background: #eef3fb;
-  border: 1px solid var(--border);
-  color: #1f2937;
-}
-
-.attention strong.warn {
-  background: var(--tint-amber);
-  color: var(--warn);
-  border-color: rgba(217, 119, 6, .25);
-}
-
-.attention strong.good {
-  background: var(--tint-green);
-  color: var(--good);
-  border-color: rgba(22, 163, 74, .25);
-}
-
-.attention strong.danger {
-  background: var(--tint-red);
-  color: var(--danger);
-  border-color: rgba(239, 68, 68, .25);
-}
-
-/* Link as subtle button */
-.attention td a {
-  display: inline-block;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
+.open-btn {
   border-radius: 6px;
-  text-decoration: none;
-  color: #0f172a;
-  background: white;
-}
-
-.attention td a:hover {
-  background: #f3f4f6;
-}
-
-.open-table {
-  border-radius: 8px;
-  background: #0062A1;
+  background: #0b9629;
   display: inline-flex;
   height: 34px;
   padding: 0 16px;
@@ -546,7 +540,7 @@ select:focus {
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -554,7 +548,35 @@ select:focus {
   line-height: normal;
   letter-spacing: 0.14px;
   border: none;
+  cursor: pointer;
 }
+
+.attention-1 td:nth-child(2),
+.attention-1 th:nth-child(2) {
+  width: 50%;
+}
+
+.attention-1 td:nth-child(3){
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0;
+}
+
+.attention td:nth-child(2),
+.attention th:nth-child(2) {
+ text-align: center;
+
+}
+
+.attention-2 thead{
+  background: linear-gradient(96deg, #C6D3FE 0%, #ABD6FC 100%) !important;
+}
+
+.attention-3 thead{
+  background: linear-gradient(96deg, #FED6AC 0%, #FFA090 100%) !important;
+}
+
 
 /* ---------- Recruiting pipeline ---------- */
 #pipe {
@@ -618,7 +640,7 @@ select:focus {
   height: 100%;
   background: #9bbcf7;
   /* any accent color */
-  transition: width .3s ease;
+  transition: width 0.3s ease;
 }
 
 #pipe .cards {
@@ -654,7 +676,7 @@ select:focus {
 }
 
 /* red-ish */
-
+/* 
 .ann-list {
   max-height: 220px;
   overflow: auto;
@@ -714,12 +736,42 @@ select:focus {
   font-size: 12px;
   opacity: .75;
   margin-top: 4px;
+} */
+.ann-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ann-title {
+  font-weight: 600;
+  color: white;
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 12px;
+}
+
+.ann-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.ann-bar i {
+  height: 100%;
+  background: #60a5fa;
 }
 
 .muted {
-  opacity: .65;
+  opacity: 0.65;
 }
-
 
 /* ---------- Chips / Pills ---------- */
 .chip {
@@ -731,7 +783,7 @@ select:focus {
   background: white;
   border: 1px solid var(--border);
   font-size: 12px;
-  color: #FB9C2A;
+  color: #fb9c2a;
   font-weight: 800;
 }
 
@@ -791,11 +843,12 @@ select:focus {
   /* overflow-y: auto; */
   width: 80%;
   height: 100vh;
-  background: white;
+  border-radius: 20px;
+  background: #020403;
+  box-shadow: 3px 4px 100px 0 #3A1D4D;
   /* border: 1px solid #828282; */
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
-  padding: 10px 30px 20px;
+  /* padding: 10px 30px 20px; */
+  color: white !important;
   /* max-height: 70vh; */
   /* overflow-x: hidden; */
   --p-checkbox-checked-background: #003366;
@@ -811,7 +864,7 @@ select:focus {
   overflow-y: auto;
   width: 50%;
   height: 100%;
-  background: white;
+  /* background: white; */
   /* border: 1px solid #828282; */
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
@@ -826,11 +879,13 @@ select:focus {
   position: absolute;
   inset: auto -20% -20% -20%;
   height: 8px;
-  background: linear-gradient(90deg,
-      var(--magenta),
-      var(--blue),
-      var(--teal),
-      var(--amber));
+  background: linear-gradient(
+    90deg,
+    var(--magenta),
+    var(--blue),
+    var(--teal),
+    var(--amber)
+  );
   filter: blur(12px);
   opacity: 0.5;
 }
@@ -946,42 +1001,7 @@ select:focus {
   min-width: 170px;
 }
 
-::ng-deep .p-datatable {
-  border: none;
-  background: transparent;
-  /* pointer-events: none; */
-}
 
-/* Header Row */
-::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: white;
-  color: black;
-  font-size: 16px;
-  font-weight: 800;
-  padding: 16px 20px;
-  border: 1px solid #828282 !important;
-  /* text-align: center; */
-  height: 60px;
-  text-align: left;
-  text-wrap: nowrap;
-  /* border-radius: 12px; */
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
-  border-top-left-radius: 10px;
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
-  border-top-right-radius: 10px;
-}
-
-/* ::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
-  border-bottom-right-radius: 10px;
-} */
 ::ng-deep .p-paginator {
   background: transparent;
   justify-content: center;
@@ -1007,24 +1027,9 @@ select:focus {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #ff0000 !important;
   color: #fff !important;
   border: none;
-}
-
-/* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: transparent;
-  padding: 20px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #2b2b2b;
-  text-align: left;
-  background: white;
-  border: 1px solid #828282 !important;
-  text-align: center;
-  /* border-bottom: 2px solid #d9d9d9; */
-  text-wrap: nowrap;
 }
 
 .info {
@@ -1039,11 +1044,211 @@ select:focus {
   gap: 10px;
   width: 100%;
 }
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 0px !important;
+}
 
+.header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 20px;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white !important;
+}
+.custom-table-container {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+}
+
+/* Header */
+.custom-table thead {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%);
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.custom-table thead th {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Body Wrapper */
+.custom-table-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Rows */
+.custom-table tbody tr {
+  background: white;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-table td {
+  padding: 16px 20px;
+  font-size: 15px;
+  color: #000;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.pagination button {
+  background: transparent;
+  border: 1px solid #aaa;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pagination button.active {
+  background: #ff0000;
+  color: white;
+  border: none;
+}
+
+::ng-deep .modal-table.p-datatable-table {
+  background: #020403 !important;
+}
+
+/* Header Row */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  background: #020403 !important;
+  color: white !important;
+  padding: 16px 20px;
+  border: none !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 20px !important;
+  font-style: normal;
+  font-weight: 900 !important;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  /* border-radius: 12px; */
+}
+::ng-deep .modal-table.p-datatable .p-datatable-thead{
+  border-bottom: 1px solid #727272 !important;
+}
+.no-data.center-right {
+  text-align: center !important; /* moves text to right */
+  padding-right: 2rem !important; /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic !important;
+  font-size: 16px !important;
+}
+/* Body Rows */
+::ng-deep .modal-table.p-datatable .p-datatable-tbody > tr > td {
+  background: #020403 !important;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+  border: none !important;
+  text-wrap: nowrap;
+  border-bottom: 1px solid #727272 !important;
+}
+/* Header bottom border same as body lines */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  border-bottom: 1px solid #727272 !important;
+}
+
+/* Remove hidden wrapper border */
+::ng-deep .modal-table.p-datatable .p-datatable-thead {
+  border-bottom: none !important; 
+}
+/* Checkbox box transparent background */
+::ng-deep .p-checkbox .p-checkbox-box {
+  background: transparent !important;
+  border: 1px solid #fff !important;   /* white border so visible on dark bg */
+}
+
+/* When checked */
+/* ::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  background: transparent !important; 
+  border-color: #00aaff !important; 
+} */
+
+/* Checkmark color */
+/* ::ng-deep .p-checkbox .p-checkbox-box .p-checkbox-icon {
+  color: #00aaff !important;
+  font-size: 14px;
+} */
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
-
   .grid-8,
   .grid-6,
   .grid-4,

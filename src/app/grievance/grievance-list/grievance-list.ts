@@ -14,11 +14,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
+import { CalendarTooltipDirective } from "angular-calendar";
 
 @Component({
   selector: 'app-grievance-list',
-  imports: [TableModule, CardModule, GrievanceForm, CardModule, ButtonModule,TagModule,
-     DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule, TooltipModule, SkeletonModule],
+  imports: [TableModule, CardModule, GrievanceForm, CardModule, ButtonModule, TagModule,
+    DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule, TooltipModule, SkeletonModule, CalendarTooltipDirective],
   templateUrl: './grievance-list.html',
   styleUrl: './grievance-list.css'
 })
@@ -32,7 +33,8 @@ export class GrievanceList {
   role = '';
   empId = '';
   loading = true
-  currentPath: string  = ''
+  currentPath: string  = '';
+  isLoading = false;
 
   statuses = ['OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'];
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
@@ -57,7 +59,7 @@ export class GrievanceList {
         },2000)
       } else {
         // ✅ Regular employee sees only their grievances
-        this.grievances = data.filter((g: any) => g.employeeId === this.empId);
+        this.grievances = data.filter((g: any) => g.employeeId === Number(this.empId));
         this.loading = false
       }
     });
@@ -76,12 +78,14 @@ export class GrievanceList {
 
   addComment() {
     if (!this.newComment.trim()) return;
+    this.isLoading = true;
     this.grievanceService.addComment(this.selected.id, {
       employeeId: localStorage.getItem('empId'), // 👈 TODO: replace with logged-in employee id
       comment: this.newComment
     }).subscribe(c => {
       this.selected.comments.push(c);
       this.newComment = '';
+      this.isLoading = false;
     });
   }
 

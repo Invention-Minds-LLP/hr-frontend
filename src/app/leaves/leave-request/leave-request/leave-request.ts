@@ -68,7 +68,14 @@ export class LeaveRequest {
   isHR: boolean = false;
   role: string = '';
   loggedEmployeeId: number = 0;
-  currentDeclineRole: 'MANAGER' | 'HR' | null = null;
+  currentDeclineRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  loggedRoleId: number = 0;
+  loggedEmpId: number = 0;
+  isHRManager: boolean = false;
+  isNormalEmployee: boolean = false;
+  isReportingManager: boolean = false;
+  isManagement: boolean = false;
+
 
 
 
@@ -86,6 +93,15 @@ export class LeaveRequest {
     this.role = localStorage.getItem('role') || '';
     console.log(this.role)
     this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0
+    this.loggedRoleId = Number(localStorage.getItem('roleId'));
+    console.log(this.loggedRoleId)
+    this.loggedEmpId = Number(localStorage.getItem('empId'));
+    this.isHRManager = this.loggedRoleId === 1;
+    this.isNormalEmployee = this.loggedRoleId === 2;
+    this.isReportingManager = this.loggedRoleId === 3;
+    this.isManagement = this.loggedRoleId === 4;
+
+
     this.isHR = this.isHRRole(this.role);
     this.buildDisabledDates();
 
@@ -136,6 +152,7 @@ export class LeaveRequest {
             leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
             hodDecision: leave.hodDecision,
             hrDecision: leave.hrDecision,
+            roleId: leave.employee?.roleId,
           }
         });
         // Only pending rows are actionable in this screen
@@ -279,20 +296,39 @@ export class LeaveRequest {
   //     error: (err) => console.error('Error declining leave:', err)
   //   });
   // }
-  acceptLeave(id: number, role: 'MANAGER' | 'HR') {
-    const normalized = this.normalizeRole(this.role);
-    if (!normalized) return;
+  // acceptLeave(id: number, role: 'MANAGER' | 'HR') {
+  //   const normalized = this.normalizeRole(this.role);
+  //   console.log(normalized, this.role)
+  //   if (!normalized) return;
 
 
-    this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId, normalized).subscribe({
-      next: () => this.loadLeaves(),
-      error: (err) => console.error('Error approving leave:', err)
-    });
+  //   this.leaveService.updateLeaveStatus(id, 'Approved', this.currentUserId, normalized).subscribe({
+  //     next: () => this.loadLeaves(),
+  //     error: (err) => console.error('Error approving leave:', err)
+  //   });
+  // }
+  acceptLeave(id: number, level: 'LEVEL1' | 'LEVEL2') {
+
+    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  
+    if (level === 'LEVEL1') {
+  
+      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      else if (this.isManagement) backendRole = 'MANAGEMENT';
+  
+    } else if (level === 'LEVEL2') {
+      backendRole = 'HR_MANAGER';
+    }
+  
+    this.leaveService.updateLeaveStatus(id,'Approved', this.loggedEmpId, backendRole!)
+        .subscribe(() => this.loadLeaves());
   }
+  
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
     const norm = role.trim().toUpperCase();
 
-    if (norm === 'REPORTING_MANAGER' || norm === 'MANAGER') {
+    if (norm === 'REPORTING MANAGER' || norm === 'MANAGER') {
       return 'MANAGER';
     }
 
@@ -305,13 +341,35 @@ export class LeaveRequest {
 
 
 
-  openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
-    const normalized = this.normalizeRole(this.role);
-    if (!normalized) return;
+  // openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
+  //   const normalized = this.normalizeRole(this.role);
+  //   if (!normalized) return;
+  //   this.currentDeclineId = id;
+  //   this.currentDeclineRole = normalized;   // NEW
+  //   this.declineDialogVisible = true;
+  // }
+  openDeclineDialog(id: number, level: 'LEVEL1' | 'LEVEL2') {
+    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  
+    // LEVEL 1 approvals
+    if (level === 'LEVEL1') {
+  
+      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      else if (this.isManagement) backendRole = 'MANAGEMENT';
+  
+    }
+  
+    // LEVEL 2 approvals → always HR Manager
+    else if (level === 'LEVEL2') {
+      backendRole = 'HR_MANAGER';
+    }
+  
     this.currentDeclineId = id;
-    this.currentDeclineRole = normalized;   // NEW
+    this.currentDeclineRole = backendRole;
     this.declineDialogVisible = true;
   }
+  
 
   confirmDecline() {
     if (!this.declineReason.trim()) return;
@@ -360,5 +418,56 @@ export class LeaveRequest {
   toggle(key: BucketKey) {
     this.expanded[key] = !this.expanded[key];
   }
+  showLevel1Approve(leave: any): boolean {
 
+    // console.log('Checking Level 1 approval for leave:', leave);
+
+    // HR Employee (dept = HR AND roleId ≠ HR Manager)
+    if (leave.department === 1 && leave.roleId !== 1) {
+      console.log('HR Employee - No Level 1 approval', this.isHRManager, leave.hodDecision);
+      return this.isHRManager && leave.hodDecision === 'PENDING';
+    }
+
+    // HR Manager → only Management approves
+    if (leave.roleId === 1) {
+      return this.isManagement && leave.hodDecision === 'PENDING';
+    }
+
+    // Reporting Manager & HOD → Management approves
+    if (leave.roleId === 3 || leave.roleId === 5 /* if HOD role exists */) {
+      return this.isManagement && leave.hodDecision === 'PENDING';
+    }
+
+    // Normal Employee → Reporting Manager approves
+    if (leave.roleId === 2) {
+      return this.isReportingManager && leave.hodDecision === 'PENDING';
+    }
+
+    return false;
+  }
+  showLevel2Approve(leave: any): boolean {
+
+    // HR Employees → NO Level 2 approval
+    if (leave.department === 1 && leave.roleId !== 1) {
+        return false;
+    }
+  
+    // HR Manager → NO Level 2 approval
+    if (leave.roleId === 1) {
+        return false;
+    }
+  
+    // Reporting Manager & HOD → HR Manager at Level 2
+    if (leave.roleId === 3 || leave.roleId === 5) {
+        return this.isHRManager && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
+    }
+  
+    // Normal Employee → HR Manager at Level 2
+    if (leave.roleId === 2) {
+        return this.isHR && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
+    }
+  
+    return false;
+  }
+  
 }

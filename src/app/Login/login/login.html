@@ -31,7 +31,9 @@
                         <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
                     </p-floatlabel>
                 </div>
-                <p-button label="LOG IN" type="submit"  [label]="isLoading ? 'LOGGING IN...' : 'LOG IN'" [loading]="isLoading" class="btn" />
+                <div class="flex justify-content-center align-items-center ">
+                    <p-button label="LOG IN" type="submit"  [label]="isLoading ? 'LOGGING IN...' : 'LOG IN'" [loading]="isLoading" class="btn" />
+                </div>
             </form>
 
             <!-- <svg xmlns="http://www.w3.org/2000/svg" width="145" height="142" viewBox="0 0 145 142" fill="none" class="icon">

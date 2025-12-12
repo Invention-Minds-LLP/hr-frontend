@@ -17,6 +17,7 @@ export class GrievanceForm {
   form: FormGroup;
   @Output() saved = new EventEmitter<void>();
   employeeId: string | null = localStorage.getItem('empId');
+  isLoading = false;
 
   
   categories = [
@@ -41,7 +42,9 @@ export class GrievanceForm {
   submit() {
     if (this.form.valid) {
       this.form.value.employeeId = this.employeeId || '';
+      this.isLoading = true;
       this.grievanceService.create(this.form.value).subscribe(() => {
+        this.isLoading = false;
         this.saved.emit();
         this.form.reset();
       });

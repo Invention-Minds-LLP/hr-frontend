@@ -138,7 +138,7 @@
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF;
+  background: #fff;
   color: black;
   font-size: 16px;
   font-weight: 600;
@@ -168,7 +168,7 @@
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+  background: #000 !important;
   padding: 20px;
   font-size: 16px;
   font-weight: 500;
@@ -258,12 +258,12 @@
   font-weight: 500;
   color: #333;
   border: 1px solid #ddd;
-  background-color: #E8ECEF;
+  background-color: #fff;
   cursor: pointer;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: #fff !important;
   border: none;
 }
@@ -278,7 +278,7 @@
   gap: 8px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #3177a3;
+  background: #194B9B;
   color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
@@ -303,16 +303,18 @@
 }
 
 .popup-container {
-  background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
+  background: #020403;
+  box-shadow: 3px 4px 100px 0 #3A1D4D;
   padding: 20px;
   width: 500px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
   text-align: center;
 }
 
 .popup-container h2 {
   margin-bottom: 20px;
+  color: white;
 }
 
 .field {
@@ -340,21 +342,53 @@
   border: 1px solid #dc3545;
 }
 
-::ng-deep .p-select .dropdown {
+::ng-deep .p-select {
   width: 100%;
+  background-color: black !important;
+  color: white !important;
 }
 
-::ng-deep .p-multiselect .dropdown {
+::ng-deep .p-multiselect {
   width: 100% !important;
+  background-color: black !important;
+  color: white !important;
 }
 
-.p-select,
+::ng-deep .p-select-label {
+  color: white !important;
+}
+
+::ng-deep .p-select,
 .p-multiselect,
 input {
   width: 100% !important;
+  color: white !important;
+}
+/* Placeholder for normal input fields */
+::ng-deep input::placeholder {
+  color: white !important;
+  opacity: 0.7; /* optional */
 }
 
+/* PrimeNG Select placeholder */
+::ng-deep .p-select-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+
+/* PrimeNG MultiSelect placeholder */
+::ng-deep .p-multiselect-label.p-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+
+.p-
 hr {
   background: #d9d9d9;
   height: 2;
+}
+
+::ng-deep .p-floatlabel:has(.p-inputwrapper-filled) label {
+  background-color: #000 !important;
+  color: white !important;
 }

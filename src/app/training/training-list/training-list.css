@@ -8,21 +8,39 @@
     font-weight: 500;
   }
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
+h2 {
+  display: flex;
+  gap: 20px;
+  color: #fff;
+}
+
+.info-icon {
+  font-size: 18px;
+  color: #d9d9d9;
+  cursor: pointer;
+}
 ::ng-deep .p-datatable {
   border: none;
   background: transparent;
 }
 
-::ng-deep .p-card-body {
+/* ::ng-deep .training .p-card-body {
   padding: 15px 60px;
-  /* position: relative;
-  top: 30px; */
 }
 
+::ng-deep .individual-view .p-card-body {
+  padding: 20px !important;
+} */
+
 /* Header Row */
-::ng-deep .training .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF !important;
+::ng-deep .training .p-datatable .p-datatable-thead > tr > th {
+  background: #fff !important;
   color: black !important;
   font-size: 16px;
   font-weight: 600;
@@ -35,25 +53,25 @@
   /* border-radius: 12px; */
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+::ng-deep .training.p-datatable .p-datatable-thead > tr > th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .training.p-datatable .p-datatable-thead > tr > th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
+/* ::ng-deep .training.p-datatable .p-datatable-thead > tr > th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .training.p-datatable .p-datatable-thead > tr > th:last-child {
   border-bottom-right-radius: 10px;
-}
+} */
 
 /* Body Rows */
-::ng-deep .training .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+::ng-deep .training .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important;
   padding: 20px;
   font-size: 16px;
   font-weight: 500;
@@ -77,6 +95,14 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.no-data.center-right {
+  text-align: center; /* moves text to right */
+  padding-right: 2rem; /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic;
+  font-size: 15px;
 }
 
 .name {
@@ -118,7 +144,7 @@
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: #FFFFFF;
+  color: #ffffff;
   cursor: pointer;
 }
 
@@ -157,22 +183,44 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+}
+.dropdown-in-table {
+  width: 129px;
+  height: 34px;
+  background-color: transparent;
+  border-radius: 8px;
+  border: 1px solid #fff7f7;
+  padding: 4px 8px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14px;
+  cursor: pointer;
+
+  /* Remove native select arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Custom SVG icon */
+  background-image: url("/select-down-arrow.svg");
+  background-repeat: no-repeat;
+  background-position: right 12px center; /* position as you like */
+  background-size: 16px;
+
+  padding-right: 32px; /* add extra space so text doesn't overlap arrow */
 }
 
-.dropdown-in-table {
-  width: 7vw;
-  background-color: #2b2b2b;
-  color: #fff;
-  border: 1px solid #FFFFFF;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
+/* Remove arrow for IE/legacy Edge (optional) */
+.dropdown-in-table::-ms-expand {
+  display: none;
 }
 
 .dropdown-in-table option {
   background-color: transparent;
-  color: #fff;
+  color: #000;
 }
 
 .count-link {
@@ -206,13 +254,13 @@
   gap: 8px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #0062A1;
-  border-color: #0062A1;
+  background: #0062a1;
+  border-color: #0062a1;
 }
 
 .p-button-success:hover {
-  background: #0062A1;
-  border-color: #0062A1;
+  background: #0062a1;
+  border-color: #0062a1;
 }
 
 .action-btns {
@@ -229,12 +277,12 @@
   gap: 10px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #17B226 !important;
-  border-color: #17B226 !important;
+  background: #17b226 !important;
+  border-color: #17b226 !important;
 }
 
 .text {
-  color: #FFF;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -256,8 +304,8 @@
   gap: 10px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #F00 !important;
-  border-color: #F00 !important;
+  background: #f00 !important;
+  border-color: #f00 !important;
 }
 
 .action-btns .review {
@@ -269,8 +317,8 @@
   gap: 10px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #0062A1 !important;
-  border-color: #0062A1 !important;
+  background: #0062a1 !important;
+  border-color: #0062a1 !important;
 }
 
 .filter {
@@ -303,7 +351,7 @@
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10;
-  padding: 0.30rem 0.5rem;
+  padding: 0.3rem 0.5rem;
   list-style: none;
   margin: 0;
   background: white;
@@ -316,7 +364,6 @@
   font-size: 14px;
   color: black;
 }
-
 
 .menu-list .list:hover {
   background-color: #eee;
@@ -353,7 +400,6 @@
   top: -13px;
   right: 63px;
   pointer-events: all; */
-
 }
 
 :host ::ng-deep .p-skeleton {
@@ -362,9 +408,372 @@
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
 }
 
 /* .p-datatable-table{
   margin-top: 20px;
 } */
+
+.custom-training-table {
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 400px;
+}
+
+.simple-training-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0 10px;
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4);
+}
+
+.simple-training-table thead th {
+  /* background: linear-gradient(96deg, #B8F7D1 0%, #8CF0D5 100%); */
+  padding: 14px 12px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  text-align: left;
+}
+
+.simple-training-table thead {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  background: linear-gradient(96deg, #b8f7d1 0%, #8cf0d5 100%);
+}
+
+.simple-training-table tbody td {
+  padding: 14px 12px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+}
+
+.simple-training-table tbody tr {
+  border-bottom: 1px solid #727272;
+}
+
+.simple-training-table tbody {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* Pills */
+.pill {
+  background: #2a2a2a;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+/* Status pill */
+.status-pill {
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  color: white;
+}
+
+.status-pill.active {
+  background: #3bae4a;
+}
+
+/* Action button */
+.give-feedback-btn {
+  border-radius: 8px;
+  background: rgba(131, 3, 3, 0.8);
+  display: inline-flex;
+  padding: 8px 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 139px;
+  height: 34px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.14px;
+  border: none;
+  cursor: pointer;
+}
+
+.give-feedback-btn:hover {
+  background: #e53935;
+}
+
+/* Tests interactive link */
+.link {
+  color: #4caeff;
+  cursor: pointer;
+  text-decoration: underline;
+  background-color: transparent;
+  border: none;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+}
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 20px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+::ng-deep .p-multiselect:not(.p-disabled).p-focus{
+  border-color: #044cb1 !important;
+  box-shadow: 0 0 3px #044cb1 !important;
+}
+ ::ng-deep .p-multiselect:focus,
+ ::ng-deep textarea:focus {
+  border-color: #044cb1 !important;
+  box-shadow: 0 0 3px #044cb1 !important;
+}
+
+::ng-deep .p-button {
+  border-radius: 6px !important;
+  background: #194b9b !important;
+  height: 33px !important;
+  color: white !important;
+  border: none !important;
+  font-size: 16px !important;
+}
+
+::ng-deep .p-select {
+  width: 100%;
+  background-color: black !important;
+  color: white !important;
+}
+
+::ng-deep .p-multiselect {
+  width: 100% !important;
+  background-color: black !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-label, .p-multiselect-label {
+  color: white !important;
+}
+
+::ng-deep .p-multiselect-label{
+  color: white !important
+}
+
+::ng-deep .p-select,
+.p-multiselect {
+  width: 100% !important;
+  color: white !important;
+}
+/* Placeholder for normal input fields */
+::ng-deep input::placeholder {
+  color: white !important;
+  opacity: 0.7; /* optional */
+}
+
+/* PrimeNG Select placeholder */
+::ng-deep .p-select-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+
+/* PrimeNG MultiSelect placeholder */
+::ng-deep .p-multiselect-label .p-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+
+::ng-deep .p-floatlabel:has(.p-inputwrapper-filled) label {
+  background-color: #000 !important;
+  color: white !important;
+}
+.custom-table-container {
+  /* background: #0c0c0f; */
+  /* padding: 20px; */
+  border-radius: 10px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  color: white;
+  font-size: 14px;
+}
+
+.custom-table thead th {
+  padding: 12px;
+  /* background: #1b1b22; */
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  text-align: center;
+  border-bottom: 1px solid #727272;
+}
+
+.custom-table tbody tr {
+  /* background: #141419; */
+  /* border-radius: 8px; */
+  border-bottom: 1px solid #727272;
+}
+
+.custom-table tbody td {
+  padding: 12px;
+  color: white !important;
+  font-family: "Sofia Sans";
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border-bottom: 1px solid #727272;
+}
+
+/* .custom-table tbody tr td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+} */
+
+.custom-table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
+.custom-table tbody tr td:last-child {
+border-bottom: none !important;
+} 
+::ng-deep .modal-table.p-datatable-table {
+  background: #020403 !important;
+}
+
+/* Header Row */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  background: #020403 !important;
+  color: white !important;
+  padding: 16px 20px;
+  border: none !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 20px !important;
+  font-style: normal;
+  font-weight: 900 !important;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  /* border-radius: 12px; */
+}
+::ng-deep .modal-table.p-datatable .p-datatable-thead{
+  border-bottom: 1px solid #727272 !important;
+}
+.no-data.center-right {
+  text-align: center !important; /* moves text to right */
+  padding-right: 2rem !important; /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic !important;
+  font-size: 16px !important;
+}
+/* Body Rows */
+::ng-deep .modal-table.p-datatable .p-datatable-tbody > tr > td {
+  background: #020403 !important;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+  border: none !important;
+  text-wrap: nowrap;
+  border-bottom: 1px solid #727272 !important;
+}
+/* Header bottom border same as body lines */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  border-bottom: 1px solid #727272 !important;
+}
+
+/* Checkbox box transparent background */
+::ng-deep .p-checkbox .p-checkbox-box {
+  background: transparent !important;
+  border: 1px solid #fff !important;   /* white border so visible on dark bg */
+}
+
+::ng-deep .p-datepicker{
+  color: white !important
+}
+
+::ng-deep .p-inputtext{
+  color: white !important
+}

@@ -45,7 +45,7 @@ export class SurveyForm {
     K: 'Concern for Patient Care / Customer Service',
     L: 'Strategy / Mission'
   };
-
+  isLoading = false;
 
   constructor(private fb: FormBuilder, private surveyApi: SurveryService, private employeeApi: Employees, private messageService: MessageService) { }
 
@@ -54,23 +54,25 @@ export class SurveyForm {
     // get employee details from localStorage
     const empData = {
       employeeId: localStorage.getItem('employeeId'),
-      name: localStorage.getItem('name'),
+      name: this.surveyData?.employee ? this.surveyData.employee.firstName + ' ' + this.surveyData.employee.lastName : '',
       role: localStorage.getItem('role'),
       deptId: localStorage.getItem('deptId'),
       empId: localStorage.getItem('empId'),
-      departmentName: localStorage.getItem('departmentName') || ''
+      departmentName: this.surveyData?.employee?.Department?.name || '',
     };
 
     // init form
     this.form = this.fb.group({
+      surveyId: [this.surveyData.id], 
       employeeId: [empData.empId || ''], // send only this to backend
       answers: this.fb.array([]),
     });
 
     // store for UI display only
     this.employeeDetails = empData;
+    console.log('Employee Details:', this.employeeDetails);
 
-    if (this.surveyData) {
+    if (this.surveyData.status !== 'DRAFT' && this.surveyData.employee) {
       this.employeeApi.getEmployeeById(this.surveyData.employee.id).subscribe(emp => {
         console.log(emp)
         this.employeeDetails = {
@@ -80,6 +82,8 @@ export class SurveyForm {
           deptId: this.surveyData.employee.Department?.id,
           departmentName: this.surveyData.employee.Department?.name || '',
         };
+
+        
         console.log(this.employeeDetails)
 
         const arr = this.surveyData.responses.map((r: any) =>
@@ -102,6 +106,9 @@ export class SurveyForm {
         }));
 
         this.form.patchValue({ employeeId: emp.id });
+        this.form.patchValue({
+          surveyId: this.surveyData.id  // scheduler-created survey id
+        });
       });
     } else {
       // if new survey
@@ -136,6 +143,7 @@ export class SurveyForm {
 
   onSubmit() {
     if (this.form.valid) {
+      this.isLoading = true;
       this.surveyApi.submitSurvey(this.form.value).subscribe(() => {
         // alert('Survey submitted successfully!');
         this.messageService.add({
@@ -144,6 +152,7 @@ export class SurveyForm {
           detail: 'Survey submitted successfully!'
 
         })
+        this.isLoading = false;
         this.form.reset();
         this.currentIndex = 0
       });

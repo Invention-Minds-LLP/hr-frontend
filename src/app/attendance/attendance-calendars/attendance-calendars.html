@@ -1,8 +1,120 @@
-<div class="container mt-4">
-    <h3>Attendance Calendar</h3>
-    <mwl-calendar-month-view
-      [viewDate]="viewDate"
-      [events]="events">
-    </mwl-calendar-month-view>
-  </div>
+<p-dialog [(visible)]="visible"   (onHide)="onDialogClose()" [closable]="false" header="Attendance Calendar – {{ employeeName }}" modal="true" [style]="{ width: '80vw' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Attendance Calendar – {{ employeeName }}</span>
+
+      <button class="dialog-close-btn" (click)="visible = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
+
+  <div class="calendar-container">
+    <div class="calendar-left">
+      <div class="calendar-scale-wrapper">
+        <div class="calendar-header">  
+          <div class="month-nav">
+            <button class="nav-btn" (click)="prevMonth()">
+              ❮
+            </button>
+        
+            <span class="month-text">
+              {{ viewDate | date:'MMMM yyyy' }}
+            </span>
+        
+            <button class="nav-btn" (click)="nextMonth()">
+              ❯
+            </button>
+          </div>
+        </div>
+        <mwl-calendar-month-view
+          [viewDate]="viewDate"
+          [events]="events"
+          [refresh]="refresh"
+          (viewChange)="onViewChange($event)"
+          [cellTemplate]="cellTemplate">
+        </mwl-calendar-month-view>
+      </div>
+      <ng-template #cellTemplate let-day="day">
+    
+        <div class="day-cell"
+             [ngClass]="getDayClass(day)"
+             [pTooltip]="day.events.length ? getTooltip(day.events[0]) : undefined">
+          
+          <div class="day-number">{{ day.date.getDate() }}</div>
+      
+          <!-- Events -->
+          <div class="event-badges" *ngIf="day.events.length">
+            <!-- <span *ngFor="let ev of day.events"
+                  class="event-dot"
+                  [style.background]="ev.color.primary">
+            </span> -->
+      
+            <span *ngIf="day.events[0].meta.hours"
+                  class="hours-badge">
+              {{ day.events[0].meta.hours }}
+            </span>
+          </div>
+<!--     
+          <div *ngIf="day.events[0]?.meta?.needsApproval" class="approval-buttons">
+            <button class="approve-btn" (click)="approve(day.events[0])">✔</button>
+            <button class="reject-btn" (click)="reject(day.events[0])">✖</button>
+          </div> -->
+      
+      
+        </div>
+      
+      </ng-template>
+    </div>
+    <div class="calendar-right">
+
+      <h3>Pending Approvals</h3>
   
+      <div *ngIf="pendingList.length === 0" class="empty-text">
+        No pending approvals
+      </div>
+  
+      <div *ngFor="let item of pendingList" class="approval-card">
+        <div class="approval-date">
+          {{ item.date | date:'MMM d, yyyy' }}
+        </div>
+  
+        <div class="approval-info">
+          <p><strong>Check In:</strong> {{ formatTime(item.checkIn) || '—' }}</p>
+          <p><strong>Check Out:</strong> {{ formatTime(item.checkOut) || '—' }}</p>
+          <p><strong>Issue:</strong> {{ item.flag }}</p>
+        </div>
+  
+        <div class="approval-actions">
+          <button class="approve-btn" (click)="approve(item)">Approve</button>
+          <button class="reject-btn" (click)="reject(item)">Reject</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+</p-dialog>
+<p-dialog [(visible)]="rejectPopupVisible" header="Reject Attendance" [closable]="false" modal="true" [style]="{width: '350px'}">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Reject Attendance</span>
+
+      <button class="dialog-close-btn" (click)="rejectPopupVisible = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
+  
+  <div class="p-fluid">
+    <label>Reason for rejection</label>
+    <textarea rows="4" [(ngModel)]="rejectReason" class="p-inputtext p-component"></textarea>
+  </div>
+
+<div class="flex justify-center align-content-center gap-3 mt-4">
+  <button class="btn btn-1" (click)="rejectPopupVisible = false">Cancel</button>
+  <button class="btn btn-2" (click)="submitReject()">Reject</button>
+</div>
+
+
+
+</p-dialog>

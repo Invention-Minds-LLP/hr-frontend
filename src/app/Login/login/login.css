@@ -130,7 +130,7 @@ input.p-inputtext {
     box-shadow: none;
     transition: border-color 0.3s ease;
     width: 100%;
-    color: black;
+    color: black !important;
 }
 
 
@@ -139,7 +139,15 @@ input.p-inputtext:focus {
     border-bottom: 2px solid #3f51b5;
     box-shadow: none !important;
 }
-
+.p-floatlabel:has(.p-inputwrapper-filled) label {
+    color: #757575 !important;
+    background-color: transparent !important;
+    font-family: "Sofia Sans";
+    font-size: 12.8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22.53px; /* 176.016% */
+}
 
 input.ng-invalid.ng-touched {
     border-bottom: 2px solid red;
@@ -154,7 +162,7 @@ input.ng-invalid.ng-touched {
     transition: border-color 0.3s ease;
     padding-left: 0.5rem;
     width: 100%;
-    color: black;
+    color: black !important;
 }
 
 ::ng-deep .p-password input:focus {
@@ -168,8 +176,8 @@ input.ng-invalid.ng-touched {
 }
 
 ::ng-deep .btn .p-button {
-    width: 153px;
-    height: 46px;
+    width: 160px !important;
+    height: 46px !important;
     flex-shrink: 0;
     border-radius: 56px;
     background: #3465b0;
@@ -182,7 +190,10 @@ input.ng-invalid.ng-touched {
     font-weight: 700;
     line-height: 22.53px;
     border: none;
-    margin-left: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-left: 30%; */
 }
 
 ::ng-deep .btn .p-button:hover {

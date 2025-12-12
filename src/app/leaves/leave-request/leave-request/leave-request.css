@@ -28,12 +28,10 @@
   line-height: normal;
 }
 
-
-.image{
+.image {
   width: 50px;
   height: 50px;
 }
-
 
 .empname {
   display: flex;
@@ -148,7 +146,7 @@
   padding: 0;
   text-align: center;
   border-radius: 8px;
-  background-color: #E8ECEF;
+  background-color: #fff;
   color: #333;
   font-weight: 600;
   font-size: 13px;
@@ -158,12 +156,12 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #E51313 !important;
+  background: #e51313 !important;
   color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #E51313 !important;
+  background: #e51313 !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -186,8 +184,8 @@
 }
 
 /* Header Row */
-::ng-deep .leave-request .p-datatable .p-datatable-thead>tr>th {
-  background: #DCDCDC;
+::ng-deep .leave-request .p-datatable .p-datatable-thead > tr > th {
+  background: #dcdcdc;
   color: black;
   font-size: 16px;
   font-weight: 600;
@@ -200,25 +198,25 @@
   width: 5vw;
 }
 
-::ng-deep .leave-request .p-datatable .p-datatable-thead>tr>th:first-child {
+::ng-deep .leave-request .p-datatable .p-datatable-thead > tr > th:first-child {
   border-top-left-radius: 10px;
 }
 
-::ng-deep .leave-request .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .leave-request .p-datatable .p-datatable-thead > tr > th:last-child {
   border-top-right-radius: 10px;
 }
 
-::ng-deep .leave-request .p-datatable .p-datatable-thead>tr>th:first-child {
+::ng-deep .leave-request .p-datatable .p-datatable-thead > tr > th:first-child {
   border-bottom-left-radius: 10px;
 }
 
-::ng-deep .leave-request .p-datatable .p-datatable-thead>tr>th:last-child {
+::ng-deep .leave-request .p-datatable .p-datatable-thead > tr > th:last-child {
   border-bottom-right-radius: 10px;
 }
 
 /* Body Rows */
-::ng-deep .leave-request .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+::ng-deep .leave-request .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important;
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
@@ -230,23 +228,23 @@
 }
 
 /* ::ng-deep .p-datepicker:has(.p-datepicker-dropdown) .p-datepicker-input {
-  background: #e8ecef;
+  background: #fff;
   color: #000;
   width: 10vw;
 }
 
 ::ng-deep .p-datepicker-dropdown {
-  background: #e8ecef;
+  background: #fff;
 }
 
 ::ng-deep .p-datepicker {
-  --p-datepicker-date-selected-background: #e9144a;
+  --p-datepicker-date-selected-background: #FB9C2A;
   --p-datepicker-date-width: -1.5rem;
   --p-datepicker-date-height: -0.1rem;
 }
 
 ::ng-deep .p-datepicker-day-selected-range {
-  background: #e9144a;
+  background: #FB9C2A;
   color: #ffffff;
   padding: 5px;
 }
@@ -262,12 +260,12 @@
 
 .btn-1 {
   border-radius: 8px;
-  background: #0DE121;
+  background: #0de121;
 }
 
 .btn-2 {
   border-radius: 8px;
-  background: #E51313 !important;
+  background: #e51313 !important;
 }
 
 .btn-3 {
@@ -278,7 +276,7 @@
   line-height: normal;
   letter-spacing: 0.14px;
   border-radius: 8px;
-  background: #0062A1;
+  background: #0062a1;
   display: inline-flex;
   height: 34px;
   padding: 0 16px;
@@ -338,18 +336,18 @@
 }
 
 .popup-content {
-  background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
+  background: #020403;
+  box-shadow: 3px 4px 100px 0 #3a1d4d;
   width: 800px;
   max-width: 90%;
   height: 434px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
 .popup-content h3 {
   margin-bottom: 15px;
-  color: #000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 26px;
   font-style: normal;
@@ -361,7 +359,7 @@
   width: 90%;
   height: 233px;
   padding: 10px;
-  color: #767676;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -372,8 +370,8 @@
   margin: 20px;
   padding: 10px;
   border-radius: 8px;
-  background: #eaeaea;
-  border: none;
+  background: transparent;
+  border: 1px solid #ccc;
 }
 
 textarea:focus {
@@ -429,7 +427,7 @@ hr {
   padding: 0.3rem 0.5rem;
   list-style: none;
   margin: 0;
-  background: white;
+  background: black;
 }
 
 .menu-list li {
@@ -437,7 +435,7 @@ hr {
   cursor: pointer;
   transition: background 0.2s;
   font-size: 14px;
-  color: black;
+  color: white;
 }
 
 .menu-list .list:hover {
@@ -446,9 +444,9 @@ hr {
 }
 
 .menu-list .list.active {
-  background-color: #d0ebff;
+  background-color: black;
   font-weight: bold;
-  color: black;
+  color: #fff;
   border-radius: 20px;
 }
 
@@ -470,6 +468,7 @@ hr {
   width: 100%;
   max-width: 1200px;
   padding-right: 340px;
+  background-color: #000;
   /* = who-panel width (320) + gap (20) */
 }
 
@@ -479,7 +478,7 @@ hr {
   gap: 16px;
   margin: 10px 0 18px;
   border-radius: 12px;
-  background: white;
+  background: #000;
   box-shadow: 0 2px 10px rgba(40, 21, 90, 0.35);
   height: 80px;
   width: 100%;
@@ -517,7 +516,7 @@ hr {
 }
 
 .badge .label {
-  color: #000000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 18px;
   font-weight: 400;
@@ -561,15 +560,15 @@ hr {
   /* align with the top of badges */
   right: 0;
   width: 320px;
-  border: 1px solid #e6e6ea;
+  /* border: 1px solid #e6e6ea; */
   border-radius: 12px;
   padding: 12px;
-  background: white;
+  background: #000;
   height: 660px;
 }
 
 .who-title {
-  color: #2C2C2C;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 20px;
   font-style: normal;
@@ -609,20 +608,20 @@ hr {
 
 .role {
   font-size: 12px;
-  color: #2C2C2C;
+  color: #fff;
 }
 
 .muted {
-  color: #8a8d92;
+  color: #fff;
   font-size: 13px;
 }
 
 hr {
-  background: #e8ecef !important;
+  background: #fff !important;
 }
 
 .section-title {
-  color: #000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -639,7 +638,7 @@ section {
   text-align: center !important;
   vertical-align: middle !important;
   font-style: italic;
-  color: #555;
+  color: #fff;
 }
 
 /* responsive: drop the right column below on small screens */
@@ -693,5 +692,10 @@ section {
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
 }

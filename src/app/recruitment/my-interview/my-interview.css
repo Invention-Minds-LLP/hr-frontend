@@ -81,7 +81,7 @@
   
   /* Body Rows */
   ::ng-deep .card .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31 !important;
+    background: #000 !important;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;

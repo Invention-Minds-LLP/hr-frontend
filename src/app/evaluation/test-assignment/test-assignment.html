@@ -1,4 +1,4 @@
-<div class="assign-test">
+<!-- <div class="assign-test">
  <div class="header">
   <h3>Assign Evaluation Test to Employees</h3>
   <span class="close-icon" (click)="close()">&#10006;</span>
@@ -7,30 +7,16 @@
 <div class="form-container">
   <div class="form-row">
     <label>Select Test:</label>
-    <!-- <select [(ngModel)]="selectedTestId">
-      <option value="0">-- Select Test --</option>
-      <option *ngFor="let t of tests" [ngValue]="t.id">{{ t.name }}</option>
-    </select> -->
 
     <p-select [options]="tests" optionValue="id" [(ngModel)]="selectedTestId" optionLabel="name" placeholder="Select a City" class="w-full md:w-56" />
   </div>
 
-  <!-- <div class="form-row">
-      <label>Select Employees:</label>
-      <div class="employee-list">
-        <label *ngFor="let e of employees" class="emp-item">
-          <input type="checkbox" [value]="e.id" (change)="toggleSelection(e.id)" [checked]="selectedEmployeeIds.includes(e.id)" />
-          {{ e.firstName }} {{ e.lastName }}
-        </label>
-      </div>
-    </div> -->
   <div class="form-row">
     <label>Select Employees:</label>
 
     <p-multiSelect [options]="employees" optionLabel="firstName" optionValue="id" [(ngModel)]="selectedEmployeeIds"
       [filter]="true" defaultLabel="Choose employees" [showToggleAll]="true" [showClear]="true" [display]="'chip'"
       [maxSelectedLabels]="20" (onChange)="onEmployeesChange($event)">
-      <!-- Item template (optional, nicer display) -->
       <ng-template let-emp pTemplate="item">
         <div class="emp-option">
           <div class="emp-name">{{ emp.firstName }}</div>
@@ -41,14 +27,12 @@
   </div>
   <div class="form-row">
     <label>Available From:</label>
-    <!-- <input type="date" [(ngModel)]="availFromDate" /> -->
     <p-datepicker [(ngModel)]="availFromDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
 
   </div>
   
   <div class="form-row">
     <label>Available To:</label>
-    <!-- <input type="date" [(ngModel)]="availToDate" /> -->
     <p-datepicker [(ngModel)]="availToDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
 
   </div>
@@ -61,4 +45,65 @@
 </div>
 
   <p *ngIf="message" class="message">{{ message }}</p>
+</div> -->
+
+<div class="assign-test new-design">
+
+  <div class="form-card">
+
+    <div class="form-header">
+      <h3>Assign Evaluation Test to Employees</h3>
+      <button class="close-btn" (click)="close()">✕</button>
+    </div>
+
+    <div class="form-body">
+
+      <!-- Assign Test Section (your fields) -->
+      <div class="field">
+        <label>Select Test *</label>
+        <p-select [options]="tests" optionValue="id" optionLabel="name"
+          [(ngModel)]="selectedTestId"
+          placeholder="Select a Test"></p-select>
+      </div>
+
+      <div class="field">
+        <label>Select Employees *</label>
+        <p-multiSelect [options]="employees"
+          optionValue="id" optionLabel="firstName"
+          [(ngModel)]="selectedEmployeeIds"
+          [filter]="true"
+          defaultLabel="Choose employees"
+          [showToggleAll]="true"
+          appendTo="body"
+          [display]="'chip'"></p-multiSelect>
+      </div>
+
+      <!-- Dates -->
+      <div class="field-row">
+        <div class="field">
+          <label>Available From</label>
+          <p-datepicker [(ngModel)]="availFromDate"
+            [showIcon]="true" inputId="from" appendTo="body"></p-datepicker>
+        </div>
+
+        <div class="field">
+          <label>Available To</label>
+          <p-datepicker [(ngModel)]="availToDate"
+            [showIcon]="true" inputId="to" appendTo="body"></p-datepicker>
+        </div>
+      </div>
+
+      <!-- Button -->
+      <button class="submit-btn" (click)="assign()" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading">Assign Test</ng-container>
+        <ng-container *ngIf="isLoading">
+          <i class="pi pi-spin pi-spinner" style="margin-right: 6px;"></i> Assigning…
+        </ng-container>
+      </button>
+      
+
+    </div>
+
+  </div>
+
 </div>

@@ -23,6 +23,8 @@ import { Router } from '@angular/router';
 import { SelectModule } from 'primeng/select';
 import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -47,10 +49,12 @@ import { CheckboxModule } from 'primeng/checkbox';
     SelectModule,
     DatePickerModule,
     CheckboxModule,
-    TableModule
+    TableModule,
+    TooltipModule
   ],
   templateUrl: './training-list.html',
-  styleUrl: './training-list.css'
+  styleUrl: './training-list.css',
+  providers: [MessageService]
 })
 export class TrainingList {
   trainings: any[] = [];
@@ -98,18 +102,19 @@ export class TrainingList {
   minDate = this.today;
   maxDate = this.today;
   selectedRows: any[] = [];
+  isLoading = false;
 
   
 
 
 
   constructor(private trainingService: Trainings, private employeeService: Employees, private router: Router,
-    private testService: Tests, private fb: FormBuilder, private departmentService: Departments) { }
+    private testService: Tests, private fb: FormBuilder, private departmentService: Departments, private messageService: MessageService) { }
 
   ngOnInit() {
     const role = localStorage.getItem('role') || 'EMPLOYEE';
     this.currentPath = this.router.url;
-    this.userRole = role === 'HR' || role === 'HR Manager' ? 'HR' : 'EMPLOYEE';
+    this.userRole = role === 'HR' || role === 'HR Manager' || role === 'Reporting Manager' ? 'HR' : 'EMPLOYEE';
     this.fetchTrainings();
     this.loadEmployees();
     this.loadTests();
@@ -174,6 +179,7 @@ export class TrainingList {
       },
       error: (err) => {
         console.error('❌ Failed to fetch tests', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tests. Please try again later.' });
         this.loading = false;
       }
     });
@@ -184,7 +190,7 @@ export class TrainingList {
     const empId = localStorage.getItem('empId') || '1';
     const currentPath = this.router.url;
 
-    if ((this.userRole === 'HR' || this.role === 'Reporting Manager') && currentPath !== '/individual') {
+    if ( currentPath !== '/individual') {
       this.trainingService.getAllTrainings().subscribe({
         next: (res) => {
           this.filteredTrainings = [...res];
@@ -207,10 +213,12 @@ export class TrainingList {
           console.log('📥 Fetched trainings for employee', empId, this.filteredTrainings);
           setTimeout(() => {
             this.loading = false;
+            this.messageService.add({ severity: 'success', summary: 'Trainings Loaded', detail: 'Your trainings have been loaded successfully.' });
           }, 3000)
         },
         error: (err: any) => {
           console.error(err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load trainings. Please try again later.' });
           this.loading = false;
         },
       });
@@ -240,7 +248,7 @@ export class TrainingList {
   onAssign() {
     const employeeIds = this.form.value.employeeIds || [];
     if (!employeeIds.length) {
-      alert('Please select at least one employee.');
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select at least one employee.' });
       return;
     }
 
@@ -251,14 +259,19 @@ export class TrainingList {
     };
 
     console.log('📤 Assigning payload:', payload);
-
+    this.isLoading = true;
     this.trainingService.assignEmployees(payload).subscribe({
       next: () => {
-        alert('✅ Employees assigned successfully!');
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employees assigned successfully!' });
         this.showAssignEmpDialog = false;
         this.fetchTrainings();
       },
-      error: (err) => console.error('❌ Failed to assign employees', err),
+      error: (err) => {
+        console.error('❌ Failed to assign employees', err)
+        this.isLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign employees. Please try again.' });
+      },
     });
   }
 
@@ -271,23 +284,35 @@ export class TrainingList {
 
   assignTests() {
     const ids = this.selectedTests.map((t) => t.value);
+    if (!ids.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select at least one test.' });
+      return;
+    }
+    this.isLoading = true;
     this.trainingService.assignTests(this.selectedTraining.id, ids).subscribe({
       next: () => {
-        alert('Tests assigned successfully!');
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Tests assigned successfully!' });
         this.showAssignTestDialog = false;
         this.fetchTrainings();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error(err)
+        this.isLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign tests. Please try again.' });
+      },
     });
   }
 
   openFeedbackDialog(training: any) {
     this.selectedTraining = training;
     this.showFeedbackDialog = true;
-
-    if (this.userRole === 'HR') {
+    if(this.userRole === 'HR'){
       this.trainingService.getFeedbackSummary(training.id).subscribe({
-        next: (res) => (this.feedbackSummary = res),
+        next: (res) => {
+          this.feedbackSummary = res
+          console.log(this.feedbackSummary)
+        },
         error: (err) => console.error(err),
       });
     }
@@ -357,7 +382,7 @@ export class TrainingList {
   showEmployeesDialog = false;
 
   openTestsDialog(training: any) {
-    this.selectedTraining = training;
+    this.selectedTraining = training.training;
     this.showTestsDialog = true;
     console.log('Selected training data:', this.selectedTraining);
 
@@ -505,6 +530,7 @@ export class TrainingList {
   }
   
   saveAttendance() {
+
     const formatted = {
       attendanceList: this.attendanceList
         .filter(a => a.status !== null && a.status !== undefined)
@@ -514,9 +540,11 @@ export class TrainingList {
         })),
       date: this.attendanceDate
     };
+    this.isLoading = true;
   
     this.trainingService.bulkMarkTrainingAttendance(this.selectedTrainingId, formatted)
       .subscribe(() => {
+        this.isLoading = false;
         this.showAttendanceDialog = false;
         this.closeAttendanceDialog();
       });

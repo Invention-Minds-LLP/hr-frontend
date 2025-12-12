@@ -45,7 +45,7 @@ export class PermissionRequest {
   showPopup: boolean = false;
   selectedPermission: any = null;
   viewMode: boolean = false;
-  currentDeclineRole: 'MANAGER' | 'HR' | null = null;
+  currentDeclineRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
   loading = true
 
 
@@ -62,6 +62,10 @@ export class PermissionRequest {
   role: string = '';
   loggedEmployeeId: number = 0;
 
+  isHRManager = false;
+  isManagement = false;
+  isReportingManager = false;
+
 
   ngOnInit() {
     this.loadPermissionRequests();
@@ -73,6 +77,12 @@ export class PermissionRequest {
     setTimeout(() => {
       this.loading = false
     }, 2000)
+
+    const roleId = Number(localStorage.getItem('roleId')); 
+    const deptId = Number(localStorage.getItem('departmentId'));             // HR Department
+    this.isHRManager = roleId === 1;       // HR Manager
+    this.isReportingManager = roleId === 3;
+    this.isManagement = roleId === 4;
 
   }
 
@@ -165,6 +175,8 @@ export class PermissionRequest {
             reportingManagerId: req.employee.reportingManager ?? null,
             hodDecision: req.hodDecision,
             hrDecision: req.hrDecision,
+            roleId: req.employee.roleId
+            
           }
         });
         this.requestData = this.isHR
@@ -202,23 +214,42 @@ export class PermissionRequest {
   }
 
 
-  approveRequest(id: number, role: 'MANAGER' | 'HR') {
-    const normalized = this.normalizeRole(this.role);
-    if (!normalized) return;
-    const userId = Number(localStorage.getItem('userId')) || 1;
-    this.permissionService.updatePermissionStatus(id, 'APPROVED', userId, normalized).subscribe({
-      next: () => this.loadPermissionRequests(),
-      error: (err) => console.error('Error approving request:', err)
-    });
-  }
+  // approveRequest(id: number, role: 'MANAGER' | 'HR') {
+  //   const normalized = this.normalizeRole(this.role);
+  //   if (!normalized) return;
+  //   const userId = Number(localStorage.getItem('userId')) || 1;
+  //   this.permissionService.updatePermissionStatus(id, 'APPROVED', userId, normalized).subscribe({
+  //     next: () => this.loadPermissionRequests(),
+  //     error: (err) => console.error('Error approving request:', err)
+  //   });
+  // }
 
-  openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
-    const normalized = this.normalizeRole(this.role);
-    if (!normalized) return;
+  // openDeclineDialog(id: number, role: 'MANAGER' | 'HR') {
+  //   const normalized = this.normalizeRole(this.role);
+  //   if (!normalized) return;
+  //   this.currentDeclineId = id;
+  //   this.currentDeclineRole = normalized;   // NEW
+  //   this.declineDialogVisible = true;
+  // }
+  openDeclineDialog(id: number, level: 'LEVEL1' | 'LEVEL2') {
+
+    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  
+    if (level === 'LEVEL1') {
+      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      else if (this.isManagement) backendRole = 'MANAGEMENT';
+    }
+  
+    else if (level === 'LEVEL2') {
+      backendRole = 'HR_MANAGER';
+    }
+  
     this.currentDeclineId = id;
-    this.currentDeclineRole = normalized;   // NEW
+    this.currentDeclineRole = backendRole;
     this.declineDialogVisible = true;
   }
+  
 
   confirmDecline() {
     if (!this.declineReason.trim()) {
@@ -284,5 +315,75 @@ export class PermissionRequest {
     const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
   }
+  showLevel1Approve(req: any): boolean {
 
+    // HR Employee (dept = HR and not HR Manager)
+    if (req.department === 1 && req.roleId !== 1) {
+      return this.isHRManager && req.hodDecision === 'PENDING';
+    }
+  
+    // HR Manager
+    if (req.roleId === 1) {
+      return this.isManagement && req.hodDecision === 'PENDING';
+    }
+  
+    // Reporting Manager / HOD
+    if (req.roleId === 3 || req.roleId === 5) {
+      return this.isManagement && req.hodDecision === 'PENDING';
+    }
+  
+    // Normal Employee
+    if (req.roleId === 2) {
+      return this.isReportingManager && req.hodDecision === 'PENDING';
+    }
+  
+    return false;
+  }
+  
+  
+  showLevel2Approve(req: any): boolean {
+  
+    // HR employee — NO LEVEL 2
+    if (req.department === 1 && req.roleId !== 1) return false;
+  
+    // HR Manager — NO LEVEL 2
+    if (req.roleId === 1) return false;
+  
+    // Reporting Manager / HOD
+    if (req.roleId === 3 || req.roleId === 5) {
+      return this.isHRManager && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
+    }
+  
+    // Normal employee
+    if (req.roleId === 2) {
+      return this.isHRManager && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
+    }
+  
+    return false;
+  }
+  approvePermission(id: number, level: 'LEVEL1' | 'LEVEL2') {
+
+    let backendRole: any = null;
+  
+    if (level === 'LEVEL1') {
+  
+      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      else if (this.isManagement) backendRole = 'MANAGEMENT';
+    }
+  
+    else if (level === 'LEVEL2') {
+      backendRole = 'HR_MANAGER';
+    }
+  
+    const userId = Number(localStorage.getItem('empId'));
+  
+    this.permissionService.updatePermissionStatus(
+      id,
+      'APPROVED',
+      userId,
+      backendRole
+    ).subscribe(() => this.loadPermissionRequests());
+  }
+  
 }

@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Appraisal } from '../../../services/appraisal/appraisal';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 interface SelectOpton {
   name: string;
@@ -19,18 +20,19 @@ interface SelectOpton {
   selector: 'app-apprasial-form',
   imports: [FormsModule, InputTextModule, FloatLabel, TextareaModule, ButtonModule, ReactiveFormsModule, CommonModule],
   templateUrl: './apprasial-form.html',
-  styleUrl: './apprasial-form.css'
+  styleUrl: './apprasial-form.css',
+  providers: [MessageService]
 })
 export class ApprasialForm {
 
   @Input() selectedAppraisal: any;  // Data passed from parent
   @Output() formSubmitted = new EventEmitter<void>(); // Notify parent after save
-
+  isLoading = false;
 
   appraisalForm!: FormGroup;
   role: string = 'Reporting Manager'
 
-  constructor(private fb: FormBuilder, private appraisalService: Appraisal) { }
+  constructor(private fb: FormBuilder, private appraisalService: Appraisal, private messageService: MessageService) { }
 
   ngOnInit() {
     this.initForm();
@@ -273,6 +275,7 @@ export class ApprasialForm {
   onSubmit() {
     const invalidFields = this.getInvalidFields(this.appraisalForm);
     console.log('Invalid fields:', invalidFields);
+    this.isLoading = true;
 
     if (this.appraisalForm.valid) {
       const rawValues = this.appraisalForm.getRawValue();
@@ -302,9 +305,30 @@ export class ApprasialForm {
       };
 
       console.log('Payload:', payload);
-
-      this.appraisalService.saveManagerReview(payload).subscribe(() => {
-        this.formSubmitted.emit();
+      this.appraisalService.saveManagerReview(payload).subscribe({
+        next: () => {
+          this.isLoading = false;
+      
+          // Optional success message
+          this.messageService?.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Review saved successfully'
+          });
+      
+          this.formSubmitted.emit();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Error saving manager review:', err);
+      
+          // Optional error message
+          this.messageService?.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err?.error?.message || 'Failed to save review. Try again.'
+          });
+        }
       });
     }
   }

@@ -1,7 +1,8 @@
 body {
   font-family: "Sofia Sans";
   /* background-color: transparent; */
-  background-color: #302F31;
+  background-color: black !important;
+  /* background-color: white; */
   margin: 0;
   padding: 0;
 }
@@ -9,7 +10,7 @@ body {
 /* styles.scss (global) */
 :root,
 .theme-light {
-  --bg:#f7f9fc; --panel:#fff; --card:#E8ECEF; --chip:#f3f6fb;
+  --bg:#f7f9fc; --panel:#fff; --card:#fff; --chip:#f3f6fb;
   --border:#e7edf7; --text:#0c1220; --muted:#5c6a80;
   --shadow:0 12px 32px rgba(16,24,40,.08); --radius:16px;
   --accent:#2563eb; --good:#16a34a; --warn:#d97706; --danger:#ef4444;
@@ -51,21 +52,35 @@ body {
 .p-datepicker-day-view {
   font-size: 12px !important;
 }
+.p-steps .p-steps-item.p-highlight ~ .p-steps-item::before {
+  border-color: #e9144a !important;
+}
+/* Active Step Circle */
+.p-steps .p-steps-item.p-highlight .p-steps-number {
+  background-color: #e9144a !important;
+  border-color: #e9144a !important;
+  color: #fff !important;
+}
+
+/* Active Step Label */
+.p-steps .p-steps-item.p-highlight .p-menuitem-link {
+  color: #e9144a !important;
+}
 
 /* Buttons (Primary / Success) */
 /* .p-button,
 .p-button.p-button-success,
 .p-fileupload-choose {
   background-color: transparent !important;
-  border-color: #e9144a !important;
-  border: 2px solid #e9144a !important;
-  color: #e9144a !important;
+  border-color: #FB9C2A !important;
+  border: 2px solid #FB9C2A !important;
+  color: #FB9C2A !important;
 }
 
 .p-button:enabled:hover {
-  background-color: #e9144a !important;
-  border-color: #e9144a !important;
-  border: 2px solid #e9144a !important;
+  background-color: #FB9C2A !important;
+  border-color: #FB9C2A !important;
+  border: 2px solid #FB9C2A !important;
   color: #fff !important;
 } */
 
@@ -97,20 +112,7 @@ body {
   border-color: var(--primary-color) !important;
 }
 
-.p-steps .p-steps-item.p-highlight ~ .p-steps-item::before {
-  border-color: #e9144a !important;
-}
-/* Active Step Circle */
-.p-steps .p-steps-item.p-highlight .p-steps-number {
-  background-color: #e9144a !important;
-  border-color: #e9144a !important;
-  color: #fff !important;
-}
 
-/* Active Step Label */
-.p-steps .p-steps-item.p-highlight .p-menuitem-link {
-  color: #e9144a !important;
-}
 
 /* Optional: Hover on active step (if clickable) */
 .p-steps .p-steps-item.p-highlight .p-menuitem-link:hover {
@@ -148,5 +150,5 @@ body {
 /* For Firefox */
 * {
   scrollbar-width: thin;       /* Thin scrollbar */
-  scrollbar-color: #FFFFFF #302F31; /* Thumb color and track color */
+  scrollbar-color: #FFFFFF #000; /* Thumb color and track color */
 }

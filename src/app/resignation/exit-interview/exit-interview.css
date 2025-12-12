@@ -241,7 +241,7 @@ label {
 .p-floatlabel.float-active label {
   top: -0.40rem;
   font-size: 0.75rem;
-  background-color: #302F31;
+  background-color: #000;
   color: var(--text-color-secondary);
 }
 
@@ -284,7 +284,7 @@ label {
 
   --p-floatlabel-focus-color: black !important;
   --p-floatlabel-on-active-background: white !important;
-  --p-rating-icon-color: #302F31;
+  --p-rating-icon-color: #000;
 
 }
 

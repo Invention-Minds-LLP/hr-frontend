@@ -135,7 +135,7 @@ select {
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF;
+  background: #fff;
   color: black;
   font-size: 16px;
   font-weight: 600;
@@ -165,7 +165,7 @@ select {
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+  background: #000 !important;
   padding:20px;
   font-size: 16px;
   font-weight: 500;
@@ -196,12 +196,12 @@ select {
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -227,7 +227,7 @@ select {
   gap: 8px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #3177a3;
+  background: #194B9B;
   color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;

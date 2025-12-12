@@ -1,48 +1,84 @@
 <div class="card">
-  <h2>Application Status</h2>
+  <div class="flex justify-content-between align-items-center">
+    <h2>Application Status</h2>
 
-  <div class="filters">
-    <label>
-      <span>Job</span>
-      <select [(ngModel)]="selectedJobId" (change)="load()">
-        <option [ngValue]="undefined">All jobs</option>
-        <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }}</option>
-      </select>
-    </label>
+    <div class="filters">
+      <!-- <label>
+        <span>Job</span>
+        <select [(ngModel)]="selectedJobId" (change)="load()">
+          <option [ngValue]="undefined">All jobs</option>
+          <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }}</option>
+        </select>
+      </label>
+  
+      <label>
+        <span>Status</span>
+        <select [(ngModel)]="filterStatus" (change)="load()">
+          <option [ngValue]="''">Any</option>
+          <option
+            *ngFor="let s of ['APPLIED','SCREENING','SHORTLISTED','INTERVIEW_SCHEDULED','INTERVIEWED','OFFERED','OFFER_ACCEPTED','OFFER_DECLINED','REJECTED','WITHDRAWN','HIRED','NO_SHOW']"
+            [ngValue]="s">
+            {{ s }}
+          </option>
+        </select>
+      </label>
+  
+      <label class="grow">
+        <span>Search</span>
+         <i class="pi pi-search" style="margin-right: .5rem;"></i>
+        <input [(ngModel)]="q" (keyup.enter)="load()" placeholder="Search Candidate or Email" />
+      </label>
+  
+      <button (click)="load()">Load</button> -->
 
-    <label>
-      <span>Status</span>
-      <select [(ngModel)]="filterStatus" (change)="load()">
-        <option [ngValue]="''">Any</option>
-        <option
-          *ngFor="let s of ['APPLIED','SCREENING','SHORTLISTED','INTERVIEW_SCHEDULED','INTERVIEWED','OFFERED','OFFER_ACCEPTED','OFFER_DECLINED','REJECTED','WITHDRAWN','HIRED','NO_SHOW']"
-          [ngValue]="s">
-          {{ s }}
-        </option>
-      </select>
-    </label>
+   <!-- Job Select -->
+   <!-- <div class="select-box">
+    <select [(ngModel)]="selectedJobId" (change)="load()" required>
+      <option [ngValue]="null" disabled hidden>Select Job</option>
+      <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }}</option>
+    </select>
+  </div>
+  
+  <div class="select-box">
+    <select [(ngModel)]="filterStatus" (change)="load()" required>
+      <option [ngValue]="null" disabled hidden>Status</option>
+      <option
+        *ngFor="let s of statuses"
+        [ngValue]="s">
+        {{ s }}
+      </option>
+    </select>
+  </div>
+  
 
-    <label class="grow">
-      <span>Search</span>
-      <input [(ngModel)]="q" (keyup.enter)="load()" placeholder="candidate or email" />
-    </label>
 
-    <button (click)="load()">Load</button>
+        <div class="search-box">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            [(ngModel)]="q"
+            (keyup.enter)="load()"
+            placeholder="Search Employee"
+          />
+        </div>
+      
+        <button class="load-btn" (click)="load()">Load</button> -->
+      
+    </div>
   </div>
 
   <ng-container *ngIf="loading; else status">
-    <p-table [value]="[1, 2, 3, 4, 5]" [scrollable]="true" scrollHeight="600px">
+    <table  scrollHeight="600px">
       <!-- Header -->
-      <ng-template pTemplate="header">
+      <thead>
         <tr>
           <th *ngFor="let h of ['No','Candidate','Job Title','Offer','Resume','Status','Actions','Overview']">
             {{ h }}
           </th>
         </tr>
-      </ng-template>
+      </thead>
 
       <!-- Body -->
-      <ng-template pTemplate="body">
+      <tbody>
         <tr>
           <td><p-skeleton width="2rem" height="1.2rem"></p-skeleton></td>
 
@@ -65,67 +101,97 @@
           <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
           <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
         </tr>
-      </ng-template>
-    </p-table>
+      </tbody>
+    </table>
   </ng-container>
 
   <ng-template #status>
-    <p-table [value]="apps" [scrollable]="true" scrollDirection="both" [scrollHeight]="'60vh'"
-      [tableStyle]="{ 'min-width': '1200px' }" styleClass="p-datatable-gridlines p-datatable-striped">
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th>No</th>
-          <th>Candidate</th>
-          <th>Job Title</th>
-          <!-- <th>Stage</th> -->
-          <th>Offer</th>
-          <th>Resume</th>
-          <th>Status</th>
-          <th class="center">Actions</th>
-          <th class="center">Overview</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-a let-rowIndex="rowIndex">
-        <tr>
-          <td>{{rowIndex + 1}}</td>
-          <td>
-            <div class="name">{{ a.candidate?.name }}</div>
-            <div class="email" [title]="a.candidate?.email">{{ a.candidate?.email }}</div>
-          </td>
-          <td [title]="a.job?.title">{{ a.job?.title }}</td>
-
-          <!-- <td>{{ a.status || '—' }}</td> -->
-          <td>{{ a.offer?.status || '—' }}</td>
-          <td class="resume">
-            <a *ngIf="resumeUrl(a)" [href]="resumeUrl(a)!" target="_blank" rel="noopener" pTooltip="View Resume"
-              tooltipPosition="top">
-              <i class="pi pi-external-link"></i>
-            </a>
-          </td>
-          <td><span class="pill" [ngStyle]="{
-          backgroundColor: getApplicationStatusColors(a.status).badgeColor,
-          color: getApplicationStatusColors(a.status).dotColor}">{{ a.status }}</span></td>
-
-
-          <td class="actions">
-            <p-select [options]="actionOptionsFor(a)" [(ngModel)]="actionSel[a.id]" placeholder="Choose action"
-              appendTo="body" [style]="{ width: '10rem' }"
-              (onChange)="onActionChange(a, $event.value)">
-            </p-select>
-          </td>
-          <td>
-            <button pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
-            </button>
-          </td>
-
-        </tr>
-
-      </ng-template>
-    </p-table>
+    <div class="table-wrap" *ngIf="apps.length > 0; else empty">
+      <table class="custom-table">
+        <colgroup>
+          <col style="width:5%">
+          <col style="width:25%">
+          <col style="width:15%">
+          <col style="width:15%">
+          <col style="width:9%">
+          <col style="width:15%">
+          <col style="width:15%">
+          <col style="width:20%">
+        </colgroup>
+  
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Candidate</th>
+            <th>Job Title</th>
+            <!-- <th>Stage</th> -->
+            <th>Offer</th>
+            <th style="text-align: left">Resume</th>
+            <th>Status</th>
+            <th class="center">Actions</th>
+            <th class="center">Overview</th>
+          </tr>
+        </thead>
+  
+        <tbody>
+          <tr *ngFor="let a of apps; let i = index">
+            <td>{{i + 1}}</td>
+            <td>
+              <div class="name">{{ a.candidate?.name }}</div>
+              <div class="email" [title]="a.candidate?.email">{{ a.candidate?.email }}</div>
+            </td>
+            <!-- <td [title]="a.job?.title">{{ a.job?.title }}</td> -->
+            <td class="title">
+              <span class="text"
+                    pTooltip="{{ a.job?.title }}"
+                    tooltipPosition="top">
+                {{ truncate(a.job?.title, 10) }}
+              </span>
+            </td>
+            
+            
+            
+            <!-- <td>{{ a.status || '—' }}</td> -->
+            <td>{{ a.offer?.status || '—' }}</td>
+            <td class="resume">
+              <ng-container *ngIf="resumeUrl(a); else noResume">
+                <a [href]="resumeUrl(a)!" target="_blank" rel="noopener"
+                   pTooltip="View Resume" tooltipPosition="top">
+                  <i class="pi pi-external-link"></i>
+                </a>
+              </ng-container>
+            
+              <ng-template #noResume>
+                <span class="muted">—</span>
+              </ng-template>
+            </td>
+            
+            <td><span class="pill" [ngStyle]="{
+            backgroundColor: getApplicationStatusColors(a.status).badgeColor,
+            color: getApplicationStatusColors(a.status).dotColor}">{{ a.status }}</span></td>
+  
+  
+            <td class="actions">
+              <p-select [options]="actionOptionsFor(a)" [(ngModel)]="actionSel[a.id]" placeholder="Choose action"
+                appendTo="body" [style]="{ width: '10rem' }"
+                (onChange)="onActionChange(a, $event.value)">
+              </p-select>
+            </td>
+            <td>
+              <button pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
+              </button>
+            </td>
+  
+          </tr>
+        </tbody>
+  
+  
+      </table>
+    </div>
   </ng-template>
-
+  <ng-template #empty>
+    <p>No applications found.</p>
+  </ng-template>
 
 </div>
 <!-- ... your existing table / page content ... -->
@@ -135,7 +201,16 @@
 <!-- ====================== -->
 <p-dialog header="Schedule Interview" [(visible)]="showInterviewDialog" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'48vw', '640px':'92vw' }" [style]="{ width:'640px' }"
-  (onHide)="onInterviewDialogHide()">
+  (onHide)="onInterviewDialogHide()" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Schedule Interview</span>
+
+      <button class="dialog-close-btn" (click)="showInterviewDialog = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <form [formGroup]="interviewForm" class="si-body p-fluid">
     <!-- Stage -->
     <div class="si-field">
@@ -149,9 +224,9 @@
     </div>
 
     <!-- Time row -->
-    <div class="si-row">
+    <div class="dialog-row">
       <!-- Start -->
-      <div class="si-col">
+      <div class="dialog-field">
         <label class="si-label">Start <span class="si-req">*</span></label>
         <div class="si-input si-grid-2">
           <p-datepicker formControlName="startDate" [showTime]="false" appendTo="body"></p-datepicker>
@@ -161,7 +236,7 @@
       </div>
 
       <!-- End -->
-      <div class="si-col">
+      <div class="dialog-field">
         <label class="si-label">End <span class="si-req">*</span></label>
         <div class="si-input si-grid-2">
           <p-datepicker formControlName="endDate" [showTime]="false" appendTo="body"></p-datepicker>
@@ -195,7 +270,7 @@
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancel" class="p-button-text" (click)="showInterviewDialog=false"></button>
-    <button pButton type="button" label="Save" icon="pi pi-check" (click)="submitInterview()"
+    <button pButton type="button" label="Save" [loading]="isLoading" [label]="isLoading ? 'Saving': 'Save'" icon="pi pi-check" (click)="submitInterview()"
       [disabled]="interviewForm.invalid"></button>
   </ng-template>
 </p-dialog>
@@ -207,18 +282,27 @@
 <!-- ====================== -->
 <p-dialog header="Send Offer" [(visible)]="showOfferDialog" [modal]="true" [dismissableMask]="true" [draggable]="false"
   [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }" [style]="{ width:'420px' }"
-  (onHide)="offerForm.reset(); currentApp && resetAction(currentApp.id)">
+  (onHide)="offerForm.reset(); currentApp && resetAction(currentApp.id)" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Send Offer</span>
+
+      <button class="dialog-close-btn" (click)="showOfferDialog = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <form [formGroup]="offerForm" class="dialog-body p-fluid">
-    <div class="field">
+    <div class="dialog-field">
       <label class="label">Proposed Join <span class="muted">(optional)</span></label>
-      <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24"></p-datepicker>
+      <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24" appendTo="body"></p-datepicker>
       <small class="hint">You can leave this blank and set it later.</small>
     </div>
   </form>
 
   <ng-template pTemplate="footer">
-    <button pButton type="button" label="Skip" class="p-button-text" (click)="submitOffer(true)"></button>
-    <button pButton type="button" label="Send" icon="pi pi-send" (click)="submitOffer(false)"></button>
+    <!-- <button pButton type="button" label="Skip" class="p-button-text"  [loading]="isLoading" [label]="isLoading ? 'Skipping': 'Skip'" (click)="submitOffer(true)"></button> -->
+    <button pButton type="button" label="Send" icon="pi pi-send"  [loading]="isLoading" [label]="isLoading ? 'Sending': 'Send'" (click)="submitOffer(false)"></button>
   </ng-template>
 </p-dialog>
 
@@ -228,7 +312,16 @@
 <!-- ====================== -->
 <p-dialog [header]="reasonDialogTitle" [(visible)]="showReasonDialog" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }" [style]="{ width:'480px' }"
-  (onHide)="reasonForm.reset(); currentApp && resetAction(currentApp.id)">
+  (onHide)="reasonForm.reset(); currentApp && resetAction(currentApp.id)" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>{{reasonDialogTitle}}</span>
+
+      <button class="dialog-close-btn" (click)="showReasonDialog = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <form [formGroup]="reasonForm" class="dialog-body p-fluid">
     <div class="field">
       <label class="label">{{ reasonDialogLabel }}</label>
@@ -245,7 +338,7 @@
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancel" class="p-button-text" (click)="showReasonDialog=false"></button>
-    <button pButton type="button" label="Save" icon="pi pi-check" (click)="submitReason()"></button>
+    <button pButton type="button" label="Save" icon="pi pi-check"  [loading]="isLoading" [label]="isLoading ? 'Saving': 'Save'" (click)="submitReason()"></button>
   </ng-template>
 </p-dialog>
 
@@ -253,9 +346,18 @@
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'520px', '640px':'95vw' }"
   [style]="{ width:'560px' }"
   [contentStyle]="{ 'max-height':'72vh','overflow-y':'auto','overflow-x':'hidden','padding-bottom':'0' }"
-  (onHide)="assignTestForm.reset(); currentApp && resetAction(currentApp.id)">
+  (onHide)="assignTestForm.reset(); currentApp && resetAction(currentApp.id)" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Assign Test</span>
+
+      <button class="dialog-close-btn" (click)="showAssignTestDialog = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <form [formGroup]="assignTestForm" class="at-body p-fluid">
-    <div class="at-field">
+    <div class="dialog-field">
       <label class="at-label">Evaluation Test <span class="at-req">*</span></label>
 
       <!-- Force overlay to body so it isn't clipped -->
@@ -266,38 +368,38 @@
       </small>
     </div>
 
-    <div class="at-row">
-      <div class="at-row">
+ 
+      <div class="dialog-row">
         <!-- Test start -->
-        <div class="at-col">
+        <div class="dialog-field">
           <label class="at-label">Test date</label>
           <p-datepicker formControlName="testDateDate" appendTo="body"></p-datepicker>
         </div>
-        <div class="at-col">
+        <div class="dialog-field">
           <label class="at-label">Time</label>
           <p-datepicker formControlName="testDateTime" [timeOnly]="true" hourFormat="24" appendTo="body"></p-datepicker>
         </div>
       </div>
 
-      <div class="at-row">
+      <div class="dialog-row">
         <!-- Deadline -->
-        <div class="at-col">
+        <div class="dialog-field">
           <label class="at-label">Deadline date</label>
           <p-datepicker formControlName="deadlineDateDate" appendTo="body"></p-datepicker>
         </div>
-        <div class="at-col">
+        <div class="dialog-field">
           <label class="at-label">Time</label>
           <p-datepicker formControlName="deadlineDateTime" [timeOnly]="true" hourFormat="24"
             appendTo="body"></p-datepicker>
         </div>
       </div>
 
-    </div>
+    
   </form>
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancel" class="p-button-text" (click)="showAssignTestDialog=false"></button>
-    <button pButton type="button" label="Assign" icon="pi pi-check" (click)="submitAssignTest()"
+    <button pButton type="button" label="Assign" icon="pi pi-check"  [loading]="isLoading" [label]="isLoading ? 'Assigning': 'Assign'" (click)="submitAssignTest()"
       [disabled]="assignTestForm.invalid"></button>
   </ng-template>
 </p-dialog>
@@ -306,7 +408,16 @@
 
 <p-dialog header="Move to Shortlisted" [(visible)]="shortlistDlg.visible" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }"
-  [style]="{ width:'480px' }" (onHide)="shortlistDlg.app && resetAction(shortlistDlg.app.id)">
+  [style]="{ width:'480px' }" (onHide)="shortlistDlg.app && resetAction(shortlistDlg.app.id)" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Move to Shortlisted</span>
+
+      <button class="dialog-close-btn" (click)="shortlistDlg.visible= false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <div class="dialog-body">
     ️<p>Are you sure you want to move this application to <b>Shortlisted</b>?</p>
     <div class="field">
@@ -334,7 +445,16 @@
 
 <p-dialog header="Reject Application" [(visible)]="rejectDlg.visible" [modal]="true" [dismissableMask]="true"
   [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }"
-  [style]="{ width:'520px' }" (onHide)="rejectDlg.app && resetAction(rejectDlg.app.id)">
+  [style]="{ width:'520px' }" (onHide)="rejectDlg.app && resetAction(rejectDlg.app.id)" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Reject Application</span>
+
+      <button class="dialog-close-btn" (click)="rejectDlg.visible = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <div class="dialog-body p-fluid">
     <div class="field">
       <label class="label">Reason <span class="req">*</span></label>
@@ -357,7 +477,16 @@
 </p-dialog>
 
 <p-dialog header="Candidate Overview" [(visible)]="showSummaryDialog" [modal]="true" [dismissableMask]="true"
-  [style]="{width: '700px'}" (onHide)="selectedAppId=null">
+  [style]="{width: '700px'}" (onHide)="selectedAppId=null" [closable]="false" class="recruit">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Candidate Overview</span>
+
+      <button class="dialog-close-btn" (click)="showSummaryDialog = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
 
   <app-candidate-summary *ngIf="selectedAppId" [applicationId]="selectedAppId"></app-candidate-summary>
 

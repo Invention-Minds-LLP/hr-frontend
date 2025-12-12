@@ -14,6 +14,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { InputText, InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -38,21 +39,26 @@ export class DeptPerformance {
     { label: 'Department', value: 'departmentId' },
     // { label: 'Cycle', value: 'cycle' } 
   ];
+  loggedEmployeeId: string = localStorage.getItem('empId') || '';
 
   selectedFilter: any = null;
   showFilterDropdown = false;
   filteredSummaries: any[] = [];
-  loading = true
+  loading = true;
+  isLoading = false;
 
   periods = [
     { label: 'Month 1', value: 'MONTH_1' },
     { label: 'Month 3', value: 'MONTH_3' },
     { label: 'Month 6', value: 'MONTH_6' },
     { label: 'Year 1', value: 'YEAR_1' },
-    { label: 'Year 2', value: 'YEAR_2' }
+    // { label: 'Year 2', value: 'YEAR_2' }
   ];
 
-  constructor(private performanceService: PerformanceService, private employeeService: Employees, private departmentService: Departments, private fb: FormBuilder) {
+  cycles: any[] = [];
+
+  constructor(private performanceService: PerformanceService, private employeeService: Employees, 
+    private departmentService: Departments, private fb: FormBuilder, private messageService: MessageService) {
     this.assignForm = this.fb.group({
       employeeIds: [[], Validators.required],
       departmentId: [null, Validators.required],
@@ -67,6 +73,7 @@ export class DeptPerformance {
     this.loadDepartments();
     this.role = localStorage.getItem('role') || '';
     document.addEventListener('click', this.closeDropdownOnClickOutside);
+    this.generateCycles();
   }
 
   closeDropdownOnClickOutside = (event: any) => {
@@ -115,7 +122,19 @@ export class DeptPerformance {
     });
   }
 
-
+  generateCycles() {
+    const currentYear = new Date().getFullYear();
+    this.cycles = [];
+  
+    for (let i = 0; i < 20; i++) {
+      const startYear = currentYear + i;
+      const endYear = startYear + 1;
+      const cycle = `APR-${startYear} TO MAR-${endYear}`;
+  
+      this.cycles.push({ label: cycle, value: cycle });
+    }
+  }
+  
   onFilterChange() {
     this.filteredSummaries = [...this.summaries];
     this.showFilterDropdown = false;
@@ -134,19 +153,44 @@ export class DeptPerformance {
 
   loadSummaries() {
     this.loading = true
-    this.performanceService.getSummaries().subscribe(res => {
-      this.summaries = res;
-      this.filteredSummaries = [...res];
-    });
+    this.performanceService.getSummaries().subscribe({
+      next: (data) => {
+        if (this.role === 'HR Manager' || this.role === 'Management') {
+          this.summaries = data;
+        } else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
+          // HR sees all OTHER departments except HR department
+          this.summaries = (data || []).filter(
+            (a: any) => a?.departmentId !== 1
+          );
+        }
+        else if (this.role === 'Reporting Manager') {
+          this.summaries = (data || []).filter(
+            (a: any) => a.employee?.reportingManager === Number(this.loggedEmployeeId)
+          );
 
+        }
+        this.filteredSummaries = [...this.summaries];
+        console.log('Loaded summaries:', this.filteredSummaries);
+      },
+      error: () => {
+        // alert('Error loading appraisals');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error loading appraisals'
+        });
+        this.loading = false
+      }
+    });
     setTimeout(() => {
-      this.loading = false
-    }, 2000)
+      this.filteredSummaries = [...this.summaries];
+      this.loading = false; // 👈 stop loading
+    }, 800);
 
   }
 
   loadEmployees() {
-    this.employeeService.getEmployees().subscribe(res => this.employees = res);
+    this.employeeService.getActiveEmployees().subscribe(res => this.employees = res);
   }
 
   loadDepartments() {
@@ -164,12 +208,18 @@ export class DeptPerformance {
     const payload = this.assignForm.value;
     this.performanceService.assignForm(payload).subscribe({
       next: (res) => {
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Performance summaries assigned successfully.' });
         console.log('Assigned:', res);
         this.visible = false;
         this.assignForm.reset();
         this.loadSummaries();
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err)
+        this.isLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign performance summaries.' });
+      }
     });
   }
   openSummary(summary: any) {

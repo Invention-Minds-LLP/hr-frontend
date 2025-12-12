@@ -87,6 +87,22 @@ export class ApplicationStatus implements OnInit {
   resumeSafeUrl?: SafeResourceUrl;
   showSummaryDialog = false;
   selectedAppId: number | null = null;
+  statuses = [
+    'APPLIED',
+    'SCREENING',
+    'SHORTLISTED',
+    'INTERVIEW_SCHEDULED',
+    'INTERVIEWED',
+    'OFFERED',
+    'OFFER_ACCEPTED',
+    'OFFER_DECLINED',
+    'REJECTED',
+    'WITHDRAWN',
+    'HIRED',
+    'NO_SHOW'
+  ];
+  isLoading = false;
+  
 
 
 
@@ -216,7 +232,7 @@ export class ApplicationStatus implements OnInit {
 
   submitInterview() {
     if (!this.currentApp) return;
-
+    this.isLoading = true;
 
     const v = this.interviewForm.value;
     const start = this.combineDateAndTime(v.startDate as Date, v.startTime as Date);
@@ -239,6 +255,7 @@ export class ApplicationStatus implements OnInit {
           summary: 'Interview Scheduled',
           detail: 'Interview has been successfully scheduled.',
         });
+        this.isLoading = false;
         this.showInterviewDialog = false;
         this.resetInterview();
         this.load();
@@ -252,12 +269,14 @@ export class ApplicationStatus implements OnInit {
             detail: `${err.error.message}\n${details}`,
             life: 8000,
           });
+          this.isLoading = false;
         } else {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
             detail: 'Failed to schedule interview',
           });
+          this.isLoading = false;
         }
       },
     });
@@ -322,10 +341,11 @@ export class ApplicationStatus implements OnInit {
     if (!this.currentApp) return;
     const dt = this.offerForm.value.proposedJoinAt as Date | null;
     const iso = skipDate || !dt ? undefined : dt.toISOString();
-
+    this.isLoading = true;
     this.getOrCreateOffer(this.currentApp).pipe(
       switchMap(ofr => this.api.sendOffer(ofr.id, iso))
     ).subscribe(() => {
+      this.isLoading = false;
       this.showOfferDialog = false;
       this.offerForm.reset();
       this.load();
@@ -335,6 +355,7 @@ export class ApplicationStatus implements OnInit {
   submitReason() {
     if (!this.currentApp) return;
     const reason = this.reasonForm.value.reason || undefined;
+    this.isLoading = true;
 
     const call$ = this.reasonMode === 'decline'
       ? this.getOrCreateOffer(this.currentApp).pipe(switchMap(ofr => this.api.declineOffer(ofr.id, reason)))
@@ -344,6 +365,7 @@ export class ApplicationStatus implements OnInit {
       this.showReasonDialog = false;
       this.reasonForm.reset();
       this.load();
+      this.isLoading = false;
     });
   }
 
@@ -597,6 +619,7 @@ export class ApplicationStatus implements OnInit {
   submitAssignTest() {
     if (!this.currentApp || this.assignTestForm.invalid) return;
     const v = this.assignTestForm.value;
+    this.isLoading = true;
     const payload = {
       testId: Number(v.testId), // <-- cast to number (in case it’s a string)
       testDate: this.toIsos(v.testDateDate!, v.testDateTime!),
@@ -605,6 +628,7 @@ export class ApplicationStatus implements OnInit {
     this.api.assignTestToApplication(this.currentApp.id, payload).subscribe(() => {
       this.showAssignTestDialog = false;
       this.load(); // refresh applications/interviews if you show them
+      this.isLoading = false;
     });
   }
 
@@ -639,6 +663,7 @@ export class ApplicationStatus implements OnInit {
   openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '', shortListNote: '' }; }
   doShortlist() {
     if (!this.shortlistDlg.app || !this.shortlistDlg.stage) return;
+    
     this.move(this.shortlistDlg.app, 'SHORTLISTED', { currentStage: this.shortlistDlg.stage.trim(), shortListNote: this.shortlistDlg.shortListNote.trim() });
     this.shortlistDlg.visible = false;
   }
@@ -701,5 +726,9 @@ export class ApplicationStatus implements OnInit {
       this.actionSel = { ...this.actionSel, [a.id]: null }; // new object reference
     }, 100);
   }
+  truncate(text?: string, limit = 10) {
+    return text && text.length > limit ? text.slice(0, limit) + '…' : text || '';
+  }
+  
   
 }

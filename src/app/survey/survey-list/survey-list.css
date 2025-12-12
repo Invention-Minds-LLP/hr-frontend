@@ -27,7 +27,7 @@
 }
 
 ::ng-deep .interview-table .p-datatable-thead > tr > th{
-    background: #E8ECEF;
+    background: #fff;
     text-align: center;
     color: black;
     padding: 20px;
@@ -36,7 +36,7 @@
 
 ::ng-deep .interview-table .p-datatable-tbody > tr > td{
     text-align: center;
-    background: #302F31 !important;
+    background: #000 !important;
     color: white;
     padding: 20px;
     border: none !important;
@@ -44,11 +44,11 @@
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #e9144a !important;
+  background: #FB9C2A !important;
   color: white !important;
 }
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #e9144a !important;
+  background: #FB9C2A !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;

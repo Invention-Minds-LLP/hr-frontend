@@ -132,7 +132,7 @@
   
         <!-- ================= Buttons ================= -->
         <div class="btns" *ngIf="role === 'Reporting Manager'">
-            <p-button label="Submit" severity="success" class="submit-btn" type="submit" (click)="onSubmit()" />
+            <p-button label="Submit" severity="success" class="submit-btn" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" type="submit" (click)="onSubmit()" />
             <p-button label="Cancel" severity="danger" class="submit-btn" (click)="onCancel()" />
         </div>
       </div>

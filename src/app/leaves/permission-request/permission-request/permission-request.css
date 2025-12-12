@@ -179,7 +179,7 @@
   padding: 0;
   text-align: center;
   border-radius: 8px;
-  background-color: #E8ECEF;
+  background-color: #fff;
   color: #333;
   font-weight: 600;
   font-size: 13px;
@@ -189,12 +189,12 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: white !important;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -215,7 +215,7 @@
 ::ng-deep .permission-request .p-datatable .p-datatable-thead>tr>th {
   padding: 20px 30px;
   text-align: center;
-  background: #E8ECEF;
+  background: #fff;
   color: black;
   font-size: 16px;
   font-style: normal;
@@ -227,7 +227,7 @@
 
 ::ng-deep .permission-request .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
-  background: #302F31 !important;
+  background: #000 !important;
   border: none !important;
   border-bottom: 2px solid #D9D9D9 !important;
   color: white !important;
@@ -268,7 +268,7 @@
 
 .btn-2 {
   border-radius: 8px;
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
 }
 
 .btn-3 {

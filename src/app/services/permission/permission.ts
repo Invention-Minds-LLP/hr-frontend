@@ -27,16 +27,17 @@ export class Permission {
     id: number,
     status: string,
     userId: number,
-    role: 'MANAGER' | 'HR',
+    role: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT',
     declineReason?: string
   ): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/status`, {
       status,
       userId,
       role,
-      declineReason,
+      declineReason
     });
   }
+  
   getPermissionBalance(employeeId: number, year: number) {
     return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
   }

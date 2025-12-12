@@ -25,6 +25,7 @@
             "styles": [
               "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
+                "node_modules/angular-calendar/css/angular-calendar.css",
               "src/styles.css"
             ]
           },
@@ -39,7 +40,7 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "4kB",
-                  "maximumError": "20kB"
+                  "maximumError": "40kB"
                 }
               ],
               "outputHashing": "all"
@@ -54,6 +55,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4300
+          },
           "configurations": {
             "production": {
               "buildTarget": "hr-frontend:build:production"

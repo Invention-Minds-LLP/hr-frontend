@@ -23,6 +23,7 @@ import { SkeletonModule, Skeleton } from 'primeng/skeleton';
 import { AttendanceCalendar } from '../../services/attendance-calendar/attendance-calendar';
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { SurveyForm } from '../../survey/survey-form/survey-form';
+import { Leaves } from '../../services/leaves/leaves';
 
 interface individual {
   date: string;
@@ -37,7 +38,7 @@ interface AttendanceDay {
 }
 
 // put this in your component class
-type LeaveTypeCount = { label: string; count: number };
+type LeaveTypeCount = { label: string; count: number; total:number };
 
 @Component({
   selector: 'app-individual',
@@ -79,19 +80,15 @@ export class Individual {
 
   currentUserId = localStorage.getItem('empId');
 
-  leaveByTypeToday: LeaveTypeCount[] = [
-    { label: 'Sick Leave', count: 3 },
-    { label: 'Casual Leave', count: 2 },
-    { label: 'Earned Leave', count: 1 },
-    // { label: 'Maternity', count: 0 },
-    // { label: 'Comp Off', count: 1 },
-  ];
+  leaveByTypeToday: LeaveTypeCount[] = [];
   selectedSurvey: any = null;   // Holds the survey being taken
   showSurveyForm = false;
+  defaultCover = "./default-cover.png";
 
   // Called when "Take Survey" button clicked
   openSurveyForm(survey?: any) {
     this.selectedSurvey = survey || null; // optional: draft or new
+    console.log('Opening survey form for:', this.selectedSurvey);
     this.showSurveyForm = true;
   }
 
@@ -106,16 +103,16 @@ export class Individual {
 
 
 
-  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, private surveyService: SurveryService) { }
+  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, private surveyService: SurveryService, private leaveService: Leaves) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'status-pending';
+        return 'pending';
       case 'approved':
-        return 'status-approved';
+        return 'approved';
       case 'rejected':
-        return 'status-rejected';
+        return 'rejected';
       default:
         return '';
     }
@@ -155,6 +152,7 @@ export class Individual {
     this.generateWeekDays();
     this.fetchDetails();
     this.loadToday();
+    this.getLeaveBalance();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -173,6 +171,20 @@ export class Individual {
         }
       });
     }
+  }
+
+  getLeaveBalance(){
+    const year = new Date().getFullYear();
+    const employeeId = Number(this.currentUserId); // logged-in user ID you already have
+  
+    this.leaveService.getLeaveBalance(employeeId, year)
+      .subscribe((balances: any) => {
+        this.leaveByTypeToday = balances.map((b:any) => ({
+          label: b.leaveType,
+          count: b.remaining,
+          total: b.totalAllowed
+        }));
+      });
   }
   loadToday(): void {
     this.employeeService.getToday()
@@ -601,6 +613,13 @@ export class Individual {
     return gender === 'FEMALE' ? '/img-women.png' : '/img.png';
 
 }
+showDetails = false;
+
+toggleDetails() {
+  this.showDetails = !this.showDetails;
+}
+
+
 }
 
 

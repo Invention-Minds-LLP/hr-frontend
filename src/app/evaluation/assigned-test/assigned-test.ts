@@ -30,6 +30,7 @@ export class AssignedTest {
   assignedTests: any[] = [];
   overviewVisible = false;
   overview: any = null;
+  isLoading = false;
 
   filteredAssignedtest: any[] = []
   selectedFilter: any = null;
@@ -154,6 +155,8 @@ export class AssignedTest {
       return;
     }
 
+    this.isLoading = true;
+
     console.log('Evaluations to save:', evaluations);
 
     this.attemptService.evaluateAttempt(o.attemptId, evaluations).subscribe({
@@ -164,6 +167,7 @@ export class AssignedTest {
           detail: `Final Score: ${res.finalScore}`
         });
         this.overviewVisible = false;
+        this.isLoading = false;
       },
       error: err => {
         this.messageService.add({
@@ -171,6 +175,7 @@ export class AssignedTest {
           summary: 'Error',
           detail: 'Failed to save evaluation'
         });
+        this.isLoading = false;
       }
     });
   }

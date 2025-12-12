@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="stat flex" data-kind="interviewing">
-      <strong class="flex">{{ stats()['interviewing'] || 0 }} <div>Interviewing</div></strong>
+      <strong class="flex">{{ stats()['interviewing'] || 0 }} <div>In Interview Stage</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('interviewing')" tooltipPosition="top"
           tooltipEvent="hover">
@@ -139,12 +139,12 @@
     <div class="col" *ngIf="!selectedInterview()">
       <div class="card">
         <h3>Jobs</h3>
-        <div class="table-wrap" style="position: relative; min-height: 300px;">
+        <div class="table-wrap">
           <table class="jobs">
             <colgroup>
+              <col style="width:5%">
               <col style="width:20%">
-              <col style="width:16%">
-              <col style="width:14%">
+              <col style="width:29%">
               <col style="width:14%">
             </colgroup>
 
@@ -178,8 +178,13 @@
                   [class.active]="selectedJob?.id === j.id">
                   <td class="title">{{ i + 1 }}</td>
                   <td class="title">
-                    <span class="text" pTooltip="{{ j.title }}" tooltipPosition="top">{{ j.title }}</span>
+                    <span class="text"
+                          pTooltip="{{ j.title }}"
+                          tooltipPosition="top">
+                          {{ j.title && j.title.length > 10 ? (j.title | slice:0:10) + '…' : j.title }}
+                    </span>
                   </td>
+                  
                   <td class="left">
                     <span class="dept-badge"
                       [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).badgeColor }">
@@ -201,7 +206,7 @@
                       [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
                       optionLabel="label" optionValue="value" [placeholder]="j.status">
                       <ng-template pTemplate="selectedItem">
-                        <span class="pill" [class.warn]="j.status !== 'OPEN'">{{ j.status }}</span>
+                        <span style="color: white;"  [class.warn]="j.status !== 'OPEN'">Select Action</span>
                       </ng-template>
                       <ng-template let-opt pTemplate="item">
                         <span>{{ opt.label }}</span>

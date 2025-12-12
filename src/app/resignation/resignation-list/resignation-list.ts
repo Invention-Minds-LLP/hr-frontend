@@ -53,6 +53,12 @@ export class ResignationList {
 
   showApprovePopup = false;
   selectedLwd: Date | null = null;
+  noteDialogVisible = false;
+noteDialogTitle = '';
+noteDialogAction: any = null;
+noteText = '';
+currentRecord: any = null;
+
 
   constructor(private api: Resignation, private dept: Departments) { }
 
@@ -114,18 +120,32 @@ export class ResignationList {
   approveManager(r: any) {
     this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));
   }
+  // rejectManager(r: any) {
+  //   const note = prompt('Rejection reason?') || '';
+  //   this.api.managerReject(r.id, { note }).subscribe(upd => this.replace(upd));
+  // }
   rejectManager(r: any) {
-    const note = prompt('Rejection reason?') || '';
-    this.api.managerReject(r.id, { note }).subscribe(upd => this.replace(upd));
+    this.openNoteDialog(r, "Manager Rejection Reason", (id: number, note: string) => {
+      this.api.managerReject(id, { note })
+        .subscribe(upd => this.replace(upd));
+    });
   }
+  
   approveHR(r: any) {
     const lwd = prompt('Actual Last Working Day (yyyy-mm-dd)? Leave blank to keep proposed.') || '';
     this.api.hrApprove(r.id, { actualLastWorkingDay: lwd || undefined }).subscribe(upd => this.replace(upd));
   }
+  // rejectHR(r: any) {
+  //   const note = prompt('Rejection reason?') || '';
+  //   this.api.hrReject(r.id, { note }).subscribe(upd => this.replace(upd));
+  // }
   rejectHR(r: any) {
-    const note = prompt('Rejection reason?') || '';
-    this.api.hrReject(r.id, { note }).subscribe(upd => this.replace(upd));
+    this.openNoteDialog(r, "HR Rejection Reason", (id: number, note: string) => {
+      this.api.hrReject(id, { note })
+        .subscribe(upd => this.replace(upd));
+    });
   }
+  
   cancelHR(r: any) {
     this.api.hrCancel(r.id).subscribe(upd => this.replace(upd));
   }
@@ -172,27 +192,47 @@ export class ResignationList {
     };
     return map[n] || s.toLowerCase().replace(/\s+/g, '_');
   }
+  // holdHR(r: any) {
+  //   const note = prompt('Reason for putting on hold?') || '';
+  //   this.api.hrHold(r.id, { note }).subscribe(upd => this.replace(upd));
+  // }
   holdHR(r: any) {
-    const note = prompt('Reason for putting on hold?') || '';
-    this.api.hrHold(r.id, { note }).subscribe(upd => this.replace(upd));
+    this.openNoteDialog(r, "Put Resignation On Hold", (id: number, note: string) => {
+      this.api.hrHold(id, { note })
+        .subscribe(upd => this.replace(upd));
+    });
   }
+  
   dialogOpen: Record<number, boolean> = {};
 
   openDialog(id: number) { this.dialogOpen[id] = true; }
   closeDialog(id: number) { this.dialogOpen[id] = false; }
   isOpen(id: number) { return !!this.dialogOpen[id]; }
+  // approveWithdrawHR(r: any) {
+  //   const note = prompt('Optional note for approving withdraw?') || '';
+  //   this.api.hrApproveWithdraw(r.id, { note, approvedBy: this.employeeId })
+  //     .subscribe(upd => this.replace(upd));
+  // }
   approveWithdrawHR(r: any) {
-    const note = prompt('Optional note for approving withdraw?') || '';
-    this.api.hrApproveWithdraw(r.id, { note, approvedBy: this.employeeId })
-      .subscribe(upd => this.replace(upd));
+    this.openNoteDialog(r, "Approve Withdraw – Optional Note", (id: number, note: string) => {
+      this.api.hrApproveWithdraw(id, { note, approvedBy: this.employeeId })
+        .subscribe(upd => this.replace(upd));
+    });
   }
+  
+  // rejectWithdrawHR(r: any) {
+  //   const note = prompt('Reason for rejecting withdraw?') || '';
+  //   this.api.hrRejectWithdraw(r.id, { note, rejectedBy: this.employeeId })
+  //     .subscribe(upd => this.replace(upd));
+  // }
 
   rejectWithdrawHR(r: any) {
-    const note = prompt('Reason for rejecting withdraw?') || '';
-    this.api.hrRejectWithdraw(r.id, { note, rejectedBy: this.employeeId })
-      .subscribe(upd => this.replace(upd));
+    this.openNoteDialog(r, "Reject Withdraw – Reason", (id: number, note: string) => {
+      this.api.hrRejectWithdraw(id, { note, rejectedBy: this.employeeId })
+        .subscribe(upd => this.replace(upd));
+    });
   }
-
+  
 
 
   toggleFilterDropdown() {
@@ -248,5 +288,20 @@ export class ResignationList {
 
     return { badgeColor, dotColor };
   }
-
+  openNoteDialog(record: any, title: string, action: Function) {
+    this.currentRecord = record;
+    this.noteDialogTitle = title;
+    this.noteDialogAction = action;   // store function to call on submit
+    this.noteText = '';
+    this.noteDialogVisible = true;
+  }
+  submitNoteDialog() {
+    if (!this.noteDialogAction || !this.currentRecord) return;
+  
+    this.noteDialogAction(this.currentRecord.id, this.noteText);
+  
+    this.noteDialogVisible = false;
+    this.noteText = '';
+  }
+    
 }

@@ -32,7 +32,7 @@ export class Navbar {
   notifications: any[] = [];
   showNotifications = false;
   hasNewNotification = false;
-  audio = new Audio('/notification.mp3');
+  audio = new Audio('./notification.mp3');
 
   @ViewChild('resignationForm') resignationForm!: ResignationForm;
   @ViewChild('notificationWrapper') notificationWrapper!: ElementRef;
@@ -48,7 +48,7 @@ export class Navbar {
   isRestricted = false;
   isReportingManager = false;
   username = '';
-  apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
+  // apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
   announcements: any[] = [];
 
@@ -59,12 +59,13 @@ export class Navbar {
     const norm = this.normalizeRole(rawRole);
 
     const deptRaw =
-      localStorage.getItem('departmentId') ||
-      (JSON.parse(localStorage.getItem('user') || '{}')?.departmentId ?? '');
+      localStorage.getItem('deptId') ||
+      (JSON.parse(localStorage.getItem('user') || '{}')?.deptId ?? '');
     const deptId = Number(deptRaw) || 0;
 
     // Restrict only Executives not in dept 1
     this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
+    console.log('Normalized Role:', norm, deptId, this.isRestricted);
     this.isReportingManager = this.role === 'Reporting Manager';
     console.log('isReportingManager:', this.isReportingManager);
     this.username = localStorage.getItem('name') || '';
@@ -75,6 +76,10 @@ export class Navbar {
     // Subscribe to live updates
     this.notificationsService.notifications$.subscribe((data) => {
       this.notifications = data;
+      if (data.length > 0) {
+        this.hasNewNotification = true;
+        this.audio.play().catch((err) => console.error('Audio play failed:', err));
+      }
     });
 
     // Fetch existing notifications
@@ -229,6 +234,10 @@ export class Navbar {
     // Optionally call your API
     this.notificationsService.markAsRead(id).subscribe(() => {
       console.log('Marked as read:', id);
+      this.notificationsService.getAll(this.employeeId).subscribe((existing) => {
+        this.notifications = existing.reverse();
+      });
+  
     });
   }
   // 👇 This detects clicks outside the dropdown and closes it

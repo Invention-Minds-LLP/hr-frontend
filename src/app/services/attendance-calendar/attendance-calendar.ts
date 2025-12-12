@@ -31,4 +31,13 @@ export class AttendanceCalendar {
     };
     return this.http.get<any[]>(this.baseUrl, { params });
   }
+  approveAttendance(attendanceId: number, decision: string, hrId: number, rejectReason?: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/approve`, {
+      attendanceId,
+      decision,
+      hrId,
+      rejectReason
+    });
+  }
+  
 }

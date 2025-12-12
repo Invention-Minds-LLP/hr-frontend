@@ -3,8 +3,7 @@
 }
 
 .heading {
-  color:white;
-  
+  color: white;
 }
 
 .stats {
@@ -12,10 +11,9 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   /* margin-bottom: 16px; */
-
 }
 
-.stat div{
+.stat div {
   font-size: 16px;
   font-weight: 700;
   color: #5c6a80;
@@ -24,10 +22,10 @@
 
 .stat strong {
   font-size: 50px;
-  font-weight:900;
+  font-weight: 900;
 }
 
-.flex{
+.flex {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -38,26 +36,20 @@
   font-size: 14px;
 }
 
-
 /* Base stat card */
 .stat {
   position: relative;
-  padding:20px;
+  padding: 20px;
   border-radius: 18px;
   background: linear-gradient(to bottom right, var(--tile-g1), var(--tile-g2));
   border: 1px solid var(--border, transparent);
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, .06));
+  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   overflow: hidden;
   cursor: pointer;
-  transition: 
-    background 0.3s ease,
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
+  transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
-
 /* Glow effect – hidden by default */
-
 
 /* Show glow on hover */
 .stat:hover::after {
@@ -70,17 +62,20 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-
 /* hover effect */
 .stat:hover {
-  background: linear-gradient(135deg, var(--hover1, #22c55e), var(--hover2, #14b8a6));
+  background: linear-gradient(
+    135deg,
+    var(--hover1, #22c55e),
+    var(--hover2, #14b8a6)
+  );
   border-color: transparent;
-  color:black;
+  color: black;
   /* makes text readable */
 }
 
 .stat:hover::after {
-  opacity: .25;
+  opacity: 0.25;
 }
 
 /* Example per-kind gradients (assign as you like) */
@@ -155,8 +150,8 @@
 }
 
 .card {
-  background: linear-gradient(135deg, #5272f0, #61bdee);
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+  /* background: linear-gradient(135deg, #5272f0, #61bdee); */
+  /* box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06)); */
   border-radius: 12px;
   padding: 30px;
   height: 725px;
@@ -168,17 +163,14 @@
   grid-template-columns: 1fr 2fr;
   gap: 20px;
   padding-top: 30px;
-
 }
 
 /* Wrapper stays the same */
 .table-wrap {
-  border: 1px solid var(--border, #e5e7eb);
   border-radius: 12px;
-  background: var(--panel, #fff);
-  overflow-x: auto;
-  /* horizontal scroll if needed */
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+  overflow: auto;
+  max-width: 750px;
+  max-height: 600px;
 }
 
 /* Table: fixed, no spacing */
@@ -186,39 +178,44 @@ table.jobs {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
-  table-layout: fixed;
+  max-height: 500px;
+  overflow: auto;
   font-size: 14px;
 }
-
-
 
 /* 🔧 Force proper table display (undo any global flex/block styles) */
 table.jobs thead {
   display: table-header-group;
+  border-radius: 20px;
+  background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
 }
 
 table.jobs tbody {
-  display: table-row-group;
+  /* display: table-row-group; */
+  border-radius: 16px;
+  background: rgba(85, 85, 85, 0.4) !important;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
 }
 
-table.jobs tr {
-  display: table-row;
-}
-
-table.jobs th,
-table.jobs td {
-  display: table-cell;
-}
 
 /* Header / cells */
 table.jobs thead th {
   text-align: center;
   padding: 12px 14px;
+  height: 50px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-style: normal;
   font-weight: 700;
-  height: 60px;
-  color: black;
-   background: #E8ECEF;
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  line-height: normal;
+  letter-spacing: 0.2px;
 }
 
 table.jobs td {
@@ -227,8 +224,7 @@ table.jobs td {
   border-bottom: 1px solid var(--border, #e5e7eb);
   vertical-align: middle;
   /* background: var(--panel, #fff); */
-  background: white;
-  color: black;
+  /* color: black; */
 }
 /* 
 .card:focus-within,
@@ -237,15 +233,6 @@ table.jobs td {
   background: white;
   color: black;
 } */
-
-table.jobs tbody tr:hover {
-  background: #f6f9ff;
-}
-
-table.jobs tbody tr.active {
-  background: #eef6ff;
-}
-
 
 table.jobs tbody tr:last-child td {
   border-bottom: none;
@@ -295,7 +282,6 @@ td.title .text {
   font-size: 12px;
 }
 
-
 .pill.warn {
   background: #fff7ed;
 }
@@ -322,18 +308,19 @@ td.title .text {
   /* right: -100px; */
 }
 
-.flex1{
+.flex1 {
   display: flex;
   flex-direction: row;
   width: 100%;
 }
 
-.col{
+.col {
   padding: 0;
 }
 
-:ng-deep .p-select{
+:ng-deep .p-select {
   width: 100px;
+  color: white !important;
 }
 
 /* Department Badge */
@@ -361,11 +348,23 @@ td.title .text {
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
 }
 
 ::ng-deep .p-select .p-select-label .pill {
-  background-color: transparent !important;
-  color: inherit !important;
+  background-color: white !important;
+  color: white !important;
   border: none;
+}
+::ng-deep .p-select{
+  width: 120px !important;
+}
+
+::ng-deep .card .p-select-dropdown {
+  color: white !important;
 }

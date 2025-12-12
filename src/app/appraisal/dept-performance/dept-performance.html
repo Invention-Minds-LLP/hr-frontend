@@ -29,7 +29,7 @@
           <path d="M19.25 19.25L16.0417 16.0417M15.5833 9.16667..." stroke="#9B9B9B" />
         </svg>
 
-        <input id="searchBox" class="input" type="text" pInputText placeholder="Search Employee"
+        <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
       </div>
       <!-- </div> -->
@@ -55,7 +55,7 @@
   </div>
 
   <!-- Table -->
-  <p-table [value]="loading ? [1,2,3,4,5] : filteredSummaries" [paginator]="!loading" [rows]="10"
+  <!-- <p-table [value]="loading ? [1,2,3,4,5] : filteredSummaries" [paginator]="!loading" [rows]="10"
     responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
@@ -95,6 +95,7 @@
             <button class="btn" (click)="openSummary(s)">Open</button>
           </td>
         </tr>
+
       </ng-container>
 
       <ng-template #skeletonRow>
@@ -119,11 +120,104 @@
         </tr>
       </ng-template>
     </ng-template>
-  </p-table>
+  </p-table> -->
+
+  <p-table [value]="loading ? [1,2,3,4,5] : filteredSummaries"
+         [paginator]="!loading"
+         [rows]="10"
+         responsiveLayout="scroll">
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th>No</th>
+      <th>Emp ID</th>
+      <th>Employee Name</th>
+      <th>Department</th>
+      <th>Cycle</th>
+      <th>Period</th>
+      <th>Score</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-s let-i="rowIndex">
+
+    <!-- Show Skeleton while loading -->
+    <ng-container *ngIf="loading; else dataRow">
+      <tr>
+        <td><p-skeleton width="2rem"></p-skeleton></td>
+        <td><p-skeleton width="4rem"></p-skeleton></td>
+        <td>
+          <div class="flex align-items-center">
+            <p-skeleton shape="circle" size="2.5rem" styleClass="mr-2"></p-skeleton>
+            <div>
+              <p-skeleton width="80px"></p-skeleton>
+              <p-skeleton width="60px"></p-skeleton>
+            </div>
+          </div>
+        </td>
+        <td><p-skeleton width="90px"></p-skeleton></td>
+        <td><p-skeleton width="70px"></p-skeleton></td>
+        <td><p-skeleton width="60px"></p-skeleton></td>
+        <td><p-skeleton width="50px"></p-skeleton></td>
+        <td><p-skeleton width="80px"></p-skeleton></td>
+        <td><p-skeleton width="40px"></p-skeleton></td>
+      </tr>
+    </ng-container>
+
+    <!-- Actual row -->
+    <ng-template #dataRow>
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ s.employee?.employeeCode }}</td>
+        <td>{{ s.employee?.firstName }} {{ s.employee?.lastName }}</td>
+        <td>
+          <span class="dept-badge"
+            [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).badgeColor }">
+            <span class="dot"
+              [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).dotColor }">
+            </span>
+            {{ getDepartmentName(s?.department?.id) }}
+          </span>
+        </td>
+        <td>{{ s.cycle }}</td>
+        <td>{{ s.period }}</td>
+        <td>{{ s.marksScored || '-' }}</td>
+        <td>{{ s.overallPerf || 'Draft' }}</td>
+        <td><button class="btn" (click)="openSummary(s)">Open</button></td>
+      </tr>
+    </ng-template>
+
+  </ng-template>
+
+  <!-- NO DATA ROW — placed outside the body template -->
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="9" class="no-data center-right">
+        No Data Found
+      </td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
 </div>
 
 <!-- Assign Popup -->
-<p-dialog header="Assign Performance Form" [(visible)]="visible" [modal]="true" [style]="{width:'500px'}">
+<p-dialog header="Assign Performance Form" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width:'500px'}">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>
+        Assign Performance Form
+      </span>
+
+      <button class="dialog-close-btn" (click)="visible = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
 
   <form [formGroup]="assignForm" (ngSubmit)="onAssign()">
 
@@ -148,20 +242,30 @@
       <!-- Cycle -->
       <div class="field">
         <label for="cycle">Appraisal Cycle</label>
-        <input id="cycle" pInputText formControlName="cycle" placeholder="APR-2024 TO MAR-2025" />
+        <!-- <input id="cycle" pInputText formControlName="cycle" placeholder="APR-2024 TO MAR-2025" /> -->
+        <p-select 
+        [options]="cycles"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="cycle"
+        placeholder="Select Appraisal Cycle"
+        appendTo="body"
+        [showClear]="true">
+    </p-select>
+    
       </div>
 
       <!-- Period -->
       <div class="field">
         <label for="period">Period</label>
-        <p-select id="period" [options]="periods" formControlName="period">
+        <p-select id="period" [options]="periods" formControlName="period" appendTo="body">
         </p-select>
       </div>
     </div>
 
-    <p-footer>
-      <button pButton type="submit" label="Assign" [disabled]="assignForm.invalid"></button>
-    </p-footer>
+    <div>
+      <p-button pButton type="submit" label="Assign" [loading]="isLoading" [label]="isLoading ? 'Assigning': 'Assign'" [disabled]="assignForm.invalid"></p-button>
+    </div>
   </form>
 </p-dialog>
 

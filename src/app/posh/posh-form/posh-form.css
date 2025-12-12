@@ -1,34 +1,40 @@
-
-::ng-deep .p-inputtext, .p-textarea, .p-select{
-    width: 100%;
-    background-color: transparent !important;
-    color: black !important;
+::ng-deep .p-inputtext,
+.p-textarea,
+.p-select {
+  width: 100%;
+  background-color: transparent !important;
+  color: white !important;
 }
-.final{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.final {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 .p-floatlabel.float-active label {
-    top: -0.40rem;
-    font-size: 0.75rem;
-    background-color: transparent;
-    color: white !important;
-  }
+  top: -0.4rem;
+  font-size: 0.75rem;
+  background-color: transparent;
+  color: white !important;
+}
 
-  h2, h3{
-    color: white;
-  }
+h2,
+h3 {
+  color: white;
+}
 
-  .form{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
- ::ng-deep .btn .p-button{
-    margin-top: 20px;
-    background-color: #0062A1;
-    border-color: #0062A1;
-  }
-  
+/* ::ng-deep .btn .p-button {
+  margin-top: 20px;
+  border-radius: 6px !important;
+  background: #194b9b !important;
+  height: 33px !important;
+  width: 30% !important;
+  color: white !important;
+  border: none !important;
+  font-size: 16px !important;
+} */

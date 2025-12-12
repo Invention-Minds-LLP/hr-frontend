@@ -1,34 +1,158 @@
 .card {
- background: linear-gradient(135deg, #e08383, #cc9c65);
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
   border-radius: 12px;
-  padding: 30px ;
-  color: white
 }
 .filters {
   display: flex;
   gap: 12px;
   margin-bottom: 12px;
   align-items: flex-end;
+  justify-content: flex-end;
 }
 label {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 0.16px;
+  color: #fff;
+
 }
-label.grow {
-  flex: 1;
-}
+
 .card select,
 .card input {
   padding: 8px 10px;
   border-radius: 8px;
   border: 2px solid #c4c4c4;
-  background: transparent;
+  background: white;
   color: black;
 }
 
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3465b0;
+}
 
+h2 {
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.26px;
+}
+/* Container */
+.select-box {
+  position: relative;
+  width: 200px;
+}
+
+/* Select styling */
+.select-box select {
+  width: 100%;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #C4C4C4;
+  background: #fff;
+  font-size: 14px;
+  font-family: "Sofia Sans";
+  font-weight: 500;
+  color: #444;
+  appearance: none;
+  outline: none;
+  height: 34px;
+  cursor: pointer;
+  letter-spacing: 0.14px;
+}
+
+.select-box select:invalid {
+  color: #9B9B9B !important;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14px;
+}
+
+
+/* Make the placeholder option styled */
+.select-box option[value=""] {
+  color: #9B9B9B;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14px;
+}
+.select-box option[disabled] {
+  color: #9B9B9B;
+}
+
+/* Custom dropdown arrow */
+.select-box::after {
+  content: "▼";
+  font-size: 0.6rem;
+  color: #666;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+
+
+.search-box {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #C4C4C4;
+  background: #fff;
+  width: 220px;
+  height: 34px;
+}
+
+.search-box .search-icon {
+  color: #9B9B9B;
+  margin-right: 0.4rem;
+  /* font-family: "Sofia Sans"; */
+}
+
+.search-box input::placeholder {
+  color: #9B9B9B;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14px;
+}
+
+
+.search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.9rem;
+  color: #9B9B9B;
+}
+
+.load-btn {
+  padding: 0.6rem 1.2rem;
+  background: #1f7aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.load-btn:hover {
+  background: #0d62d4;
+}
 /* .card:focus-within input,
 .card:focus-within select {
   background: white;
@@ -44,18 +168,11 @@ button {
   color: #fff;
 }
 
-.card input::placeholder{
-  color: white;
-}
-/* .card:focus-within input::placeholder{
-  color: black;
-} */
 
-.p-button:hover{
+.p-button:hover {
   background: #3465b0;
   color: #fff;
   border: none;
-
 }
 button.ghost {
   background: #fff;
@@ -63,42 +180,86 @@ button.ghost {
 }
 /* Outer wrapper: nice border + scroll on small screens */
 .table-wrap {
-  border: 1px solid var(--border, #e5e7eb);
+  /* border: 1px solid var(--border, #e5e7eb); */
   border-radius: 10px;
-  background: transparent;
+  /* background: transparent; */
   overflow: auto;
-  max-width: 900px;
+  max-height: 600px;
+  max-width: 100%;
   width: 100%;
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
 }
 
 /* Fixed layout keeps columns aligned even with many buttons */
-table.apps {
+table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   font-size: 14px;
+  border-radius: 16px;
+  text-wrap: nowrap;
+  border: none;
 }
 
-/* Head */
-table .apps thead th {
-  text-align: left;
-  padding: 12px 14px;
-  font-weight: 700;
-  color: #2a3344;
-  background: transparent;
-  border-bottom: 1px solid var(--border, #e5e7eb);
+table thead {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
+  background: linear-gradient(96deg, #FED6AC 0%, #FFA090 100%);
 }
 
-/* Body cells */
-table .apps td {
+/* Apply background directly to th */
+table thead th {
+  text-align: left;
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-  vertical-align: middle;
-  background: transparent;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #727272;
+
+
+  /* keep sticky inside th */
+  position: sticky;
+  top: 0;
+  z-index: 11;
+}
+
+/* Remove border-radius from thead; apply only once */
+table thead tr:first-child th:first-child {
+  border-top-left-radius: 16px;
+}
+
+table thead tr:first-child th:last-child {
+  border-top-right-radius: 16px;
+}
+
+
+table tbody tr:last-child td {
+border-bottom: none;
+}
+/* 
+.table-wrap {
+  border-radius: 10px;
+  overflow: auto;
+  max-width: 100%;
+  max-height: 600px;
+  width: 100%;
+} */
+
+/* Body cells */
+table td {
+  padding: 12px 14px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+  text-wrap: nowrap;
 }
 
 /* Hover row
@@ -416,14 +577,44 @@ td.actions {
 .si-grid-2 {
   display: grid;
   grid-template-columns: 1fr;
-  gap: .5rem;
+  gap: 0.5rem;
+}
+/* ---------------------- */
+/* UNIVERSAL FORM LAYOUT  */
+/* ---------------------- */
+
+.dialog-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.dialog-field label {
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 @media (max-width: 640px) {
-  .at-row {
+  .dialog-row {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* @media (max-width: 640px) {
+  .at-row {
+    grid-template-columns: 1fr;
+  }
+} */
 
 /* prevent horizontal scroll in the dialog */
 :host ::ng-deep .p-dialog .p-dialog-content {
@@ -442,7 +633,7 @@ td.actions {
 :host ::ng-deep .p-dropdown-panel {
   z-index: 1200 !important;
 }
-::ng-deep  .p-datepicker-panel {
+::ng-deep .p-datepicker-panel {
   border-radius: 10px;
   /* Rounded calendar popup */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -454,19 +645,19 @@ td.actions {
   /* Adjusted width for calendar popup */
 }
 
-::ng-deep  .p-datepicker table {
+::ng-deep .p-datepicker table {
   font-size: 14px;
   /* Smaller font for dates */
 }
 
-::ng-deep  .p-datepicker-header {
+::ng-deep .p-datepicker-header {
   padding: 5px;
   /* Adjust header padding */
 }
 
-::ng-deep .p-datatable .p-datatable-thead>tr>th {
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
   /* background: white; */
-  background: #E8ECEF;
+  background: #fff;
   color: black;
   font-size: 16px;
   font-weight: 600;
@@ -478,7 +669,7 @@ td.actions {
   /* border-radius: 12px; */
 }
 
-::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
   background: white !important;
   padding: 16px 20px;
   font-size: 16px;
@@ -488,7 +679,6 @@ td.actions {
   border-bottom: 2px solid #d9d9d9;
   text-wrap: nowrap;
 }
-
 
 /* ::ng-deep .card:focus-within { 
   background: white;        
@@ -501,19 +691,34 @@ td.actions {
   color: black !important;
 } */
 
-::ng-deep .card .p-select{
-  background: transparent;
+::ng-deep .p-select {
+  background: transparent !important;
 }
 
-::ng-deep .card .p-select-label.p-placeholder{
-  color: black;
+::ng-deep .p-select, .p-datepicker, .p-multiselect{
+  width: 100% !important;
+  /* background-color: #020403 !important; */
+}
+
+::ng-deep .p-select-label {
+  color: white !important;
 }
 /* ::ng-deep .card:focus-within .p-select-label.p-placeholder{
   color: black;
 } */
 
-::ng-deep .card .p-select-dropdown{
-  color: black;
+::ng-deep .card .p-select-dropdown {
+  color: white;
+}
+
+::ng-deep .p-inputtext{
+  color: white !important;
+  width: 100% !important;
+}
+
+::ng-deep .p-textarea{
+  color: white !important;
+  background: #020403 !important;
 }
 /* ::ng-deep .card:focus-within .p-select-dropdown{
   color: black;
@@ -524,14 +729,79 @@ td.actions {
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #787d7d,
+    transparent
+  ) !important;
 }
 
-::ng-deep .p-timeline-event-content{
+::ng-deep .p-timeline-event-content {
   box-shadow: var(--shadow, 0 8px 24px rgba(52, 52, 53, 0.06));
   border-radius: 10px;
 }
 ::ng-deep .p-timeline-event {
   gap: 20px;
 }
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 20px !important;
+  background: #020403 !important;
+}
 
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+/* Stack on small screens */
+@media (max-width: 640px) {
+  .dialog-row {
+    grid-template-columns: 1fr;
+  }
+}

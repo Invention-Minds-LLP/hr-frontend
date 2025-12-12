@@ -45,6 +45,7 @@ export class TrainingOverview {
       feedback: [''],
       suggestions: [''],
     });
+    this.submitted = false;
   }
 
   submitFeedback() {
@@ -52,7 +53,7 @@ export class TrainingOverview {
 
     const payload = {
       trainingId: this.trainingId,
-      employeeId: this.employeeId,
+      employeeId: this.employeeId || Number(localStorage.getItem('empId')),
       ...this.feedbackForm.value,
     };
 

@@ -78,7 +78,7 @@ export class AnnouncementForm {
     this.deptSvc.getDepartments().subscribe((d) => (this.departments = d));
     this.branchSvc.getBranches().subscribe((b) => (this.branches = b));
     this.roleSvc.getRoles().subscribe((r) => (this.roles = r));
-    this.empSvc.getEmployees().subscribe((e) => {
+    this.empSvc.getActiveEmployees().subscribe((e) => {
       this.employees = e.map((x) => ({
         id: x.id!,
         firstName: x.firstName,

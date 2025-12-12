@@ -54,8 +54,13 @@
             </div>
     
             <div class="popup-actions">
-                <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()">Apply</button>
-                <button class="btn btn-red" (click)="closePopup()">Cancel</button>
+                <!-- <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()">Apply</button> -->
+                <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">Apply</span>
+                    <span *ngIf="isLoading" class="spinner"></span>
+                </button>
+
+                <button class="btn btn-red" (click)="closePopup()">Close</button>
             </div>
         </div>
     </div>

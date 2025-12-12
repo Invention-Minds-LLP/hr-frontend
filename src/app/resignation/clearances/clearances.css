@@ -81,7 +81,7 @@
   
   /* Body Rows */
   ::ng-deep .card .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31 !important;
+    background: #000 !important;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -500,4 +500,58 @@
 
 :host ::ng-deep .p-skeleton::after {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 0px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
 }

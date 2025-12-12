@@ -7,7 +7,7 @@
                     <g clip-path="url(#clip0_15665_1970)">
                         <path
                             d="M24.375 2.43472L17.8693 2.43474V0.81543C17.8693 0.366523 17.5057 0.00292969 17.0568 0.00292969C16.6079 0.00292969 16.2443 0.366523 16.2443 0.81543V2.43434H9.74431V0.81543C9.74431 0.366523 9.38072 0.00292969 8.93181 0.00292969C8.48291 0.00292969 8.11931 0.366523 8.11931 0.81543V2.43434H1.625C0.727594 2.43434 0 3.16193 0 4.05934V24.3718C0 25.2692 0.727594 25.9968 1.625 25.9968H24.375C25.2724 25.9968 26 25.2692 26 24.3718V4.05934C26 3.16231 25.2724 2.43472 24.375 2.43472ZM24.375 24.3718H1.625V4.05934H8.11931V4.87793C8.11931 5.32681 8.48291 5.69043 8.93181 5.69043C9.38072 5.69043 9.74431 5.32681 9.74431 4.87793V4.05974H16.2443V4.87834C16.2443 5.32724 16.6079 5.69084 17.0568 5.69084C17.5057 5.69084 17.8693 5.32724 17.8693 4.87834V4.05974H24.375V24.3718ZM18.6875 12.9972H20.3125C20.761 12.9972 21.125 12.6332 21.125 12.1847V10.5597C21.125 10.1112 20.761 9.74722 20.3125 9.74722H18.6875C18.239 9.74722 17.875 10.1112 17.875 10.5597V12.1847C17.875 12.6332 18.239 12.9972 18.6875 12.9972ZM18.6875 19.4968H20.3125C20.761 19.4968 21.125 19.1332 21.125 18.6843V17.0593C21.125 16.6108 20.761 16.2468 20.3125 16.2468H18.6875C18.239 16.2468 17.875 16.6108 17.875 17.0593V18.6843C17.875 19.1336 18.239 19.4968 18.6875 19.4968ZM13.8125 16.2468H12.1875C11.739 16.2468 11.375 16.6108 11.375 17.0593V18.6843C11.375 19.1332 11.739 19.4968 12.1875 19.4968H13.8125C14.261 19.4968 14.625 19.1332 14.625 18.6843V17.0593C14.625 16.6112 14.261 16.2468 13.8125 16.2468ZM13.8125 9.74722H12.1875C11.739 9.74722 11.375 10.1112 11.375 10.5597V12.1847C11.375 12.6332 11.739 12.9972 12.1875 12.9972H13.8125C14.261 12.9972 14.625 12.6332 14.625 12.1847V10.5597C14.625 10.1108 14.261 9.74722 13.8125 9.74722ZM7.3125 9.74722H5.6875C5.239 9.74722 4.875 10.1112 4.875 10.5597V12.1847C4.875 12.6332 5.239 12.9972 5.6875 12.9972H7.3125C7.761 12.9972 8.125 12.6332 8.125 12.1847V10.5597C8.125 10.1108 7.761 9.74722 7.3125 9.74722ZM7.3125 16.2468H5.6875C5.239 16.2468 4.875 16.6108 4.875 17.0593V18.6843C4.875 19.1332 5.239 19.4968 5.6875 19.4968H7.3125C7.761 19.4968 8.125 19.1332 8.125 18.6843V17.0593C8.125 16.6112 7.761 16.2468 7.3125 16.2468Z"
-                            fill="black" />
+                            fill="white" />
                     </g>
                     <defs>
                         <clipPath id="clip0_15665_1970">
@@ -97,7 +97,8 @@
                 <!-- Leave Type -->
                 <div class="form-row">
                     <label>Leave Type</label>
-                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}" (change)="checkLeaveBalance()">
+                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}"
+                        (change)="checkLeaveBalance()">
                         <option value="">Select Leave Type</option>
                         <option *ngFor="let type of leaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
@@ -151,7 +152,12 @@
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
-                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button>
+                    <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
+                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading">
+                        <span *ngIf="!isLoading">Apply Leave</span>
+                        <span *ngIf="isLoading" class="spinner">Applying...</span>
+                    </button>
+
                     <button class="reset" (click)="resetForm()">Reset</button>
                 </div>
             </div>
@@ -248,7 +254,8 @@
                 <!-- Leave Type -->
                 <div class="form-row">
                     <label>Leave Type</label>
-                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}" (change)="checkLeaveBalance()">
+                    <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}"
+                        (change)="checkLeaveBalance()">
                         <option value="">Select Leave Type</option>
                         <option *ngFor="let type of leaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
@@ -274,7 +281,7 @@
                     <div class="calendar-header">
                         <button type="button"
                             (click)="currentMonthIndex = currentMonthIndex - 1; generateCalendar()">&#8249;</button>
-                        <span>{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
+                        <span style="color: white">{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
                         <button type="button"
                             (click)="currentMonthIndex = currentMonthIndex + 1; generateCalendar()">&#8250;</button>
                     </div>
@@ -286,8 +293,9 @@
 
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
-                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"  [class.blocked]="day.blocked" 
-                            (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
+                            [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
+                            [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
+                            (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
                     </div>
@@ -295,7 +303,11 @@
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
-                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button>
+                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading">
+                        <span *ngIf="!isLoading">Apply Leave</span>
+                        <span *ngIf="isLoading" class="spinner">Applying...</span>
+                    </button>
+
                     <button class="reset" (click)="resetForm()">Reset</button>
                 </div>
             </div>

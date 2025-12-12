@@ -15,12 +15,19 @@
 }
 
 .employee-details input[readonly] {
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: transparent !important;
+  color: #fff !important;
   font-weight: 500;
   border: 1px solid #ccc;
 }
 
+.employee-details input[readonly]::placeholder {
+  color: #999;
+}
+
+.employee-details input{
+  color: white !important;
+}
 
 .survey-container {
   padding: 50px;
@@ -43,20 +50,17 @@
 /* Adjust specific column widths */
 ::ng-deep .p-datatable-thead>tr>th:nth-child(1),
 ::ng-deep .p-datatable-tbody>tr>td:nth-child(1) {
-  width: 60px !important;
-  /* Sl No. */
+  width: 12% !important;
 }
 
 ::ng-deep .p-datatable-thead>tr>th:nth-child(2),
 ::ng-deep .p-datatable-tbody>tr>td:nth-child(2) {
   width: 60% !important;
-  /* Question column fixed */
 }
 
 ::ng-deep .p-datatable-thead>tr>th:nth-child(n+3),
 ::ng-deep .p-datatable-tbody>tr>td:nth-child(n+3) {
-  width: 10% !important;
-  /* Options columns */
+  width: 20% !important;
   text-align: center;
 }
 
@@ -66,7 +70,7 @@
 }
 
 ::ng-deep .p-panel-header {
-  background: #302F31;
+  background: #000;
   border: none ;
   color: white;
 

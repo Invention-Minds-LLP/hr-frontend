@@ -16,6 +16,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { Tests } from '../../services/tests/tests';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-training-form',
@@ -36,7 +37,8 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ToggleSwitchModule
   ],
   templateUrl: './training-form.html',
-  styleUrl: './training-form.css'
+  styleUrl: './training-form.css',
+  providers: [MessageService]
 })
 export class TrainingForm {
   form!: FormGroup;
@@ -52,7 +54,8 @@ export class TrainingForm {
     private fb: FormBuilder,
     private trainingService: Trainings,
     private employeeService: Employees,
-    private testService: Tests // ✅ inject test service
+    private testService: Tests, // ✅ inject test service
+    private messageService: MessageService
   ) { }
 
   minLengthArray(min: number): ValidatorFn {
@@ -123,6 +126,8 @@ export class TrainingForm {
             testId: [t.testId ?? t.test?.id],
             testLabel: [t.test?.title ?? t.test?.name ?? ''],
             isMandatory: [t.isMandatory ?? true],
+            testDate: [t.testDate ? new Date(t.testDate) : null],
+            deadlineDate: [t.deadlineDate ? new Date(t.deadlineDate) : null],
           })
         );
       });
@@ -166,6 +171,8 @@ export class TrainingForm {
         testId: [testId],
         testLabel: [testLabel],
         isMandatory: [true], // default true
+        testDate: [null, Validators.required],      // ⬅ required
+        deadlineDate: [null, Validators.required],  // ⬅ required
       })
     );
   }
@@ -214,6 +221,7 @@ export class TrainingForm {
       },
       error: (err) => {
         console.error('❌ Failed to fetch tests', err);
+        this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to load evaluation tests.'});
         this.loading = false;
       },
     });
@@ -225,11 +233,14 @@ export class TrainingForm {
 
     if (this.form.invalid) {
       if (this.tests.length < 1) {
-        alert('Please select at least one evaluation test.');
+        // alert('Please select at least one evaluation test.');
+        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please select at least one evaluation test.'});
       } else if (this.trainers.length < 1) {
-        alert('Please add at least one trainer.');
+        // alert('Please add at least one trainer.');
+        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please add at least one trainer.'});
       } else {
-        alert('Please fill all required fields.');
+        // alert('Please fill all required fields.');
+        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please fill all required fields.'});
       }
       return;
     }
@@ -242,6 +253,8 @@ export class TrainingForm {
       trainingTests: this.tests.value.map((t: any, index: number) => ({
         testId: t.testId,
         isMandatory: t.isMandatory ?? true,
+        testDate: t.testDate ? new Date(t.testDate).toISOString() : null,
+        deadlineDate: t.deadlineDate ? new Date(t.deadlineDate).toISOString() : null,
         orderNo: index + 1,
       })),
     };
@@ -250,13 +263,15 @@ export class TrainingForm {
     if (this.editing && this.trainingId) {
       this.trainingService.updateTraining(this.trainingId, payload).subscribe({
         next: (res) => {
-          alert('✅ Training updated successfully!');
+          // alert('✅ Training updated successfully!');
+          this.messageService.add({severity:'success', summary: 'Success', detail: 'Training updated successfully!'});
           this.resetForm();
           this.submitting = false;
           // this.formSubmit.emit(); // optional event for parent
         },
         error: (err) => {
           console.error('❌ Failed to update training:', err);
+          this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to update training.'});
           this.submitting = false;
         },
       });
@@ -265,13 +280,15 @@ export class TrainingForm {
     } else {
       this.trainingService.createTraining(payload).subscribe({
         next: () => {
-          alert('✅ Training created successfully!');
+          // alert('✅ Training created successfully!');
+          this.messageService.add({severity:'success', summary: 'Success', detail: 'Training created successfully!'});
           this.resetForm();
           this.submitting = false;
           // this.formSubmit.emit(); // optional event for parent
         },
         error: (err) => {
           console.error('❌ Failed to create training:', err);
+          this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to create training.'});
           this.submitting = false;
         },
       });

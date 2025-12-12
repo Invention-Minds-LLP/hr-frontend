@@ -24,10 +24,11 @@ export class LoginCreation {
 
   formSubmitted = false;
 
+
   constructor(private userService: User, private messageService : MessageService){}
 
   onSubmit(form : NgForm){
-    this.formSubmitted = true;
+
 
     if(form.valid && ! this.confirmPasswordMismatch()){
       console.log('form Submited', this.login);
@@ -41,7 +42,7 @@ export class LoginCreation {
       })
       return;
     }
-
+    this.formSubmitted = true;
     const payload = {
       employeeCode: String(this.login.employeeId), // backend expects employeeCode (string)
       password: this.login.password
@@ -56,6 +57,7 @@ export class LoginCreation {
           summary:'Success',
           detail:'User created successfully'
         })
+        this.formSubmitted = false;
         this.onClear(form);
       },
       error: (err) => {
@@ -70,7 +72,7 @@ export class LoginCreation {
           summary:'Error',
           detail:msg
         })
-      
+        this.formSubmitted = false;
       }
     })
     }else{
@@ -80,6 +82,7 @@ export class LoginCreation {
         summary:'Error',
         detail:'Form is invalid'
       })
+      this.formSubmitted = false;
     }
   }
 

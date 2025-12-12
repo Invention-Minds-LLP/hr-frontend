@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { Employees } from '../../services/employees/employees';
 import { Select } from "primeng/select";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PaginatorModule } from 'primeng/paginator';
 
 
 type TileDef =
@@ -30,7 +31,7 @@ type TileDef =
   selector: 'app-hr-dashboard',
   imports: [CommonModule, FormsModule, DatePipe, TableModule,
     DialogModule, DatePickerModule, ButtonModule,
-    RouterModule, RouterLink, TooltipModule, AnnouncementForm, Select, ProgressSpinnerModule],
+    RouterModule, RouterLink, TooltipModule, AnnouncementForm, Select, ProgressSpinnerModule, PaginatorModule],
   templateUrl: './hr-dashboard.html',
   styleUrl: './hr-dashboard.css'
 })
@@ -46,6 +47,7 @@ export class HrDashboard implements OnInit {
   location = 'ALL';
   department = 'ALL';
   showAnnouncementForm: boolean = false;
+  isLoading: boolean = false;
 
   // modal
   modalOpen = false;
@@ -108,7 +110,7 @@ export class HrDashboard implements OnInit {
       next: (rows) => (this.branches = rows || []),
       error: () => (this.branches = []),
     });
-    this.employees.getEmployees().subscribe(list => {
+    this.employees.getActiveEmployees().subscribe(list => {
       this.employeeOptions = list.map(e => ({
         id: e.id,
         label: `${e.firstName} ${e.lastName} (${e.employeeCode})`
@@ -233,10 +235,18 @@ export class HrDashboard implements OnInit {
         this.selectedListKey = k;
         this.selectedList = list;
         this.modalOpen = true;
+        this.totalRecords = list.rows.length;
+
       },
       error: () => { /* quiet for demo */ },
     });
   }
+
+  onPageChange(event: any) {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+  }
+  
 
   closeModal() { this.modalOpen = false; this.selectedList = undefined; this.selectedListKey = undefined; this.selectedRows = null; }
 
@@ -342,7 +352,8 @@ export class HrDashboard implements OnInit {
       otYesterday: "Number of employees who worked overtime yesterday.",
       newJoiners: "Number of employees whose joining date is today.",
       birthdays: "Number of employees celebrating their birthday today.",
-      anniversaries: "Number of employees completing a work anniversary today."
+      anniversaries: "Number of employees completing a work anniversary today.",
+      interviewsToday: "Number of interviews scheduled for today."
     };
 
     return tooltips[tile.key] || "";
@@ -362,12 +373,14 @@ export class HrDashboard implements OnInit {
   // Confirm API call after choosing date
   confirmExtendProbation() {
     if (this.selectedRows && this.selectedDate) {
+      this.isLoading = true;
       const employee = this.selectedRows;
       const formattedDate = this.selectedDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
 
       this.api.extendProbation(employee.id, formattedDate).subscribe(() => {
         this.toast('Probation extended');
         this.reloadData();
+        this.isLoading = false;
         this.extendProbationDialog = false;
         this.selectedDate = null;
       });
@@ -514,6 +527,7 @@ export class HrDashboard implements OnInit {
 
   confirmAssignDelegate() {
     if (this.selectedClearance && this.selectedDelegateId) {
+      this.isLoading = true;
       this.api.assignDelegate(
         this.selectedClearance.resignationId,   // resignationId
         this.selectedClearance.data[3],         // clearance type
@@ -523,7 +537,12 @@ export class HrDashboard implements OnInit {
         this.reloadData();
         this.assignDelegateDialog = false;
         this.selectedDelegateId = null;
+        this.isLoading = false;
       });
     }
   }
+  pageSize = 8;          // rows per page
+totalRecords = 0;      // total rows (from selectedList)
+currentPage = 0;       // paginator page index
+
 }

@@ -38,10 +38,10 @@
 
 .btn.primary {
   border-radius: 8px;
-  background: #3177a3;
+  background: #194B9B;
   width: 143px;
   height: 44px;
-  border-color: #3177a3;
+  border-color: #194B9B;
   color: #FFF;
   font-family: "Sofia Sans";
   font-size: 16px;
@@ -222,7 +222,7 @@ table.list td {
 
 /* Header Row */
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-  background: #e8ecef !important;
+  background: #fff !important;
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -275,14 +275,14 @@ table.list td {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FF0000 !important;
+  background: #FB9C2A !important;
   color: #fff !important;
   border: none;
 }
 
 /* Body Rows */
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+  background: #000 !important;
   padding: 0px 15px !important;
   font-size: 16px;
   font-weight: 500;

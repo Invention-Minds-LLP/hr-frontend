@@ -1,6 +1,7 @@
 .wrapper {
   display: grid;
   gap: 16px;
+  padding: 20px !important;
 }
 .head {
   display: flex;
@@ -23,11 +24,27 @@
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 16px;
-  background: #fff;
+  background: #020403;
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
+
+.card textarea{
+  background: transparent !important;
+  color: white !important;
+}
+
+.card input::placeholder ,
+.card textarea::placeholder,
+.card {
+  color: white !important;
+}
+::ng-deep p-inputtext:disabled {
+  opacity: 1;
+  color: black !important;
+}
+
 .card-h {
   font-weight: 600;
   margin-bottom: 12px;
@@ -191,4 +208,14 @@
   border-color: #0062A1;
 }
 
+::ng-deep .p-select{
+  background-color: #020403 !important;
+  color: white !important;
+}
 
+::ng-deep .p-select-label{
+  color: white !important;
+}
+::ng-deep .p-inputtext{
+  color: white !important;
+}

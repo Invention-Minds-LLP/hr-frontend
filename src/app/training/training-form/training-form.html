@@ -105,6 +105,8 @@
           <tr>
             <th>Test Name</th>
             <th>Mandatory</th>
+            <th>Test Date</th>
+            <th>Deadline</th>
           </tr>
         </thead>
         <tbody>
@@ -113,6 +115,23 @@
             <td>
               <p-toggleswitch formControlName="isMandatory"></p-toggleswitch>
             </td>
+                  <!-- NEW: Test date -->
+      <td>
+        <p-datePicker formControlName="testDate"
+                      [showTime]="true"
+                      hourFormat="24"
+                      dateFormat="yy-mm-dd">
+        </p-datePicker>
+      </td>
+
+      <!-- NEW: Deadline -->
+      <td>
+        <p-datePicker formControlName="deadlineDate"
+                      [showTime]="true"
+                      hourFormat="24"
+                      dateFormat="yy-mm-dd">
+        </p-datePicker>
+      </td>
           </tr>
         </tbody>
       </table>

@@ -110,6 +110,7 @@ export class Login {
               localStorage.setItem('deptId', response.deptId);
               localStorage.setItem('photoUrl', response.photoUrl || '');
               localStorage.setItem('designation', response.designation || '');
+              localStorage.setItem('roleId', response.roleId || '');
               this.router.navigate(['/individual']);
             } else {
 

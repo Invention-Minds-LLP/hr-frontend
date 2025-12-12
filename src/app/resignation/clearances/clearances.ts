@@ -41,7 +41,8 @@ export class Clearances {
   popupNote = '';
   selectedEmployee: any = null;
   employees: Employee[] = [];
-  loading = true
+  loading = true;
+  isLoading = false;
 
 
   constructor(
@@ -117,14 +118,18 @@ export class Clearances {
       note: this.popupNote,
       verifierId: this.loggedInUserId
     };
-
+    this.isLoading = true;
     this.api.upsertClearance(this.selectedEmployee.id, payload).subscribe({
       next: () => {
         this.notify('success', `Clearance ${this.popupAction!.toLowerCase()} successfully.`);
         this.closePopup();
         this.loadResignations();
+        this.isLoading = false;
       },
-      error: () => this.notify('error', `Failed to ${this.popupAction!.toLowerCase()} clearance.`)
+      error: () => {
+        this.notify('error', `Failed to ${this.popupAction!.toLowerCase()} clearance.`);
+        this.isLoading = false;
+      }
     });
   }
 

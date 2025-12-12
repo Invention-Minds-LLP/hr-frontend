@@ -11,6 +11,9 @@ import { Announcement, Announcements } from './services/announcement/announcemen
 import { InactivityService } from './services/inactivity.service';
 import { AcknowledgePopup } from './grievance/acknowledge-popup/acknowledge-popup';
 import { Grievance } from './services/grievance/grievance';
+import * as XLSX from 'xlsx';
+import { Chart } from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
 
 @Component({
   selector: 'app-root',
@@ -94,5 +97,124 @@ export class App {
   isCandidateTestsRoute(): boolean {
     return this.router.url.startsWith('/candidate-tests');
   }
+  pastData: any[] = [];
+  forecastData: any[] = [];
+  chart!: Chart;
+
+  // Load past 1-year data
+  loadPastData(event: any) {
+    const file = event.target.files[0];
+    this.readExcel(file, (data) => {
+      this.pastData = data;
+      this.tryPlot();
+    });
+  }
+
+  // Load next-30-day forecast data
+  loadForecastData(event: any) {
+    const file = event.target.files[0];
+    this.readExcel(file, (data) => {
+      this.forecastData = data;
+      this.tryPlot();
+    });
+  }
+
+  // Excel Reader
+  readExcel(file: File, callback: (data: any[]) => void) {
+    let fileReader = new FileReader();
+    fileReader.readAsBinaryString(file);
+
+    fileReader.onload = () => {
+      const workbook = XLSX.read(fileReader.result, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      const json = XLSX.utils.sheet_to_json(sheet);
+      callback(json);
+    };
+  }
+  tryPlot() {
+    console.log("PAST DATA ROW 1:", this.pastData[0]);
+    console.log("FORECAST DATA ROW 1:", this.forecastData[0]);
+  
+    if (this.pastData.length === 0 || this.forecastData.length === 0) return;
+  
+    // Convert date column correctly
+    const pastDates = this.pastData.map(d =>
+      this.excelSerialToJSDate(d['Date'])
+    );
+  
+    const futureDates = this.forecastData.map(d =>
+      this.excelSerialToJSDate(d['Date'])
+    );
+  
+    // Correct column names from your logs
+    const pastOPD = this.pastData.map(d => d['OPD_Count']);
+    const pastIPD = this.pastData.map(d => d['IPD_Count']);
+  
+    const futureOPD = this.forecastData.map(d => d['Forecast_OPD']);
+    const futureIPD = this.forecastData.map(d => d['Forecast_IPD']);
+  
+    console.log("PAST OPD:", pastOPD);
+    console.log("FUTURE OPD:", futureOPD);
+  
+    const allDates = [...pastDates, ...futureDates];
+  
+    if (this.chart) this.chart.destroy();
+  
+    this.chart = new Chart("opdIpdChart", {
+      type: 'line',
+      data: {
+        labels: allDates,
+        datasets: [
+          {
+            label: "Past OPD",
+            data: pastOPD,
+            borderColor: "blue",
+            tension: 0.3
+          },
+          {
+            label: "Past IPD",
+            data: pastIPD,
+            borderColor: "green",
+            tension: 0.3
+          },
+          {
+            label: "Forecast OPD",
+            data: [...new Array(pastOPD.length).fill(null), ...futureOPD],
+            borderColor: "red",
+            borderDash: [5, 5],
+            tension: 0.3
+          },
+          {
+            label: "Forecast IPD",
+            data: [...new Array(pastIPD.length).fill(null), ...futureIPD],
+            borderColor: "orange",
+            borderDash: [5, 5],
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: 'day', tooltipFormat: 'dd/MM/yyyy' }
+          }
+        },
+        plugins: {
+          legend: { position: "bottom" }
+        }
+      }
+    });
+  }
+  
+  
+
+  excelSerialToJSDate(serial: number) {
+    return new Date((serial - 25569) * 86400 * 1000);
+  }
+  
   
 }

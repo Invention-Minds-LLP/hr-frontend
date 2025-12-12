@@ -3,7 +3,7 @@
 .p-select {
   width: 100%;
   background-color: transparent !important;
-  color: black !important;
+  color: white !important;
 }
 
 .final {
@@ -15,7 +15,7 @@
 .p-floatlabel.float-active label {
   top: -0.40rem;
   font-size: 0.75rem;
-  background-color: transparent;
+  background-color: black !important;
   color: white !important;
 }
 
@@ -30,8 +30,9 @@ h3 {
 
 ::ng-deep .btn .p-button {
   margin-top: 20px;
-  background-color: #0062A1;
-  border-color: #0062A1;
+  border-radius: 6px;
+  background: #194B9B !important;
+  height: 33px !important;
 }
 
 .flex1 {

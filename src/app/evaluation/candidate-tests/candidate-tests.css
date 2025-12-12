@@ -12,7 +12,7 @@
   
   /* Header Row */
   ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-    background: #E8ECEF !important;
+    background: #fff !important;
     color: black !important;
     font-size: 16px;
     font-weight: 600;
@@ -42,7 +42,7 @@
   
   /* Body Rows */
   ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-    background: #302F31 !important;
+    background: #000 !important;
     padding: 20px;
     font-size: 16px;
     font-weight: 500;
@@ -71,11 +71,11 @@
   
   /* Active page */
   ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #e9144a !important;
+    background: #FB9C2A !important;
     color: white !important;
   }
   ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #e9144a !important;
+    background: #FB9C2A !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -99,7 +99,7 @@
     gap: 8px;
     flex-shrink: 0;
     border-radius: 8px;
-    background: #3177a3;
+    background: #194B9B;
     color: #fff;
     font-family: "Sofia Sans";
     font-size: 18px;
@@ -112,7 +112,7 @@
   .btn-edit {
     border-radius: 8px;
     border: 2px solid #c4c4c4;
-    background: #e8ecef;
+    background: #fff;
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
@@ -182,12 +182,12 @@
   }
   .nav-bar-container {
     padding: 0 4rem;
-    background-color: #302F31;
+    background-color: #000;
   }
   
   /* Top Bar */
   /* .header {
-    background-color: #302F31
+    background-color: #000
   } */
   
   .header-top {

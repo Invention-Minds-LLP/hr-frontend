@@ -22,7 +22,7 @@
     </div>
   
     <div class="flex justify-content-end mt-2">
-      <p-button label="Submit" icon="pi pi-check" type="submit" class="btn" [disabled]="form.invalid"></p-button>
+      <p-button label="Submit" icon="pi pi-check" type="submit" class="btn" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" [disabled]="form.invalid"></p-button>
     </div>
   </form>
   

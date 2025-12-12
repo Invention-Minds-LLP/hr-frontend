@@ -31,13 +31,19 @@
   gap: 16px;
 }
 
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
 p-iconfield {
   display: flex;
   align-items: center;
   padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid #c4c4c4;
-  background: #e8ecef !important;
+  background: #fff !important;
   color: #9b9b9b;
   font-family: "Sofia Sans";
   font-size: 18px;
@@ -168,7 +174,7 @@ input {
 
 /* Header Row */
 ::ng-deep .history .p-datatable .p-datatable-thead>tr>th {
-  background: #E8ECEF !important;
+  background: #fff !important;
   color: black !important;
   font-size: 16px;
   font-weight: 600;
@@ -199,7 +205,7 @@ input {
 
 /* Body Rows */
 ::ng-deep.history .p-datatable .p-datatable-tbody>tr>td {
-  background: #302F31 !important;
+  background: #000 !important;
   padding: 20px;
   font-size: 16px;
   font-weight: 500;

@@ -106,10 +106,15 @@ export class AppraisalTable {
     this.loading = true
     this.appraisalService.getAllAppraisals().subscribe({
       next: (data) => {
-        if (this.role === 'HR' || this.role === 'HR Manager') {
-          // HR sees everything
+        if (this.role === 'HR Manager'|| this.role === 'Management') {
           this.appraisals = data;
-        } else if (this.role === 'Reporting Manager') {
+        } else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
+          // HR sees all OTHER departments except HR department
+          this.appraisals = (data || []).filter(
+            (a: any) => a.employee?.departmentId !== 1
+          );
+        }
+        else if (this.role === 'Reporting Manager') {
           this.appraisals = (data || []).filter(
             (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
           );

@@ -16,11 +16,14 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import * as XLSX from 'xlsx';
+import { AttendanceCalendars } from '../../attendance/attendance-calendars/attendance-calendars';
+import { debounceTime, Subject } from 'rxjs';
+
 
 
 @Component({
   selector: 'app-employee-list',
-  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule, SkeletonModule],
+  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule, SkeletonModule, AttendanceCalendars],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
@@ -40,7 +43,7 @@ export class EmployeeList {
     { label: 'Branch', value: 'branch' },
     { label: 'Department', value: 'department' },
     { label: 'Status', value: 'employmentStatus' },
-    { label: 'Employment Type', value: 'employmentType' },
+    { label: 'Employee Type', value: 'employeeType' },
     { label: 'Shift', value: 'shift' }
   ];
 
@@ -49,29 +52,85 @@ export class EmployeeList {
   showFilterDropdown = false;
 
   loading = true
+  showCalendar = false;
+  selectedEmployee: any = null;
+  searchSubject = new Subject<string>();
+
+
 
 
 
   ngOnInit() {
-    this.employeeService.getEmployees().subscribe({
-      next: (response: any) => {
-        console.log('Employees fetched successfully:', response);
-        this.employee = response;
-        this.filteredEmployees = [...this.employee];
-        console.log(this.employee)
-        this.loading = false
-      },
-      error: (err) => {
-        console.error('Error fetching employees:', err);
-        this.loading = false
-      }
-    });
+    // this.employeeService.getEmployees().subscribe({
+    //   next: (response: any) => {
+    //     console.log('Employees fetched successfully:', response);
+    //     this.employee = response;
+    //     this.filteredEmployees = [...this.employee];
+    //     console.log(this.employee)
+    //     this.loading = false
+    //   },
+    //   error: (err) => {
+    //     console.error('Error fetching employees:', err);
+    //     this.loading = false
+    //   }
+    // });
+    this.loadEmployees()
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
     this.branchService.getBranches().subscribe(data => this.branches = data);
     this.roleService.getRoles().subscribe(data => this.roles = data);
     this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data)
     document.addEventListener('click', this.handleOutsideClick);
+    this.searchSubject
+      .pipe(debounceTime(300))
+      .subscribe(text => {
+        this.searchText = text;
+        this.page = 1;
+        this.loadEmployees();
+      });
+
   }
+  page = 1;
+  totalRecords = 0;
+  searchText: string = '';
+  pageSize = 10;  // default user-selected size
+  pageSizeOptions = [10, 20, 50];
+
+
+  loadEmployees() {
+    this.loading = true;
+
+    this.employeeService
+      .getEmployees(this.page, this.pageSize, this.searchText, this.selectedFilter?.value)
+      .subscribe({
+        next: (res: any) => {
+          this.filteredEmployees = res.data;
+          this.totalRecords = res.total;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        },
+      });
+  }
+
+  onPageChange(event: any) {
+
+    // When event.page is undefined (first load), compute manually
+    const currentPage = event.page !== undefined
+      ? event.page + 1
+      : event.first / event.rows + 1;
+
+    this.page = currentPage;
+    this.pageSize = event.rows;
+
+    console.log("Page changed to:", this.page, "with size:", this.pageSize);
+
+    this.loadEmployees();
+  }
+
+
+
+
 
   handleOutsideClick = (event: any) => {
     const dropdown = document.getElementById('filterDropdown');
@@ -107,50 +166,69 @@ export class EmployeeList {
     return this.shifts.find(shifts => shifts.id === id)?.name || 'N/A'
   }
   openEdit(employee: any) {
-    this.editEmployee.emit(employee);
-  }
-
-  onSearch(event: Event) {
-    if (!this.selectedFilter) return;
-
-    const input = event.target as HTMLInputElement;
-    const searchText = input.value.toLowerCase();
-
-    if (!searchText) {
-      this.filteredEmployees = [...this.employee];
-      return;
-    }
-
-    const filterKey = this.selectedFilter.value;
-
-    this.filteredEmployees = this.employee.filter(emp => {
-      switch (filterKey) {
-        case 'name':
-          return (`${emp.firstName} ${emp.lastName}`.toLowerCase())
-            .includes(searchText);
-
-        case 'department':
-          return this.getDepartmentName(emp.departmentId)
-            .toLowerCase()
-            .includes(searchText);
-
-        case 'branch':
-          return this.getBranchName(emp.branchId)
-            .toLowerCase()
-            .includes(searchText);
-
-        case 'shift': {
-          let shiftName = '';
-          if (emp.shiftId) shiftName = this.getShiftName(emp.shiftId);
-          else if (emp.latestShiftAssignment?.shift?.name) shiftName = emp.latestShiftAssignment.shift.name;
-          return shiftName.toLowerCase().includes(searchText);
-        }
-
-        default:
-          return emp[filterKey]?.toString().toLowerCase().includes(searchText);
+    this.employeeService.getEmployeeById(employee.id).subscribe({
+      next: (data: any) => {
+        this.editEmployee.emit(data);
+      },
+      error: (err) => {
+        console.error('Error fetching employee details:', err);
       }
     });
   }
+
+  // onSearch(event: Event) {
+  //   if (!this.selectedFilter) return;
+
+  //   const input = event.target as HTMLInputElement;
+  //   const searchText = input.value.toLowerCase();
+
+  //   if (!searchText) {
+  //     this.filteredEmployees = [...this.employee];
+  //     return;
+  //   }
+
+  //   const filterKey = this.selectedFilter.value;
+
+  //   this.filteredEmployees = this.employee.filter(emp => {
+  //     switch (filterKey) {
+  //       case 'name':
+  //         return (`${emp.firstName} ${emp.lastName}`.toLowerCase())
+  //           .includes(searchText);
+
+  //       case 'department':
+  //         return this.getDepartmentName(emp.departmentId)
+  //           .toLowerCase()
+  //           .includes(searchText);
+
+  //       case 'branch':
+  //         return this.getBranchName(emp.branchId)
+  //           .toLowerCase()
+  //           .includes(searchText);
+
+  //       case 'shift': {
+  //         let shiftName = '';
+  //         if (emp.shiftId) shiftName = this.getShiftName(emp.shiftId);
+  //         else if (emp.latestShiftAssignment?.shift?.name) shiftName = emp.latestShiftAssignment.shift.name;
+  //         return shiftName.toLowerCase().includes(searchText);
+  //       }
+
+  //       default:
+  //         return emp[filterKey]?.toString().toLowerCase().includes(searchText);
+  //     }
+  //   });
+  // }
+  // onSearch(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   this.searchText = input.value;
+
+  //   this.page = 1; // reset to first page
+  //   this.loadEmployees(); // call server
+  // }
+  onSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.searchSubject.next(input.value);
+  }
+
 
 
   onFilterChange() {
@@ -163,6 +241,7 @@ export class EmployeeList {
   }
   selectFilter(option: any) {
     this.selectedFilter = option;
+    console.log('Selected filter:', this.selectedFilter);
 
     // 👇 Clear input after selecting new filter
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
@@ -346,6 +425,10 @@ export class EmployeeList {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
     XLSX.writeFile(workbook, 'Employee_Full_Data.xlsx');
+  }
+  openAttendanceCalendar(emp: any) {
+    this.selectedEmployee = emp;
+    this.showCalendar = true;
   }
 
 

@@ -210,16 +210,16 @@
       
           <!-- Approved by HoD -->
           <div class="col-12 md:col-3 flex flex-column gap-3"
-               [ngClass]="{ 'disabled-section': currentStep !== 'HOD' }">
+               [ngClass]="{ 'disabled-section': !(currentStep === 'HOD' && isRM) }">
       
             <p-floatLabel variant="on">
-              <input pInputText id="approvedByHoD" formControlName="approvedByHoD" [readonly]="currentStep !== 'HOD'" />
+              <input pInputText id="approvedByHoD" formControlName="approvedByHoD" [readonly]="!(currentStep === 'HOD' && isRM)" />
               <label for="approvedByHoD">Approved by HoD</label>
             </p-floatLabel>
       
             <canvas #hodSignatureCanvas width="300" height="120"
                     style="border: 1px solid #ccc;" 
-                    [class.disabled-canvas]="currentStep !== 'HOD'"></canvas>
+                    [class.disabled-canvas]="!(currentStep === 'HOD' && isRM)" ></canvas>
       
             <p-floatLabel variant="on">
               <input pInputText id="approvedByHoDDate" formControlName="approvedByHoDDate" readonly />
@@ -232,14 +232,14 @@
                 id="approvedByHoDComments" 
                 rows="2"
                 formControlName="approvedByHoDComments"
-                [readonly]="currentStep !== 'HOD'">
+                [readonly]="!(currentStep === 'HOD' && isRM)">
               </textarea>
               <label for="approvedByHoDComments">Comments</label>
             </p-floatLabel>
             
       
             <!-- Approve/Reject buttons -->
-            <div class="btn" *ngIf="currentStep === 'HOD'">
+            <div class="btn" *ngIf="currentStep === 'HOD'  && isRM">
               <button pButton type="button" label="Approve" icon="pi pi-check"
                       (click)="submitApproval('HOD')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
@@ -249,16 +249,16 @@
       
           <!-- Approved by SMO -->
           <div class="col-12 md:col-3 flex flex-column gap-3"
-               [ngClass]="{ 'disabled-section': currentStep !== 'SMO' }">
+               [ngClass]="{ 'disabled-section': !(currentStep === 'COO' && isManagement) }">
       
             <p-floatLabel variant="on">
-              <input pInputText id="approvedBySMO" formControlName="approvedBySMO" [readonly]="currentStep !== 'SMO'" />
+              <input pInputText id="approvedBySMO" formControlName="approvedBySMO" [readonly]="!(currentStep === 'COO' && isManagement)" />
               <label for="approvedBySMO">Approved by COO</label>
             </p-floatLabel>
       
             <canvas #smoSignatureCanvas width="300" height="120"
                     style="border: 1px solid #ccc;" 
-                    [class.disabled-canvas]="currentStep !== 'SMO'"></canvas>
+                    [class.disabled-canvas]="!(currentStep === 'COO' && isManagement)"></canvas>
       
             <p-floatLabel variant="on">
               <input pInputText id="approvedBySMODate" formControlName="approvedBySMODate" readonly />
@@ -268,31 +268,31 @@
             <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value?.trim()}"
                         formControlName="approvedBySMOComments">
               <textarea pInputTextarea id="approvedBySMOComments" rows="2" 
-                        [readonly]="currentStep !== 'SMO'"></textarea>
+                        [readonly]="!(currentStep === 'COO' && isManagement)"></textarea>
               <label for="approvedBySMOComments">Comments</label>
             </p-floatLabel>
       
             <!-- Approve/Reject buttons -->
-            <div class="p-mt-3 btn" *ngIf="currentStep === 'SMO'">
+            <div class="p-mt-3 btn" *ngIf="currentStep === 'COO' && isManagement">
               <button pButton type="button" label="Approve" icon="pi pi-check"
-                      (click)="submitApproval('SMO')"></button>
+                      (click)="submitApproval('COO')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
-                      (click)="openRejectDialog('SMO')"></button>
+                      (click)="openRejectDialog('COO')"></button>
             </div>
           </div>
       
           <!-- Received by HR -->
           <div class="col-12 md:col-3 flex flex-column gap-3"
-               [ngClass]="{ 'disabled-section': currentStep !== 'HR' }">
+               [ngClass]="{ 'disabled-section': !(currentStep === 'HR' && isHRDept) }">
       
             <p-floatLabel variant="on">
-              <input pInputText id="receivedByHR" formControlName="receivedByHR" [readonly]="currentStep !== 'HR'" />
+              <input pInputText id="receivedByHR" formControlName="receivedByHR" [readonly]="!(currentStep === 'HR' && isHRDept)" />
               <label for="receivedByHR">Received by HR</label>
             </p-floatLabel>
       
             <canvas #hrSignatureCanvas width="300" height="120"
                     style="border: 1px solid #ccc;" 
-                    [class.disabled-canvas]="currentStep !== 'HR'"></canvas>
+                    [class.disabled-canvas]="!(currentStep === 'HR' && isHRDept)"></canvas>
       
             <p-floatLabel variant="on">
               <input pInputText id="receivedByHRDate" formControlName="receivedByHRDate" readonly />
@@ -302,12 +302,12 @@
             <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('receivedByHRComments')?.value}">
               <textarea pInputTextarea id="receivedByHRComments" rows="2" 
                         formControlName="receivedByHRComments"
-                        [readonly]="currentStep !== 'HR'"></textarea>
+                        [readonly]="!(currentStep === 'HR' && isHRDept)"></textarea>
               <label for="receivedByHRComments">Comments</label>
             </p-floatLabel>
       
             <!-- Approve/Reject buttons -->
-            <div class="p-mt-3 flex gap-3 btn" *ngIf="currentStep === 'HR'">
+            <div class="p-mt-3 flex gap-3 btn" *ngIf="currentStep === 'HR' && isHRDept">
               <button pButton type="button" label="Approve" icon="pi pi-check"
                       (click)="submitApproval('HR')"></button>
               <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
@@ -382,6 +382,15 @@
   [modal]="true"
   [closable]="false"
   [style]="{width: '400px'}">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Reject Requisition</span>
+
+      <button class="dialog-close-btn" (click)="rejectDialogVisible = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
 
 <div class="p-fluid">
 <p-floatLabel variant="on">

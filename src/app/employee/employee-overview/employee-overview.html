@@ -5,6 +5,12 @@
         <!-- <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li> -->
          <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'absent' }" (click)="show('absent')">Unmarked Attendance</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'upload' }" (click)="show('upload')">Bulk Upload Employees</li></button>
+        <div class="br"></div>
+        <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button>
     </ul>
 
     
@@ -18,4 +24,42 @@
     <app-employee-form *ngIf="active === 'form'" [employeeData]="selectedEmployee"
         (closeForm)="onFormClose($event)"></app-employee-form>
     <app-employee-list *ngIf="active === 'list'" (editEmployee)="onEditEmployee($event)"></app-employee-list>
+    <app-unreported-employee *ngIf="active === 'absent'"></app-unreported-employee>
+    <div *ngIf="active === 'upload'">
+        <div class="upload-section">
+
+            <h2>Bulk Employee Excel Upload</h2>
+          
+            <!-- Drag & Drop Zone -->
+            <div
+              class="dropzone"
+              (drop)="onDrop($event)"
+              (dragover)="allowDrop($event)"
+            >
+              <p>Drag & drop Excel file here, or click to upload</p>
+              <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" />
+            </div>
+          
+            <!-- Uploading spinner -->
+            <div *ngIf="uploading" class="uploading">
+              Uploading... Please wait...
+            </div>
+          
+            <!-- Logs -->
+            <div *ngIf="logs.length > 0" class="logs">
+              <h3>Upload Logs</h3>
+              <pre>{{ logs.join('\n') }}</pre>
+            </div>
+          
+            <!-- Error Report -->
+            <div *ngIf="errorReportUrl" class="error-report">
+              <a [href]="errorReportUrl" download>
+                Download Error Report Excel
+              </a>
+            </div>
+          
+          </div>
+          
+    </div>
+    <app-survey-list *ngIf="active === 'survey'" ></app-survey-list>
 </div>

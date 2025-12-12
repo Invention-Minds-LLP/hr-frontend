@@ -11,7 +11,7 @@
   --p-checkbox-hover-border-color: #003366;
   --p-checkbox-checked-focus-border-color: #003366;
   --p-checkbox-checked-border-color: #003366;
-  --p-floatlabel-on-active-background: #302F31 !important;
+  --p-floatlabel-on-active-background: #000 !important;
 }
 
 .steps-container .step {
@@ -232,7 +232,7 @@ div[hidden] {
 
 .remove-btn i {
   font-size: 0.8rem;
-  color: #e9144a;
+  color: #FB9C2A;
 }
 
 .qualification {
@@ -318,7 +318,6 @@ div[hidden] {
   background-color: #3465b0;
   border-color: #3465b0;
 }
-
 ::ng-deep .trash-btn .p-button {
   background-color: transparent;
   border: 1px solid #e9144a !important;
@@ -332,6 +331,7 @@ div[hidden] {
   color: #e9144a;
   font-size: 1.2rem;
 }
+
 
 .p-stepitem .p-steppanel {
   gap: 30px;
@@ -461,3 +461,200 @@ a{
   max-width: 100%;
   height: auto;
 }
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 0px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+@media (max-width: 1024px) {
+
+  .card {
+    padding: 0 10px !important;
+  }
+
+  .field-row {
+    flex-wrap: wrap;
+  }
+
+  .field.col-4,
+  .field.col-5,
+  .field.col-3,
+  .field.col-2 {
+    width: 48% !important;
+  }
+
+  .profile-pic-container {
+    margin: auto;
+  }
+}
+
+/* ---------- LARGE MOBILE (max-width: 768px) ---------- */
+@media (max-width: 768px) {
+
+  .employee-form-container {
+    padding: 0 1rem !important;
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .field.col-4,
+  .field.col-5,
+  .field.col-3,
+  .field.col-2,
+  .field.col-1 {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .flex1 {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .qualification .grid,
+  .formgrid.grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-pic-container {
+    width: 130px;
+    height: 130px;
+  }
+
+  .profile-pic,
+  .profile-placeholder {
+    width: 130px;
+    height: 130px;
+  }
+
+  .btn .p-button {
+    width: 100%;
+  }
+
+  .mandatory-note {
+    font-size: 0.9rem;
+  }
+}
+/* ---------- Fix long labels and step titles ---------- */
+@media (max-width: 600px) {
+  ::ng-deep .p-step-title {
+    font-size: 16px !important;
+  }
+  ::ng-deep .p-step-number {
+    width: 20px !important;
+    height: 33px !important;
+    font-size: 12px;
+  }
+}
+
+/* ---------- SMALL MOBILE (max-width: 480px) ---------- */
+@media (max-width: 480px) {
+
+  .heading {
+    font-size: 14px !important;
+    text-align: left;
+  }
+
+  .profile-pic-container {
+    width: 110px;
+    height: 110px;
+  }
+
+  .profile-pic,
+  .profile-placeholder {
+    width: 110px;
+    height: 110px;
+  }
+
+  .upload-btn {
+    padding: 4px;
+  }
+
+  .remove-btn {
+    padding: 2px;
+  }
+
+  .card {
+    padding: 30px 0 !important;
+  }
+
+  textarea,
+  input,
+  .p-select,
+  .p-calendar {
+    font-size: 14px !important;
+  }
+
+  .doc-img {
+    width: 100% !important;
+  }
+
+  .view-link {
+    font-size: 14px !important;
+  }
+
+  .file-upload-wrapper .pi-upload {
+    right: 10px !important;
+  }
+  .active-step {
+    display: flex;
+    justify-content: center;
+    align-items: center !important;
+    width: 100%;
+    flex-direction: column-reverse !important;
+  }
+}
+

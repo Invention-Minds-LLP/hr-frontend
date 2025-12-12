@@ -39,6 +39,7 @@ export class EmployeeForm {
 
   employeeForm!: FormGroup;
   activeIndex = 0;
+  isLoading = false;
 
   steps = [
     { label: 'Personal Info' },
@@ -517,7 +518,7 @@ export class EmployeeForm {
       });
       return;
     }
-
+    this.isLoading = true;
 
     if (this.employeeForm.valid) {
       const formValue = this.employeeForm.value;
@@ -609,11 +610,14 @@ export class EmployeeForm {
                   });
                 },
                 error: () =>
+                {
+                  this.isLoading = false;
                   this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Failed to upload disability proof'
                   })
+                }
               });
             }
 
@@ -638,15 +642,19 @@ export class EmployeeForm {
               summary: 'Success',
               detail: 'Employee updated successfully!'
             })
+            this.isLoading = false;
             this.closeForm.emit(true);
           },
           error: () =>
             //  alert('Error updating employee')
+          {
+            this.isLoading = false,
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Error updating employee'
+              detail: 'Failed to update employee'
             })
+          }
         });
       }
       else {
@@ -691,15 +699,19 @@ export class EmployeeForm {
             if (shiftId) {
               this.assignEmployeeShift(employee.id, shiftId);
             }
+            this.isLoading = false;
             this.employeeForm.reset()
           },
           error: () =>
             // alert('Error creating employee')
+          {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
               detail: 'Error creating employee'
             })
+            this.isLoading = false;
+          }
         });
       }
 

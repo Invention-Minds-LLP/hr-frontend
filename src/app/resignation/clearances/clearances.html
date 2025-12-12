@@ -39,7 +39,7 @@
           <th>Last Working Day</th>
           <th *ngFor="let c of visibleClearanceTypes">{{ c }} Clearance Status</th>
           <th>Resignation Status</th>
-          <th>Action</th>
+          <th >Action</th>
         </tr>
       </ng-template>
 
@@ -68,14 +68,25 @@
           </td>
 
           <!-- Actions -->
-          <td class="flex gap-2">
-            <button pButton label="Approve" icon="pi pi-check" class="p-button-success p-button-sm"
-              (click)="openPopup(r, 'APPROVED')">
-            </button>
-            <button pButton label="Reject" icon="pi pi-times" class="p-button-danger p-button-sm"
-              (click)="openPopup(r, 'REJECTED')">
-            </button>
+          <td>
+            <ng-container *ngIf="getClearance(r, visibleClearanceTypes[0]).decision === 'PENDING'; else noAction">
+              <div class="flex gap-2">
+                <button pButton label="Approve" icon="pi pi-check"
+                        class="p-button-success p-button-sm"
+                        (click)="openPopup(r, 'APPROVED')"></button>
+          
+                <button pButton label="Reject" icon="pi pi-times"
+                        class="p-button-danger p-button-sm"
+                        (click)="openPopup(r, 'REJECTED')"></button>
+              </div>
+            </ng-container>
+          
+            <ng-template #noAction>
+              <span>-</span>
+            </ng-template>
           </td>
+          
+          
         </tr>
       </ng-template>
     </p-table>
@@ -84,7 +95,16 @@
 
 <!-- Popup Dialog -->
 <p-dialog header="{{ popupAction === 'APPROVED' ? 'Approve Clearance' : 'Reject Clearance' }}" [(visible)]="showPopup"
-  [modal]="true" [closable]="true" [style]="{width: '400px'}">
+  [modal]="true" [closable]="false" [style]="{width: '400px'}">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>{{ popupAction === 'APPROVED' ? 'Approve Clearance' : 'Reject Clearance' }}</span>
+
+      <button class="dialog-close-btn" (click)="showPopup = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
   <div>
     <h4>{{ selectedEmployee?.employee?.firstName }} {{ selectedEmployee?.employee?.lastName }}</h4>
     <textarea pInputTextarea [(ngModel)]="popupNote" placeholder="Enter your note or reason..." rows="4"

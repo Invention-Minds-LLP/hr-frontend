@@ -16,6 +16,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { firstValueFrom } from 'rxjs';
 import { Recuriting } from '../../services/recruiting/recuriting';
 import { DialogModule } from 'primeng/dialog';
+import { interval, Subscription } from 'rxjs';
+
 
 // utils
 function mulberry32(seed: number) {
@@ -75,6 +77,8 @@ export class TestPlatform implements OnInit, OnDestroy {
   assignedTestId: number;
   attemptId?: number;
   candidateId?: number;
+  timerSub?: Subscription;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -129,7 +133,7 @@ export class TestPlatform implements OnInit, OnDestroy {
         marked: false
       }));
 
-      this.startTimer();
+      // this.startTimer();
       this.attachProctoring();
     });
   }
@@ -178,11 +182,32 @@ export class TestPlatform implements OnInit, OnDestroy {
     return this.test?.questions?.[this.currentIndex];
   }
 
+  // get answeredCount(): number {
+  //   return this.responses.filter(r =>
+  //     Array.isArray(r.answer) ? (r.answer as number[]).length > 0 : (r.answer as string).trim().length > 0
+  //   ).length;
+  // }
   get answeredCount(): number {
-    return this.responses.filter(r =>
-      Array.isArray(r.answer) ? (r.answer as number[]).length > 0 : (r.answer as string).trim().length > 0
-    ).length;
+    return this.responses.filter(r => {
+      // MCQ → array of selected option IDs
+      if (Array.isArray(r.answer)) {
+        return r.answer.length > 0;
+      }
+  
+      // Descriptive with file
+      if (r.file || r.fileName) {
+        return true;
+      }
+  
+      // Descriptive typed text (if you ever enable textarea again)
+      if ((r.answer as string)?.trim().length > 0) {
+        return true;
+      }
+  
+      return false;
+    }).length;
   }
+  
 
   get timeProgress(): number {
     if (!this.totalSeconds) return 0;
@@ -190,16 +215,38 @@ export class TestPlatform implements OnInit, OnDestroy {
   }
 
   // ======= timer =======
+  // startTimer(): void {
+  //   this.timerId = setInterval(() => {
+  //     if (this.timeLeft > 0) {
+  //       this.timeLeft--;
+  //     } else {
+  //       clearInterval(this.timerId);
+  //       this.submit();
+  //     }
+  //   }, 1000);
+  // }
   startTimer(): void {
-    this.timerId = setInterval(() => {
+    // Prevent duplicate timers
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+    }
+  
+    this.timerSub = interval(1000).subscribe(() => {
       if (this.timeLeft > 0) {
         this.timeLeft--;
       } else {
-        clearInterval(this.timerId);
+        this.stopTimer();
         this.submit();
       }
-    }, 1000);
+    });
   }
+  stopTimer(): void {
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+      this.timerSub = undefined;
+    }
+  }
+  
 
   formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -354,12 +401,27 @@ export class TestPlatform implements OnInit, OnDestroy {
   isAnswered(i: number): boolean {
     const r = this.responses[i];
     if (!r) return false;
-    return Array.isArray(r.answer)
-      ? r.answer.length > 0
-      : (r.answer ?? '').trim().length > 0;
+  
+    // MCQ
+    if (Array.isArray(r.answer) && r.answer.length > 0) {
+      return true;
+    }
+  
+    // Descriptive upload
+    if (r.file || r.fileName) {
+      return true;
+    }
+  
+    // Descriptive typed (if used)
+    if ((r.answer ?? '').toString().trim().length > 0) {
+      return true;
+    }
+  
+    return false;
   }
+  
   ngOnDestroy(): void {
-    clearInterval(this.timerId);
+    this.stopTimer();
     this.detachProctoring();
   }
   getHours(seconds: number): string {

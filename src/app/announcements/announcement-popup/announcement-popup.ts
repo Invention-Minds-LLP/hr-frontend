@@ -16,6 +16,7 @@ export class AnnouncementPopup {
   announcements: Announcement[] = [];
   current: Announcement | null = null;
   visible = false;
+  isLoading = false;
 
   constructor(private svc: Announcements, private msg: MessageService) {}
 
@@ -37,16 +38,21 @@ export class AnnouncementPopup {
 
   acknowledge() {
     if (!this.current) return;
+    this.isLoading = true;
     const empId = Number(localStorage.getItem('empId')) || 0;
   
     this.svc.ack(this.current.id, empId).subscribe({
       next: () => {
+        this.isLoading = false;
         this.msg.add({ severity: 'success', summary: 'Acknowledged' });
         this.announcements.shift();
         this.current = this.announcements[0] || null;
         this.visible = !!this.current;
       },
-      error: () => this.msg.add({ severity: 'error', summary: 'Error', detail: 'Could not ack' })
+      error: () => {
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Could not ack' })
+        this.isLoading = false;
+      }
     });
   }
   

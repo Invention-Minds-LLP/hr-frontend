@@ -26,6 +26,7 @@ export class PermissionPopup {
   reason = '';
   employeeId: string = '';
   declineReason: string = '';
+  isLoading = false;
 
   constructor(private permissionService: Permission, private messageService : MessageService) { }
 
@@ -106,6 +107,8 @@ export class PermissionPopup {
       payload.endTime = `${this.day}T${this.endTime}`;
     }
 
+    this.isLoading = true;
+
     // Call API
     this.permissionService.createPermission(payload).subscribe({
       next: () => {
@@ -115,10 +118,12 @@ export class PermissionPopup {
           summary: 'Success',
           detail: 'Permission request submitted successfully!'
         });
+        this.isLoading = false;
         this.closePopup();
       },
       error: (err) => {
         console.error('Error creating permission request:', err);
+        this.isLoading = false;
         // alert('Failed to submit permission request.');
         this.messageService.add({
           severity: 'error',

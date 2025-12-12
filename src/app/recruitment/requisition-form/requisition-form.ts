@@ -17,6 +17,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { Departments } from '../../services/departments/departments';
 import { DialogModule } from 'primeng/dialog';
 import { Footer } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -25,13 +26,19 @@ import { Footer } from 'primeng/api';
     DatePickerModule, CheckboxModule, ButtonModule, PanelModule, FloatLabelModule,
     TableModule, FormsModule, EditorModule, TextareaModule, DialogModule],
   templateUrl: './requisition-form.html',
-  styleUrl: './requisition-form.css'
+  styleUrl: './requisition-form.css',
+  providers: [MessageService]
 })
 export class RequisitionForm {
   requisitionForm!: FormGroup;
-  currentStep: 'PENDING' | 'RAISED' | 'HOD' | 'SMO' | 'HR' | 'CLOSED' | 'REJECTED' = 'PENDING';
+  currentStep: 'PENDING' | 'RAISED' | 'HOD' | 'COO' | 'HR' | 'CLOSED' | 'REJECTED' = 'PENDING';
   requisitionId?: number;
   requisitions: any[] = [];
+  isRM: boolean = false;
+  isManagement: boolean = false;
+  isHRDept: boolean = false;
+  isLoading: boolean = false;
+
   @Input()
   set requisition(req: any) {
     if (!req) return;
@@ -55,12 +62,12 @@ export class RequisitionForm {
       this._initialReq = req;
     }
   }
-  private mapStatusToStep(status: string): 'PENDING' | 'RAISED' | 'HOD' | 'SMO' | 'HR' | 'CLOSED' | 'REJECTED' {
+  private mapStatusToStep(status: string): 'PENDING' | 'RAISED' | 'HOD' | 'COO' | 'HR' | 'CLOSED' | 'REJECTED' {
     switch (status) {
       case 'RAISED':
         return 'HOD'; // waiting for HoD action
       case 'HOD_APPROVED':
-        return 'SMO'; // waiting for SMO action
+        return 'COO'; // waiting for COO action
       case 'SMO_APPROVED':
         return 'HR';  // waiting for HR action
       case 'HR_RECEIVED':
@@ -150,7 +157,8 @@ export class RequisitionForm {
 
 
 
-  constructor(private fb: FormBuilder, private requisitionService: RequisitionService, private departmentService: Departments) { }
+  constructor(private fb: FormBuilder, private requisitionService: RequisitionService, 
+    private departmentService: Departments, private messageService: MessageService) { }
 
 
   ngOnInit(): void {
@@ -160,7 +168,7 @@ export class RequisitionForm {
       departmentId: ['', Validators.required],
       location: [''],
       headcount: [1, Validators.required],
-      createdBy: [1], // logged-in HR
+      createdBy: [localStorage.getItem('empId') || ''], // logged-in HR
 
       // Requisition-specific
       designation: [''],
@@ -238,6 +246,12 @@ export class RequisitionForm {
       this.addReason(); // Start with one reason entry
     }
     this.loadDepartments();
+    const roleId = Number(localStorage.getItem('roleId'));
+  const deptId = Number(localStorage.getItem('departmentId'));
+
+  this.isRM = roleId === 3 || roleId === 5;          // RM or HOD
+  this.isManagement = roleId === 4;                  // Management
+  this.isHRDept = deptId === 1;   
   }
 
   get reasonBreakdown(): FormArray {
@@ -284,10 +298,19 @@ export class RequisitionForm {
 
   onSubmit() {
     if (this.requisitionForm.valid) {
+      this.isLoading = true;
       this.saveSignature('raisedBy');
       this.requisitionService.createRequisition(this.requisitionForm.value).subscribe({
-        next: () => alert('Requisition created successfully!'),
-        error: (err) => console.error(err)
+        next: () => {
+          this.isLoading = false;
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Requisition submitted successfully.' });
+          this.backToList();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit requisition.' });
+        }
       });
     }
   }
@@ -378,8 +401,9 @@ export class RequisitionForm {
     }
   }
   // Approvals - Approve
-  submitApproval(step: 'RAISED' | 'HOD' | 'SMO' | 'HR') {
+  submitApproval(step: 'RAISED' | 'HOD' | 'COO' | 'HR') {
     this.saveSignature(step.toLowerCase() as any);
+    this.isLoading = true;
 
     const payload = {
       step,
@@ -391,15 +415,21 @@ export class RequisitionForm {
 
     this.requisitionService.updateStatus(this.requisitionId!, payload).subscribe({
       next: (res) => {
+        this.isLoading = false;
         this.currentStep = res.status;
         this.requisitionForm.patchValue(res); // refresh form with locked fields
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Requisition ${step} approved.` });
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: `Failed to approve requisition at ${step} step.` });
+      }
     });
   }
 
   // Approvals - Reject
-  // rejectApproval(step: 'HOD' | 'SMO' | 'HR') {
+  // rejectApproval(step: 'HOD' | 'COO' | 'HR') {
   //   // raisedBy cannot reject its own submission
   //   const payload = {
   //     step,
@@ -419,9 +449,9 @@ export class RequisitionForm {
   // }
   rejectDialogVisible = false;
   rejectionComments = '';
-  pendingRejectStep: 'HOD' | 'SMO' | 'HR' | null = null;
+  pendingRejectStep: 'HOD' | 'COO' | 'HR' | null = null;
 
-  openRejectDialog(step: 'HOD' | 'SMO' | 'HR') {
+  openRejectDialog(step: 'HOD' | 'COO' | 'HR') {
     this.pendingRejectStep = step;
     this.rejectDialogVisible = true;
   }
@@ -455,29 +485,29 @@ export class RequisitionForm {
 
 
   // Helpers
-  private getApproverName(step: 'RAISED' | 'HOD' | 'SMO' | 'HR'): string {
+  private getApproverName(step: 'RAISED' | 'HOD' | 'COO' | 'HR'): string {
     return this.requisitionForm.value[
       step === 'RAISED' ? 'raisedBy' :
         step === 'HOD' ? 'approvedByHoD' :
-          step === 'SMO' ? 'approvedBySMO' :
+          step === 'COO' ? 'approvedBySMO' :
             'receivedByHR'
     ];
   }
 
-  private getComments(step: 'RAISED' | 'HOD' | 'SMO' | 'HR'): string {
+  private getComments(step: 'RAISED' | 'HOD' | 'COO' | 'HR'): string {
     return this.requisitionForm.value[
       step === 'RAISED' ? 'raisedByComments' :
         step === 'HOD' ? 'approvedByHoDComments' :
-          step === 'SMO' ? 'approvedBySMOComments' :
+          step === 'COO' ? 'approvedBySMOComments' :
             'receivedByHRComments'
     ];
   }
 
-  getSignatureBase64(step: 'RAISED' | 'HOD' | 'SMO' | 'HR'): string {
+  getSignatureBase64(step: 'RAISED' | 'HOD' | 'COO' | 'HR'): string {
     switch (step) {
       case 'RAISED': return this.requisitionForm.value.raisedBySign;
       case 'HOD': return this.requisitionForm.value.hodSign;
-      case 'SMO': return this.requisitionForm.value.smoSign;
+      case 'COO': return this.requisitionForm.value.smoSign;
       case 'HR': return this.requisitionForm.value.hrSign;
     }
   }
@@ -511,15 +541,19 @@ export class RequisitionForm {
       actionTaken: this.requisitionForm.value.actionTaken,
       closedOn: this.requisitionForm.value.closedOn, // HR enters date here
     };
-  
+
     this.requisitionService.updateStatus(this.requisitionId!, payload).subscribe({
       next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'HR details updated successfully.' });
         this.currentStep = res.status; // will become CLOSED
         this.requisitionForm.patchValue(res);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update HR details.' });
+      }
     });
   }
-  
+
 
 }

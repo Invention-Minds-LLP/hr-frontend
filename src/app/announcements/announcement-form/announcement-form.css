@@ -2,7 +2,9 @@
   max-width: 800px;
   /* margin: 2rem auto; */
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 20px;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d;
 
   --p-radiobutton-checked-background: #003366;
   --p-radiobutton-checked-hover-background: #003366;
@@ -19,14 +21,14 @@
   --p-checkbox-hover-border-color: #003366;
   --p-checkbox-checked-focus-border-color: #003366;
   --p-checkbox-checked-border-color: #003366;
-  --p-card-shadow: 0 .125rem .25rem rgba(97, 95, 95, 0.445);
-
+  --p-card-shadow: 0 0.125rem 0.25rem rgba(97, 95, 95, 0.445);
 }
 
 .circular-form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  background: #020403;
 }
 
 /* === Labels & Fields === */
@@ -37,30 +39,52 @@
 }
 
 .form-field label {
-  font-weight: 600;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  letter-spacing: 0.22px;
   margin-bottom: 0.5rem;
 }
 
 :host ::ng-deep .p-inputtext,
 :host ::ng-deep .p-inputtextarea {
-  font-size: 0.95rem;
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
   padding: 0.6rem;
+  background-color: transparent !important;
 }
 
-
+::ng-deep .p-textarea{
+  background-color: transparent !important;
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  padding: 0.6rem;
+}
 .req {
   color: red;
   font-weight: bold;
 }
 
 /* === Audience Radio Buttons === */
-.p-field-radiobuttons {
+/* .p-field-radiobuttons {
   display: flex;
   flex-wrap: wrap;
   gap: 1.1rem;
   margin-top: 0.5rem;
-}
-
+} */
 
 .p-field-radiobuttons label {
   /* margin-left: 0.25rem; */
@@ -69,14 +93,22 @@
 
 /* === MultiSelect / AutoComplete styling === */
 :host ::ng-deep .p-multiselect,
-:host ::ng-deep .p-autocomplete {
+:host ::ng-deep .p-autocomplete,
+:host ::ng-deep .p-select {
   width: 100% !important;
+  color: white !important;
+  background-color: transparent !important;
 }
 
+::ng-deep .p-autocomplete-input-multiple{
+  color: white !important;
+  background-color: transparent !important;
+  height: 46px !important; 
+}
 :host ::ng-deep .p-multiselect-label,
 :host ::ng-deep .p-autocomplete-input {
   padding: 0.6rem;
-  font-size: 0.95rem;
+  font-size:18px;
 }
 
 /* === Attachments List === */
@@ -95,7 +127,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   margin-bottom: 6px;
-  font-size: 0.9rem;
+  font-size: 18px;
 }
 
 .attachment-list i {
@@ -122,16 +154,63 @@
   margin-top: 1rem;
 }
 
-
 ::ng-deep .p-card-body {
   padding: 10px 20px;
 }
 
 .date {
   display: flex;
-  flex-direction: column;
   gap: 10px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
+/* ---------- Card Header (matches dialog header) ---------- */
+::ng-deep .circular-card .p-card-header {
+  background: linear-gradient(96deg, #c160ff 0%, #e6cffb 100%);
+  border-bottom: none;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-weight: 700;
+  padding: 0 !important;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+/* Content wrapper for layout */
+.card-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  width: 100%;
+  height: 70px;
+}
+
+/* Close button style (same as dialog) */
+.card-close-btn {
+  background: transparent;
+  color: red;
+  border: 1px solid red;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-close-btn:hover {
+  background: red;
+  color: white;
+}
+
 
 .file {
   margin-top: 10px;
@@ -164,22 +243,57 @@
   border-radius: 4px;
 }
 
-.error-msg{
+.error-msg {
   color: red;
   margin-top: 10px;
 }
 
-
-.header{
+.header {
   display: flex;
-  justify-content:end ;
+  justify-content: end;
   position: relative;
   top: -40px;
 }
 
-.pi-times{
+.pi-times {
   font-size: 16px;
   cursor: pointer;
   color: red;
- 
+}
+/* Grid: 3 items first row, 2 in second */
+.p-field-radiobuttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+  margin-top: 0.5rem;
+}
+
+/* Radio + Label together */
+.rb-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+}
+
+/* Label typography */
+.rb-item label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0 !important;
+}
+
+/* Tablet: 2 per row */
+@media (max-width: 900px) {
+  .p-field-radiobuttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: 1 per row */
+@media (max-width: 500px) {
+  .p-field-radiobuttons {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }

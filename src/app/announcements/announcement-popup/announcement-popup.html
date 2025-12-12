@@ -31,6 +31,6 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton type="button" label="Acknowledge" icon="pi pi-check" (click)="acknowledge()"></button>
+    <button pButton type="button" label="Acknowledge" icon="pi pi-check" [loading]="isLoading" [label]="isLoading ? 'Acknowledging': 'Acknowledge'" [disabled]="isLoading" (click)="acknowledge()"></button>
   </ng-template>
 </p-dialog>

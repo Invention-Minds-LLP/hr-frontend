@@ -73,7 +73,7 @@ export const routes: Routes = [
       { path: 'employee', component: EmployeeOverview,canActivate: [authGuard]},
       { path: 'leave', component: LeaveOverview, canActivate: [authGuard]},
       { path: 'appraisal', component: AppraisalOverview,canActivate: [authGuard] },
-      { path: 'attendance', component: ManageAttendance,canActivate: [authGuard] },
+      { path: 'attendance', component: AttendanceCalendars,canActivate: [authGuard] },
       { path: 'resignation', component: ResignOverview,canActivate: [authGuard] },
       { path: 'evaluation', component: EvaluationOverview, canActivate: [authGuard] }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm, canActivate: [authGuard] },

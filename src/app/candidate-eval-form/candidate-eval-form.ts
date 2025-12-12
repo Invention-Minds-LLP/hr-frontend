@@ -61,6 +61,7 @@ export class CandidateEvalForm {
 
   isHr:boolean = false;
 
+
   @Input() interviewId!: number;
   private pendingInterview: any | null = null;
   @Input() set interview(v: any | null) {
@@ -295,6 +296,8 @@ export class CandidateEvalForm {
 
   /** Save HR review block */
   saveHrReview() {
+
+    this.saving = true;
     const v = this.form.getRawValue();
     const payslipVal = v?.hr?.payslip as 'Yes' | 'No' | null | undefined;
 
@@ -310,21 +313,28 @@ export class CandidateEvalForm {
       noticePeriod: v.hr?.noticePeriod ?? null,   
     };
 
+
+
     this.api.saveHrReview(this.interviewId, dto).subscribe({
-      next: () => 
+      next: () => {
+        this.saving = false
         // alert('HR review saved.'),
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'HR review saved.'
-        }),
+        });
+      },
       error: (err) => 
         // alert(err?.error?.message || 'Failed to save HR review'),
+      {
+        this.saving = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: err?.error?.message || 'Failed to save HR review'
         })
+      }
     });
   }
 

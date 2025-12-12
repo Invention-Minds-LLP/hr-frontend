@@ -1,34 +1,59 @@
-:host ::ng-deep {
-    .p-card {
-      background: #1e1e1e;
-      color: #fff;
-    }
-  
-    label {
-      color: #ccc;
-      font-weight: 500;
-    }
-  
-    textarea {
-      background: #2c2c2c;
-      color: #fff;
-      border: 1px solid #444;
-    }
-  
-    .p-rating .p-rating-icon {
-      color: #facc15;
-    }
-    
-  }
-  
-  :host ::ng-deep .p-rating-cancel {
-    display: none;
-  }
+::ng-deep .p-card {
+  color: white !important;
+}
+::ng-deep .p-card-title {
+  color: #fff !important;
+  font-family: "Sofia Sans" !important;
+}
+
+::ng-deep .p-card-body {
+  padding: 20px !important;
+}
+
+label {
+  color: #fff !important;
+  font-weight: 500;
+}
+
+textarea {
+  background: transparent !important;
+  color: #fff !important;
+  border: 1px solid #444;
+}
+
+::ng-deep .p-rating .p-rating-icon {
+  color: #facc15 !important;
+}
+
+::ng-deep .p-rating-option-active .p-rating-icon {
+  color: #facc15 !important;
+}
+
+:host ::ng-deep .p-rating-cancel {
+  display: none;
+}
+
+::ng-deep .p-dialog .p-btn {
+  background-color: red !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-family: "Sofia Sans" !important;
+  font-weight: 500 !important;
+}
+.submit-btn {
+  background-color: #3465b0 !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-family: "Sofia Sans" !important;
+  font-weight: 500 !important;
+  border: none !important;
+  padding: 10px 30px !important;
+  cursor: pointer !important;
+}
 .p-floatlabel.float-active label {
   top: -0.25rem;
   font-size: 0.75rem;
-  background-color: transparent;
+  background-color: black !important;
+
   color: var(--text-color-secondary);
 }
-
-  

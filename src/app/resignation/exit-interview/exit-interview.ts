@@ -15,13 +15,15 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePicker } from "primeng/datepicker";
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { DividerModule } from 'primeng/divider';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-exit-interview',
   imports: [CommonModule, ReactiveFormsModule, SelectModule, CheckboxModule, ButtonModule, RadioButtonModule,
     CardModule, AccordionPanel, AccordionModule, RatingModule, SelectButtonModule, TextareaModule, InputTextModule, DatePicker, FormsModule, FloatLabelModule, DividerModule],
   templateUrl: './exit-interview.html',
-  styleUrl: './exit-interview.css'
+  styleUrl: './exit-interview.css',
+  providers: [MessageService]
 })
 export class ExitInterview {
   @Input() formData: any;
@@ -29,7 +31,7 @@ export class ExitInterview {
   form!: FormGroup;
 
 
-  constructor(private fb: FormBuilder, private exitService: Resignation) { }
+  constructor(private fb: FormBuilder, private exitService: Resignation, private messageService:MessageService) { }
 
   // ===== Options for SelectButtons =====
   academicOptions = [
@@ -430,7 +432,8 @@ interviewerNameDisplay: string = '';
     this.submitted = true
     if (this.form.valid) {
       this.exitService.submit(this.form.value).subscribe(() => {
-        alert('Exit Interview saved successfully!');
+        this.messageService.add({severity:'success', summary:'Success', detail:'Exit Interview saved successfully!'});
+        // alert('Exit Interview saved successfully!');
         // this.form.reset();
         this.submitted = false;
       });

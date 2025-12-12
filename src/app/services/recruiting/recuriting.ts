@@ -256,9 +256,13 @@ export class Recuriting {
   getSummary(interviewId: number): Observable<any> {
     return this.http.get<any>(`${baseUrl}/interview/${interviewId}/summary`);
   }
+  getAllInterview(page: number = 1, pageSize: number = 10): Observable<any> {
 
-  getAllInterview(): Observable<any> {
-    return this.http.get<any>(`${baseUrl}/interview`);
+    let params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', pageSize);
+
+    return this.http.get(`${baseUrl}/interview`, { params });
   }
   getPanelInterview(employeeId: any): Observable<any>{
     return this.http.get<any>(`${baseUrl}/panel/${employeeId}`);

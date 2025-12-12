@@ -1,8 +1,8 @@
 .card {
-  background:linear-gradient(135deg, #76ea9f, #6fdfc9) !important;
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+  /* background:linear-gradient(135deg, #76ea9f, #6fdfc9) !important; */
+  /* box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06)); */
   border-radius: 12px;
-  padding: 16px;
+  /* padding: 16px; */
   color: white;
 }
 
@@ -48,20 +48,23 @@ button.ghost {
   background: #fff;
   color: #0f172a;
 }
-
+table tbody tr:last-child td {
+  border-bottom: none;
+  }
 /* Outer wrapper: nice border + scroll on small screens */
 .table-wrap {
-  border: 1px solid var(--border, #e5e7eb);
+  /* border: 1px solid var(--border, #e5e7eb); */
   border-radius: 10px;
-  background: var(--panel, #fff);
+  /* background: var(--panel, #fff); */
   overflow: auto;
-  max-width: 900px;
+  max-width: 100%;
+  max-height: 600px;
   width: 100%;
-  box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));
+  /* box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06)); */
 }
 
 /* Fixed layout keeps columns aligned even with many buttons */
-table.apps {
+table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
@@ -69,30 +72,56 @@ table.apps {
 }
 
 /* Head */
-table.apps thead th {
-  text-align: left;
-  padding: 12px 14px;
-  font-weight: 700;
-  color: #2a3344;
-  background: #E8ECEF;
-  border-bottom: 1px solid var(--border, #e5e7eb);
+table thead {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
+  background: linear-gradient(96deg, #B8F7D1 0%, #8CF0D5 100%);
 }
+
+/* Apply background directly to th */
+table thead th {
+  text-align: left;
+  padding: 12px 14px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #727272;
+
+
+  /* keep sticky inside th */
+  position: sticky;
+  top: 0;
+  z-index: 11;
+}
+
+/* Remove border-radius from thead; apply only once */
+table thead tr:first-child th:first-child {
+  border-top-left-radius: 16px;
+}
+
+table thead tr:first-child th:last-child {
+  border-top-right-radius: 16px;
+}
+
 
 /* Body cells */
-table.apps td {
+table td {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-  vertical-align: middle;
-  background: var(--panel, #fff);
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+  text-wrap: nowrap;
 }
 
-/* Hover row */
-table.apps tbody tr:hover {
-  background: #f6f9ff;
-}
 
 /* Candidate cell: name + email with ellipsis */
 td.candidate .name {
@@ -503,3 +532,58 @@ td.actions {
   background: white;
   color: black;
 } */
+
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 0px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}

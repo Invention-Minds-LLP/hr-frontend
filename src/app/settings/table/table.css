@@ -97,7 +97,7 @@
 }
 
 ::ng-deep .empl-table .p-datatable .p-datatable-thead>tr>th {
-    background: #E8ECEF !important;
+    background: #fff !important;
    color: black !important;
     font-family: "Sofia Sans";
     font-size: 16px;
@@ -118,7 +118,7 @@
     font-weight: 400;
     line-height: normal;
     text-align: center;
-    background: #302F31 !important;
+    background: #000 !important;
     border: none !important;
     border-bottom: 2px solid #D9D9D9 !important;
     padding: 20px 30px;
@@ -146,11 +146,11 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
+    background: #FB9C2A !important;
     color: white !important;
 }
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
+    background: #FB9C2A !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;
@@ -187,3 +187,32 @@
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
 
+
+@media (max-width: 1000px) {
+    .table {
+        padding: 0 20px 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .filter-part {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .flex{
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 45px 20px 10px;
+    }
+
+    .p-datatable{
+        padding: 10px !important;
+    }
+}

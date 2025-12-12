@@ -1,145 +1,181 @@
 <div *ngIf="template" class="p-fluid performance-container">
-    <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
+  <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
 
-    <div class="grid mb-4">
-      <!-- Employee Name -->
-      <div class="col-12 md:col-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="empName" [value]="employeeName" disabled />
-          <label for="empName">Employee Name</label>
-        </p-floatlabel>
-      </div>
-    
-      <!-- Employee Code -->
-      <div class="col-12 md:col-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="empCode" [value]="employeeCode" disabled />
-          <label for="empCode">Employee Code</label>
-        </p-floatlabel>
-      </div>
-    
-      <!-- Cycle -->
-      <div class="col-12 md:col-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="cycle" [value]="cycle" disabled />
-          <label for="cycle">Cycle</label>
-        </p-floatlabel>
-      </div>
-    
-      <!-- Date of Joining -->
-      <div class="col-12 md:col-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="doj" [value]="joiningDate | date:'mediumDate'" disabled />
-          <label for="doj">Date of Joining</label>
-        </p-floatlabel>
-      </div>
-    
-      <!-- Department -->
-      <div class="col-12 md:col-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="dept" [value]="template.department.name" disabled />
-          <label for="dept">Department</label>
-        </p-floatlabel>
-      </div>
+  <div class="grid mb-4">
+    <!-- Employee Name -->
+    <div class="col-12 md:col-3">
+      <p-floatlabel variant="on">
+        <input pInputText id="empName" [value]="employeeName" disabled />
+        <label for="empName">Employee Name</label>
+      </p-floatlabel>
     </div>
-    
-    
-  
-    <!-- Question Responses -->
-    <p-table [value]="template.questions" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Category</th>
-          <th>Question</th>
-          <th *ngFor="let p of ['1st Month','3rd Month','6th Month','1 Year','2 Year']">{{ p }}</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-q>
-        <tr>
-          <td>{{ q.category }}</td>
-          <td>{{ q.text }}</td>
-          <td *ngFor="let p of ['MONTH_1','MONTH_3','MONTH_6','YEAR_1','YEAR_2']">
-            <p-select 
-              [options]="scoreOptions" 
-              [(ngModel)]="q.periods[p].score" 
-              optionLabel="label" 
-              appendTo="body"
-              optionValue="value"
-              placeholder="Select Score"
-              (onChange)="updateMarksScored()"
-              [disabled]="p !== currentPeriod">
-            </p-select>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Summary -->
-    <h3 class="p-mt-5">Overall Summary</h3>
-    <p-table [value]="summaryPeriods" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Assessment Period</th>
-          <th>Marks Scored</th>
-          <th>Overall Performance</th>
-          <th>Employee</th>
-          <th>Supervisor</th>
-          <th>HOD</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-p>
-        <tr>
-          <td>{{ p }}</td>
-          <td><input type="number" pInputText placeholder="Marks Scored" [(ngModel)]="summary[p].marksScored" [disabled]="p !== currentPeriod" /></td>
-          <td>
-            <p-select 
-              [options]="performanceOptions" 
-              [(ngModel)]="summary[p].overallPerf"
-              optionLabel="label" 
-              appendTo="body"
-              optionValue="value"
-              placeholder="Select Performance"
-              [disabled]="p !== currentPeriod">
-            </p-select>
-          </td>
-          <td><input pInputText [(ngModel)]="summary[p].employeeSig" placeholder="Signature" [disabled]="p !== currentPeriod" /></td>
+
+    <!-- Employee Code -->
+    <div class="col-12 md:col-3">
+      <p-floatlabel variant="on">
+        <input pInputText id="empCode" [value]="employeeCode" disabled />
+        <label for="empCode">Employee Code</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Cycle -->
+    <div class="col-12 md:col-3">
+      <p-floatlabel variant="on">
+        <input pInputText id="cycle" [value]="cycle" disabled />
+        <label for="cycle">Cycle</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Date of Joining -->
+    <div class="col-12 md:col-3">
+      <p-floatlabel variant="on">
+        <input pInputText id="doj" [value]="joiningDate | date:'mediumDate'" disabled />
+        <label for="doj">Date of Joining</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Department -->
+    <div class="col-12 md:col-3">
+      <p-floatlabel variant="on">
+        <input pInputText id="dept" [value]="template.department.name" disabled />
+        <label for="dept">Department</label>
+      </p-floatlabel>
+    </div>
+    <button 
+  pButton 
+  label="View Employee Incidents"
+  icon="pi pi-exclamation-triangle"
+  class="p-button-warning mb-3"
+  (click)="openIncidentPopup()">
+</button>
+
+  </div>
+
+
+
+  <!-- Question Responses -->
+  <p-table [value]="template.questions" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Category</th>
+        <th>Question</th>
+        <th *ngFor="let p of ['1st Month','3rd Month','6th Month','1 Year']">{{ p }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-q>
+      <tr>
+        <td>{{ q.category }}</td>
+        <td>{{ q.text }}</td>
+        <td *ngFor="let p of ['MONTH_1','MONTH_3','MONTH_6','YEAR_1']">
+          <p-select [options]="scoreOptions" [(ngModel)]="q.periods[p].score" optionLabel="label" appendTo="body"
+            optionValue="value" placeholder="Select Score" (onChange)="updateMarksScored()"
+            [disabled]="p !== currentPeriod">
+          </p-select>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Summary -->
+  <h3 class="p-mt-5">Overall Summary</h3>
+  <p-table [value]="summaryPeriods" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Assessment Period</th>
+        <th>Marks Scored</th>
+        <th>Overall Performance</th>
+        <th>Employee</th>
+        <th>HOD</th>
+        <th>HR</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td>{{ p }}</td>
+        <td><input type="number" pInputText placeholder="Marks Scored" [(ngModel)]="summary[p].marksScored"
+            [disabled]="p !== currentPeriod" /></td>
+        <td>
+          <p-select [options]="performanceOptions" [(ngModel)]="summary[p].overallPerf" optionLabel="label"
+            appendTo="body" optionValue="value" placeholder="Select Performance" [disabled]="p !== currentPeriod">
+          </p-select>
+        </td>
+        <!-- <td><input pInputText [(ngModel)]="summary[p].employeeSig" placeholder="Signature" [disabled]="p !== currentPeriod" /></td>
           <td><input pInputText [(ngModel)]="summary[p].supervisorSig" placeholder="Signature"[disabled]="p !== currentPeriod" /></td>
-          <td><input pInputText [(ngModel)]="summary[p].hodSig" placeholder="Signature" [disabled]="p !== currentPeriod"/></td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Final Review -->
-    <div class="p-mt-5">
-        <h3>Final Review</h3>
-      
-        <div class="p-fluid p-formgrid p-grid final">
-          <!-- Appreciations -->
-          <div class="p-field p-col-12">
-            <p-floatlabel  variant="on" [ngClass]="{'float-active': finalReview.appreciations}">
-              <textarea id="appreciations" pInputTextarea [(ngModel)]="finalReview.appreciations" rows="3"></textarea>
-              <label for="appreciations">Appreciations</label>
-            </p-floatlabel>
+          <td><input pInputText [(ngModel)]="summary[p].hodSig" placeholder="Signature" [disabled]="p !== currentPeriod"/></td> -->
+
+        <td>
+          <canvas #empCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
+            [class.disabled-canvas]="p !== currentPeriod">
+          </canvas>
+
+          <div class="sig-action-row" *ngIf="!summary[p]?.employeeSig && p === currentPeriod">
+            <button pButton size="small" label="Save" (click)="saveSignature('emp', p)"></button>
+            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('emp', p)"></button>
           </div>
-      
-          <!-- Talents -->
-          <div class="p-field p-col-12">
-            <p-floatlabel  variant="on" [ngClass]="{'float-active': finalReview.talents}">
-              <textarea id="talents" pInputTextarea [(ngModel)]="finalReview.talents" rows="3"></textarea>
-              <label for="talents">Talents & Participation</label>
-            </p-floatlabel>
+        </td>
+
+
+
+        <td>
+          <canvas #supCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
+            [class.disabled-canvas]="p !== currentPeriod">
+          </canvas>
+
+          <div class="sig-action-row" *ngIf="!summary[p]?.supervisorSig && p === currentPeriod">
+            <button pButton size="small" label="Save" (click)="saveSignature('sup', p)"></button>
+            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('sup', p)"></button>
           </div>
-      
-          <!-- Comments -->
-          <div class="p-field p-col-12">
-            <p-floatlabel  variant="on"  [ngClass]="{'float-active': finalReview.overallComments}">
-              <textarea id="comments" pInputTextarea [(ngModel)]="finalReview.overallComments" rows="3"></textarea>
-              <label for="comments">Overall Comments</label>
-            </p-floatlabel>
+        </td>
+
+
+        <td>
+          <canvas #hodCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
+            [class.disabled-canvas]="p !== currentPeriod">
+          </canvas>
+
+          <div class="sig-action-row" *ngIf="!summary[p]?.hodSig && p === currentPeriod">
+            <button pButton size="small" label="Save" (click)="saveSignature('hod', p)"></button>
+            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('hod', p)"></button>
           </div>
-      
-          <!-- Signatures in row -->
-          <div class="p-field p-col-12 md-4">
+        </td>
+
+
+
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Final Review -->
+  <div class="p-mt-5">
+    <h3>Final Review</h3>
+
+    <div class="p-fluid p-formgrid p-grid final">
+      <!-- Appreciations -->
+      <div class="p-field p-col-12">
+        <p-floatlabel variant="on" [ngClass]="{'float-active': finalReview.appreciations}">
+          <textarea id="appreciations" pInputTextarea [(ngModel)]="finalReview.appreciations" rows="3"></textarea>
+          <label for="appreciations">Appreciations</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Talents -->
+      <div class="p-field p-col-12">
+        <p-floatlabel variant="on" [ngClass]="{'float-active': finalReview.talents}">
+          <textarea id="talents" pInputTextarea [(ngModel)]="finalReview.talents" rows="3"></textarea>
+          <label for="talents">Talents & Participation</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Comments -->
+      <div class="p-field p-col-12">
+        <p-floatlabel variant="on" [ngClass]="{'float-active': finalReview.overallComments}">
+          <textarea id="comments" pInputTextarea [(ngModel)]="finalReview.overallComments" rows="3"></textarea>
+          <label for="comments">Overall Comments</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Signatures in row -->
+      <!-- <div class="p-field p-col-12 md-4">
             <p-floatlabel  variant="on">
               <input id="empSig" pInputText [(ngModel)]="finalReview.employeeSig" />
               <label for="empSig">Employee Signature</label>
@@ -158,11 +194,105 @@
               <input id="hrSig" pInputText [(ngModel)]="finalReview.hrSig" />
               <label for="hrSig">HR Signature</label>
             </p-floatlabel>
+          </div> -->
+
+ <!-- FINAL REVIEW SIGNATURES -->
+          <div class="flex justify-content-start gap-4 final-signatures-row w-100">
+            <div class="p-field p-col-12 md:4 final-sign-block">
+              <label class="sig-label">Employee Signature</label>
+            
+              <canvas #finalEmpCanvas width="350" height="130" class="sig-canvas-1"></canvas>
+            
+              <div class="sig-action-row-1">
+                <button pButton size="small" label="Save" (click)="saveFinalSignature('emp')"></button>
+                <button pButton size="small" severity="secondary" label="Clear" (click)="clearFinalSignature('emp')"></button>
+              </div>
+            </div>
+            
+            <div class="p-field p-col-12 md:4 final-sign-block">
+              <label class="sig-label">Supervisor Signature</label>
+            
+              <canvas #finalSupCanvas width="350" height="130" class="sig-canvas-1"></canvas>
+            
+              <div class="sig-action-row-1">
+                <button pButton size="small" label="Save" (click)="saveFinalSignature('sup')"></button>
+                <button pButton size="small" severity="secondary" label="Clear" (click)="clearFinalSignature('sup')"></button>
+              </div>
+            </div>
+            
+            <div class="p-field p-col-12 md:4 final-sign-block">
+              <label class="sig-label">HR Signature</label>
+            
+              <canvas #finalHrCanvas width="350" height="130" class="sig-canvas-1"></canvas>
+            
+              <div class="sig-action-row-1">
+                <button pButton size="small" label="Save" (click)="saveFinalSignature('hr')"></button>
+                <button pButton size="small" severity="secondary" label="Clear" (click)="clearFinalSignature('hr')"></button>
+              </div>
+            </div>
           </div>
-        </div>
+
+
+    </div>
     <!-- Submit Button -->
     <div class="mt-4">
-      <button  type="button" class="new-app" label="Submit" icon="pi pi-check" (click)="onSubmit()">Submit</button>
+      <button pButton class="new-app" label="Submit" icon="pi pi-check" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" [disabled]="isLoading" (click)="onSubmit()">Submit</button>
     </div>
   </div>
-  </div>
+</div>
+
+<!-- INCIDENTS POPUP -->
+<p-dialog 
+  header="Employee Incident History"
+  [(visible)]="incidentDialogVisible"
+  [modal]="true"
+  [style]="{ width: '650px' }"
+  [closable]="false"
+  [dismissableMask]="true">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Employee Incident History</span>
+
+      <button class="dialog-close-btn" (click)="incidentDialogVisible = false">
+        ✕
+      </button>
+    </div>
+    </ng-template>
+
+  <ng-container *ngIf="loadingIncidents">
+    <p>Loading incidents...</p>
+  </ng-container>
+
+  <ng-container *ngIf="!loadingIncidents && incidents.length === 0">
+    <p>No incidents found for this employee.</p>
+  </ng-container>
+  <ng-container *ngIf="!loadingIncidents && incidents.length > 0">
+    <p-table [value]="incidents" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Reported By</th>
+          <th>Date</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-incident let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ incident.title }}</td>
+          <td>{{ incident.description }}</td>
+          <td>{{ incident.reporter?.firstName }} {{ incident.reporter?.lastName }}</td>
+          <td>{{ incident.createdAt | date:'mediumDate' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Close" class="p-button-secondary" (click)="incidentDialogVisible = false"></button>
+  </ng-template>
+
+</p-dialog>

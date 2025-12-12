@@ -1,6 +1,6 @@
 .performance-container{
     padding: 20px 60px;
-    --p-floatlabel-on-active-background:#302F31;
+    --p-floatlabel-on-active-background:#000;
       --p-floatlabel-active-color:#ffff;
 }
 
@@ -17,7 +17,7 @@
 .p-floatlabel.float-active label {
     top: -0.40rem;
     font-size: 0.75rem;
-    background-color: #302F31;
+    background-color: #000;
     color: white !important;
   }
 
@@ -36,7 +36,7 @@
   
   /* Header Row */
   ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    background: #E8ECEF;
+    background: #fff;
     color: black;
     font-size: 16px;
     font-weight: 600;
@@ -65,7 +65,7 @@
   
   /* Body Rows */
   ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    background: #302F31;
+    background: #000;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -118,7 +118,7 @@
     gap: 8px;
     flex-shrink: 0;
     border-radius: 8px;
-    background: #3177a3;
+    background: #194B9B;
     color: #fff;
     font-family: "Sofia Sans";
     font-size: 18px;
@@ -127,4 +127,107 @@
     line-height: normal;
     letter-spacing: 0.18px;
     border: none;
+  }
+  .sig-canvas {
+    border: 1px solid #ccc;
+    background: #fff;
+    touch-action: none;    /* Required to draw on touch devices */
+    cursor: crosshair;
+    pointer-events: auto !important;
+  }
+  
+  .disabled-canvas {
+    opacity: 0.5;
+    pointer-events: none !important;
+  }
+  .p-table-wrapper, .p-datatable-wrapper, .p-datatable-scrollable-body {
+    pointer-events: auto !important;
+  }
+  .sig-action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end; /* Align to right */
+  }
+  .final-sign-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .sig-label {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .sig-canvas-1 {
+    border: 1px solid #ccc;
+    background: white;
+    width: 100%;
+    max-width: 350px;
+    height: 130px;
+    display: block;
+    /* margin: 0 auto; center canvas */
+  }
+  
+  .sig-action-row-1 {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+    max-width: 350px;
+    /* margin-left: auto; align under canvas */
+  }
+  ::ng-deep .p-dialog {
+    border-radius: 20px !important;
+    background: #020403 !important;
+    box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+    border: none !important;
+    color: white !important;
+    padding: 0 !important;
+  }
+
+  
+  ::ng-deep .p-dialog .p-dialog-header {
+    background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+    border-bottom: none !important;
+    color: #020403;
+    font-family: "Sofia Sans";
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0.24px;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    height: 70px !important;
+  }
+  .dialog-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  
+  .dialog-close-btn {
+    background: transparent;
+    color: red;
+    border: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid red;
+  }
+  
+  .dialog-close-btn:hover {
+    background: red;
+    color: white;
   }

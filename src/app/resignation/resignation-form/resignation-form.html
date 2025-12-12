@@ -1,5 +1,14 @@
 <p-dialog [(visible)]="visible" [modal]="true" [appendTo]="'body'" [style]="{ width: '90vw'}" [draggable]="false"
-    [resizable]="false">
+    [resizable]="false" [closable]="false">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+          <span>Resignation</span>
+    
+          <button class="dialog-close-btn" (click)="visible = false">
+            ✕
+          </button>
+        </div>
+      </ng-template>
     <div class="resignation-container">
         <div class="resignation-form">
             <p-card>
@@ -35,7 +44,7 @@
                         </div>
                     </div>
 
-                    <button pButton type="submit" label="Submit" class="submit"
+                    <button pButton type="submit" label="Submit" class="submit" [loading]="loading" [label]="loading ? 'Submitting' : 'Submit'"
                         [disabled]="form.invalid || loading"></button>
                 </form>
 
@@ -112,7 +121,7 @@
 
                     <div class="actions">
                         <button pButton label="Cancel" class="p-button-text" (click)="cancelWithdraw()"></button>
-                        <button pButton label="Confirm Withdraw" class="p-button-danger"
+                        <button pButton label="Confirm Withdraw" class="p-button-danger" [loading]="loading" [label]="loading ? 'Withdrawing' : 'Confirm Withdraw'"
                             (click)="confirmWithdraw()"></button>
                     </div>
                 </div>

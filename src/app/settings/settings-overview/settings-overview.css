@@ -53,3 +53,14 @@
   border-right: 2px solid #828282;
   height: 25px;
 }
+
+@media (max-width: 1000px) {
+  .sub-nav {
+    padding: 5px;
+    padding-bottom: 50px;
+  }
+  .sub-nav ul{
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}

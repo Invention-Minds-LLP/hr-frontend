@@ -1,6 +1,6 @@
 .performance-container {
-    padding:20px 30px;
-    background: #555555;
+    /* padding:20px 30px; */
+    /* background: #555555; */
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     /* width: 97.5%; */
@@ -26,12 +26,12 @@
   
   /* Header Row */
   ::ng-deep .performance-container .p-datatable .p-datatable-thead > tr > th {
-    background: transparent !important;
-    color: white !important;
+    background: #fff !important;
+    color: #000 !important;
     font-size: 16px;
     font-weight: 600;
     padding: 16px 20px;
-    border-bottom: 2px solid #d9d9d9;
+    /* border-bottom: 2px solid #d9d9d9; */
     height: 60px;
     text-align: left;
     text-wrap: nowrap;
@@ -55,14 +55,18 @@
   
   /* Body Rows */
   ::ng-deep .performance-container .p-datatable .p-datatable-tbody > tr > td {
-    background:#555555  !important;
+    background:#000  !important;
     padding: 16px 20px;
     font-size: 16px;
     font-weight: 500;
     color: white ;
     text-align: left;
-    border-bottom: none;
     text-wrap: nowrap;
+    border-bottom: 1px solid #727272 !important;
+  }
+
+  ::ng-deep .performance-container .p-datatable .p-datatable-body > tr > td:last-child {
+    border-bottom: none !important;
   }
   
   /* Employee Name Column with Image */
@@ -221,8 +225,8 @@
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    border-radius: 8px;
-    background: #0062A1;
+    border-radius: 6px;
+    background: #194B9B;
     color: #fff;
     font-family: "Sofia Sans";
     font-size: 16px;
@@ -253,12 +257,12 @@
     font-weight: 500;
     color: #333;
     border: 1px solid #ddd;
-    background-color: #E8ECEF;
+    background-color: #fff;
     cursor: pointer;
   }
   
   ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #FF0000 !important;
+    background: #FB9C2A !important;
     color: #fff !important;
     border: none;
   }
@@ -268,7 +272,7 @@
 }
 ::ng-deep .p-select{
   width: 100% !important;
-  background: #555555;
+  background: transparent !important;
 }
 .info-icon {
   margin-left: 8px;
@@ -286,11 +290,227 @@
 :host ::ng-deep .p-skeleton::after {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
+.tag-filed {
+  background: #0041A8 !important;
+  color: white !important;
+}
+
+.tag-investigation {
+  background: #ffb800 !important;
+  color: black !important;
+}
+
+.tag-closed {
+  background: #16c784 !important;
+  color: white !important;
+}
+
+.tag-rejected {
+  background: #ff4d4d !important;
+  color: white !important;
+}
+
+.tag-default {
+  background: grey !important;
+  color: white !important;
+}
 
 
 /* ::ng-deep .p-select, .p-multiselect {
     width: 100% !important;
 } */
+
+/* Container */
+.posh-table-container {
+  background: #000;
+  border-radius: 14px;
+  /* padding: 20px; */
+  color: white;
+  font-family: "Sofia Sans";
+}
+
+/* Header Area */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.info-icon {
+  color: white;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* Raise Complaint Button */
+.new-app {
+  border-radius: 6px;
+  background: #194B9B;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  /* border-radius: 8px; */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* TABLE (Individual View) */
+.individual-posh-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  overflow-y: auto;
+  border-radius: 12px;
+  max-height: 350px;
+}
+.individual-posh-table thead{
+  background: linear-gradient(to right, #ff89de, #ffa9c4);
+  height: 50px;
+}
+/* Gradient Header */
+.individual-posh-table thead th {
+  /* background: linear-gradient(to right, #ff89de, #ffa9c4); */
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  color: black;
+}
+tbody tr {
+  border-bottom: 1px solid #727272;
+}
+ thead tr th:first-child {
+  border-top-left-radius: 16px;
+}
+
+ thead tr th:last-child {
+  border-top-right-radius: 16px;
+}
+
+ tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+ tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+ table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Body */
+.individual-posh-table tbody tr td {
+  padding: 18px;
+  background: #111;
+  border-bottom: 1px solid #2c2c2c;
+  color: white;
+}
+
+/* Remove bottom line on last row */
+.individual-posh-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* STATUS BADGES */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-open {
+  background: #0573ff;
+  color: white;
+}
+
+.status-progress {
+  background: #ffa200;
+  color: #000;
+}
+
+.status-resolved {
+  background: #28c76f;
+  color: white;
+}
+
+.no-data.center-right {
+  text-align: center;        /* moves text to right */
+  padding-right: 2rem;      /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic;
+  font-size: 15px;
+}
+::ng-deep .p-dialog{
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3A1D4D !important;
+  border: none !important;
+  color: white !important;
+}
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 60px !important;
+}
+/* ::ng-deep .p-dialog .p-button{
+  background-color: transparent !important;
+  border: 1px solid #FE0000 !important;
+  color: #FE0000 !important;
+  height: 34px !important;
+  width: 34px !important;
+  font-size: 10px !important;
+
+} */
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
 
 
 @media(max-width:767px){

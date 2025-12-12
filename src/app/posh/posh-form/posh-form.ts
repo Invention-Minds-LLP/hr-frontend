@@ -21,6 +21,7 @@ export class PoshForm {
   employees: any[] = [];
   @Output() saved = new EventEmitter<void>();
   complaintId!: string | '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -35,7 +36,7 @@ export class PoshForm {
   }
 
   ngOnInit() {
-    this.employeeService.getEmployees().subscribe(data => {
+    this.employeeService.getActiveEmployees().subscribe(data => {
       this.employees = data.map(e => ({ id: e.id, name: `${e.firstName} ${e.lastName}` }));
     });
     this.complaintId = localStorage.getItem('empId') || ''
@@ -43,8 +44,10 @@ export class PoshForm {
 
   submit() {
     if (this.form.valid) {
+      this.isLoading = true;
       this.form.value.complainantId = this.complaintId || '';
       this.poshService.create(this.form.value).subscribe(() => {
+        this.isLoading = false;
         this.saved.emit();
         this.form.reset();
       });

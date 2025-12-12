@@ -103,19 +103,24 @@ export class ResignationForm {
 
   confirmWithdraw() {
     if (!this.withdrawingId) return;
+    this.loading = true;
     this.api.requestWithdraw(this.withdrawingId, this.withdrawReason).subscribe({
       next: () => {
         this.withdrawingId = null;
         this.withdrawReason = '';
         this.load();
+        this.loading = false;
       },
       error: () =>
-        // alert('Failed to withdraw')
+      // alert('Failed to withdraw')
+      {
+        this.loading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to withdraw resignation'
         })
+      }
     });
   }
 

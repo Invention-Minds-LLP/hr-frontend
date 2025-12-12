@@ -2,7 +2,8 @@
     display: flex;
     height: 100% ; /* Full viewport height */
     /* overflow: hidden; */
-    background-color: #302F31;
+    /* background-color: white; */
+    background-color: black;
     flex-direction: column;
   }
   .announcement-bar {

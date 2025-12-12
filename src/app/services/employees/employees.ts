@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient,HttpParams  } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment/environment.prod';
 
@@ -48,9 +48,18 @@ export class Employees {
 
   constructor(private http: HttpClient) { }
 
-  getEmployees(): Observable<Employee[]> {
-    return this.http.get<Employee[]>(this.apiUrl);
+  // getEmployees(): Observable<Employee[]> {
+  //   return this.http.get<Employee[]>(this.apiUrl);
+  // }
+  getEmployees(page: number, pageSize: number, search?: string, filter?: any) {
+    const params: any = { page, pageSize };
+
+    if (search) params.search = search;
+    if (filter) params.filter = filter
+
+    return this.http.get(this.apiUrl, { params });
   }
+
 
   getEmployeeById(id: number): Observable<any> {
     return this.http.get<Employee>(`${this.apiUrl}/${id}`);
@@ -95,7 +104,7 @@ export class Employees {
     );
   }
   getEmployeeRequests(employeeId: number) {
-    return this.http.get<{leaves:any[]; permissions:any[]; wfh:any[]}>(
+    return this.http.get<{ leaves: any[]; permissions: any[]; wfh: any[] }>(
       `${this.apiUrl}/${employeeId}/requests`
     );
   }
@@ -119,7 +128,7 @@ export class Employees {
       formData
     );
   }
-  
+
 
   uploadVaccineProof(employeeId: number, vaccineIndex: number, file: File): Observable<any> {
     const formData = new FormData();
@@ -129,10 +138,21 @@ export class Employees {
       formData
     );
   }
-    // 🔹 Get employees by multiple departments
-    getByDepartments(departmentIds: number[]): Observable<any[]> {
-      const ids = departmentIds.join(',');
-      return this.http.get<any[]>(`${this.apiUrl}/by-departments?ids=${ids}`);
-    }
-  
+  // 🔹 Get employees by multiple departments
+  getByDepartments(departmentIds: number[]): Observable<any[]> {
+    const ids = departmentIds.join(',');
+    return this.http.get<any[]>(`${this.apiUrl}/by-departments?ids=${ids}`);
+  }
+  getAbsentWithoutLeave(date: string): Observable<any[]> {
+    const params = new HttpParams().set('date', date);
+
+    return this.http.get<any[]>(`${this.apiUrl}/absent-without-leave`, { params });
+  }
+
+  uploadExcel(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${this.apiUrl}/bulk-upload`, formData);
+  }
 }
