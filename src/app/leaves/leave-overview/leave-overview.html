@@ -17,8 +17,8 @@
                 <li class="sub-item" [ngClass]="{ 'active': active === 'permission' }">
                     Permission Request</li>
             </button>
-            <span class="br"></span>
-            <button (click)="show('balances')">
+            <span class="br" *ngIf="deptId === 1"></span>
+            <button (click)="show('balances')" *ngIf="deptId === 1">
                 <li class="sub-item" [ngClass]="{ 'active': active === 'balances' }">Balances
                     &
                     Accruals</li>

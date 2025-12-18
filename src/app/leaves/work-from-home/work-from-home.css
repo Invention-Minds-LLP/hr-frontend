@@ -116,14 +116,10 @@
   transition: all 0.2s ease-in-out;
 }
 
-/* Active page */
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #E51313 !important;
-  color: white !important;
-}
+
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #E51313 !important;
+  background: #FB9C2A !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;

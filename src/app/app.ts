@@ -1,6 +1,6 @@
 import { RouterOutlet } from '@angular/router';
 import { Login } from './Login/login/login';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PrimeNG } from 'primeng/config';
 import { Navbar } from "./navbar/navbar";
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { Grievance } from './services/grievance/grievance';
 import * as XLSX from 'xlsx';
 import { Chart } from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
+import { Notifications } from './services/notifications/notifications';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ import 'chartjs-adapter-date-fns';
 })
 export class App {
 
-  constructor(private router: Router,private svc: Announcements, private inactivityService: InactivityService, private ackService: Grievance) { }
+  constructor(private router: Router, private svc: Announcements, private inactivityService: InactivityService,
+    private ackService: Grievance, private notificationService: Notifications) { }
   protected title = 'hr-frontend';
 
   dark = false;
@@ -32,6 +34,9 @@ export class App {
   allPending: any[] = [];
   employeeId: number = Number(localStorage.getItem('empId'));
   role: string = localStorage.getItem('role') || '';
+  @ViewChild(AnnouncementPopup)
+announcementPopup!: AnnouncementPopup;
+
 
   toggleTheme() {
     document.documentElement.classList.toggle('app-dark', this.dark);
@@ -54,15 +59,47 @@ export class App {
 
     return false;
   }
-
+  private isLoadingPending = false;
   ngOnInit() {
     this.role = this.role.toUpperCase();
-    console.log('User Role:', this.role);
-    if(this.role === 'HR' || this.role === 'HR MANAGER'){
+
+
+    if (this.role === 'HR' || this.role === 'HR MANAGER') {
+
+      // 🔗 Start SSE connection
+      this.notificationService.connectStream();
+
+      this.notificationService.notifications$.subscribe((notifications: any[]) => {
+
+        if (!notifications || notifications.length === 0) return;
+
+        const hasAckNotification = notifications.some(n =>
+          n.message?.includes('requires acknowledgment')
+        );
+
+        if (hasAckNotification) {
+          this.loadPendingComplaints();
+        }
+
+        const hasAnnouncement = notifications.some(n =>
+          n.message === 'NEW_ANNOUNCEMENT'
+        );
+      
+        if (hasAnnouncement) {
+          // 👇 call popup method
+          this.announcementPopup?.loadAnnouncements();
+        }
+      });
+
+
+      // Initial load (page refresh case)
       this.loadPendingComplaints();
     }
   }
   loadPendingComplaints() {
+    if (this.popupVisible || this.isLoadingPending) return;
+
+    this.isLoadingPending = true;
     const employeeId = localStorage.getItem('empId');
     this.ackService.getUnacknowledged(Number(employeeId)).subscribe({
       next: (res) => {
@@ -72,8 +109,11 @@ export class App {
         ];
         console.log('Pending Complaints:', this.allPending);
         this.showNextPopup();
+        this.isLoadingPending = false;
       },
-      error: (err) => console.error(err),
+      error: () => {
+        this.isLoadingPending = false;
+      }
     });
   }
 
@@ -136,32 +176,32 @@ export class App {
   tryPlot() {
     console.log("PAST DATA ROW 1:", this.pastData[0]);
     console.log("FORECAST DATA ROW 1:", this.forecastData[0]);
-  
+
     if (this.pastData.length === 0 || this.forecastData.length === 0) return;
-  
+
     // Convert date column correctly
     const pastDates = this.pastData.map(d =>
       this.excelSerialToJSDate(d['Date'])
     );
-  
+
     const futureDates = this.forecastData.map(d =>
       this.excelSerialToJSDate(d['Date'])
     );
-  
+
     // Correct column names from your logs
     const pastOPD = this.pastData.map(d => d['OPD_Count']);
     const pastIPD = this.pastData.map(d => d['IPD_Count']);
-  
+
     const futureOPD = this.forecastData.map(d => d['Forecast_OPD']);
     const futureIPD = this.forecastData.map(d => d['Forecast_IPD']);
-  
+
     console.log("PAST OPD:", pastOPD);
     console.log("FUTURE OPD:", futureOPD);
-  
+
     const allDates = [...pastDates, ...futureDates];
-  
+
     if (this.chart) this.chart.destroy();
-  
+
     this.chart = new Chart("opdIpdChart", {
       type: 'line',
       data: {
@@ -209,12 +249,12 @@ export class App {
       }
     });
   }
-  
-  
+
+
 
   excelSerialToJSDate(serial: number) {
     return new Date((serial - 25569) * 86400 * 1000);
   }
-  
-  
+
+
 }

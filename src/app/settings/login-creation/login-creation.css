@@ -46,12 +46,21 @@
   padding-left:10px ;
 }
 
-
-::ng-deep .p-password-input,
-.p-inputtext{
-    width: 20vw;
+::ng-deep .p-password{
+    width: 100% !important;
+}
+::ng-deep .p-password-input{
+    width: 100% !important;
     color: white;
 }
+::ng-deep .p-inputtext {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff !important;
+    width: 100%;
+    box-shadow: none !important;
+  }
+  
 
 label{
     color: white !important;

@@ -1,46 +1,6 @@
 <!-- <p-card header="Training Management"> -->
-<p-card class="training" ngClass="{'individual-view': currentPath === '/individual'}">
-  <!-- HR: Create Training -->
-<div class="flex justify-content-between align-items-center">
-  <div class="header">
-    <h2>
-     Training Management
-      <span>
-        <i class="pi pi-info-circle info-icon"
-           pTooltip="View and manage all training programs you are part of, including trainers, schedules and feedback options.">
-        </i>
-      </span>
-    </h2>
-  </div>
-    <div class="flex">
-      <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual'" class="p-mb-3 button">
-        <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
-          class="p-button-sm p-button-success" (click)="toggleForm()"></button>
-      </div>
-      <div class="flex1" *ngIf="!showForm">
-  
-        <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
-  
-          <i class="pi pi-filter"></i>
-  
-          <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
-  
-            <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
-              [ngClass]="{ 'active': selectedFilter?.value === option.value }">
-              {{ option.label }}
-            </li>
-  
-          </ul>
-        </div>
-  
-        <p-iconfield>
-          <p-inputicon class="pi pi-search"></p-inputicon>
-          <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
-        </p-iconfield>
-  
-      </div>
-    </div>
-  </div>
+<p-card class="training"  [ngClass]="{'individual-view': currentPath === '/individual'}">
+
 
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">
@@ -49,97 +9,185 @@
 
   <!-- TABLE -->
   <ng-template #trainingTable>
-    <div *ngIf="currentPath === '/individual'; else adminTable" class="custom-training-table">
+    <!-- HR: Create Training -->
 
-      <table class="simple-training-table">
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Title</th>
-            <th class="text-center">Trainer</th>
-            <th class="text-center">Tests</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Status</th>
-            <th class="text-center">Actions</th>
-          </tr>
-        </thead>
+    <div *ngIf="currentPath === '/individual'; else adminTable" class="">
+      <div class="flex justify-content-between align-items-center">
+        <div class="header">
+          <h2>
+            Training Management
+            <span>
+              <i class="pi pi-info-circle info-icon"
+                pTooltip="View and manage all training programs you are part of, including trainers, schedules and feedback options.">
+              </i>
+            </span>
+          </h2>
+        </div>
+        <div class="flex">
+          <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual'"
+            class="p-mb-3 button">
+            <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
+              class="p-button-sm p-button-success" (click)="toggleForm()"></button>
+          </div>
+          <div class="flex1" *ngIf="!showForm">
 
-        <tbody>
-          <tr *ngFor="let t of filteredTrainings; let i = index">
+            <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
 
-            <td>{{ i + 1 }}</td>
-            <td>{{ t?.title }}</td>
+              <i class="pi pi-filter"></i>
 
-            <!-- Trainers -->
-            <td>
+              <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
 
-              <div class="dropdown-container-in-table">
-                <ng-container *ngIf="t?.trainers?.length; else noTrainer">
-                  <div class="dropdown-container-in-table">
-                    <select class="dropdown-in-table">
-                      <option disabled selected>
-                        {{ t?.trainers.length }} Trainer{{ t?.trainers.length > 1 ? 's' : '' }}
-                      </option>
-                      <option *ngFor="let tr of t?.trainers" [value]="tr.trainerId || tr.trainerName">
-                        <ng-container [ngSwitch]="tr.trainerType">
-                          <span *ngSwitchCase="'INTERNAL'">
-                            {{ getInternalTrainerName(tr.trainerId) }} (Internal)
-                          </span>
-                          <span *ngSwitchCase="'EXTERNAL'">
-                            {{ tr.trainerName }}
-                            <span *ngIf="tr.trainerOrg"> - {{ tr.trainerOrg }}</span> (External)
-                          </span>
-                        </ng-container>
-                      </option>
-                    </select>
-                  </div>
-                </ng-container>
-                <ng-template #noTrainer>
-                  <span class="text-muted">No Trainers</span>
-                </ng-template>
-              </div>
+                <li class="list" *ngFor="let option of filterOptions"
+                  (click)="selectFilter(option); $event.stopPropagation()"
+                  [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+                  {{ option.label }}
+                </li>
 
-            </td>
+              </ul>
+            </div>
 
-            <!-- Tests -->
-            <td>
-              <div class="dropdown-container-in-table">
-                <button class="link" (click)="openTestsDialog(t)">
-                  {{ t?.trainingTests?.length || 0 }} Test {{ t?.trainingTests?.length > 1 ? 's': '' }}
+            <p-iconfield>
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+            </p-iconfield>
 
-                </button>
-              </div>
-            </td>
-
-            <td>{{ t?.startDate | date: 'short' }}</td>
-            <td>{{ t?.endDate | date: 'short' }}</td>
-
-            <!-- Status -->
-            <td class="t-data al">
-              <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).badgeColor }">
-                <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).dotColor }"></span>
-                {{ t.status }}
-              </span>
-            </td>
-            <!-- Action -->
-            <td>
-              <div class="dropdown-container-in-table">
-                <button class="give-feedback-btn" (click)="openFeedback(t)">
-                  <i class="pi pi-comment" style="color: #fff"></i> Give Feedback
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr *ngIf="filteredTrainings?.length === 0">
-            <td colspan="8" class="no-data center-right">
-              No trainings available.
-            </td>
-        </tbody>
-      </table>
+          </div>
+        </div>
+      </div>
+      <div class="custom-training-table">
+        <table class="simple-training-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Title</th>
+              <th class="text-center">Trainer</th>
+              <th class="text-center">Tests</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Status</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+  
+          <tbody>
+            <tr *ngFor="let t of filteredTrainings; let i = index">
+  
+              <td>{{ i + 1 }}</td>
+              <td>{{ t?.title }}</td>
+  
+              <!-- Trainers -->
+              <td>
+  
+                <div class="dropdown-container-in-table">
+                  <ng-container *ngIf="t?.trainers?.length; else noTrainer">
+                    <div class="dropdown-container-in-table">
+                      <select class="dropdown-in-table">
+                        <option disabled selected>
+                          {{ t?.trainers.length }} Trainer{{ t?.trainers.length > 1 ? 's' : '' }}
+                        </option>
+                        <option *ngFor="let tr of t?.trainers" [value]="tr.trainerId || tr.trainerName">
+                          <ng-container [ngSwitch]="tr.trainerType">
+                            <span *ngSwitchCase="'INTERNAL'">
+                              {{ getInternalTrainerName(tr.trainerId) }} (Internal)
+                            </span>
+                            <span *ngSwitchCase="'EXTERNAL'">
+                              {{ tr.trainerName }}
+                              <span *ngIf="tr.trainerOrg"> - {{ tr.trainerOrg }}</span> (External)
+                            </span>
+                          </ng-container>
+                        </option>
+                      </select>
+                    </div>
+                  </ng-container>
+                  <ng-template #noTrainer>
+                    <span class="text-muted">No Trainers</span>
+                  </ng-template>
+                </div>
+  
+              </td>
+  
+              <!-- Tests -->
+              <td>
+                <div class="dropdown-container-in-table">
+                  <button class="link" (click)="openTestsDialog(t)">
+                    {{ t?.trainingTests?.length || 0 }} Test {{ t?.trainingTests?.length > 1 ? 's': '' }}
+  
+                  </button>
+                </div>
+              </td>
+  
+              <td>{{ t?.startDate | date: 'short' }}</td>
+              <td>{{ t?.endDate | date: 'short' }}</td>
+  
+              <!-- Status -->
+              <td class="t-data al">
+                <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).badgeColor }">
+                  <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).dotColor }"></span>
+                  {{ t.status }}
+                </span>
+              </td>
+              <!-- Action -->
+              <td>
+                <div class="dropdown-container-in-table">
+                  <button class="give-feedback-btn" (click)="openFeedback(t)">
+                    <i class="pi pi-comment" style="color: #fff"></i> Give Feedback
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredTrainings?.length === 0">
+              <td colspan="8" class="no-data center-right">
+                No trainings available.
+              </td>
+          </tbody>
+        </table>
+      </div>
 
     </div>
     <ng-template #adminTable>
+      <!-- HR: Create Training -->
+      <div class="flex justify-content-between align-items-center">
+        <div class="header">
+          <h2>
+            Training Management
+            <span>
+              <i class="pi pi-info-circle info-icon"
+                pTooltip="View and manage all training programs you are part of, including trainers, schedules and feedback options.">
+              </i>
+            </span>
+          </h2>
+        </div>
+        <div class="flex">
+          <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual'"
+            class="p-mb-3 button">
+            <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
+              class="p-button-sm p-button-success" (click)="toggleForm()"></button>
+          </div>
+          <div class="flex1" *ngIf="!showForm">
+
+            <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
+
+              <i class="pi pi-filter"></i>
+
+              <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
+
+                <li class="list" *ngFor="let option of filterOptions"
+                  (click)="selectFilter(option); $event.stopPropagation()"
+                  [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+                  {{ option.label }}
+                </li>
+
+              </ul>
+            </div>
+
+            <p-iconfield>
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+            </p-iconfield>
+
+          </div>
+        </div>
+      </div>
       <p-table [value]="loading ? [1,2,3,4,5] : filteredTrainings" [paginator]="!loading" [rows]="10"
         styleClass="p-datatable-gridlines">
 
@@ -280,7 +328,8 @@
 <!-- ===================== -->
 <!-- ASSIGN EMPLOYEES DIALOG -->
 <!-- ===================== -->
-<p-dialog header="Assign Employees" [(visible)]="showAssignEmpDialog" [modal]="true" [closable]="false" [style]="{ width: '40vw' }">
+<p-dialog header="Assign Employees" [(visible)]="showAssignEmpDialog" [modal]="true" [closable]="false"
+  [style]="{ width: '40vw' }">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Assign Employees</span>
@@ -289,7 +338,7 @@
         ✕
       </button>
     </div>
-    </ng-template>
+  </ng-template>
   <form [formGroup]="form" class="p-fluid grid formgrid">
 
     <!-- Departments (Multi-Select) -->
@@ -312,7 +361,8 @@
     </div>
 
     <div class="col-12 flex justify-content-center mt-4">
-      <p-button label="Assign" icon="pi pi-check" [label]="isLoading ? 'Assigning': 'Assign'" [loading]="isLoading" (onClick)="onAssign()" [disabled]="!form.value.employeeIds.length" />
+      <p-button label="Assign" icon="pi pi-check" [label]="isLoading ? 'Assigning': 'Assign'" [loading]="isLoading"
+        (onClick)="onAssign()" [disabled]="!form.value.employeeIds.length" />
     </div>
   </form>
 </p-dialog>
@@ -321,7 +371,8 @@
 <!-- ===================== -->
 <!-- ASSIGN TESTS DIALOG -->
 <!-- ===================== -->
-<p-dialog header="Assign Tests" [closable]="false" [(visible)]="showAssignTestDialog" [modal]="true" [style]="{ width: '40vw' }">
+<p-dialog header="Assign Tests" [closable]="false" [(visible)]="showAssignTestDialog" [modal]="true"
+  [style]="{ width: '40vw' }">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Assign Tests</span>
@@ -334,7 +385,8 @@
   <p-multiSelect [(ngModel)]="selectedTests" [options]="testOptions" optionLabel="label" placeholder="Select Tests"
     appendTo="body" class="mb-3"></p-multiSelect>
   <div class="p-d-flex p-jc-end">
-    <button pButton label="Assign" icon="pi pi-check" (click)="assignTests()" [label]="isLoading ? 'Assigning': 'Assign'" [disabled]="selectedTests.length === 0"></button>
+    <button pButton label="Assign" icon="pi pi-check" (click)="assignTests()"
+      [label]="isLoading ? 'Assigning': 'Assign'" [disabled]="selectedTests.length === 0"></button>
   </div>
 </p-dialog>
 
@@ -353,7 +405,7 @@
         ✕
       </button>
     </div>
-    </ng-template>
+  </ng-template>
   <!-- EMPLOYEE -->
   <ng-container *ngIf="isIndividualOrEmployee(); else hrFeedbackView">
     <app-training-overview [trainingId]="selectedTraining?.id" [employeeId]="selectedTraining?.employeeId"
@@ -363,12 +415,12 @@
   <!-- HR -->
   <ng-template #hrFeedbackView>
     <ng-container *ngIf="feedbackSummary?.feedbacks.length; else noFeedback">
-  
+
       <p>
         <strong>Total Feedbacks:</strong> {{ feedbackSummary.totalFeedbacks || '-' }}<br />
-        <strong>Average Rating:</strong> {{ feedbackSummary.averageRating  || '-'}} ⭐
+        <strong>Average Rating:</strong> {{ feedbackSummary.averageRating || '-'}} ⭐
       </p>
-  
+
       <div class="custom-table-container">
         <table class="custom-table">
           <thead>
@@ -382,7 +434,7 @@
               <th>Comments</th>
             </tr>
           </thead>
-  
+
           <tbody>
             <tr *ngFor="let f of feedbackSummary.feedbacks; let i = index">
               <td>{{ i + 1 }}</td>
@@ -394,7 +446,7 @@
               <td>{{ f.feedback }}</td>
               <td>{{ f.comments }}</td>
             </tr>
-  
+
             <tr *ngIf="feedbackSummary.feedbacks.length === 0">
               <td colspan="7" class="no-data center-right">
                 No feedback received yet for this training.
@@ -403,21 +455,22 @@
           </tbody>
         </table>
       </div>
-  
+
     </ng-container>
-  
+
     <ng-template #noFeedback>
       <p>No feedback received yet for this training.</p>
     </ng-template>
   </ng-template>
-  
+
 </p-dialog>
 
 
 <!-- ===================== -->
 <!-- TESTS LIST DIALOG -->
 <!-- ===================== -->
-<p-dialog header="Assigned Tests" class="assign-test" [(visible)]="showTestsDialog" [closable]="false" [modal]="true" [style]="{ width: '40vw' }">
+<p-dialog header="Assigned Tests" class="assign-test" [(visible)]="showTestsDialog" [closable]="false" [modal]="true"
+  [style]="{ width: '40vw' }">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Assigned Tests</span>
@@ -426,7 +479,7 @@
         ✕
       </button>
     </div>
-    </ng-template>
+  </ng-template>
   <!-- <ng-container
     *ngIf="(isIndividualOrEmployee() ? selectedTraining?.trainingTests : selectedTraining?.trainingTests)?.length; else noTests"
     class="popup">
@@ -458,21 +511,21 @@
           <th>Mandatory</th>
         </tr>
       </thead>
-  
+
       <tbody>
         <tr *ngFor="let test of selectedTraining?.trainingTests; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ test.test?.title || test.test?.name || 'Untitled Test' }}</td>
           <td>{{ test.isMandatory ? 'Yes' : 'No' }}</td>
         </tr>
-          <tr *ngIf="!selectedTraining?.trainingTests || selectedTraining?.trainingTests.length === 0">
-            <td colspan="3" class="no-data center-right">
-              No tests assigned to this training.
-            </td>
+        <tr *ngIf="!selectedTraining?.trainingTests || selectedTraining?.trainingTests.length === 0">
+          <td colspan="3" class="no-data center-right">
+            No tests assigned to this training.
+          </td>
       </tbody>
     </table>
   </div>
-  
+
 
   <ng-template #noTests>
     <p>No tests assigned to this training.</p>
@@ -483,7 +536,8 @@
 <!-- ===================== -->
 <!-- EMPLOYEES LIST DIALOG -->
 <!-- ===================== -->
-<p-dialog header="Assigned Employees" class="assign-employee" [closable]="false" [(visible)]="showEmployeesDialog" [modal]="true" [style]="{ width: '40vw' }">
+<p-dialog header="Assigned Employees" class="assign-employee" [closable]="false" [(visible)]="showEmployeesDialog"
+  [modal]="true" [style]="{ width: '40vw' }">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Assigned Employees</span>
@@ -527,8 +581,8 @@
 <!-- ===================== -->
 <!-- ATTENDANCE DIALOG -->
 <!-- ===================== -->
-<p-dialog header="Mark Attendance" [(visible)]="showAttendanceDialog" [modal]="true" [closable]="false" [style]="{ width: '50vw' }"
-  (onShow)="loadAttendance()" (onHide)="closeAttendanceDialog()">
+<p-dialog header="Mark Attendance" [(visible)]="showAttendanceDialog" [modal]="true" [closable]="false"
+  [style]="{ width: '50vw' }" (onShow)="loadAttendance()" (onHide)="closeAttendanceDialog()">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Mark Attendance</span>
@@ -559,7 +613,8 @@
     </div>
   </div>
 
-  <p-table class="modal-table" [value]="attendanceList" selectionMode="multiple" [(selection)]="selectedRows" dataKey="employeeId">
+  <p-table class="modal-table" [value]="attendanceList" selectionMode="multiple" [(selection)]="selectedRows"
+    dataKey="employeeId">
     <ng-template pTemplate="header">
       <tr>
         <th>
@@ -591,7 +646,8 @@
   </p-table>
 
   <div class="flex justify-content-end mt-3">
-    <button pButton label="Save" icon="pi pi-check" class="mt-3" [label]="isLoading ? 'Saving' : 'Save'" [loading]="isLoading" (click)="saveAttendance()"></button>
+    <button pButton label="Save" icon="pi pi-check" class="mt-3" [label]="isLoading ? 'Saving' : 'Save'"
+      [loading]="isLoading" (click)="saveAttendance()"></button>
   </div>
 
 </p-dialog>

@@ -257,7 +257,7 @@ label {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #ff0000 !important;
+  background: #FB9C2A !important;
   border: none;
 }
 ::ng-deep .p-inputtext,

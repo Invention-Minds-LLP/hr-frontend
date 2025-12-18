@@ -327,6 +327,10 @@
   /* padding: 20px; */
   color: white;
   font-family: "Sofia Sans";
+  max-height: 300px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* Header Area */

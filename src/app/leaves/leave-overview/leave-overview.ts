@@ -20,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 export class LeaveOverview {
   active: string = 'list';
   selectedEmployee: any = null;
+  deptId: any = Number(localStorage.getItem('deptId')) || 0
 
 
 

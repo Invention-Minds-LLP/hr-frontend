@@ -1027,7 +1027,7 @@ letter-spacing: 0.26px;
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #ff0000 !important;
+  background: #FB9C2A !important;
   color: #fff !important;
   border: none;
 }

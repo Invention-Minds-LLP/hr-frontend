@@ -270,7 +270,7 @@ export class AppraisalTable {
       employeeId: appraisal.employee.id,
       employeeCode: appraisal.employee.employeeCode,
       fullName: `${appraisal.employee.firstName} ${appraisal.employee.lastName}`,
-      designation: appraisal.employee.designation,
+      designation: appraisal.employee.designation.name,
       departmentName: departmentName,
       dateOfJoining: appraisal.employee.dateOfJoining,
       email: appraisal.employee.email

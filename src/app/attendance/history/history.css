@@ -117,7 +117,7 @@
 
 /* Active page */
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-    background: #E9144A !important;
+    background: #FB9C2A !important;
     color: white !important;
     border-radius: 8px;
     font-weight: bold;

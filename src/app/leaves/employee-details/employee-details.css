@@ -2,7 +2,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(17, 19, 21, 0.45);
+  background: rgba(0, 0, 0, 0.60);
   display: grid;
   place-items: center;
   padding: 35px;
@@ -11,11 +11,11 @@
 
 .sheet {
   width: min(1200px, 96vw);
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  background: #060609;
+  box-shadow: 3px 4px 100px 0 #3A1D4D;
   padding: 50px 50px;
-  color: #000000;
+  color: #fff;
   max-height: 700px;
   overflow: auto;
 }
@@ -45,7 +45,7 @@
 
 .ident .name {
   margin: 0;
-  color: #000000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 26px;
   font-style: normal;
@@ -55,7 +55,7 @@
 
 .ident .email {
   margin: 4px 0 0;
-  color: #2b2b2b;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
@@ -90,7 +90,7 @@
 }
 
 .label {
-  color: #000000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 20px;
   font-style: normal;
@@ -104,7 +104,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #2b2b2b;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -204,10 +204,13 @@
 .stat {
   border-radius: 12px;
   padding: 14px 16px;
-  display: grid;
-  gap: 4px;
+  display: flex;
+  gap: 10px;
   text-align: left;
   width: 240px;
+  height: 60px;
+  justify-content: center;
+  align-items: center;
 }
 
 .stat--red {
@@ -221,8 +224,9 @@
 }
 
 .stat--gray {
-  background: #cddeff;
-  color: #3e4045;
+  border-radius: 16px;
+  background: #888;
+  color: #fff;
 }
 
 .big {
@@ -232,19 +236,20 @@
 }
 
 .num {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: 0.2px;
 }
 
 .denom {
-  font-size: 14px;
+  font-size: 20px;
   opacity: 0.75;
   font-weight: 700;
+  color: #E9144A;
 }
 
 .caption {
-  color: #000000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -261,7 +266,7 @@
 
 .panel h4 {
   margin: 15px 0;
-  color: #000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 26px;
   font-style: normal;
@@ -297,7 +302,7 @@
 .bordered-table {
   width: 100%;
   border-collapse: collapse;
-  color: #101113;
+  color: #fff;
   overflow: hidden;
 }
 
@@ -307,16 +312,18 @@
   border-width: 2px;
   /* change to 3px if you want even bolder */
   border-style: solid;
-  border-color: #828282;
-  border-radius: 3px;
+  border-color: #fff;
+  border-radius: 8px;
   /* or keep your current gray like #ccc */
 }
 
 .bordered-table thead th {
   position: sticky;
   top: 0;
-  /* background: #fbfbfc; */
-  color: #000000;
+  /* border-radius: 8px; */
+  border: 1px solid #FFF;
+  background: #1F1F1F;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 16px;
   font-style: normal;
@@ -324,29 +331,33 @@
   line-height: normal;
   padding: 10px 12px;
   text-align: left;
-  border: 1px solid #828282;
+}
+
+.bordered-table thead tbody{
+  background: #1F1F1F;
 }
 
 .bordered-table tbody td {
   padding: 10px 12px;
   height: var(--row-h);
-  border: 1px solid #828282;
-  color: #000000;
+  border: 1px solid #fff;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 14px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+  background: #1F1F1F;
 }
 
-.bordered-table tbody tr:hover td {
+/* .bordered-table tbody tr:hover td {
   background: #fafbfc;
-}
+} */
 
 /* Button */
 .btn-pill {
   padding: 6px 10px;
-  color: #000000;
+  color: #fff;
   font-family: "Sofia Sans";
   font-size: 10px;
   font-style: normal;
@@ -398,6 +409,7 @@
   gap: 10px;
   border-radius: 29px;
   background: white;
+  color: #E9144A;
 }
 
 .cancel-icon:hover {

@@ -1,364 +1,396 @@
+/* =========================
+   ROOT LAYOUT
+========================= */
 .login {
     display: flex;
-    flex-direction: row;
     height: 100vh;
-}
-
-.bg-img {
-    width: 100%;
-    /* height: 100vh; */
-    flex-shrink: 0;
-
-}
-
-.left-side {
+    background: 
+                #0b0b0f;
+    font-family: "Sofia Sans";
+  }
+  
+  /* =========================
+     LEFT SIDE
+  ========================= */
+  .left-side {
     width: 50%;
-    overflow: hidden;
-
-}
-
-.left-side-content {
-    position: absolute;
+    /* position: relative; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .left-side-content {
+    /* position: absolute;
     top: 30%;
-    left: 10%;
-}
-
-.header-part {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-}
-
-
-.heading {
+    left: 10%; */
+    color: #fff;
+  }
+  
+  .heading {
     color: #FFF;
-    font-family: "Sofia Sans";
-    font-size: 60px;
+    font-family: "Noto Sans";
+    font-size: 50px;
     font-style: normal;
-    font-weight: 300;
-    line-height: 90px;
-    /* 112.5% */
-}
-
-.logo {
-    width: 150px;
-    height: auto;
-    flex-shrink: 0;
-}
-
-.logo-resp {
-    display: none;
-}
-
-.main-img {
-    width: 350px;
-    height: auto;
-    flex-shrink: 0;
-}
-
-.sub-heading {
+    font-weight: 600;
+    line-height: 90px; /* 180% */
+  }
+  
+  .sub-heading {
     color: #FFF;
-    font-family: "Sofia Sans";
-    font-size: 100px;
+    font-family: "Noto Sans";
+    font-size: 96px;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 90px;
-}
-
-.para {
-    width: 380px;
-    color: #F5F5F5;
-    text-align: start;
-    font-family: "Sofia Sans";
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 28.16px;
+  }
+  
+  .para {
     margin-top: 20px;
-}
-
-.right {
+    width: 380px;
+    color: #FFF;
+    font-family: "Noto Sans";
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: normal;
+    border: 4px solid #FFF;
+    padding: 10px;
+  }
+  
+  /* =========================
+     RIGHT SIDE CONTAINER
+  ========================= */
+  .right {
     width: 50%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    /* gap: 40px; */
-    background: #FFF;
-}
-
-
-.right-side-heading {
-    color: #242424;
-    text-align: center;
-    font-family: "Sofia Sans";
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* TOP LEFT BUBBLE (behind card) */
+  .right::before {
+    content: "";
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    top: 17px;
+    left: calc(50% - 315px);
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    /* filter: blur(10px); *
+     border-radius: 50%; */
+    z-index: 0;
+  }
+  
+  /* BOTTOM RIGHT BUBBLE (behind card) */
+  .right::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    bottom: 40px;
+    right: calc(50% - 280px);
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    /* filter: blur(12px); 
+     border-radius: 50%;  */
+    z-index: 0;
+  }
+  
+  
+  /* =========================
+     LOGIN CARD (GLASS)
+  ========================= */
+  .right-side {
+    width: 400px;
+    height: 75vh;
+    padding: 40px 35px;
+    border-radius: 20px;
+    border: 1px solid var(--Glass1-Stroke-Carey, #AFAFAF);
+    background: var(--Glass1-Fill-Carey, linear-gradient(321deg, rgba(191, 191, 191, 0.06) 5.98%, rgba(0, 0, 0, 0.00) 66.28%), rgba(0, 0, 0, 0.14));
+    box-shadow: -8px 4px 5px 0 rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(26.5px);
+    position: relative;
+    z-index: 1;
+    /* overflow: hidden; */
+  }
+  
+  /* =========================
+     PURPLE BUBBLES
+  ========================= */
+  /* .right-side::before {
+    content: "";
+    position: absolute;
+    width: 302px;
+    height: 302px;
+    top: -120px;
+    left: -120px;
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    filter: blur(10px); *
+     border-radius: 50%;
+    z-index: 1;
+  }
+  
+  .right-side::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    bottom: -100px;
+    right: -80px;
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    filter: blur(12px); 
+     border-radius: 50%; 
+    z-index: 1;
+  } */
+  
+  /* Keep content above bubbles */
+  .right-side > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* =========================
+     LOGO
+  ========================= */
+  .logo {
+    /* width: 90px; */
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .logo img{
+    width: 120px;
+    height: 120px;
+  }
+  
+  .logo-resp {
+    display: none;
+  }
+  
+  /* =========================
+     HEADING
+  ========================= */
+  .right-side-heading {
     font-size: 48px;
-    font-style: normal;
     font-weight: 700;
-    line-height: normal;
-    width: 100%;
-}
-
-.right-side-heading span {
-    color: #3465b0
-}
-.right-side{
+    color: #ffffff;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  .right-side-heading span {
+    color: #ff9800;
+  }
+  
+  /* =========================
+     FORM
+  ========================= */
+  .form {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+    gap: 28px;
+  }
+  
+  /* =========================
+     INPUTS
+  ========================= */
+/* ===============================
+   LOGIN INPUTS ONLY (SAFE SCOPE)
+================================ */
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    margin-top: 30px;
-    /* align-items: center; */
-}
-
-.form .input .p-password {
-    flex: 1 1 50%;
-    min-width: 380px;
-}
-
-input.p-inputtext {
+/* TEXT INPUT */
+::ng-deep input.p-inputtext.login-input {
+    background: transparent;
     border: none;
-    border-bottom: 2px solid #ccc;
-    border-radius: 0;
-    box-shadow: none;
-    transition: border-color 0.3s ease;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    color: #fff !important;
     width: 100%;
-    color: black !important;
-}
-
-
-input.p-inputtext:focus {
-    outline: none;
-    border-bottom: 2px solid #3f51b5;
+    border-radius: 0 !important;
     box-shadow: none !important;
-}
-.p-floatlabel:has(.p-inputwrapper-filled) label {
-    color: #757575 !important;
+  }
+  
+  /* PASSWORD INPUT (inside p-password) */
+  ::ng-deep .login-input.p-password input.p-inputtext {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    color: #fff !important;
+    width: 100%;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* FOCUS STATE */
+  ::ng-deep input.p-inputtext.login-input:focus,
+  ::ng-deep .login-input.p-password input.p-inputtext:focus {
+    border-bottom-color: #ff9800 !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* FLOAT LABEL */
+  ::ng-deep .login-input ~ label,
+  ::ng-deep .login-input.p-password ~ label {
+    color: #fff !important;
     background-color: transparent !important;
+    font-family: "Sofia Sans";
+    font-size: 12.8px;
+    font-weight: 400;
+  }
+  
+  /* INVALID */
+  ::ng-deep input.p-inputtext.login-input.ng-invalid.ng-touched,
+  ::ng-deep .login-input.p-password.ng-invalid.ng-touched input.p-inputtext {
+    border-bottom-color: red !important;
+  }
+  
+  /* PASSWORD WRAPPER WIDTH */
+  ::ng-deep .login-input.p-password {
+    width: 100% !important;
+  }
+  
+  
+  .p-floatlabel label {
+    color: #FFF;
     font-family: "Sofia Sans";
     font-size: 12.8px;
     font-style: normal;
     font-weight: 400;
     line-height: 22.53px; /* 176.016% */
-}
-
-input.ng-invalid.ng-touched {
-    border-bottom: 2px solid red;
-}
-
-
-::ng-deep .p-password input {
-    border: none;
-    border-bottom: 2px solid #ccc;
-    border-radius: 0;
-    box-shadow: none;
-    transition: border-color 0.3s ease;
-    padding-left: 0.5rem;
-    width: 100%;
-    color: black !important;
-}
-
-::ng-deep .p-password input:focus {
-    outline: none;
-    border-bottom: 2px solid #3f51b5;
-    box-shadow: none !important;
-}
-
-::ng-deep .p-password.ng-invalid.ng-touched input {
-    border-bottom: 2px solid red;
-}
-
-::ng-deep .btn .p-button {
+  }
+  
+  input.ng-invalid.ng-touched,
+  ::ng-deep .p-password.ng-invalid.ng-touched input {
+    border-bottom-color: red;
+  }
+  
+  /* =========================
+     BUTTON
+  ========================= */
+  ::ng-deep .btn .p-button {
     width: 160px !important;
     height: 46px !important;
-    flex-shrink: 0;
     border-radius: 56px;
-    background: #3465b0;
+    background: #FB9C2A;
     box-shadow: 0 34px 40px -8px rgba(123, 118, 241, 0.24);
-    color: #FFF;
-    text-align: center;
-    font-family: "Sofia Sans";
-    font-size: 14px;
-    font-style: normal;
+    border: none;
     font-weight: 700;
-    line-height: 22.53px;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* margin-left: 30%; */
-}
-
-::ng-deep .btn .p-button:hover {
-    background: #3465b0;
-    border: none;
-    color: #FFF;
-}
-
-.icon {
-    position: absolute;
-    top: 75%;
-    right: 0px;
-}
-
-.error-msg {
-    color: red;
-    font-size: 12px;
-    margin-top: 4px;
-}
-
-::ng-deep .p-button .p-button-loading-icon {
+  }
+  
+  ::ng-deep .btn .p-button:hover {
+    background: linear-gradient(90deg, #ff9800, #ff9800);
+  }
+  
+  ::ng-deep .p-button-loading-icon {
     margin-right: 8px;
   }
   
-
-
-@media (max-width:1024px) {
-    .bg-img {
-        width: 100%;
-        height: 100vh;
-        flex-shrink: 0
-    }
-
-    .left-side-content {
-        top: 30%;
-        left: 5%;
-    }
-
-}
-
-@media(max-width:1023px) {
-
-    .left-side-content {
-        top: 170px;
-        left: 5%;
-    }
-
+  /* =========================
+     ERRORS
+  ========================= */
+  .error-msg {
+    font-size: 12px;
+    color: #ff6b6b;
+    margin-top: 5px;
+  }
+  
+  /* =========================
+     RESPONSIVE
+  ========================= */
+  @media (max-width: 1024px) {
     .sub-heading {
-        font-size: 80px;
+      font-size: 72px;
     }
-
-    .para {
-        width: 50%;
-        font-size: 12px;
-        line-height: 20px;
-    }
-
-    .form .input .p-password {
-        flex: 1 1 100%;
-        min-width: 100%;
-    }
-}
-
-
-
-
-
-@media (max-width:767px) {
-
+  }
+  
+  @media (max-width: 800px) {
     .left-side {
-        display: none;
-
+      display: none;
     }
-
-    .right-side {
-        width: auto;
-        height: auto;
-        margin: 20px;
-        border-radius: 28.458px;
-        border: 2.134px solid rgba(88, 130, 193, 0.49);
-        background: rgba(88, 130, 193, 0.90);
-        backdrop-filter: blur(8.893229484558105px);
-        padding: 20px;
-        box-shadow: 0 34px 40px -8px rgba(11, 10, 37, 0.24);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-    }
-
+  
     .right {
-        background-image: url('/bg-left.png');
-        width: 100% !important;
-        height: 100% !important;
-        background-size: cover;
-        background-position: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-
+      width: 100%;
+      /* background: radial-gradient(circle at top, #6a1b9a, #0b0b0f); */
     }
-
-    .heading {
-        display: none;
+      /* TOP LEFT BUBBLE (behind card) */
+  .right::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    top: 17px;
+    left: calc(50% - 230px);
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    /* filter: blur(10px); *
+     border-radius: 50%; */
+    z-index: 0;
+  }
+  
+  /* BOTTOM RIGHT BUBBLE (behind card) */
+  .right::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    bottom: 40px;
+    right: calc(50% - 200px);
+    border-radius: 302px;
+    background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    /* filter: blur(12px); 
+     border-radius: 50%;  */
+    z-index: 0;
+  }
+  
+    .right-side {
+      width: 100%;
+      max-width: 340px;
+      /* margin: 20px; */
     }
-
-    .sub-heading {
-        display: none;
-    }
-
-    .para {
-        display: none;
-    }
-
+/*   
     .logo {
-        display: none;
-    }
-
+      display: none;
+    } */
+  
     .logo-resp {
-        display: block;
-        width: 130px;
-        height: auto;
-        flex-shrink: 0;
-        background: transparent;
+      display: block;
+      width: 120px;
+      margin-bottom: 15px;
     }
-
-    .form {
-        margin-top: 10px;
-    }
-
-    .heading {
-        font-size: 29px;
-    }
-
-    ::ng-deep .btn .p-button {
-        margin-left: 13%;
-    }
-
+  
     .right-side-heading {
-        color: white;
+      color: #fff;
     }
-
-    .right-side-heading span {
-        color: white
-    }
-
-    .form .input .p-password {
-        flex: 1 1 100%;
-        min-width: 100%;
-    }
-
-
-
-
+  
     .input {
-        --p-floatlabel-on-active-background: transparent !important;
-        --p-floatlabel-focus-color: white !important;
-        --p-floatlabel-color: white !important;
-        --p-password-icon-color: white !important;
-        --p-inputtext-color: white !important;
+      --p-floatlabel-focus-color: white;
+      --p-floatlabel-color: white;
+      --p-inputtext-color: white;
+      --p-password-icon-color: white;
     }
-
-
-
-
-
-
-}
+  }
+  
+  @media (max-width:500px){
+    .right::before{
+        content: "";
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        top: 54px;
+        left: calc(50% - 200px);
+        border-radius: 302px;
+        background: linear-gradient(180deg, #530061 0%, #0D0A30 100%);
+    }
+    .right-side {
+        width: 100%;
+        max-width: 300px;
+        /* margin: 20px; */
+      }
+  }

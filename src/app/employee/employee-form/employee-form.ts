@@ -136,6 +136,8 @@ export class EmployeeForm {
   ];
 
   today: any = new Date();
+  designations: any[] = [];
+
 
 
 
@@ -166,7 +168,9 @@ export class EmployeeForm {
 
       employeeCode: [''],
       referenceCode: [''],
-      designation: ['', Validators.required],
+      // designation: ['', Validators.required],
+      designationId: ['', Validators.required],
+
       departmentId: ['', Validators.required],
       branchId: ['', Validators.required],
       roleId: ['', Validators.required],
@@ -176,7 +180,7 @@ export class EmployeeForm {
       probationEndDate: [{ value: null, disabled: true }],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
-      shiftId: [''],
+      fixedShiftId: [''],
 
       emergencyContacts: this.fb.array([]),
       qualifications: this.fb.array([]),
@@ -208,7 +212,11 @@ export class EmployeeForm {
       shiftDate: ['']                              // keep (optional for fixed)
 
     });
-    this.employeeForm.addControl('preEmploymentCheckDate', this.fb.control(null));
+    // this.employeeForm.addControl('preEmploymentCheckDate', this.fb.control(null));
+    this.employeeForm.get('preEmploymentCheckDate')
+      ?.setValidators([Validators.required]);
+    this.employeeForm.get('preEmploymentCheckDate')
+      ?.updateValueAndValidity();
     this.employeeForm.addControl('height', this.fb.control(''));
     this.employeeForm.addControl('weight', this.fb.control(''));
     this.employeeForm.addControl('bmi', this.fb.control(''));
@@ -422,6 +430,9 @@ export class EmployeeForm {
     this.roleService.getRoles().subscribe(data => this.roles = data);
     this.shiftService.getShiftTemplates().subscribe(data => this.shifts = data);
     this.shiftService.getRotationPatterns().subscribe(data => this.patterns = data); // NEW
+    this.employeeService.getDesignations().subscribe(d => {
+      this.designations = d;
+    });
   }
 
   get emergencyContacts(): FormArray {
@@ -518,6 +529,24 @@ export class EmployeeForm {
       });
       return;
     }
+    if (!this.validateHepBVaccination()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Vaccination Required',
+        detail: 'Hepatitis B vaccination details are mandatory before submitting.'
+      });
+      return;
+    }
+    
+    if (this.employeeForm.get('preEmploymentCheckDate')?.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'Pre-employment check date is mandatory.'
+      });
+      return;
+    }
+    
     this.isLoading = true;
 
     if (this.employeeForm.valid) {
@@ -534,7 +563,7 @@ export class EmployeeForm {
         permanentAddress,
         temporaryAddress,
         documents,
-        shiftId, shiftDate, shiftMode, rotationPatternId, rotationStartDate,
+        fixedShiftId, shiftDate, shiftMode, rotationPatternId, rotationStartDate,
         photoUrl,
         ...rest
       } = this.employeeForm.value;
@@ -564,7 +593,7 @@ export class EmployeeForm {
           { type: 'TEMPORARY', ...formValue.temporaryAddress }
         ],
         shiftMode,
-        fixedShiftId: shiftMode === 'FIXED' ? shiftId : undefined,
+        fixedShiftId: shiftMode === 'FIXED' ? fixedShiftId : undefined,
         rotationPatternId: shiftMode === 'ROTATIONAL' ? rotationPatternId : undefined,
         rotationStartDate: shiftMode === 'ROTATIONAL' ? rotationStartDate : undefined
       };
@@ -598,27 +627,26 @@ export class EmployeeForm {
               this.uploadProfilePhoto(updatedEmployee.id, this.employeeForm.value.photoUrl);
             }
 
-            if( this.employeeForm.value.disabilityProofFile instanceof File){
+            if (this.employeeForm.value.disabilityProofFile instanceof File) {
               this.employeeService.uploadDisabilityProof(updatedEmployee.id, this.employeeForm.value.disabilityProofFile)
-              .subscribe({
-                next: (res :any) => {
-                  this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Disability proof uploaded successfully!'
-                  });
-                },
-                error: () =>
-                {
-                  this.isLoading = false;
-                  this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to upload disability proof'
-                  })
-                }
-              });
+                .subscribe({
+                  next: (res: any) => {
+                    this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
+                    this.messageService.add({
+                      severity: 'success',
+                      summary: 'Success',
+                      detail: 'Disability proof uploaded successfully!'
+                    });
+                  },
+                  error: () => {
+                    this.isLoading = false;
+                    this.messageService.add({
+                      severity: 'error',
+                      summary: 'Error',
+                      detail: 'Failed to upload disability proof'
+                    })
+                  }
+                });
             }
 
 
@@ -626,14 +654,14 @@ export class EmployeeForm {
               this.uploadEmployeeDocs(updatedEmployee.id);
             }
 
-            if (
-              shiftId &&
-              (shiftId !== this.employeeData.latestShiftAssignment?.shiftId ||
-                new Date().toISOString() !==
-                new Date(this.employeeData.latestShiftAssignment?.date).toISOString())
-            ) {
-              this.assignEmployeeShift(updatedEmployee.id, shiftId);
-            }
+            // if (
+            //   shiftId &&
+            //   (shiftId !== this.employeeData.latestShiftAssignment?.shiftId ||
+            //     new Date().toISOString() !==
+            //     new Date(this.employeeData.latestShiftAssignment?.date).toISOString())
+            // ) {
+            //   this.assignEmployeeShift(updatedEmployee.id, shiftId);
+            // }
 
 
             // alert('Employee updated successfully!');
@@ -646,14 +674,14 @@ export class EmployeeForm {
             this.closeForm.emit(true);
           },
           error: () =>
-            //  alert('Error updating employee')
+          //  alert('Error updating employee')
           {
             this.isLoading = false,
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to update employee'
-            })
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to update employee'
+              })
           }
         });
       }
@@ -676,34 +704,34 @@ export class EmployeeForm {
               }
             });
 
-            if(this.employeeForm.value.disabilityProofFile instanceof File){
+            if (this.employeeForm.value.disabilityProofFile instanceof File) {
               this.employeeService.uploadDisabilityProof(employee.id, this.employeeForm.value.disabilityProofFile)
-              .subscribe({
-                next: (res:any) => {
-                  this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Disability proof uploaded successfully!'
-                  });
-                },
-                error: () =>
-                  this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to upload disability proof'
-                  })
-              });
+                .subscribe({
+                  next: (res: any) => {
+                    this.employeeForm.patchValue({ disabilityProofUrl: res.fileUrl });
+                    this.messageService.add({
+                      severity: 'success',
+                      summary: 'Success',
+                      detail: 'Disability proof uploaded successfully!'
+                    });
+                  },
+                  error: () =>
+                    this.messageService.add({
+                      severity: 'error',
+                      summary: 'Error',
+                      detail: 'Failed to upload disability proof'
+                    })
+                });
             }
             // Assign shift
-            if (shiftId) {
-              this.assignEmployeeShift(employee.id, shiftId);
-            }
+            // if (shiftId) {
+            //   this.assignEmployeeShift(employee.id, shiftId);
+            // }
             this.isLoading = false;
             this.employeeForm.reset()
           },
           error: () =>
-            // alert('Error creating employee')
+          // alert('Error creating employee')
           {
             this.messageService.add({
               severity: 'error',
@@ -891,17 +919,17 @@ export class EmployeeForm {
 
 
   }
-  assignEmployeeShift(employeeId: number, shiftId: number) {
-    this.shiftService.assignShift({
-      employeeId: employeeId,
-      shiftId: shiftId,
-      date: new Date(),
-      acknowledged: false
-    }).subscribe({
-      next: () => console.log('Shift assigned successfully'),
-      error: () => console.error('Failed to assign shift')
-    });
-  }
+  // assignEmployeeShift(employeeId: number, shiftId: number) {
+  //   this.shiftService.assignShift({
+  //     employeeId: employeeId,
+  //     shiftId: shiftId,
+  //     date: new Date(),
+  //     acknowledged: false
+  //   }).subscribe({
+  //     next: () => console.log('Shift assigned successfully'),
+  //     error: () => console.error('Failed to assign shift')
+  //   });
+  // }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['employeeData'] && this.employeeData && this.employeeForm) {
@@ -917,7 +945,7 @@ export class EmployeeForm {
 
     // If FIXED: prefer setting.fixedShiftId, else fall back to legacy employee.shiftId
     const fixedShiftFromSetting = setting?.fixedShiftId ?? null;
-    const fixedShiftFallback = data.shiftId ?? null;
+    // const fixedShiftFallback = data.shiftId ?? null;
 
     // latest assignment date (may be missing)
     const latestAssignDate = data.latestShiftAssignment?.date
@@ -935,7 +963,7 @@ export class EmployeeForm {
       photoUrl: data.photoUrl,
       employeeCode: data.employeeCode,
       referenceCode: data.referenceCode,
-      designation: data.designation,
+      designationId: data.designationId,
       departmentId: data.departmentId,
       branchId: data.branchId,
       roleId: data.roleId,
@@ -950,7 +978,11 @@ export class EmployeeForm {
       reportingManager: data.reportingManager,
       employeeType: data.employeeType,
       shiftMode: mode,
-      shiftId: mode === 'FIXED' ? (fixedShiftFromSetting ?? fixedShiftFallback) : null,
+      fixedShiftId:
+        mode === 'FIXED'
+          ? fixedShiftFromSetting
+          : null,
+      // shiftId: mode === 'FIXED' ? (fixedShiftFromSetting ?? fixedShiftFallback) : null,
       rotationPatternId: mode === 'ROTATIONAL' ? setting?.rotationPatternId ?? null : null,
       rotationStartDate: mode === 'ROTATIONAL' && setting?.startDate ? new Date(setting.startDate) : null,
       shiftDate: latestAssignDate,
@@ -1051,7 +1083,7 @@ export class EmployeeForm {
       }));
     });
 
-    if(this.emergencyContacts.length === 0){
+    if (this.emergencyContacts.length === 0) {
       this.addEmergencyContact();
     }
 
@@ -1089,7 +1121,7 @@ export class EmployeeForm {
     this.photoUrl = this.employeeForm.get('photoUrl')?.value || '';
   }
   private applyShiftValidators(mode: 'FIXED' | 'ROTATIONAL') {
-    const shiftIdCtrl = this.employeeForm.get('shiftId')!;
+    const shiftIdCtrl = this.employeeForm.get('fixedShiftId')!;
     const patternCtrl = this.employeeForm.get('rotationPatternId')!;
     const startCtrl = this.employeeForm.get('rotationStartDate')!;
 
@@ -1230,7 +1262,7 @@ export class EmployeeForm {
     else if (stepNumber === 3) {
       // ✅ Step 2: Employment Info
       controlsToValidate = [
-        'employeeCode', 'designation', 'dateOfJoining',
+        'employeeCode', 'designationId', 'dateOfJoining',
         'employmentType', 'employmentStatus',
         'departmentId', 'branchId', 'roleId', 'reportingManager'
       ];
@@ -1238,7 +1270,7 @@ export class EmployeeForm {
       // Dynamic shift mode validation
       const shiftMode = this.employeeForm.get('shiftMode')?.value;
       if (shiftMode === 'FIXED') {
-        controlsToValidate.push('shiftId');
+        controlsToValidate.push('fixedShiftId');
       } else if (shiftMode === 'ROTATIONAL') {
         controlsToValidate.push('rotationPatternId', 'rotationStartDate');
       }
@@ -1272,25 +1304,25 @@ export class EmployeeForm {
       });
 
       const invalidQuals = this.qualifications.controls.some(q => q.invalid);
-  if (invalidQuals) return;
+      if (invalidQuals) return;
 
-  // 🔸 Custom rule:
-  // If user selected any Bachelor/Master/Other but no SSLC and (no PU or no Diploma)
-  const hasDegree = quals.some((q: any) =>
-    ['BACHELOR', 'MASTER', 'OTHER', 'PHD'].includes(q.degree)
-  );
-  const hasSSLC = quals.some((q: any) => q.degree === 'SSLC');
-  const hasPU = quals.some((q: any) => q.degree === 'PU');
-  const hasDiploma = quals.some((q: any) => q.degree === 'DIPLOMA');
+      // 🔸 Custom rule:
+      // If user selected any Bachelor/Master/Other but no SSLC and (no PU or no Diploma)
+      const hasDegree = quals.some((q: any) =>
+        ['BACHELOR', 'MASTER', 'OTHER', 'PHD'].includes(q.degree)
+      );
+      const hasSSLC = quals.some((q: any) => q.degree === 'SSLC');
+      const hasPU = quals.some((q: any) => q.degree === 'PU');
+      const hasDiploma = quals.some((q: any) => q.degree === 'DIPLOMA');
 
-  if (hasDegree && (!hasSSLC || !(hasPU || hasDiploma))) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Missing Educational Levels',
-      detail: 'Please add SSLC and either PU or Diploma qualification details before proceeding.'
-    });
-    return;
-  }
+      if (hasDegree && (!hasSSLC || !(hasPU || hasDiploma))) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Missing Educational Levels',
+          detail: 'Please add SSLC and either PU or Diploma qualification details before proceeding.'
+        });
+        return;
+      }
     } else if (stepNumber === 5) {
       // ✅ Step 4: Documents
       if (!this.validateMandatoryDocs()) {
@@ -1333,7 +1365,7 @@ export class EmployeeForm {
   openDocPopup(index: number) {
     const doc = this.uploadedDocsForm.at(index).value;
     let url = doc.fileUrl || null;
-    console.log('Opening doc preview for URL:', url,doc);
+    console.log('Opening doc preview for URL:', url, doc);
 
     if (!url && doc.file) {
       // Local file not yet uploaded — create preview
@@ -1376,7 +1408,20 @@ export class EmployeeForm {
       });
     }
   }
-
+  private validateHepBVaccination(): boolean {
+    const vaccinations = this.vaccinations.value || [];
+  
+    const hepB = vaccinations.find(
+      (v: any) => v.vaccineName === 'HEP_B'
+    );
+  
+    if (!hepB) return false;
+    if (hepB.vaccinated !== true) return false;
+    if (!hepB.firstDose) return false;
+  
+    return true;
+  }
+  
 
 }
 

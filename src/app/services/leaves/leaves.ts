@@ -73,5 +73,12 @@ export class Leaves {
   getLeaveBalance(employeeId: number, year: number) {
     return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
   }
-  
+  updateLeaveType(
+    leaveId: number,
+    newLeaveTypeId: number
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update-leave-type/${leaveId}`, {
+      newLeaveTypeId
+    });
+  }
 }

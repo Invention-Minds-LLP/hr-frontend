@@ -44,7 +44,7 @@ export class LeaveRequest {
 
 
   leaveData: any[] = [];
-  currentUserId = 1; // Example, replace with actual logged-in user ID
+  currentUserId = Number(localStorage.getItem('empId'))|| 0; // Example, replace with actual logged-in user ID
   declineDialogVisible: boolean = false;  // Controls the dialog visibility
   declineReason: string = '';             // Stores the decline reason input
   currentDeclineId: number | null = null; // Stores the leave ID being declined
@@ -140,7 +140,7 @@ export class LeaveRequest {
             email: leave.employee?.email || '',
             department: leave.employee?.departmentId || '',
             deptName: dept ? dept.name : '',
-            jobTitle: leave.employee?.designation || '',
+            jobTitle: leave.employee?.designation?.name || '',
             leaveType: leave.leaveType?.name,
             reson: leave.reason,
             startDate: leave.startDate,
@@ -469,5 +469,8 @@ export class LeaveRequest {
   
     return false;
   }
-  
+  closePopup(){
+    this.showLeaveDetailsPopup = false;
+    this.loadLeaves()
+  }
 }

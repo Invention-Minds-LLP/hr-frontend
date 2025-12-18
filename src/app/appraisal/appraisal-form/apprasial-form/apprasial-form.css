@@ -10,11 +10,12 @@
 .appraisal-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 0px;
 }
 
 .appraisal-form h2, h3{
     color: white;
+    margin-top: 10px;
 }
 
 .heading {

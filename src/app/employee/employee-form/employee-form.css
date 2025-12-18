@@ -129,9 +129,9 @@
   flex: 1 1 auto;
 }
 
-::ng-deep .p-datepicker {
+/* ::ng-deep .p-datepicker {
   max-width: 100%;
-}
+} */
 
 .p-select,
 .p-calendar {
@@ -199,8 +199,9 @@ div[hidden] {
   font-size: 1rem;
 }
 
-.p-inputtext {
+::ng-deep .p-inputtext {
   color: white !important;
+  width: 100% !important;
 }
 
 .p-textarea {
@@ -211,13 +212,15 @@ div[hidden] {
 
 ::ng-deep .p-datepicker-input {
   color: white !important;
-  border: none !important;
+  /* border: none !important; */
 }
 
 .p-datepicker-input:focus{
   border: none !important;
 }
-
+/* .p-inputtext:enabled:focus{
+  border: 1px solid blue !important;
+} */
 /* Remove button (top-right corner) */
 .remove-btn {
   position: absolute;
@@ -392,6 +395,7 @@ div[hidden] {
 
 .card label {
   color: white;
+  background-color: #000 !important;
 }
 
 ::ng-deep .p-icon {

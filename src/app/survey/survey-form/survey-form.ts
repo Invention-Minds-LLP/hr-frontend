@@ -78,7 +78,7 @@ export class SurveyForm {
         this.employeeDetails = {
           name: emp.firstName + ' ' + emp.lastName,
           employeeId: emp.employeeCode,      // or emp.id if you want DB id
-          role: emp.designation,
+          role: emp?.designation?.name,
           deptId: this.surveyData.employee.Department?.id,
           departmentName: this.surveyData.employee.Department?.name || '',
         };

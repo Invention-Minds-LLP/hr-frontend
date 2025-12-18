@@ -161,7 +161,7 @@ export class PermissionRequest {
             empName: `${req.employee.firstName} ${req.employee.lastName}`,
             department: req.employee.departmentId || '',
             deptName: dept ? dept.name : '',
-            jobTitle: req.employee.designation,
+            jobTitle: req.employee.designation?.name || '',
             premDate: new Date(req.day).toLocaleDateString(),
             reson: req.reason,
             noOfHours: this.calculateHours(req.startTime, req.endTime),

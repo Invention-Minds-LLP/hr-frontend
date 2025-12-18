@@ -236,12 +236,6 @@ textarea {
   transition: all 0.2s ease-in-out;
 }
 
-/* Active page */
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FB9C2A !important;
-  color: white !important;
-}
-
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
   background: #FB9C2A !important;
   color: white !important;

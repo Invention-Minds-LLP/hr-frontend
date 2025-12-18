@@ -154,14 +154,9 @@
   transition: all 0.2s ease-in-out;
 }
 
-/* Active page */
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #e51313 !important;
-  color: white !important;
-}
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #e51313 !important;
+  background: #FB9C2A !important;
   color: white !important;
   border-radius: 8px;
   font-weight: bold;
@@ -468,7 +463,9 @@ hr {
   width: 100%;
   max-width: 1200px;
   padding-right: 340px;
-  background-color: #000;
+  border-radius: 12px;
+  background: #050607;
+  box-shadow: 3px 4px 100px 0 #3A1D4D, 0 2px 10px 0 rgba(40, 21, 90, 0.35);
   /* = who-panel width (320) + gap (20) */
 }
 
@@ -561,10 +558,12 @@ hr {
   right: 0;
   width: 320px;
   /* border: 1px solid #e6e6ea; */
-  border-radius: 12px;
+  border-radius: 16px;
+  background: #060609;
+  box-shadow: 3px 4px 100px 0 #3A1D4D, 0 2px 10px 0 rgba(40, 21, 90, 0.35);
   padding: 12px;
-  background: #000;
   height: 660px;
+
 }
 
 .who-title {

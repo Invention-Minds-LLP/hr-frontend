@@ -30,13 +30,14 @@ h2 {
   background: transparent;
 }
 
-/* ::ng-deep .training .p-card-body {
-  padding: 15px 60px;
+::ng-deep .training .p-card-body {
+  padding: 60px 60px;
 }
 
-::ng-deep .individual-view .p-card-body {
-  padding: 20px !important;
-} */
+::ng-deep .training.individual-view .p-card-body {
+  padding: 0px !important;
+}
+
 
 /* Header Row */
 ::ng-deep .training .p-datatable .p-datatable-thead > tr > th {
@@ -174,7 +175,7 @@ h2 {
 }
 
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #f00 !important;
+  background: #FB9C2A !important;
   color: #fff !important;
   border: none;
 }
@@ -425,6 +426,8 @@ h2 {
   border-radius: 10px;
   overflow: auto;
   max-height: 400px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .simple-training-table {
@@ -433,6 +436,10 @@ h2 {
   border-spacing: 0 10px;
   border-radius: 16px;
   background: rgba(85, 85, 85, 0.4);
+  max-height: 400px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .simple-training-table thead th {
@@ -465,8 +472,21 @@ h2 {
   letter-spacing: 0.18px;
 }
 
+thead tr th:first-child {
+  border-top-left-radius: 16px !important;
+}
+
+thead tr th:last-child {
+  border-top-right-radius: 16px !important;
+}
+
+
 .simple-training-table tbody tr {
   border-bottom: 1px solid #727272;
+}
+
+.simple-training-table tbody tr:last-child {
+  border-bottom: none;
 }
 
 .simple-training-table tbody {

@@ -1,7 +1,7 @@
 <div class="popup-backdrop" *ngIf="hasBackdrop && showPopup" (click)="closePopup()">
     <div class="popup-container" (click)="$event.stopPropagation()">
         <!-- Title -->
-        <div style="display: flex; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between;" class="header-popup">
             <h2 class="title">
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
                     <g clip-path="url(#clip0_15665_1970)">
@@ -25,7 +25,7 @@
 
 
         <div class="leave-container">
-            <div>
+            <div class="form-section">
                 <!-- From Date -->
                 <div class="form-row">
                     <label>From</label>
@@ -121,16 +121,16 @@
             <!-- Calendar -->
             <div class="calendar-section">
                 <p>Click and drag to select date from calender</p>
-
+                <div class="calendar-header">
+                    <button type="button"
+                        (click)="currentMonthIndex = currentMonthIndex - 1; generateCalendar()">&#8249;</button>
+                    <span>{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
+                    <button type="button"
+                        (click)="currentMonthIndex = currentMonthIndex + 1; generateCalendar()">&#8250;</button>
+                </div>
                 <!-- Month navigation -->
                 <div class="calendar">
-                    <div class="calendar-header">
-                        <button type="button"
-                            (click)="currentMonthIndex = currentMonthIndex - 1; generateCalendar()">&#8249;</button>
-                        <span>{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
-                        <button type="button"
-                            (click)="currentMonthIndex = currentMonthIndex + 1; generateCalendar()">&#8250;</button>
-                    </div>
+
 
                     <div class="calendar-grid">
                         <!-- Weekdays -->
@@ -155,7 +155,7 @@
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
                     <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading">
                         <span *ngIf="!isLoading">Apply Leave</span>
-                        <span *ngIf="isLoading" class="spinner">Applying...</span>
+                        <span *ngIf="isLoading" class="spinner"></span>
                     </button>
 
                     <button class="reset" (click)="resetForm()">Reset</button>
@@ -182,7 +182,7 @@
                             <rect width="26" height="26" fill="white" />
                         </clipPath>
                     </defs>
-                </svg> Leaves Application
+                </svg> Leaves Applications
             </h2>
             <div>
                 <button class="close-btn" (click)="closePopup()">×</button>
@@ -197,7 +197,7 @@
                 <div class="form-row">
                     <label>From</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
+                        <select [(ngModel)]="fromDay" [disabled]="!hasBackdrop" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
 
                             <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
@@ -206,12 +206,12 @@
 
                         </select>
 
-                        <select [(ngModel)]="fromMonth" (change)="onDropdownChange()"
+                        <select [(ngModel)]="fromMonth" [disabled]="!hasBackdrop" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let m of monthsList">{{ m }}</option>
                         </select>
 
-                        <select [(ngModel)]="fromYear" (change)="onDropdownChange()"
+                        <select [(ngModel)]="fromYear" [disabled]="!hasBackdrop" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let y of yearsList">{{ y }}</option>
                         </select>
@@ -222,7 +222,7 @@
                 <div class="form-row">
                     <label>To</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
+                        <select [(ngModel)]="toDay" [disabled]="!hasBackdrop" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
 
                             <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
@@ -231,12 +231,12 @@
 
                         </select>
 
-                        <select [(ngModel)]="toMonth" (change)="onDropdownChange()"
+                        <select [(ngModel)]="toMonth" [disabled]="!hasBackdrop" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let m of monthsList">{{ m }}</option>
                         </select>
 
-                        <select [(ngModel)]="toYear" (change)="onDropdownChange()"
+                        <select [(ngModel)]="toYear" [disabled]="!hasBackdrop" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let y of yearsList">{{ y }}</option>
                         </select>
@@ -275,16 +275,16 @@
             <!-- Calendar -->
             <div class="calendar-section">
                 <p>Click and drag to select date from calender</p>
-
+                <div class="calendar-header">
+                    <button type="button"
+                        (click)="currentMonthIndex = currentMonthIndex - 1; generateCalendar()">&#8249;</button>
+                    <span style="color: white">{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
+                    <button type="button"
+                        (click)="currentMonthIndex = currentMonthIndex + 1; generateCalendar()">&#8250;</button>
+                </div>
                 <!-- Month navigation -->
-                <div class="calendar">
-                    <div class="calendar-header">
-                        <button type="button"
-                            (click)="currentMonthIndex = currentMonthIndex - 1; generateCalendar()">&#8249;</button>
-                        <span style="color: white">{{ monthsList[currentMonthIndex] }} {{ currentYear }}</span>
-                        <button type="button"
-                            (click)="currentMonthIndex = currentMonthIndex + 1; generateCalendar()">&#8250;</button>
-                    </div>
+                <div class="calendar" [class.disabled]="!hasBackdrop">
+
 
                     <div class="calendar-grid">
                         <!-- Weekdays -->
@@ -295,23 +295,62 @@
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
                             [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
-                            (click)="onDateClick(day)">
+                            (click)="onDateClick(day)" >
                             {{ day.number || '' }}
                         </div>
                     </div>
                 </div>
 
                 <!-- Buttons -->
-                <div class="buttons" *ngIf="!isViewOnly">
+                <!-- <div class="buttons" *ngIf="!isViewOnly">
                     <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading">
                         <span *ngIf="!isLoading">Apply Leave</span>
                         <span *ngIf="isLoading" class="spinner">Applying...</span>
                     </button>
 
                     <button class="reset" (click)="resetForm()">Reset</button>
+                </div> -->
+                <div class="buttons">
+                    <!-- <button *ngIf="showLevel1Approve(leaveData)" class="apply"
+                        (click)="acceptLeave(leaveData.id, 'LEVEL1')">
+                        <span *ngIf="!isLoading">Approve Leave</span>
+                        <span *ngIf="isLoading" class="spinner">Approving...</span>
+                        
+                    </button>
+
+                    <button *ngIf="showLevel1Approve(leaveData)" class="reset"
+                        (click)="openDeclineDialog(leaveData.id, 'LEVEL1')">
+                        Decline
+                    </button> -->
+
+                    <!-- LEVEL 2 Approve (HR Manager only when required) -->
+                    <button *ngIf="showLevel2Approve(leaveData)" class="apply"
+                        (click)="acceptLeave(leaveData.id, 'LEVEL2')">
+                        <span *ngIf="!isLoading">Approve Leave</span>
+                        <span *ngIf="isLoading" class="spinner"></span>
+                    </button>
+
+                    <button *ngIf="showLevel2Approve(leaveData)" class="reset"
+                        (click)="openDeclineDialog(leaveData.id, 'LEVEL2')">
+                        Decline
+                    </button>
                 </div>
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- Decline Reason Popup -->
+<div class="custom-popup" *ngIf="declineDialogVisible">
+    <div class="popup-content">
+        <h3>Leave Request Decline Reason</h3>
+        <hr>
+        <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+        <div class="popup-actions">
+            <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+            <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div>
     </div>
 </div>

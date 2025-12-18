@@ -46,10 +46,6 @@
 ::ng-deep .p-paginator-page.p-paginator-page-selected {
   background: #FB9C2A !important;
   color: white !important;
-}
-::ng-deep .p-paginator-page.p-paginator-page-selected {
-  background: #FB9C2A !important;
-  color: white !important;
   border-radius: 8px;
   font-weight: bold;
 }

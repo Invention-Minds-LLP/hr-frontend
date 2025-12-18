@@ -59,12 +59,12 @@ export class UnreportedEmployee {
   
         this.absentList = list.map((emp: any) => ({
           employeeCode: emp.employeeCode,
-          name: emp.firstName + ' ' + emp.lastName,
-          department: emp.Department?.name || 'N/A',
+          name: emp.name,
+          department: emp.department || 'N/A',
           date: this.selectedDate,
           shiftEndTime: emp.shiftEndTime || 'N/A',
           shiftStartTime: emp.shiftStartTime || 'N/A',
-          departmentId: emp.Department?.id || 0,
+          departmentId: emp.departmentId || 0,
           status: 'Absent'
         }));
       },

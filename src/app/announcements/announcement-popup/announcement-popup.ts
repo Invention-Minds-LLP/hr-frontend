@@ -21,6 +21,10 @@ export class AnnouncementPopup {
   constructor(private svc: Announcements, private msg: MessageService) {}
 
   ngOnInit() {
+    this.loadAnnouncements()
+  }
+
+  loadAnnouncements(){
     this.svc.listLiveForEmployee().subscribe({
       next: (data) => {
         // show only those requiring acknowledgment

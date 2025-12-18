@@ -52,11 +52,12 @@
                                         </div>
 
                                         <div class="field col-4">
-                                            <p-floatlabel variant="on" style="width:100%">
-                                                <label for="dob">Date of Birth</label>
+                                            <p-floatlabel variant="on" >
+                                                <!-- <label for="dob">Date of Birth</label> -->
                                                 <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
                                                     showIcon iconDisplay="input"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
+                                                    <label for="dob">Date of Birth</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">
                                                     Date of
                                                     Birth is
@@ -378,7 +379,7 @@
                                         <label>Reference Code</label>
                                     </p-floatLabel>
                                 </div>
-                                <div class="field col-4">
+                                <!-- <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <input pInputText formControlName="designation"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designation')) }" />
@@ -387,7 +388,24 @@
                                             Designation is required.
                                         </div>
                                     </p-floatLabel>
-                                </div>
+                                </div> -->
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                      <p-select
+                                        [options]="designations"
+                                        formControlName="designationId"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designationId')) }"
+                                      ></p-select>
+                                      <label>Designation</label>
+                                    </p-floatLabel>
+                                  
+                                    <div class="error-msg" *ngIf="showError(employeeForm.get('designationId'))">
+                                      Designation is required.
+                                    </div>
+                                  </div>
+                                  
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon
@@ -491,9 +509,9 @@
                                 <!-- If FIXED: choose a single template -->
                                 <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
                                     <p-floatLabel variant="on">
-                                        <p-select [options]="shifts" formControlName="shiftId" optionLabel="name"
+                                        <p-select [options]="shifts" formControlName="fixedShiftId" optionLabel="name"
                                             optionValue="id"
-                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('shiftId')) }"></p-select>
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('fixedShiftId')) }"></p-select>
                                         <label>Shift Template</label>
                                     </p-floatLabel>
                                 </div>
@@ -757,9 +775,13 @@
                             <div class="heading mb-2">Pre-Employment Health Check</div>
                             <div class="field col-4">
                                 <p-floatLabel variant="on">
-                                    <p-datePicker formControlName="preEmploymentCheckDate" showIcon iconDisplay="input"
-                                        dateFormat="yy-mm-dd"></p-datePicker>
+                                    <p-datePicker id="preEmploymentCheckDate" formControlName="preEmploymentCheckDate" showIcon iconDisplay="input"
+                                        dateFormat="yy-mm-dd"  [ngClass]="{'ng-invalid': showError(employeeForm.get('preEmploymentCheckDate'))}"></p-datePicker>
                                     <label>Pre-Employment Check Date</label>
+                                    <div class="error-msg" *ngIf="showError(employeeForm.get('preEmploymentCheckDate'))">
+                                        Date of
+                                        Birth is
+                                        required</div>
                                 </p-floatLabel>
                             </div>
 

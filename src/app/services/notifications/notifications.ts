@@ -36,6 +36,10 @@ export class Notifications {
       console.warn('⚠️ No token found — skipping notifications stream.');
       return;
     }
+    if (this.eventSource) {
+      console.warn('⚠️ SSE already connected');
+      return;
+    }
 
     const empId = localStorage.getItem('empId');
     const url = `${this.apiUrl}/stream?employeeId=${empId}`;

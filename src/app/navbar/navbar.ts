@@ -84,7 +84,7 @@ export class Navbar {
 
     // Fetch existing notifications
     this.notificationsService.getAll(this.employeeId).subscribe((existing) => {
-      this.notifications = existing.reverse();
+      this.notifications = existing
     });
 
     this.activeMenu = localStorage.getItem('activeMenu') || null;

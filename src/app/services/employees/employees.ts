@@ -155,4 +155,7 @@ export class Employees {
 
     return this.http.post(`${this.apiUrl}/bulk-upload`, formData);
   }
+  getDesignations(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/designation`);
+  }
 }

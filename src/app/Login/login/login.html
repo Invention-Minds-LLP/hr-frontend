@@ -1,8 +1,8 @@
 <div class="login">
     <div class="left-side">
-        <img src="/bg-left.png" alt="" class="bg-img">
+        <!-- <img src="/bg-left.png" alt="" class="bg-img"> -->
         <div class="left-side-content">
-            <div class="heading">Welcome to <div class="sub-heading">HR Minds</div>
+            <div class="heading">Welcome to <div class="sub-heading">HR Minds .!</div>
             </div>
             <div class="para">Plan your time, build new skills, share feedback, and stay connected to what matters.
             </div>
@@ -11,13 +11,15 @@
 
     <div class="right">
         <div class="right-side">
-            <img class="logo" src="/logo1.png" alt="">
-            <img class="logo-resp" src="/logo.png" alt="">
+            <!-- <img class="logo" src="/logo1.png" alt=""> -->
+                <div class="logo">
+                    <img class="" src="/logo.png" alt="">
+                </div>
             <div class="right-side-heading">Sign <span>in</span></div>
             <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)">
                 <div class="input">
-                    <p-floatlabel variant="on">
-                        <input pInputText id="empID" autocomplete="off" name="empId" [(ngModel)]="loginData.empId"
+                    <p-floatlabel variant="on" >
+                        <input pInputText id="empID" class="login-input" autocomplete="off" name="empId" [(ngModel)]="loginData.empId"
                             required #empIdCtrl="ngModel" />
                         <label for="EMP ID">EMP ID</label>
                         <div class="error-msg" *ngIf="showError(empIdCtrl)">EmpID is required</div>
@@ -25,10 +27,10 @@
                 </div>
                 <div class="input">
                     <p-floatlabel variant="on">
-                        <p-password [toggleMask]="true" [feedback]="false" inputId="password" name="password"
+                        <p-password [toggleMask]="true" class="login-input" [feedback]="false" inputId="password" name="password"
                             [(ngModel)]="loginData.password" required #passwordCtrl="ngModel" />
                         <label for="password">Password</label>
-                        <div class="error-msg" *ngIf="showError(passwordCtrl)">password is required</div>
+                        <div class="error-msg" *ngIf="showError(passwordCtrl)">Password is required</div>
                     </p-floatlabel>
                 </div>
                 <div class="flex justify-content-center align-items-center ">

@@ -224,7 +224,7 @@ export class ApprasialForm {
       fullName: this.selectedAppraisal.fullName,
       employeeCode: this.selectedAppraisal.employeeCode,
       department: this.selectedAppraisal.departmentName,
-      designation: this.selectedAppraisal.designation,
+      designation: this.selectedAppraisal.designation.name,
       dateOfJoining: this.selectedAppraisal.dateOfJoining
         ? new Date(this.selectedAppraisal.dateOfJoining).toLocaleDateString()
         : 'N/A',
