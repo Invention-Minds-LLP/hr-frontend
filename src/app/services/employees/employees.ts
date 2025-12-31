@@ -158,4 +158,19 @@ export class Employees {
   getDesignations(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/designation`);
   }
+
+  createLeaveAllocation(payload: {
+    employeeId: number;
+    year: number;
+    leaves: {
+      leaveType: number;       // leaveTypeId
+      totalAllowed: number;
+    }[];
+    permissions: {
+      permissionType: string;  // PERSONAL | MEDICAL | OFFICIAL
+      totalAllowed: number;
+    }[];
+  }): Observable<any> {
+    return this.http.post<any>(this.apiUrl, payload);
+  }
 }

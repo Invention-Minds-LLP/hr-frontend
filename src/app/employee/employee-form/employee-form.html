@@ -52,12 +52,12 @@
                                         </div>
 
                                         <div class="field col-4">
-                                            <p-floatlabel variant="on" >
+                                            <p-floatlabel variant="on">
                                                 <!-- <label for="dob">Date of Birth</label> -->
                                                 <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
                                                     showIcon iconDisplay="input"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
-                                                    <label for="dob">Date of Birth</label>
+                                                <label for="dob">Date of Birth</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">
                                                     Date of
                                                     Birth is
@@ -391,21 +391,17 @@
                                 </div> -->
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                      <p-select
-                                        [options]="designations"
-                                        formControlName="designationId"
-                                        optionLabel="name"
-                                        optionValue="id"
-                                        [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designationId')) }"
-                                      ></p-select>
-                                      <label>Designation</label>
+                                        <p-select [options]="designations" formControlName="designationId"
+                                            optionLabel="name" optionValue="id"
+                                            [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designationId')) }"></p-select>
+                                        <label>Designation</label>
                                     </p-floatLabel>
-                                  
+
                                     <div class="error-msg" *ngIf="showError(employeeForm.get('designationId'))">
-                                      Designation is required.
+                                        Designation is required.
                                     </div>
-                                  </div>
-                                  
+                                </div>
+
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon
@@ -540,8 +536,105 @@
                                         <label>Shift Date</label>
                                     </p-floatLabel>
                                 </div> -->
+                                <!-- <form [formGroup]="leaveAllocationForm">
+
+                        
+                                     <p-floatLabel>
+                                      <p-select
+                                        [options]=""
+                                        formControlName="employeeId"
+                                        optionLabel="label"
+                                        optionValue="value">
+                                      </p-select>
+                                      <label>Employee</label>
+                                    </p-floatLabel> 
+                
+                                    <p-floatLabel>
+                                      <input pInputText type="number" formControlName="year" />
+                                      <label>Year</label>
+                                    </p-floatLabel>
+                                  
+                                    <h4>Leaves</h4>
+                                    <div formArrayName="leaves">
+                                      <div *ngFor="let l of leaveRows.controls; let i=index" [formGroupName]="i">
+                                        {{ l.value.leaveType }}
+                                        <input type="number" formControlName="totalAllowed"
+                                          (input)="calculateRemaining(l)" />
+                                        Remaining: {{ l.value.remaining }}
+                                      </div>
+                                    </div>
+                                  
+                                    <h4>Permissions</h4>
+                                    <div formArrayName="permissions">
+                                      <div *ngFor="let p of permissionRows.controls; let i=index" [formGroupName]="i">
+                                        {{ p.value.permissionType }}
+                                        <input type="number" formControlName="totalAllowed"
+                                          (input)="calculateRemaining(p)" />
+                                        Remaining: {{ p.value.remaining }}
+                                      </div>
+                                    </div>
+                                  
+                                    <button pButton label="Create Allocation"
+                                      (click)="createLeaveAllocation()">
+                                    </button>
+                                  
+                                  </form>  -->
+                                <div class="grid">
+
+                                    <!-- LEAVES -->
+                                    <div class="col-12">
+                                        <h4 style="color:white">Leave Allocation</h4>
+                                    </div>
+
+                                    <!-- YEAR -->
+                                    <div class="field col-4">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText type="number" formControlName="year" placeholder="Year" />
+                                            <label>Year</label>
+                                        </p-floatLabel>
+                                    </div>
+
+                                    <div class="field col-4" formArrayName="leaves"
+                                        *ngFor="let l of leaveRows.controls; let i = index" [formGroupName]="i">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText type="number" formControlName="totalAllowed"
+                                                (input)="calculateRemaining(l)" placeholder="Total Allowed" />
+                                            <label>{{ l.value.leaveType }}</label>
+                                        </p-floatLabel>
+
+                                        <small class="text-muted">
+                                            Remaining: {{ l.value.remaining }}
+                                        </small>
+                                    </div>
+
+                                    <!-- PERMISSIONS -->
+                                    <div class="col-12 mt-3">
+                                        <h4 style="color:white">Permission Allocation</h4>
+                                    </div>
+
+                                    <div class="field col-4" formArrayName="permissions"
+                                        *ngFor="let p of permissionRows.controls; let i = index" [formGroupName]="i">
+                                        <p-floatLabel variant="on">
+                                            <input pInputText type="number" formControlName="totalAllowed"
+                                                (input)="calculateRemaining(p)" placeholder="Total Allowed" />
+                                            <label>{{ p.value.permissionType }}</label>
+                                        </p-floatLabel>
+
+                                        <small class="text-muted">
+                                            Remaining: {{ p.value.remaining }}
+                                        </small>
+                                    </div>
+
+                                    <!-- ACTION -->
+                                    <div class="col-12 mt-4">
+                                        <button pButton label="Create Allocation" icon="pi pi-check"
+                                            class="p-button-success" (click)="createLeaveAllocation()"></button>
+                                    </div>
+
+                                </div>
+
                             </div>
-                            <!-- </div> -->
+
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(1)" />
                                 <p-button label="Next" (onClick)="goToStep(3, activateCallback)" />
@@ -775,10 +868,12 @@
                             <div class="heading mb-2">Pre-Employment Health Check</div>
                             <div class="field col-4">
                                 <p-floatLabel variant="on">
-                                    <p-datePicker id="preEmploymentCheckDate" formControlName="preEmploymentCheckDate" showIcon iconDisplay="input"
-                                        dateFormat="yy-mm-dd"  [ngClass]="{'ng-invalid': showError(employeeForm.get('preEmploymentCheckDate'))}"></p-datePicker>
+                                    <p-datePicker id="preEmploymentCheckDate" formControlName="preEmploymentCheckDate"
+                                        showIcon iconDisplay="input" dateFormat="yy-mm-dd"
+                                        [ngClass]="{'ng-invalid': showError(employeeForm.get('preEmploymentCheckDate'))}"></p-datePicker>
                                     <label>Pre-Employment Check Date</label>
-                                    <div class="error-msg" *ngIf="showError(employeeForm.get('preEmploymentCheckDate'))">
+                                    <div class="error-msg"
+                                        *ngIf="showError(employeeForm.get('preEmploymentCheckDate'))">
                                         Date of
                                         Birth is
                                         required</div>
@@ -1162,7 +1257,8 @@
                             <!-- Buttons -->
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(4)" />
-                                <p-button type="submit" label="Submit" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" [disabled]="employeeForm.invalid"></p-button>
+                                <p-button type="submit" label="Submit" [label]="isLoading ? 'Submitting': 'Submit'"
+                                    [loading]="isLoading" [disabled]="employeeForm.invalid"></p-button>
                             </div>
                         </ng-template>
                     </p-step-panel>
@@ -1178,13 +1274,13 @@
     [style]="{ width: '80vw', height: '90vh' }" [contentStyle]="{ overflow: 'auto' }" [dismissableMask]="true">
     <ng-template pTemplate="header">
         <div class="dialog-header-custom">
-          <span>Document Preview</span>
-    
-          <button class="dialog-close-btn" (click)="docDialogVisible = false">
-            ✕
-          </button>
+            <span>Document Preview</span>
+
+            <button class="dialog-close-btn" (click)="docDialogVisible = false">
+                ✕
+            </button>
         </div>
-        </ng-template>
+    </ng-template>
     <ng-container *ngIf="selectedDocUrl">
         <iframe *ngIf="
       safeDocUrl &&
@@ -1202,10 +1298,12 @@
         <div class="flex align-items-center justify-content-center" *ngIf="!selectedDocUrl.toLowerCase().includes('image/') &&
              !selectedDocUrl.toLowerCase().includes('application/pdf')">
 
-                <!-- <a [href]="selectedDocUrl" target="_blank" rel="noopener noreferrer" style="color: black;">Open in new tab</a> -->
-                 <img [src]="selectedDocUrl" alt="Document" style="max-width:100%;max-height:600px;" />
-            
+            <!-- <a [href]="selectedDocUrl" target="_blank" rel="noopener noreferrer" style="color: black;">Open in new tab</a> -->
+            <img [src]="selectedDocUrl" alt="Document" style="max-width:100%;max-height:600px;" />
+
         </div>
     </ng-container>
 
 </p-dialog>
+
+<!-- <p-toast></p-toast> -->

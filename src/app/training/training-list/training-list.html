@@ -109,7 +109,7 @@
               <!-- Tests -->
               <td>
                 <div class="dropdown-container-in-table">
-                  <button class="link" (click)="openTestsDialog(t)">
+                  <button class="link" (click)="openTestsDialog(t.training || t)">
                     {{ t?.trainingTests?.length || 0 }} Test {{ t?.trainingTests?.length > 1 ? 's': '' }}
   
                   </button>
@@ -243,9 +243,8 @@
             <!-- Tests Column -->
             <td>
               <ng-container *ngIf="t.trainingTests?.length; else noTests">
-                <span class="count-link" (click)="openTestsDialog(t)">
-                  {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test
-                  {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's'
+                <span class="count-link" (click)="openTestsDialog(t || t.trainingTests)">
+                  {{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length)}} test{{ (isIndividualOrEmployee() ? t.training?.trainingTests?.length : t.trainingTests?.length) > 1 ? 's'
                   :
                   '' }}
                 </span>
@@ -522,6 +521,7 @@
           <td colspan="3" class="no-data center-right">
             No tests assigned to this training.
           </td>
+          </tr>
       </tbody>
     </table>
   </div>

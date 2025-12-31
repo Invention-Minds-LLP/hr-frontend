@@ -732,9 +732,9 @@ thead tr th:last-child {
   border-bottom: none !important;
 }
 
-.custom-table tbody tr td:last-child {
+/* .custom-table tbody tr td:last-child {
 border-bottom: none !important;
-} 
+}  */
 ::ng-deep .modal-table.p-datatable-table {
   background: #020403 !important;
 }

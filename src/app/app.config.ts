@@ -7,6 +7,7 @@ import Lara from '@primeuix/themes/lara';
 import { AuthInterceptor } from './auth.interceptor';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -22,8 +23,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([AuthInterceptor])
     ),
-    provideAnimationsAsync(),
-    provideAnimationsAsync(),
+    provideAnimations(),
     providePrimeNG({
       theme: {
         preset: Lara,

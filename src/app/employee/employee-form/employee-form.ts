@@ -31,7 +31,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
     StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule, DialogModule, ToastModule],
   templateUrl: './employee-form.html',
-  styleUrl: './employee-form.css'
+  styleUrl: './employee-form.css',
+  providers: [MessageService]
 })
 export class EmployeeForm {
   @Input() employeeData: any = null;
@@ -138,7 +139,7 @@ export class EmployeeForm {
   today: any = new Date();
   designations: any[] = [];
 
-
+  leaveAllocationForm!: FormGroup;
 
 
 
@@ -287,9 +288,53 @@ export class EmployeeForm {
     this.employeeForm.get('employeeType')?.valueChanges.subscribe(() => {
       this.getMandatoryDocs();
     });
-
+    this.leaveAllocationForm = this.fb.group({
+      employeeId: ['', Validators.required],
+      year: [new Date().getFullYear(), Validators.required],
+  
+      leaves: this.fb.array([
+        this.createLeaveRow('ANNUAL'),
+        this.createLeaveRow('SICK')
+      ]),
+  
+      permissions: this.fb.array([
+        this.createPermissionRow('PERSONAL'),
+        this.createPermissionRow('OFFICIAL')
+      ])
+    });
 
   }
+  createLeaveRow(type: string) {
+    return this.fb.group({
+      leaveType: [type],
+      totalAllowed: [0, Validators.required],
+      used: [0],
+      remaining: [{ value: 0, disabled: true }]
+    });
+  }
+  
+  createPermissionRow(type: string) {
+    return this.fb.group({
+      permissionType: [type],
+      totalAllowed: [0, Validators.required],
+      used: [0],
+      remaining: [{ value: 0, disabled: true }]
+    });
+  }
+  
+  get leaveRows(): FormArray {
+    return this.leaveAllocationForm.get('leaves') as FormArray;
+  }
+  
+  get permissionRows(): FormArray {
+    return this.leaveAllocationForm.get('permissions') as FormArray;
+  }
+  calculateRemaining(row: AbstractControl) {
+    const total = row.get('totalAllowed')?.value || 0;
+    const used = row.get('used')?.value || 0;
+    row.get('remaining')?.setValue(total - used, { emitEvent: false });
+  }
+    
   // FormArray getters
   get healthIssues(): FormArray {
     return this.employeeForm.get('healthIssues') as FormArray;
@@ -1422,7 +1467,45 @@ export class EmployeeForm {
     return true;
   }
   
-
+  createLeaveAllocation() {
+    if (this.leaveAllocationForm.invalid) return;
+  
+    const v = this.leaveAllocationForm.value;
+  
+    const payload = {
+      employeeId: v.employeeId,
+      year: v.year,
+  
+      leaves: v.leaves.map((l: any) => ({
+        leaveType: l.leaveType,
+        totalAllowed: l.totalAllowed
+      })),
+  
+      permissions: v.permissions.map((p: any) => ({
+        permissionType: p.permissionType,
+        totalAllowed: p.totalAllowed
+      }))
+    };
+  
+    this.employeeService.createLeaveAllocation(payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Leave allocation created successfully'
+        });
+        this.leaveAllocationForm.reset({ year: new Date().getFullYear() });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to create leave allocation'
+        });
+      }
+    });
+  }
+  
 }
 
 

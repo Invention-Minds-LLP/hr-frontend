@@ -382,7 +382,8 @@ export class TrainingList {
   showEmployeesDialog = false;
 
   openTestsDialog(training: any) {
-    this.selectedTraining = training.training;
+    console.log('Opening tests dialog for training:', training);
+    this.selectedTraining = training;
     this.showTestsDialog = true;
     console.log('Selected training data:', this.selectedTraining);
 
