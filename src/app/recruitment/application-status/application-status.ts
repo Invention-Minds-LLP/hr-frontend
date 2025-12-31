@@ -491,7 +491,7 @@ export class ApplicationStatus implements OnInit {
     // 1) Status moves (from your allowedMoves()) -------------------
     const moves = this.allowedMoves(a.status) || [];
     if (moves.length) {
-      opts.push(...moves.map(m => ({ label: `Move → ${m}`, value: `MOVE:${m}` as const })));
+      opts.push(...moves.map(m => ({ label: `${m}`, value: `MOVE:${m}` as const })));
     }
     const interviews = a.interviews || [];
     const testAssigned = (a as any).CandidateAssignedTest?.length > 0;

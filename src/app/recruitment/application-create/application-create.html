@@ -11,7 +11,7 @@
       <span>Job *</span>
       <select formControlName="jobId">
         <option [ngValue]="null">Select a job</option>
-        <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }} (Dept #{{ j.departmentId }})</option>
+        <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.title }}</option>
       </select>
     </label>
 

@@ -52,6 +52,7 @@
 
 .box-4 {
   background: #b7242b;
+  height: auto !important;
 }
 
 .box {
@@ -447,7 +448,7 @@
 .title h3 {
   color: white;
   font-family: "Sofia Sans";
-  font-size: 24px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
@@ -1683,11 +1684,11 @@ hr {
     width: 100%;
   }
   .title h3 {
-    font-size: 1.25rem;
+    font-size: 14px;
   }
 
   .shift {
-    font-size: 0.75rem;
+    font-size: 12px;
   }
 
   .flex p {

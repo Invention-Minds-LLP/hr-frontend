@@ -24,6 +24,7 @@ import { AttendanceCalendar } from '../../services/attendance-calendar/attendanc
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { SurveyForm } from '../../survey/survey-form/survey-form';
 import { Leaves } from '../../services/leaves/leaves';
+import { Shifts } from '../../services/shifts/shifts';
 
 interface individual {
   date: string;
@@ -103,7 +104,8 @@ export class Individual {
 
 
 
-  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, private surveyService: SurveryService, private leaveService: Leaves) { }
+  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, 
+    private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -476,6 +478,7 @@ export class Individual {
   //     }
   //   }
   // }
+  
   setWeek(referenceDate: Date) {
     const start = this.getMonday(referenceDate);
     const end = new Date(start);
@@ -485,6 +488,7 @@ export class Individual {
     this.weekEnd = end;
   
     const employeeId = Number(this.currentUserId); // however you store the logged-in user
+      this.loadShiftName(employeeId);
   
     this.attendanceService.getWeeklyAttendance(employeeId, start, end).subscribe({
       next: (data) => {
@@ -618,7 +622,31 @@ showDetails = false;
 toggleDetails() {
   this.showDetails = !this.showDetails;
 }
+  loadShiftName(employeeId: number) {
+  const today = new Date().toISOString().split('T')[0];
 
+  this.shiftService
+    .getAssignmentsByEmployee(employeeId)
+    .subscribe(assignments => {
+      console.log('All Shift Assignments:', assignments);
+
+      // 1️⃣ Try to find today's shift
+      const todayShift = assignments.find(a =>
+        a.date.startsWith(today)
+      );
+
+      console.log('Today\'s Shift Assignment:', todayShift);
+
+      if (todayShift?.shift?.name) {
+        this.shiftName = `Shift – ${todayShift.shift.name}`;
+        return;
+      }
+      console.log('No shift assignment found for today.');
+
+      // 2️⃣ Fallback: fixed shift from employee
+      // this.loadFixedShift(employeeId);
+    });
+}
 
 }
 
