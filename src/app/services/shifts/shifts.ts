@@ -72,10 +72,43 @@ export class Shifts {
 
   // shifts.service.ts
   getRotationPatterns() {
-    return this.http.get<any[]>('http://localhost:3002/api/shifts/rotation-patterns');
+    return this.http.get<any[]>(`${this.apiUrl}/rotation-patterns`);
   }
   assignRotational(body: { employeeId: number; patternId: number; startDate: string }) {
-    return this.http.post('http://localhost:3002/api/shifts/assign-rotational', body);
+    return this.http.post(`${this.apiUrl}/assign-rotational`, body);
+  }
+  getEmployeeShifts(params?: any) {
+    return this.http.get<any[]>(`${this.apiUrl}/employee-shifts`, { params });
   }
 
+  updateEmployeeShift(assignmentId: number, shiftId: number) {
+    return this.http.put(`${this.apiUrl}/employee-shifts/${assignmentId}`, {
+      shiftId
+    });
+  }
+  assignFixedShift(body: { employeeId: number; shiftId: number; startDate?: string }) {
+    return this.http.post(`${this.apiUrl}/assign-fixed`, body);
+  }
+createRotationPattern(body: any) {
+  return this.http.post<any>(`${this.apiUrl}/rotation-patterns`, body);
+}
+
+addRotationItemsBulk(patternId: number, items: any[]) {
+  return this.http.post(
+    `${this.apiUrl}/rotation-patterns/${patternId}/items/bulk`,
+    { items }
+  );
+}
+  getExecutiveShifts() {
+    return this.http.get<any[]>(`${this.apiUrl}/manager/shift-templates`);
+  }
+
+  // 🔁 Manager rotation patterns
+  getManagerPatterns() {
+    return this.http.get<any[]>(`${this.apiUrl}/manager/rotation-patterns`);
+  }
+
+ getMyEmployees() {
+    return this.http.get<any[]>(`${this.apiUrl}/employees`);
+  }
 }

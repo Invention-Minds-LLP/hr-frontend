@@ -1,0 +1,234 @@
+<p-card class="leave-request">
+
+    <!-- Header -->
+    <div class="table-header">
+        <h3>Shift Management</h3>
+
+        <div class="filters">
+            <button class="assign-test" (click)="openPatternModal()">
+                Create Rotation Pattern
+                <i class="pi pi-plus"></i>
+            </button>
+
+            <input pInputText type="text" placeholder="Search employee" [(ngModel)]="search" (input)="applyFilter()" />
+
+            <p-datepicker placeholder="From Date" [(ngModel)]="fromDate" dateFormat="yy-mm-dd"></p-datepicker>
+            <p-datepicker placeholder="To Date" [(ngModel)]="toDate" dateFormat="yy-mm-dd"></p-datepicker>
+
+            <button pButton label="Filter" icon="pi pi-filter" (click)="load()"></button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <p-table class="leave-request" [value]="filtered" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th>No</th>
+                <th>Employee</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Employment</th>
+                <th>Date</th>
+                <th>Shift</th>
+                <!-- <th>Type</th> -->
+                <th>Mode</th>
+                <th>Action</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row let-rowIndex=rowIndex>
+            <tr>
+                <td>{{ rowIndex + 1 }}</td>
+                <td>
+                    <strong>{{ row.employee.firstName }} {{ row.employee.lastName }}</strong>
+                    <div class="muted">{{ row.employee.employeeCode }}</div>
+                </td>
+
+                <td>{{ row.employee.phone }}</td>
+                <td>{{ row.employee.Department?.name }}</td>
+                <td>{{ row.employee.designation?.name }}</td>
+                <td>{{ row.employee.employmentType }}</td>
+
+                <td>{{ row.date | date:'dd MMM yyyy' }}</td>
+
+                <!-- <td>{{ row.shift.name }}</td> -->
+                <td>
+                    {{ row.shift.name }}
+                    <span class="muted">
+                        ({{ row.shift.startTime | date:'HH:mm' }} -
+                        {{ row.shift.endTime | date:'HH:mm' }})
+                    </span>
+                </td>
+
+
+                <td>
+                    <p-tag [value]="row.employee?.EmployeeShiftSetting?.mode" severity="info">
+                    </p-tag>
+                </td>
+
+                <!-- <td>
+                    <p-tag [value]="row.source || 'AUTO'" [severity]="row.source === 'MANUAL' ? 'warn' : 'success'">
+                    </p-tag>
+
+                </td> -->
+
+                <td>
+                    <button class="edit-button" title="Edit this day only" (click)="openAssignmentEdit(row)">
+                        <i class="pi pi-pencil"></i>
+                    </button>
+                    <button class="edit-button" title="Change shift mode" (click)="openModeEdit(row)">
+                        <i class="pi pi-refresh"></i>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+</p-card>
+
+<!-- Edit Shift Dialog -->
+<p-dialog header="Edit Shift" [(visible)]="assignmentEditVisible" [modal]="true" [style]="{ width: '400px' }"
+    [closable]="false">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>
+                Edit Shift
+            </span>
+
+            <button class="dialog-close-btn" (click)="assignmentEditVisible = false">
+                ✕
+            </button>
+        </div>
+    </ng-template>
+    <div *ngIf="selectedRow">
+        <p>{{ selectedRow.employee.firstName }} – {{ selectedRow.date | date }}</p>
+        <!-- 
+        <p-select [options]="shiftOptions" optionLabel="name" optionValue="id" [(ngModel)]="selectedShiftId"
+            placeholder="Select shift" appendTo="body">
+        </p-select> -->
+        <p-select [options]="shiftOptions" optionLabel="label" optionValue="id" [(ngModel)]="selectedShiftId"
+            appendTo="body">
+        </p-select>
+
+
+        <div class="dialog-actions">
+            <button pButton label="Cancel" class="p-button-text" (click)="assignmentEditVisible=false"></button>
+            <button pButton label="Update" (click)="updateShift()"></button>
+        </div>
+    </div>
+</p-dialog>
+
+<p-dialog header="Change Shift Mode" [(visible)]="editVisible" [modal]="true" [style]="{ width: '450px' }"
+    [closable]="false">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Change Shift Mode</span>
+            <button class="dialog-close-btn" (click)="editVisible = false">✕</button>
+        </div>
+    </ng-template>
+
+    <div *ngIf="selectedRow" class="dialog-body">
+
+        <p>
+            <strong>
+                {{ selectedRow.employee.firstName }}
+                {{ selectedRow.employee.lastName }}
+            </strong>
+        </p>
+
+        <!-- Shift Mode -->
+        <label class="block">Shift Mode</label>
+        <p-select [options]="shiftModes" optionLabel="label" optionValue="value" [(ngModel)]="selectedMode"
+            appendTo="body">
+        </p-select>
+
+        <!-- FIXED SHIFT -->
+        <div *ngIf="selectedMode === 'FIXED'" class="mt-3">
+            <label class="block">Fixed Shift</label>
+            <p-select [options]="shiftOptions" optionLabel="label" optionValue="id" [(ngModel)]="selectedFixedShiftId"
+                appendTo="body">
+            </p-select>
+        </div>
+
+        <!-- ROTATIONAL SHIFT -->
+        <div *ngIf="selectedMode === 'ROTATIONAL'" class="mt-3">
+            <label class="block">Rotation Pattern</label>
+            <p-select [options]="rotationPatterns" optionLabel="name" optionValue="id" [(ngModel)]="selectedPatternId"
+                appendTo="body">
+            </p-select>
+
+            <label class="block mt-2">Start Date</label>
+            <p-datepicker [(ngModel)]="rotationStartDate"></p-datepicker>
+        </div>
+
+        <!-- Actions -->
+        <div class="dialog-actions">
+            <button pButton label="Cancel" class="p-button-text" (click)="editVisible=false"></button>
+            <button pButton label="Save" (click)="saveShiftMode()"></button>
+        </div>
+    </div>
+</p-dialog>
+<p-dialog header="Create Rotation Pattern" [(visible)]="patternVisible" [modal]="true" [style]="{ width: '500px' }"
+    [closable]="false">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Create Rotation Pattern</span>
+            <button class="dialog-close-btn" (click)="patternVisible = false">✕</button>
+        </div>
+    </ng-template>
+
+    <div class="dialog-body">
+
+        <!-- Pattern Name -->
+        <div class="pattern-grid">
+            <div>
+                <label>Pattern Name</label>
+                <input pInputText [(ngModel)]="patternForm.name" placeholder="e.g. Weekly Morning/Evening" />
+            </div>
+
+            <div>
+                <label>Cycle Days</label>
+                <!-- <input pInputText type="number" [(ngModel)]="patternForm.cycleDays" /> -->
+                <input pInputText type="number" [(ngModel)]="patternForm.cycleDays"
+                    (ngModelChange)="onCycleDaysChange($event)" min="1" />
+
+            </div>
+        </div>
+
+
+        <div style="margin-top: 16px;">
+            <!-- Day-wise shifts -->
+            <label class="" style="margin-top: 16px;">Day-wise Shifts</label>
+
+            <div class="rotation-row" *ngFor="let item of patternItems; let i = index">
+
+                <span class="day-label">Day {{ item.dayIndex + 1 }}</span>
+
+                <p-select [options]="shiftOptions" optionLabel="label" optionValue="id" [(ngModel)]="item.shiftId"
+                    placeholder="Select shift" appendTo="body">
+                </p-select>
+
+                <button class="remove-btn" (click)="removePatternItem(i)">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+
+        <div class="add-day-wrapper">
+            <button pButton label="Add Day" icon="pi pi-plus" class="p-button-text" (click)="addPatternItem()">
+            </button>
+        </div>
+
+
+        <!-- Actions -->
+        <div class="dialog-actions">
+            <button pButton label="Cancel" class="p-button-text" (click)="patternVisible=false"></button>
+            <button pButton label="Save" (click)="saveRotationPattern()"></button>
+        </div>
+    </div>
+</p-dialog>

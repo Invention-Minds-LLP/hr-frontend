@@ -56,6 +56,8 @@ import { TrainingForm } from './training/training-form/training-form';
 import { TrainingOverview } from './training/training-overview/training-overview';
 import { AttendanceCalendars } from './attendance/attendance-calendars/attendance-calendars';
 import { IncidentOverview } from './incident/incident-overview/incident-overview';
+import { EmployeeShiftList } from './shifts/employee-shift-list/employee-shift-list';
+import { ManagerShift } from './shifts/manager-shift/manager-shift';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -86,6 +88,8 @@ export const routes: Routes = [
       { path: 'clearance', component: Clearances, canActivate: [authGuard] },
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
       { path: 'incidents', component: IncidentOverview, canActivate: [authGuard] },
+      { path: 'shifts', component: EmployeeShiftList, canActivate: [authGuard] },
+      { path: 'manager-shift', component: ManagerShift, canActivate: [authGuard] },
     ],
 
   },
