@@ -60,7 +60,13 @@ export class ManagerShift {
 
   load() {
     this.service.getMyEmployees().subscribe(r => this.employees = r);
-    this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
+    // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
+      this.service.getExecutiveShifts().subscribe(res => {
+    this.executiveShifts = res.map((s: any) => ({
+      ...s,
+      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+    }));
+  });
     this.service.getManagerPatterns().subscribe(r => this.patterns = r);
   }
 

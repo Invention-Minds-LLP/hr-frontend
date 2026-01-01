@@ -2,14 +2,16 @@
     <div class="table-header">
         <h3>My Team – Shift Assignment</h3>
 
-        <button class="assign-test" (click)="openPatternModal()">
-            Create Rotation Pattern
-            <i class="pi pi-plus"></i>
-        </button>
-        <button class="assign-test" [disabled]="!selectedEmployees.length" (click)="openBulkAssign()">
+        <div>
+            <button class="assign-test" (click)="openPatternModal()">
+                Create Rotation Pattern
+                <i class="pi pi-plus"></i>
+            </button>
+            <button class="assign-test" [disabled]="!selectedEmployees.length" (click)="openBulkAssign()">
 
-            Bulk Assign Rotation
-        </button>
+                Bulk Assign Rotation
+            </button>
+        </div>
 
     </div>
 
@@ -190,7 +192,7 @@
 
             <span class="day-label">Week {{ item.dayIndex + 1 }}</span>
 
-            <p-select [options]="getAvailableShifts(i)" optionLabel="name" optionValue="id" [(ngModel)]="item.shiftId"
+            <p-select [options]="getAvailableShifts(i)" optionLabel="label" optionValue="id" [(ngModel)]="item.shiftId"
                 placeholder="Select shifts" appendTo="body">
             </p-select>
 
