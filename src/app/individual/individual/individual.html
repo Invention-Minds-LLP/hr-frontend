@@ -293,12 +293,17 @@
 
                     <!-- Actual Holiday Data -->
                     <!-- <ng-template #holidayContent> -->
+
+                    <h2>Nearest Holiday</h2>
                     <div class="next" *ngIf="holidayDates.length > 0; else noHolidays">
                         <span class="arrow prev" [class.disabled]="currentIndex === 0" (click)="prevHoliday()">
                             <i class="pi pi-chevron-left"></i>
                         </span>
 
-                        <h2>Nearest Holiday</h2>
+                        <div class="holiday-display">
+                            <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd MMM yyyy' }}</div>
+                            <div class="holiday-name">{{ nearestHoliday?.name }}</div>
+                        </div>
 
                         <span class="arrow next" [class.disabled]="currentIndex === holidayDates.length - 1"
                             (click)="nextHoliday()">
@@ -306,10 +311,7 @@
                         </span>
                     </div>
 
-                    <div class="holiday-display">
-                        <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd MMM yyyy' }}</div>
-                        <div class="holiday-name">{{ nearestHoliday?.name }}</div>
-                    </div>
+
                     <!-- </ng-template> -->
 
                     <ng-template #noHolidays>
@@ -378,96 +380,83 @@
                 </p-carousel>
             </div> -->
 
-<div class="box box-2">
-  <h4 class="box-title">Today’s Birthdays</h4>
+            <div class="box box-2">
+                <h4 class="box-title">Today’s Birthdays</h4>
 
-  <div class="empty" *ngIf="birthday.length === 0">
-    No birthdays today
-  </div>
+                <div class="empty" *ngIf="birthday.length === 0">
+                    No birthdays today
+                </div>
 
-  <div class="slider" *ngIf="birthday.length > 0">
+                <div class="slider" *ngIf="birthday.length > 0">
 
-    <button
-      class="arrow"
-      (click)="prevBirthday()"
-      [class.disabled]="currentBirthdayIndex === 0">
-      ‹
-    </button>
+                    <button class="arrow" (click)="prevBirthday()" [class.disabled]="currentBirthdayIndex === 0">
+                        ‹
+                    </button>
 
-    <div class="person-chip">
-      <div class="name">
-        {{ birthday[currentBirthdayIndex].employeeName }}
-      </div>
-      <div class="dept">
-        {{ birthday[currentBirthdayIndex].departmentName || '-' }}
-      </div>
+                    <div class="person-chip">
+                        <div class="name">
+                            {{ birthday[currentBirthdayIndex].employeeName }}
+                        </div>
+                        <div class="dept">
+                            {{ birthday[currentBirthdayIndex].departmentName || '-' }}
+                        </div>
 
-      <div class="dots" *ngIf="birthday.length > 1">
-        <span
-          *ngFor="let b of birthday; let i = index"
-          [class.active]="i === currentBirthdayIndex">
-        </span>
-      </div>
-    </div>
+                        <div class="dots" *ngIf="birthday.length > 1">
+                            <span *ngFor="let b of birthday; let i = index" [class.active]="i === currentBirthdayIndex">
+                            </span>
+                        </div>
+                    </div>
 
-    <button
-      class="arrow"
-      (click)="nextBirthday()"
-      [class.disabled]="currentBirthdayIndex === birthday.length - 1">
-      ›
-    </button>
+                    <button class="arrow" (click)="nextBirthday()"
+                        [class.disabled]="currentBirthdayIndex === birthday.length - 1">
+                        ›
+                    </button>
 
-  </div>
-</div>
+                </div>
+            </div>
 
-<div class="box box-3">
-  <h4 class="box-title">Work Anniversaries Today</h4>
+            <div class="box box-3">
+                <h4 class="box-title">Work Anniversaries Today</h4>
 
-  <!-- Empty -->
-  <div class="empty" *ngIf="anniversary.length === 0">
-    No work anniversaries today
-  </div>
+                <!-- Empty -->
+                <div class="empty" *ngIf="anniversary.length === 0">
+                    No work anniversaries today
+                </div>
 
-  <!-- Slider -->
-  <div class="slider" *ngIf="anniversary.length > 0">
-    
-    <!-- Left arrow -->
-    <button
-      class="arrow"
-      (click)="prevAnniversary()"
-      [class.disabled]="currentAnniversaryIndex === 0">
-      ‹
-    </button>
+                <!-- Slider -->
+                <div class="slider" *ngIf="anniversary.length > 0">
 
-    <!-- Content -->
-    <div class="person-chip">
-      <div class="name">
-        {{ anniversary[currentAnniversaryIndex].employeeName }}
-      </div>
-      <div class="dept">
-        {{ anniversary[currentAnniversaryIndex].departmentName || '-' }}
-        · {{ anniversary[currentAnniversaryIndex].years }} yr
-      </div>
+                    <!-- Left arrow -->
+                    <button class="arrow" (click)="prevAnniversary()" [class.disabled]="currentAnniversaryIndex === 0">
+                        ‹
+                    </button>
 
-      <!-- Dots -->
-      <div class="dots" *ngIf="anniversary.length > 1">
-        <span
-          *ngFor="let a of anniversary; let i = index"
-          [class.active]="i === currentAnniversaryIndex">
-        </span>
-      </div>
-    </div>
+                    <!-- Content -->
+                    <div class="person-chip">
+                        <div class="name">
+                            {{ anniversary[currentAnniversaryIndex].employeeName }}
+                        </div>
+                        <div class="dept">
+                            {{ anniversary[currentAnniversaryIndex].departmentName || '-' }}
+                            · {{ anniversary[currentAnniversaryIndex].years }} yr
+                        </div>
 
-    <!-- Right arrow -->
-    <button
-      class="arrow"
-      (click)="nextAnniversary()"
-      [class.disabled]="currentAnniversaryIndex === anniversary.length - 1">
-      ›
-    </button>
+                        <!-- Dots -->
+                        <div class="dots" *ngIf="anniversary.length > 1">
+                            <span *ngFor="let a of anniversary; let i = index"
+                                [class.active]="i === currentAnniversaryIndex">
+                            </span>
+                        </div>
+                    </div>
 
-  </div>
-</div>
+                    <!-- Right arrow -->
+                    <button class="arrow" (click)="nextAnniversary()"
+                        [class.disabled]="currentAnniversaryIndex === anniversary.length - 1">
+                        ›
+                    </button>
+
+                </div>
+            </div>
 
 
             <div class="box box-4">
