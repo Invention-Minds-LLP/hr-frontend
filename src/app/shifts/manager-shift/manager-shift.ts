@@ -44,6 +44,8 @@ export class ManagerShift {
   // rotation pattern modal
   patternVisible = false;
 
+  departmentId: number = Number(localStorage.getItem('deptId'));
+
   patternForm = {
     name: '',
     cycleDays: 4
@@ -61,7 +63,7 @@ export class ManagerShift {
   load() {
     this.service.getMyEmployees().subscribe(r => this.employees = r);
     // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
-      this.service.getExecutiveShifts().subscribe(res => {
+      this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
     this.executiveShifts = res.map((s: any) => ({
       ...s,
       label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`

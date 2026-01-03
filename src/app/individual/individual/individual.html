@@ -147,9 +147,9 @@
                         <img class="cover-img" [src]="employee?.coverUrl || defaultCover" />
                         <i class="pi pi-id-card icon-btn" (click)="toggleDetails()"></i>
                     </div>
-                                         <!-- Circle Profile Image overlapping -->
-                                         <img class="profile-pic" [src]="employee?.photoUrl || getDefaultImage()"
-                                         (error)="onImageError($event)" />
+                    <!-- Circle Profile Image overlapping -->
+                    <img class="profile-pic" [src]="employee?.photoUrl || getDefaultImage()"
+                        (error)="onImageError($event)" />
 
                     <!-- Text Content -->
                     <div class="content">
@@ -159,21 +159,34 @@
 
                         <button pButton label="Take Survey" class="survey-btn"
                             (click)="pendingSurveys.length > 0 && openSurveyForm(pendingSurveys[0])">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
+                                fill="none">
                                 <g clip-path="url(#clip0_17434_385)">
-                                  <path d="M10.5 6H3.5C3.36739 6 3.24021 5.94732 3.14645 5.85355C3.05268 5.75979 3 5.63261 3 5.5V3.5C3 3.36739 3.05268 3.24021 3.14645 3.14645C3.24021 3.05268 3.36739 3 3.5 3H10.5C10.6326 3 10.7598 3.05268 10.8536 3.14645C10.9473 3.24021 11 3.36739 11 3.5V5.5C11 5.63261 10.9473 5.75979 10.8536 5.85355C10.7598 5.94732 10.6326 6 10.5 6ZM4 5H10V3.97H4V5Z" fill="white"/>
-                                  <path d="M10.5 7.04004H3.5C3.36739 7.04004 3.24021 7.09272 3.14645 7.18649C3.05268 7.28025 3 7.40743 3 7.54004V9.50004C3 9.63265 3.05268 9.75982 3.14645 9.85359C3.24021 9.94736 3.36739 10 3.5 10H9.18L11 8.15004V7.54004C11 7.40743 10.9473 7.28025 10.8536 7.18649C10.7598 7.09272 10.6326 7.04004 10.5 7.04004ZM10 9.00004H4V8.00004H10V9.00004Z" fill="white"/>
-                                  <path d="M5.53 15.755V15.725L5.69 15.03H2V2H12V7.125L13 6.18V1.5C13 1.36739 12.9473 1.24021 12.8536 1.14645C12.7598 1.05268 12.6326 1 12.5 1H1.5C1.36739 1 1.24021 1.05268 1.14645 1.14645C1.05268 1.24021 1 1.36739 1 1.5V15.5C1 15.6326 1.05268 15.7598 1.14645 15.8536C1.24021 15.9473 1.36739 16 1.5 16H5.5C5.50405 15.9177 5.51408 15.8358 5.53 15.755Z" fill="white"/>
-                                  <path d="M11 9.58496L10.61 9.97996C10.7067 9.96001 10.7954 9.91185 10.8648 9.84155C10.9342 9.77125 10.9813 9.68196 11 9.58496Z" fill="white"/>
-                                  <path d="M3 13.47C3 13.6026 3.05268 13.7298 3.14645 13.8236C3.24021 13.9173 3.36739 13.97 3.5 13.97H5.92L6.07 13.32L6.135 13.045V13.02H4V12H7.17L8.17 11H3.5C3.36739 11 3.24021 11.0527 3.14645 11.1464C3.05268 11.2402 3 11.3674 3 11.5V13.47Z" fill="white"/>
-                                  <path d="M16.745 8.33513L15.06 6.65013C14.9852 6.57515 14.8964 6.51566 14.7986 6.47506C14.7007 6.43447 14.5959 6.41357 14.49 6.41357C14.3841 6.41357 14.2792 6.43447 14.1814 6.47506C14.0836 6.51566 13.9948 6.57515 13.92 6.65013L7.06499 13.5451L6.49999 15.9501C6.47884 16.0539 6.47836 16.1608 6.49859 16.2647C6.51882 16.3687 6.55936 16.4676 6.61788 16.5558C6.6764 16.6441 6.75176 16.7199 6.83964 16.779C6.92751 16.8381 7.02618 16.8792 7.12999 16.9001C7.18154 16.9052 7.23345 16.9052 7.28499 16.9001C7.34629 16.9097 7.40869 16.9097 7.46999 16.9001L9.89499 16.3651L16.745 9.50013C16.8198 9.42578 16.8792 9.33736 16.9197 9.23997C16.9603 9.14257 16.9811 9.03812 16.9811 8.93263C16.9811 8.82714 16.9603 8.72269 16.9197 8.6253C16.8792 8.5279 16.8198 8.43949 16.745 8.36513V8.33513ZM9.38499 15.4551L7.55499 15.8601L7.99999 14.0451L13.14 8.85013L14.55 10.2601L9.38499 15.4551ZM15.115 9.69513L13.705 8.28513L14.5 7.50013L15.92 8.92013L15.115 9.69513Z" fill="white"/>
+                                    <path
+                                        d="M10.5 6H3.5C3.36739 6 3.24021 5.94732 3.14645 5.85355C3.05268 5.75979 3 5.63261 3 5.5V3.5C3 3.36739 3.05268 3.24021 3.14645 3.14645C3.24021 3.05268 3.36739 3 3.5 3H10.5C10.6326 3 10.7598 3.05268 10.8536 3.14645C10.9473 3.24021 11 3.36739 11 3.5V5.5C11 5.63261 10.9473 5.75979 10.8536 5.85355C10.7598 5.94732 10.6326 6 10.5 6ZM4 5H10V3.97H4V5Z"
+                                        fill="white" />
+                                    <path
+                                        d="M10.5 7.04004H3.5C3.36739 7.04004 3.24021 7.09272 3.14645 7.18649C3.05268 7.28025 3 7.40743 3 7.54004V9.50004C3 9.63265 3.05268 9.75982 3.14645 9.85359C3.24021 9.94736 3.36739 10 3.5 10H9.18L11 8.15004V7.54004C11 7.40743 10.9473 7.28025 10.8536 7.18649C10.7598 7.09272 10.6326 7.04004 10.5 7.04004ZM10 9.00004H4V8.00004H10V9.00004Z"
+                                        fill="white" />
+                                    <path
+                                        d="M5.53 15.755V15.725L5.69 15.03H2V2H12V7.125L13 6.18V1.5C13 1.36739 12.9473 1.24021 12.8536 1.14645C12.7598 1.05268 12.6326 1 12.5 1H1.5C1.36739 1 1.24021 1.05268 1.14645 1.14645C1.05268 1.24021 1 1.36739 1 1.5V15.5C1 15.6326 1.05268 15.7598 1.14645 15.8536C1.24021 15.9473 1.36739 16 1.5 16H5.5C5.50405 15.9177 5.51408 15.8358 5.53 15.755Z"
+                                        fill="white" />
+                                    <path
+                                        d="M11 9.58496L10.61 9.97996C10.7067 9.96001 10.7954 9.91185 10.8648 9.84155C10.9342 9.77125 10.9813 9.68196 11 9.58496Z"
+                                        fill="white" />
+                                    <path
+                                        d="M3 13.47C3 13.6026 3.05268 13.7298 3.14645 13.8236C3.24021 13.9173 3.36739 13.97 3.5 13.97H5.92L6.07 13.32L6.135 13.045V13.02H4V12H7.17L8.17 11H3.5C3.36739 11 3.24021 11.0527 3.14645 11.1464C3.05268 11.2402 3 11.3674 3 11.5V13.47Z"
+                                        fill="white" />
+                                    <path
+                                        d="M16.745 8.33513L15.06 6.65013C14.9852 6.57515 14.8964 6.51566 14.7986 6.47506C14.7007 6.43447 14.5959 6.41357 14.49 6.41357C14.3841 6.41357 14.2792 6.43447 14.1814 6.47506C14.0836 6.51566 13.9948 6.57515 13.92 6.65013L7.06499 13.5451L6.49999 15.9501C6.47884 16.0539 6.47836 16.1608 6.49859 16.2647C6.51882 16.3687 6.55936 16.4676 6.61788 16.5558C6.6764 16.6441 6.75176 16.7199 6.83964 16.779C6.92751 16.8381 7.02618 16.8792 7.12999 16.9001C7.18154 16.9052 7.23345 16.9052 7.28499 16.9001C7.34629 16.9097 7.40869 16.9097 7.46999 16.9001L9.89499 16.3651L16.745 9.50013C16.8198 9.42578 16.8792 9.33736 16.9197 9.23997C16.9603 9.14257 16.9811 9.03812 16.9811 8.93263C16.9811 8.82714 16.9603 8.72269 16.9197 8.6253C16.8792 8.5279 16.8198 8.43949 16.745 8.36513V8.33513ZM9.38499 15.4551L7.55499 15.8601L7.99999 14.0451L13.14 8.85013L14.55 10.2601L9.38499 15.4551ZM15.115 9.69513L13.705 8.28513L14.5 7.50013L15.92 8.92013L15.115 9.69513Z"
+                                        fill="white" />
                                 </g>
                                 <defs>
-                                  <clipPath id="clip0_17434_385">
-                                    <rect width="18" height="18" fill="white"/>
-                                  </clipPath>
+                                    <clipPath id="clip0_17434_385">
+                                        <rect width="18" height="18" fill="white" />
+                                    </clipPath>
                                 </defs>
-                              </svg>
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -190,7 +203,8 @@
                     <hr />
                     <div class="detail"><strong>Department:</strong> {{ employee?.departmentName }}</div>
                     <hr />
-                    <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd MMM yyyy' }}</div>
+                    <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd MMM
+                        yyyy' }}</div>
                     <hr />
                     <div class="detail"><strong>Blood Group:</strong> {{ employee?.bloodGroup }}</div>
                     <hr />
@@ -307,13 +321,11 @@
 
             <!-- Today Birthday -->
             <!-- <ng-template #todayBirthday> -->
-            <div class="box box-2">
+            <!-- <div class="box box-2">
                 <h4 class="box-title">Today’s Birthdays</h4>
 
-                <!-- none -->
                 <div class="empty" *ngIf="birthday.length === 0">No birthdays today</div>
 
-                <!-- <= 3: simple list -->
                 <div class="list-3" *ngIf="birthday.length > 0 && birthday.length <= 1">
                     <div class="person-chip" *ngFor="let b of birthday; trackBy: trackById">
                         <div class="name">{{ b.employeeName }}</div>
@@ -321,7 +333,7 @@
                     </div>
                 </div>
 
-                <!-- > 3: carousel -->
+    
                 <p-carousel *ngIf="birthday.length > 1" [value]="birthday" [numVisible]="1" [numScroll]="1"
                     [circular]="true" [showIndicators]="true">
                     <ng-template pTemplate="item" let-item>
@@ -331,29 +343,26 @@
                         </div>
                     </ng-template>
                 </p-carousel>
-            </div>
+            </div> -->
             <!-- </ng-template> -->
 
             <!-- Today Work Anniversary -->
-            <div class="box box-3">
+            <!-- <div class="box box-3">
                 <h4 class="box-title">Work Anniversaries Today</h4>
 
-                <!-- none -->
                 <div class="empty" *ngIf="anniversary.length === 0">No work anniversaries today</div>
 
-                <!-- <= 3 -->
+
                 <div class="list-3" *ngIf="anniversary.length > 0 && anniversary.length <= 1">
                     <div class="person-chip" *ngFor="let a of anniversary">
                         <div class="name">{{ a.employeeName }}</div>
                         <div class="dept">
                             {{ a.departmentName || '-' }}
-                            <!-- <span *ngIf="a.years !== undefined"> · {{ a.years }} yr{{ a.years > 1 ? 's' : '' }}</span> -->
                         </div>
                     </div>
 
                 </div>
 
-                <!-- > 3 -->
                 <p-carousel *ngIf="anniversary.length > 1" [value]="anniversary" [numVisible]="1" [numScroll]="1"
                     [circular]="true" [showIndicators]="true">
                     <ng-template pTemplate="item" let-item>
@@ -367,7 +376,99 @@
                         </div>
                     </ng-template>
                 </p-carousel>
-            </div>
+            </div> -->
+
+<div class="box box-2">
+  <h4 class="box-title">Today’s Birthdays</h4>
+
+  <div class="empty" *ngIf="birthday.length === 0">
+    No birthdays today
+  </div>
+
+  <div class="slider" *ngIf="birthday.length > 0">
+
+    <button
+      class="arrow"
+      (click)="prevBirthday()"
+      [class.disabled]="currentBirthdayIndex === 0">
+      ‹
+    </button>
+
+    <div class="person-chip">
+      <div class="name">
+        {{ birthday[currentBirthdayIndex].employeeName }}
+      </div>
+      <div class="dept">
+        {{ birthday[currentBirthdayIndex].departmentName || '-' }}
+      </div>
+
+      <div class="dots" *ngIf="birthday.length > 1">
+        <span
+          *ngFor="let b of birthday; let i = index"
+          [class.active]="i === currentBirthdayIndex">
+        </span>
+      </div>
+    </div>
+
+    <button
+      class="arrow"
+      (click)="nextBirthday()"
+      [class.disabled]="currentBirthdayIndex === birthday.length - 1">
+      ›
+    </button>
+
+  </div>
+</div>
+
+<div class="box box-3">
+  <h4 class="box-title">Work Anniversaries Today</h4>
+
+  <!-- Empty -->
+  <div class="empty" *ngIf="anniversary.length === 0">
+    No work anniversaries today
+  </div>
+
+  <!-- Slider -->
+  <div class="slider" *ngIf="anniversary.length > 0">
+    
+    <!-- Left arrow -->
+    <button
+      class="arrow"
+      (click)="prevAnniversary()"
+      [class.disabled]="currentAnniversaryIndex === 0">
+      ‹
+    </button>
+
+    <!-- Content -->
+    <div class="person-chip">
+      <div class="name">
+        {{ anniversary[currentAnniversaryIndex].employeeName }}
+      </div>
+      <div class="dept">
+        {{ anniversary[currentAnniversaryIndex].departmentName || '-' }}
+        · {{ anniversary[currentAnniversaryIndex].years }} yr
+      </div>
+
+      <!-- Dots -->
+      <div class="dots" *ngIf="anniversary.length > 1">
+        <span
+          *ngFor="let a of anniversary; let i = index"
+          [class.active]="i === currentAnniversaryIndex">
+        </span>
+      </div>
+    </div>
+
+    <!-- Right arrow -->
+    <button
+      class="arrow"
+      (click)="nextAnniversary()"
+      [class.disabled]="currentAnniversaryIndex === anniversary.length - 1">
+      ›
+    </button>
+
+  </div>
+</div>
+
 
             <div class="box box-4">
                 <div class="box-title">Leave Balances</div>

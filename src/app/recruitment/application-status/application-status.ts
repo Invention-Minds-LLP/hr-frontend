@@ -30,6 +30,7 @@ import { Chip } from 'primeng/chip';
 import { CandidateSummary } from '../candidate-summary/candidate-summary';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Toast } from "primeng/toast";
+import { BaseIcon } from "primeng/icons/baseicon";
 
 
 type ActionKey =
@@ -58,7 +59,7 @@ type ActionKey =
     DividerModule,
     TagModule,
     Chip,
-    DatePicker, ReactiveFormsModule, SkeletonModule, Toast],
+    DatePicker, ReactiveFormsModule, SkeletonModule, Toast, BaseIcon],
   templateUrl: './application-status.html',
   styleUrl: './application-status.css',
   providers: [MessageService]

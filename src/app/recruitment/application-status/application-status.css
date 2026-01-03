@@ -22,6 +22,18 @@ label {
 
 }
 
+.empty-state {
+  text-align: center;
+  padding: 50px;
+  color: #aaa;
+}
+
+.empty-state i {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 10px;
+}
+
 .card select,
 .card input {
   padding: 8px 10px;

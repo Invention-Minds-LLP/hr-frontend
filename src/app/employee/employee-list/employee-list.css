@@ -363,3 +363,124 @@ input {
 :host ::ng-deep .p-skeleton::after {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
+
+::ng-deep .p-select {
+  width: 100%;
+  background-color: black !important;
+  color: white !important;
+}
+
+::ng-deep .p-datepicker {
+  width: 100% !important;
+  background-color: black !important;
+  color: white !important;
+}
+::ng-deep .p-datepicker input {
+  background-color: black !important;
+  color: white !important;
+}
+::ng-deep .p-multiselect {
+  width: 100% !important;
+  background-color: black !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-label, .p-multiselect-label {
+  color: white !important;
+}
+
+::ng-deep .p-multiselect-label{
+  color: white !important
+}
+
+::ng-deep .p-select,
+.p-multiselect {
+  width: 100% !important;
+  color: white !important;
+}
+/* Placeholder for normal input fields */
+::ng-deep input::placeholder {
+  color: white !important;
+  opacity: 0.7; /* optional */
+}
+
+/* PrimeNG Select placeholder */
+::ng-deep .p-select-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+
+/* PrimeNG MultiSelect placeholder */
+::ng-deep .p-multiselect-label .p-placeholder {
+  color: white !important;
+  opacity: 0.7;
+}
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 20px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #c160ff 0%, #e6cffb 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+::ng-deep .p-button {
+  border-radius: 6px !important;
+  background: #194b9b !important;
+  height: 36px !important;
+  width: 120px !important;
+  color: white !important;
+  border: none !important;
+  font-size: 16px !important;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+.dialog-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

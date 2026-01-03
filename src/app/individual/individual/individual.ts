@@ -155,6 +155,8 @@ export class Individual {
     this.fetchDetails();
     this.loadToday();
     this.getLeaveBalance();
+      this.startBirthdayAutoSlide();
+  this.startAnniversaryAutoSlide();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -196,6 +198,7 @@ export class Individual {
           this.birthday = birthdays ?? [];
           console.log(this.birthday)
           this.anniversary = anniversaries ?? [];
+          console.log(this.anniversary)
         },
         error: (err) => {
           console.error('getToday failed', err);
@@ -646,6 +649,55 @@ toggleDetails() {
       // 2️⃣ Fallback: fixed shift from employee
       // this.loadFixedShift(employeeId);
     });
+}
+birthdayIndex = 0;
+anniversaryIndex = 0;
+
+
+
+startBirthdayAutoSlide() {
+  if (this.birthday.length <= 1) return;
+  setInterval(() => {
+    this.birthdayIndex =
+      (this.birthdayIndex + 1) % this.birthday.length;
+  }, 3000);
+}
+
+startAnniversaryAutoSlide() {
+  if (this.anniversary.length <= 1) return;
+  setInterval(() => {
+    this.anniversaryIndex =
+      (this.anniversaryIndex + 1) % this.anniversary.length;
+  }, 3000);
+}
+
+currentBirthdayIndex = 0;
+currentAnniversaryIndex = 0;
+
+/* Birthdays */
+prevBirthday() {
+  if (this.currentBirthdayIndex > 0) {
+    this.currentBirthdayIndex--;
+  }
+}
+
+nextBirthday() {
+  if (this.currentBirthdayIndex < this.birthday.length - 1) {
+    this.currentBirthdayIndex++;
+  }
+}
+
+/* Anniversaries */
+prevAnniversary() {
+  if (this.currentAnniversaryIndex > 0) {
+    this.currentAnniversaryIndex--;
+  }
+}
+
+nextAnniversary() {
+  if (this.currentAnniversaryIndex < this.anniversary.length - 1) {
+    this.currentAnniversaryIndex++;
+  }
 }
 
 }

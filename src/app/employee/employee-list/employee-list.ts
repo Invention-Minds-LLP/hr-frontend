@@ -18,12 +18,16 @@ import { SkeletonModule } from 'primeng/skeleton';
 import * as XLSX from 'xlsx';
 import { AttendanceCalendars } from '../../attendance/attendance-calendars/attendance-calendars';
 import { debounceTime, Subject } from 'rxjs';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 
 
 
 @Component({
   selector: 'app-employee-list',
-  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule, SkeletonModule, AttendanceCalendars],
+  imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule,
+    SkeletonModule, AttendanceCalendars, DialogModule, SelectModule, DatePickerModule],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
@@ -88,6 +92,16 @@ export class EmployeeList {
         this.loadEmployees();
       });
 
+        this.shiftService.getShiftTemplates().subscribe(res => {
+    this.shiftOptions = res.map((s: any) => ({
+      ...s,
+      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+    }));
+  });
+
+  this.shiftService.getRotationPatterns()
+    .subscribe(res => this.rotationPatterns = res);
+
   }
   page = 1;
   totalRecords = 0;
@@ -112,6 +126,15 @@ export class EmployeeList {
         },
       });
   }
+
+  private formatTime(date: string | Date) {
+  return new Date(date).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
 
   onPageChange(event: any) {
 
@@ -431,6 +454,76 @@ export class EmployeeList {
     this.showCalendar = true;
   }
 
+assignmentEditVisible = false;
+modeEditVisible = false;
 
+
+
+selectedShiftId!: number;
+selectedFixedShiftId!: number;
+selectedMode!: 'FIXED' | 'ROTATIONAL';
+selectedPatternId!: number;
+rotationStartDate!: Date;
+
+shiftModes = [
+  { label: 'Fixed', value: 'FIXED' },
+  { label: 'Rotational', value: 'ROTATIONAL' }
+];
+
+shiftOptions: any[] = [];
+rotationPatterns: any[] = [];
+
+openAssignmentEdit(emp: any) {
+  this.selectedEmployee = emp;
+  this.selectedShiftId = emp.shiftId || emp.latestShiftAssignment?.shiftId;
+  this.assignmentEditVisible = true;
+}
+
+openModeEdit(emp: any) {
+  this.selectedEmployee = emp;
+
+  const setting = emp.EmployeeShiftSetting;
+
+  this.selectedMode = setting?.mode || 'FIXED';
+  this.selectedFixedShiftId = setting?.fixedShiftId;
+  this.selectedPatternId = setting?.rotationPatternId;
+  this.rotationStartDate = setting?.startDate
+    ? new Date(setting.startDate)
+    : new Date();
+
+  this.modeEditVisible = true;
+}
+updateShift() {
+  this.shiftService
+    .updateEmployeeShift(this.selectedEmployee.id, this.selectedShiftId)
+    .subscribe(() => {
+      this.assignmentEditVisible = false;
+      this.loadEmployees();
+    });
+}
+
+saveShiftMode() {
+  const employeeId = this.selectedEmployee.id;
+
+  if (this.selectedMode === 'FIXED') {
+    this.shiftService.assignFixedShift({
+      employeeId,
+      shiftId: this.selectedFixedShiftId
+    }).subscribe(() => this.afterSave());
+  }
+
+  if (this.selectedMode === 'ROTATIONAL') {
+    this.shiftService.assignRotational({
+      employeeId,
+      patternId: this.selectedPatternId,
+      startDate: this.rotationStartDate.toISOString().slice(0, 10)
+    }).subscribe(() => this.afterSave());
+  }
+}
+
+afterSave() {
+  this.modeEditVisible = false;
+  this.loadEmployees();
+}
 
 }

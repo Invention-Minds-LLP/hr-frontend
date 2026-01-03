@@ -89,26 +89,30 @@ export class Shifts {
   assignFixedShift(body: { employeeId: number; shiftId: number; startDate?: string }) {
     return this.http.post(`${this.apiUrl}/assign-fixed`, body);
   }
-createRotationPattern(body: any) {
-  return this.http.post<any>(`${this.apiUrl}/rotation-patterns`, body);
-}
+  createRotationPattern(body: any) {
+    return this.http.post<any>(`${this.apiUrl}/rotation-patterns`, body);
+  }
 
-addRotationItemsBulk(patternId: number, items: any[]) {
-  return this.http.post(
-    `${this.apiUrl}/rotation-patterns/${patternId}/items/bulk`,
-    { items }
+  addRotationItemsBulk(patternId: number, items: any[]) {
+    return this.http.post(
+      `${this.apiUrl}/rotation-patterns/${patternId}/items/bulk`,
+      { items }
+    );
+  }
+getExecutiveShifts(departmentId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/manager/shift-templates`,
+    { params: { departmentId } }
   );
 }
-  getExecutiveShifts() {
-    return this.http.get<any[]>(`${this.apiUrl}/manager/shift-templates`);
-  }
+
 
   // 🔁 Manager rotation patterns
   getManagerPatterns() {
     return this.http.get<any[]>(`${this.apiUrl}/manager/rotation-patterns`);
   }
 
- getMyEmployees() {
+  getMyEmployees() {
     return this.http.get<any[]>(`${this.apiUrl}/employees`);
   }
 }

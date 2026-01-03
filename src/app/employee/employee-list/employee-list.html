@@ -156,6 +156,15 @@
               <button class="btn btn-attendance ml-2" (click)="openAttendanceCalendar(employeeData)">
                 Attendance
               </button>
+
+              <button class="btn btn-attendance ml-2" title="Edit Shift" (click)="openAssignmentEdit(employeeData)">
+                Edit Shift
+              </button>
+
+              <button class="btn btn-attendance ml-2" title="Change Shift Mode" (click)="openModeEdit(employeeData)">
+                Change Mode
+              </button>
+
             </td>
           </tr>
         </ng-template>
@@ -168,3 +177,107 @@
 <app-attendance-calendars *ngIf="showCalendar" [employeeId]="selectedEmployee?.id"
   [employeeName]="selectedEmployee?.firstName + ' ' + selectedEmployee?.lastName" [(visible)]="showCalendar">
 </app-attendance-calendars>
+
+
+<p-dialog [(visible)]="assignmentEditVisible"
+          [modal]="true"
+          [style]="{ width: '400px' }"
+          [closable]="false">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Edit Shift</span>
+      <button class="dialog-close-btn"
+              (click)="assignmentEditVisible=false">✕</button>
+    </div>
+  </ng-template>
+
+  <div *ngIf="selectedEmployee">
+    <p>
+      {{ selectedEmployee.firstName }} {{ selectedEmployee.lastName }}
+    </p>
+
+    <p-select
+      [options]="shiftOptions"
+      optionLabel="label"
+      optionValue="id"
+      [(ngModel)]="selectedShiftId"
+      appendTo="body">
+    </p-select>
+
+    <div class="dialog-actions">
+      <button pButton label="Cancel" class="p-button-text"
+              (click)="assignmentEditVisible=false"></button>
+      <button pButton label="Update"
+              (click)="updateShift()"></button>
+    </div>
+  </div>
+</p-dialog>
+
+
+<p-dialog [(visible)]="modeEditVisible"
+          [modal]="true"
+          [style]="{ width: '450px' }"
+          [closable]="false">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Change Shift Mode</span>
+      <button class="dialog-close-btn"
+              (click)="modeEditVisible=false">✕</button>
+    </div>
+  </ng-template>
+
+  <div *ngIf="selectedEmployee">
+
+    <p>
+      <strong>{{ selectedEmployee.firstName }} {{ selectedEmployee.lastName }}</strong>
+    </p>
+
+    <label>Shift Mode</label>
+    <p-select
+      [options]="shiftModes"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="selectedMode"
+      appendTo="body">
+    </p-select>
+
+    <!-- FIXED -->
+    <div *ngIf="selectedMode === 'FIXED'" class="mt-3">
+      <label>Fixed Shift</label>
+      <p-select
+        [options]="shiftOptions"
+        optionLabel="label"
+        optionValue="id"
+        [(ngModel)]="selectedFixedShiftId"
+        appendTo="body">
+      </p-select>
+    </div>
+
+    <!-- ROTATIONAL -->
+    <div *ngIf="selectedMode === 'ROTATIONAL'" class="mt-3">
+      <label>Rotation Pattern</label>
+      <p-select
+        [options]="rotationPatterns"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="selectedPatternId"
+        appendTo="body">
+      </p-select>
+
+      <div class="mt-3" *ngIf="selectedPatternId">
+        <label>Start Date</label>
+        <p-datepicker [(ngModel)]="rotationStartDate" dateFormat="yy-mm-dd" appendTo="body"></p-datepicker>
+        </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button pButton label="Cancel" class="p-button-text"
+              (click)="modeEditVisible=false"></button>
+      <button pButton label="Save"
+              (click)="saveShiftMode()"></button>
+    </div>
+
+  </div>
+</p-dialog>

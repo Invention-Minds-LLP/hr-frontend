@@ -66,7 +66,7 @@
     </div>
   </div>
 
-  <ng-container *ngIf="loading; else status">
+  <ng-container *ngIf="loading">
     <table  scrollHeight="600px">
       <!-- Header -->
       <thead>
@@ -105,8 +105,9 @@
     </table>
   </ng-container>
 
-  <ng-template #status>
-    <div class="table-wrap" *ngIf="apps.length > 0; else empty">
+  <ng-container *ngIf="!loading">
+
+    <div class="table-wrap">
       <table class="custom-table">
         <colgroup>
           <col style="width:5%">
@@ -183,15 +184,25 @@
             </td>
   
           </tr>
+          <tr *ngIf="apps.length === 0">
+            <td style="text-align: center;" colspan="8" class="no-data center-right">
+              No applications found.
+            </td>
         </tbody>
   
   
       </table>
     </div>
-  </ng-template>
-  <ng-template #empty>
+
+
+  </ng-container>
+
+    <!-- <ng-template #empty>
+      <div class="empty-state">
+    <i class="pi pi-inbox"></i>
     <p>No applications found.</p>
-  </ng-template>
+  </div>
+  </ng-template> -->
 
 </div>
 <!-- ... your existing table / page content ... -->

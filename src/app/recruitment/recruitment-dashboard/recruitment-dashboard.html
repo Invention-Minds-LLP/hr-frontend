@@ -76,7 +76,7 @@
       </div>
     </div>
     <div class="stat flex" data-kind="rejected">
-      <strong class="flex">{{ stats()['rejected'] || 0 }} <div>Rejected</div></strong>
+      <strong class="flex">{{ stats()['rejected'] || 0 }} <div>App. Rejected</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('rejected')" tooltipPosition="top"
           tooltipEvent="hover">
@@ -212,6 +212,11 @@
                         <span>{{ opt.label }}</span>
                       </ng-template>
                     </p-select>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="6" class="no-data center-right" *ngIf="jobs.length === 0">
+                    No jobs available.
                   </td>
                 </tr>
               </ng-template>
