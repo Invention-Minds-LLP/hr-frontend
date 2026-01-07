@@ -10,40 +10,45 @@
                     <option value="">Select Type</option>
                     <option value="PERSONAL">Personal</option>
                     <option value="OFFICIAL">Official</option>
-                    <option value="MEDICAL">Medical</option>
-                    <option value="OTHER">Other</option>
+                    <!-- <option value="MEDICAL">Medical</option> -->
+                    <!-- <option value="OTHER">Other</option> -->
                 </select>
             </div>
-    
+
             <div class="form-group">
                 <label>Select Timing :</label>
                 <select [(ngModel)]="timing" (change)="checkPermissionBalance()">
                     <option value="">Select Timing</option>
                     <!-- <option value="FULLDAY">Full Day</option> -->
-                    <option value="HALFDAY">Half Day</option>
+                    <!-- <option value="HALFDAY">Half Day</option> -->
                     <option value="HOURLY">Hourly</option>
                 </select>
             </div>
-    
+
             <div class="form-group">
                 <label>Select Day :</label>
                 <input type="date" [(ngModel)]="day" />
             </div>
-    
+            <!-- <div class="date-wrapper">
+                <input type="date" [(ngModel)]="day" />
+                <span class="date-icon"></span>
+            </div> -->
+
+
             <!-- Show Start/End Time only if HOURLY -->
-            <div >
+            <div>
                 <div class="form-group">
                     <label>Start Time:</label>
                     <input type="time" [(ngModel)]="startTime" />
                 </div>
-    
+
                 <div class="form-group">
                     <label>End Time:</label>
                     <input type="time" [(ngModel)]="endTime" />
                 </div>
             </div>
-    
-    
+
+
             <div class="form-group full-width-textarea">
                 <textarea [(ngModel)]="reason" placeholder="Type your reason here..."></textarea>
             </div>
@@ -52,7 +57,7 @@
                     Reason For Decline: {{declineReason}}
                 </div>
             </div>
-    
+
             <div class="popup-actions">
                 <!-- <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()">Apply</button> -->
                 <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()" [disabled]="isLoading">

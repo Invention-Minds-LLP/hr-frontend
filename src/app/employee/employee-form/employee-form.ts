@@ -140,6 +140,8 @@ export class EmployeeForm {
   designations: any[] = [];
 
   leaveAllocationForm!: FormGroup;
+  incharges: any[] = [];
+
 
 
 
@@ -182,6 +184,9 @@ export class EmployeeForm {
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
       fixedShiftId: [''],
+      inchargeId: [''],
+
+       preEmploymentCheckDate: [null, Validators.required],
 
       emergencyContacts: this.fb.array([]),
       qualifications: this.fb.array([]),
@@ -214,10 +219,10 @@ export class EmployeeForm {
 
     });
     // this.employeeForm.addControl('preEmploymentCheckDate', this.fb.control(null));
-    this.employeeForm.get('preEmploymentCheckDate')
-      ?.setValidators([Validators.required]);
-    this.employeeForm.get('preEmploymentCheckDate')
-      ?.updateValueAndValidity();
+    // this.employeeForm.get('preEmploymentCheckDate')
+    //   ?.setValidators([Validators.required]);
+    // this.employeeForm.get('preEmploymentCheckDate')
+    //   ?.updateValueAndValidity();
     this.employeeForm.addControl('height', this.fb.control(''));
     this.employeeForm.addControl('weight', this.fb.control(''));
     this.employeeForm.addControl('bmi', this.fb.control(''));
@@ -258,6 +263,7 @@ export class EmployeeForm {
     this.addEmergencyContact();
     this.loadDropdownData();
     this.loadReportingManagers();
+    this.loadIncharges();
     this.uploadedDocsForm = this.fb.array([]);
     this.employeeForm.addControl('documents', this.uploadedDocsForm);
     this.addDocument();
@@ -291,12 +297,12 @@ export class EmployeeForm {
     this.leaveAllocationForm = this.fb.group({
       employeeId: ['', Validators.required],
       year: [new Date().getFullYear(), Validators.required],
-  
+
       leaves: this.fb.array([
         this.createLeaveRow('ANNUAL'),
         this.createLeaveRow('SICK')
       ]),
-  
+
       permissions: this.fb.array([
         this.createPermissionRow('PERSONAL'),
         this.createPermissionRow('OFFICIAL')
@@ -304,6 +310,16 @@ export class EmployeeForm {
     });
 
   }
+  loadIncharges() {
+    this.employeeService.getIncharges().subscribe(data => {
+      this.incharges = data.map(emp => ({
+        label: emp.label,
+        value: emp.value
+      }));
+    });
+  }
+
+
   createLeaveRow(type: string) {
     return this.fb.group({
       leaveType: [type],
@@ -312,7 +328,7 @@ export class EmployeeForm {
       remaining: [{ value: 0, disabled: true }]
     });
   }
-  
+
   createPermissionRow(type: string) {
     return this.fb.group({
       permissionType: [type],
@@ -321,11 +337,11 @@ export class EmployeeForm {
       remaining: [{ value: 0, disabled: true }]
     });
   }
-  
+
   get leaveRows(): FormArray {
     return this.leaveAllocationForm.get('leaves') as FormArray;
   }
-  
+
   get permissionRows(): FormArray {
     return this.leaveAllocationForm.get('permissions') as FormArray;
   }
@@ -334,7 +350,7 @@ export class EmployeeForm {
     const used = row.get('used')?.value || 0;
     row.get('remaining')?.setValue(total - used, { emitEvent: false });
   }
-    
+
   // FormArray getters
   get healthIssues(): FormArray {
     return this.employeeForm.get('healthIssues') as FormArray;
@@ -582,7 +598,7 @@ export class EmployeeForm {
       });
       return;
     }
-    
+
     if (this.employeeForm.get('preEmploymentCheckDate')?.invalid) {
       this.messageService.add({
         severity: 'error',
@@ -591,7 +607,7 @@ export class EmployeeForm {
       });
       return;
     }
-    
+
     this.isLoading = true;
 
     if (this.employeeForm.valid) {
@@ -610,11 +626,17 @@ export class EmployeeForm {
         documents,
         fixedShiftId, shiftDate, shiftMode, rotationPatternId, rotationStartDate,
         photoUrl,
+        preEmploymentCheckDate,
+        inchargeId,
         ...rest
       } = this.employeeForm.value;
 
+      console.log('Form Value:', this.employeeForm.value);
+
       const payload = {
         ...rest,
+        preEmploymentCheckDate,   // ✅ ADD
+        inchargeId: inchargeId ? Number(inchargeId) : null, // ✅ FIX
         healthIssues: this.healthIssues.value.map((i: any) => ({
           ...i,
           nextCheckup: this.calculateNextCheckup(i)
@@ -1054,6 +1076,7 @@ export class EmployeeForm {
       disabilityDescription: data.disabilityDescription,
       disabilityProofFileName: data.disabilityProofFileName,
       disabilityProofUrl: data.disabilityProofUrl,
+      inchargeId: data.inchargeId ?? null
 
     });
     // 🔹 Patch health issues array
@@ -1455,38 +1478,38 @@ export class EmployeeForm {
   }
   private validateHepBVaccination(): boolean {
     const vaccinations = this.vaccinations.value || [];
-  
+
     const hepB = vaccinations.find(
       (v: any) => v.vaccineName === 'HEP_B'
     );
-  
+
     if (!hepB) return false;
     if (hepB.vaccinated !== true) return false;
     if (!hepB.firstDose) return false;
-  
+
     return true;
   }
-  
+
   createLeaveAllocation() {
     if (this.leaveAllocationForm.invalid) return;
-  
+
     const v = this.leaveAllocationForm.value;
-  
+
     const payload = {
       employeeId: v.employeeId,
       year: v.year,
-  
+
       leaves: v.leaves.map((l: any) => ({
         leaveType: l.leaveType,
         totalAllowed: l.totalAllowed
       })),
-  
+
       permissions: v.permissions.map((p: any) => ({
         permissionType: p.permissionType,
         totalAllowed: p.totalAllowed
       }))
     };
-  
+
     this.employeeService.createLeaveAllocation(payload).subscribe({
       next: () => {
         this.messageService.add({
@@ -1505,7 +1528,7 @@ export class EmployeeForm {
       }
     });
   }
-  
+
 }
 
 

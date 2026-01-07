@@ -93,6 +93,15 @@ export class PermissionPopup {
       return;
     }
 
+    if(!this.reason){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please provide a reason for the permission request.'
+      });
+      return;
+    }
+
     // Build payload
     const payload: any = {
       employeeId: parseInt(this.employeeId) || 1,

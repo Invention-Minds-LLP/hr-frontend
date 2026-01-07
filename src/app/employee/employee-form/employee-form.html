@@ -492,6 +492,18 @@
                                         </div>
                                     </p-floatLabel>
                                 </div>
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="incharges" formControlName="inchargeId" optionLabel="label"
+                                            optionValue="value">
+                                        </p-select>
+                                        <label>Incharge</label>
+                                        <div class="error-msg" *ngIf="showError(employeeForm.get('inchargeId'))">
+                                            Incharge     is required.
+                                        </div>
+                                    </p-floatLabel>
+                                </div>
+
                                 <!-- Shift Mode -->
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
@@ -1302,4 +1314,4 @@
 
 </p-dialog>
 
-<!-- <p-toast></p-toast> -->
+<p-toast></p-toast>

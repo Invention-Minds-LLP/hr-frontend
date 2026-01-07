@@ -45,7 +45,7 @@ export class PermissionRequest {
   showPopup: boolean = false;
   selectedPermission: any = null;
   viewMode: boolean = false;
-  currentDeclineRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  currentDeclineRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
   loading = true
 
 
@@ -65,6 +65,7 @@ export class PermissionRequest {
   isHRManager = false;
   isManagement = false;
   isReportingManager = false;
+  isIncharge = false;
 
 
   ngOnInit() {
@@ -78,11 +79,12 @@ export class PermissionRequest {
       this.loading = false
     }, 2000)
 
-    const roleId = Number(localStorage.getItem('roleId')); 
+    const roleId = Number(localStorage.getItem('roleId'));
     const deptId = Number(localStorage.getItem('departmentId'));             // HR Department
     this.isHRManager = roleId === 1;       // HR Manager
     this.isReportingManager = roleId === 3;
     this.isManagement = roleId === 4;
+    this.isIncharge = roleId === 5;
 
   }
 
@@ -116,6 +118,12 @@ export class PermissionRequest {
 
   }
   getStatusLabel(req: any): string {
+    if (req.inChargeDecision === 'REJECTED') {
+      return 'Incharge Rejected';
+    }
+    if (req.inChargeDecision === 'APPROVED' && req.hodDecision === 'PENDING') {
+      return 'Incharge Approved (Waiting Manager)';
+    }
     if (req.hodDecision === 'REJECTED') {
       return 'Manager Rejected';
     }
@@ -175,13 +183,22 @@ export class PermissionRequest {
             reportingManagerId: req.employee.reportingManager ?? null,
             hodDecision: req.hodDecision,
             hrDecision: req.hrDecision,
-            roleId: req.employee.roleId
-            
+            roleId: req.employee.roleId,
+            inchargeId: req.employee.inchargeId || null,
+            inChargeDecision: req.inChargeDecision ?? 'PENDING',
           }
         });
-        this.requestData = this.isHR
+        // this.requestData = this.isHR
+        //   ? pending
+        //   : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
+        // this.filterReuqusetData = [...this.requestData];
+            this.requestData = this.isHR
           ? pending
-          : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
+          : pending.filter(r =>
+            (this.isReportingManager && r.reportingManagerId === this.loggedEmployeeId) ||
+            (this.isIncharge && r.inchargeId === this.loggedEmployeeId)
+          );
+
         this.filterReuqusetData = [...this.requestData];
         console.log(pending, this.requestData)
       },
@@ -233,23 +250,24 @@ export class PermissionRequest {
   // }
   openDeclineDialog(id: number, level: 'LEVEL1' | 'LEVEL2') {
 
-    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
-  
+    let backendRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+
     if (level === 'LEVEL1') {
-      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
-      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      if (this.isIncharge) backendRole = 'INCHARGE';
+      else if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHR) backendRole = 'HR_MANAGER';
       else if (this.isManagement) backendRole = 'MANAGEMENT';
     }
-  
+
     else if (level === 'LEVEL2') {
       backendRole = 'HR_MANAGER';
     }
-  
+
     this.currentDeclineId = id;
     this.currentDeclineRole = backendRole;
     this.declineDialogVisible = true;
   }
-  
+
 
   confirmDecline() {
     if (!this.declineReason.trim()) {
@@ -317,67 +335,78 @@ export class PermissionRequest {
   }
   showLevel1Approve(req: any): boolean {
 
+    const hasIncharge = !!req.inchargeId;
+
+    // console.log('Checking Level 1 Approve for req:', hasIncharge);
+
+    // 🔰 INCHARGE FIRST
+    if (hasIncharge && this.isIncharge) {
+      return  req.inChargeDecision === 'PENDING';
+    }
     // HR Employee (dept = HR and not HR Manager)
     if (req.department === 1 && req.roleId !== 1) {
       return this.isHRManager && req.hodDecision === 'PENDING';
     }
-  
+
     // HR Manager
     if (req.roleId === 1) {
       return this.isManagement && req.hodDecision === 'PENDING';
     }
-  
+
     // Reporting Manager / HOD
-    if (req.roleId === 3 || req.roleId === 5) {
+    if (req.roleId === 3 ) {
       return this.isManagement && req.hodDecision === 'PENDING';
     }
-  
+
     // Normal Employee
-    if (req.roleId === 2) {
+    if (req.roleId === 2 || req.roleId === 5) {
       return this.isReportingManager && req.hodDecision === 'PENDING';
     }
-  
+
     return false;
   }
-  
-  
+
+
   showLevel2Approve(req: any): boolean {
-  
+
+    const hasIncharge = !!req.inchargeId;
+
+    if (hasIncharge && req.inChargeDecision !== 'APPROVED') return false;
     // HR employee — NO LEVEL 2
     if (req.department === 1 && req.roleId !== 1) return false;
-  
+
     // HR Manager — NO LEVEL 2
     if (req.roleId === 1) return false;
-  
+
     // Reporting Manager / HOD
-    if (req.roleId === 3 || req.roleId === 5) {
+    if (req.roleId === 3 ) {
       return this.isHRManager && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
     }
-  
+
     // Normal employee
-    if (req.roleId === 2) {
-      return this.isHRManager && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
+    if (req.roleId === 2 || req.roleId === 5) {
+      return this.isHR && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
     }
-  
+
     return false;
   }
   approvePermission(id: number, level: 'LEVEL1' | 'LEVEL2') {
 
     let backendRole: any = null;
-  
+
     if (level === 'LEVEL1') {
-  
-      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
-      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      if (this.isIncharge) backendRole = 'INCHARGE';
+      else if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHR) backendRole = 'HR_MANAGER';
       else if (this.isManagement) backendRole = 'MANAGEMENT';
     }
-  
+
     else if (level === 'LEVEL2') {
       backendRole = 'HR_MANAGER';
     }
-  
+
     const userId = Number(localStorage.getItem('empId'));
-  
+
     this.permissionService.updatePermissionStatus(
       id,
       'APPROVED',
@@ -385,5 +414,5 @@ export class PermissionRequest {
       backendRole
     ).subscribe(() => this.loadPermissionRequests());
   }
-  
+
 }

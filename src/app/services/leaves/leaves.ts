@@ -46,7 +46,7 @@ export class Leaves {
     id: number,
     status: string,
     userId: number,
-    role: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT',
+    role: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT',
     declineReason?: string
   ) {
     return this.http.patch(`${this.apiUrl}/${id}/status`, {

@@ -173,4 +173,7 @@ export class Employees {
   }): Observable<any> {
     return this.http.post<any>(this.apiUrl, payload);
   }
+  getIncharges(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/incharge`);
+  }
 }

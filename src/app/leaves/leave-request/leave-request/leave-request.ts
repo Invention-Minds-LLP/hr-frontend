@@ -44,7 +44,7 @@ export class LeaveRequest {
 
 
   leaveData: any[] = [];
-  currentUserId = Number(localStorage.getItem('empId'))|| 0; // Example, replace with actual logged-in user ID
+  currentUserId = Number(localStorage.getItem('empId')) || 0; // Example, replace with actual logged-in user ID
   declineDialogVisible: boolean = false;  // Controls the dialog visibility
   declineReason: string = '';             // Stores the decline reason input
   currentDeclineId: number | null = null; // Stores the leave ID being declined
@@ -58,6 +58,7 @@ export class LeaveRequest {
   loading = true;
 
 
+
   expanded: Record<BucketKey, boolean> = {
     today: false,
     thisWeek: false,
@@ -68,13 +69,15 @@ export class LeaveRequest {
   isHR: boolean = false;
   role: string = '';
   loggedEmployeeId: number = 0;
-  currentDeclineRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+  currentDeclineRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
   loggedRoleId: number = 0;
   loggedEmpId: number = 0;
   isHRManager: boolean = false;
   isNormalEmployee: boolean = false;
   isReportingManager: boolean = false;
   isManagement: boolean = false;
+  isIncharge: boolean = false;
+
 
 
 
@@ -100,6 +103,8 @@ export class LeaveRequest {
     this.isNormalEmployee = this.loggedRoleId === 2;
     this.isReportingManager = this.loggedRoleId === 3;
     this.isManagement = this.loggedRoleId === 4;
+    this.isIncharge = this.loggedRoleId === 5;
+
 
 
     this.isHR = this.isHRRole(this.role);
@@ -153,15 +158,26 @@ export class LeaveRequest {
             hodDecision: leave.hodDecision,
             hrDecision: leave.hrDecision,
             roleId: leave.employee?.roleId,
+            inchargeId: leave.employee?.inchargeId ?? null,
+            inChargeDecision: leave.inChargeDecision ?? 'PENDING',
           }
         });
         // Only pending rows are actionable in this screen
-        const pending = this.leaveData.filter(r => (r.status || '').toUpperCase() === 'PENDING');
+        // const pending = this.leaveData.filter(r => (r.status || '').toUpperCase() === 'PENDING');
+        const pending = this.leaveData
 
         // HR/HR Manager see all; reporting managers see only their team
+        // this.leaveData = this.isHR
+        //   ? pending
+        //   : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
+        // this.filteredLeaveData = [...this.leaveData];
         this.leaveData = this.isHR
           ? pending
-          : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
+          : pending.filter(r =>
+            (this.isReportingManager && r.reportingManagerId === this.loggedEmployeeId) ||
+            (this.isIncharge && r.inchargeId === this.loggedEmployeeId)
+          );
+
         this.filteredLeaveData = [...this.leaveData];
       },
       error: (err) => {
@@ -240,6 +256,12 @@ export class LeaveRequest {
     }
   }
   getStatusLabel(leave: any): string {
+    if (leave.inChargeDecision === 'REJECTED') {
+      return 'Incharge Rejected';
+    }
+    if (leave.inChargeDecision === 'APPROVED' && leave.hodDecision === 'PENDING') {
+      return 'Incharge Approved (Waiting Manager)';
+    }
     if (leave.hodDecision === 'REJECTED') {
       return 'Manager Rejected';
     }
@@ -309,22 +331,22 @@ export class LeaveRequest {
   // }
   acceptLeave(id: number, level: 'LEVEL1' | 'LEVEL2') {
 
-    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
-  
+    let backendRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+
     if (level === 'LEVEL1') {
-  
-      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
-      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+      if (this.isIncharge) backendRole = 'INCHARGE';
+      else if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHR) backendRole = 'HR_MANAGER';
       else if (this.isManagement) backendRole = 'MANAGEMENT';
-  
+
     } else if (level === 'LEVEL2') {
       backendRole = 'HR_MANAGER';
     }
-  
-    this.leaveService.updateLeaveStatus(id,'Approved', this.loggedEmpId, backendRole!)
-        .subscribe(() => this.loadLeaves());
+
+    this.leaveService.updateLeaveStatus(id, 'Approved', this.loggedEmpId, backendRole!)
+      .subscribe(() => this.loadLeaves());
   }
-  
+
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
     const norm = role.trim().toUpperCase();
 
@@ -349,27 +371,28 @@ export class LeaveRequest {
   //   this.declineDialogVisible = true;
   // }
   openDeclineDialog(id: number, level: 'LEVEL1' | 'LEVEL2') {
-    let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
-  
+    let backendRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
+
     // LEVEL 1 approvals
     if (level === 'LEVEL1') {
-  
-      if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
-      else if (this.isHRManager) backendRole = 'HR_MANAGER';
+
+      if (this.isIncharge) backendRole = 'INCHARGE';
+      else if (this.isReportingManager) backendRole = 'REPORTING_MANAGER';
+      else if (this.isHR) backendRole = 'HR_MANAGER';
       else if (this.isManagement) backendRole = 'MANAGEMENT';
-  
+
     }
-  
+
     // LEVEL 2 approvals → always HR Manager
     else if (level === 'LEVEL2') {
       backendRole = 'HR_MANAGER';
     }
-  
+
     this.currentDeclineId = id;
     this.currentDeclineRole = backendRole;
     this.declineDialogVisible = true;
   }
-  
+
 
   confirmDecline() {
     if (!this.declineReason.trim()) return;
@@ -421,10 +444,18 @@ export class LeaveRequest {
   showLevel1Approve(leave: any): boolean {
 
     // console.log('Checking Level 1 approval for leave:', leave);
+    const hasIncharge = !!leave.inchargeId;
+
+    // INCHARGE always first (if exists)
+
+    if (hasIncharge && this.loggedEmpId === leave.inchargeId) {
+      return (
+        leave.inChargeDecision === 'PENDING'
+      );
+    }
 
     // HR Employee (dept = HR AND roleId ≠ HR Manager)
     if (leave.department === 1 && leave.roleId !== 1) {
-      console.log('HR Employee - No Level 1 approval', this.isHRManager, leave.hodDecision);
       return this.isHRManager && leave.hodDecision === 'PENDING';
     }
 
@@ -434,12 +465,11 @@ export class LeaveRequest {
     }
 
     // Reporting Manager & HOD → Management approves
-    if (leave.roleId === 3 || leave.roleId === 5 /* if HOD role exists */) {
+    if (leave.roleId === 3  /* if HOD role exists */) {
       return this.isManagement && leave.hodDecision === 'PENDING';
     }
-
     // Normal Employee → Reporting Manager approves
-    if (leave.roleId === 2) {
+    if (leave.roleId === 2 || leave.roleId === 5) {
       return this.isReportingManager && leave.hodDecision === 'PENDING';
     }
 
@@ -447,29 +477,36 @@ export class LeaveRequest {
   }
   showLevel2Approve(leave: any): boolean {
 
+    const hasIncharge = !!leave.inchargeId;
+
+    // ⛔ Block if incharge exists & not approved
+    if (hasIncharge && leave.inChargeDecision !== 'APPROVED') {
+      return false;
+    }
+
+
     // HR Employees → NO Level 2 approval
     if (leave.department === 1 && leave.roleId !== 1) {
-        return false;
+      return false;
     }
-  
+
     // HR Manager → NO Level 2 approval
     if (leave.roleId === 1) {
-        return false;
+      return false;
     }
-  
+
     // Reporting Manager & HOD → HR Manager at Level 2
-    if (leave.roleId === 3 || leave.roleId === 5) {
-        return this.isHRManager && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
+    if (leave.roleId === 3) {
+      return this.isHRManager && leave.hrDecision === 'PENDING';
     }
-  
     // Normal Employee → HR Manager at Level 2
-    if (leave.roleId === 2) {
-        return this.isHR && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
+    if (leave.roleId === 2 || leave.roleId === 5) {
+      return this.isHR && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
     }
-  
+
     return false;
   }
-  closePopup(){
+  closePopup() {
     this.showLeaveDetailsPopup = false;
     this.loadLeaves()
   }

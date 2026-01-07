@@ -20,7 +20,7 @@ import { Announcements, } from '../services/announcement/announcements';
 export class Navbar {
   isOpen = false;
   showLogoutPopup = false;
-  allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR EXECUTIVE'];
+  allowedRoles = ['EXECUTIVE', 'INTERN'];
   role: string = '';
   adminOpen = false;
   recruitOpen = false;
@@ -51,10 +51,13 @@ export class Navbar {
   // apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
   announcements: any[] = [];
+  isIncharge = false;
+  roleId = localStorage.getItem('roleId') || '';
 
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
     this.photoUrl = localStorage.getItem('photoUrl') ?? '';
+
     this.role = rawRole;
     const norm = this.normalizeRole(rawRole);
 
@@ -68,6 +71,9 @@ export class Navbar {
     console.log('Normalized Role:', norm, deptId, this.isRestricted);
     this.isReportingManager = this.role === 'Reporting Manager';
     console.log('isReportingManager:', this.isReportingManager);
+    console.log('Role after normalization:', norm, rawRole);
+    this.isIncharge = Number(this.roleId) === 5;
+    console.log('isIncharge:', this.isIncharge);
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
     // ✅ Connect to Notification Stream
@@ -150,7 +156,7 @@ export class Navbar {
 
 
   onAdminClick() {
-    if (this.isReportingManager) {
+    if (this.isReportingManager || this.isIncharge) {
       this.router.navigate(['/admin/leave']);
     } else {
       this.router.navigate(['/admin/employee']);

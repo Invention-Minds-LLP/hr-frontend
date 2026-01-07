@@ -122,7 +122,7 @@
       <!-- Row 1: Main Headings -->
       <ul class="main-headings ">
         <div class="flex1">
-          <li class="nav-item" *ngIf="!isRestricted && !isReportingManager"><a [routerLink]="'/dashboard'"
+          <li class="nav-item" *ngIf="!isRestricted && !isReportingManager && !isIncharge"><a [routerLink]="'/dashboard'"
               routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }"
               (click)="closeMenus()">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -152,7 +152,7 @@
             </a>
           </li>
 
-          <li class="nav-item" (click)="onRecruitClick()" *ngIf="!isRestricted">
+          <li class="nav-item" (click)="onRecruitClick()" *ngIf="!isRestricted && !isIncharge">
             <a (click)="activeMenu ='recruit'" [class.active]="activeMenu === 'recruit'" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -184,7 +184,7 @@
       <!-- Row 2: Sub Headings -->
       <div class="sub-headings" *ngIf="activeMenu">
         <ul *ngIf="activeMenu === 'admin'" class="sub-row flex1">
-          <li class="nav-items" *ngIf="!isReportingManager">
+          <li class="nav-items" *ngIf="!isReportingManager && !isIncharge">
             <a [routerLink]="'/admin/employee'" routerLinkActive="active" class="nav-link">
 
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -218,7 +218,7 @@
               <span>Leaves</span></a>
           </li>
 
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isIncharge">
             <a [routerLink]="'/admin/appraisal'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -228,7 +228,7 @@
               <span>Appraisal</span></a>
           </li>
 
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isIncharge">
             <a [routerLink]="'/admin/resignation'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -248,7 +248,7 @@
               <span>Training</span></a>
           </li>
 
-          <li class="nav-items">
+          <li class="nav-items" *ngIf="!isIncharge">
             <a [routerLink]="'/admin/incidents'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36">
                 <path fill="currentColor"
@@ -257,7 +257,7 @@
               <span>Incidents</span></a>
           </li>
 
-          <li class="nav-items" *ngIf="!isReportingManager">
+          <li class="nav-items" *ngIf="!isReportingManager && !isIncharge">
             <a [routerLink]="'/admin/complaints'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36">
                 <path fill="currentColor"
@@ -282,13 +282,13 @@
               <span>Complaints</span></a>
           </li>
           
-          <li class="nav-items" *ngIf="!isReportingManager">
+          <li class="nav-items" *ngIf="!isReportingManager && !isIncharge">
             <a [routerLink]="'/admin/shifts'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M16 14v2.2l1.6 1M16 4h2a2 2 0 0 1 2 2v.832M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect width="8" height="4" x="8" y="2" rx="1"/></g></svg>
               <span>Shifts</span></a>
           </li>
 
-                  <li class="nav-items" *ngIf="isReportingManager">
+                  <li class="nav-items" *ngIf="isReportingManager || isIncharge">
             <a [routerLink]="'/admin/manager-shift'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M16 14v2.2l1.6 1M16 4h2a2 2 0 0 1 2 2v.832M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect width="8" height="4" x="8" y="2" rx="1"/></g></svg>
               <span>Shifts</span></a>
