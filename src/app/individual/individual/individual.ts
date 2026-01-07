@@ -39,7 +39,7 @@ interface AttendanceDay {
 }
 
 // put this in your component class
-type LeaveTypeCount = { label: string; count: number; total:number };
+type LeaveTypeCount = { label: string; count: number; total: number };
 
 @Component({
   selector: 'app-individual',
@@ -104,8 +104,8 @@ export class Individual {
 
 
 
-  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar, 
-    private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts) { }
+  constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar,
+    private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts, private holidaysService: Holidays) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -145,18 +145,18 @@ export class Individual {
 
 
   // Working-Card
-  rawAttendance:any[] = [];
+  rawAttendance: any[] = [];
 
   employee: any = null;
-  pendingSurveys: any[] = []; 
+  pendingSurveys: any[] = [];
 
   ngOnInit() {
     this.generateWeekDays();
     this.fetchDetails();
     this.loadToday();
     this.getLeaveBalance();
-      this.startBirthdayAutoSlide();
-  this.startAnniversaryAutoSlide();
+    this.startBirthdayAutoSlide();
+    this.startAnniversaryAutoSlide();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -165,9 +165,9 @@ export class Individual {
       this.employeeService.getEmployeeById(employeeId).subscribe({
         next: (res) => {
           this.employee = res;
-          setTimeout(()=>{
+          setTimeout(() => {
             this.loading = false
-          },2000)
+          }, 2000)
         },
         error: (err) => {
           console.error('Error fetching employee:', err);
@@ -177,13 +177,13 @@ export class Individual {
     }
   }
 
-  getLeaveBalance(){
+  getLeaveBalance() {
     const year = new Date().getFullYear();
     const employeeId = Number(this.currentUserId); // logged-in user ID you already have
-  
+
     this.leaveService.getLeaveBalance(employeeId, year)
       .subscribe((balances: any) => {
-        this.leaveByTypeToday = balances.map((b:any) => ({
+        this.leaveByTypeToday = balances.map((b: any) => ({
           label: b.leaveType,
           count: b.remaining,
           total: b.totalAllowed
@@ -208,73 +208,112 @@ export class Individual {
         },
       });
 
-      this.surveyService.getDraftSurveys(Number(this.currentUserId)).subscribe({
-        next: (res) => {
-          console.log('Draft Surveys:', res);
-          this.pendingSurveys = res;
-        },
-        error: (err) => {
-          console.error('Error fetching draft surveys:', err);
-        },
-      });
+    this.surveyService.getDraftSurveys(Number(this.currentUserId)).subscribe({
+      next: (res) => {
+        console.log('Draft Surveys:', res);
+        this.pendingSurveys = res;
+      },
+      error: (err) => {
+        console.error('Error fetching draft surveys:', err);
+      },
+    });
   }
   trackById(_i: number, item: { employeeId: number }) {
     return item.employeeId;
   }
 
   // Holidays
+  // loadHolidays(year: number) {
+
+  //   const calendarId = 'en.indian#holiday@group.v.calendar.google.com';
+  //   const apiKey = 'AIzaSyC10pxMOv55Jq8XkkDuJ_WAWG4AUUZVX9g';
+  //   const today = new Date();
+  //   const startDate = `${today.getFullYear()}-01-01`;
+  //   const endDate = `${today.getFullYear()}-12-31`;
+  //   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${startDate}T00:00:00Z&timeMax=${endDate}T23:59:59Z&singleEvents=true&orderBy=startTime`;
+
+  //   fetch(url)
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       this.allHolidays = data.items.map((item: any) => ({
+  //         name: item.summary,
+  //         date: item.start.date
+  //       }));
+
+  //       // Find nearest holiday
+  //       const today = new Date();
+  //       const futureHolidays = this.allHolidays
+  //         .map(h => ({ ...h, time: new Date(h.date).getTime() }))
+  //         .filter(h => h.time >= today.getTime())
+  //         .sort((a, b) => a.time - b.time);
+
+  //       if (futureHolidays.length) {
+  //         this.allHolidays = futureHolidays;
+  //         this.updateHolidayList(); // only our new method
+  //       }
+
+  //     });
+  // }
+
+  // updateHolidayList() {
+  //   const today = new Date();
+
+  //   // Keep only upcoming holidays
+  //   this.holidayDates = this.allHolidays
+  //     .filter(h => new Date(h.date).getTime() >= today.getTime())
+  //     .map(h => ({
+  //       name: h.name,
+  //       date: new Date(h.date)
+  //     }))
+  //     .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  //   if (this.holidayDates.length === 0) {
+  //     this.noHolidaysMessage = "No upcoming holidays!";
+  //     this.currentIndex = 0;
+  //   } else {
+  //     this.noHolidaysMessage = "";
+  //     this.currentIndex = 0; // start from nearest
+  //     this.nearestHoliday = this.holidayDates[0];
+  //   }
+  // }
+
   loadHolidays(year: number) {
+    this.loading = true; // optional: show a loader
 
-    const calendarId = 'en.indian#holiday@group.v.calendar.google.com';
-    const apiKey = 'AIzaSyC10pxMOv55Jq8XkkDuJ_WAWG4AUUZVX9g';
-    const today = new Date();
-    const startDate = `${today.getFullYear()}-01-01`;
-    const endDate = `${today.getFullYear()}-12-31`;
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${startDate}T00:00:00Z&timeMax=${endDate}T23:59:59Z&singleEvents=true&orderBy=startTime`;
+    this.holidaysService.getHolidaysByYear(year).subscribe({
+      next: (calendar: any) => {
+        const today = new Date();
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        this.allHolidays = data.items.map((item: any) => ({
-          name: item.summary,
-          date: item.start.date
+        // Map backend holidays to a usable format
+        const allHolidays = (calendar.holidays || []).map((h: any) => ({
+          name: h.title,
+          date: new Date(h.date)
         }));
 
-        // Find nearest holiday
-        const today = new Date();
-        const futureHolidays = this.allHolidays
-          .map(h => ({ ...h, time: new Date(h.date).getTime() }))
-          .filter(h => h.time >= today.getTime())
-          .sort((a, b) => a.time - b.time);
+        // Keep only upcoming holidays
+        const futureHolidays = allHolidays
+          .filter((h: { name: string; date: Date }) => h.date >= today)
+          .sort((a: { name: string; date: Date }, b: { name: string; date: Date }) => a.date.getTime() - b.date.getTime());
 
         if (futureHolidays.length) {
-          this.allHolidays = futureHolidays;
-          this.updateHolidayList(); // only our new method
+          this.holidayDates = futureHolidays;
+          this.nearestHoliday = futureHolidays[0];
+          this.currentIndex = 0;
+          this.noHolidaysMessage = '';
+        } else {
+          this.holidayDates = [];
+          this.nearestHoliday = null;
+          this.noHolidaysMessage = 'No upcoming holidays!';
         }
 
-      });
-  }
-
-  updateHolidayList() {
-    const today = new Date();
-
-    // Keep only upcoming holidays
-    this.holidayDates = this.allHolidays
-      .filter(h => new Date(h.date).getTime() >= today.getTime())
-      .map(h => ({
-        name: h.name,
-        date: new Date(h.date)
-      }))
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    if (this.holidayDates.length === 0) {
-      this.noHolidaysMessage = "No upcoming holidays!";
-      this.currentIndex = 0;
-    } else {
-      this.noHolidaysMessage = "";
-      this.currentIndex = 0; // start from nearest
-      this.nearestHoliday = this.holidayDates[0];
-    }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load holidays', err);
+        this.noHolidaysMessage = 'Failed to load holidays';
+        this.loading = false;
+      }
+    });
   }
   nextHoliday() {
     if (this.currentIndex < this.holidayDates.length - 1) {
@@ -481,18 +520,18 @@ export class Individual {
   //     }
   //   }
   // }
-  
+
   setWeek(referenceDate: Date) {
     const start = this.getMonday(referenceDate);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-  
+
     this.weekStart = start;
     this.weekEnd = end;
-  
+
     const employeeId = Number(this.currentUserId); // however you store the logged-in user
-      this.loadShiftName(employeeId);
-  
+    this.loadShiftName(employeeId);
+
     this.attendanceService.getWeeklyAttendance(employeeId, start, end).subscribe({
       next: (data) => {
         this.rawAttendance = data;
@@ -501,17 +540,17 @@ export class Individual {
       error: (err) => console.error('Failed to fetch attendance', err)
     });
   }
-  
+
   private buildAttendanceData(start: Date) {
     this.attendanceData = [];
     for (let i = 0; i < 7; i++) {
       const current = new Date(start);
       current.setDate(start.getDate() + i);
-  
+
       const record = this.rawAttendance.find(r =>
         new Date(r.date).toDateString() === current.toDateString()
       );
-  
+
       if (record) {
         if (record.status === 'Present' && record.checkIn && record.checkOut) {
           const total = this.calculateTotalHours(record.checkIn, record.checkOut);
@@ -521,7 +560,7 @@ export class Individual {
             status: 'Present'
           });
         }
-         else {
+        else {
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
             status: record.status
@@ -535,7 +574,7 @@ export class Individual {
       }
     }
   }
-  
+
 
   isCurrentWeek(): boolean {
     const today = new Date();
@@ -546,17 +585,17 @@ export class Individual {
   calculateTotalHours(checkIn: string | Date, checkOut: string | Date): string {
     const inTime = new Date(checkIn);
     const outTime = new Date(checkOut);
-  
+
     const diffMs = outTime.getTime() - inTime.getTime();
     if (isNaN(diffMs) || diffMs < 0) return '0 hrs 0 mins';
-  
+
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-  
+
     return `${hours} hrs ${minutes} mins`;
   }
-  
+
 
   previousWeek() {
     const prevWeek = new Date(this.weekStart);
@@ -619,86 +658,86 @@ export class Individual {
     const gender = this.employee?.gender?.toUpperCase() || 'MALE';
     return gender === 'FEMALE' ? '/img-women.png' : '/img.png';
 
-}
-showDetails = false;
+  }
+  showDetails = false;
 
-toggleDetails() {
-  this.showDetails = !this.showDetails;
-}
+  toggleDetails() {
+    this.showDetails = !this.showDetails;
+  }
   loadShiftName(employeeId: number) {
-  const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
 
-  this.shiftService
-    .getAssignmentsByEmployee(employeeId)
-    .subscribe(assignments => {
-      console.log('All Shift Assignments:', assignments);
+    this.shiftService
+      .getAssignmentsByEmployee(employeeId)
+      .subscribe(assignments => {
+        console.log('All Shift Assignments:', assignments);
 
-      // 1️⃣ Try to find today's shift
-      const todayShift = assignments.find(a =>
-        a.date.startsWith(today)
-      );
+        // 1️⃣ Try to find today's shift
+        const todayShift = assignments.find(a =>
+          a.date.startsWith(today)
+        );
 
-      console.log('Today\'s Shift Assignment:', todayShift);
+        console.log('Today\'s Shift Assignment:', todayShift);
 
-      if (todayShift?.shift?.name) {
-        this.shiftName = `Shift – ${todayShift.shift.name}`;
-        return;
-      }
-      console.log('No shift assignment found for today.');
+        if (todayShift?.shift?.name) {
+          this.shiftName = `Shift – ${todayShift.shift.name}`;
+          return;
+        }
+        console.log('No shift assignment found for today.');
 
-      // 2️⃣ Fallback: fixed shift from employee
-      // this.loadFixedShift(employeeId);
-    });
-}
-birthdayIndex = 0;
-anniversaryIndex = 0;
-
-
-
-startBirthdayAutoSlide() {
-  if (this.birthday.length <= 1) return;
-  setInterval(() => {
-    this.birthdayIndex =
-      (this.birthdayIndex + 1) % this.birthday.length;
-  }, 3000);
-}
-
-startAnniversaryAutoSlide() {
-  if (this.anniversary.length <= 1) return;
-  setInterval(() => {
-    this.anniversaryIndex =
-      (this.anniversaryIndex + 1) % this.anniversary.length;
-  }, 3000);
-}
-
-currentBirthdayIndex = 0;
-currentAnniversaryIndex = 0;
-
-/* Birthdays */
-prevBirthday() {
-  if (this.currentBirthdayIndex > 0) {
-    this.currentBirthdayIndex--;
+        // 2️⃣ Fallback: fixed shift from employee
+        // this.loadFixedShift(employeeId);
+      });
   }
-}
+  birthdayIndex = 0;
+  anniversaryIndex = 0;
 
-nextBirthday() {
-  if (this.currentBirthdayIndex < this.birthday.length - 1) {
-    this.currentBirthdayIndex++;
-  }
-}
 
-/* Anniversaries */
-prevAnniversary() {
-  if (this.currentAnniversaryIndex > 0) {
-    this.currentAnniversaryIndex--;
-  }
-}
 
-nextAnniversary() {
-  if (this.currentAnniversaryIndex < this.anniversary.length - 1) {
-    this.currentAnniversaryIndex++;
+  startBirthdayAutoSlide() {
+    if (this.birthday.length <= 1) return;
+    setInterval(() => {
+      this.birthdayIndex =
+        (this.birthdayIndex + 1) % this.birthday.length;
+    }, 3000);
   }
-}
+
+  startAnniversaryAutoSlide() {
+    if (this.anniversary.length <= 1) return;
+    setInterval(() => {
+      this.anniversaryIndex =
+        (this.anniversaryIndex + 1) % this.anniversary.length;
+    }, 3000);
+  }
+
+  currentBirthdayIndex = 0;
+  currentAnniversaryIndex = 0;
+
+  /* Birthdays */
+  prevBirthday() {
+    if (this.currentBirthdayIndex > 0) {
+      this.currentBirthdayIndex--;
+    }
+  }
+
+  nextBirthday() {
+    if (this.currentBirthdayIndex < this.birthday.length - 1) {
+      this.currentBirthdayIndex++;
+    }
+  }
+
+  /* Anniversaries */
+  prevAnniversary() {
+    if (this.currentAnniversaryIndex > 0) {
+      this.currentAnniversaryIndex--;
+    }
+  }
+
+  nextAnniversary() {
+    if (this.currentAnniversaryIndex < this.anniversary.length - 1) {
+      this.currentAnniversaryIndex++;
+    }
+  }
 
 }
 
