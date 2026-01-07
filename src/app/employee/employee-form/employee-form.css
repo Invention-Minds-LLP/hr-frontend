@@ -662,3 +662,43 @@ a{
   }
 }
 
+/* ================= DISABLED FIELD STYLING ================= */
+
+/* Input, textarea, dropdown, calendar */
+::ng-deep input:disabled,
+::ng-deep textarea:disabled,
+::ng-deep .p-inputtext.p-disabled,
+::ng-deep .p-select.p-disabled,
+::ng-deep .p-calendar.p-disabled,
+::ng-deep .p-dropdown.p-disabled {
+  background-color: transparent!important;
+  color: #ffffff !important;
+  border: 2px solid #c4c4c4 !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* Date picker input specifically */
+::ng-deep .p-calendar .p-inputtext:disabled {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+}
+
+/* Block pointer events (no clicking) */
+::ng-deep .p-select.p-disabled,
+::ng-deep .p-calendar.p-disabled {
+  pointer-events: auto !important;
+}
+
+/* Make dropdown arrow look disabled */
+::ng-deep .p-select.p-disabled .p-select-trigger,
+::ng-deep .p-calendar.p-disabled .p-datepicker-trigger {
+  opacity: 0.4;
+}
+
+/* Optional: grey placeholder when disabled */
+::ng-deep input:disabled::placeholder {
+  color: #94a3b8 !important;
+}
+

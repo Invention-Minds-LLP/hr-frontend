@@ -38,6 +38,9 @@ export class EmployeeForm {
   @Input() employeeData: any = null;
   @Output() closeForm = new EventEmitter<boolean>();
 
+  @Input() isProfileView: boolean = false; // true when accessed via My Profile
+
+
   employeeForm!: FormGroup;
   activeIndex = 0;
   isLoading = false;
@@ -215,9 +218,39 @@ export class EmployeeForm {
       shiftMode: ['FIXED', Validators.required],   // NEW
       rotationPatternId: [''],                     // NEW for ROTATIONAL
       rotationStartDate: [''],                     // NEW
-      shiftDate: ['']                              // keep (optional for fixed)
+      shiftDate: [''],                              // keep (optional for fixed)
 
+      preEmploymentCheckDate: [null]
     });
+
+    if (this.isProfileView) {
+      // Disable Employment Info fields
+      const employmentControls = [
+        'employeeCode',
+        'referenceCode',
+        'designationId',
+        'departmentId',
+        'branchId',
+        'roleId',
+        'dateOfJoining',
+        'employmentType',
+        'employmentStatus',
+        'reportingManager',
+        'fixedShiftId',
+        'shiftMode',
+        'rotationPatternId',
+        'rotationStartDate',
+        'shiftDate'
+      ];
+
+      employmentControls.forEach(control => {
+        const ctrl = this.employeeForm.get(control);
+        if (ctrl) {
+          ctrl.disable({ emitEvent: false });
+        }
+      });
+    }
+
     // this.employeeForm.addControl('preEmploymentCheckDate', this.fb.control(null));
     // this.employeeForm.get('preEmploymentCheckDate')
     //   ?.setValidators([Validators.required]);
@@ -611,7 +644,7 @@ export class EmployeeForm {
     this.isLoading = true;
 
     if (this.employeeForm.valid) {
-      const formValue = this.employeeForm.value;
+      const formValue = this.employeeForm.getRawValue();
       const documentsPayload = this.uploadedDocsForm.value.map((doc: any) => ({
         title: doc.type,              // Using type as title (you can add separate title field if needed)
         type: doc.type,
@@ -629,7 +662,7 @@ export class EmployeeForm {
         preEmploymentCheckDate,
         inchargeId,
         ...rest
-      } = this.employeeForm.value;
+      } = this.employeeForm.getRawValue();
 
       console.log('Form Value:', this.employeeForm.value);
 
