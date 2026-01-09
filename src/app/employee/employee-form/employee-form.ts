@@ -40,6 +40,8 @@ export class EmployeeForm {
 
   @Input() isProfileView: boolean = false; // true when accessed via My Profile
 
+  // private isInitialVaccinationAdded = false;
+
 
   employeeForm!: FormGroup;
   activeIndex = 0;
@@ -161,10 +163,10 @@ export class EmployeeForm {
   }
 
   setFilteredTypesForIndex(index: number, category: string) {
-  this.filteredTypes[index] = this.documentTypes.filter(
-    d => d.category === category
-  );
-}
+    this.filteredTypes[index] = this.documentTypes.filter(
+      d => d.category === category
+    );
+  }
 
   private autoAddMissingDocuments(): void {
     const { missing } = this.getMandatoryDocs();
@@ -336,7 +338,7 @@ export class EmployeeForm {
     // Add new FormArrays
     this.employeeForm.addControl('healthIssues', this.fb.array([]));
     this.employeeForm.addControl('vaccinations', this.fb.array([]));
-    this.addVaccination(true); // ✅ only first row gets Hepatitis B
+    this.addVaccination(); // ✅ only first row gets Hepatitis B
 
 
     // Auto-calc BMI
@@ -346,7 +348,7 @@ export class EmployeeForm {
     this.employeeForm.get('shiftMode')!.valueChanges.subscribe(mode => {
       this.applyShiftValidators(mode);
     });
-    this.addQualification(true);
+    this.addQualification();
     this.addEmergencyContact();
     this.loadDropdownData();
     this.loadReportingManagers();
@@ -495,7 +497,8 @@ export class EmployeeForm {
 
 
   // Add Vaccination
-  addVaccination(isFirst: boolean = false) {
+  addVaccination() {
+    const isFirst = this.vaccinations.length === 0;
     this.vaccinations.push(
       this.fb.group({
         vaccineName: [isFirst ? 'HEP_B' : null, Validators.required],
@@ -510,6 +513,7 @@ export class EmployeeForm {
         proofFileName: ['']
       })
     );
+    // this.isInitialVaccinationAdded = true;
   }
 
   // Remove Vaccination
@@ -580,14 +584,14 @@ export class EmployeeForm {
 
 
   filterDocumentTypes(index: number) {
-  const category = this.uploadedDocsForm.at(index).get('category')?.value;
-  if (!category) return;
+    const category = this.uploadedDocsForm.at(index).get('category')?.value;
+    if (!category) return;
 
-  this.setFilteredTypesForIndex(index, category);
+    this.setFilteredTypesForIndex(index, category);
 
-  // reset type when category changes
-  this.uploadedDocsForm.at(index).get('type')?.reset();
-}
+    // reset type when category changes
+    this.uploadedDocsForm.at(index).get('type')?.reset();
+  }
 
 
 
@@ -624,7 +628,8 @@ export class EmployeeForm {
     this.emergencyContacts.removeAt(index);
   }
 
-  addQualification(isFirst: boolean = false) {
+  addQualification() {
+    const isFirst = this.qualifications.length === 0;
     this.qualifications.push(
       this.fb.group({
         degree: [isFirst ? 'SSLC' : null, Validators.required],
@@ -964,14 +969,14 @@ export class EmployeeForm {
   }
 
   addDocument() {
-  const group = this.createDocumentGroup();
-  this.uploadedDocsForm.push(group);
+    const group = this.createDocumentGroup();
+    this.uploadedDocsForm.push(group);
 
-  const index = this.uploadedDocsForm.length - 1;
+    const index = this.uploadedDocsForm.length - 1;
 
-  // initialize empty dropdown
-  this.filteredTypes[index] = [];
-}
+    // initialize empty dropdown
+    this.filteredTypes[index] = [];
+  }
 
 
   removeDocument(index: number) {
@@ -1224,23 +1229,28 @@ export class EmployeeForm {
       parsedVaccinations = [];
     }
 
-    parsedVaccinations.forEach((v: any) => {
-      this.vaccinations.push(
-        this.fb.group({
-          vaccineName: [v.vaccineName, Validators.required],
-          vaccinated: [v.vaccinated, Validators.required],
-          firstDose: v.firstDose ? new Date(v.firstDose) : null,
-          secondDose: v.secondDose ? new Date(v.secondDose) : null,
-          thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
-          boosterDose: v.boosterDose ? new Date(v.boosterDose) : null,
-          testDate: v.testDate ? new Date(v.testDate) : null,
-          titerLevel: v.titerLevel,
-          proofFile: null,
-          proofFileName: v.proofFileName || '',
-          proofUrl: v.proofUrl || ''
-        })
-      );
-    });
+    if (parsedVaccinations.length > 0) {
+      parsedVaccinations.forEach((v: any) => {
+        this.vaccinations.push(
+          this.fb.group({
+            vaccineName: [v.vaccineName, Validators.required],
+            vaccinated: [v.vaccinated, Validators.required],
+            firstDose: v.firstDose ? new Date(v.firstDose) : null,
+            secondDose: v.secondDose ? new Date(v.secondDose) : null,
+            thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
+            boosterDose: v.boosterDose ? new Date(v.boosterDose) : null,
+            testDate: v.testDate ? new Date(v.testDate) : null,
+            titerLevel: v.titerLevel,
+            proofFile: null,
+            proofFileName: v.proofFileName || '',
+            proofUrl: v.proofUrl || ''
+          })
+        );
+      });
+    } else {
+      // Case 2: NO data → default Hepatitis B
+      this.addVaccination();
+    }
 
 
     // Patch addresses
@@ -1270,15 +1280,20 @@ export class EmployeeForm {
 
     // Patch qualifications
     this.qualifications.clear();
-    data.qualifications?.forEach((q: any) => {
-      this.qualifications.push(this.fb.group({
-        degree: q.degree,
-        institution: q.institution,
-        year: q.year,
-        grade: q.grade,
-        degreeName: q.degreeName
-      }));
-    });
+    if (data.qualifications && data.qualifications.length > 0) {
+      data.qualifications?.forEach((q: any) => {
+        this.qualifications.push(this.fb.group({
+          degree: q.degree,
+          institution: q.institution,
+          year: q.year,
+          grade: q.grade,
+          degreeName: q.degreeName
+        }));
+      });
+    } else {
+      // Case 2: employee has NO data → show default
+      this.addQualification(); // SSLC
+    }
 
     // Patch documents
     this.uploadedDocsForm.clear();
