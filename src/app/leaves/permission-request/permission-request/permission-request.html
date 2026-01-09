@@ -145,26 +145,45 @@
 
                                 <!-- LEVEL 1 -->
                                 <button *ngIf="showLevel1Approve(requestData)" class="btn-1 btn"
-                                    (click)="approvePermission(requestData.id, 'LEVEL1')">
-                                    Approve
+                                    (click)="approvePermission(requestData.id, 'LEVEL1')"
+                                    [disabled]="loadingRows[requestData.id]">
+
+                                    <ng-container *ngIf="!loadingRows[requestData.id]; else l1Loading">
+                                        Approve
+                                    </ng-container>
+
+                                    <ng-template #l1Loading>
+                                        <i class="pi pi-spin pi-spinner"></i>
+                                    </ng-template>
                                 </button>
 
                                 <button *ngIf="showLevel1Approve(requestData)" class="btn-2 btn"
-                                    (click)="openDeclineDialog(requestData.id, 'LEVEL1')">
+                                    (click)="openDeclineDialog(requestData.id, 'LEVEL1')"
+                                    [disabled]="loadingRows[requestData.id]">
                                     Decline
                                 </button>
 
 
-                                <!-- LEVEL 2 (Only HR Manager) -->
+                                <!-- LEVEL 2 -->
                                 <button *ngIf="showLevel2Approve(requestData)" class="btn-1 btn"
-                                    (click)="approvePermission(requestData.id, 'LEVEL2')">
-                                    Approve
+                                    (click)="approvePermission(requestData.id, 'LEVEL2')"
+                                    [disabled]="loadingRows[requestData.id]">
+
+                                    <ng-container *ngIf="!loadingRows[requestData.id]; else l2Loading">
+                                        Approve
+                                    </ng-container>
+
+                                    <ng-template #l2Loading>
+                                        <i class="pi pi-spin pi-spinner"></i>
+                                    </ng-template>
                                 </button>
 
                                 <button *ngIf="showLevel2Approve(requestData)" class="btn-2 btn"
-                                    (click)="openDeclineDialog(requestData.id, 'LEVEL2')">
+                                    (click)="openDeclineDialog(requestData.id, 'LEVEL2')"
+                                    [disabled]="loadingRows[requestData.id]">
                                     Decline
                                 </button>
+
 
 
                                 <!-- Always available -->
@@ -195,13 +214,26 @@
                 <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
 
                 <div class="popup-actions">
-                    <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+                    <button class="btn btn-green" (click)="confirmDecline()" [disabled]="declineLoading">
+
+                        <ng-container *ngIf="!declineLoading; else declining">
+                            Decline
+                        </ng-container>
+
+                        <ng-template #declining>
+                            <i class="pi pi-spin pi-spinner"></i>
+                        </ng-template>
+
+                    </button>
+
                     <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
                 </div>
             </div>
         </div>
     </ng-template>
 </div>
+
+<p-toast position="top-right"></p-toast>
 
 
 <!-- Decline Reason Popup -->

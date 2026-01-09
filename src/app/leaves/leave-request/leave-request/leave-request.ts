@@ -15,15 +15,19 @@ import { Leaves } from '../../../services/leaves/leaves';
 import { Departments } from '../../../services/departments/departments';
 import { LeavePopup } from '../../leave-popup/leave-popup';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup, SkeletonModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup, SkeletonModule, ButtonModule, ToastModule],
   templateUrl: './leave-request.html',
-  styleUrl: './leave-request.css'
+  styleUrl: './leave-request.css',
+  providers: [MessageService]
 })
 
 export class LeaveRequest {
@@ -41,6 +45,9 @@ export class LeaveRequest {
     const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
   }
+
+  loadingRows: { [leaveId: number]: boolean } = {}; // loading 
+  declineLoading = false;
 
 
   leaveData: any[] = [];
@@ -86,7 +93,7 @@ export class LeaveRequest {
 
 
 
-  constructor(private leaveService: Leaves, private departmentService: Departments) { }
+  constructor(private leaveService: Leaves, private departmentService: Departments, private messageService: MessageService) { }
 
 
   ngOnInit() {
@@ -331,6 +338,8 @@ export class LeaveRequest {
   // }
   acceptLeave(id: number, level: 'LEVEL1' | 'LEVEL2') {
 
+    this.loadingRows[id] = true;
+
     let backendRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
 
     if (level === 'LEVEL1') {
@@ -344,7 +353,22 @@ export class LeaveRequest {
     }
 
     this.leaveService.updateLeaveStatus(id, 'Approved', this.loggedEmpId, backendRole!)
-      .subscribe(() => this.loadLeaves());
+      .subscribe({
+        next: () => {
+          this.loadingRows[id] = false;
+          this.loadLeaves();
+        },
+        error: (err) => {
+          this.loadingRows[id] = false;
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Approval Failed',
+            detail: err?.error?.error || 'Something went wrong'
+          });
+        }
+
+      });
   }
 
   private normalizeRole(role: string): 'MANAGER' | 'HR' | null {
@@ -395,23 +419,38 @@ export class LeaveRequest {
 
 
   confirmDecline() {
-    if (!this.declineReason.trim()) return;
+    if (!this.declineReason.trim() || this.currentDeclineId === null) return;
+
+    const id = this.currentDeclineId;
+    this.declineLoading = true;
+
     this.leaveService.updateLeaveStatus(
-      this.currentDeclineId!,
+      id,
       'Declined',
       this.currentUserId,
       this.currentDeclineRole!,
       this.declineReason
     ).subscribe({
       next: () => {
+        this.declineLoading = false;
         this.declineDialogVisible = false;
         this.declineReason = '';
         this.currentDeclineId = null;
         this.loadLeaves();
       },
-      error: (err) => console.error('Error declining leave:', err)
+      error: (err) => {
+        this.declineLoading = false;
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Decline Failed',
+          detail: err?.error?.error || 'Something went wrong'
+        });
+      }
+
     });
   }
+
 
   closeDeclineDialog() {
     this.declineDialogVisible = false;

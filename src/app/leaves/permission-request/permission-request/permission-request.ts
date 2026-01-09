@@ -12,6 +12,7 @@ import { Departments } from '../../../services/departments/departments';
 import { PermissionPopup } from '../../permission-popup/permission-popup';
 import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToastModule } from 'primeng/toast';
 
 interface requestTable {
   empName: string;
@@ -27,7 +28,7 @@ interface requestTable {
 
 @Component({
   selector: 'app-permission-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup, SkeletonModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup, SkeletonModule, ToastModule],
   templateUrl: './permission-request.html',
   styleUrl: './permission-request.css'
 })
@@ -47,6 +48,11 @@ export class PermissionRequest {
   viewMode: boolean = false;
   currentDeclineRole: 'INCHARGE' | 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
   loading = true
+
+  loadingRows: { [id: number]: boolean } = {};
+  declineLoading = false;
+
+
 
 
   filterOption = [
@@ -192,7 +198,7 @@ export class PermissionRequest {
         //   ? pending
         //   : pending.filter(r => r.reportingManagerId === this.loggedEmployeeId);
         // this.filterReuqusetData = [...this.requestData];
-            this.requestData = this.isHR
+        this.requestData = this.isHR
           ? pending
           : pending.filter(r =>
             (this.isReportingManager && r.reportingManagerId === this.loggedEmployeeId) ||
@@ -279,24 +285,39 @@ export class PermissionRequest {
       return;
     }
 
+    const id = this.currentDeclineId!;
+    this.declineLoading = true;
+
     const userId = Number(localStorage.getItem('userId')) || 1;
+
     this.permissionService.updatePermissionStatus(
-      this.currentDeclineId!,
+      id,
       'REJECTED',
       userId,
-      this.currentDeclineRole!,   // pass stored role
+      this.currentDeclineRole!,
       this.declineReason
     ).subscribe({
       next: () => {
+        this.declineLoading = false;
         this.declineDialogVisible = false;
         this.declineReason = '';
         this.currentDeclineId = null;
         this.currentDeclineRole = null;
         this.loadPermissionRequests();
       },
-      error: (err) => console.error('Error declining request:', err)
+      error: (err) => {
+        this.declineLoading = false;
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Decline Failed',
+          detail: err?.error?.error || 'Failed to decline permission'
+        });
+      }
+
     });
   }
+
 
 
   // Close popup
@@ -341,7 +362,7 @@ export class PermissionRequest {
 
     // 🔰 INCHARGE FIRST
     if (hasIncharge && this.isIncharge) {
-      return  req.inChargeDecision === 'PENDING';
+      return req.inChargeDecision === 'PENDING';
     }
     // HR Employee (dept = HR and not HR Manager)
     if (req.department === 1 && req.roleId !== 1) {
@@ -354,7 +375,7 @@ export class PermissionRequest {
     }
 
     // Reporting Manager / HOD
-    if (req.roleId === 3 ) {
+    if (req.roleId === 3) {
       return this.isManagement && req.hodDecision === 'PENDING';
     }
 
@@ -379,7 +400,7 @@ export class PermissionRequest {
     if (req.roleId === 1) return false;
 
     // Reporting Manager / HOD
-    if (req.roleId === 3 ) {
+    if (req.roleId === 3) {
       return this.isHRManager && req.hodDecision === 'APPROVED' && req.hrDecision === 'PENDING';
     }
 
@@ -391,6 +412,8 @@ export class PermissionRequest {
     return false;
   }
   approvePermission(id: number, level: 'LEVEL1' | 'LEVEL2') {
+
+    this.loadingRows[id] = true;
 
     let backendRole: any = null;
 
@@ -412,7 +435,22 @@ export class PermissionRequest {
       'APPROVED',
       userId,
       backendRole
-    ).subscribe(() => this.loadPermissionRequests());
+    ).subscribe({
+      next: () => {
+        this.loadingRows[id] = false;
+        this.loadPermissionRequests();
+      },
+      error: (err) => {
+        this.loadingRows[id] = false;
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Approval Failed',
+          detail: err?.error?.error || 'Failed to approve permission'
+        });
+      }
+
+    });
   }
 
 }

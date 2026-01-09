@@ -145,7 +145,59 @@ export class EmployeeForm {
   leaveAllocationForm!: FormGroup;
   incharges: any[] = [];
 
+  // Check if a document of specific type is uploaded
 
+  mandatoryDocStatus: {
+    required: string[];
+    missing: string[];
+  } = {
+      required: [],
+      missing: []
+    };
+
+  hasDocument(type: string): boolean {
+    return this.uploadedDocsForm.getRawValue()
+      .some((d: any) => d.type === type);
+  }
+
+  setFilteredTypesForIndex(index: number, category: string) {
+  this.filteredTypes[index] = this.documentTypes.filter(
+    d => d.category === category
+  );
+}
+
+  private autoAddMissingDocuments(): void {
+    const { missing } = this.getMandatoryDocs();
+
+    missing.forEach(type => {
+      // Skip if already exists
+      if (this.hasDocument(type)) return;
+
+      const meta = this.documentTypes.find(d => d.value === type);
+      if (!meta) return;
+
+      const group = this.createDocumentGroup();
+
+      // Auto-fill category & type
+      group.patchValue({
+        category: meta.category,
+        type: meta.value
+      });
+
+      // Lock auto-filled fields
+      group.get('category')?.disable({ emitEvent: false });
+      group.get('type')?.disable({ emitEvent: false });
+
+      // Add to form array
+      this.uploadedDocsForm.push(group);
+
+      // Maintain dropdown filtering
+      const index = this.uploadedDocsForm.length - 1;
+      this.filteredTypes[index] = this.documentTypes.filter(
+        t => t.category === meta.category
+      );
+    });
+  }
 
 
 
@@ -189,7 +241,7 @@ export class EmployeeForm {
       fixedShiftId: [''],
       inchargeId: [''],
 
-       preEmploymentCheckDate: [null, Validators.required],
+      preEmploymentCheckDate: [null, Validators.required],
 
       emergencyContacts: this.fb.array([]),
       qualifications: this.fb.array([]),
@@ -220,7 +272,6 @@ export class EmployeeForm {
       rotationStartDate: [''],                     // NEW
       shiftDate: [''],                              // keep (optional for fixed)
 
-      preEmploymentCheckDate: [null]
     });
 
     if (this.isProfileView) {
@@ -237,6 +288,7 @@ export class EmployeeForm {
         'employmentStatus',
         'reportingManager',
         'fixedShiftId',
+        'inchargeId',
         'shiftMode',
         'rotationPatternId',
         'rotationStartDate',
@@ -284,6 +336,8 @@ export class EmployeeForm {
     // Add new FormArrays
     this.employeeForm.addControl('healthIssues', this.fb.array([]));
     this.employeeForm.addControl('vaccinations', this.fb.array([]));
+    this.addVaccination(true); // ✅ only first row gets Hepatitis B
+
 
     // Auto-calc BMI
     this.employeeForm.get('weight')?.valueChanges.subscribe(() => this.updateBMI());
@@ -292,14 +346,14 @@ export class EmployeeForm {
     this.employeeForm.get('shiftMode')!.valueChanges.subscribe(mode => {
       this.applyShiftValidators(mode);
     });
-    this.addQualification();
+    this.addQualification(true);
     this.addEmergencyContact();
     this.loadDropdownData();
     this.loadReportingManagers();
     this.loadIncharges();
     this.uploadedDocsForm = this.fb.array([]);
     this.employeeForm.addControl('documents', this.uploadedDocsForm);
-    this.addDocument();
+    // this.addDocument();
     if (this.employeeData) {
       console.log(this.employeeData);
       this.patchForm(this.employeeData);
@@ -325,8 +379,20 @@ export class EmployeeForm {
     });
 
     this.employeeForm.get('employeeType')?.valueChanges.subscribe(() => {
-      this.getMandatoryDocs();
+      this.autoAddMissingDocuments();
+      this.mandatoryDocStatus = this.getMandatoryDocs();
     });
+
+    this.qualifications.valueChanges.subscribe(() => {
+      this.autoAddMissingDocuments();
+      this.mandatoryDocStatus = this.getMandatoryDocs();
+    });
+
+    setTimeout(() => {
+      this.autoAddMissingDocuments();
+      this.mandatoryDocStatus = this.getMandatoryDocs();
+    });
+
     this.leaveAllocationForm = this.fb.group({
       employeeId: ['', Validators.required],
       year: [new Date().getFullYear(), Validators.required],
@@ -429,10 +495,10 @@ export class EmployeeForm {
 
 
   // Add Vaccination
-  addVaccination() {
+  addVaccination(isFirst: boolean = false) {
     this.vaccinations.push(
       this.fb.group({
-        vaccineName: ['', Validators.required],
+        vaccineName: [isFirst ? 'HEP_B' : null, Validators.required],
         vaccinated: [null, Validators.required],
         firstDose: [null],
         secondDose: [null],
@@ -514,9 +580,16 @@ export class EmployeeForm {
 
 
   filterDocumentTypes(index: number) {
-    const category = this.uploadedDocsForm.at(index).get('category')?.value;
-    this.filteredTypes[index] = this.documentTypes.filter(t => t.category === category);
-  }
+  const category = this.uploadedDocsForm.at(index).get('category')?.value;
+  if (!category) return;
+
+  this.setFilteredTypesForIndex(index, category);
+
+  // reset type when category changes
+  this.uploadedDocsForm.at(index).get('type')?.reset();
+}
+
+
 
   loadDropdownData() {
     this.departmentService.getDepartments().subscribe(data => this.departments = data);
@@ -551,10 +624,10 @@ export class EmployeeForm {
     this.emergencyContacts.removeAt(index);
   }
 
-  addQualification() {
+  addQualification(isFirst: boolean = false) {
     this.qualifications.push(
       this.fb.group({
-        degree: ['', Validators.required],
+        degree: [isFirst ? 'SSLC' : null, Validators.required],
         institution: ['', Validators.required],
         year: ['', Validators.required],
         grade: [''],
@@ -891,8 +964,15 @@ export class EmployeeForm {
   }
 
   addDocument() {
-    this.uploadedDocsForm.push(this.createDocumentGroup());
-  }
+  const group = this.createDocumentGroup();
+  this.uploadedDocsForm.push(group);
+
+  const index = this.uploadedDocsForm.length - 1;
+
+  // initialize empty dropdown
+  this.filteredTypes[index] = [];
+}
+
 
   removeDocument(index: number) {
     this.uploadedDocsForm.removeAt(index);
@@ -943,7 +1023,7 @@ export class EmployeeForm {
   // }
   // Return both required and missing docs
   getMandatoryDocs(): { required: string[], missing: string[] } {
-    const uploadedDocs = this.uploadedDocsForm.value;
+    const uploadedDocs = this.uploadedDocsForm.getRawValue();
     const employeeType = this.employeeForm.get('employeeType')?.value;
 
     let mandatoryDocs: string[] = [];
@@ -960,7 +1040,7 @@ export class EmployeeForm {
     // Always required
     mandatoryDocs.push('AADHAAR', 'PAN', 'BANK');
 
-    // 🔹 Only qualifications entered in Step 3
+    // Only qualifications entered in Step 3
     (this.qualifications.value || []).forEach((q: any) => {
       switch (q.degree) {
         case 'SSLC': mandatoryDocs.push('SSLC'); break;

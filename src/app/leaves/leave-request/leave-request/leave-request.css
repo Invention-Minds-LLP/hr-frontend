@@ -698,3 +698,14 @@ section {
     transparent
   ) !important;
 }
+
+.spinner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.spinner-wrapper .pi {
+  font-size: 16px;
+}
