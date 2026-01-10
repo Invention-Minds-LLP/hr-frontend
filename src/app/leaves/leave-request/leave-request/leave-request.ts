@@ -419,13 +419,13 @@ export class LeaveRequest {
 
 
   confirmDecline() {
-    if (!this.declineReason.trim() || this.currentDeclineId === null) return;
+    if (!this.declineReason.trim()) return;
 
     this.currentDeclineId;
     this.declineLoading = true;
 
     this.leaveService.updateLeaveStatus(
-      this.currentDeclineId,
+      this.currentDeclineId!,
       'Declined',
       this.currentUserId,
       this.currentDeclineRole!,
