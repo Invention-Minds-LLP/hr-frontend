@@ -30,7 +30,7 @@
                                             <p-floatlabel variant="on">
                                                 <input id="firstName" pInputText formControlName="firstName"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('firstName'))}" />
-                                                <label for="firstName">First Name</label>
+                                                <label for="firstName">First Name *</label>
 
                                             </p-floatlabel>
 
@@ -43,7 +43,7 @@
                                             <p-floatlabel variant="on">
                                                 <input id="lastName" pInputText formControlName="lastName"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('lastName'))}" />
-                                                <label for="lastName">Last Name</label>
+                                                <label for="lastName">Last Name *</label>
                                             </p-floatlabel>
                                             <div class="error-msg" *ngIf="showError(employeeForm.get('lastName'))">
                                                 Last Name
@@ -57,7 +57,7 @@
                                                 <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
                                                     showIcon iconDisplay="input"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
-                                                <label for="dob">Date of Birth</label>
+                                                <label for="dob">Date of Birth *</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('dob'))">
                                                     Date of
                                                     Birth is
@@ -73,7 +73,7 @@
                                                 <p-select id="gender" [options]="genders" formControlName="gender"
                                                     optionLabel="label" optionValue="value"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('gender'))}"></p-select>
-                                                <label for="gender">Gender</label>
+                                                <label for="gender">Gender *</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('gender'))">
                                                     Gender
                                                     is required
@@ -86,7 +86,7 @@
 
                                                 <input id="email" pInputText formControlName="email"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('email'))}" />
-                                                <label for="email">Email</label>
+                                                <label for="email">Email *</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('email'))">
                                                     Email ID
                                                     is required
@@ -99,7 +99,7 @@
                                                 <input id="phone" pInputText formControlName="phone"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('phone'))}"
                                                     maxlength="10" />
-                                                <label for="phone">Phone</label>
+                                                <label for="phone">Phone *</label>
                                                 <div class="error-msg" *ngIf="showError(employeeForm.get('phone'))">
                                                     Phone
                                                     Number is
@@ -114,7 +114,7 @@
                                                     formControlName="bloodGroup" optionLabel="label" optionValue="value"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('bloodGroup'))}">
                                                 </p-select>
-                                                <label for="bloodGroup">Blood Group</label>
+                                                <label for="bloodGroup">Blood Group *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get('bloodGroup'))">
                                                     Blood Group is required
@@ -134,7 +134,7 @@
                                       { label: 'Non-clinical', value: 'NONCLINICAL' }
                                     ]" formControlName="employeeType"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('employeeType'))}"></p-select>
-                                                <label>Employee Type</label>
+                                                <label>Employee Type *</label>
                                             </p-floatLabel>
                                             <div class="error-msg" *ngIf="showError(employeeForm.get('employeeType'))">
                                                 Employee Type
@@ -151,7 +151,7 @@
                                             <p-floatlabel variant="on">
                                                 <input pInputText formControlName="line1"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','line1']))}" />
-                                                <label>Address Line 1</label>
+                                                <label>Address Line 1 *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get(['permanentAddress','line1']))">
                                                     Address is
@@ -162,7 +162,7 @@
                                             <p-floatlabel variant="on">
                                                 <input pInputText formControlName="city"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','city']))}" />
-                                                <label>City</label>
+                                                <label>City *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get(['permanentAddress','city']))">
                                                     City is required </div>
@@ -172,7 +172,7 @@
                                             <p-floatlabel variant="on">
                                                 <input pInputText formControlName="state"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','state']))}" />
-                                                <label>State</label>
+                                                <label>State *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get(['permanentAddress','state']))">
                                                     State
@@ -184,7 +184,7 @@
                                             <p-floatlabel variant="on">
                                                 <input pInputText formControlName="zipCode"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','zipCode']))}" />
-                                                <label>Zip Code</label>
+                                                <label>Zip Code *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get(['permanentAddress','zipCode']))">
                                                     zipCode id
@@ -195,7 +195,7 @@
                                             <p-floatlabel variant="on">
                                                 <input pInputText formControlName="country"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get(['permanentAddress','country']))}" />
-                                                <label>Country</label>
+                                                <label>Country *</label>
                                                 <div class="error-msg"
                                                     *ngIf="showError(employeeForm.get(['permanentAddress','country']))">
                                                     Country is
@@ -260,7 +260,7 @@
                                                             <input pInputText formControlName="name" id="emergencyName"
                                                                 placeholder=""
                                                                 [ngClass]="{ 'ng-invalid': showError(ec.get('name')) }" />
-                                                            <label>Name</label>
+                                                            <label>Name *</label>
                                                             <div class="error-msg" *ngIf="showError(ec.get('name'))">
                                                                 Name is required
                                                             </div>
@@ -272,7 +272,7 @@
                                                             <input pInputText formControlName="phone"
                                                                 id="emergencyPhone" placeholder=""
                                                                 [ngClass]="{ 'ng-invalid': showError(ec.get('phone')) }" />
-                                                            <label>Phone</label>
+                                                            <label>Phone *</label>
                                                             <div class="error-msg" *ngIf="showError(ec.get('phone'))">
                                                                 Phone Number is required
                                                             </div>
@@ -284,7 +284,7 @@
                                                             <input pInputText formControlName="relationship"
                                                                 id="emergencyRelationship" placeholder=""
                                                                 [ngClass]="{ 'ng-invalid': showError(ec.get('relationship')) }" />
-                                                            <label>Relationship</label>
+                                                            <label>Relationship *</label>
                                                             <div class="error-msg"
                                                                 *ngIf="showError(ec.get('relationship'))">
                                                                 Relationship is required
@@ -394,7 +394,7 @@
                                         <p-select [options]="designations" formControlName="designationId"
                                             optionLabel="name" optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designationId')) }"></p-select>
-                                        <label>Designation</label>
+                                        <label>Designation *</label>
                                     </p-floatLabel>
 
                                     <div class="error-msg" *ngIf="showError(employeeForm.get('designationId'))">
@@ -407,7 +407,7 @@
                                         <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon
                                             iconDisplay="input"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('dateOfJoining')) }"></p-datePicker>
-                                        <label>Date of Joining</label>
+                                        <label>Date of Joining *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('dateOfJoining'))">
                                             Date of Joining is required.
                                         </div>
@@ -418,7 +418,7 @@
                                         <p-select [options]="employmentTypes" formControlName="employmentType"
                                             optionLabel="label" optionValue="value"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentType')) }"></p-select>
-                                        <label>Employment Type</label>
+                                        <label>Employment Type *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('employmentType'))">
                                             Employment Type is required.
                                         </div>
@@ -431,7 +431,7 @@
                                             dateFormat="dd M yy" inputId="probEndDate" [showIcon]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
                                         </p-datepicker>
-                                        <label for="probEndDate">Probation End Date</label>
+                                        <label for="probEndDate">Probation End Date *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('probationEndDate'))">
                                             Probation end date is required.
                                         </div>
@@ -442,7 +442,7 @@
                                         <p-select [options]="employmentStatuses" formControlName="employmentStatus"
                                             optionLabel="label" optionValue="value"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentStatus')) }"></p-select>
-                                        <label>Employment Status</label>
+                                        <label>Employment Status *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('employmentStatus'))">
                                             Employment Status is required.
                                         </div>
@@ -453,7 +453,7 @@
                                         <p-select [options]="departments" formControlName="departmentId"
                                             optionLabel="name" optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('departmentId')) }"></p-select>
-                                        <label>Department</label>
+                                        <label>Department *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('departmentId'))">
                                             Department is required.
                                         </div>
@@ -464,7 +464,7 @@
                                         <p-select [options]="branches" formControlName="branchId" optionLabel="name"
                                             optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('branchId')) }"></p-select>
-                                        <label>Branch</label>
+                                        <label>Branch *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('branchId'))">
                                             Branch is required.
                                         </div>
@@ -475,7 +475,7 @@
                                         <p-select [options]="roles" formControlName="roleId" optionLabel="name"
                                             optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('roleId')) }"></p-select>
-                                        <label>Role</label>
+                                        <label>Role *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('roleId'))">
                                             Role is required.
                                         </div>
@@ -486,7 +486,7 @@
                                         <p-select [options]="reportingManagers" formControlName="reportingManager"
                                             optionLabel="label" optionValue="value"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('reportingManager')) }"></p-select>
-                                        <label>Reporting Manager</label>
+                                        <label>Reporting Manager *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('reportingManager'))">
                                             Reporting Manager is required.
                                         </div>
@@ -497,9 +497,9 @@
                                         <p-select [options]="incharges" formControlName="inchargeId" optionLabel="label"
                                             optionValue="value">
                                         </p-select>
-                                        <label>Incharge</label>
+                                        <label>Incharge *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('inchargeId'))">
-                                            Incharge     is required.
+                                            Incharge is required.
                                         </div>
                                     </p-floatLabel>
                                 </div>
@@ -510,7 +510,7 @@
                                         <p-select
                                             [options]="[{label:'General', value:'FIXED'},{label:'Rotational', value:'ROTATIONAL'}]"
                                             formControlName="shiftMode"></p-select>
-                                        <label>Shift Mode</label>
+                                        <label>Shift Mode *</label>
                                     </p-floatLabel>
                                 </div>
 
@@ -520,7 +520,7 @@
                                         <p-select [options]="shifts" formControlName="fixedShiftId" optionLabel="name"
                                             optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('fixedShiftId')) }"></p-select>
-                                        <label>Shift Template</label>
+                                        <label>Shift Template *</label>
                                     </p-floatLabel>
                                 </div>
 
@@ -529,7 +529,7 @@
                                     <p-floatLabel variant="on">
                                         <p-select [options]="patterns" formControlName="rotationPatternId"
                                             optionLabel="name" optionValue="id"></p-select>
-                                        <label>Rotation Pattern</label>
+                                        <label>Rotation Pattern *</label>
                                     </p-floatLabel>
                                 </div>
 
@@ -537,7 +537,7 @@
                                     <p-floatLabel variant="on">
                                         <p-datePicker formControlName="rotationStartDate" showIcon iconDisplay="input"
                                             dateFormat="yy-mm-dd"></p-datePicker>
-                                        <label>Rotation Start Date</label>
+                                        <label>Rotation Start Date *</label>
                                     </p-floatLabel>
                                 </div>
 
@@ -657,67 +657,86 @@
                     <p-step>Qualifications</p-step>
                     <p-step-panel>
                         <ng-template #content let-activateCallback="activateCallback">
-                            <!-- <div [hidden]="activeIndex !== 2" [class.active-step]="activeIndex === 2"> -->
+
                             <div formArrayName="qualifications" class="qualification">
                                 <div class="mb-5">
                                     <button pButton variant="outlined" type="button" label="+ Add Qualification"
-                                        (click)="addQualification()" class="p-button-secondary"></button>
+                                        (click)="addQualification()" class="p-button-secondary">
+                                    </button>
                                 </div>
+
                                 <div *ngFor="let q of qualifications.controls; let i = index" [formGroupName]="i"
                                     class="p-fluid grid mb-3 formgrid">
+
+                                    <!-- Qualification Type (REQUIRED) -->
                                     <div class="field col-5">
                                         <p-floatLabel variant="on">
                                             <p-select [options]="qualificationTypes" formControlName="degree"
-                                                optionLabel="label"
-                                                [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }"
-                                                optionValue="value">
+                                                optionLabel="label" optionValue="value"
+                                                [ngClass]="{ 'ng-invalid': showError(q.get('degree')) }">
                                             </p-select>
-                                            <label>Qualification Type</label>
+                                            <label>Qualification Type *</label>
                                         </p-floatLabel>
-                                        <div class="error-msg text-danger" *ngIf="showError(q.get('degree'))">Degree
-                                            is
-                                            required.
+
+                                        <div class="error-msg text-danger" *ngIf="showError(q.get('degree'))">
+                                            Qualification Type is required.
                                         </div>
                                     </div>
+
+                                    <!-- Degree Name -->
                                     <div class="field col-5"
                                         *ngIf="['BACHELOR','MASTER','OTHER'].includes(q.value.degree)">
                                         <p-floatLabel variant="on">
-                                            <input pInputText formControlName="degreeName"
-                                                placeholder="Degree Name (e.g., B.Tech, MBA)" />
+                                            <input pInputText formControlName="degreeName" />
                                             <label>Degree Name</label>
                                         </p-floatLabel>
                                     </div>
 
+                                    <!-- Institution (REQUIRED) -->
                                     <div class="field col-5">
-                                        <input pInputText formControlName="institution" placeholder="Institution"
-                                            [ngClass]="{ 'ng-invalid': showError(q.get('institution')) }" />
+                                        <p-floatLabel variant="on">
+                                            <input pInputText formControlName="institution"
+                                                [ngClass]="{ 'ng-invalid': showError(q.get('institution')) }" />
+                                            <label>Institution *</label>
+                                        </p-floatLabel>
+
                                         <div class="error-msg text-danger" *ngIf="showError(q.get('institution'))">
-                                            Institution is
-                                            required.</div>
+                                            Institution is required.
+                                        </div>
                                     </div>
 
+                                    <!-- Year (REQUIRED) -->
                                     <div class="field col-5">
-                                        <input pInputText type="number" formControlName="year" placeholder="Year"
-                                            [ngClass]="{ 'ng-invalid': showError(q.get('year')) }" />
+                                        <p-floatLabel variant="on">
+                                            <input pInputText type="number" formControlName="year"
+                                                [ngClass]="{ 'ng-invalid': showError(q.get('year')) }" />
+                                            <label>Year *</label>
+                                        </p-floatLabel>
+
                                         <div class="error-msg text-danger" *ngIf="showError(q.get('year'))">
                                             Year is required.
                                         </div>
                                     </div>
 
+                                    <!-- Grade (OPTIONAL) -->
                                     <div class="field col-5">
-                                        <input pInputText type="text" formControlName="grade" placeholder="Grade" />
+                                        <p-floatLabel variant="on">
+                                            <input pInputText type="text" formControlName="grade" />
+                                            <label>Grade</label>
+                                        </p-floatLabel>
                                     </div>
 
-
+                                    <!-- Remove -->
                                     <div class="field col-5 trash-btn">
-                                        <button variant="outlined" severity="danger" pButton type="button"
-                                            icon="pi pi-trash" (click)="removeQualification(i)"
-                                            class="p-button-danger p-button-rounded p-button-text">
+                                        <button pButton variant="outlined" severity="danger" icon="pi pi-trash"
+                                            type="button" (click)="removeQualification(i)"
+                                            class="p-button-rounded p-button-text">
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
-                            <!-- </div> -->
+
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(2)" />
                                 <p-button label="Next" (onClick)="goToStep(4, activateCallback)" />
@@ -728,6 +747,8 @@
                 </p-step-item>
 
 
+                <!-- Step 4: Documents -->
+
                 <p-step-item [value]="4">
                     <p-step>Documents</p-step>
                     <p-step-panel>
@@ -735,11 +756,12 @@
                             <div class="mandatory-note">
                                 <strong>Note:</strong> The following documents are mandatory based on employee type:
                                 <ul>
-                                    <li *ngFor="let doc of getMandatoryDocs().required">
+                                    <li *ngFor="let doc of mandatoryDocStatus.required">
                                         {{ doc }}
-                                        <span *ngIf="getMandatoryDocs().missing.includes(doc)"
-                                            class="missing">(Missing)</span>
+                                        <!-- <span *ngIf="mandatoryDocStatus.missing.includes(doc)"
+                                            class="missing">(Missing)</span> -->
                                     </li>
+
                                 </ul>
                             </div>
 
@@ -763,7 +785,7 @@
                                                 (onChange)="filterDocumentTypes(i)"
                                                 [ngClass]="{'ng-invalid':showError(doc.get('category'))}">
                                             </p-select>
-                                            <label>Category</label>
+                                            <label>Category *</label>
                                             <div class="error-msg" *ngIf="showError(doc.get('category'))">Category
                                                 is
                                                 required.
@@ -778,7 +800,7 @@
                                                 optionLabel="label" optionValue="value"
                                                 [ngClass]="{'ng-invalid':showError(doc.get('type'))}">
                                             </p-select>
-                                            <label>Document Type</label>
+                                            <label>Document Type *</label>
                                             <div class="error-msg" *ngIf="showError(doc.get('type'))">Document Type
                                                 is
                                                 required
@@ -815,7 +837,7 @@
                                   }}" [attr.data-file-name]="
                                     uploadedDocsForm.at(i).value.file?.name ||
                                     uploadedDocsForm.at(i).value.fileUrl?.split('/').pop() ||
-                                    'Choose File'
+                                    'Choose File *'
                                   " (change)="onDocumentSelect($event, i)"
                                                 [ngClass]="{ 'ng-invalid': showError(doc.get('file')) }" />
                                             <i class="pi pi-upload"></i>
@@ -879,7 +901,7 @@
                                     <p-datePicker id="preEmploymentCheckDate" formControlName="preEmploymentCheckDate"
                                         showIcon iconDisplay="input" dateFormat="yy-mm-dd"
                                         [ngClass]="{'ng-invalid': showError(employeeForm.get('preEmploymentCheckDate'))}"></p-datePicker>
-                                    <label>Pre-Employment Check Date</label>
+                                    <label>Pre-Employment Check Date *</label>
                                     <div class="error-msg"
                                         *ngIf="showError(employeeForm.get('preEmploymentCheckDate'))">
                                         Date of
@@ -1072,6 +1094,9 @@
 
                             <!-- Health Issues -->
                             <div class="heading mb-2 mt-3">Health Issues</div>
+                            <div class="mandatory-note">
+                                <strong>Note:</strong> Please add at least one health issue.
+                            </div>
                             <div formArrayName="healthIssues">
                                 <div class="mb-3">
                                     <button pButton type="button" label="+ Add Health Issue" class="p-button-secondary"
@@ -1112,6 +1137,9 @@
 
                             <!-- Vaccination History -->
                             <div class="heading mb-2 mt-4">Vaccination History</div>
+                            <div class="mandatory-note">
+                                <strong>Note:</strong> Please add Hepatitis B vaccination.
+                            </div>
 
                             <div formArrayName="vaccinations">
                                 <div class="mb-3">
@@ -1125,7 +1153,7 @@
                                     <div class="field col-4">
                                         <p-floatLabel variant="on">
                                             <p-select [options]="availableVaccines" formControlName="vaccineName"
-                                                inputId="vaccineName{{i}}">
+                                                optionLabel="label" optionValue="value" inputId="vaccineName{{i}}">
                                             </p-select>
                                             <label for="vaccineName{{i}}">Vaccine</label>
                                         </p-floatLabel>

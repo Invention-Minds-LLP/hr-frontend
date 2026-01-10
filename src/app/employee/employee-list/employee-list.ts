@@ -36,6 +36,13 @@ export class EmployeeList {
 
   constructor(private employeeService: Employees, private departmentService: Departments, private branchService: Branches, private roleService: Roles, private shiftService: Shifts) { }
 
+  // Logged-in user details
+  loginDeptId = Number(localStorage.getItem('deptId'));
+  loginEmpId = Number(localStorage.getItem('empId'));
+  loginRole = (localStorage.getItem('role') || '').toUpperCase();
+  
+
+
   employee: any[] = [];
   departments: any[] = [];
   branches: any[] = [];
@@ -59,6 +66,8 @@ export class EmployeeList {
   showCalendar = false;
   selectedEmployee: any = null;
   searchSubject = new Subject<string>();
+
+  loadingRows: { [key: number]: boolean } = {}; // key = employee.id
 
 
 
@@ -92,15 +101,15 @@ export class EmployeeList {
         this.loadEmployees();
       });
 
-        this.shiftService.getShiftTemplates().subscribe(res => {
-    this.shiftOptions = res.map((s: any) => ({
-      ...s,
-      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-    }));
-  });
+    this.shiftService.getShiftTemplates().subscribe(res => {
+      this.shiftOptions = res.map((s: any) => ({
+        ...s,
+        label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+      }));
+    });
 
-  this.shiftService.getRotationPatterns()
-    .subscribe(res => this.rotationPatterns = res);
+    this.shiftService.getRotationPatterns()
+      .subscribe(res => this.rotationPatterns = res);
 
   }
   page = 1;
@@ -128,12 +137,12 @@ export class EmployeeList {
   }
 
   private formatTime(date: string | Date) {
-  return new Date(date).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
-}
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
 
 
   onPageChange(event: any) {
@@ -189,15 +198,42 @@ export class EmployeeList {
     return this.shifts.find(shifts => shifts.id === id)?.name || 'N/A'
   }
   openEdit(employee: any) {
+    this.loadingRows[employee.id] = true;
     this.employeeService.getEmployeeById(employee.id).subscribe({
       next: (data: any) => {
         this.editEmployee.emit(data);
+        this.loadingRows[employee.id] = false;
       },
       error: (err) => {
         console.error('Error fetching employee details:', err);
+        this.loadingRows[employee.id] = false;
       }
     });
   }
+
+  // Disable edit if same deptId and roleId as logged-in userF
+  isEditDisabled(emp: any): boolean {
+
+  // Nobody can edit himself (including HR Manager)
+  if (this.loginEmpId === Number(emp.id)) {
+    return true;
+  }
+
+  // HR Manager can edit other HR employees
+  if (this.loginRole === 'HR MANAGER') {
+    return false;
+  }
+
+  // Others cannot edit same department
+  if (this.loginDeptId === Number(emp.departmentId)) {
+    return true;
+  }
+
+  // ✅ All other cases allowed
+  return false;
+}
+
+
 
   // onSearch(event: Event) {
   //   if (!this.selectedFilter) return;
@@ -454,76 +490,76 @@ export class EmployeeList {
     this.showCalendar = true;
   }
 
-assignmentEditVisible = false;
-modeEditVisible = false;
+  assignmentEditVisible = false;
+  modeEditVisible = false;
 
 
 
-selectedShiftId!: number;
-selectedFixedShiftId!: number;
-selectedMode!: 'FIXED' | 'ROTATIONAL';
-selectedPatternId!: number;
-rotationStartDate!: Date;
+  selectedShiftId!: number;
+  selectedFixedShiftId!: number;
+  selectedMode!: 'FIXED' | 'ROTATIONAL';
+  selectedPatternId!: number;
+  rotationStartDate!: Date;
 
-shiftModes = [
-  { label: 'Fixed', value: 'FIXED' },
-  { label: 'Rotational', value: 'ROTATIONAL' }
-];
+  shiftModes = [
+    { label: 'Fixed', value: 'FIXED' },
+    { label: 'Rotational', value: 'ROTATIONAL' }
+  ];
 
-shiftOptions: any[] = [];
-rotationPatterns: any[] = [];
+  shiftOptions: any[] = [];
+  rotationPatterns: any[] = [];
 
-openAssignmentEdit(emp: any) {
-  this.selectedEmployee = emp;
-  this.selectedShiftId = emp.shiftId || emp.latestShiftAssignment?.shiftId;
-  this.assignmentEditVisible = true;
-}
-
-openModeEdit(emp: any) {
-  this.selectedEmployee = emp;
-
-  const setting = emp.EmployeeShiftSetting;
-
-  this.selectedMode = setting?.mode || 'FIXED';
-  this.selectedFixedShiftId = setting?.fixedShiftId;
-  this.selectedPatternId = setting?.rotationPatternId;
-  this.rotationStartDate = setting?.startDate
-    ? new Date(setting.startDate)
-    : new Date();
-
-  this.modeEditVisible = true;
-}
-updateShift() {
-  this.shiftService
-    .updateEmployeeShift(this.selectedEmployee.id, this.selectedShiftId)
-    .subscribe(() => {
-      this.assignmentEditVisible = false;
-      this.loadEmployees();
-    });
-}
-
-saveShiftMode() {
-  const employeeId = this.selectedEmployee.id;
-
-  if (this.selectedMode === 'FIXED') {
-    this.shiftService.assignFixedShift({
-      employeeId,
-      shiftId: this.selectedFixedShiftId
-    }).subscribe(() => this.afterSave());
+  openAssignmentEdit(emp: any) {
+    this.selectedEmployee = emp;
+    this.selectedShiftId = emp.shiftId || emp.latestShiftAssignment?.shiftId;
+    this.assignmentEditVisible = true;
   }
 
-  if (this.selectedMode === 'ROTATIONAL') {
-    this.shiftService.assignRotational({
-      employeeId,
-      patternId: this.selectedPatternId,
-      startDate: this.rotationStartDate.toISOString().slice(0, 10)
-    }).subscribe(() => this.afterSave());
-  }
-}
+  openModeEdit(emp: any) {
+    this.selectedEmployee = emp;
 
-afterSave() {
-  this.modeEditVisible = false;
-  this.loadEmployees();
-}
+    const setting = emp.EmployeeShiftSetting;
+
+    this.selectedMode = setting?.mode || 'FIXED';
+    this.selectedFixedShiftId = setting?.fixedShiftId;
+    this.selectedPatternId = setting?.rotationPatternId;
+    this.rotationStartDate = setting?.startDate
+      ? new Date(setting.startDate)
+      : new Date();
+
+    this.modeEditVisible = true;
+  }
+  updateShift() {
+    this.shiftService
+      .updateEmployeeShift(this.selectedEmployee.id, this.selectedShiftId)
+      .subscribe(() => {
+        this.assignmentEditVisible = false;
+        this.loadEmployees();
+      });
+  }
+
+  saveShiftMode() {
+    const employeeId = this.selectedEmployee.id;
+
+    if (this.selectedMode === 'FIXED') {
+      this.shiftService.assignFixedShift({
+        employeeId,
+        shiftId: this.selectedFixedShiftId
+      }).subscribe(() => this.afterSave());
+    }
+
+    if (this.selectedMode === 'ROTATIONAL') {
+      this.shiftService.assignRotational({
+        employeeId,
+        patternId: this.selectedPatternId,
+        startDate: this.rotationStartDate.toISOString().slice(0, 10)
+      }).subscribe(() => this.afterSave());
+    }
+  }
+
+  afterSave() {
+    this.modeEditVisible = false;
+    this.loadEmployees();
+  }
 
 }
