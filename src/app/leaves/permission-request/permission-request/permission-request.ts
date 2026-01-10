@@ -285,13 +285,13 @@ export class PermissionRequest {
       return;
     }
 
-    const id = this.currentDeclineId!;
+    this.currentDeclineId!;
     this.declineLoading = true;
 
     const userId = Number(localStorage.getItem('userId')) || 1;
 
     this.permissionService.updatePermissionStatus(
-      id,
+      this.currentDeclineId!,
       'REJECTED',
       userId,
       this.currentDeclineRole!,
