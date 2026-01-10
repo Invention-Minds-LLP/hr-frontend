@@ -27,7 +27,7 @@
 
             <div class="form-group">
                 <label>Select Day :</label>
-                <input type="date" [(ngModel)]="day" />
+                <input type="date" [(ngModel)]="day"  (change)="checkPermissionBalance()"/>
             </div>
             <!-- <div class="date-wrapper">
                 <input type="date" [(ngModel)]="day" />
@@ -70,3 +70,5 @@
         </div>
     </div>
 </div>
+
+<p-toast></p-toast>

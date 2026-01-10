@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 50px;
+  /* padding: 0 50px; */
 }
 
 .filters {
@@ -65,6 +65,10 @@
 }
 
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
 
 
 .header {
@@ -454,7 +458,7 @@ hr {
   font-size: 16px;
   font-weight: 500;
   color: white;
-  text-align: left;
+  text-align: center;
   border: none !important;
   border-bottom: 2px solid #d9d9d9 !important;
   text-wrap: nowrap;
@@ -488,6 +492,16 @@ hr {
 
 ::ng-deep .p-datepicker{
     width: 100% !important;
+}
+::ng-deep .p-datepicker input{
+    background: #000 !important;
+    color: white !important;
+    font-family: "Sofia Sans";
+    width: 100% !important;
+
+    border-radius: 8px !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
 }
 
 .btns {
@@ -798,6 +812,7 @@ font-size: 26px;
 font-style: normal;
 font-weight: 600;
 line-height: normal;
+margin-top: 0;
 /* margin: 3px; */
 }
 

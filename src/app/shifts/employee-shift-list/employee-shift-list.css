@@ -486,6 +486,30 @@ hr {
   padding: 5px;
 } */
 
+::ng-deep .p-datepicker{
+    width: 100% !important;
+}
+
+::ng-deep .p-datepicker input{
+    background: #000 !important;
+    color: white !important;
+    font-family: "Sofia Sans";
+    width: 100% !important;
+
+    border-radius: 8px !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
+}
+
+::ng-deep .p-inputtext {
+    background: #000 !important;
+    color: white !important;
+    font-family: "Sofia Sans";
+    border-radius: 8px !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
+}
+
 .btns {
   display: flex;
   gap: 20px;

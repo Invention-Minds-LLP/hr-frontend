@@ -1,0 +1,100 @@
+<p-card class="leave-request">
+    <div class="table-header">
+        <h3>Shift Change Requests</h3>
+    </div>
+
+    <p-table [value]="approvals">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th>No.</th>
+                <th>Employee</th>
+                <th>Requested By</th>
+                <th>Mode</th>
+                <th>Shift / Pattern</th>
+                <th>Start</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-a let-i="rowIndex">
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ a.employee.firstName }} {{ a.employee.lastName }}</td>
+                <td>{{ a.requestedByEmployee.firstName }}</td>
+                <td>{{ a.requestedMode }}</td>
+                <td>
+                    {{ a.fixedShift?.name || a.pattern?.name }}
+                </td>
+                <td>{{ a.startDate | date }}</td>
+                <td>
+                    <p-tag [value]="getShiftStatusLabel(a)"></p-tag>
+
+                </td>
+                <!-- <td>
+          <button pButton icon="pi pi-check" (click)="approve(a)"></button>
+          <button pButton icon="pi pi-times" class="p-button-danger" (click)="reject(a)"></button>
+        </td> -->
+                <td>
+                    <div class="btns">
+
+                        <!-- LEVEL 1 (RM) -->
+                        <button *ngIf="showShiftLevel1Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL1')">
+                            Approve
+                        </button>
+
+                        <!-- <button *ngIf="showShiftLevel1Approve(a)" class="btn-2 btn" (click)="rejectShift(a, 'LEVEL1')">
+                            Decline
+                        </button> -->
+                        <button *ngIf="showShiftLevel1Approve(a)" class="btn-2 btn"
+                            (click)="openDeclineDialog(a.id, 'LEVEL1')">
+                            Decline
+                        </button>
+
+
+                        <!-- LEVEL 2 (HR) -->
+                        <button *ngIf="showShiftLevel2Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL2')">
+                            Approve
+                        </button>
+
+                        <!-- <button *ngIf="showShiftLevel2Approve(a)" class="btn-2 btn" (click)="rejectShift(a, 'LEVEL2')">
+                            Decline
+                        </button> -->
+                        <button *ngIf="showShiftLevel2Approve(a)" class="btn-2 btn"
+                            (click)="openDeclineDialog(a.id, 'LEVEL2')">
+                            Decline
+                        </button>
+
+
+
+                    </div>
+                </td>
+
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" style="text-align:center; color: #fff;">
+                    <!-- <p-tag severity="info" value="No Shift Change Requests Found"></p-tag> -->
+                    No Shift Change Requests Found
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+</p-card>
+
+
+<div class="custom-popup" *ngIf="declineDialogVisible">
+    <div class="popup-content">
+        <h3>Shift Request Decline Reason</h3>
+        <hr>
+        <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+        <div class="popup-actions">
+            <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
+            <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div>
+    </div>
+</div>

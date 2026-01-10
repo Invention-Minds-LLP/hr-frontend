@@ -9,7 +9,7 @@ import { environment } from '../../../environment/environment.prod';
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
   | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'|
-   'annAck' | 'annAckPending' | 'otPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'resignations' | 'interviewsToday';
+   'annAck' | 'annAckPending' | 'otPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'resignations' | 'interviewsToday' | 'ahc';
 
 
    export interface ListRow {

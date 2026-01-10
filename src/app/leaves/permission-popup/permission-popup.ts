@@ -3,10 +3,11 @@ import { Permission } from '../../services/permission/permission';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { Toast, ToastModule } from "primeng/toast";
 
 @Component({
   selector: 'app-permission-popup',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ToastModule],
   templateUrl: './permission-popup.html',
   styleUrl: './permission-popup.css'
 })
@@ -28,7 +29,7 @@ export class PermissionPopup {
   declineReason: string = '';
   isLoading = false;
 
-  constructor(private permissionService: Permission, private messageService : MessageService) { }
+  constructor(private permissionService: Permission, private messageService: MessageService) { }
 
 
   ngOnInit() {
@@ -47,6 +48,7 @@ export class PermissionPopup {
       this.declineReason = this.permissionData.declineReason || ''
 
     }
+    this.loadMonthlyPermissionUsage();
   }
 
   /** Submit Permission Request */
@@ -93,7 +95,7 @@ export class PermissionPopup {
       return;
     }
 
-    if(!this.reason){
+    if (!this.reason) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Warning',
@@ -101,6 +103,8 @@ export class PermissionPopup {
       });
       return;
     }
+
+    if (!this.validatePermission()) return;
 
     // Build payload
     const payload: any = {
@@ -161,19 +165,30 @@ export class PermissionPopup {
     return `${hh}:${mm}`;
   }
   remainingPermission = 0;
+  usedPermissionHours = 0;
+  maxPermissionHours = 2;
+
+  loadMonthlyPermissionUsage() {
+    this.permissionService
+      .getMonthlyPermissionUsage(Number(this.employeeId))
+      .subscribe(res => {
+        this.usedPermissionHours = res.usedHours;
+        this.maxPermissionHours = res.maxHours;
+      });
+  }
 
   checkPermissionBalance() {
     const year = new Date(this.day).getFullYear();
     const type = this.permissionType;
-  
+
     this.permissionService.getPermissionBalance(Number(this.employeeId), year)
       .subscribe((balances: any) => {
-        const bal = balances.find((b:any) => b.permissionType === type);
-  
+        const bal = balances.find((b: any) => b.permissionType === type);
+
         if (!bal) return;
-  
+
         this.remainingPermission = bal.remaining;
-  
+
         if (bal.remaining <= 0) {
           this.messageService.add({
             severity: 'error',
@@ -184,5 +199,54 @@ export class PermissionPopup {
         }
       });
   }
-  
+  validatePermission(): boolean {
+    const from = this.combineDateAndTime(
+      new Date(this.day),
+      this.startTime
+    );
+
+    const to = this.combineDateAndTime(
+      new Date(this.day),
+      this.endTime
+    );
+
+    const requestedHours =
+      (to.getTime() - from.getTime()) / (1000 * 60 * 60);
+
+    console.log(requestedHours)
+
+    if (requestedHours <= 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid Time',
+        detail: 'End time must be after start time'
+      });
+      return false;
+    }
+
+    const totalAfterRequest =
+      this.usedPermissionHours + requestedHours;
+    console.log(totalAfterRequest)
+
+    if (totalAfterRequest > this.maxPermissionHours) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Permission Limit Exceeded',
+        detail: `You already used ${this.usedPermissionHours} hrs this month.
+Only ${(this.maxPermissionHours - this.usedPermissionHours).toFixed(2)} hr(s) remaining.`
+      });
+      return false;
+    }
+
+    return true;
+  }
+  private combineDateAndTime(date: Date, time: string): Date {
+    const [hours, minutes] = time.split(':').map(Number);
+
+    const result = new Date(date);
+    result.setHours(hours, minutes, 0, 0);
+
+    return result;
+  }
+
 }

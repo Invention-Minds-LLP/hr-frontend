@@ -30,94 +30,172 @@
                 </ul>
             </div> -->
     </div>
-<!-- </div> -->
-<div class="table">
-    <p-table [value]="loading ? [1, 2, 3, 4, 5] : filterBalancesData" [paginator]="true" [rows]="10"
-        class="custom-table">
+    <!-- </div> -->
+    <div class="table">
+        <p-table [value]="loading ? [1, 2, 3, 4, 5] : filterBalancesData" [paginator]="true" [rows]="10"
+            class="custom-table">
 
-        <ng-template pTemplate="header">
-            <tr>
-                <th>No</th>
-                <th>Emp ID</th>
-                <th>Employee Name</th>
-                <th>Phone Number</th>
-                <th>Department</th>
-                <th>Job Title</th>
-                <th>Shift Type</th>
-                <th>Total Leave Taken</th>
-                <th>Total Perm. Taken</th>
-                <th>Action</th>
-            </tr>
-        </ng-template>
-
-        <!-- Body -->
-        <ng-template pTemplate="body" let-balancesData let-rowIndex="rowIndex">
-
-            <ng-container *ngIf="loading; else dataRow">
+            <ng-template pTemplate="header">
                 <tr>
-                    <td><p-skeleton width="2rem"></p-skeleton></td>
-                    <td><p-skeleton width="4rem"></p-skeleton></td>
-
-                    <td>
-                        <div class="profile-skeleton">
-                            <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
-                            <div class="profile-text">
-                                <p-skeleton width="100px" styleClass="mb-1"></p-skeleton>
-                                <p-skeleton width="80px"></p-skeleton>
-                            </div>
-                        </div>
-                    </td>
-
-                    <td><p-skeleton width="6rem"></p-skeleton></td>
-                    <td><p-skeleton width="8rem"></p-skeleton></td>
-                    <td><p-skeleton width="7rem"></p-skeleton></td>
-                    <td><p-skeleton width="6rem"></p-skeleton></td>
-                    <td><p-skeleton width="6rem"></p-skeleton></td>
-                    <td><p-skeleton width="6rem"></p-skeleton></td>
-                    <td><p-skeleton width="5rem"></p-skeleton></td>
-                </tr>
-            </ng-container>
-
-            <ng-template #dataRow>
-                <tr>
-                    <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ balancesData.employeeCode }}</td>
-                    <td class="empname">
-                        <img class="image" src="/img.png" alt="" />
-                        <div>
-                            <div class="name">{{ balancesData.name }}</div>
-                            <span class="email">{{ balancesData.email }}</span>
-                        </div>
-                    </td>
-                    <td class="t-data al">{{ balancesData.phone }}</td>
-                    <td class="t-data al">
-                        <span class="dept-badge" [ngStyle]="{
-                backgroundColor: getDepartmentColors(balancesData.department).badgeColor}">
-                            <span class="dot" [ngStyle]="{
-                  backgroundColor: getDepartmentColors(balancesData.department).dotColor}"></span>
-                            {{ getDepartmentName(balancesData.department) }}
-                        </span>
-                    </td>
-                    <td class="t-data al">{{ balancesData.designation }}</td>
-                    <td class="t-data al">{{ balancesData.shiftType }}</td>
-                    <td class="t-data al">{{ balancesData.totalLeaveDays }}</td>
-                    <td class="t-data al">{{ balancesData.totalPermissionHours }}</td>
-                    <td>
-                        <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
-                    </td>
+                    <th>No</th>
+                    <th>Emp ID</th>
+                    <th>Employee Name</th>
+                    <th>Phone Number</th>
+                    <th>Department</th>
+                    <th>Job Title</th>
+                    <th>Shift Type</th>
+                    <th>Total Leave Taken</th>
+                    <th>Total Perm. Taken</th>
+                    <th>Action</th>
                 </tr>
             </ng-template>
-        </ng-template>
-    </p-table>
-</div>
 
-<!-- Modal for Details -->
-<div *ngIf="selectedEmployee" class="modal-overlay">
-    <app-employee-details [employee]="selectedEmployee" (close)="handleClose()"></app-employee-details>
-</div>
+            <!-- Body -->
+            <ng-template pTemplate="body" let-balancesData let-rowIndex="rowIndex">
+
+                <ng-container *ngIf="loading; else dataRow">
+                    <tr>
+                        <td><p-skeleton width="2rem"></p-skeleton></td>
+                        <td><p-skeleton width="4rem"></p-skeleton></td>
+
+                        <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+                                <div class="profile-text">
+                                    <p-skeleton width="100px" styleClass="mb-1"></p-skeleton>
+                                    <p-skeleton width="80px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="8rem"></p-skeleton></td>
+                        <td><p-skeleton width="7rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="6rem"></p-skeleton></td>
+                        <td><p-skeleton width="5rem"></p-skeleton></td>
+                    </tr>
+                </ng-container>
+
+                <ng-template #dataRow>
+                    <tr>
+                        <td class="t-data al">{{ rowIndex + 1 }}</td>
+                        <td class="t-data al">{{ balancesData.employeeCode }}</td>
+                        <td class="empname">
+                            <img class="image" src="/img.png" alt="" />
+                            <div>
+                                <div class="name">{{ balancesData.name }}</div>
+                                <span class="email">{{ balancesData.email }}</span>
+                            </div>
+                        </td>
+                        <td class="t-data al">{{ balancesData.phone }}</td>
+                        <td class="t-data al">
+                            <span class="dept-badge" [ngStyle]="{
+                backgroundColor: getDepartmentColors(balancesData.department).badgeColor}">
+                                <span class="dot" [ngStyle]="{
+                  backgroundColor: getDepartmentColors(balancesData.department).dotColor}"></span>
+                                {{ getDepartmentName(balancesData.department) }}
+                            </span>
+                        </td>
+                        <td class="t-data al">{{ balancesData.designation }}</td>
+                        <td class="t-data al">{{ balancesData.shiftType }}</td>
+                        <td class="t-data al">{{ balancesData.totalLeaveDays }}</td>
+                        <td class="t-data al">{{ balancesData.totalPermissionHours }}</td>
+                        <td>
+                            <div class="button">
+                                <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
+                                <button class="btn" (click)="openBalanceDialog(balancesData)">Edit Balance</button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Modal for Details -->
+    <div *ngIf="showDetailsDialog" class="modal-overlay">
+        <app-employee-details [employee]="selectedEmployee" (close)="handleClose()"></app-employee-details>
+    </div>
 
 </div>
 <!-- 
 <div *ngIf="selectedEmployee" class="modal-overlay">
     <app-employee-details [employee]="selectedEmployee" (close)="handleClose()"></app-employee-details>
 </div> -->
+
+<p-dialog header="Update Leave Balance" [(visible)]="showBalanceDialog" [modal]="true" [style]="{ width: '50vw' }"
+    (onHide)="showBalanceDialog = false" [closable]="false">
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Update Leave Balance</span>
+
+            <button class="dialog-close-btn" (click)="showBalanceDialog = false">
+                ✕
+            </button>
+        </div>
+    </ng-template>
+    <form *ngIf="balanceForm" [formGroup]="balanceForm">
+
+        <div class="balance-heading">Leaves</div>
+        <div formArrayName="leaves">
+            <!-- <div *ngFor="let l of leaves.controls; let i=index" [formGroupName]="i">
+                <label>{{ l.value.type }}</label>
+
+                <input pInputText type="number" class="dialog-input" formControlName="totalAllowed" (input)="calculateRemaining(l)" />
+
+                <input pInputText type="number" class="dialog-input" formControlName="used" (input)="calculateRemaining(l)" />
+
+                <small>
+                    Remaining: {{ l.get('remaining')?.value }}
+                </small>
+
+
+            </div> -->
+            <div class="balance-row" *ngFor="let l of leaves.controls; let i=index" [formGroupName]="i">
+
+                <div class="type">{{ l.value.type }}</div>
+
+                <input pInputText type="number" formControlName="totalAllowed" placeholder="Total"
+                    (input)="calculateRemaining(l)" />
+
+                <input pInputText type="number" formControlName="used" placeholder="Used"
+                    (input)="calculateRemaining(l)" />
+
+                <div class="remaining">
+                    Remaining: {{ l.get('remaining')?.value }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-3 balance-heading">Permissions</div>
+        <div formArrayName="permissions">
+            <div class="balance-row" *ngFor="let p of permissions.controls; let i=index" [formGroupName]="i">
+
+                <div class="type">{{ p.value.type }}</div>
+
+                <input pInputText type="number" formControlName="totalAllowed" placeholder="Total"
+                    (input)="calculateRemaining(p)" />
+
+                <input pInputText type="number" formControlName="used" placeholder="Used"
+                    (input)="calculateRemaining(p)" />
+
+                <div class="remaining">
+                    Remaining: {{ p.get('remaining')?.value }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="flex justify-content-end mt-4">
+            <button pButton label="Save" [loading]="isLoading" [label]="isLoading ? 'Saving' : 'Save'"
+                (click)="saveBalances()"></button>
+        </div>
+
+    </form>
+</p-dialog>

@@ -38,9 +38,15 @@ export class Permission {
     });
   }
   
-  getPermissionBalance(employeeId: number, year: number) {
+  getPermissionBalance(employeeId: number, year: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
   }
   
-  
+  getMonthlyPermissionUsage(employeeId: number) {
+  return this.http.get<{
+    usedHours: number;
+    maxHours: number;
+  }>(`${this.apiUrl}/monthly-usage/${employeeId}`);
+}
+
 }

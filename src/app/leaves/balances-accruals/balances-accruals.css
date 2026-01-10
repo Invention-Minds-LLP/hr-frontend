@@ -9,7 +9,7 @@
 
 .header {
     display: flex;
-    justify-content:end;
+    justify-content: end;
     align-items: center;
     height: 0;
 }
@@ -37,10 +37,10 @@
     margin-top: 20px;
     padding: 20px;
 } */
-.image{
+.image {
     width: 50px;
     height: 50px;
-  }
+}
 
 .empname {
     display: flex;
@@ -51,7 +51,7 @@
 }
 
 .name {
-    color:white;
+    color: white;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -164,7 +164,7 @@
 }
 
 ::ng-deep .balances-accruals .p-datatable .p-datatable-tbody>tr>td {
-    padding: 20px 30px;
+    padding: 10px 20px;
     background: #000 !important;
     border: none !important;
     border-bottom: 2px solid #D9D9D9 !important;
@@ -193,7 +193,12 @@
     border-bottom-right-radius: 10px;
 }
 
-
+.button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
 
 .btn {
     border-radius: 8px;
@@ -322,25 +327,25 @@
 
 
 .filter {
-  color: #9b9b9b;
-  font-size: 18px;
-  font-family: "Sofia Sans";
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: 0.18px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 6px 14px;
-  background-color: white !important;
-  cursor: pointer;
-  width: 50px;
-  height: 44px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  z-index: 100;
+    color: #9b9b9b;
+    font-size: 18px;
+    font-family: "Sofia Sans";
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.18px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 6px 14px;
+    background-color: white !important;
+    cursor: pointer;
+    width: 50px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
 }
 
 
@@ -380,25 +385,129 @@
 }
 
 .profile-skeleton {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
 }
 
 .profile-avatar {
-  border-radius: 50%;
+    border-radius: 50%;
 }
 
 .profile-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
 :host ::ng-deep .p-skeleton {
-  background-color: #ced6d7 !important; /* Light teal background */
+    background-color: #ced6d7 !important;
+    /* Light teal background */
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+    background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
+}
+
+::ng-deep .p-inputtext {
+    width: 50% !important;
+    background-color: #000 !important;
+    color: white !important;
+    border: 2px solid #ccc;
+}
+
+.balance-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.6fr 0.6fr 0.8fr;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.balance-row .type {
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.balance-row input {
+    width: 100% !important;
+}
+
+.balance-row .remaining {
+    color: #9affc9;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.balance-heading {
+    color: #fff;
+    font-size: 24px;
+    font-family: "Sofia Sans";
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 20px !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #c160ff 0%, #e6cffb 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+/* ::ng-deep .p-button {
+  border-radius: 6px !important;
+  background: #194b9b !important;
+  height: 36px !important;
+  width: 120px !important;
+  color: white !important;
+  border: none !important;
+  font-size: 16px !important;
+} */
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
 }

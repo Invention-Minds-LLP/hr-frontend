@@ -1,0 +1,45 @@
+<!-- Submenu -->
+
+<div class="over-view">
+    <!-- <h2 class="dynamic-heading">{{ tableHeading }}</h2> -->
+    <nav class="sub-nav">
+        <ul>
+            <!-- <button (click)="show('request')">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'request' }">Shift Request
+                </li>
+            </button>
+             <span class="br" *ngIf="deptId !== 1"></span> -->
+            <!-- <button (click)="show('wfh')">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'wfh' }">WFH Request</li>
+            </button>
+             <span class="br"></span> -->
+            <button (click)="show('manager')" *ngIf="deptId !== 1">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'manager' }">
+                    My Team Assignments</li>
+            </button>
+            <!-- <span class="br" *ngIf="deptId === 1"></span> -->
+            <button (click)="show('hr')" *ngIf="deptId === 1">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'hr' }">Shifts Assignment</li>
+            </button>
+            <span class="br"></span>
+            <button (click)="show('request')">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'request' }">Shift Request
+                </li>
+            </button>
+        </ul>
+    </nav>
+
+
+</div>
+<!-- <div>
+    <hr>
+</div> -->
+
+
+
+<div>
+    <app-shift-requests *ngIf="active === 'request'"></app-shift-requests>
+    <!-- <app-work-from-home *ngIf="active === 'wfh'"></app-work-from-home> -->
+    <app-manager-shift *ngIf="active === 'manager'"></app-manager-shift>
+    <app-employee-shift-list *ngIf="active === 'hr'"></app-employee-shift-list>
+</div>

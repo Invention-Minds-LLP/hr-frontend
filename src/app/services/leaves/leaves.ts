@@ -70,7 +70,7 @@ export class Leaves {
   getBlockedDates(employeeId: number): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/blocked/${employeeId}`);
   }
-  getLeaveBalance(employeeId: number, year: number) {
+  getLeaveBalance(employeeId: number, year: number): Observable<any>{
     return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
   }
   updateLeaveType(
@@ -81,4 +81,24 @@ export class Leaves {
       newLeaveTypeId
     });
   }
+    createLeaveAllocation(payload: {
+    employeeId: number;
+    year: number;
+    leaves: {
+      leaveType: number;       // leaveTypeId
+      totalAllowed: number;
+    }[];
+    permissions: {
+      permissionType: string;  // PERSONAL | MEDICAL | OFFICIAL
+      totalAllowed: number;
+    }[];
+  }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/leave-balances`, payload);
+  }
+  getMonthlyCasualUsage(empId: number, year: number, month: number) {
+  return this.http.get<any>(
+    `${this.apiUrl}/casual/monthly-usage?employeeId=${empId}&year=${year}&month=${month}`
+  );
+}
+
 }

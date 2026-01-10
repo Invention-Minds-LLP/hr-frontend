@@ -218,17 +218,18 @@ export class HrDashboard implements OnInit {
       'Offers awaiting signature (7d)': 'offersPendingSignature',
       'Exit clearances overdue': 'clearances',
       'OT pending approval (yesterday)': 'otPending',
+      'Annual Health Checkup Due': 'ahc'
     };
 
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
       'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending',
-      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'resignations'
+      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'resignations', 'ahc'
     ];
 
     const k = (known as string[]).includes(String(key))
       ? (key as ListKey)
-      : (map[labelFallback || String(key)] ?? 'clinicalLate');
+      : (map[labelFallback || String(key)] ?? key);
 
     this.api.getList(k).subscribe({
       next: (list) => {

@@ -11,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
 import { Shifts } from '../../services/shifts/shifts';
 import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-manager-shift',
@@ -25,6 +26,7 @@ import { CardModule } from 'primeng/card';
     TagModule,
     InputTextModule,
     CardModule,
+    TooltipModule
   ],
   templateUrl: './manager-shift.html',
   styleUrl: './manager-shift.css',
@@ -37,9 +39,26 @@ export class ManagerShift {
   selectedEmployee: any;
   selectedMode: 'FIXED' | 'ROTATIONAL' = 'FIXED';
 
+  modes = [
+    { label: 'Fixed', value: 'FIXED' },
+    { label: 'Rotational', value: 'ROTATIONAL' }
+  ];
+
   selectedShiftId!: number;
   selectedPatternId!: number;
   startDate = new Date();
+  // dialog
+  requestVisible = false;
+  requestLoading = false;
+
+  // request form
+  requestEmployees: any[] = [];
+  requestForm = {
+    mode: 'FIXED' as 'FIXED' | 'ROTATIONAL',
+    shiftId: null as number | null,
+    patternId: null as number | null,
+    startDate: new Date()
+  };
 
   // rotation pattern modal
   patternVisible = false;
@@ -63,13 +82,13 @@ export class ManagerShift {
   load() {
     this.service.getMyEmployees().subscribe(r => this.employees = r);
     // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
-      this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
-    this.executiveShifts = res.map((s: any) => ({
-      ...s,
-      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-    }));
-  });
-    this.service.getManagerPatterns().subscribe(r => this.patterns = r);
+    this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
+      this.executiveShifts = res.map((s: any) => ({
+        ...s,
+        label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+      }));
+    });
+    this.service.getRotationPatterns().subscribe(r => this.patterns = r);
   }
 
   openAssign(emp: any) {
@@ -97,36 +116,36 @@ export class ManagerShift {
   // }
   assignLoading = false;
 
-save() {
-  if (!this.selectedEmployee) return;
+  save() {
+    if (!this.selectedEmployee) return;
 
-  this.assignLoading = true;
-  const employeeId = this.selectedEmployee.id;
+    this.assignLoading = true;
+    const employeeId = this.selectedEmployee.id;
 
-  const req =
-    this.selectedMode === 'FIXED'
-      ? this.service.assignFixedShift({
+    const req =
+      this.selectedMode === 'FIXED'
+        ? this.service.assignFixedShift({
           employeeId,
           shiftId: this.selectedShiftId
         })
-      : this.service.assignRotational({
+        : this.service.assignRotational({
           employeeId,
           patternId: this.selectedPatternId,
           startDate: new Date(this.startDate).toISOString()
         });
 
-  req.subscribe({
-    next: () => {
-      this.assignLoading = false;
-      this.selectedEmployee = null;
-      this.load();
-    },
-    error: () => {
-      this.assignLoading = false;
-      alert('Assignment failed');
-    }
-  });
-}
+    req.subscribe({
+      next: () => {
+        this.assignLoading = false;
+        this.selectedEmployee = null;
+        this.load();
+      },
+      error: () => {
+        this.assignLoading = false;
+        alert('Assignment failed');
+      }
+    });
+  }
 
   openPatternModal() {
     this.patternVisible = true;
@@ -204,6 +223,8 @@ save() {
     });
   }
   getShiftById(id?: number) {
+    console.log(this.executiveShifts, id);
+
     return this.executiveShifts.find(s => s.id === id);
   }
 
@@ -273,48 +294,48 @@ save() {
   // }
   patternSaving = false;
 
-saveRotationPattern() {
-  if (!this.patternForm.name || !this.patternItems.length) return;
+  saveRotationPattern() {
+    if (!this.patternForm.name || !this.patternItems.length) return;
 
-  this.patternSaving = true;
+    this.patternSaving = true;
 
-  const DAYS_PER_WEEK = 7;
-  const expandedItems: { dayIndex: number; shiftId: number }[] = [];
+    const DAYS_PER_WEEK = 7;
+    const expandedItems: { dayIndex: number; shiftId: number }[] = [];
 
-  this.patternItems.forEach((weekItem, weekIndex) => {
-    if (!weekItem.shiftId) return;
-    for (let d = 0; d < DAYS_PER_WEEK; d++) {
-      expandedItems.push({
-        dayIndex: weekIndex * DAYS_PER_WEEK + d,
-        shiftId: weekItem.shiftId
-      });
-    }
-  });
-
-  this.service.createRotationPattern({
-    name: this.patternForm.name,
-    cycleDays: expandedItems.length
-  }).subscribe({
-    next: pattern => {
-      this.service.addRotationItemsBulk(pattern.id, expandedItems)
-        .subscribe({
-          next: () => {
-            this.patternSaving = false;
-            this.patternVisible = false;
-            this.load();
-          },
-          error: () => {
-            this.patternSaving = false;
-            alert('Failed to save rotation items');
-          }
+    this.patternItems.forEach((weekItem, weekIndex) => {
+      if (!weekItem.shiftId) return;
+      for (let d = 0; d < DAYS_PER_WEEK; d++) {
+        expandedItems.push({
+          dayIndex: weekIndex * DAYS_PER_WEEK + d,
+          shiftId: weekItem.shiftId
         });
-    },
-    error: () => {
-      this.patternSaving = false;
-      alert('Failed to create pattern');
-    }
-  });
-}
+      }
+    });
+
+    this.service.createRotationPattern({
+      name: this.patternForm.name,
+      cycleDays: expandedItems.length
+    }).subscribe({
+      next: pattern => {
+        this.service.addRotationItemsBulk(pattern.id, expandedItems)
+          .subscribe({
+            next: () => {
+              this.patternSaving = false;
+              this.patternVisible = false;
+              this.load();
+            },
+            error: () => {
+              this.patternSaving = false;
+              alert('Failed to save rotation items');
+            }
+          });
+      },
+      error: () => {
+        this.patternSaving = false;
+        alert('Failed to create pattern');
+      }
+    });
+  }
 
   private monthNames = [
     'January', 'February', 'March', 'April',
@@ -353,36 +374,90 @@ saveRotationPattern() {
     this.bulkPatternId = undefined!;
     this.bulkStartDate = new Date();
   }
-bulkAssigning = false;
+  bulkAssigning = false;
 
-bulkAssign() {
-  if (!this.bulkPatternId || !this.selectedEmployees.length) return;
+  bulkAssign() {
+    if (!this.bulkPatternId || !this.selectedEmployees.length) return;
 
-  this.bulkAssigning = true;
-  const startDate = this.bulkStartDate.toISOString();
+    this.bulkAssigning = true;
+    const startDate = this.bulkStartDate.toISOString();
 
-  const requests = this.selectedEmployees.map(emp =>
-    this.service.assignRotational({
-      employeeId: emp.id,
-      patternId: this.bulkPatternId,
-      startDate
-    })
-  );
+    const requests = this.selectedEmployees.map(emp =>
+      this.service.assignRotational({
+        employeeId: emp.id,
+        patternId: this.bulkPatternId,
+        startDate
+      })
+    );
 
-  Promise.all(requests.map(r => r.toPromise()))
-    .then(() => {
-      this.bulkAssigning = false;
-      this.bulkVisible = false;
-      this.selectedEmployees = [];
-      this.load();
-    })
-    .catch(() => {
-      this.bulkAssigning = false;
-      alert('Bulk assignment failed');
+    Promise.all(requests.map(r => r.toPromise()))
+      .then(() => {
+        this.bulkAssigning = false;
+        this.bulkVisible = false;
+        this.selectedEmployees = [];
+        this.load();
+      })
+      .catch(() => {
+        this.bulkAssigning = false;
+        alert('Bulk assignment failed');
+      });
+  }
+
+  openSingleRequest(emp: any) {
+    this.openRequestDialog([emp]);
+  }
+
+  openBulkRequest() {
+    this.openRequestDialog(this.selectedEmployees);
+  }
+
+  openRequestDialog(emps: any[]) {
+    this.requestEmployees = emps;
+    this.requestForm = {
+      mode: 'FIXED',
+      shiftId: null,
+      patternId: null,
+      startDate: new Date()
+    };
+    this.requestVisible = true;
+  }
+
+  closeRequestDialog() {
+    this.requestVisible = false;
+  }
+  submitRequest() {
+    if (!this.requestEmployees.length) return;
+
+    this.requestLoading = true;
+    const startDate = this.requestForm.startDate.toISOString();
+
+    const requests = this.requestEmployees.map(emp => {
+      const payload: any = {
+        employeeId: emp.id,
+        mode: this.requestForm.mode,
+        startDate
+      };
+
+      if (this.requestForm.mode === 'FIXED')
+        payload.shiftId = this.requestForm.shiftId;
+
+      if (this.requestForm.mode === 'ROTATIONAL')
+        payload.patternId = this.requestForm.patternId;
+
+      return this.service.requestShiftChange(payload).toPromise();
     });
-}
 
-
-
+    Promise.all(requests)
+      .then(() => {
+        this.requestLoading = false;
+        this.requestVisible = false;
+        this.selectedEmployees = [];
+        this.load();
+      })
+      .catch(err => {
+        this.requestLoading = false;
+        alert(err?.error?.error || 'One or more requests failed');
+      });
+  }
 
 }

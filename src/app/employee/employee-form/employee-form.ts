@@ -242,6 +242,8 @@ export class EmployeeForm {
       reportingManager: ['', Validators.required],
       fixedShiftId: [''],
       inchargeId: [''],
+      fatherName: [''],
+      marital: [''],
 
       preEmploymentCheckDate: [null, Validators.required],
 
@@ -563,6 +565,8 @@ export class EmployeeForm {
   }
 
   createDocumentGroup(): FormGroup<{
+    id: FormControl<number | null>;
+    fileKey: FormControl;
     category: FormControl<string | null>;
     type: FormControl<string | null>;
     issueDate: FormControl<Date | null>;
@@ -571,6 +575,8 @@ export class EmployeeForm {
     fileUrl: FormControl<string | null>;
   }> {
     return this.fb.group({
+      id: this.fb.control<number | null>(null),
+      fileKey: [crypto.randomUUID()],
       category: this.fb.control<string | null>(null, Validators.required),
       type: this.fb.control<string | null>(null, Validators.required),
       issueDate: this.fb.control<Date | null>(null),
@@ -906,6 +912,7 @@ export class EmployeeForm {
             //   this.assignEmployeeShift(employee.id, shiftId);
             // }
             this.isLoading = false;
+            this.closeForm.emit(true);
             this.employeeForm.reset()
           },
           error: () =>
@@ -917,6 +924,7 @@ export class EmployeeForm {
               detail: 'Error creating employee'
             })
             this.isLoading = false;
+            
           }
         });
       }
@@ -980,8 +988,36 @@ export class EmployeeForm {
 
 
   removeDocument(index: number) {
-    this.uploadedDocsForm.removeAt(index);
+    const doc = this.uploadedDocsForm.at(index).value;
+
+    // 🔥 Case 1: Existing document (already saved in DB)
+    if (doc?.id) {
+      this.employeeService.deleteEmployeeDocument(doc.id).subscribe({
+        next: () => {
+          this.uploadedDocsForm.removeAt(index);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Deleted',
+            detail: 'Document removed successfully'
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete document'
+          });
+        }
+      });
+    }
+
+    // 🟢 Case 2: New document (not yet uploaded)
+    else {
+      this.uploadedDocsForm.removeAt(index);
+    }
   }
+
+
 
   // Filter types based on selected category
   getFilteredTypes(index: number) {
@@ -990,19 +1026,28 @@ export class EmployeeForm {
   }
 
   // Handle file selection
+  // onDocumentSelect(event: any, index: number) {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = () => {
+  //       this.uploadedDocsForm.at(index).patchValue({
+  //         file: file,
+  //         fileUrl: reader.result
+  //       });
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // }
   onDocumentSelect(event: any, index: number) {
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.uploadedDocsForm.at(index).patchValue({
-          file: file,
-          fileUrl: reader.result
-        });
-      };
-      reader.readAsDataURL(file);
+      this.uploadedDocsForm.at(index).patchValue({
+        file
+      });
     }
   }
+
 
   // Validate mandatory docs before submit
   // validateMandatoryDocs(): boolean {
@@ -1073,37 +1118,94 @@ export class EmployeeForm {
     return this.getMandatoryDocs().missing.length === 0;
   }
 
+  // uploadEmployeeDocs(employeeId: number) {
+  //   const formData = new FormData();
+
+  //   // Metadata
+  //   formData.append('metadata', JSON.stringify(this.uploadedDocsForm.value));
+
+
+
+  //   // Files
+  //   // this.uploadedDocsForm.controls.forEach((docGroup: any) => {
+  //   //   formData.append('file', docGroup.value.file);
+  //   // });
+  //   this.uploadedDocsForm.controls.forEach((ctrl, index) => {
+  //     if (ctrl.value.file instanceof File) {
+  //       formData.append('file', ctrl.value.file);
+  //       formData.append('fileIndex', index.toString());
+  //     }
+  //   });
+
+
+  //   console.log(this.uploadedDocsForm)
+
+  //   this.employeeService.uploadEmployeeDocuments(employeeId, this.uploadedDocsForm)
+  //     .subscribe({
+  //       next: () =>
+  //         // alert('Employee and documents uploaded successfully!'),
+  //         this.messageService.add({
+  //           severity: 'success',
+  //           summary: 'Success',
+  //           detail: 'Employee and documents uploaded successfully!'
+  //         }),
+  //       error: () =>
+  //         //  alert('Documents upload failed')
+  //         this.messageService.add({
+  //           severity: 'error',
+  //           summary: 'Error',
+  //           detail: 'Documents upload failed'
+  //         })
+  //     });
+
+
+  // }
   uploadEmployeeDocs(employeeId: number) {
     const formData = new FormData();
 
     // Metadata
-    formData.append('metadata', JSON.stringify(this.uploadedDocsForm.value));
+    formData.append(
+      'metadata',
+      JSON.stringify(
+        this.uploadedDocsForm.value.map((d: any) => ({
+          id: d.id ?? null,
+          fileKey: d.id ? `id:${d.id}` : d.fileKey,
+          title: d.type,
+          type: d.type,
+          category: d.category,
+          issueDate: d.issueDate,
+          expiryDate: d.expiryDate
+        }))
+      )
+    );
 
     // Files
-    this.uploadedDocsForm.controls.forEach((docGroup: any) => {
-      formData.append('file', docGroup.value.file);
+    this.uploadedDocsForm.controls.forEach(ctrl => {
+      if (ctrl.value.file instanceof File) {
+        formData.append('file', ctrl.value.file);
+        formData.append(
+          'fileKey',
+          ctrl.value.id ? `id:${ctrl.value.id}` : ctrl.value.fileKey
+        );
+      }
     });
 
-    this.employeeService.uploadEmployeeDocuments(employeeId, this.uploadedDocsForm)
-      .subscribe({
-        next: () =>
-          // alert('Employee and documents uploaded successfully!'),
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Employee and documents uploaded successfully!'
-          }),
-        error: () =>
-          //  alert('Documents upload failed')
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Documents upload failed'
-          })
-      });
-
-
+    this.employeeService.uploadEmployeeDocuments(employeeId, formData).subscribe({
+      next: () =>
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Documents uploaded successfully!'
+        }),
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Documents upload failed'
+        })
+    });
   }
+
   // assignEmployeeShift(employeeId: number, shiftId: number) {
   //   this.shiftService.assignShift({
   //     employeeId: employeeId,
@@ -1162,6 +1264,8 @@ export class EmployeeForm {
       age: data.age,
       reportingManager: data.reportingManager,
       employeeType: data.employeeType,
+      fatherName: data.fatherName,
+      marital: data.marital,
       shiftMode: mode,
       fixedShiftId:
         mode === 'FIXED'
@@ -1300,6 +1404,7 @@ export class EmployeeForm {
     data.documents?.forEach((doc: any, index: number) => {
       const docGroup = this.createDocumentGroup();
       docGroup.patchValue({
+        id: doc.id,
         category: doc.category,
         type: doc.type, // must match documentTypes `value`
         issueDate: doc.issueDate ? new Date(doc.issueDate) : null,
@@ -1638,23 +1743,23 @@ export class EmployeeForm {
       }))
     };
 
-    this.employeeService.createLeaveAllocation(payload).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Leave allocation created successfully'
-        });
-        this.leaveAllocationForm.reset({ year: new Date().getFullYear() });
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to create leave allocation'
-        });
-      }
-    });
+    // this.employeeService.createLeaveAllocation(payload).subscribe({
+    //   next: () => {
+    //     this.messageService.add({
+    //       severity: 'success',
+    //       summary: 'Success',
+    //       detail: 'Leave allocation created successfully'
+    //     });
+    //     this.leaveAllocationForm.reset({ year: new Date().getFullYear() });
+    //   },
+    //   error: () => {
+    //     this.messageService.add({
+    //       severity: 'error',
+    //       summary: 'Error',
+    //       detail: 'Failed to create leave allocation'
+    //     });
+    //   }
+    // });
   }
 
 }

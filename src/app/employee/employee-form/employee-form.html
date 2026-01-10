@@ -143,6 +143,38 @@
                                         </div>
 
 
+
+                                    </div>
+
+                                    <div class="field-row col-12">
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText id="fatherName" formControlName="fatherName"
+                                                    [ngClass]="{'ng-invalid': showError(employeeForm.get('fatherName'))}" />
+                                                <label for="fatherName">Father Name</label>
+                                            </p-floatLabel>
+
+                                            <!-- <div class="error-msg" *ngIf="showError(employeeForm.get('fatherName'))">
+                                                Father Name is required
+                                            </div> -->
+                                        </div>
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-select formControlName="marital" [options]="[
+                { label: 'Single', value: 'SINGLE' },
+                { label: 'Married', value: 'MARRIED' },
+                { label: 'Divorced', value: 'DIVORCED' },
+                { label: 'Widowed', value: 'WIDOWED' }
+            ]" [ngClass]="{'ng-invalid': showError(employeeForm.get('marital'))}"></p-select>
+                                                <label>Marital Status</label>
+                                            </p-floatLabel>
+                                            <!-- 
+                                            <div class="error-msg" *ngIf="showError(employeeForm.get('maritalStatus'))">
+                                                Marital Status is required
+                                            </div> -->
+                                        </div>
+
+
                                     </div>
 
                                     <div class="heading mb-2">Permanent Address</div>

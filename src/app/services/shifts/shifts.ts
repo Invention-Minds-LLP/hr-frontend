@@ -99,12 +99,12 @@ export class Shifts {
       { items }
     );
   }
-getExecutiveShifts(departmentId: number) {
-  return this.http.get<any[]>(
-    `${this.apiUrl}/manager/shift-templates`,
-    { params: { departmentId } }
-  );
-}
+  getExecutiveShifts(departmentId: number) {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/manager/shift-templates`,
+      { params: { departmentId } }
+    );
+  }
 
 
   // 🔁 Manager rotation patterns
@@ -115,4 +115,43 @@ getExecutiveShifts(departmentId: number) {
   getMyEmployees() {
     return this.http.get<any[]>(`${this.apiUrl}/employees`);
   }
+  // Shift approvals
+  requestShiftChange(body: {
+    employeeId: number;
+    mode: 'FIXED' | 'ROTATIONAL';
+    shiftId?: number;
+    patternId?: number;
+    startDate: string;
+  }) {
+    return this.http.post(`${this.apiUrl}/request`, body);
+  }
+
+  // approveShiftChange(id: number, body: { role: 'RM' | 'HR'; decision: 'APPROVED' | 'REJECTED' }) {
+  //   return this.http.post(`${this.apiUrl}/approve/${id}`, body);
+  // }
+
+  approveShiftChange(
+  id: number,
+  body: {
+    role: 'RM' | 'HR';
+    decision: 'APPROVED' | 'REJECTED';
+    reason?: string;
+  }
+) {
+  return this.http.post(`${this.apiUrl}/approve/${id}`, body);
+}
+
+
+  getApprovalsInbox() {
+    return this.http.get<any[]>(`${this.apiUrl}/approvals/inbox`);
+  }
+
+  getMyShiftRequests() {
+    return this.http.get<any[]>(`${this.apiUrl}/approvals/mine`);
+  }
+
+  getEmployeeShiftRequests(employeeId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}/approvals/employee/${employeeId}`);
+  }
+
 }

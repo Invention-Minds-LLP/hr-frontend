@@ -2,14 +2,18 @@
     <div class="table-header">
         <h3>My Team – Shift Assignment</h3>
 
-        <div>
+        <div class="header-actions">
             <button class="assign-test" (click)="openPatternModal()">
                 Create Rotation Pattern
                 <i class="pi pi-plus"></i>
             </button>
-            <button class="assign-test" [disabled]="!selectedEmployees.length" (click)="openBulkAssign()">
+            <!-- <button class="assign-test" [disabled]="!selectedEmployees.length" (click)="openBulkAssign()">
 
                 Bulk Assign Rotation
+            </button> -->
+            <button  label="Bulk Request" class="assign-test" icon="pi pi-send" [disabled]="!selectedEmployees.length"
+                (click)="openBulkRequest()">
+                Bulk Request
             </button>
         </div>
 
@@ -100,8 +104,12 @@
 
                 <!-- Action -->
                 <td class="action-buttons">
-                    <button class="edit-button" title="Assign / Change Shift" (click)="openAssign(e)">
+                    <!-- <button class="edit-button" title="Assign / Change Shift" (click)="openAssign(e)">
                         <i class="pi pi-pencil"></i>
+                    </button> -->
+                    <button icon="pi pi-send" class="assign-test" (click)="openSingleRequest(e)" pTooltip="Change Shift" tooltipPosition="top">
+                        
+                        <i class="pi pi-send"></i>
                     </button>
                 </td>
             </tr>
@@ -216,7 +224,7 @@
 
             <!-- <button pButton label="Save" (click)="saveRotationPattern()" [loading]="patternSaving"> -->
             <button pButton [label]="patternSaving ? 'Saving...' : 'Save'" [loading]="patternSaving"
-                [disabled]="patternSaving">
+                [disabled]="patternSaving" (click)="saveRotationPattern()">
             </button>
 
         </div>
@@ -264,4 +272,97 @@
         </div>
 
     </div>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="requestVisible"
+  header="Request Shift Change"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [closable]="false">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Request Shift Change</span>
+      <button class="dialog-close-btn" (click)="closeRequestDialog()">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="dialog-body">
+
+    <!-- EMPLOYEE INFO -->
+    <p *ngIf="requestEmployees.length === 1">
+      Employee:
+      <strong>
+        {{ requestEmployees[0].firstName }}
+        {{ requestEmployees[0].lastName }}
+      </strong>
+    </p>
+
+    <p *ngIf="requestEmployees.length > 1">
+      Assigning to
+      <strong>{{ requestEmployees.length }}</strong>
+      employees
+    </p>
+
+    <!-- MODE -->
+    <div class="mb-3">
+      <label>Mode</label>
+      <p-select
+        [options]="modes"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        [(ngModel)]="requestForm.mode">
+      </p-select>
+    </div>
+
+    <!-- FIXED -->
+    <div *ngIf="requestForm.mode === 'FIXED'" class="mb-3">
+      <label>Shift</label>
+      <p-select
+        [options]="executiveShifts"
+        optionLabel="label"
+        optionValue="id"
+        appendTo="body"
+        [(ngModel)]="requestForm.shiftId">
+      </p-select>
+    </div>
+
+    <!-- ROTATIONAL -->
+    <div *ngIf="requestForm.mode === 'ROTATIONAL'" class="mb-3">
+      <label>Rotation Pattern</label>
+      <p-select
+        [options]="patterns"
+        optionLabel="name"
+        optionValue="id"
+        appendTo="body"
+        [(ngModel)]="requestForm.patternId">
+      </p-select>
+    </div>
+
+    <!-- START DATE -->
+    <div class="mb-3">
+      <label>Start Date</label>
+      <p-datepicker [(ngModel)]="requestForm.startDate" appendTo="body"></p-datepicker>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="dialog-actions">
+      <button
+        pButton
+        label="Cancel"
+        class="p-button-text"
+        (click)="closeRequestDialog()">
+      </button>
+
+      <button
+        pButton
+        [label]="requestLoading ? 'Submitting...' : 'Submit'"
+        [loading]="requestLoading"
+        (click)="submitRequest()">
+      </button>
+    </div>
+
+  </div>
 </p-dialog>

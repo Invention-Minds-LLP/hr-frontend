@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { from } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { Holidays } from '../../services/holidays/holidays';
 
 interface CalendarDay {
   date: Date;
@@ -16,14 +18,14 @@ interface CalendarDay {
 
 @Component({
   selector: 'app-leave-popup',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ToastModule],
   templateUrl: './leave-popup.html',
   styleUrl: './leave-popup.css'
 })
 export class LeavePopup {
 
 
-  constructor(private leaveService: Leaves, private messageService: MessageService) { }
+  constructor(private leaveService: Leaves, private messageService: MessageService, private holidayService: Holidays) { }
 
   @Input() showPopup = true;
   @Input() leaveData: any = null;     // Data passed when opening popup
@@ -44,6 +46,8 @@ export class LeavePopup {
   declineReason: string = '';             // Stores the decline reason input
   currentDeclineId: number | null = null; // Stores the leave ID being declined
   currentUserId: number = Number(localStorage.getItem('empId')) || 0;
+  holidays: Date[] = [];
+
 
 
   closePopup() {
@@ -88,6 +92,7 @@ export class LeavePopup {
     this.fromDate = new Date(this.fromYear, this.monthToIndex(this.fromMonth), this.fromDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
+    if (!this.validateSandwichOrReset()) return;
     this.calculateDays();
     this.generateCalendar();
   }
@@ -96,6 +101,7 @@ export class LeavePopup {
     this.toDate = new Date(this.toYear, this.monthToIndex(this.toMonth), this.toDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
+    if (!this.validateSandwichOrReset()) return;
     this.calculateDays();
     this.generateCalendar();
   }
@@ -115,6 +121,16 @@ export class LeavePopup {
 
         this.generateCalendar();
       });
+
+    const year = new Date().getFullYear();
+
+    this.holidayService.getHolidaysByYear(year).subscribe((res: any) => {
+      this.holidays = res.holidays.map((h: any) => {
+        const d = new Date(h.date);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      });
+    });
 
 
 
@@ -194,7 +210,13 @@ export class LeavePopup {
           });
           this.leaveType = '';
         }
+
       });
+
+    if (this.leaveType) {
+      this.checkCausalLeaveBalance()
+    }
+
   }
 
 
@@ -321,6 +343,22 @@ export class LeavePopup {
       }
     }
 
+    let tempFrom = this.fromDate;
+    let tempTo = day.date;
+
+    if (!tempFrom || tempTo < tempFrom) {
+      tempFrom = tempTo;
+    }
+
+    if (this.isSandwichLeave(tempFrom, tempTo)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Sandwich Leave Not Allowed',
+        detail: 'Leave cannot be applied before and after holidays/weekends'
+      });
+      return;
+    }
+
     this.calculateDays();
     this.generateCalendar();
     this.syncDropdownsFromDates();
@@ -374,6 +412,7 @@ export class LeavePopup {
   onDropdownChange() {
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
+    if (!this.validateSandwichOrReset()) return;
     this.calculateDays();
     this.generateCalendar();
   }
@@ -411,6 +450,9 @@ export class LeavePopup {
         summary: 'Blocked Range',
         detail: 'Your selected dates overlap with existing leave request.'
       });
+      return;
+    }
+    if (!this.validateSandwichOrReset()) {
       return;
     }
 
@@ -468,6 +510,9 @@ export class LeavePopup {
 
     // Block already applied days
     if (this.isDayBlocked(dateObj)) return true;
+
+    const next = new Date(dateObj);
+    next.setDate(next.getDate() + 1);
 
     return false;
   }
@@ -644,4 +689,121 @@ export class LeavePopup {
 
     return false;
   }
+  splitByMonth(from: Date, to: Date): Map<string, number> {
+    const map = new Map<string, number>();
+
+    for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    return map;
+  }
+
+  checkCausalLeaveBalance() {
+    if (this.leaveType !== 'Casual Leave') return;
+
+    const monthlySplit = this.splitByMonth(this.fromDate, this.toDate);
+
+    monthlySplit.forEach((days, key) => {
+      const [year, month] = key.split('-').map(Number);
+
+      this.leaveService
+        .getMonthlyCasualUsage(Number(this.employeeId), year, month)
+        .subscribe(res => {
+          if (days > res.remaining) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Monthly Limit Exceeded',
+              detail: `Only ${res.remaining} Casual Leave day(s) left in ${this.monthsList[month]
+                }`
+            });
+
+            this.leaveType = '';
+          }
+        });
+    });
+  }
+
+  isHolidayOrWeekend(date: Date): boolean {
+    const day = date.getDay(); // 0 = Sun, 6 = Sat
+
+    if (day === 0 || day === 6) return true;
+
+    return this.holidays.some(h =>
+      h.getTime() === date.getTime()
+    );
+  }
+  stripTime(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  isSandwichLeave(from: Date, to: Date): boolean {
+    from = this.stripTime(from);
+    to = this.stripTime(to);
+
+    // Case 1: Holiday(s) inside the selected range
+    let foundWorkingDay = false;
+    let foundHolidayAfterWork = false;
+
+    for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+      const current = this.stripTime(new Date(d));
+
+      if (this.isHolidayOrWeekend(current)) {
+        if (foundWorkingDay) {
+          foundHolidayAfterWork = true;
+        }
+      } else {
+        if (foundHolidayAfterWork) {
+          return true; // Leave → Holiday → Leave
+        }
+        foundWorkingDay = true;
+      }
+    }
+
+    // Case 2: Leave → Holiday(s)
+    let next = new Date(to);
+    next.setDate(next.getDate() + 1);
+
+    if (this.isHolidayOrWeekend(this.stripTime(next))) {
+      return true;
+    }
+
+    // Case 3: Holiday(s) → Leave
+    let prev = new Date(from);
+    prev.setDate(prev.getDate() - 1);
+
+    if (this.isHolidayOrWeekend(this.stripTime(prev))) {
+      return true;
+    }
+
+    return false;
+  }
+
+
+  validateSandwichOrReset(): boolean {
+    if (!this.fromDate || !this.toDate) return true;
+
+    if (this.isSandwichLeave(this.fromDate, this.toDate)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Sandwich Leave Not Allowed',
+        detail: 'Leave cannot be applied before and after holidays/weekends'
+      });
+
+      // Reset selection safely
+      this.toDate = this.fromDate;
+      this.calculateDays();
+      this.generateCalendar();
+      this.syncDropdownsFromDates();
+
+      return false;
+    }
+
+    return true;
+  }
+
+
 }
