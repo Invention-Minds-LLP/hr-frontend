@@ -563,6 +563,14 @@ export class EmployeeForm {
       }));
     });
   }
+  generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 
   createDocumentGroup(): FormGroup<{
     id: FormControl<number | null>;
@@ -576,7 +584,7 @@ export class EmployeeForm {
   }> {
     return this.fb.group({
       id: this.fb.control<number | null>(null),
-      fileKey: [crypto.randomUUID()],
+      fileKey: this.fb.control(this.generateUUID()),
       category: this.fb.control<string | null>(null, Validators.required),
       type: this.fb.control<string | null>(null, Validators.required),
       issueDate: this.fb.control<Date | null>(null),
