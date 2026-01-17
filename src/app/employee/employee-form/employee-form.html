@@ -131,7 +131,8 @@
                                             <p-floatLabel variant="on">
                                                 <p-select [options]="[
                                       { label: 'Clinical', value: 'CLINICAL' },
-                                      { label: 'Non-clinical', value: 'NONCLINICAL' }
+                                      { label: 'Non-clinical', value: 'NONCLINICAL' },
+                                      { label: 'Para Medical', value: 'PARAMEDICAL'},
                                     ]" formControlName="employeeType"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('employeeType'))}"></p-select>
                                                 <label>Employee Type *</label>

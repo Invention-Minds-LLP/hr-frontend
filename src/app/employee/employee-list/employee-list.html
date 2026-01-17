@@ -152,7 +152,18 @@
             <td>{{ employeeData.employmentStatus }}</td>
 
             <td>
-              <button class="btn" (click)="openEdit(employeeData)" [disabled]="loadingRows[employeeData.id]">
+              <!-- <button class="btn" (click)="openEdit(employeeData)" [disabled]="loadingRows[employeeData.id]">
+
+                <span *ngIf="!loadingRows[employeeData.id]">See Details</span>
+
+                <span *ngIf="loadingRows[employeeData.id]" class="spinner-wrapper">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  Loading...
+                </span>
+
+              </button> -->
+              <button class="btn" [disabled]="isEditDisabled(employeeData) || loadingRows[employeeData.id]"
+                (click)="!isEditDisabled(employeeData) && openEdit(employeeData)">
 
                 <span *ngIf="!loadingRows[employeeData.id]">See Details</span>
 
@@ -162,6 +173,7 @@
                 </span>
 
               </button>
+
 
               <button class="btn btn-attendance ml-2" (click)="openAttendanceCalendar(employeeData)">
                 Attendance
