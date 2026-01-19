@@ -40,7 +40,7 @@ export class EmployeeList {
   loginDeptId = Number(localStorage.getItem('deptId'));
   loginEmpId = Number(localStorage.getItem('empId'));
   loginRole = (localStorage.getItem('role') || '').toUpperCase();
-  
+
 
 
   employee: any[] = [];
@@ -214,24 +214,24 @@ export class EmployeeList {
   // Disable edit if same deptId and roleId as logged-in userF
   isEditDisabled(emp: any): boolean {
 
-  // Nobody can edit himself (including HR Manager)
-  if (this.loginEmpId === Number(emp.id)) {
-    return true;
-  }
+    // Nobody can edit himself (including HR Manager)
+    if (this.loginEmpId === Number(emp.id)) {
+      return true;
+    }
 
-  // HR Manager can edit other HR employees
-  if (this.loginRole === 'HR MANAGER') {
+    // HR Manager can edit other HR employees
+    if (this.loginRole === 'HR MANAGER') {
+      return false;
+    }
+
+    // Others cannot edit same department
+    if (this.loginDeptId === Number(emp.departmentId)) {
+      return true;
+    }
+
+    // ✅ All other cases allowed
     return false;
   }
-
-  // Others cannot edit same department
-  if (this.loginDeptId === Number(emp.departmentId)) {
-    return true;
-  }
-
-  // ✅ All other cases allowed
-  return false;
-}
 
 
 

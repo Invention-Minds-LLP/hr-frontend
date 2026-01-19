@@ -21,7 +21,7 @@ export class Tests {
   }
   // services/tests/tests.ts
 update(id: number, payload: any) {
-  return this.http.put<any>(`http://localhost:3002/api/tests/${id}`, payload);
+  return this.http.put<any>(`${this.apiUrl}/tests/${id}`, payload);
 }
 
 }
