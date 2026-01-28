@@ -153,5 +153,32 @@ export class Shifts {
   getEmployeeShiftRequests(employeeId: number) {
     return this.http.get<any[]>(`${this.apiUrl}/approvals/employee/${employeeId}`);
   }
+requestMonthlyShift(payload: any) {
+  return this.http.post(`${this.apiUrl}/monthly-request`, payload);
+}
+  getMonthlyShiftForEmployee(payload: {
+    employeeId: number;
+    month: number;
+    year: number;
+  }) {
+    return this.http.post<{
+      isMonthAssigned: boolean;
+      weekShifts?: { [weekIndex: number]: number };
+    }>(
+      `${this.apiUrl}/monthly/status`,
+      payload
+    );
+  }
+  // ✅ Get daily shifts for an employee within a date range
+getDailyShiftsForRange(params: {
+  employeeId: number;
+  from: string;
+  to: string;
+}): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/daily-range`,
+    { params }
+  );
+}
 
 }

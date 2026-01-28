@@ -179,10 +179,10 @@
                 Attendance
               </button>
 
-              <button class="btn btn-attendance ml-2" title="Edit Shift" [disabled]="isEditDisabled(employeeData)"
+              <!-- <button class="btn btn-attendance ml-2" title="Edit Shift" [disabled]="isEditDisabled(employeeData)"
                 (click)="!isEditDisabled(employeeData) && openAssignmentEdit(employeeData)">
                 Edit Shift
-              </button>
+              </button> -->
 
 
               <button class="btn btn-attendance ml-2" title="Change Shift Mode"
@@ -273,8 +273,9 @@
     </div>
 
     <div class="dialog-actions">
-      <button pButton label="Cancel" class="p-button-text" (click)="modeEditVisible=false"></button>
-      <button pButton label="Save" (click)="saveShiftMode()"></button>
+      <button pButton label="Cancel" class="p-button-text" [disabled]="savingMode"
+        (click)="modeEditVisible=false"></button>
+      <button pButton label="Save" [loading]="savingMode" [disabled]="savingMode" (click)="saveShiftMode()"></button>
     </div>
 
   </div>

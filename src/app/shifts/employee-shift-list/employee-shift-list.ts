@@ -51,23 +51,23 @@ export class EmployeeShiftList {
     // this.shiftService.getShiftTemplates().subscribe(res => {
     //   this.shiftOptions = res;
     // });
-  this.shiftService.getShiftTemplates().subscribe(res => {
-    this.shiftOptions = res.map((s: any) => ({
-      ...s,
-      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-    }));
-  });
+    this.shiftService.getShiftTemplates().subscribe(res => {
+      this.shiftOptions = res.map((s: any) => ({
+        ...s,
+        label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+      }));
+    });
     this.shiftService.getRotationPatterns().subscribe(res => {
       this.rotationPatterns = res;
     });
   }
 
   private formatTime(date: string | Date) {
-  return new Date(date).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   }
 
   load() {
@@ -99,7 +99,7 @@ export class EmployeeShiftList {
 
   shiftModes = [
     { label: 'Fixed', value: 'FIXED' },
-    { label: 'Rotational', value: 'ROTATIONAL' }
+    // { label: 'Rotational', value: 'ROTATIONAL' }
   ];
 
   selectedMode!: 'FIXED' | 'ROTATIONAL';
@@ -127,19 +127,19 @@ export class EmployeeShiftList {
   //   this.editVisible = true;
   // }
   openModeEdit(row: any) {
-  this.selectedRow = row;
+    this.selectedRow = row;
 
-  const setting = row.employee.EmployeeShiftSetting;
+    const setting = row.employee.EmployeeShiftSetting;
 
-  this.selectedMode = setting?.mode || 'FIXED';
-  this.selectedFixedShiftId = setting?.fixedShiftId;
-  this.selectedPatternId = setting?.rotationPatternId;
-  this.rotationStartDate = setting?.startDate
-    ? new Date(setting.startDate)
-    : new Date();
+    this.selectedMode = setting?.mode || 'FIXED';
+    this.selectedFixedShiftId = setting?.fixedShiftId;
+    this.selectedPatternId = setting?.rotationPatternId;
+    this.rotationStartDate = setting?.startDate
+      ? new Date(setting.startDate)
+      : new Date();
 
-  this.editVisible = true;
-}
+    this.editVisible = true;
+  }
 
   saveShiftMode() {
     const employeeId = this.selectedRow.employee.id;
@@ -168,88 +168,88 @@ export class EmployeeShiftList {
     this.editVisible = false;
     this.load();
   }
-assignmentEditVisible = false;
-modeEditVisible = false;
-openAssignmentEdit(row: any) {
-  this.selectedRow = row;
-  this.selectedShiftId = row.shiftId;
-  this.assignmentEditVisible = true;
-}
-updateShift() {
-  this.shiftService
-    .updateEmployeeShift(this.selectedRow.id, this.selectedShiftId)
-    .subscribe(() => {
-      this.assignmentEditVisible = false;
-      this.load();
-    });
-}
-patternVisible = false;
-
-patternForm = {
-  name: '',
-  cycleDays: 7
-};
-
-patternItems: { dayIndex: number; shiftId?: number }[] = [];
-
-openPatternModal() {
-  this.patternVisible = true;
-  this.patternForm = { name: '', cycleDays: 7 };
-  // this.patternItems = [{ dayIndex: 0 }];
-  this.onCycleDaysChange(this.patternForm.cycleDays);
-}
-
-addPatternItem() {
-  this.patternItems.push({
-    dayIndex: this.patternItems.length
-  });
-}
-
-removePatternItem(index: number) {
-  this.patternItems.splice(index, 1);
-  this.patternItems.forEach((item, i) => item.dayIndex = i);
-}
-saveRotationPattern() {
-  if (!this.patternForm.name || !this.patternItems.length) {
-    return;
+  assignmentEditVisible = false;
+  modeEditVisible = false;
+  openAssignmentEdit(row: any) {
+    this.selectedRow = row;
+    this.selectedShiftId = row.shiftId;
+    this.assignmentEditVisible = true;
   }
-
-  this.shiftService.createRotationPattern({
-    name: this.patternForm.name,
-    cycleDays: this.patternForm.cycleDays
-  }).subscribe(pattern => {
-
-    const items = this.patternItems.map(i => ({
-      dayIndex: i.dayIndex,
-      shiftId: i.shiftId
-    }));
-
-    this.shiftService.addRotationItemsBulk(pattern.id, items)
+  updateShift() {
+    this.shiftService
+      .updateEmployeeShift(this.selectedRow.id, this.selectedShiftId)
       .subscribe(() => {
-        this.patternVisible = false;
-        this.loadRotationPatterns();
+        this.assignmentEditVisible = false;
+        this.load();
       });
-  });
-}
+  }
+  patternVisible = false;
 
-loadRotationPatterns() {
-  this.shiftService.getRotationPatterns().subscribe(res => {
-    this.rotationPatterns = res;
-  });
-}
-onCycleDaysChange(days: number) {
-  const cycleDays = Number(days);
+  patternForm = {
+    name: '',
+    cycleDays: 7
+  };
 
-  if (!cycleDays || cycleDays < 1) {
-    this.patternItems = [];
-    return;
+  patternItems: { dayIndex: number; shiftId?: number }[] = [];
+
+  openPatternModal() {
+    this.patternVisible = true;
+    this.patternForm = { name: '', cycleDays: 7 };
+    // this.patternItems = [{ dayIndex: 0 }];
+    this.onCycleDaysChange(this.patternForm.cycleDays);
   }
 
-  // Rebuild patternItems to match cycleDays
-  this.patternItems = Array.from({ length: cycleDays }).map((_, i) => ({
-    dayIndex: i,
-    shiftId: this.patternItems[i]?.shiftId // preserve selected shift if exists
-  }));
-}
+  addPatternItem() {
+    this.patternItems.push({
+      dayIndex: this.patternItems.length
+    });
+  }
+
+  removePatternItem(index: number) {
+    this.patternItems.splice(index, 1);
+    this.patternItems.forEach((item, i) => item.dayIndex = i);
+  }
+  saveRotationPattern() {
+    if (!this.patternForm.name || !this.patternItems.length) {
+      return;
+    }
+
+    this.shiftService.createRotationPattern({
+      name: this.patternForm.name,
+      cycleDays: this.patternForm.cycleDays
+    }).subscribe(pattern => {
+
+      const items = this.patternItems.map(i => ({
+        dayIndex: i.dayIndex,
+        shiftId: i.shiftId
+      }));
+
+      this.shiftService.addRotationItemsBulk(pattern.id, items)
+        .subscribe(() => {
+          this.patternVisible = false;
+          this.loadRotationPatterns();
+        });
+    });
+  }
+
+  loadRotationPatterns() {
+    this.shiftService.getRotationPatterns().subscribe(res => {
+      this.rotationPatterns = res;
+    });
+  }
+  onCycleDaysChange(days: number) {
+    const cycleDays = Number(days);
+
+    if (!cycleDays || cycleDays < 1) {
+      this.patternItems = [];
+      return;
+    }
+
+    // Rebuild patternItems to match cycleDays
+    this.patternItems = Array.from({ length: cycleDays }).map((_, i) => ({
+      dayIndex: i,
+      shiftId: this.patternItems[i]?.shiftId // preserve selected shift if exists
+    }));
+  }
 
 }

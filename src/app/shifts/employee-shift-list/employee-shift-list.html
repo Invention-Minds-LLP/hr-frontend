@@ -5,10 +5,10 @@
         <h3>Shift Management</h3>
 
         <div class="filters">
-            <button class="assign-test" (click)="openPatternModal()">
+            <!-- <button class="assign-test" (click)="openPatternModal()">
                 Create Rotation Pattern
                 <i class="pi pi-plus"></i>
-            </button>
+            </button> -->
 
             <input pInputText type="text" placeholder="Search employee" [(ngModel)]="search" (input)="applyFilter()" />
 
@@ -34,7 +34,7 @@
                 <th>Shift</th>
                 <!-- <th>Type</th> -->
                 <th>Mode</th>
-                <!-- <th>Action</th> -->
+                <th>Action</th>
             </tr>
         </ng-template>
 
@@ -74,14 +74,14 @@
 
                 </td> -->
 
-                <!-- <td>
+                <td>
                     <button class="edit-button" title="Edit this day only" (click)="openAssignmentEdit(row)">
                         <i class="pi pi-pencil"></i>
                     </button>
-                    <button class="edit-button" title="Change shift mode" (click)="openModeEdit(row)">
+                    <!-- <button class="edit-button" title="Change shift mode" (click)="openModeEdit(row)">
                         <i class="pi pi-refresh"></i>
-                    </button>
-                </td> -->
+                    </button> -->
+                </td>
             </tr>
         </ng-template>
 
@@ -154,7 +154,7 @@
         </div>
 
         <!-- ROTATIONAL SHIFT -->
-        <div *ngIf="selectedMode === 'ROTATIONAL'" class="mt-3">
+        <!-- <div *ngIf="selectedMode === 'ROTATIONAL'" class="mt-3">
             <label class="block">Rotation Pattern</label>
             <p-select [options]="rotationPatterns" optionLabel="name" optionValue="id" [(ngModel)]="selectedPatternId"
                 appendTo="body">
@@ -162,7 +162,7 @@
 
             <label class="block mt-2">Start Date</label>
             <p-datepicker [(ngModel)]="rotationStartDate"></p-datepicker>
-        </div>
+        </div> -->
 
         <!-- Actions -->
         <div class="dialog-actions">

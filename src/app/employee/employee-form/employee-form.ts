@@ -1440,8 +1440,8 @@ export class EmployeeForm {
       startCtrl.clearValidators();
     } else {
       shiftIdCtrl.clearValidators();
-      patternCtrl.setValidators([Validators.required]);
-      startCtrl.setValidators([Validators.required]);
+      // patternCtrl.setValidators([Validators.required]);
+      // startCtrl.setValidators([Validators.required]);
     }
 
     shiftIdCtrl.updateValueAndValidity();
@@ -1580,9 +1580,10 @@ export class EmployeeForm {
       const shiftMode = this.employeeForm.get('shiftMode')?.value;
       if (shiftMode === 'FIXED') {
         controlsToValidate.push('fixedShiftId');
-      } else if (shiftMode === 'ROTATIONAL') {
-        controlsToValidate.push('rotationPatternId', 'rotationStartDate');
-      }
+      } 
+      // else if (shiftMode === 'ROTATIONAL') {
+      //   controlsToValidate.push('rotationPatternId', 'rotationStartDate');
+      // }
     } else if (stepNumber === 4) {
       // ✅ Step 3: Qualifications
       // validate at least one qualification

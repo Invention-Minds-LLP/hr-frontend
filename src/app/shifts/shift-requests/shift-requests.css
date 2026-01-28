@@ -1110,4 +1110,148 @@ hr {
 .btn-red {
   border-radius: 8px;
   background: #ff5151;
+
+}
+.btn-info {
+border-radius: 6px;
+background: #194B9B;
+  color: white;
+}
+.week-box {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+/* Month header */
+.month-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.month-header label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #cbd5f5;
+}
+
+.month-input {
+  background: #000;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* Weeks container */
+.weeks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Week card */
+.week-card {
+  background: #050607;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #1f2937;
+  box-shadow: 0 6px 20px rgba(40, 21, 90, 0.35);
+}
+
+/* Week title row */
+.week-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.week-badge {
+  background: #194B9B;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.week-dates {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Shift display */
+.shift-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #bfdbfe;
+  font-size: 14px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.shift-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.shift-time {
+  font-size: 13px;
+  color: #c7d2fe;
+}
+
+/* Empty state */
+.shift-pill.empty {
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* carry-forward visual hint */
+.shift-pill.prev {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px dashed #a855f7;
+}
+
+.carry-badge {
+  margin-left: 8px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.25);
+  color: #e9d5ff;
+  font-weight: 500;
+}
+.reject-reason {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #ffb3b3;
+}
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

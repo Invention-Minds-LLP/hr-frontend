@@ -28,10 +28,21 @@
                     {{ a.fixedShift?.name || a.pattern?.name }}
                 </td>
                 <td>{{ a.startDate | date }}</td>
-                <td>
+                <!-- <td>
                     <p-tag [value]="getShiftStatusLabel(a)"></p-tag>
 
+                </td> -->
+                <td>
+                    <p-tag [value]="getShiftStatusLabel(a)" [severity]="getShiftStatusSeverity(a)"
+                        *ngIf="!getRejectReason(a)">
+                    </p-tag>
+
+                    <p-tag [value]="getShiftStatusLabel(a)" [severity]="getShiftStatusSeverity(a)"
+                        *ngIf="getRejectReason(a)" [pTooltip]="getRejectReason(a)" tooltipPosition="top">
+                    </p-tag>
+
                 </td>
+
                 <!-- <td>
           <button pButton icon="pi pi-check" (click)="approve(a)"></button>
           <button pButton icon="pi pi-times" class="p-button-danger" (click)="reject(a)"></button>
@@ -40,12 +51,33 @@
                     <div class="btns">
 
                         <!-- LEVEL 1 (RM) -->
-                        <button *ngIf="showShiftLevel1Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL1')">
+                        <!-- <button *ngIf="showShiftLevel1Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL1')">
                             Approve
-                        </button>
+                        </button> -->
 
                         <!-- <button *ngIf="showShiftLevel1Approve(a)" class="btn-2 btn" (click)="rejectShift(a, 'LEVEL1')">
                             Decline
+                        </button> -->
+                        <!-- <button *ngIf="showShiftLevel1Approve(a)" class="btn-2 btn"
+                            (click)="openDeclineDialog(a.id, 'LEVEL1')">
+                            Decline
+                        </button> -->
+                        <!-- <button pButton label="Approve" *ngIf="showShiftLevel1Approve(a)"
+                            [loading]="loadingAction[a.id + '_LEVEL1']" [disabled]="loadingAction[a.id + '_LEVEL1']"
+                            (click)="approveShift(a, 'LEVEL1')">
+                        </button> -->
+                        <button *ngIf="showShiftLevel1Approve(a)" class="btn btn-1"
+                            [disabled]="loadingAction[a.id + '_LEVEL1']" (click)="approveShift(a, 'LEVEL1')">
+
+                            <span *ngIf="!loadingAction[a.id + '_LEVEL1']">Approve</span>
+                            <span *ngIf="loadingAction[a.id + '_LEVEL1']" class="btn-spinner"></span>
+
+                        </button>
+
+
+                        <!-- <button pButton label="Decline" class="p-button-danger" *ngIf="showShiftLevel1Approve(a)"
+                            [loading]="loadingAction[a.id + '_LEVEL1']" [disabled]="loadingAction[a.id + '_LEVEL1']"
+                            (click)="openDeclineDialog(a.id, 'LEVEL1')">
                         </button> -->
                         <button *ngIf="showShiftLevel1Approve(a)" class="btn-2 btn"
                             (click)="openDeclineDialog(a.id, 'LEVEL1')">
@@ -54,18 +86,44 @@
 
 
                         <!-- LEVEL 2 (HR) -->
-                        <button *ngIf="showShiftLevel2Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL2')">
+                        <!-- <button *ngIf="showShiftLevel2Approve(a)" class="btn-1 btn" (click)="approveShift(a, 'LEVEL2')">
                             Approve
-                        </button>
+                        </button> -->
 
                         <!-- <button *ngIf="showShiftLevel2Approve(a)" class="btn-2 btn" (click)="rejectShift(a, 'LEVEL2')">
                             Decline
+                        </button> -->
+                        <!-- <button *ngIf="showShiftLevel2Approve(a)" class="btn-2 btn"
+                            (click)="openDeclineDialog(a.id, 'LEVEL2')">
+                            Decline
+                        </button> -->
+
+                        <!-- <button pButton label="Approve" *ngIf="showShiftLevel2Approve(a)"
+                            [loading]="loadingAction[a.id + '_LEVEL2']" [disabled]="loadingAction[a.id + '_LEVEL2']"
+                            (click)="approveShift(a, 'LEVEL2')">
+                        </button> -->
+                        <button *ngIf="showShiftLevel2Approve(a)" class="btn btn-1"
+                            [disabled]="loadingAction[a.id + '_LEVEL2']" (click)="approveShift(a, 'LEVEL2')">
+
+                            <span *ngIf="!loadingAction[a.id + '_LEVEL2']">Approve</span>
+                            <span *ngIf="loadingAction[a.id + '_LEVEL2']" class="btn-spinner"></span>
+
+                        </button>
+
+
+                        <!-- <button pButton label="Decline" class="p-button-danger" *ngIf="showShiftLevel2Approve(a)"
+                            [loading]="loadingAction[a.id + '_LEVEL2']" [disabled]="loadingAction[a.id + '_LEVEL2']"
+                            (click)="openDeclineDialog(a.id, 'LEVEL2')">
                         </button> -->
                         <button *ngIf="showShiftLevel2Approve(a)" class="btn-2 btn"
                             (click)="openDeclineDialog(a.id, 'LEVEL2')">
                             Decline
                         </button>
 
+                        <button *ngIf="a.requestedMode === 'ROTATIONAL'" class="btn btn-info"
+                            (click)="openPatternDialog(a)">
+                            View Details
+                        </button>
 
 
                     </div>
@@ -92,9 +150,73 @@
         <hr>
         <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
 
-        <div class="popup-actions">
+        <!-- <div class="popup-actions">
             <button class="btn btn-green" (click)="confirmDecline()">Decline</button>
             <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div> -->
+        <div class="popup-actions">
+            <button class="btn btn-green" [disabled]="declineSubmitting" (click)="confirmDecline()">
+
+                <span *ngIf="!declineSubmitting">Decline</span>
+
+                <span *ngIf="declineSubmitting" class="btn-spinner"></span>
+            </button>
+
+            <button class="btn btn-red" [disabled]="declineSubmitting" (click)="closeDeclineDialog()">
+                Cancel
+            </button>
         </div>
+
+
     </div>
 </div>
+
+<p-dialog header="Request Shift Change" [(visible)]="patternDialogVisible" [modal]="true" [style]="{ width: '650px' }"
+    [closable]="false" class="shift-dialog">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Request Shift Change</span>
+            <button class="dialog-close-btn" (click)="closePatternDialog()">✕</button>
+        </div>
+    </ng-template>
+
+    <!-- Month -->
+    <div class="month-header">
+        <label>Select Month</label>
+        <input type="text" class="month-input" [value]="selectedMonthLabel" readonly />
+    </div>
+
+    <!-- Weeks -->
+    <div class="weeks-container">
+        <div *ngFor="let week of weekWisePattern; let i = index" class="week-card">
+
+            <div class="week-title">
+                <span class="week-badge">Week {{ i + 1 }}</span>
+                <span class="week-dates">
+                    {{ week.start | date:'dd MMM yyyy' }} –
+                    {{ week.end | date:'dd MMM yyyy' }}
+                </span>
+            </div>
+
+            <div *ngIf="week.shift; else noShift" class="shift-pill" [class.prev]="week.fromPreviousMonth">
+                <span class="shift-name">{{ week.shift.name }}</span>
+                <span class="shift-time">
+                    {{ formatISTTime(week.shift.startTime) }} –
+                    {{ formatISTTime(week.shift.endTime) }}
+                </span>
+                <span *ngIf="week.fromPreviousMonth" class="carry-badge">
+                    Previous month
+                </span>
+            </div>
+
+            <ng-template #noShift>
+                <div class="shift-pill empty">
+                    No shift assigned
+                </div>
+            </ng-template>
+
+        </div>
+    </div>
+
+</p-dialog>

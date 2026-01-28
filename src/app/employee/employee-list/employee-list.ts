@@ -40,6 +40,8 @@ export class EmployeeList {
   loginDeptId = Number(localStorage.getItem('deptId'));
   loginEmpId = Number(localStorage.getItem('empId'));
   loginRole = (localStorage.getItem('role') || '').toUpperCase();
+  savingMode = false;
+
 
 
 
@@ -503,7 +505,7 @@ export class EmployeeList {
 
   shiftModes = [
     { label: 'Fixed', value: 'FIXED' },
-    { label: 'Rotational', value: 'ROTATIONAL' }
+    // { label: 'Rotational', value: 'ROTATIONAL' }
   ];
 
   shiftOptions: any[] = [];
@@ -539,13 +541,19 @@ export class EmployeeList {
   }
 
   saveShiftMode() {
+      if (this.savingMode) return;
+      this.savingMode = true;
     const employeeId = this.selectedEmployee.id;
 
     if (this.selectedMode === 'FIXED') {
       this.shiftService.assignFixedShift({
         employeeId,
         shiftId: this.selectedFixedShiftId
-      }).subscribe(() => this.afterSave());
+      }).subscribe({
+      next: () => this.afterSave(),
+      error: () => this.savingMode = false,
+      complete: () => this.savingMode = false
+    });
     }
 
     if (this.selectedMode === 'ROTATIONAL') {

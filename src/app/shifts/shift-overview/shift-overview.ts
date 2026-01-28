@@ -18,6 +18,7 @@ export class ShiftOverview {
   active: string = ''; // 'requests' | 'manager-shift' | 'employee-shifts' | 'employee-details'
   selectedEmployee: any = null;
   deptId: any = Number(localStorage.getItem('deptId')) || 0
+  roleId:any = Number(localStorage.getItem('roleId')|| 0)
 
 ngOnInit(){
   if(Number(localStorage.getItem('deptId')) === 1){

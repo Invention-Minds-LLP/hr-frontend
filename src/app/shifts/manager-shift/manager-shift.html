@@ -3,18 +3,18 @@
         <h3>My Team – Shift Assignment</h3>
 
         <div class="header-actions">
-            <button class="assign-test" (click)="openPatternModal()">
+            <!-- <button class="assign-test" (click)="openPatternModal()">
                 Create Rotation Pattern
                 <i class="pi pi-plus"></i>
-            </button>
+            </button> -->
             <!-- <button class="assign-test" [disabled]="!selectedEmployees.length" (click)="openBulkAssign()">
 
                 Bulk Assign Rotation
             </button> -->
-            <button  label="Bulk Request" class="assign-test" icon="pi pi-send" [disabled]="!selectedEmployees.length"
+            <!-- <button  label="Bulk Request" class="assign-test" icon="pi pi-send" [disabled]="!selectedEmployees.length"
                 (click)="openBulkRequest()">
                 Bulk Request
-            </button>
+            </button> -->
         </div>
 
     </div>
@@ -26,9 +26,9 @@
         <!-- HEADER -->
         <ng-template pTemplate="header">
             <tr>
-                <th style="width: 40px">
+                <!-- <th style="width: 40px">
                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
+                </th> -->
                 <th>No</th>
                 <th>Employee</th>
                 <th>Phone</th>
@@ -44,9 +44,9 @@
         <!-- BODY -->
         <ng-template pTemplate="body" let-e let-i="rowIndex">
             <tr>
-                <td>
+                <!-- <td>
                     <p-tableCheckbox [value]="e"></p-tableCheckbox>
-                </td>
+                </td> -->
                 <!-- No -->
                 <td>{{ i + 1 }}</td>
 
@@ -107,8 +107,9 @@
                     <!-- <button class="edit-button" title="Assign / Change Shift" (click)="openAssign(e)">
                         <i class="pi pi-pencil"></i>
                     </button> -->
-                    <button icon="pi pi-send" class="assign-test" (click)="openSingleRequest(e)" pTooltip="Change Shift" tooltipPosition="top">
-                        
+                    <button icon="pi pi-send" class="assign-test" (click)="openMonthlyDialog(e)" pTooltip="Change Shift"
+                        tooltipPosition="top">
+
                         <i class="pi pi-send"></i>
                     </button>
                 </td>
@@ -274,7 +275,7 @@
     </div>
 </p-dialog>
 
-<p-dialog
+<!-- <p-dialog
   [(visible)]="requestVisible"
   header="Request Shift Change"
   [modal]="true"
@@ -290,7 +291,7 @@
 
   <div class="dialog-body">
 
-    <!-- EMPLOYEE INFO -->
+
     <p *ngIf="requestEmployees.length === 1">
       Employee:
       <strong>
@@ -305,7 +306,6 @@
       employees
     </p>
 
-    <!-- MODE -->
     <div class="mb-3">
       <label>Mode</label>
       <p-select
@@ -317,7 +317,6 @@
       </p-select>
     </div>
 
-    <!-- FIXED -->
     <div *ngIf="requestForm.mode === 'FIXED'" class="mb-3">
       <label>Shift</label>
       <p-select
@@ -329,7 +328,6 @@
       </p-select>
     </div>
 
-    <!-- ROTATIONAL -->
     <div *ngIf="requestForm.mode === 'ROTATIONAL'" class="mb-3">
       <label>Rotation Pattern</label>
       <p-select
@@ -341,13 +339,11 @@
       </p-select>
     </div>
 
-    <!-- START DATE -->
     <div class="mb-3">
       <label>Start Date</label>
       <p-datepicker [(ngModel)]="requestForm.startDate" appendTo="body"></p-datepicker>
     </div>
 
-    <!-- ACTIONS -->
     <div class="dialog-actions">
       <button
         pButton
@@ -365,4 +361,53 @@
     </div>
 
   </div>
+</p-dialog> -->
+
+<p-dialog [(visible)]="requestVisible" header="Assign Monthly Shifts" [modal]="true" [style]="{ width: '560px' }"
+    [closable]="false">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Request Shift Change</span>
+            <button class="dialog-close-btn" (click)="resetMonthlyRequestState()">✕</button>
+        </div>
+    </ng-template>
+
+    <div class="month-request">
+        <div class="field">
+            <label>Select Month</label>
+            <p-datepicker view="month" dateFormat="MM yy" [(ngModel)]="selectedMonth" (onSelect)="onMonthSelected()"
+                appendTo="body">
+            </p-datepicker>
+        </div>
+
+        <div *ngFor="let w of weeks; let i = index" class="week-box">
+
+            <div class="dates mb-2">
+                <b>Week {{ i + 1 }}</b> -
+                ({{ w.start | date:'dd MMM yyyy' }} –
+                {{ w.end | date:'dd MMM yyyy' }})
+
+            </div>
+
+            <p-select [options]="getAvailableShiftsForWeek(i)" optionLabel="label" optionValue="id"
+                [(ngModel)]="weekShiftMap[i]" [disabled]="isMonthLocked || lockedWeeks.has(i)" appendTo="body"
+                (onChange)="onWeekShiftChange(i, $event.value)" placeholder="Select Shift">
+            </p-select>
+
+        </div>
+
+        <p *ngIf="isMonthLocked" class="muted">
+            This month is already assigned and cannot be edited.
+        </p>
+
+    </div>
+
+    <div class="dialog-actions">
+        <button pButton label="Cancel" (click)="resetMonthlyRequestState()"></button>
+        <!-- <button pButton label="Submit" [disabled]="isMonthLocked" (click)="!isMonthLocked && submitMonthlyRequest()"></button> -->
+        <button pButton label="Submit" [loading]="monthlySubmitting" [disabled]="isMonthLocked || monthlySubmitting"
+            (click)="submitMonthlyRequest()">
+        </button>
+    </div>
 </p-dialog>
