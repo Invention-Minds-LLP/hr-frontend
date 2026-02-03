@@ -46,7 +46,7 @@ export class RequisitionForm {
     this.requisitionId = req.id;
     this.requisitions = req;
     this.currentStep = this.mapStatusToStep(req.status);
-    console.log('Received requisition input:', this.currentStep);
+    console.log('Received requisition input:', this.mapStatusToStep(req.status), this.isHRDept);
 
     // form may not be initialized yet
     if (this.requisitionForm) {
@@ -247,7 +247,7 @@ export class RequisitionForm {
     }
     this.loadDepartments();
     const roleId = Number(localStorage.getItem('roleId'));
-  const deptId = Number(localStorage.getItem('departmentId'));
+  const deptId = Number(localStorage.getItem('deptId'));
 
   this.isRM = roleId === 3 || roleId === 5;          // RM or HOD
   this.isManagement = roleId === 4;                  // Management
