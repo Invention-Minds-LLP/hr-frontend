@@ -210,6 +210,14 @@
                 </span>
             </div>
 
+            <div *ngIf="week.weekOffDate" class="week-off">
+  <span class="week-off-label">Week Off:</span>
+  <span class="week-off-date">
+    {{ week.weekOffDate | date:'EEE, dd MMM yyyy' }}
+  </span>
+</div>
+
+
             <ng-template #noShift>
                 <div class="shift-pill empty">
                     No shift assigned

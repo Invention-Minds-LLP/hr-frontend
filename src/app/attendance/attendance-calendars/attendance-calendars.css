@@ -36,6 +36,18 @@
 .permission-day {
   background: #ffe082 !important;
 }
+
+.weekoff-day {
+  background: #f21a02;
+  border: 1px solid #e53935;
+  color: #b71c1c;
+}
+
+.weekoff-day .day-number {
+  color: #ffffff;
+  font-weight: bold;
+}
+
 .sunday {
   background: #e0bebe !important;
   color: black !important;

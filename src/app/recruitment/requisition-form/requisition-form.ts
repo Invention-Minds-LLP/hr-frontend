@@ -50,8 +50,19 @@ export class RequisitionForm {
 
     // form may not be initialized yet
     if (this.requisitionForm) {
-      console.log('Patching form with requisition:', req);
-      this.requisitionForm.patchValue(req);
+      const formattedReq = {
+        ...req,
+        raisedByDate: this.formatDateTime(req.raisedByDate),
+        approvedByHoDDate: this.formatDateTime(req.approvedByHoDDate),
+        approvedBySMODate: this.formatDateTime(req.approvedBySMODate),
+        receivedByHRDate: this.formatDateTime(req.receivedByHRDate),
+        hodRejectedDate: this.formatDateTime(req.hodRejectedDate),
+        smoRejectedDate: this.formatDateTime(req.smoRejectedDate),
+        hrRejectedDate: this.formatDateTime(req.hrRejectedDate),
+        closedOn: this.formatDateTime(req.closedOn)
+      };
+      console.log('Patching form with requisition:', formattedReq);
+      this.requisitionForm.patchValue(formattedReq);
       if (req.reasonBreakdown && Array.isArray(req.reasonBreakdown)) {
         this.setReasonBreakdown(req.reasonBreakdown);
       }
@@ -157,7 +168,7 @@ export class RequisitionForm {
 
 
 
-  constructor(private fb: FormBuilder, private requisitionService: RequisitionService, 
+  constructor(private fb: FormBuilder, private requisitionService: RequisitionService,
     private departmentService: Departments, private messageService: MessageService) { }
 
 
@@ -247,11 +258,11 @@ export class RequisitionForm {
     }
     this.loadDepartments();
     const roleId = Number(localStorage.getItem('roleId'));
-  const deptId = Number(localStorage.getItem('deptId'));
+    const deptId = Number(localStorage.getItem('deptId'));
 
-  this.isRM = roleId === 3 || roleId === 5;          // RM or HOD
-  this.isManagement = roleId === 4;                  // Management
-  this.isHRDept = deptId === 1;   
+    this.isRM = roleId === 3 || roleId === 5;          // RM or HOD
+    this.isManagement = roleId === 4;                  // Management
+    this.isHRDept = deptId === 1;
   }
 
   get reasonBreakdown(): FormArray {
@@ -356,6 +367,22 @@ export class RequisitionForm {
         this.requisitionForm.patchValue({ hrSign: '' });
         break;
     }
+  }
+  private formatDateTime(value: string | Date | null): string {
+    if (!value) return '';
+
+    const date = value instanceof Date ? value : new Date(value);
+
+    if (isNaN(date.getTime())) return '';
+
+    return date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 
 

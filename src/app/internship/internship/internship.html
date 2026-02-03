@@ -128,7 +128,7 @@
                             [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
                             (click)="openAction('convert', it)"></button> -->
                         <div class="actions-wrap ">
-                            <p-select [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
+                            <p-select class="status-select" [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
                                 optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
                                 appendTo="body" (onChange)="onStatusChange(it, $event)">
                             </p-select>

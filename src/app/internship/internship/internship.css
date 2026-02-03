@@ -335,12 +335,12 @@ table.list td {
 }
 
 ::ng-deep.p-select{
-  background: transparent;
+  background: white !important;
 }
 
 ::ng-deep.p-select-label,
 ::ng-deep.p-select-dropdown{
-  color: black;
+  color: black !important;
 }
 
 /* Department Badge */

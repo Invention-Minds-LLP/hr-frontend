@@ -70,82 +70,175 @@ export class AttendanceCalendars {
         this.events = [];
         this.pendingList = [];
 
-        res.forEach((item: any) => {
+        // res.forEach((item: any) => {
 
-          /** ------------------------------
-           *  ATTENDANCE / PERMISSION EVENTS
-           * ------------------------------ */
-          if (item.type !== 'leave') {
+        //   /** ------------------------------
+        //    *  ATTENDANCE / PERMISSION EVENTS
+        //    * ------------------------------ */
+        //   if (item.type !== 'leave') {
 
-            const ev = {
-              start: new Date(item.start),
-              allDay: true,
-              title: item.title,
-              meta: {
-                type: item.type,
-                hours: item.hours,
-                checkIn: item.checkIn,
-                checkOut: item.checkOut,
-                status: item.status,
-                leaveType: item.title.replace('Leave (', '').replace(')', ''),
-                flag: item.flag,
-                finalStatus: item.finalStatus,
-                approvedBy: item.approvedBy,
-                approvedAt: item.approvedAt,
-                needsApproval: item.needsApproval,
-                attendanceId: item.attendanceId,
-                date: item.start
-              },
-              color: {
-                primary: this.getColor(item.type),
-                secondary: this.getColor(item.type) + '33'
-              }
-            };
+        //     const ev = {
+        //       start: new Date(item.start),
+        //       allDay: true,
+        //       title: item.title,
+        //       meta: {
+        //         type: item.type,
+        //         hours: item.hours,
+        //         checkIn: item.checkIn,
+        //         checkOut: item.checkOut,
+        //         status: item.status,
+        //         leaveType: item.title.replace('Leave (', '').replace(')', ''),
+        //         flag: item.flag,
+        //         finalStatus: item.finalStatus,
+        //         approvedBy: item.approvedBy,
+        //         approvedAt: item.approvedAt,
+        //         needsApproval: item.needsApproval,
+        //         attendanceId: item.attendanceId,
+        //         date: item.start
+        //       },
+        //       color: {
+        //         primary: this.getColor(item.type),
+        //         secondary: this.getColor(item.type) + '33'
+        //       }
+        //     };
 
-            this.events.push(ev);
+        //     this.events.push(ev);
 
-            // ⭐ STORE PENDING APPROVAL ITEMS
-            if (item.needsApproval) {
-              this.pendingList.push({
-                attendanceId: item.attendanceId,
-                date: new Date(item.start),
-                checkIn: item.checkIn,
-                checkOut: item.checkOut,
-                flag: item.flag,
-                finalStatus: item.finalStatus
-              });
-            }
-          }
+        //     // ⭐ STORE PENDING APPROVAL ITEMS
+        //     if (item.needsApproval) {
+        //       this.pendingList.push({
+        //         attendanceId: item.attendanceId,
+        //         date: new Date(item.start),
+        //         checkIn: item.checkIn,
+        //         checkOut: item.checkOut,
+        //         flag: item.flag,
+        //         finalStatus: item.finalStatus
+        //       });
+        //     }
+        //   }
+          
 
 
-          /** ------------------------------
-           *  LEAVE EVENTS (MULTI-DAY)
-           * ------------------------------ */
-          else {
-            let current = new Date(item.start);
-            const end = new Date(item.end);
+        //   /** ------------------------------
+        //    *  LEAVE EVENTS (MULTI-DAY)
+        //    * ------------------------------ */
+        //   else {
+        //     let current = new Date(item.start);
+        //     const end = new Date(item.end);
 
-            while (current <= end) {
-              this.events.push({
-                start: new Date(current),
-                allDay: true,
-                title: item.title,
-                meta: {
-                  type: 'leave',
-                  leaveType: item.title
-                },
-                color: {
-                  primary: this.getColor('leave'),
-                  secondary: this.getColor('leave') + '33'
-                }
-              });
+        //     while (current <= end) {
+        //       this.events.push({
+        //         start: new Date(current),
+        //         allDay: true,
+        //         title: item.title,
+        //         meta: {
+        //           type: 'leave',
+        //           leaveType: item.title
+        //         },
+        //         color: {
+        //           primary: this.getColor('leave'),
+        //           secondary: this.getColor('leave') + '33'
+        //         }
+        //       });
 
-              current.setDate(current.getDate() + 1);
-            }
-          }
+        //       current.setDate(current.getDate() + 1);
+        //     }
+        //   }
 
-        }); // foreach end
+        // }); 
 
+res.forEach((item: any) => {
+
+  /* ------------------------------
+     ✅ WEEK OFF EVENTS (NEW)
+  ------------------------------ */
+  if (item.type === 'weekoff') {
+    this.events.push({
+      start: new Date(item.start),
+      allDay: true,
+      title: 'Week Off',
+      meta: {
+        type: 'weekoff',
+        approved: item.approved === true
+      },
+      color: {
+        primary: this.getColor('weekoff'),
+        secondary: this.getColor('weekoff') + '33'
+      }
+    });
+
+    return; // ⛔ IMPORTANT: stop here
+  }
+
+  /* ------------------------------
+     ATTENDANCE / PERMISSION
+  ------------------------------ */
+  if (item.type !== 'leave') {
+    const ev = {
+      start: new Date(item.start),
+      allDay: true,
+      title: item.title,
+      meta: {
+        type: item.type,
+        hours: item.hours,
+        checkIn: item.checkIn,
+        checkOut: item.checkOut,
+        status: item.status,
+        leaveType: item.title.replace('Leave (', '').replace(')', ''),
+        flag: item.flag,
+        finalStatus: item.finalStatus,
+        approvedBy: item.approvedBy,
+        approvedAt: item.approvedAt,
+        needsApproval: item.needsApproval,
+        attendanceId: item.attendanceId,
+        date: item.start
+      },
+      color: {
+        primary: this.getColor(item.type),
+        secondary: this.getColor(item.type) + '33'
+      }
+    };
+
+    this.events.push(ev);
+
+    if (item.needsApproval) {
+      this.pendingList.push({
+        attendanceId: item.attendanceId,
+        date: new Date(item.start),
+        checkIn: item.checkIn,
+        checkOut: item.checkOut,
+        flag: item.flag,
+        finalStatus: item.finalStatus
+      });
+    }
+
+    return;
+  }
+
+  /* ------------------------------
+     LEAVE EVENTS
+  ------------------------------ */
+  let current = new Date(item.start);
+  const end = new Date(item.end);
+
+  while (current <= end) {
+    this.events.push({
+      start: new Date(current),
+      allDay: true,
+      title: item.title,
+      meta: {
+        type: 'leave',
+        leaveType: item.title
+      },
+      color: {
+        primary: this.getColor('leave'),
+        secondary: this.getColor('leave') + '33'
+      }
+    });
+
+    current.setDate(current.getDate() + 1);
+  }
+});
 
         console.log('Events:', this.events);
         console.log('Pending Approvals:', this.pendingList);
@@ -184,6 +277,8 @@ export class AttendanceCalendars {
       case 'attendance': return '#4CAF50';
       case 'leave': return '#F44336';
       case 'permission': return '#FFC107';
+      case 'weekoff':
+        return '#5dc0f2';
 
       default: return '#9E9E9E';
     }
@@ -216,6 +311,13 @@ export class AttendanceCalendars {
       return `Permission (${ev.meta.timing || ''})`;
     }
 
+    if (ev.meta.type === 'weekoff') {
+      console.log('Weekoff event meta:', ev.meta);
+      return ev.meta.approved
+        ? 'Approved Week Off'
+        : 'Weekly Off (Sunday)';
+    }
+
     return '';
   }
 
@@ -224,7 +326,7 @@ export class AttendanceCalendars {
     const date = day.date;
     const event = day.events?.[0];
 
-    if (date.getDay() === 0) return 'sunday';
+    // if (date.getDay() === 0) return 'sunday';
     if (!event || !event.meta) return '';
 
     const status = event.meta.status;
@@ -249,6 +351,11 @@ export class AttendanceCalendars {
 
     // Permission
     if (event.meta.type === 'permission') return 'permission-day';
+
+    if (event.meta.type === 'weekoff') {
+      return 'weekoff-day';
+    }
+
 
     return '';
   }
@@ -318,28 +425,28 @@ export class AttendanceCalendars {
   onDialogClose() {
     this.visibleChange.emit(false); // Update parent
   }
-  
+
   ngAfterViewInit() {
     setTimeout(() => this.adjustCalendarScale(), 50);
   }
-  
+
   adjustCalendarScale() {
     const wrapper = document.querySelector('.calendar-scale-wrapper') as HTMLElement | null;
     const calendar = wrapper?.children[0] as HTMLElement | null;
-  
+
     if (!wrapper || !calendar) return;
-  
+
     const wrapperHeight = wrapper.clientHeight;
     const calendarHeight = calendar.scrollHeight;
-  
+
     let scale = wrapperHeight / calendarHeight;
-  
+
     // Keep scale between 0.65 and 1
     scale = Math.min(1, Math.max(scale, 0.65));
-  
+
     wrapper.style.setProperty('--cal-scale', scale.toString());
   }
-  
-  
+
+
 
 }

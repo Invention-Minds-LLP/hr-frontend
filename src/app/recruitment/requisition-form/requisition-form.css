@@ -46,18 +46,20 @@
 
 /* Grey-out and disable pointer events */
 .disabled-section {
-  opacity: 0.6;
+  opacity: 1;
   pointer-events: none;
   cursor: not-allowed !important;
 }
 
 /* Optional: style for disabled signature canvases */
 .disabled-canvas {
-  opacity: 0.5;
+  opacity: 1;
   pointer-events: none;
   cursor: not-allowed !important;
 }
-
+canvas{
+  background-color: white !important;
+}
 
 ::ng-deep .p-card-body {
   padding: 20px 60px;

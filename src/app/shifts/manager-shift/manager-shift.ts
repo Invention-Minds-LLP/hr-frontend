@@ -76,6 +76,7 @@ export class ManagerShift {
   lockedWeeks = new Set<number>();
   monthlySubmitting = false;
 
+  weekOffDateMap: { [weekIndex: number]: Date | null } = {};
 
 
 
@@ -90,7 +91,7 @@ export class ManagerShift {
   lastShiftMeta: { isNight: boolean; isSixHour: boolean } | null = null;
   usedShiftIdsInCurrentMonth = new Set<number>();
   minMonth!: Date;
-maxMonth!: Date;
+  maxMonth!: Date;
 
 
 
@@ -125,15 +126,15 @@ maxMonth!: Date;
   }
 
 
-setMonthLimits() {
-  const today = new Date();
+  setMonthLimits() {
+    const today = new Date();
 
-  // ❌ block future beyond next month
-  this.maxMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    // ❌ block future beyond next month
+    this.maxMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
-  // ✅ allow ANY past month → no minDate
-  this.minMonth = null as any;
-}
+    // ✅ allow ANY past month → no minDate
+    this.minMonth = null as any;
+  }
 
   openAssign(emp: any) {
     this.selectedEmployee = emp;
@@ -642,6 +643,7 @@ setMonthLimits() {
     this.weekShiftMap = {};
     this.usedRotationShiftIds.clear();
     this.usedShiftIdsInCurrentMonth.clear();
+    this.weekOffDateMap = {};
     this.sixHourUsed = false;
     this.lastShiftMeta = null;
     this.isMonthLocked = false;
@@ -731,6 +733,22 @@ setMonthLimits() {
     if (curr?.isMonthAssigned) {
       this.weekShiftMap = { ...curr.weekShifts };
       this.isMonthLocked = true;
+      const weekOffConfig = curr.weekOffConfig;
+      if (weekOffConfig?.weeks) {
+          const weeksConfig = weekOffConfig.weeks;
+
+Object.keys(weeksConfig).forEach(k => {
+  const weekIndex = Number(k);   // 🔑 convert
+  const dayOfWeek = weeksConfig[weekIndex]; // ✅ number index
+
+  const week = this.weeks[weekIndex];
+  if (!week) return;
+
+  this.weekOffDateMap[weekIndex] =
+    this.resolveWeekOffDate(week, dayOfWeek);
+});
+      }
+
       return;
     }
 
@@ -800,11 +818,28 @@ setMonthLimits() {
         filteredWeekShifts[idx] = this.weekShiftMap[idx];
       }
     });
+
+    const weekOffWeeks: Record<number, number> = {};
+
+    Object.keys(this.weekOffDateMap).forEach(k => {
+      const idx = Number(k);
+      const date = this.weekOffDateMap[idx];
+
+      if (
+        date instanceof Date &&
+        !this.lockedWeeks.has(idx)
+      ) {
+        weekOffWeeks[idx] = date.getDay(); // 🔑 Sun=0 ... Sat=6
+      }
+    });
     const payload = {
       employeeId: this.requestEmployees[0].id,
       month: this.selectedMonth.getMonth() + 1,
       year: this.selectedMonth.getFullYear(),
-      weekShifts: filteredWeekShifts
+      weekShifts: filteredWeekShifts,
+      weekOffConfig: Object.keys(weekOffWeeks).length
+        ? { weeks: weekOffWeeks }
+        : null
     };
 
 
@@ -1392,6 +1427,7 @@ setMonthLimits() {
 
     // reset month state
     this.weekShiftMap = {};
+    this.weekOffDateMap = {};
     this.isMonthLocked = false;
     this.selectedMonth = undefined!;
   }
@@ -1465,6 +1501,14 @@ setMonthLimits() {
     this.usedShiftIdsInCurrentMonth.clear();
     this.sixHourUsed = false;
     this.lastShiftMeta = null;
+  }
+  private resolveWeekOffDate(
+    week: { start: Date; end: Date },
+    dayOfWeek: number
+  ): Date {
+    const d = new Date(week.start);
+    d.setDate(week.start.getDate() + dayOfWeek);
+    return d;
   }
 
 

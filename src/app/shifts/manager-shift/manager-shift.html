@@ -395,6 +395,20 @@
                 (onChange)="onWeekShiftChange(i, $event.value)" placeholder="Select Shift">
             </p-select>
 
+            <div class="mt-2">
+  <label class="block text-sm mb-1">Week Off</label>
+
+  <p-datepicker
+    [(ngModel)]="weekOffDateMap[i]"
+    [minDate]="w.start"
+    [maxDate]="w.end"
+    [disabled]="isMonthLocked || lockedWeeks.has(i)"
+    dateFormat="dd M yy"
+    appendTo="body"
+    placeholder="Select week off date">
+  </p-datepicker>
+</div>
+
         </div>
 
         <p *ngIf="isMonthLocked" class="muted">

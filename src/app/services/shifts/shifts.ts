@@ -164,6 +164,9 @@ requestMonthlyShift(payload: any) {
     return this.http.post<{
       isMonthAssigned: boolean;
       weekShifts?: { [weekIndex: number]: number };
+        weekOffConfig?: {
+    weeks: Record<number, number>; // weekIndex -> dayOfWeek (0–6)
+  };
     }>(
       `${this.apiUrl}/monthly/status`,
       payload
