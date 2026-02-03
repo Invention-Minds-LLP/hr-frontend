@@ -380,7 +380,7 @@ h2 {
 
 .p-inputtext {
   background-color: white !important;
-  color: black;
+  color: black !important;
 }
 
 .flex1 {

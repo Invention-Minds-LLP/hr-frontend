@@ -215,7 +215,9 @@
 
 ::ng-deep .p-select-label{
   color: white !important;
+  background-color: transparent !important;
 }
 ::ng-deep .p-inputtext{
   color: white !important;
+  background-color: transparent !important;
 }

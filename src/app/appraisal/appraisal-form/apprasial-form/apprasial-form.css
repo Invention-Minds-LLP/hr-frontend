@@ -3,8 +3,12 @@
     background: transparent;
     height: auto;
     padding: 50px 50px;
-        --p-floatlabel-active-color:#ffff;
-        --p-floatlabel-on-active-background:#000;
+    --p-floatlabel-active-color: #fff !important;
+    --p-floatlabel-on-active-background: #000 !important;
+    --p-floatlabel-color: #fff !important;
+}
+label{
+    color: white !important;
 }
 
 .appraisal-form {
@@ -13,7 +17,8 @@
     gap: 0px;
 }
 
-.appraisal-form h2, h3{
+.appraisal-form h2,
+h3 {
     color: white;
     margin-top: 10px;
 }
@@ -35,9 +40,10 @@
     font-style: normal;
     font-weight: 700;
     line-height: 24px;
-  
+
 }
-.input-box-1{
+
+.input-box-1 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 20px;
@@ -56,6 +62,7 @@
     gap: 20px;
     width: 100%;
 }
+
 .final-decision {
     display: flex;
     flex-direction: column;
@@ -69,7 +76,7 @@
     align-items: center;
     justify-content: center;
     margin-top: 50px;
-} 
+}
 
 ::ng-deep .p-inputtext {
     width: 100%;
@@ -84,7 +91,7 @@
 ::ng-deep .p-textarea {
     width: 100%;
     height: 100px;
-    background-color: transparent!important;
+    background-color: transparent !important;
     color: white;
 }
 
@@ -131,23 +138,23 @@
 }
 
 ::ng-deep .full-width-datepicker .p-inputtext {
-  width: 100% !important;
+    width: 100% !important;
 }
 
 ::ng-deep .full-width-datepicker {
-  width: 100%;
+    width: 100%;
 }
 
-.error-text{
+.error-text {
     color: #E9144A;
-    
+
 }
 
-label{
+label {
     color: white;
 }
 
-::ng-deep .surface-card{
+::ng-deep .surface-card {
     background-color: rgba(255, 250, 250, 0.3) !important;
     /* border: 1px solid #FFFFFF; */
     color: black;
@@ -155,17 +162,13 @@ label{
 
 .text-600,
 .text-500,
-.mb-2{
+.mb-2 {
     color: white !important;
 }
 
 .p-floatlabel.float-active label {
-  top: -0.25rem;
-  font-size: 0.75rem;
-  background-color: #000;
-  color: white;
+    top: -0.25rem;
+    font-size: 0.75rem;
+    background-color: #000;
+    color: white;
 }
-
-
-
-

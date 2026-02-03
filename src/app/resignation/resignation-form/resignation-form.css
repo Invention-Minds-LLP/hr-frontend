@@ -6,12 +6,14 @@
   gap: 6px;
   width: 100%;
   flex-direction: column;
+  color: white;
 }
 
 .field.readonly {
   background: transparent;
   padding: 10px;
   border-radius: 8px;
+  color: white;
 }
 
 .req {
@@ -55,7 +57,7 @@ textarea {
   width: 420px;
   background: transparent !important;
   border-radius: 10px;
-  color: black !important;
+  color: white !important;
 
 }
 
@@ -270,7 +272,7 @@ textarea {
 ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
   background: transparent !important;
-  color: black;
+  color: white;
   border: none !important;
   border-bottom: 2px solid #D9D9D9 !important;
 
@@ -351,7 +353,7 @@ textarea {
   position: relative;
   left: -40%;
   top: 3px;
-  color: black;
+  color: white;
 }
 
 .readonly {
@@ -369,14 +371,14 @@ textarea {
 
 .readonly div {
   /* position: relative; */
-  color: black;
+    color: white;
   top: -33px;
 }
 
 .readonly label {
   /* position: relative; */
   /* left: 90px; */
-  color: black;
+  color: white;
 
 }
 .field.flex {
@@ -397,8 +399,8 @@ textarea {
   font-weight: 500;
   /* padding: 8px 12px; */
   border: none;
-  background-color: none;
-  color: #000;
+  background-color: transparent;
+  color: #fff !important;
 }
 
 

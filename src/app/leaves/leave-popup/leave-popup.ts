@@ -728,7 +728,7 @@ export class LeavePopup {
   isHolidayOrWeekend(date: Date): boolean {
     const day = date.getDay(); // 0 = Sun, 6 = Sat
 
-    if (day === 0 || day === 6) return true;
+    if (day === 0) return true;
 
     return this.holidays.some(h =>
       h.getTime() === date.getTime()

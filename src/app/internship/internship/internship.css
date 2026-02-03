@@ -340,7 +340,7 @@ table.list td {
 
 ::ng-deep.p-select-label,
 ::ng-deep.p-select-dropdown{
-  color: white;
+  color: black;
 }
 
 /* Department Badge */
