@@ -68,7 +68,7 @@ export class RequisitionForm {
         return 'HOD'; // waiting for HoD action
       case 'HOD_APPROVED':
         return 'COO'; // waiting for COO action
-      case 'SMO_APPROVED':
+      case 'COO_APPROVED':
         return 'HR';  // waiting for HR action
       case 'HR_RECEIVED':
         return 'CLOSED'; // workflow completed
@@ -359,7 +359,7 @@ export class RequisitionForm {
   }
 
 
-  saveSignature(role: 'raisedBy' | 'hod' | 'smo' | 'hr') {
+  saveSignature(role: 'raisedBy' | 'hod' | 'coo' | 'hr') {
     const now = new Date().toLocaleString(); // capture system date/time
 
     switch (role) {
@@ -381,7 +381,7 @@ export class RequisitionForm {
         }
         break;
 
-      case 'smo':
+      case 'coo':
         if (!this.smoSignaturePad.isEmpty()) {
           this.requisitionForm.patchValue({
             smoSign: this.smoSignaturePad.toDataURL(),
