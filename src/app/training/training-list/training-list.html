@@ -344,7 +344,7 @@
     <div class="field col-12">
       <p-floatLabel variant="on">
         <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value"
-          appendTo="body" placeholder="Select Departments" class="w-full"></p-multiSelect>
+          appendTo="body"  class="w-full"></p-multiSelect>
 
         <label>Select Departments</label>
       </p-floatLabel>
@@ -353,7 +353,7 @@
     <!-- Employees -->
     <div class="field col-12">
       <p-floatLabel variant="on">
-        <p-multiSelect [options]="employeeOptions" formControlName="employeeIds" placeholder="Select Employees"
+        <p-multiSelect [options]="employeeOptions" formControlName="employeeIds" 
           [loading]="loading" optionLabel="label" class="w-full" appendTo="body" optionValue="value"></p-multiSelect>
         <label>Select Employees</label>
       </p-floatLabel>

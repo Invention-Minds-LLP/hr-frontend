@@ -328,7 +328,7 @@
   color: white;
   font-family: "Sofia Sans";
   max-height: 300px;
-  max-width: 90%;
+  max-width: 100%;
   overflow-x: auto !important;
   overflow-y: auto !important;
 }

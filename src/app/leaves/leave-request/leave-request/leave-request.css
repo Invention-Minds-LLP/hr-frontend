@@ -422,7 +422,7 @@ hr {
   padding: 0.3rem 0.5rem;
   list-style: none;
   margin: 0;
-  background: black;
+  background: white;
 }
 
 .menu-list li {
@@ -430,7 +430,7 @@ hr {
   cursor: pointer;
   transition: background 0.2s;
   font-size: 14px;
-  color: white;
+  color: black;
 }
 
 .menu-list .list:hover {
@@ -439,9 +439,9 @@ hr {
 }
 
 .menu-list .list.active {
-  background-color: black;
+  background-color: #d0ebff;
   font-weight: bold;
-  color: #fff;
+  color: #000;
   border-radius: 20px;
 }
 

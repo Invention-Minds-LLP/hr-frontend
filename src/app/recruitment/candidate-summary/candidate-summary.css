@@ -10,6 +10,25 @@
     align-items: center;
     padding: 10px;
   }
+
+  .header-row h2,
+  .header-row p,
+  .round-header h3,
+  .evaluation-test h3, p,
+  .offer-status h3,
+  .feedback h4,
+  .hr-review h4{
+    color: white;
+    margin: 10px;
+  }
+
+  .header-row h2{
+    margin: 0;
+  }
+
+  ::ng-deep .p-card-body {
+    padding: 0 20px;
+  }
   
   .round-header {
     display: flex;
@@ -19,24 +38,63 @@
   }
   
   .feedback-card {
-    background: #f9f9f9;
+    background: transparent;
+    border: 1px solid #FFF;
     border-radius: 6px;
     padding: 0.75rem;
     margin-bottom: 0.5rem;
   }
+
+  .f-card{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
   
   .feedback-header {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    /* align-items: center; */
     gap: 0.5rem;
   }
   
   .muted {
-    color: #666;
+    color: #FFF;
     font-size: 0.9rem;
   }
 
   /* ::ng-deep .p-card-content{
     padding: 15px;
   } */
+  
+
+  .round-box{
+    display: flex;
+    justify-content: space-evenly;
+    gap: 30px;
+    align-items: start;
+    margin-bottom: 30px;
+  }
+
+  .round-heading{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+
+  ::ng-deep .p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(odd) .p-timeline-event-content,
+  ::ng-deep .p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(even) .p-timeline-event-content{
+    border: 1px solid #FFF;
+  }
+
+  ::ng-deep .p-chip{
+    background: transparent !important;
+    color: white;
+    padding: 0;
+  }
+
+  ::ng-deep .summary-container .p-card-body{
+    padding: 10px;
+  }
+
   

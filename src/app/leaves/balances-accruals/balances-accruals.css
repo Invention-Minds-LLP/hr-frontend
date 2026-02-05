@@ -319,9 +319,10 @@
 }
 
 
-::ng-deep .p-inputtext {
-    background: white;
+::ng-deep .balances-accruals .p-inputtext {
+    background: white !important;
     font-family: "Sofia Sans";
+    width: 100% !important;
 }
 
 
@@ -409,8 +410,8 @@
     background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
 
-::ng-deep .p-inputtext {
-    width: 50% !important;
+::ng-deep .modal-overlay .p-inputtext {
+    width: 100% !important;
     background-color: #000 !important;
     color: white !important;
     border: 2px solid #ccc;

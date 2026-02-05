@@ -24,14 +24,16 @@
       </div>
 
       <!-- SEARCH -->
-      <div class="search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-          <path d="M19.25 19.25L16.0417 16.0417M15.5833 9.16667..." stroke="#9B9B9B" />
-        </svg>
+      <!-- <div class="search">
+        <p-inputicon class="pi pi-search" />
 
         <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
-      </div>
+      </div> -->
+       <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input id="searchBox" class="input" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+            </p-iconfield>
       <!-- </div> -->
 
 

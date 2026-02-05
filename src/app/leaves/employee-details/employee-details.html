@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="toolbar">
-                <p-datePicker [(ngModel)]="selectedDates" [selectionMode]="'multiple'" [showIcon]="true"
+                <p-datePicker [(ngModel)]="selectedDates" [selectionMode]="'range'" [showIcon]="true"
                     [showButtonBar]="true" [panelStyle]="{minWidth:'320px'}" inputId="filterDates"
                     placeholder="Select date(s)" (onSelect)="applyFilters()">
                 </p-datePicker>

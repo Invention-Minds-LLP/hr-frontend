@@ -15,12 +15,14 @@ import { TextareaModule } from 'primeng/textarea';
 import { InputText, InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 
 
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
-    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule],
+    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule,InputIconModule, IconFieldModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })

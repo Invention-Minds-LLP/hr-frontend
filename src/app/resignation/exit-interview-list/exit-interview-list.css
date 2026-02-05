@@ -89,7 +89,7 @@
 
 .menu-list {
   position: absolute;
-  top: 82%;
+  top: 23px;
   left: 0px;
   min-width: 160px;
   background: var(--surface-ground);
