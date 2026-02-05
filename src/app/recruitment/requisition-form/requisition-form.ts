@@ -260,7 +260,7 @@ export class RequisitionForm {
     const roleId = Number(localStorage.getItem('roleId'));
     const deptId = Number(localStorage.getItem('deptId'));
 
-    this.isRM = roleId === 3 || roleId === 5;          // RM or HOD
+    this.isRM = roleId === 3;          // RM or HOD
     this.isManagement = roleId === 4;                  // Management
     this.isHRDept = deptId === 1;
   }
@@ -546,6 +546,7 @@ export class RequisitionForm {
     setTimeout(() => {
       if (req.raisedBySign && this.raisedBySignaturePad) {
         this.raisedBySignaturePad.fromDataURL(req.raisedBySign);
+       console.log('Loaded raisedBy signature', req.raisedBySign, this.raisedBySignaturePad);
       }
       if (req.hodSign && this.hodSignaturePad) {
         this.hodSignaturePad.fromDataURL(req.hodSign);

@@ -709,7 +709,7 @@ td.actions {
 
 ::ng-deep .p-select, .p-datepicker, .p-multiselect{
   width: 100% !important;
-  /* background-color: #020403 !important; */
+  background-color: transparent !important;
 }
 
 ::ng-deep .p-select-label {

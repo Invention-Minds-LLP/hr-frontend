@@ -628,6 +628,49 @@ export class ManagerShift {
 
   //     });
   // }
+  getWeekDefaultDate(week: { start: Date; end: Date }): Date {
+  const selectedMonth = this.selectedMonth.getMonth();
+  const selectedYear = this.selectedMonth.getFullYear();
+
+  // Find first date of this week inside the selected month
+  for (
+    let d = new Date(week.start);
+    d <= week.end;
+    d.setDate(d.getDate() + 1)
+  ) {
+    if (
+      d.getMonth() === selectedMonth &&
+      d.getFullYear() === selectedYear
+    ) {
+      return new Date(d);
+    }
+  }
+
+  // fallback: month start
+  return new Date(selectedYear, selectedMonth, 1);
+}
+trackByWeek = (_: number, w: any) =>
+  `${w.start.toISOString()}-${this.selectedMonth?.getMonth()}`;
+
+getWeekSelectableRange(week: { start: Date; end: Date }) {
+  const year = this.selectedMonth.getFullYear();
+  const month = this.selectedMonth.getMonth();
+
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+
+  const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
+  const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+
+  // 🔒 SAFETY: if invalid range, lock it
+  if (min > max) {
+    return { min: null, max: null };
+  }
+
+  return { min, max };
+}
+
+
   async onMonthSelected() {
     this.generateWeeks();
 
@@ -643,11 +686,10 @@ export class ManagerShift {
     this.weekShiftMap = {};
     this.usedRotationShiftIds.clear();
     this.usedShiftIdsInCurrentMonth.clear();
-    this.weekOffDateMap = {};
     this.sixHourUsed = false;
     this.lastShiftMeta = null;
     this.isMonthLocked = false;
-
+    this.weekOffDateMap = {};
     this.lockedWeeks.clear();
 
     const rangeStart = this.weeks[0].start;
@@ -735,18 +777,29 @@ export class ManagerShift {
       this.isMonthLocked = true;
       const weekOffConfig = curr.weekOffConfig;
       if (weekOffConfig?.weeks) {
-          const weeksConfig = weekOffConfig.weeks;
+        const weeksConfig = weekOffConfig.weeks;
 
-Object.keys(weeksConfig).forEach(k => {
-  const weekIndex = Number(k);   // 🔑 convert
-  const dayOfWeek = weeksConfig[weekIndex]; // ✅ number index
+        Object.keys(weeksConfig).forEach(k => {
+          const weekIndex = Number(k);   // 🔑 convert
+          const dayOfWeek = weeksConfig[weekIndex]; // ✅ number index
 
-  const week = this.weeks[weekIndex];
-  if (!week) return;
+          const week = this.weeks[weekIndex];
+          if (!week) return;
 
-  this.weekOffDateMap[weekIndex] =
-    this.resolveWeekOffDate(week, dayOfWeek);
-});
+          const resolved = this.resolveWeekOffDate(
+            week,
+            dayOfWeek,
+            this.selectedMonth.getMonth(),
+            this.selectedMonth.getFullYear()
+          );
+
+          if (resolved) {
+            this.weekOffDateMap[weekIndex] = resolved;
+          }
+
+          // this.weekOffDateMap[weekIndex] =
+          // this.resolveWeekOffDate(week, dayOfWeek);
+        });
       }
 
       return;
@@ -1502,12 +1555,40 @@ Object.keys(weeksConfig).forEach(k => {
     this.sixHourUsed = false;
     this.lastShiftMeta = null;
   }
+  // private resolveWeekOffDate(
+  //   week: { start: Date; end: Date },
+  //   dayOfWeek: number
+  // ): Date {
+  //   const d = new Date(week.start);
+  //   d.setDate(week.start.getDate() + dayOfWeek);
+  //   return d;
+  // }
   private resolveWeekOffDate(
     week: { start: Date; end: Date },
-    dayOfWeek: number
-  ): Date {
+    dayOfWeek: number,
+    targetMonth: number,   // 0-based (JS month)
+    targetYear: number
+  ): Date | null {
+
+    console.log(week, dayOfWeek, targetMonth, targetYear);
+
+    // candidate date based on week start
     const d = new Date(week.start);
     d.setDate(week.start.getDate() + dayOfWeek);
+
+    // 🔒 clamp to selected month
+    if (
+      d.getMonth() !== targetMonth ||
+      d.getFullYear() !== targetYear
+    ) {
+      return null;
+    }
+
+    // 🔒 clamp to week range (extra safety)
+    if (d < week.start || d > week.end) {
+      return null;
+    }
+
     return d;
   }
 

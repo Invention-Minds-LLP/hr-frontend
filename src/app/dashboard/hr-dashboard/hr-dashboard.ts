@@ -247,7 +247,7 @@ export class HrDashboard implements OnInit {
     this.currentPage = event.page;
     this.pageSize = event.rows;
   }
-  
+
 
   closeModal() { this.modalOpen = false; this.selectedList = undefined; this.selectedListKey = undefined; this.selectedRows = null; }
 
@@ -420,13 +420,13 @@ export class HrDashboard implements OnInit {
             this.reloadData();
           });
         }
-        if (action === 'Mark exception') {
-          const employeeIds = this.selectedRows.map((r: any) => r.id);
-          this.api.markUnmarkedException(employeeIds).subscribe(() => {
-            this.toast('Attendance exceptions marked');
-            this.reloadData();
-          });
-        }
+        // if (action === 'Mark exception') {
+        //   const employeeIds = this.selectedRows.map((r: any) => r.id);
+        //   this.api.markUnmarkedException(employeeIds).subscribe(() => {
+        //     this.toast('Attendance exceptions marked');
+        //     this.reloadData();
+        //   });
+        // }
         break;
 
       case 'approvals':
@@ -469,7 +469,16 @@ export class HrDashboard implements OnInit {
 
       case 'docs':
         if (action === 'Notify all') {
-          const documentIds = this.selectedRows.map((r: any) => r.id);
+
+          // const documentIds = this.selectedRows.map((r: any) => r.id);
+          const rows = this.selectedRows || [];
+          const documentIds = rows.map((r: any) => r.id);
+
+          if (!documentIds.length) {
+            this.toast('Please select at least one employee/document');
+            return;
+          }
+
           this.api.notifyDocs(documentIds).subscribe(() => {
             this.toast('Employees notified about expiring documents');
             this.reloadData();
@@ -519,6 +528,34 @@ export class HrDashboard implements OnInit {
         }
 
         break;
+      case 'clinicalLate':
+      case 'nonClinicalLate':
+        if (action === 'Notify all') {
+          // const employeeIds = this.selectedRows.map((r: any) => r.id);
+          const rows = this.selectedRows || [];
+          console.log('Selected rows for notify all:', rows);
+          const employeeIds = rows.map((r: any) => r.id);
+
+          if (!employeeIds.length) {
+            this.toast('Please select at least one employee');
+            return;
+          }
+
+          this.api.messageUnmarked(employeeIds, 'You are late. Please check in immediately.').subscribe(() => {
+            this.toast('Notification sent to employees');
+            this.reloadData();
+          });
+        }
+
+        // if (action === 'Mark exception') {
+        //   const employeeIds = this.selectedRows.map((r: any) => r.id);
+        //   this.api.markUnmarkedException(employeeIds).subscribe(() => {
+        //     this.toast('Exceptions marked');
+        //     this.reloadData();
+        //   });
+        // }
+        break;
+
 
 
       default:
@@ -543,7 +580,7 @@ export class HrDashboard implements OnInit {
     }
   }
   pageSize = 8;          // rows per page
-totalRecords = 0;      // total rows (from selectedList)
-currentPage = 0;       // paginator page index
+  totalRecords = 0;      // total rows (from selectedList)
+  currentPage = 0;       // paginator page index
 
 }

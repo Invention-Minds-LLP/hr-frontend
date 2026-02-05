@@ -47,6 +47,9 @@ export class RecruitmentDashboard implements OnInit {
   loading = false;
   updatingJobId: number | null = null;
 
+  deptId = Number(localStorage.getItem('deptId')) || 0;
+  roleId = Number(localStorage.getItem('roleId')) || 0;
+
   // Allowed transitions (tweak if you want to disallow reopening CLOSED, etc.)
   private jobMoves: Record<JobStatus, JobStatus[]> = {
     OPEN: ['ON_HOLD', 'CLOSED', 'DRAFT'],

@@ -183,5 +183,17 @@ getDailyShiftsForRange(params: {
     { params }
   );
 }
+getApprovedWeekOffs(payload: {
+  employeeId: number;
+  month: number;
+  year: number;
+}) {
+  return this.http.get<{
+    source: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT';
+    weekOffDates: string[];
+  }>(`${this.apiUrl}/weekoffs`, {
+    params: payload as any
+  });
+}
 
 }

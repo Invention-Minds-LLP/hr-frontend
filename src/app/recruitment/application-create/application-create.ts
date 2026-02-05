@@ -129,4 +129,9 @@ export class ApplicationCreate implements OnInit {
     const control = this.form.get(form);
     return control?.invalid && (control.touched || control.dirty)
   }
+  removeFile(input: HTMLInputElement) {
+  this.selectedResumeFile = undefined;
+  input.value = ''; // clears file input
+}
+
 }

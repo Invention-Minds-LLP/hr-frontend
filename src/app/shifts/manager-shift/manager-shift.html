@@ -381,7 +381,7 @@
             </p-datepicker>
         </div>
 
-        <div *ngFor="let w of weeks; let i = index" class="week-box">
+        <div *ngFor="let w of weeks; let i = index; trackBy: trackByWeek" class="week-box">
 
             <div class="dates mb-2">
                 <b>Week {{ i + 1 }}</b> -
@@ -396,18 +396,14 @@
             </p-select>
 
             <div class="mt-2">
-  <label class="block text-sm mb-1">Week Off</label>
+                <label class="block text-sm mb-1">Week Off</label>
 
-  <p-datepicker
-    [(ngModel)]="weekOffDateMap[i]"
-    [minDate]="w.start"
-    [maxDate]="w.end"
-    [disabled]="isMonthLocked || lockedWeeks.has(i)"
-    dateFormat="dd M yy"
-    appendTo="body"
-    placeholder="Select week off date">
-  </p-datepicker>
-</div>
+                <p-datepicker [(ngModel)]="weekOffDateMap[i]"   [minDate]="getWeekSelectableRange(w).min  || undefined"
+  [maxDate]="getWeekSelectableRange(w).max  || undefined" [defaultDate]="getWeekDefaultDate(w)"
+                    [disabled]="isMonthLocked || lockedWeeks.has(i)" dateFormat="dd M yy" appendTo="body"
+                    placeholder="Select week off date">
+                </p-datepicker>
+            </div>
 
         </div>
 

@@ -231,7 +231,7 @@
   <div *ngIf="!selectedInterview()" class="" style="margin-top: 2rem;">
     <app-application-status></app-application-status>
   </div>
-  <div class="" *ngIf="!selectedInterview()" style="margin-top: 2rem;">
+  <div class="" *ngIf="!selectedInterview() && ((deptId === 1 && roleId === 1) || (roleId === 4))" style="margin-top: 2rem;">
     <app-interview (evaluate)="onEvaluate($event)"></app-interview>
   </div>
   <div class="" style="margin-top: 2rem;">

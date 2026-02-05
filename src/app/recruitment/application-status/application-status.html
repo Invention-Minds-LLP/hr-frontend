@@ -130,7 +130,7 @@
             <th style="text-align: left">Resume</th>
             <th>Status</th>
             <th class="center">Actions</th>
-            <th class="center">Overview</th>
+            <th class="center"><span *ngIf="(deptId === 1 && roleId === 1) || (roleId === 4)">Overview</span></th>
           </tr>
         </thead>
   
@@ -178,8 +178,8 @@
                 (onChange)="onActionChange(a, $event.value)">
               </p-select>
             </td>
-            <td>
-              <button pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
+            <td >
+              <button *ngIf="(deptId === 1 && roleId === 1) || (roleId === 4)" pButton label="Overview" icon="pi pi-eye" class="p-button-text" (click)="openSummaryDialog(a)">
               </button>
             </td>
   

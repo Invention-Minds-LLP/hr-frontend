@@ -100,9 +100,28 @@
                     <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}"
                         (change)="checkLeaveBalance()">
                         <option value="">Select Leave Type</option>
-                        <option *ngFor="let type of leaveTypes" [value]="type.name">{{ type.name }}</option>
+                        <option *ngFor="let type of filteredLeaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
                 </div>
+
+                <!-- Half Day Toggle -->
+                <div class="form-row">
+                    <label>
+                        <input type="checkbox" [(ngModel)]="isHalfDay" [ngModelOptions]="{standalone: true}"
+                            (change)="onHalfDayToggle()" />
+                        Half Day Leave
+                    </label>
+                </div>
+
+                <!-- Half Day Session -->
+                <div class="form-row" *ngIf="isHalfDay">
+                    <label>Session</label>
+                    <select [(ngModel)]="halfDaySession" [ngModelOptions]="{standalone: true}">
+                        <option value="FIRST_HALF">First Half</option>
+                        <option value="SECOND_HALF">Second Half</option>
+                    </select>
+                </div>
+
 
                 <!-- Reason -->
                 <div class="form-row">
@@ -197,7 +216,8 @@
                 <div class="form-row">
                     <label>From</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="fromDay" [disabled]="!hasBackdrop" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
+                        <select [(ngModel)]="fromDay" [disabled]="!hasBackdrop" (change)="updateFromDate()"
+                            [ngModelOptions]="{standalone: true}">
 
                             <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
@@ -222,7 +242,8 @@
                 <div class="form-row">
                     <label>To</label>
                     <div class="date-selectors">
-                        <select [(ngModel)]="toDay" [disabled]="!hasBackdrop" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
+                        <select [(ngModel)]="toDay" [disabled]="!hasBackdrop" (change)="updateToDate()"
+                            [ngModelOptions]="{standalone: true}">
 
                             <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
@@ -261,9 +282,28 @@
                     </select>
                 </div>
 
+                                <!-- Half Day Toggle -->
+                <div class="form-row">
+                    <label>
+                        <input type="checkbox" [(ngModel)]="isHalfDay" [ngModelOptions]="{standalone: true}"
+                            (change)="onHalfDayToggle()" />
+                        Half Day Leave
+                    </label>
+                </div>
+
+                <!-- Half Day Session -->
+                <div class="form-row" *ngIf="isHalfDay">
+                    <label>Session</label>
+                    <select [(ngModel)]="halfDaySession" [ngModelOptions]="{standalone: true}">
+                        <option value="FIRST_HALF">First Half</option>
+                        <option value="SECOND_HALF">Second Half</option>
+                    </select>
+                </div>
+
                 <!-- Reason -->
                 <div class="form-row">
-                    <textarea placeholder="Type Reason here..." rows="10" [disabled]="!hasBackdrop" [(ngModel)]="reason"></textarea>
+                    <textarea placeholder="Type Reason here..." rows="10" [disabled]="!hasBackdrop"
+                        [(ngModel)]="reason"></textarea>
                 </div>
                 <div class="form-row" *ngIf="declineReason">
                     <div>
@@ -295,7 +335,7 @@
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
                             [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
-                            (click)="onDateClick(day)" >
+                            (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
                     </div>

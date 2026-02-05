@@ -72,7 +72,7 @@ export class ApplicationStatus implements OnInit {
   private fb = inject(FormBuilder);
   private messages = inject(MessageService);
   constructor(private sanitizer: DomSanitizer, private employeeService: Employees,
-     private messageService: MessageService, private cd: ChangeDetectorRef) { }
+    private messageService: MessageService, private cd: ChangeDetectorRef) { }
 
   jobs: Job[] = [];
   selectedJobId?: number;
@@ -103,7 +103,9 @@ export class ApplicationStatus implements OnInit {
     'NO_SHOW'
   ];
   isLoading = false;
-  
+  roleId = Number(localStorage.getItem('roleId')) || 0;
+  deptId = Number(localStorage.getItem('deptId')) || 0;
+
 
 
 
@@ -175,7 +177,7 @@ export class ApplicationStatus implements OnInit {
     setTimeout(() => {
       this.api.listJobs({ pageSize: 200 }).subscribe(res => (this.jobs = res.rows));
       this.load();
-    },2000)
+    }, 2000)
 
   }
   // scheduleInterview(app: Application) {
@@ -281,7 +283,7 @@ export class ApplicationStatus implements OnInit {
         }
       },
     });
-    
+
   }
 
 
@@ -333,10 +335,10 @@ export class ApplicationStatus implements OnInit {
   //     this.load();
   //   });
   // }
-  resetInterview() { 
+  resetInterview() {
     this.interviewForm.reset({ stage: 'Tech1', startTime: null, endTime: null, panelIds: [] });
     // this.resetAction(this.currentApp?.id!);
- }
+  }
 
   submitOffer(skipDate: boolean) {
     if (!this.currentApp) return;
@@ -497,22 +499,58 @@ export class ApplicationStatus implements OnInit {
     const interviews = a.interviews || [];
     const testAssigned = (a as any).CandidateAssignedTest?.length > 0;
 
-    if (interviews.length === 0 && (a.status === 'SHORTLISTED' || a.status === 'SCREENING')) {
-      // ✅ First interview not done yet
-      opts.push({ label: 'Schedule Round 1 – Panel', value: 'SCHEDULE_PANEL' });
-    } else if (interviews.some((i: any) => i.stage === 'Panel') && !testAssigned) {
-      // ✅ Test not yet assigned
-      opts.push({ label: 'Schedule Round 2 – Test', value: 'ASSIGN_TEST' });
-    } else if (testAssigned && !interviews.some((i: any) => i.stage === 'Management')) {
-      // ✅ Management interview not yet scheduled
-      opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
+    // if (interviews.length === 0 && (a.status === 'SHORTLISTED' || a.status === 'SCREENING')) {
+    //   // ✅ First interview not done yet
+    //   opts.push({ label: 'Schedule Round 1 – Panel', value: 'SCHEDULE_PANEL' });
+    // }
+    // } else if (interviews.some((i: any) => i.stage === 'Panel') && !testAssigned) {
+    //   // ✅ Test not yet assigned
+    //   opts.push({ label: 'Schedule Round 2 – Test', value: 'ASSIGN_TEST' });
+    // } else if (testAssigned && !interviews.some((i: any) => i.stage === 'Management')) {
+    //   // ✅ Management interview not yet scheduled
+    //   opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
+    // }
+    // After Panel round is done
+    const canScheduleRounds =
+      a.status === 'SCREENING' ||
+      a.status === 'SHORTLISTED' ||
+      a.status === 'INTERVIEW_SCHEDULED';
+    // if (interviews.some((i: any) => i.stage === 'Panel')) {
+
+    //   // Optional test
+    //   if (!testAssigned) {
+    //     opts.push({ label: 'Schedule Round 2 – Test', value: 'ASSIGN_TEST' });
+    //   }
+
+    //   // Management can be scheduled anytime after Panel
+    //   if (!interviews.some((i: any) => i.stage === 'Management')) {
+    //     opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
+    //   }
+    // }
+    if (canScheduleRounds) {
+
+      if (interviews.length === 0) {
+        opts.push({ label: 'Schedule Round 1 – Panel', value: 'SCHEDULE_PANEL' });
+      }
+
+      if (interviews.some((i: any) => i.stage === 'Panel')) {
+
+        if (!testAssigned) {
+          opts.push({ label: 'Schedule Round 2 – Test', value: 'ASSIGN_TEST' });
+        }
+
+        if (!interviews.some((i: any) => i.stage === 'Management')) {
+          opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
+        }
+      }
     }
+
     // // 2) Interview ---------------------------------------------------
     // if (a.status === 'SHORTLISTED' || a.status === 'SCREENING') {
     //   opts.push({ label: 'Schedule Interview', value: 'INTERVIEW' });
     // }
     // 3) Offer actions ----------------------------------------------
-    if (a.status === 'INTERVIEWED' || a.status === 'OFFERED' || a.status === 'OFFER_ACCEPTED') {
+    if (a.status === 'INTERVIEWED' && (!a.offer || a.offer.status === 'DRAFT')) {
       opts.push({ label: 'Send Offer', value: 'SEND_OFFER' });
     }
     if (a.offer?.status === 'SENT' || a.offer?.status === 'VIEWED') {
@@ -664,7 +702,7 @@ export class ApplicationStatus implements OnInit {
   openShortlistDialog(a: Application) { this.shortlistDlg = { visible: true, app: a, stage: '', shortListNote: '' }; }
   doShortlist() {
     if (!this.shortlistDlg.app || !this.shortlistDlg.stage) return;
-    
+
     this.move(this.shortlistDlg.app, 'SHORTLISTED', { currentStage: this.shortlistDlg.stage.trim(), shortListNote: this.shortlistDlg.shortListNote.trim() });
     this.shortlistDlg.visible = false;
   }
@@ -707,21 +745,21 @@ export class ApplicationStatus implements OnInit {
     // Reset the form
     console.log('Interview dialog closed');
     this.resetInterview();
-  
+
     // Reset dropdown selection (so you can reselect the same action)
     if (this.currentApp) {
       this.resetAction(this.currentApp.id);
     }
-  
+
     // Clear current app reference
     this.currentApp = null;
   }
   onActionChange(a: Application, key: ActionKey | null) {
     if (!key) return;
-  
+
     // Call your handler first
     this.handleActionSelect(a, key);
-  
+
     // Reset the dropdown *after* a brief delay to ensure reactivity
     setTimeout(() => {
       this.actionSel = { ...this.actionSel, [a.id]: null }; // new object reference
@@ -730,6 +768,6 @@ export class ApplicationStatus implements OnInit {
   truncate(text?: string, limit = 10) {
     return text && text.length > limit ? text.slice(0, limit) + '…' : text || '';
   }
-  
-  
+
+
 }

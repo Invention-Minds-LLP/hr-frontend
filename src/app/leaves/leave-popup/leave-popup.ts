@@ -7,6 +7,7 @@ import { from } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Holidays } from '../../services/holidays/holidays';
+import { Shifts } from '../../services/shifts/shifts';
 
 interface CalendarDay {
   date: Date;
@@ -25,7 +26,9 @@ interface CalendarDay {
 export class LeavePopup {
 
 
-  constructor(private leaveService: Leaves, private messageService: MessageService, private holidayService: Holidays) { }
+  constructor(private leaveService: Leaves, private messageService: MessageService, private holidayService: Holidays,
+    private shiftService: Shifts
+  ) { }
 
   @Input() showPopup = true;
   @Input() leaveData: any = null;     // Data passed when opening popup
@@ -47,6 +50,12 @@ export class LeavePopup {
   currentDeclineId: number | null = null; // Stores the leave ID being declined
   currentUserId: number = Number(localStorage.getItem('empId')) || 0;
   holidays: Date[] = [];
+  employeeGender: 'MALE' | 'FEMALE' | '' = '';
+  filteredLeaveTypes: any[] = [];
+  isHalfDay = false;
+  halfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
+
+
 
 
 
@@ -84,6 +93,10 @@ export class LeavePopup {
   // declineReason: string = '';
   blockedRanges: { startDate: Date, endDate: Date }[] = [];
   today = new Date();
+  approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
+  weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
+
+
 
 
 
@@ -106,8 +119,24 @@ export class LeavePopup {
     this.generateCalendar();
   }
 
+  isApprovedWeekOff(date: Date): boolean {
+    const key = this.stripTime(date).toISOString().slice(0, 10);
+
+    if (this.weekOffSource === 'MONTHLY_SHIFT') {
+      return this.approvedWeekOffDates.has(key);
+    }
+
+    // fallback → Sunday
+    return date.getDay() === 0;
+  }
+
+
   ngOnInit(): void {
     this.employeeId = localStorage.getItem('empId') || '';
+    this.employeeGender = (localStorage.getItem('gender') || '').toUpperCase() as any;
+
+
+
     console.log(Number(this.employeeId))
     this.leaveService.getBlockedDates(Number(localStorage.getItem('empId')))
       .subscribe((res: any[]) => {
@@ -123,6 +152,26 @@ export class LeavePopup {
       });
 
     const year = new Date().getFullYear();
+    const today = new Date();
+    const month = today.getMonth() + 1;
+
+    this.shiftService.getApprovedWeekOffs({
+      employeeId: Number(this.employeeId),
+      month,
+      year
+    }).subscribe(res => {
+      this.weekOffSource = res.source;
+
+      this.approvedWeekOffDates = new Set(
+        res.weekOffDates.map(d => {
+          const x = new Date(d);
+          x.setHours(0, 0, 0, 0);
+          return x.toISOString().slice(0, 10);
+        })
+      );
+
+      this.generateCalendar(); // refresh calendar
+    });
 
     this.holidayService.getHolidaysByYear(year).subscribe((res: any) => {
       this.holidays = res.holidays.map((h: any) => {
@@ -144,6 +193,20 @@ export class LeavePopup {
     this.calculateDays();
     this.leaveService.getLeaveTypes().subscribe(types => {
       this.leaveTypes = types;
+
+      this.filteredLeaveTypes = types.filter((t: any) => {
+        const name = t.name.toLowerCase();
+
+        if (name.includes('maternity')) {
+          return this.employeeGender === 'FEMALE';
+        }
+
+        if (name.includes('paternity')) {
+          return this.employeeGender === 'MALE';
+        }
+
+        return true; // all other leave types visible
+      });
     });
 
     this.isHR = this.isHRRole(localStorage.getItem('role') || '')
@@ -162,11 +225,22 @@ export class LeavePopup {
     this.syncDropdownsFromDates();
     this.leaveType = data.leaveType;
     this.reason = data.reason;
-    this.declineReason = data.declineReason
+    this.declineReason = data.declineReason;
+    this.isHalfDay = data.isHalfDay;
+
+  this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
+    this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.calculateDays();
 
     // Disable dragging in calendar for view-only
     this.isDragging = false;
+
+    console.log('Populated form from leave data:', {
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      isHalfDay: this.isHalfDay,
+      halfDaySession: this.halfDaySession
+    });
   }
   initializeDefaults() {
     const today = new Date();
@@ -239,7 +313,38 @@ export class LeavePopup {
   //     this.days = 0;
   //   }
   // }
+  // calculateDays() {
+  //   if (this.toDate < this.fromDate) {
+  //     this.days = 0;
+  //     return;
+  //   }
+
+  //   let total = 0;
+
+  //   // Loop through each date in the selected range
+  //   for (
+  //     let d = new Date(this.fromDate);
+  //     d <= this.toDate;
+  //     d.setDate(d.getDate() + 1)
+  //   ) {
+  //     const current = new Date(d);
+
+  //     // Skip blocked days
+  //     if (this.isDayBlocked(current)) {
+  //       continue;
+  //     }
+
+  //     total++;
+  //   }
+
+  //   this.days = total;
+  // }
   calculateDays() {
+    if (this.isHalfDay) {
+      this.days = 0.5;
+      return;
+    }
+
     if (this.toDate < this.fromDate) {
       this.days = 0;
       return;
@@ -247,24 +352,19 @@ export class LeavePopup {
 
     let total = 0;
 
-    // Loop through each date in the selected range
     for (
       let d = new Date(this.fromDate);
       d <= this.toDate;
       d.setDate(d.getDate() + 1)
     ) {
       const current = new Date(d);
-
-      // Skip blocked days
-      if (this.isDayBlocked(current)) {
-        continue;
-      }
-
+      if (this.isDayBlocked(current)) continue;
       total++;
     }
 
     this.days = total;
   }
+
 
 
   generateCalendar() {
@@ -311,6 +411,7 @@ export class LeavePopup {
 
   }
   isDayBlocked(date: Date): boolean {
+    if (this.isApprovedWeekOff(date)) return true;
     return this.blockedRanges.some(range =>
       date >= range.startDate && date <= range.endDate
     );
@@ -463,7 +564,9 @@ export class LeavePopup {
       leaveTypeId: this.leaveTypes.find(type => type.name === this.leaveType)?.id,
       startDate: this.fromDate.toISOString(),
       endDate: this.toDate.toISOString(),
-      reason: this.reason // we’ll add `reason` binding below
+      reason: this.reason, // we’ll add `reason` binding below
+      isHalfDay: this.isHalfDay,
+      halfDaySession: this.isHalfDay ? this.halfDaySession : null
     };
     this.leaveService.createLeave(payload).subscribe({
       next: (res) => {
@@ -728,7 +831,8 @@ export class LeavePopup {
   isHolidayOrWeekend(date: Date): boolean {
     const day = date.getDay(); // 0 = Sun, 6 = Sat
 
-    if (day === 0) return true;
+    // if (day === 0) return true;
+    if (this.isApprovedWeekOff(date)) return true;
 
     return this.holidays.some(h =>
       h.getTime() === date.getTime()
@@ -740,46 +844,84 @@ export class LeavePopup {
     return d;
   }
 
+  // isSandwichLeave(from: Date, to: Date): boolean {
+  //   from = this.stripTime(from);
+  //   to = this.stripTime(to);
+
+  //   // Case 1: Holiday(s) inside the selected range
+  //   let foundWorkingDay = false;
+  //   let foundHolidayAfterWork = false;
+
+  //   for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+  //     const current = this.stripTime(new Date(d));
+
+  //     if (this.isHolidayOrWeekend(current)) {
+  //       if (foundWorkingDay) {
+  //         foundHolidayAfterWork = true;
+  //       }
+  //     } else {
+  //       if (foundHolidayAfterWork) {
+  //         return true; // Leave → Holiday → Leave
+  //       }
+  //       foundWorkingDay = true;
+  //     }
+  //   }
+
+  //   // Case 2: Leave → Holiday(s)
+  //   let next = new Date(to);
+  //   next.setDate(next.getDate() + 1);
+
+  //   if (this.isHolidayOrWeekend(this.stripTime(next))) {
+  //     return true;
+  //   }
+
+  //   // Case 3: Holiday(s) → Leave
+  //   let prev = new Date(from);
+  //   prev.setDate(prev.getDate() - 1);
+
+  //   if (this.isHolidayOrWeekend(this.stripTime(prev))) {
+  //     return true;
+  //   }
+
+  //   return false;
+  // }
   isSandwichLeave(from: Date, to: Date): boolean {
     from = this.stripTime(from);
     to = this.stripTime(to);
 
-    // Case 1: Holiday(s) inside the selected range
-    let foundWorkingDay = false;
-    let foundHolidayAfterWork = false;
+    let hasWeekend = false;
+    let hasWorkingDay = false;
 
     for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
       const current = this.stripTime(new Date(d));
 
-      if (this.isHolidayOrWeekend(current)) {
-        if (foundWorkingDay) {
-          foundHolidayAfterWork = true;
-        }
+      if (this.isApprovedWeekOff(current)) {
+        hasWeekend = true;
+      } else if (this.isHoliday(current)) {
+        // holidays always count as sandwich
+        return true;
       } else {
-        if (foundHolidayAfterWork) {
-          return true; // Leave → Holiday → Leave
-        }
-        foundWorkingDay = true;
+        hasWorkingDay = true;
+      }
+
+      // 🚨 weekend + working day together = sandwich
+      if (hasWeekend && hasWorkingDay) {
+        return true;
       }
     }
 
-    // Case 2: Leave → Holiday(s)
-    let next = new Date(to);
-    next.setDate(next.getDate() + 1);
-
-    if (this.isHolidayOrWeekend(this.stripTime(next))) {
-      return true;
-    }
-
-    // Case 3: Holiday(s) → Leave
-    let prev = new Date(from);
-    prev.setDate(prev.getDate() - 1);
-
-    if (this.isHolidayOrWeekend(this.stripTime(prev))) {
-      return true;
-    }
-
     return false;
+  }
+
+
+  isHoliday(date: Date): boolean {
+    const d = this.stripTime(date);
+    return this.holidays.some(h => h.getTime() === d.getTime());
+  }
+
+  isWeekend(date: Date): boolean {
+    // Sunday or approved week off
+    return this.isApprovedWeekOff(date);
   }
 
 
@@ -805,5 +947,14 @@ export class LeavePopup {
     return true;
   }
 
+  onHalfDayToggle() {
+    if (this.isHalfDay) {
+      // Force single-day selection
+      this.toDate = this.fromDate;
+      this.calculateDays();
+      this.generateCalendar();
+      this.syncDropdownsFromDates();
+    }
+  }
 
 }

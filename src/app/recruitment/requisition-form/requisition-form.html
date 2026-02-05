@@ -265,9 +265,8 @@
               <label for="approvedBySMODate">Date</label>
             </p-floatLabel>
       
-            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value?.trim()}"
-                        formControlName="approvedBySMOComments">
-              <textarea pInputTextarea id="approvedBySMOComments" rows="2" 
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value?.trim()}">
+              <textarea pInputTextarea id="approvedBySMOComments" rows="2"  formControlName="approvedBySMOComments"
                         [readonly]="!(currentStep === 'COO' && isManagement)"></textarea>
               <label for="approvedBySMOComments">Comments</label>
             </p-floatLabel>
