@@ -468,6 +468,15 @@ export class LeavePopup {
   // Drag handling
   startDrag(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
+      if (this.isHalfDay) {
+    this.fromDate = day.date;
+    this.toDate = day.date;
+    this.calculateDays();
+    this.generateCalendar();
+    this.syncDropdownsFromDates();
+    return;
+  }
+
     this.isDragging = true;
     this.fromDate = day.date;
     this.toDate = day.date;
