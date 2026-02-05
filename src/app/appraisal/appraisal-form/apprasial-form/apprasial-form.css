@@ -72,7 +72,7 @@ h3 {
 .btns {
     display: flex;
     flex-direction: row;
-    gap: 100px;
+    gap: 30px;
     align-items: center;
     justify-content: center;
     margin-top: 50px;
@@ -96,7 +96,7 @@ h3 {
 }
 
 ::ng-deep .p-button {
-    width: 200%;
+    width:200%;
 }
 
 ::ng-deep .submit-btn .p-button-success {
@@ -110,6 +110,8 @@ h3 {
     line-height: normal;
     letter-spacing: 0.18px;
     border: none;
+    width: 200px;
+    
 }
 
 ::ng-deep .submit-btn .p-button-success:hover {
@@ -129,6 +131,7 @@ h3 {
     line-height: normal;
     letter-spacing: 0.18px;
     border: none;
+    width: 200px;
 }
 
 ::ng-deep .cancel-btn .p-button-danger:hover {

@@ -414,3 +414,22 @@ hr {
   flex-direction: column;
   gap: 6px;
 }
+
+.input {
+  border: none;
+  outline: none;
+  padding: 13px;
+  font-size: 14px;
+  background-color: #fafafa !important;
+}
+:ng-deep .p-floatlabel:has(.p-inputwrapper-filled) label {
+  background-color: #000 !important;
+  color: white !important;
+}
+
+.p-iconfield .p-inputtext:not(:first-child), .p-iconfield .p-inputwrapper:not(:first-child) .p-inputtext{
+  background: white;
+  color: black !important;
+}
+
+

@@ -52,7 +52,7 @@
 
 .box-4 {
   background: #b7242b;
-  height: auto !important;
+  height: 200px !important; 
 }
 
 .box {
@@ -148,6 +148,7 @@
   /* icon color */
   box-shadow: none;
 }
+
 .custom-slider {
   position: relative;
   overflow: hidden;
@@ -185,7 +186,8 @@
 }
 
 .dots span.active {
-  background: #1fb875; /* same green you used */
+  background: #1fb875;
+  /* same green you used */
 }
 
 
@@ -254,8 +256,8 @@
 }
 
 /* wrap long text so it doesn't create horizontal scroll */
-:host ::ng-deep .vscroll .p-datatable-thead > tr > th,
-:host ::ng-deep .vscroll .p-datatable-tbody > tr > td {
+:host ::ng-deep .vscroll .p-datatable-thead>tr>th,
+:host ::ng-deep .vscroll .p-datatable-tbody>tr>td {
   white-space: normal;
   /* allow wrapping */
   word-break: break-word;
@@ -538,10 +540,12 @@
   border: 1px solid #fff !important;
   color: white !important;
 }
+
 /* SINGLE ROW (Grid for perfect alignment) */
 .attendance-row {
   display: grid;
-  grid-template-columns: 100px 60px 1fr; /* Day | Dash | Value */
+  grid-template-columns: 100px 60px 1fr;
+  /* Day | Dash | Value */
   justify-content: center;
   align-items: center;
   padding: 7px 10px;
@@ -574,11 +578,13 @@
 }
 
 .status.leave {
-  color: #ff3a3a; /* red */
+  color: #ff3a3a;
+  /* red */
 }
 
 .status.off {
-  color: #00a2ff; /* blue */
+  color: #00a2ff;
+  /* blue */
 }
 
 .status.empty {
@@ -619,6 +625,7 @@
   padding: 0;
   display: grid;
   gap: 8px;
+  width: 100%;
 }
 
 .lb-item {
@@ -628,6 +635,8 @@
   gap: 12px;
   min-height: 28px;
   padding: 0 30px;
+  /* width: 230px; */
+
 }
 
 .lb-name {
@@ -749,13 +758,7 @@
   border-radius: 16px;
 }
 
-::ng-deep
-  .individual-container
-  .table
-  .p-datatable
-  .p-datatable-thead
-  > tr
-  > th {
+::ng-deep .individual-container .table .p-datatable .p-datatable-thead>tr>th {
   background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
   border: none;
   text-align: center;
@@ -767,13 +770,7 @@
   letter-spacing: 0.16px;
 }
 
-::ng-deep
-  .individual-container
-  .table
-  .p-datatable
-  .p-datatable-tbody
-  > tr
-  > td {
+::ng-deep .individual-container .table .p-datatable .p-datatable-tbody>tr>td {
   border: none !important;
   text-align: center;
   border-radius: 16px;
@@ -989,6 +986,7 @@
   background: linear-gradient(96deg, #dfd5fe 0%, #e6c0fc 100%);
   height: 50px;
 }
+
 .permission-normal-table thead th {
   padding: 12px 10px;
   color: #000;
@@ -1105,6 +1103,7 @@
   font-weight: 600;
   line-height: normal;
 }
+
 .date-range-box-1 {
   width: 129px !important;
 }
@@ -1235,36 +1234,28 @@
   border: none;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-top-left-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-top-right-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:first-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
   border-bottom-left-radius: 0px !important;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th:last-child {
+::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
   border-bottom-right-radius: 0px !important;
 }
 
-::ng-deep
-  .p-datatable-scrollable
-  > .p-datatable-table-container
-  > .p-datatable-table
-  > .p-datatable-thead,
-.p-datatable-scrollable
-  > .p-datatable-table-container
-  > .p-virtualscroller
-  > .p-datatable-table
-  > .p-datatable-thead {
+::ng-deep .p-datatable-scrollable>.p-datatable-table-container>.p-datatable-table>.p-datatable-thead,
+.p-datatable-scrollable>.p-datatable-table-container>.p-virtualscroller>.p-datatable-table>.p-datatable-thead {
   background: none !important;
 }
 
-::ng-deep .p-datatable-tbody > tr {
+::ng-deep .p-datatable-tbody>tr {
   background: none !important;
 }
 
@@ -1390,7 +1381,7 @@ h1 {
   color: #fff;
 }
 
-::ng-deep .test-list .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .test-list .p-datatable .p-datatable-tbody>tr>td {
   background: transparent !important;
   border: none !important;
 }
@@ -1405,7 +1396,7 @@ h1 {
   /* margin-left: 50px; */
 }
 
-::ng-deep .test-list .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .test-list .p-datatable .p-datatable-thead>tr>th {
   background: transparent !important;
   color: white !important;
   border-bottom: 2px solid #ffffff !important;
@@ -1428,17 +1419,17 @@ h1 {
 }
 
 :host ::ng-deep .p-skeleton {
-  background-color: #ced6d7 !important; /* Light teal background */
+  background-color: #ced6d7 !important;
+  /* Light teal background */
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #787d7d,
-    transparent
-  ) !important;
+  background: linear-gradient(90deg,
+      transparent,
+      #787d7d,
+      transparent) !important;
 }
+
 .slide-container {
   height: 380px;
   width: 340px;
@@ -1463,6 +1454,7 @@ h1 {
 .front {
   transform: translateX(0);
 }
+
 .front.hide {
   transform: translateX(-110%);
 }
@@ -1471,6 +1463,7 @@ h1 {
 .back {
   transform: translateX(110%);
 }
+
 .back.show {
   transform: translateX(0);
 }
@@ -1517,18 +1510,21 @@ h1 {
   border: 4px solid white;
 
   position: absolute;
-  top: 50px; /* push down from cover */
+  top: 50px;
+  /* push down from cover */
   left: 50%;
   transform: translateX(-50%);
 
   object-fit: cover;
   background: #fff;
-  z-index: 3; /* ensure visible */
+  z-index: 3;
+  /* ensure visible */
 }
 
 /* ===== CONTENT ===== */
 .content {
-  margin-top: 50px; /* because profile overlaps */
+  margin-top: 50px;
+  /* because profile overlaps */
   text-align: center;
 }
 
@@ -1604,12 +1600,15 @@ hr {
   border-bottom: 1px solid #fff;
   /* opacity: 0.3; */
 }
+
 .leave-normal-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: transparent; /* IMPORTANT */
+  background: transparent;
+  /* IMPORTANT */
 }
+
 .leave-normal-table thead {
   position: sticky;
   top: 0;
@@ -1625,12 +1624,15 @@ hr {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
 }
+
 .permission-normal-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: transparent; /* IMPORTANT */
+  background: transparent;
+  /* IMPORTANT */
 }
+
 .permission-normal-table thead {
   position: sticky;
   top: 0;
@@ -1652,6 +1654,7 @@ hr {
 /* Tab */
 
 @media (max-width: 1023px) {
+
   .individual-top,
   .individual-bottom {
     width: 100%;
@@ -1727,9 +1730,10 @@ hr {
     height: auto;
   }
 
-  .slide-container{
+  .slide-container {
     width: 100%;
   }
+
   .title h3 {
     font-size: 14px;
   }
@@ -1779,7 +1783,7 @@ hr {
     font-size: 20px;
   }
 
-  ::ng-deep .table .p-datatable .p-datatable-thead > tr > th {
+  ::ng-deep .table .p-datatable .p-datatable-thead>tr>th {
     font-size: 14px;
   }
 
@@ -1804,45 +1808,54 @@ hr {
     height: auto;
     align-items: center;
   }
-  .my-test{
+
+  .my-test {
     display: none;
   }
-  .test-list{
+
+  .test-list {
     display: none;
   }
+
   .bottom {
-   display: none;
+    display: none;
   }
 
   .box-title {
     font-size: 20px;
   }
-  .individual-container{
+
+  .individual-container {
     padding: 15px;
   }
+
   .cover-img {
     width: 260px;
-   border-radius: 20px;
+    border-radius: 20px;
   }
-  .flex{
+
+  .flex {
     gap: 10px;
   }
- 
+
 }
 
-@media (max-width: 380px){
-  .main-heading{
+@media (max-width: 380px) {
+  .main-heading {
     font-size: 18px;
   }
 }
-@media (max-width: 330px){
-  .main-heading{
+
+@media (max-width: 330px) {
+  .main-heading {
     font-size: 16px;
   }
-  .new-form{
+
+  .new-form {
     padding: 10px 13px;
   }
-  .text{
+
+  .text {
     font-size: 12px;
   }
 }
@@ -1907,4 +1920,10 @@ hr {
 
 .dots span.active {
   background: #fff;
+}
+
+.lb-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

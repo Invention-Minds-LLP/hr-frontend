@@ -249,7 +249,7 @@ h2 {
   display: flex;
   width: 160px;
   height: 44px;
-  padding: 0 16px;
+  padding: 22px 16px;
   justify-content: center;
   align-items: center;
   gap: 8px;
@@ -566,7 +566,7 @@ thead tr th:last-child {
   padding: 20px !important;
 }
 
-::ng-deep .p-dialog .p-dialog-header {
+::ng-deep .training .p-dialog .p-dialog-header {
   background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
   border-bottom: none !important;
   color: #020403;
@@ -579,6 +579,9 @@ thead tr th:last-child {
   border-top-left-radius: 20px !important;
   border-top-right-radius: 20px !important;
   height: 70px !important;
+}
+::ng-deep .p-datatable.p-datatable-sm .p-datatable-tbody > tr > td{
+  color: #000;
 }
 .dialog-header-custom {
   display: flex;

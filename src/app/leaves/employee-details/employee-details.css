@@ -382,6 +382,7 @@
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
+  color: black;
 }
 
 /* Dot style */
@@ -415,3 +416,12 @@
 .cancel-icon:hover {
   color: #E9144A;
 }
+
+.overlay .p-datepicker-dropdown{
+  color: white;
+}
+
+::ng-deep .overlay .p-datepicker-day-selected-range{
+  padding: 10px;
+}
+

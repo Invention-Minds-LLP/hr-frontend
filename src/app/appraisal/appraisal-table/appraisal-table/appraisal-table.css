@@ -124,6 +124,12 @@ form{
   background-color: #eee;
   border-radius: 20px;
 }
+.filter-dropdown .list.active {
+  background-color: #d0ebff;
+  font-weight: bold;
+  color: #000;
+  border-radius: 20px;
+}
 
 /* Table Container */
 .table {
@@ -395,3 +401,11 @@ hr {
   background-color: #000 !important;
   color: white !important;
 }
+
+.p-iconfield .p-inputtext:not(:first-child), .p-iconfield .p-inputwrapper:not(:first-child) .p-inputtext{
+  background: white;
+  color: black !important;
+}
+
+
+

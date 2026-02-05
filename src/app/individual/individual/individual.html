@@ -459,18 +459,37 @@
             </div>
 
 
-            <div class="box box-4">
-                <div class="box-title">Leave Balances</div>
+            <div class="leave-slider">
+                <div class="box box-4">
 
-                <ul class="lb-list">
-                    <li class="lb-item" *ngFor="let it of leaveByTypeToday">
-                        <span class="lb-name">{{ it.label }}</span>
-                        <span class="lb-badge">{{ it.count }} / {{ it.total}}</span>
-                    </li>
-                </ul>
+                    <div class="box-title">Leave Balances</div>
+
+                    <div class="lb-content">
+
+                        <!-- Left Arrow -->
+                        <span class="arrow left" [class.disabled]="leaveIndex === 0" (click)="prevLeaves()">
+                            <i class="pi pi-chevron-left"></i>
+                        </span>
+
+                        <!-- Leave Items -->
+                        <ul class="lb-list">
+                            <li class="lb-item" *ngFor="let it of visibleLeaves">
+                                <span class="lb-name">{{ it.label }}</span>
+                                <span class="lb-badge">{{ it.count }} / {{ it.total }}</span>
+                            </li>
+                        </ul>
+
+                        <!-- Right Arrow -->
+                        <span class="arrow right"
+                            [class.disabled]="leaveIndex + visibleCount >= leaveByTypeToday.length"
+                            (click)="nextLeaves()">
+                            <i class="pi pi-chevron-right"></i>
+                        </span>
+
+                    </div>
+
+                </div>
             </div>
-
-
 
         </div>
     </div>

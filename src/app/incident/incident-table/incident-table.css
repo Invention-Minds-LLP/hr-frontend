@@ -37,8 +37,8 @@
 
 .menu-list {
     position: absolute;
-    top: 48%;
-    right: 222px;
+    top: 45%;
+    right: 199px;
     min-width: 150px;
     background: var(--surface-ground);
     border-radius: 4px;

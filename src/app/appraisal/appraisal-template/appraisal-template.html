@@ -1,7 +1,7 @@
 <div *ngIf="template" class="p-fluid performance-container">
   <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
 
-  <div class="grid mb-4">
+  <div class="grid mb-4" style="align-items:baseline;">
     <!-- Employee Name -->
     <div class="col-12 md:col-3">
       <p-floatlabel variant="on">
@@ -236,7 +236,7 @@
     </div>
     <!-- Submit Button -->
     <div class="mt-4">
-      <button pButton class="new-app" label="Submit" icon="pi pi-check" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" [disabled]="isLoading" (click)="onSubmit()">Submit</button>
+      <button pButton class="new-app" label="Submit" icon="pi pi-check" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" [disabled]="isLoading" (click)="onSubmit()"></button>
     </div>
   </div>
 </div>

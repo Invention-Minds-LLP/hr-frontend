@@ -738,6 +738,29 @@ export class Individual {
       this.currentAnniversaryIndex++;
     }
   }
+  leaveIndex = 0;
+  visibleCount = 4;
+
+  get visibleLeaves() {
+    return this.leaveByTypeToday.slice(
+      this.leaveIndex,
+      this.leaveIndex + this.visibleCount
+    );
+  }
+
+  nextLeaves() {
+    if (this.leaveIndex + this.visibleCount < this.leaveByTypeToday.length) {
+      this.leaveIndex += this.visibleCount;
+    }
+  }
+
+  prevLeaves() {
+    if (this.leaveIndex > 0) {
+      this.leaveIndex -= this.visibleCount;
+    }
+  }
+
+
 
 }
 
