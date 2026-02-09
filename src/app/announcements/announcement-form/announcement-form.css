@@ -284,6 +284,13 @@
   margin-bottom: 0 !important;
 }
 
+::ng-deep .form-field .p-multiselect-filter{
+  color: #020403 !important;
+}
+::ng-deep .p-select-label{
+  color: white;
+}
+
 /* Tablet: 2 per row */
 @media (max-width: 900px) {
   .p-field-radiobuttons {

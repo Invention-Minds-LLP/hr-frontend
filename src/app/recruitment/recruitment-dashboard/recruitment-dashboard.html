@@ -236,7 +236,7 @@
   </div>
   <div class="" style="margin-top: 2rem;">
     <app-candidate-eval-form id="eval-form" *ngIf="selectedInterview()" [interviewId]="selectedInterview()?.id"
-      [interview]="selectedInterview()">
+      [interview]="selectedInterview()" (closeForm)="onBack()">
     </app-candidate-eval-form>
   </div>
 </div>

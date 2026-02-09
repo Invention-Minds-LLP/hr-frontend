@@ -1,5 +1,11 @@
 <div class="p-fluid exit-form">
   <form [formGroup]="form">
+    <div class="btn">
+      <button class="back-btn" (click)="goBack()">← Back</button>
+    </div>
+    <div class="">
+      <div class="main-heading">Exit Interview From - <span>{{ employeeNameDisplay }}</span> - <span>{{employeeCodeDisplay}}</span> </div>
+    </div>
     <div class="flex1">
       <!-- ================== BASIC INFO ================== -->
       <p-card header="Basic Information" class="mb-3">
@@ -17,7 +23,7 @@
 
           <div class="col-4">
             <p-floatlabel variant="on">
-              <input pInputText id="interviewerNameDisplay" [value]="interviewerNameDisplay"  disabled />
+              <input pInputText id="interviewerNameDisplay" [value]="interviewerNameDisplay" disabled />
               <label for="interviewerNameDisplay"><i class="pi pi-user mr-2"></i>Interviewed By</label>
             </p-floatlabel>
           </div>
@@ -34,7 +40,7 @@
             </div>
           </div>
           <input type="hidden" formControlName="employeeId" />
-<input type="hidden" formControlName="interviewedBy" />
+          <input type="hidden" formControlName="interviewedBy" />
 
         </div>
       </p-card>
@@ -112,52 +118,52 @@
       <div class="flex1">
         <p-card header="Academic Qualification">
           <!-- <p-accordion-header>Academic Qualification</p-accordion-header> -->
-          
-            <div class="grid">
-              <div class="col-8">
-                <p-selectButton [options]="academicOptions" formControlName="academicQualification" multiple="false"
-                  [invalid]="form.get('academicQualification') ?.invalid && (form.get('academicQualification')?.touched || submitted)"></p-selectButton>
-              </div>
-              <div class="col-4">
-                <p-floatlabel variant="on">
-                  <input pInputText id="academicOthers" formControlName="academicQualificationOthers"
-                    [invalid]="form.get('academicQualificationOthers') ?.invalid && (form.get('academicQualificationOthers')?.touched || submitted)" />
-                  <label for="academicOthers">Others</label>
-                </p-floatlabel>
-              </div>
+
+          <div class="grid">
+            <div class="col-8">
+              <p-selectButton [options]="academicOptions" formControlName="academicQualification" multiple="false"
+                [invalid]="form.get('academicQualification') ?.invalid && (form.get('academicQualification')?.touched || submitted)"></p-selectButton>
             </div>
-          
+            <div class="col-4">
+              <p-floatlabel variant="on">
+                <input pInputText id="academicOthers" formControlName="academicQualificationOthers"
+                  [invalid]="form.get('academicQualificationOthers') ?.invalid && (form.get('academicQualificationOthers')?.touched || submitted)" />
+                <label for="academicOthers">Others</label>
+              </p-floatlabel>
+            </div>
+          </div>
+
         </p-card>
 
         <!-- Vacancy Source -->
-        <p-card header="Vacancy Source" class="vacancy">          
-            <p-selectButton [options]="vacancyOptions" formControlName="vacancySource" multiple="true"
-              [invalid]="form.get('vacancySource') ?.invalid && (form.get('vacancySource')?.touched || submitted)"></p-selectButton>
+        <p-card header="Vacancy Source" class="vacancy">
+          <p-selectButton [options]="vacancyOptions" formControlName="vacancySource" multiple="true"
+            [invalid]="form.get('vacancySource') ?.invalid && (form.get('vacancySource')?.touched || submitted)"></p-selectButton>
         </p-card>
 
         <!-- Recruitment Mode -->
         <p-card header="Recruitment Mode" class="recruitment">
-            <div class="grid">
-              <div class="col-8">
-                <p-selectButton [options]="recruitmentOptions" formControlName="recruitmentMode" multiple="true"
-                  [invalid]="form.get('recruitmentMode') ?.invalid && (form.get('recruitmentMode')?.touched || submitted)"></p-selectButton>
-              </div>
-              <div class="col-4">
-                <p-floatlabel variant="on">
-                  <input pInputText id="recruitmentOthers" formControlName="recruitmentModeOthers"
-                    [invalid]="form.get('recruitmentModeOthers') ?.invalid && (form.get('recruitmentModeOthers')?.touched || submitted)" />
-                  <label for="recruitmentOthers">Others</label>
-                </p-floatlabel>
-              </div>
+          <div class="grid">
+            <div class="col-8">
+              <p-selectButton [options]="recruitmentOptions" formControlName="recruitmentMode" multiple="true"
+                [invalid]="form.get('recruitmentMode') ?.invalid && (form.get('recruitmentMode')?.touched || submitted)"></p-selectButton>
             </div>
+            <div class="col-4">
+              <p-floatlabel variant="on">
+                <input pInputText id="recruitmentOthers" formControlName="recruitmentModeOthers"
+                  [invalid]="form.get('recruitmentModeOthers') ?.invalid && (form.get('recruitmentModeOthers')?.touched || submitted)" />
+                <label for="recruitmentOthers">Others</label>
+              </p-floatlabel>
+            </div>
+          </div>
         </p-card>
 
       </div>
       <div class="">
         <!-- Reasons -->
         <p-card header="Reasons for Leaving" class="Reasons">
-            <div formGroupName="exitReasons" class="grid">
-              <div class="col-6" *ngFor="let reason of [
+          <div formGroupName="exitReasons" class="grid">
+            <div class="col-6" *ngFor="let reason of [
               {id:'reasonForLeaving', label:'Primary reason'},
               {id:'triggerReason', label:'Trigger reason'},
               {id:'mostSatisfying', label:'Most satisfying'},
@@ -165,46 +171,45 @@
               {id:'supportReceived', label:'Support received'},
               {id:'newJobOffers', label:'New job offers'}
             ]">
-                <p-floatlabel variant="on" [ngClass]="{'float-active': form.get(reason.id)?.value}">
-                  <textarea pInputTextarea [id]="reason.id" autoResize="true" rows="2"
-                  [formControlName]="reason.id"
-                    [invalid]="form.get('exitReasons.'+ reason.id)?.invalid && (form.get('exitReasons.'+ reason.id)?.touched || submitted)"></textarea>
-                  <label [for]="reason.id">{{reason.label}}</label>
-                </p-floatlabel>
-                <small class="p-error block mb-1"
-                  *ngIf="form.get('exitReasons.'+ reason.id)?.invalid && (form.get('exitReasons.'+ reason.id)?.touched || submitted)">
-                  {{reason.label}} is required
-                </small>
-              </div>
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get(reason.id)?.value}">
+                <textarea pInputTextarea [id]="reason.id" autoResize="true" rows="2" [formControlName]="reason.id"
+                  [invalid]="form.get('exitReasons.'+ reason.id)?.invalid && (form.get('exitReasons.'+ reason.id)?.touched || submitted)"></textarea>
+                <label [for]="reason.id">{{reason.label}}</label>
+              </p-floatlabel>
+              <small class="p-error block mb-1"
+                *ngIf="form.get('exitReasons.'+ reason.id)?.invalid && (form.get('exitReasons.'+ reason.id)?.touched || submitted)">
+                {{reason.label}} is required
+              </small>
             </div>
+          </div>
         </p-card>
 
         <!-- Expectations & Skills -->
         <p-card header="Expectations & Skills" class="skills">
-            <div class="grid">
-              <div class="col-6">
-                <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('expectationsMet')?.value}">
-                  <textarea pInputTextarea id="expectationsMet" rows="2" formControlName="expectationsMet"
-                    [invalid]="form.get('expectationsMet') ?.invalid && (form.get('expectationsMet')?.touched || submitted)"></textarea>
-                  <label for="expectationsMet">Expectations met?</label>
-                </p-floatlabel>
-                <small class="p-error block mb-1"
-                  *ngIf="form.get('expectationsMet')?.invalid && (form.get('expectationsMet')?.touched || submitted)">
-                  Expectations met? is required
-                </small>
-              </div>
-              <div class="col-6">
-                <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('skillUtilization')?.value}">
-                  <textarea pInputTextarea id="skillUtilization" rows="2" formControlName="skillUtilization"
-                    [invalid]="form.get('skillUtilization') ?.invalid && (form.get('skillUtilization')?.touched || submitted)"></textarea>
-                  <label for="skillUtilization">Skill utilization</label>
-                </p-floatlabel>
-                <small class="p-error block mb-1"
-                  *ngIf="form.get('skillUtilization')?.invalid && (form.get('skillUtilization')?.touched || submitted)">
-                  Skill utilization is required
-                </small>
-              </div>
+          <div class="grid">
+            <div class="col-6">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('expectationsMet')?.value}">
+                <textarea pInputTextarea id="expectationsMet" rows="2" formControlName="expectationsMet"
+                  [invalid]="form.get('expectationsMet') ?.invalid && (form.get('expectationsMet')?.touched || submitted)"></textarea>
+                <label for="expectationsMet">Expectations met?</label>
+              </p-floatlabel>
+              <small class="p-error block mb-1"
+                *ngIf="form.get('expectationsMet')?.invalid && (form.get('expectationsMet')?.touched || submitted)">
+                Expectations met? is required
+              </small>
             </div>
+            <div class="col-6">
+              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('skillUtilization')?.value}">
+                <textarea pInputTextarea id="skillUtilization" rows="2" formControlName="skillUtilization"
+                  [invalid]="form.get('skillUtilization') ?.invalid && (form.get('skillUtilization')?.touched || submitted)"></textarea>
+                <label for="skillUtilization">Skill utilization</label>
+              </p-floatlabel>
+              <small class="p-error block mb-1"
+                *ngIf="form.get('skillUtilization')?.invalid && (form.get('skillUtilization')?.touched || submitted)">
+                Skill utilization is required
+              </small>
+            </div>
+          </div>
         </p-card>
 
       </div>
@@ -212,83 +217,83 @@
       <div class="flex1">
         <!-- ================== Factors Influencing Decision ================== -->
         <p-card header="Factors Influencing Decision" class="factors">
-            <div formGroupName="influencedFactors" class="grid ">
-              <div class="col-12" *ngFor="let factor of leaveFactorsList">
-                <div class="flex  align-items-center  justify-content-between ">
-                  <label class="font-semibold">{{ factor.label }}</label>
-                  <div class="flex gap-6 ">
-                    <div class=" flex gap-3">
-                      <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+          <div formGroupName="influencedFactors" class="grid ">
+            <div class="col-12" *ngFor="let factor of leaveFactorsList">
+              <div class="flex  align-items-center  justify-content-between ">
+                <label class="font-semibold">{{ factor.label }}</label>
+                <div class="flex gap-6 ">
+                  <div class=" flex gap-3">
+                    <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
                       [formControlName]="factor.key"
                       [invalid]="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_yes">Yes</label>
-                    </div>
+                  </div>
 
-                    <div class="flex gap-3">
-                      <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                  <div class="flex gap-3">
+                    <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
                       [formControlName]="factor.key"
                       [invalid]="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_no">No</label>
-                    </div>
                   </div>
-
                 </div>
-                <div class="p-error mb-2"
-                  *ngIf="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
-                  {{ factor.label }} is required
-                </div>
-              </div>
-              <!-- Others -->
-              <div class="col-12">
-                <p-floatLabel variant="on">
-                  <input pInputText formControlName="others" id="othersFactors" />
-                  <label for="othersFactors">Others (Please specify)</label>
-                </p-floatLabel>
-              </div>
 
+              </div>
+              <div class="p-error mb-2"
+                *ngIf="form.get('influencedFactors.'+ factor.key)?.invalid && (form.get('influencedFactors.'+ factor.key)?.touched || submitted)">
+                {{ factor.label }} is required
+              </div>
             </div>
+            <!-- Others -->
+            <div class="col-12">
+              <p-floatLabel variant="on">
+                <input pInputText formControlName="others" id="othersFactors" />
+                <label for="othersFactors">Others (Please specify)</label>
+              </p-floatLabel>
+            </div>
+
+          </div>
         </p-card>
 
 
         <!-- ================== Dissatisfaction Factors ================== -->
         <p-card header="Dissatisfaction Factors" class="dissatisfaction">
-            <div formGroupName="dissatisfaction" class="grid">
-              <div class="col-12" *ngFor="let factor of dissatisfactionList">
-                <div class="flex align-items-center justify-content-between ">
-                  <label class="font-semibold">{{ factor.label }}</label>
-                  <div class="flex gap-6">
-                   <div class="flex gap-3">
-                     <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
+          <div formGroupName="dissatisfaction" class="grid">
+            <div class="col-12" *ngFor="let factor of dissatisfactionList">
+              <div class="flex align-items-center justify-content-between ">
+                <label class="font-semibold">{{ factor.label }}</label>
+                <div class="flex gap-6">
+                  <div class="flex gap-3">
+                    <p-radioButton [inputId]="factor.key + '_yes'" name="{{factor.key}}" value="Yes"
                       [formControlName]="factor.key"
                       [invalid]="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_yes">Yes</label>
-                   </div>
+                  </div>
 
-                    <div class="flex gap-3">
-                      <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
+                  <div class="flex gap-3">
+                    <p-radioButton [inputId]="factor.key + '_no'" name="{{factor.key}}" value="No"
                       [formControlName]="factor.key"
                       [invalid]="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
                     </p-radioButton>
                     <label for="{{factor.key}}_no">No</label>
-                    </div>
                   </div>
                 </div>
-                <div class="p-error mb-2"
-                  *ngIf="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
-                  {{ factor.label }} is required
-                </div>
               </div>
-              <!-- Others -->
-              <div class="col-12">
-                <p-floatLabel variant="on">
-                  <input pInputText formControlName="others" id="othersDissatisfaction" />
-                  <label for="othersDissatisfaction">Others (Please specify)</label>
-                </p-floatLabel>
+              <div class="p-error mb-2"
+                *ngIf="form.get('dissatisfaction.'+ factor.key)?.invalid && (form.get('dissatisfaction.'+ factor.key)?.touched || submitted)">
+                {{ factor.label }} is required
               </div>
             </div>
+            <!-- Others -->
+            <div class="col-12">
+              <p-floatLabel variant="on">
+                <input pInputText formControlName="others" id="othersDissatisfaction" />
+                <label for="othersDissatisfaction">Others (Please specify)</label>
+              </p-floatLabel>
+            </div>
+          </div>
         </p-card>
       </div>
 
@@ -296,157 +301,157 @@
       <div class="flex1">
         <!-- Job Opinions -->
         <p-card header="Job / Department Opinions">
-            <div formGroupName="jobOpinion" class="grid">
-              <div class="col-6" *ngFor="let item of jobOpinionFields">
-                <label class="block mb-2">{{item.label}}</label>
-                <p-rating [formControlName]="item.key"
-                  [invalid]="form.get('jobOpinion.'+ item.key)?.invalid && (form.get('jobOpinion.'+ item.key)?.touched || submitted)">
-                </p-rating>
-                <small class="p-error block mb-1"
-                  *ngIf="form.get('jobOpinion.'+ item.key)?.invalid && (form.get('jobOpinion.'+ item.key)?.touched || submitted)">
-                  {{item.label}} is required
-                </small>
-              </div>
+          <div formGroupName="jobOpinion" class="grid">
+            <div class="col-6" *ngFor="let item of jobOpinionFields">
+              <label class="block mb-2">{{item.label}}</label>
+              <p-rating [formControlName]="item.key"
+                [invalid]="form.get('jobOpinion.'+ item.key)?.invalid && (form.get('jobOpinion.'+ item.key)?.touched || submitted)">
+              </p-rating>
+              <small class="p-error block mb-1"
+                *ngIf="form.get('jobOpinion.'+ item.key)?.invalid && (form.get('jobOpinion.'+ item.key)?.touched || submitted)">
+                {{item.label}} is required
+              </small>
             </div>
+          </div>
         </p-card>
 
         <!-- Attitude of Superiors -->
         <p-card header="Attitude of Superiors" class="attitude">
-            <div formGroupName="attitudeSuperiors" class="grid">
-              <div class="col-6" *ngFor="let item of superiorOpinionFields">
-                <label class="block mb-2">{{item.label}}</label>
-                <p-rating [formControlName]="item.key"
-                  [invalid]="form.get('attitudeSuperiors.'+ item.key)?.invalid && (form.get('attitudeSuperiors.'+ item.key)?.touched || submitted)"></p-rating>
-                <small class="p-error block mt-1"
-                  *ngIf="form.get('attitudeSuperiors.'+ item.key)?.invalid && (form.get('attitudeSuperiors.'+ item.key)?.touched || submitted)">
-                  {{item.label}} is required
-                </small>
-              </div>
+          <div formGroupName="attitudeSuperiors" class="grid">
+            <div class="col-6" *ngFor="let item of superiorOpinionFields">
+              <label class="block mb-2">{{item.label}}</label>
+              <p-rating [formControlName]="item.key"
+                [invalid]="form.get('attitudeSuperiors.'+ item.key)?.invalid && (form.get('attitudeSuperiors.'+ item.key)?.touched || submitted)"></p-rating>
+              <small class="p-error block mt-1"
+                *ngIf="form.get('attitudeSuperiors.'+ item.key)?.invalid && (form.get('attitudeSuperiors.'+ item.key)?.touched || submitted)">
+                {{item.label}} is required
+              </small>
             </div>
+          </div>
         </p-card>
       </div>
 
       <!-- Company Opinions -->
       <p-card header="Company Opinions">
-          <div formGroupName="companyOpinion" class="grid">
-            <div class="col-3 text-center" *ngFor="let item of companyOpinionFields">
-              <label class="block mb-2">{{item.label}}</label>
-              <p-rating [formControlName]="item.key"
-                [invalid]="form.get('companyOpinion.'+ item.key)?.invalid && (form.get('companyOpinion.'+ item.key)?.touched || submitted)"></p-rating>
-              <small class="p-error block  mb-1"
-                *ngIf="form.get('companyOpinion.'+ item.key)?.invalid && (form.get('companyOpinion.'+ item.key)?.touched || submitted)">
-                {{item.label }} is required
-              </small>
-            </div>
-
+        <div formGroupName="companyOpinion" class="grid">
+          <div class="col-3 text-center" *ngFor="let item of companyOpinionFields">
+            <label class="block mb-2">{{item.label}}</label>
+            <p-rating [formControlName]="item.key"
+              [invalid]="form.get('companyOpinion.'+ item.key)?.invalid && (form.get('companyOpinion.'+ item.key)?.touched || submitted)"></p-rating>
+            <small class="p-error block  mb-1"
+              *ngIf="form.get('companyOpinion.'+ item.key)?.invalid && (form.get('companyOpinion.'+ item.key)?.touched || submitted)">
+              {{item.label }} is required
+            </small>
           </div>
+
+        </div>
       </p-card>
 
       <div class="flex1">
         <!-- Pay in New Job -->
         <p-card header="Pay in New Job">
-            <div class="formgrid ">
-              <div class="field-radiobutton">
-                <p-radioButton name="pay" value="More" formControlName="newJobSalaryComparison" inputId="payMore"
-                  [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
-                <label for="payMore">More</label>
-              </div>
-              <div class="field-radiobutton ">
-                <p-radioButton name="pay" value="Same" formControlName="newJobSalaryComparison" inputId="paySame"
-                  [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
-                <label for="paySame">Same</label>
-              </div>
-              <div class="field-radiobutton">
-                <p-radioButton name="pay" value="Less" formControlName="newJobSalaryComparison" inputId="payLess"
-                  [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
-                <label for="payLess">Less</label>
-              </div>
+          <div class="formgrid ">
+            <div class="field-radiobutton">
+              <p-radioButton name="pay" value="More" formControlName="newJobSalaryComparison" inputId="payMore"
+                [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
+              <label for="payMore">More</label>
             </div>
+            <div class="field-radiobutton ">
+              <p-radioButton name="pay" value="Same" formControlName="newJobSalaryComparison" inputId="paySame"
+                [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
+              <label for="paySame">Same</label>
+            </div>
+            <div class="field-radiobutton">
+              <p-radioButton name="pay" value="Less" formControlName="newJobSalaryComparison" inputId="payLess"
+                [invalid]="form.get('newJobSalaryComparison')?.invalid && (form.get('newJobSalaryComparison')?.touched || submitted)"></p-radioButton>
+              <label for="payLess">Less</label>
+            </div>
+          </div>
         </p-card>
 
         <!-- Discrimination -->
         <p-card header="Discrimination">
-            <div class="field-checkbox">
-              <p-checkbox inputId="discrimination" formControlName="discrimination" binary="true"
-                label="Faced discrimination/harassment?"
-                [invalid]="form.get('discrimination')?.invalid && (form.get('discrimination')?.touched || submitted)"></p-checkbox>
-              <label for="discrimination">Faced discrimination/harassment?</label>
-            </div>
-            <small class="p-error block mb-1"
-              *ngIf="form.get('discrimination')?.invalid && (form.get('discrimination')?.touched || submitted)">
-              You must confirm this field
-            </small>
+          <div class="field-checkbox">
+            <p-checkbox inputId="discrimination" formControlName="discrimination" binary="true"
+              label="Faced discrimination/harassment?"
+              [invalid]="form.get('discrimination')?.invalid && (form.get('discrimination')?.touched || submitted)"></p-checkbox>
+            <label for="discrimination">Faced discrimination/harassment?</label>
+          </div>
+          <small class="p-error block mb-1"
+            *ngIf="form.get('discrimination')?.invalid && (form.get('discrimination')?.touched || submitted)">
+            You must confirm this field
+          </small>
 
         </p-card>
       </div>
 
       <!-- Final -->
       <p-card header="Final">
-          <div class="grid">
-            <div class="col-6">
-              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('likedMost')?.value}">
-                <textarea pInputTextarea id="likedMost" rows="2" formControlName="likedMost"
-                  [invalid]="form.get('likedMost')?.invalid && (form.get('likedMost')?.touched || submitted)"></textarea>
-                <label for="likedMost">What did you like most?</label>
-              </p-floatlabel>
-              <small class="p-error block mb-3"
-                *ngIf="form.get('likedMost')?.invalid && (form.get('likedMost')?.touched || submitted)">
-                You must confirm this field
-              </small>
-            </div>
-            <div class="col-6">
-              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('stayEncouragement')?.value}">
-                <textarea pInputTextarea id="stayEncouragement" rows="2" formControlName="stayEncouragement"
-                  [invalid]="form.get('stayEncouragement')?.invalid && (form.get('stayEncouragement')?.touched || submitted)"></textarea>
-                <label for="stayEncouragement">What could encourage you to stay?</label>
-              </p-floatlabel>
-              <small class="p-error block mb-1"
-                *ngIf="form.get('stayEncouragement')?.invalid && (form.get('stayEncouragement')?.touched || submitted)">
-                You must confirm this field
-              </small>
-            </div>
-            <div class="field-checkbox" [ngClass]="{'float-active': form.get('recommendCompany')?.value}">
-              <p-checkbox formControlName="recommendCompany" binary="true" inputId="recommendCompany"
-                [invalid]="form.get('recommendCompany')?.invalid && (form.get('recommendCompany')?.touched || submitted)"></p-checkbox>
-              <label for="recommendCompany">Would you recommend this company?</label>
-            </div>
-
-            <div class="col-12">
-              <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('recommendReason')?.value}">
-                <textarea pInputTextarea id="recommendReason" rows="2" formControlName="recommendReason"
-                  [invalid]="form.get('recommendReason')?.invalid && (form.get('recommendReason')?.touched || submitted)"></textarea>
-                <label for="recommendReason">{{ form.get('recommendCompany')?.value ? 'Why' : 'Why not' }}</label>
-                <small class="p-error block mb-1"
-                  *ngIf="form.get('recommendCompany')?.invalid && (form.get('recommendCompany')?.touched || submitted)">
-                  You must confirm this field
-                </small>
-              </p-floatlabel>
-            </div>
+        <div class="grid">
+          <div class="col-6">
+            <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('likedMost')?.value}">
+              <textarea pInputTextarea id="likedMost" rows="2" formControlName="likedMost"
+                [invalid]="form.get('likedMost')?.invalid && (form.get('likedMost')?.touched || submitted)"></textarea>
+              <label for="likedMost">What did you like most?</label>
+            </p-floatlabel>
+            <small class="p-error block mb-3"
+              *ngIf="form.get('likedMost')?.invalid && (form.get('likedMost')?.touched || submitted)">
+              You must confirm this field
+            </small>
           </div>
+          <div class="col-6">
+            <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('stayEncouragement')?.value}">
+              <textarea pInputTextarea id="stayEncouragement" rows="2" formControlName="stayEncouragement"
+                [invalid]="form.get('stayEncouragement')?.invalid && (form.get('stayEncouragement')?.touched || submitted)"></textarea>
+              <label for="stayEncouragement">What could encourage you to stay?</label>
+            </p-floatlabel>
+            <small class="p-error block mb-1"
+              *ngIf="form.get('stayEncouragement')?.invalid && (form.get('stayEncouragement')?.touched || submitted)">
+              You must confirm this field
+            </small>
+          </div>
+          <div class="field-checkbox" [ngClass]="{'float-active': form.get('recommendCompany')?.value}">
+            <p-checkbox formControlName="recommendCompany" binary="true" inputId="recommendCompany"
+              [invalid]="form.get('recommendCompany')?.invalid && (form.get('recommendCompany')?.touched || submitted)"></p-checkbox>
+            <label for="recommendCompany">Would you recommend this company?</label>
+          </div>
+
+          <div class="col-12">
+            <p-floatlabel variant="on" [ngClass]="{'float-active': form.get('recommendReason')?.value}">
+              <textarea pInputTextarea id="recommendReason" rows="2" formControlName="recommendReason"
+                [invalid]="form.get('recommendReason')?.invalid && (form.get('recommendReason')?.touched || submitted)"></textarea>
+              <label for="recommendReason">{{ form.get('recommendCompany')?.value ? 'Why' : 'Why not' }}</label>
+              <small class="p-error block mb-1"
+                *ngIf="form.get('recommendCompany')?.invalid && (form.get('recommendCompany')?.touched || submitted)">
+                You must confirm this field
+              </small>
+            </p-floatlabel>
+          </div>
+        </div>
       </p-card>
 
       <!-- Demotivating Factors -->
       <p-card header="Demotivating Factors">
-          <div class="grid">
-            <div class="col-8">
-              <p-selectButton [options]="demotivatingOptions" formControlName="demotivating" multiple="true"
-                [invalid]="form.get('demotivating')?.invalid && (form.get('demotivating')?.touched || submitted)"></p-selectButton>
-            </div>
-            <div class="col-4">
-              <p-floatlabel variant="on">
-                <input pInputText id="demotivatingOthers" formControlName="demotivatingOthers" />
-                <label for="demotivatingOthers">Others</label>
-              </p-floatlabel>
-            </div>
+        <div class="grid">
+          <div class="col-8">
+            <p-selectButton [options]="demotivatingOptions" formControlName="demotivating" multiple="true"
+              [invalid]="form.get('demotivating')?.invalid && (form.get('demotivating')?.touched || submitted)"></p-selectButton>
           </div>
+          <div class="col-4">
+            <p-floatlabel variant="on">
+              <input pInputText id="demotivatingOthers" formControlName="demotivatingOthers" />
+              <label for="demotivatingOthers">Others</label>
+            </p-floatlabel>
+          </div>
+        </div>
       </p-card>
 
     </p-accordion>
 
     <!-- ================== SUBMIT ================== -->
     <div class="text-center mt-4">
-      <button pButton type="submit" label="Submit" icon="pi pi-check"
-        class="p-button-rounded p-button-success" (click)="onSubmit()"></button>
+      <button pButton type="submit" label="Submit" icon="pi pi-check" class="p-button-rounded p-button-success"
+        (click)="onSubmit()"></button>
     </div>
 
   </form>

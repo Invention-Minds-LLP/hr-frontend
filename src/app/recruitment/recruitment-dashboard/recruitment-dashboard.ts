@@ -19,10 +19,10 @@ import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule,  SkeletonModule],
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule, SkeletonModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
-  providers:[MessageService]
+  providers: [MessageService]
 })
 export class RecruitmentDashboard implements OnInit {
   private api = inject(Recuriting);
@@ -56,19 +56,19 @@ export class RecruitmentDashboard implements OnInit {
   };
 
   getJobStatusColors(status: JobStatus) {
-  const statusIndexMap: Record<JobStatus, number> = {
-    OPEN: 2,
-    ON_HOLD: 1,
-    DRAFT: 3,
-    CLOSED: 4,
-  };
+    const statusIndexMap: Record<JobStatus, number> = {
+      OPEN: 2,
+      ON_HOLD: 1,
+      DRAFT: 3,
+      CLOSED: 4,
+    };
 
-  const baseHue = (statusIndexMap[status] * 60) % 360;
-  const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
-  const dotColor = `hsl(${baseHue}, 70%, 40%)`;
+    const baseHue = (statusIndexMap[status] * 60) % 360;
+    const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
+    const dotColor = `hsl(${baseHue}, 70%, 40%)`;
 
-  return { badgeColor, dotColor };
-}
+    return { badgeColor, dotColor };
+  }
 
 
   jobStatusOptionsFor(j: Job) {
@@ -81,32 +81,32 @@ export class RecruitmentDashboard implements OnInit {
     return opts;
   }
 
-    onJobStatusChange(j: Job, to: JobStatus) {
-      console.log(to, j.status)
-      if (!to || to === j.status) return;
+  onJobStatusChange(j: Job, to: JobStatus) {
+    console.log(to, j.status)
+    if (!to || to === j.status) return;
 
 
-      const prev = j.status;
-      this.updatingJobId = j.id;
-      // optimistic UI
-      j.status = to;
+    const prev = j.status;
+    this.updatingJobId = j.id;
+    // optimistic UI
+    j.status = to;
 
-      this.api.changeJobStatus(j.id, to).subscribe({
-        next: (updated) => {
-          j.status = updated.status as JobStatus;
-          this.messages.add({ severity: 'success', summary: 'Job updated', detail: `Status → ${updated.status}` });
-        },
-        error: (e) => {
-          j.status = prev; // rollback
-          this.messages.add({
-            severity: 'error',
-            summary: 'Update failed',
-            detail: e?.error?.error || 'Could not change job status',
-          });
-        },
-        complete: () => (this.updatingJobId = null),
-      });
-    }
+    this.api.changeJobStatus(j.id, to).subscribe({
+      next: (updated) => {
+        j.status = updated.status as JobStatus;
+        this.messages.add({ severity: 'success', summary: 'Job updated', detail: `Status → ${updated.status}` });
+      },
+      error: (e) => {
+        j.status = prev; // rollback
+        this.messages.add({
+          severity: 'error',
+          summary: 'Update failed',
+          detail: e?.error?.error || 'Could not change job status',
+        });
+      },
+      complete: () => (this.updatingJobId = null),
+    });
+  }
 
 
   ngOnInit() {
@@ -121,8 +121,9 @@ export class RecruitmentDashboard implements OnInit {
   loadJobs() {
     this.loading = true;
     this.api.listJobs({ page: this.page, pageSize: this.pageSize }).subscribe({
-      next: (res) => { this.jobs = res.rows; this.totalJobs = res.total; 
-        setTimeout(()=>{
+      next: (res) => {
+        this.jobs = res.rows; this.totalJobs = res.total;
+        setTimeout(() => {
           this.loading = false
         }, 2000)
       },
@@ -212,30 +213,35 @@ export class RecruitmentDashboard implements OnInit {
     // (optional) scroll the form into view
     setTimeout(() => document.getElementById('eval-form')?.scrollIntoView({ behavior: 'smooth' }), 0);
   };
-getTooltipMessage(key: string): string {
-  const tooltips: { [key: string]: string } = {
-    vacancies: "Number of open job positions available for recruitment.",
-    applicationsReceived: "Total number of applications submitted for current vacancies.",
-    applied: "Number of candidates who have applied for a position.",
-    shortlisted: "Candidates selected for the next stage after application review.",
-    interviewing: "Candidates currently scheduled or undergoing interviews.",
-    offered: "Number of candidates who have been given a job offer.",
-    accepted: "Candidates who have accepted the job offer.",
-    offerDeclined: "Candidates who declined or did not respond to the job offer.",
-    hired: "Number of candidates who have officially joined as employees.",
-    rejected: "Candidates not selected to move forward in the recruitment process."
-  };
+  getTooltipMessage(key: string): string {
+    const tooltips: { [key: string]: string } = {
+      vacancies: "Number of open job positions available for recruitment.",
+      applicationsReceived: "Total number of applications submitted for current vacancies.",
+      applied: "Number of candidates who have applied for a position.",
+      shortlisted: "Candidates selected for the next stage after application review.",
+      interviewing: "Candidates currently scheduled or undergoing interviews.",
+      offered: "Number of candidates who have been given a job offer.",
+      accepted: "Candidates who have accepted the job offer.",
+      offerDeclined: "Candidates who declined or did not respond to the job offer.",
+      hired: "Number of candidates who have officially joined as employees.",
+      rejected: "Candidates not selected to move forward in the recruitment process."
+    };
 
-  return tooltips[key] || "";
-}
+    return tooltips[key] || "";
+  }
 
 
-getDepartmentColors(departmentId: number) {
+  getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 95) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;
 
     return { badgeColor, dotColor };
   }
+
+  onBack() {
+    this.selectedInterview.set(null);
+  }
+
 
 }

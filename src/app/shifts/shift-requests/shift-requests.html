@@ -21,7 +21,20 @@
         <ng-template pTemplate="body" let-a let-i="rowIndex">
             <tr>
                 <td>{{ i + 1 }}</td>
-                <td>{{ a.employee.firstName }} {{ a.employee.lastName }}</td>
+                <td class="empname">
+                    <img *ngIf="a.photoUrl; else defaultPhoto" [src]="a.photoUrl" alt="Profile" />
+                    <ng-template #defaultPhoto>
+                        <img style="background-color: white;" [src]="getDefaultImage(a?.gender)"
+                            alt="Default Profile" />
+                    </ng-template>
+                    <div>
+                        <div class="name">>{{ a.employee.firstName }} {{ a.employee.lastName }}</div>
+                        <span class="email">{{ a.email || 'No Email' }}</span>
+
+                    </div>
+                </td>
+
+                <!-- <td>{{ a.employee.firstName }} {{ a.employee.lastName }}</td> -->
                 <td>{{ a.requestedByEmployee.firstName }}</td>
                 <td>{{ a.requestedMode }}</td>
                 <td>
@@ -211,11 +224,11 @@
             </div>
 
             <div *ngIf="week.weekOffDate" class="week-off">
-  <span class="week-off-label">Week Off:</span>
-  <span class="week-off-date">
-    {{ week.weekOffDate | date:'EEE, dd MMM yyyy' }}
-  </span>
-</div>
+                <span class="week-off-label">Week Off:</span>
+                <span class="week-off-date">
+                    {{ week.weekOffDate | date:'EEE, dd MMM yyyy' }}
+                </span>
+            </div>
 
 
             <ng-template #noShift>

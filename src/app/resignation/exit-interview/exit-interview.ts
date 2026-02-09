@@ -31,7 +31,7 @@ export class ExitInterview {
   form!: FormGroup;
 
 
-  constructor(private fb: FormBuilder, private exitService: Resignation, private messageService:MessageService) { }
+  constructor(private fb: FormBuilder, private exitService: Resignation, private messageService: MessageService) { }
 
   // ===== Options for SelectButtons =====
   academicOptions = [
@@ -110,7 +110,8 @@ export class ExitInterview {
     { key: 'recognition', label: 'Recognition / acceptance of work' }
   ];
   employeeCodeDisplay: string = '';
-interviewerNameDisplay: string = '';
+  interviewerNameDisplay: string = '';
+  employeeNameDisplay: string = '';
 
 
 
@@ -249,12 +250,12 @@ interviewerNameDisplay: string = '';
   //           ? new Date(this.formData.interviewDate)
   //           : null,
   //       };
-    
+
   //       this.form.patchValue(parsedData);
   //       console.log("✅ Form patched:", parsedData);
   //     }
   //   });
-    
+
   // }
 
   ngOnInit() {
@@ -263,20 +264,20 @@ interviewerNameDisplay: string = '';
       interviewedBy: ['', Validators.required],
       interviewDate: [null, Validators.required],
       resignationId: [1],
-  
+
       nextOrgName: ['', Validators.required],
       nextOrgPosition: ['', Validators.required],
       nextOrgCategory: ['', Validators.required],
       nextOrgLocation: ['', Validators.required],
       nextOrgIndustry: ['', Validators.required],
-  
+
       academicQualification: [[], Validators.required],
       academicQualificationOthers: [''],
-  
+
       vacancySource: [[], Validators.required],
       recruitmentMode: [[], Validators.required],
       recruitmentModeOthers: [''],
-  
+
       reasonForLeaving: ['', Validators.required],
       triggerReason: ['', Validators.required],
       mostSatisfying: ['', Validators.required],
@@ -285,7 +286,7 @@ interviewerNameDisplay: string = '';
       newJobOffers: ['', Validators.required],
       expectationsMet: ['', Validators.required],
       skillUtilization: ['', Validators.required],
-  
+
       influencedFactors: this.fb.group({
         jobSecurity: ['', Validators.required],
         financialFreedom: ['', Validators.required],
@@ -297,7 +298,7 @@ interviewerNameDisplay: string = '';
         familyReasons: ['', Validators.required],
         others: ['']
       }),
-  
+
       dissatisfaction: this.fb.group({
         workProfile: ['', Validators.required],
         workingConditions: ['', Validators.required],
@@ -307,7 +308,7 @@ interviewerNameDisplay: string = '';
         recognition: ['', Validators.required],
         others: ['']
       }),
-  
+
       jobOpinion: this.fb.group({
         orientation: [0, this.ratingRequired],
         workingConditions: [0, this.ratingRequired],
@@ -319,7 +320,7 @@ interviewerNameDisplay: string = '';
         communicationDept: [0, this.ratingRequired],
         communicationTop: [0, this.ratingRequired]
       }),
-  
+
       attitudeSuperiors: this.fb.group({
         fairTreatment: [0, this.ratingRequired],
         recognition: [0, this.ratingRequired],
@@ -328,14 +329,14 @@ interviewerNameDisplay: string = '';
         clearInstructions: [0, this.ratingRequired],
         teamwork: [0, this.ratingRequired]
       }),
-  
+
       companyOpinion: this.fb.group({
         salary: [0, this.ratingRequired],
         growth: [0, this.ratingRequired],
         appraisal: [0, this.ratingRequired],
         policies: [0, this.ratingRequired]
       }),
-  
+
       exitReasons: this.fb.group({
         reasonForLeaving: ['', Validators.required],
         triggerReason: ['', Validators.required],
@@ -344,36 +345,41 @@ interviewerNameDisplay: string = '';
         supportReceived: ['', Validators.required],
         newJobOffers: ['', Validators.required]
       }),
-  
+
       newJobSalaryComparison: ['', Validators.required],
       discrimination: [false, Validators.requiredTrue],
-  
+
       likedMost: ['', Validators.required],
       stayEncouragement: ['', Validators.required],
       recommendCompany: [false, Validators.required],
       recommendReason: ['', Validators.required],
-  
+
       demotivating: [[], Validators.required],
       demotivatingOthers: ['']
     });
-  
+
     // ✅ Safely handle both completed and new interviews
     if (this.formData) {
       const parsedData = this.parseFormData(this.formData);
       this.form.patchValue(parsedData);
       console.log("✅ Patched exit interview data:", parsedData);
-    // ✅ Set display names (for UI only)
-    if (this.formData.employee) {
-      this.employeeCodeDisplay = this.formData.employee.employeeCode || '';
-    }
-    if (this.formData.interviewerName) {
-      this.interviewerNameDisplay = this.formData.interviewerName || '';
-    }
-    if (this.formData.scheduledAt) {
-      this.form.get('interviewDate')?.setValue(new Date(this.formData.scheduledAt));
-    }
-    
-    console.log("✅ Employee Code:", this.form.value.interviewDate);
+      // ✅ Set display names (for UI only)
+      if (this.formData?.employee) {
+        const firstName = this.formData.employee.firstName || '';
+        const lastName = this.formData.employee.lastName || '';
+
+        this.employeeNameDisplay = `${firstName} ${lastName}`.trim();
+        this.employeeCodeDisplay = this.formData.employee.employeeCode || '';
+      }
+
+      if (this.formData.interviewerName) {
+        this.interviewerNameDisplay = this.formData.interviewerName || '';
+      }
+      if (this.formData.scheduledAt) {
+        this.form.get('interviewDate')?.setValue(new Date(this.formData.scheduledAt));
+      }
+
+      console.log("✅ Employee Code:", this.form.value.interviewDate);
       // Mark completed if `completedAt` exists
       if (this.formData.completedAt) {
         this.form.disable(); // make it readonly
@@ -381,7 +387,7 @@ interviewerNameDisplay: string = '';
       }
     }
   }
-  
+
   /** Safely parse all fields with JSON and fallback defaults */
   private parseFormData(data: any): any {
     return {
@@ -398,17 +404,17 @@ interviewerNameDisplay: string = '';
       vacancySource: this.safeParseArray(data.vacancySource),
       recruitmentMode: this.safeParseArray(data.recruitmentMode),
       demotivating: this.safeParseArray(data.demotivating),
-  
+
       jobOpinion: this.safeParseObject(data.jobOpinion),
       attitudeSuperiors: this.safeParseObject(data.attitudeSuperiors),
       companyOpinion: this.safeParseObject(data.companyOpinion),
       influencedFactors: this.safeParseObject(data.influencedFactors),
       dissatisfaction: this.safeParseObject(data.dissatisfaction),
-  
+
       interviewDate: data.interviewDate ? new Date(data.interviewDate) : null,
     };
   }
-  
+
   private safeParseArray(value: any): any[] {
     try {
       return value ? (typeof value === 'string' ? JSON.parse(value) : value) : [];
@@ -416,7 +422,7 @@ interviewerNameDisplay: string = '';
       return [];
     }
   }
-  
+
   private safeParseObject(value: any): any {
     try {
       return value ? (typeof value === 'string' ? JSON.parse(value) : value) : {};
@@ -424,7 +430,7 @@ interviewerNameDisplay: string = '';
       return {};
     }
   }
-  
+
 
   submitted = false;
 
@@ -432,14 +438,14 @@ interviewerNameDisplay: string = '';
     this.submitted = true
     if (this.form.valid) {
       this.exitService.submit(this.form.value).subscribe(() => {
-        this.messageService.add({severity:'success', summary:'Success', detail:'Exit Interview saved successfully!'});
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Exit Interview saved successfully!' });
         // alert('Exit Interview saved successfully!');
         // this.form.reset();
         this.submitted = false;
       });
       console.log(this.form.value);
     } else {
-      console.log(this.form .errors, this.form)
+      console.log(this.form.errors, this.form)
       this.form.markAllAsTouched()
     }
   }
@@ -453,4 +459,8 @@ interviewerNameDisplay: string = '';
   ratingRequired(control: AbstractControl): ValidationErrors | null {
     return control.value && control.value > 0 ? null : { required: true }
   }
+  goBack() {
+    this.closeForm.emit();
+  }
+
 }

@@ -39,7 +39,7 @@
 
             <!-- Body -->
             <ng-template pTemplate="body">
-                <tr class="skeleton"> 
+                <tr class="skeleton">
                     <td><p-skeleton width="2rem"></p-skeleton></td>
 
                     <td><p-skeleton width="70px"></p-skeleton></td>
@@ -128,9 +128,10 @@
                             [disabled]="!(it.status==='ACTIVE' || it.status==='COMPLETED')"
                             (click)="openAction('convert', it)"></button> -->
                         <div class="actions-wrap ">
-                            <p-select class="status-select" [options]="allowedStatusOptions(it)" (onFocus)="rememberStatus(it)"
-                                optionLabel="label" optionValue="value" [(ngModel)]="it.status" [style.width.px]="120"
-                                appendTo="body" (onChange)="onStatusChange(it, $event)">
+                            <p-select class="status-select" [options]="allowedStatusOptions(it)"
+                                (onFocus)="rememberStatus(it)" optionLabel="label" optionValue="value"
+                                [(ngModel)]="it.status" [style.width.px]="120" appendTo="body"
+                                (onChange)="onStatusChange(it, $event)">
                             </p-select>
                             <button pButton type="button" class="p-button-text" icon="pi pi-pencil" label="Edit"
                                 (click)="openEdit(it)">

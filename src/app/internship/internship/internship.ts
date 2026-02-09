@@ -172,11 +172,12 @@ export class Internship implements OnInit {
       next: (rows) => {
         this.departments = rows || [];
         this.deptOptions = this.departments.map(d => ({ label: d.name, value: d.id! }));
-        setTimeout(()=>{
+        setTimeout(() => {
           this.isLoading = false
         }, 2000)
       },
-      error: () => { this.departments = []; this.deptOptions = []; 
+      error: () => {
+        this.departments = []; this.deptOptions = [];
         this.isLoading = false
       }
 
@@ -463,11 +464,18 @@ export class Internship implements OnInit {
     });
   }
 
-    getDepartmentColors(departmentId: number) {
+  getDepartmentColors(departmentId: number) {
     const baseHue = (departmentId * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;
 
     return { badgeColor, dotColor };
+  }
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
   }
 }

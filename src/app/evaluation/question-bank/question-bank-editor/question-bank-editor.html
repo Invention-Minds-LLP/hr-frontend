@@ -1,4 +1,7 @@
 <form class="qb-editor" [formGroup]="bankForm">
+    <div class="btn">
+        <button class="back-btn" (click)="goBack()">← Back</button>
+    </div>
     <h2 class="title">
         Question Bank — <span class="muted">{{ bankId ? 'Edit' : 'New' }} {{ bankPreset?.name ?? bankForm?.get('name')?.value ?? '—' }}</span>
       </h2>

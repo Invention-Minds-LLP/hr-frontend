@@ -79,7 +79,17 @@
         <ng-template #dash><span class="muted" style="text-align: center;">—</span></ng-template>
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
+          <td class="empname">
+            <img *ngIf="r.photoUrl; else defaultPhoto" [src]="r.photoUrl" alt="Profile" />
+            <ng-template #defaultPhoto>
+              <img style="background-color: white;" [src]="getDefaultImage(r?.gender)" alt="Default Profile" />
+            </ng-template>
+            <div>
+              <div class="name">{{ r.employee.firstName }} {{ r.employee.lastName }}</div>
+              <span class="email">{{ r.employee.email }}</span>
+            </div>
+          </td>
+          <!-- <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td> -->
           <td>
             <span class="dept-badge"
               [ngStyle]="{ backgroundColor: getDepartmentColors(r.employee?.departmentId).badgeColor }">
@@ -137,19 +147,18 @@
               <ng-template pTemplate="header">
                 <div class="dialog-header-custom">
                   <span>Off-boarding</span>
-            
+
                   <button class="dialog-close-btn" (click)="closeDialog(r.id)">
                     ✕
                   </button>
                 </div>
               </ng-template>
               <ng-container *ngIf="isOpen(r.id)">
-                <app-resign-post
-                  [resignationId]="r?.id"
+                <app-resign-post [resignationId]="r?.id"
                   [employeeName]="r?.employee?.firstName + ' ' + r?.employee?.lastName">
                 </app-resign-post>
               </ng-container>
-              
+
             </p-dialog>
           </td>
         </tr>
@@ -201,14 +210,8 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog 
-  [(visible)]="noteDialogVisible"
-  [modal]="true"
-  [style]="{ width: '400px' }"
-  [closable]="true"
-  [dismissableMask]="true"
-  [closable]="false"
-  [header]="noteDialogTitle">
+<p-dialog [(visible)]="noteDialogVisible" [modal]="true" [style]="{ width: '400px' }" [closable]="true"
+  [dismissableMask]="true" [closable]="false" [header]="noteDialogTitle">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>{{noteDialogTitle}}</span>
@@ -221,23 +224,15 @@
   <div class="p-fluid">
     <div class="p-field">
       <label>Note</label>
-      <textarea
-        rows="4"
-        [(ngModel)]="noteText"
-        pInputTextarea
-        style="width:100%;">
+      <textarea rows="4" [(ngModel)]="noteText" pInputTextarea style="width:100%;">
       </textarea>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancel"
-      class="p-button-text"
-      (click)="noteDialogVisible=false"></button>
+    <button pButton label="Cancel" class="p-button-text" (click)="noteDialogVisible=false"></button>
 
-    <button pButton label="Submit"
-      class="p-button-success"
-      (click)="submitNoteDialog()"
+    <button pButton label="Submit" class="p-button-success" (click)="submitNoteDialog()"
       [disabled]="noteText.trim()===''">
     </button>
   </ng-template>

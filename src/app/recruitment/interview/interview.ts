@@ -139,5 +139,15 @@ export class Interview {
   truncate(text?: string, limit = 10): string {
     return text && text.length > limit ? text.slice(0, limit) + '…' : text || '—';
   }
-  
+
+
+  selectedform: any | null = null;
+
+  openFrom(form: any) {
+    this.selectedform = form;
+  }
+
+  closeFrom() {
+    this.selectedform = null;
+  }
 }

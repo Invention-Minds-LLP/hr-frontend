@@ -56,7 +56,18 @@
       <tr *ngIf="!loading">
         <td>{{ i + 1 }}</td>
         <td>{{ survey.employee.employeeCode }}</td>
-        <td>{{ survey.employee.firstName }} {{ survey.employee.lastName }}</td>
+        <td class="empname">
+          <img *ngIf="survey.photoUrl; else defaultPhoto" [src]="survey.photoUrl" alt="Profile" />
+          <ng-template #defaultPhoto>
+            <img style="background-color: white;" [src]="getDefaultImage(survey?.gender)" alt="Default Profile" />
+          </ng-template>
+          <div>
+            <div class="name">{{ survey.employee.firstName }} {{ survey.employee.lastName }}</div>
+            <!-- <span class="email">{{ survey.email || 'No Email' }}</span> -->
+
+          </div>
+        </td>
+        <!-- <td>{{ survey.employee.firstName }} {{ survey.employee.lastName }}</td> -->
         <td>
           <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(survey.departmentId).badgeColor }">
             <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(survey.departmentId).dotColor }">

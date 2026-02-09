@@ -176,7 +176,7 @@
     <!-- Attachments -->
     <div class="form-field file">
       <label>Attachments</label>
-      <input type="file" multiple (change)="addAttachment($event)" />
+      <input type="file" multiple (change)="addAttachment($event)" style="color: #FFF;" />
       <ul class="attachment-list" *ngIf="attachments.length">
         <li *ngFor="let f of attachments; let i = index">
           <i class="pi pi-paperclip"></i>

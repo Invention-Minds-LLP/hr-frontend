@@ -41,10 +41,24 @@
         <ng-template pTemplate="body" let-row let-rowIndex=rowIndex>
             <tr>
                 <td>{{ rowIndex + 1 }}</td>
+                <td class="empname">
+                    <img *ngIf="row.photoUrl; else defaultPhoto" [src]="row.photoUrl" alt="Profile" />
+                    <ng-template #defaultPhoto>
+                        <img style="background-color: white;" [src]="getDefaultImage(row?.gender)"
+                            alt="Default Profile" />
+                    </ng-template>
+                    <div>
+                        <strong>{{ row.employee.firstName }} {{ row.employee.lastName }}</strong>
+                        <div class="muted">{{ row.employee.employeeCode }}</div>
+                        <!-- <span class="email">{{ row.email || 'No Email' }}</span> -->
+
+                    </div>
+                </td>
+                <!-- 
                 <td>
                     <strong>{{ row.employee.firstName }} {{ row.employee.lastName }}</strong>
                     <div class="muted">{{ row.employee.employeeCode }}</div>
-                </td>
+                </td> -->
 
                 <td>{{ row.employee.phone }}</td>
                 <td>{{ row.employee.Department?.name }}</td>

@@ -4,7 +4,7 @@
 
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">
-    <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef></app-training-form>
+    <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef  (closeForm)="closeFrom()"></app-training-form>
   </div>
 
   <!-- TABLE -->
@@ -328,7 +328,7 @@
 <!-- ASSIGN EMPLOYEES DIALOG -->
 <!-- ===================== -->
 <p-dialog header="Assign Employees" [(visible)]="showAssignEmpDialog" [modal]="true" [closable]="false"
-  [style]="{ width: '40vw' }">
+  [style]="{ width: '40vw' }" class="assign-emp">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
       <span>Assign Employees</span>

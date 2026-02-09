@@ -17,7 +17,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 @Component({
   selector: 'app-clearances',
   imports: [TableModule, CommonModule, TextareaModule, ReactiveFormsModule, FormsModule,
-    SelectModule, DialogModule, BadgeModule, ButtonModule,SkeletonModule],
+    SelectModule, DialogModule, BadgeModule, ButtonModule, SkeletonModule],
   templateUrl: './clearances.html',
   styleUrl: './clearances.css'
 })
@@ -56,12 +56,14 @@ export class Clearances {
     this.loadDepartments();
     this.loadResignations();
     this.employeeService.getActiveEmployees().subscribe({
-      next: (data) =>{ this.employees = data
-        setTimeout(()=>{
+      next: (data) => {
+        this.employees = data
+        setTimeout(() => {
           this.loading = false
-        },2000)
+        }, 2000)
       },
-      error: () => {this.notify('error', 'Failed to load employees')
+      error: () => {
+        this.notify('error', 'Failed to load employees')
         this.loading = false
       }
     });
@@ -158,6 +160,13 @@ export class Clearances {
     }
 
     return [];
+  }
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
   }
 
 

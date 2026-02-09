@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Trainings } from '../../services/trainings/trainings';
 import { DatePicker } from 'primeng/datepicker';
@@ -49,6 +49,8 @@ export class TrainingForm {
   @Input() trainingData: any | null = null; // 👈 incoming data from parent
   editing = false;
   trainingId: number | null = null;
+  @Output() closeForm = new EventEmitter<void>();
+
 
   constructor(
     private fb: FormBuilder,
@@ -221,7 +223,7 @@ export class TrainingForm {
       },
       error: (err) => {
         console.error('❌ Failed to fetch tests', err);
-        this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to load evaluation tests.'});
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load evaluation tests.' });
         this.loading = false;
       },
     });
@@ -234,13 +236,13 @@ export class TrainingForm {
     if (this.form.invalid) {
       if (this.tests.length < 1) {
         // alert('Please select at least one evaluation test.');
-        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please select at least one evaluation test.'});
+        this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please select at least one evaluation test.' });
       } else if (this.trainers.length < 1) {
         // alert('Please add at least one trainer.');
-        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please add at least one trainer.'});
+        this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please add at least one trainer.' });
       } else {
         // alert('Please fill all required fields.');
-        this.messageService.add({severity:'error', summary: 'Validation Error', detail: 'Please fill all required fields.'});
+        this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fill all required fields.' });
       }
       return;
     }
@@ -264,14 +266,14 @@ export class TrainingForm {
       this.trainingService.updateTraining(this.trainingId, payload).subscribe({
         next: (res) => {
           // alert('✅ Training updated successfully!');
-          this.messageService.add({severity:'success', summary: 'Success', detail: 'Training updated successfully!'});
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Training updated successfully!' });
           this.resetForm();
           this.submitting = false;
           // this.formSubmit.emit(); // optional event for parent
         },
         error: (err) => {
           console.error('❌ Failed to update training:', err);
-          this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to update training.'});
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update training.' });
           this.submitting = false;
         },
       });
@@ -281,14 +283,14 @@ export class TrainingForm {
       this.trainingService.createTraining(payload).subscribe({
         next: () => {
           // alert('✅ Training created successfully!');
-          this.messageService.add({severity:'success', summary: 'Success', detail: 'Training created successfully!'});
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Training created successfully!' });
           this.resetForm();
           this.submitting = false;
           // this.formSubmit.emit(); // optional event for parent
         },
         error: (err) => {
           console.error('❌ Failed to create training:', err);
-          this.messageService.add({severity:'error', summary: 'Error', detail: 'Failed to create training.'});
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create training.' });
           this.submitting = false;
         },
       });
@@ -300,6 +302,10 @@ export class TrainingForm {
     this.tests.clear();
     this.editing = false;
     this.trainingId = null;
+  }
+
+  goBack() {
+    this.closeForm.emit();
   }
 
 }

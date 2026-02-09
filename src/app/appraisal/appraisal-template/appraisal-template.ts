@@ -17,7 +17,7 @@ import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-appraisal-template',
   imports: [CommonModule, ReactiveFormsModule, TabsModule, FormsModule,
-     TableModule, InputTextModule, TextareaModule, SelectModule, DialogModule,
+    TableModule, InputTextModule, TextareaModule, SelectModule, DialogModule,
     ButtonModule, FloatLabelModule
   ],
   templateUrl: './appraisal-template.html',
@@ -36,10 +36,11 @@ export class AppraisalTemplate {
   @Input() summaryData: any;
   @Output() closeForm = new EventEmitter<void>();
 
+
   incidentDialogVisible = false;
   incidents: any[] = [];
   loadingIncidents = false;
-  isLoading = false;  
+  isLoading = false;
 
 
 
@@ -517,6 +518,10 @@ export class AppraisalTemplate {
         this.incidents = [];
       }
     });
+  }
+
+  goBack() {
+    this.closeForm.emit();
   }
 
 }

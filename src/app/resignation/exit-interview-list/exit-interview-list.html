@@ -47,10 +47,15 @@
           <td>{{ i + 1 }}</td>
           <td>{{ interview.employee?.employeeCode }}</td>
           <td>
-            <div class="flex align-items-center gap-2">
-              <img class="profile-pic" src="/img.png" alt="Employee photo" />
+            <div class="flex align-items-center gap-2 empname">
+               <img *ngIf="interview.photoUrl; else defaultPhoto" [src]="interview.photoUrl" alt="Profile" />
+                    <ng-template #defaultPhoto>
+                        <img style="background-color: white;" [src]="getDefaultImage(interview?.gender)"
+                            alt="Default Profile" />
+                    </ng-template>
               <div>
-                {{ interview.employee?.firstName }} {{ interview.employee?.lastName }}
+                <span>{{ interview.employee?.firstName }} {{ interview.employee?.lastName }}</span>
+                <span>{{interview.email}}</span>
               </div>
             </div>
           </td>

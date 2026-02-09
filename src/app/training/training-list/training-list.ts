@@ -104,7 +104,7 @@ export class TrainingList {
   selectedRows: any[] = [];
   isLoading = false;
 
-  
+
 
 
 
@@ -190,7 +190,7 @@ export class TrainingList {
     const empId = localStorage.getItem('empId') || '1';
     const currentPath = this.router.url;
 
-    if ( currentPath !== '/individual') {
+    if (currentPath !== '/individual') {
       this.trainingService.getAllTrainings().subscribe({
         next: (res) => {
           this.filteredTrainings = [...res];
@@ -307,7 +307,7 @@ export class TrainingList {
   openFeedbackDialog(training: any) {
     this.selectedTraining = training;
     this.showFeedbackDialog = true;
-    if(this.userRole === 'HR'){
+    if (this.userRole === 'HR') {
       this.trainingService.getFeedbackSummary(training.id).subscribe({
         next: (res) => {
           this.feedbackSummary = res
@@ -510,7 +510,7 @@ export class TrainingList {
   // toggleSelectAll() {
   //   this.attendanceList.forEach(a => {
   //     a.selected = this.selectAll;
-  
+
   //     if (this.selectAll && this.bulkStatus) {
   //       // Only apply if:
   //       // 1. It was NOT marked before OR
@@ -521,7 +521,7 @@ export class TrainingList {
   //     }
   //   });
   // }
-  
+
   applyBulkStatus() {
     this.selectedRows.forEach(row => {
       if (!row.alreadyMarked || row.status === this.bulkStatus) {
@@ -529,7 +529,7 @@ export class TrainingList {
       }
     });
   }
-  
+
   saveAttendance() {
 
     const formatted = {
@@ -542,7 +542,7 @@ export class TrainingList {
       date: this.attendanceDate
     };
     this.isLoading = true;
-  
+
     this.trainingService.bulkMarkTrainingAttendance(this.selectedTrainingId, formatted)
       .subscribe(() => {
         this.isLoading = false;
@@ -550,23 +550,34 @@ export class TrainingList {
         this.closeAttendanceDialog();
       });
   }
-  
+
   closeAttendanceDialog() {
     this.attendanceList = [];
     this.selectedRows = [];
     this.bulkStatus = null;
     this.selectedTraining = null;
-  
+
     // Reset date
     this.attendanceDate = new Date();
     this.attendanceDate.setHours(0, 0, 0, 0);
-  
+
     // If you're using selectAll somewhere
     this.selectAll = false;
-  
+
     console.log("Attendance dialog reset");
   }
-  
+
+  selectedform: any | null = null;
+
+  openFrom(form: any) {
+    this.selectedform = form;
+  }
+
+  closeFrom() {
+    this.showForm = false;
+  }
+
+
 
 
 }
