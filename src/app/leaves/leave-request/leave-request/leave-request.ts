@@ -167,6 +167,8 @@ export class LeaveRequest {
             roleId: leave.employee?.roleId,
             inchargeId: leave.employee?.inchargeId ?? null,
             inChargeDecision: leave.inChargeDecision ?? 'PENDING',
+            isHalfDay: leave.isHalfDay,
+            halfDaySession: leave.halfDaySession
           }
         });
         // Only pending rows are actionable in this screen

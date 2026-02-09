@@ -231,15 +231,84 @@
             <textarea pInputTextarea id="approvedByHoDComments" rows="2" formControlName="approvedByHoDComments"
               [readonly]="!(currentStep === 'HOD' && isRM)">
               </textarea>
-            <label for="approvedByHoDComments">Comments</label>
-          </p-floatLabel>
-
-
-          <!-- Approve/Reject buttons -->
-          <div class="btn" *ngIf="currentStep === 'HOD'  && isRM">
-            <button pButton type="button" label="Approve" icon="pi pi-check" (click)="submitApproval('HOD')"></button>
-            <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
-              (click)="openRejectDialog('HOD')"></button>
+              <label for="approvedByHoDComments">Comments</label>
+            </p-floatLabel>
+            
+      
+            <!-- Approve/Reject buttons -->
+            <div class="btn" *ngIf="currentStep === 'HOD'  && isRM">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('HOD')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('HOD')"></button>
+            </div>
+          </div>
+      
+          <!-- Approved by SMO -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': !(currentStep === 'COO' && isManagement) }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedBySMO" formControlName="approvedBySMO" [readonly]="!(currentStep === 'COO' && isManagement)" />
+              <label for="approvedBySMO">Approved by COO</label>
+            </p-floatLabel>
+      
+            <canvas #smoSignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="!(currentStep === 'COO' && isManagement)"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="approvedBySMODate" formControlName="approvedBySMODate" readonly />
+              <label for="approvedBySMODate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('approvedBySMOComments')?.value?.trim()}">
+              <textarea pInputTextarea id="approvedBySMOComments" rows="2"  formControlName="approvedBySMOComments"
+                        [readonly]="!(currentStep === 'COO' && isManagement)"></textarea>
+              <label for="approvedBySMOComments">Comments</label>
+            </p-floatLabel>
+      
+            <!-- Approve/Reject buttons -->
+            <div class="p-mt-3 btn" *ngIf="currentStep === 'COO' && isManagement">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('COO')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('COO')"></button>
+            </div>
+          </div>
+      
+          <!-- Received by HR -->
+          <div class="col-12 md:col-3 flex flex-column gap-3"
+               [ngClass]="{ 'disabled-section': !(currentStep === 'HR' && isHRDept) }">
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="receivedByHR" formControlName="receivedByHR" [readonly]="!(currentStep === 'HR' && isHRDept)" />
+              <label for="receivedByHR">Received by HR</label>
+            </p-floatLabel>
+      
+            <canvas #hrSignatureCanvas width="300" height="120"
+                    style="border: 1px solid #ccc;" 
+                    [class.disabled-canvas]="!(currentStep === 'HR' && isHRDept)"></canvas>
+      
+            <p-floatLabel variant="on">
+              <input pInputText id="receivedByHRDate" formControlName="receivedByHRDate" readonly />
+              <label for="receivedByHRDate">Date</label>
+            </p-floatLabel>
+      
+            <p-floatLabel variant="on" [ngClass]="{'float-active': requisitionForm.get('receivedByHRComments')?.value}">
+              <textarea pInputTextarea id="receivedByHRComments" rows="2" 
+                        formControlName="receivedByHRComments"
+                        [readonly]="!(currentStep === 'HR' && isHRDept)"></textarea>
+              <label for="receivedByHRComments">Comments</label>
+            </p-floatLabel>
+      
+            <!-- Approve/Reject buttons -->
+            <div class="p-mt-3 flex gap-3 btn" *ngIf="currentStep === 'HR' && isHRDept">
+              <button pButton type="button" label="Approve" icon="pi pi-check"
+                      (click)="submitApproval('HR')"></button>
+              <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
+                      (click)="openRejectDialog('HR')"></button>
+            </div>
           </div>
         </div>
 

@@ -16,6 +16,10 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { AbstractControl } from '@angular/forms';
 import { Permission } from '../../services/permission/permission';
+import { Employees } from '../../services/employees/employees';
+import { DatePicker } from "primeng/datepicker";
+import { TextareaModule } from 'primeng/textarea';
+
 
 
 
@@ -36,7 +40,7 @@ interface balancesTable {
   selector: 'app-balances-accruals',
   imports: [InputIconModule, IconFieldModule, InputTextModule,
     FloatLabelModule, FormsModule, TableModule, CommonModule,
-    EmployeeDetails, SkeletonModule, DialogModule, ButtonModule, ReactiveFormsModule],
+    EmployeeDetails, SkeletonModule, DialogModule, ButtonModule, ReactiveFormsModule, DatePicker, TextareaModule],
   templateUrl: './balances-accruals.html',
   styleUrl: './balances-accruals.css'
 })
@@ -46,6 +50,7 @@ export class BalancesAccruals {
     private departmentService: Departments,
     private leaveService: Leaves,
     private permissionService: Permission,
+    private employeeService: Employees,
     private fb: FormBuilder) { }
 
   get leaves(): FormArray {
@@ -78,6 +83,10 @@ export class BalancesAccruals {
   balanceForm!: FormGroup;
   showDetailsDialog = false;
   isLoading = false;
+  showSabbaticalDialog = false;
+  sabbaticalForm!: FormGroup;
+  loadingSabbatical = false;
+
 
 
 
@@ -102,6 +111,12 @@ export class BalancesAccruals {
       leaves: this.fb.array([]),
       permissions: this.fb.array([])
     });
+    this.sabbaticalForm = this.fb.group({
+      startDate: [null, Validators.required],
+      endDate: [null, Validators.required],
+      reason: ['']
+    });
+
 
   }
 
@@ -223,6 +238,7 @@ export class BalancesAccruals {
       type: [l.leaveType],
       totalAllowed: [l.totalAllowed, Validators.required],
       used: [l.used, Validators.required], // ✅ editable
+      usedHalf: [l.usedHalf, Validators.required],
       remaining: [{ value: l.totalAllowed - l.used, disabled: true }]
     });
   }
@@ -269,7 +285,8 @@ export class BalancesAccruals {
       leaves: v.leaves.map((l: any) => ({
         leaveTypeId: l.leaveTypeId,
         totalAllowed: l.totalAllowed,
-        used: l.used
+        used: l.used,
+        halfDayUsed: l.usedHalf
       })),
 
       permissions: v.permissions.map((p: any) => ({
@@ -285,16 +302,57 @@ export class BalancesAccruals {
     });
   }
 
+  // calculateRemaining(row: AbstractControl) {
+  //   const total = Number(row.get('totalAllowed')?.value) || 0;
+  //   const used = Number(row.get('used')?.value) || 0;
+
+  //   if (used > total) {
+  //     row.get('used')?.setErrors({ exceedsTotal: true });
+  //     return;
+  //   }
+
+  //   row.get('remaining')?.setValue(total - used, { emitEvent: false });
+  // }
   calculateRemaining(row: AbstractControl) {
-    const total = Number(row.get('totalAllowed')?.value) || 0;
-    const used = Number(row.get('used')?.value) || 0;
+  const total = Number(row.get('totalAllowed')?.value) || 0;
+  const usedFull = Number(row.get('used')?.value) || 0;
+  const usedHalfCount = Number(row.get('usedHalf')?.value) || 0;
 
-    if (used > total) {
-      row.get('used')?.setErrors({ exceedsTotal: true });
-      return;
-    }
+  const usedHalfDays = usedHalfCount * 0.5;
+  const totalUsed = usedFull + usedHalfDays;
 
-    row.get('remaining')?.setValue(total - used, { emitEvent: false });
+  if (totalUsed > total) {
+    row.get('used')?.setErrors({ exceedsTotal: true });
+    return;
+  }
+
+  row.get('remaining')?.setValue(total - totalUsed, { emitEvent: false });
+}
+
+  openSabbaticalDialog(employee: any) {
+    this.selectedEmployee = employee;
+    this.showSabbaticalDialog = true;
+
+    this.sabbaticalForm.reset();
+  }
+  saveSabbatical() {
+    if (this.sabbaticalForm.invalid) return;
+    this.loadingSabbatical = true;
+
+    const data = this.sabbaticalForm.value;
+
+    this.employeeService.startSabbatical(
+      this.selectedEmployee.id,
+      data
+    ).subscribe({
+      next: () => {
+        this.showSabbaticalDialog = false;
+        this.loadingSabbatical = false;
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
   }
 
 }

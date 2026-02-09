@@ -196,5 +196,36 @@ export class Employees {
       `${this.apiUrl}/documents/${documentId}`
     );
   }
+startSabbatical(employeeId: number, data: {
+    startDate: string;
+    endDate: string;
+    reason?: string;
+  }) {
+    return this.http.post(
+      `${this.apiUrl}/employees/${employeeId}/sabbatical`,
+      data
+    );
+  }
 
+  extendSabbatical(sabbaticalId: number, newEndDate: string) {
+    return this.http.put(
+      `${this.apiUrl}/sabbaticals/${sabbaticalId}/extend`,
+      { endDate: newEndDate }
+    );
+  }
+
+  endSabbatical(sabbaticalId: number) {
+    return this.http.put(
+      `${this.apiUrl}/sabbaticals/${sabbaticalId}/end`,
+      {}
+    );
+  }
+
+  terminateFromSabbatical(sabbaticalId: number) {
+    return this.http.put(
+      `${this.apiUrl}/sabbaticals/${sabbaticalId}/terminate`,
+      {}
+    );
+  }
 }
+

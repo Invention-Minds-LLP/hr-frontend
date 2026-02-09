@@ -324,7 +324,7 @@
 
 
 ::ng-deep .balances-accruals .p-inputtext {
-    background: white !important;
+    background: transparent !important;
     font-family: "Sofia Sans";
     width: 100% !important;
 }
@@ -415,16 +415,32 @@
     background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
 
-::ng-deep .modal-overlay .p-inputtext {
+::ng-deep .p-inputtext {
     width: 100% !important;
     background-color: #000 !important;
     color: white !important;
     border: 2px solid #ccc;
 }
 
+::ng-deep .p-select, .p-datepicker, .p-multiselect{
+  width: 100% !important;
+  background-color: transparent !important;
+}
+::ng-deep .p-textarea{
+  color: white !important;
+  background: #020403 !important;
+  width: 100% !important;
+}
+
+.balance-header {
+    font-weight: 600;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
 .balance-row {
     display: grid;
-    grid-template-columns: 1.2fr 0.6fr 0.6fr 0.8fr;
+    grid-template-columns: 1.2fr 0.6fr 0.6fr 0.6fr 0.6fr;
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
@@ -518,6 +534,24 @@
 } */
 
 .dialog-close-btn:hover {
-    background: red;
-    color: white;
+  background: red;
+  color: white;
+}
+
+.btn.sabbatical {
+  background: #ffe8cc;
+  color: #a65d03;
+}
+
+::ng-deep .p-button{
+  background-color: #0062A1;
+  border-color: #0062A1;
+}
+ .p-button:hover{
+  background-color: #0062A1;
+  border-color: #0062A1;
+}
+
+.save-button{
+    margin-top: 60px;
 }

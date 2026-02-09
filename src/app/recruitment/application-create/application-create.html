@@ -42,7 +42,20 @@
         </div>
         <label><span>Source</span><input formControlName="source" placeholder="Referral / LinkedIn / ..." /></label>
         <label><span>Address</span><textarea formControlName="address" placeholder="Address"></textarea></label>
-        <label class="wide"><span>Resume URL</span><input type="file" (change)="onFileSelected($event)"/></label>
+        <label class="wide"><span>Resume URL</span>
+          <!-- <input type="file" (change)="onFileSelected($event)"/> -->
+            <div class="file-upload">
+    <input type="file" #fileInput (change)="onFileSelected($event)" />
+
+    <!-- Show selected file -->
+    <div class="file-preview" *ngIf="selectedResumeFile">
+      <span class="file-name">{{ selectedResumeFile.name }}</span>
+      <button type="button" class="remove-btn" (click)="removeFile(fileInput)">
+        ×
+      </button>
+    </div>
+  </div>
+        </label>
       </div>
     </fieldset>
 

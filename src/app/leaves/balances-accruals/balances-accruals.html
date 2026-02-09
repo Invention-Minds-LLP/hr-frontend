@@ -106,6 +106,9 @@
                             <div class="button">
                                 <button class="btn" (click)="showEmployeeDetails(balancesData)">See Details</button>
                                 <button class="btn" (click)="openBalanceDialog(balancesData)">Edit Balance</button>
+                                <button class="btn sabbatical" (click)="openSabbaticalDialog(balancesData)">
+                                    Sabbatical
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -139,6 +142,13 @@
     <form *ngIf="balanceForm" [formGroup]="balanceForm">
 
         <div class="balance-heading">Leaves</div>
+        <div class="balance-row balance-header">
+            <div class="type">Leave Type</div>
+            <div class="col">Total</div>
+            <div class="col">Full Days </div>
+            <div class="col">Half Days </div>
+            <div class="remaining">Remaining</div>
+        </div>
         <div formArrayName="leaves">
             <!-- <div *ngFor="let l of leaves.controls; let i=index" [formGroupName]="i">
                 <label>{{ l.value.type }}</label>
@@ -160,9 +170,13 @@
                 <input pInputText type="number" formControlName="totalAllowed" placeholder="Total"
                     (input)="calculateRemaining(l)" />
 
-                <input pInputText type="number" formControlName="used" placeholder="Used"
+                <!-- <input pInputText type="number" formControlName="used" placeholder="Used"
+                    (input)="calculateRemaining(l)" /> -->
+                <input pInputText type="number" formControlName="used" placeholder="Full Days"
                     (input)="calculateRemaining(l)" />
 
+                <input pInputText type="number" formControlName="usedHalf" placeholder="Half Days"
+                    (input)="calculateRemaining(l)" />
                 <div class="remaining">
                     Remaining: {{ l.get('remaining')?.value }}
                 </div>
@@ -195,6 +209,49 @@
         <div class="flex justify-content-end mt-4">
             <button pButton label="Save" [loading]="isLoading" [label]="isLoading ? 'Saving' : 'Save'"
                 (click)="saveBalances()"></button>
+        </div>
+
+    </form>
+</p-dialog>
+
+<p-dialog header="Start Sabbatical" [(visible)]="showSabbaticalDialog" [modal]="true" [style]="{ width: '35vw' }"
+    [closable]="false">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Start Sabbatical</span>
+            <button class="dialog-close-btn" (click)="showSabbaticalDialog = false">✕</button>
+        </div>
+    </ng-template>
+
+    <form [formGroup]="sabbaticalForm">
+
+        <div class="field">
+            <label>Start Date</label>
+            <p-datepicker formControlName="startDate" dateFormat="yy-mm-dd" [showIcon]="true"
+                placeholder="Select start date" appendTo="body">
+            </p-datepicker>
+        </div>
+
+        <div class="field">
+            <label>End Date</label>
+            <p-datepicker formControlName="endDate" dateFormat="yy-mm-dd" [showIcon]="true"
+                placeholder="Select end date" appendTo="body">
+            </p-datepicker>
+        </div>
+
+        <div class="field">
+            <label>Reason</label>
+            <textarea pInputTextarea formControlName="reason" rows="3" autoResize="true"
+                placeholder="Enter reason (optional)">
+    </textarea>
+        </div>
+
+
+        <div class="flex justify-content-end save-button">
+            <button pButton [loading]="loadingSabbatical" [label]="loadingSabbatical ? 'Saving...' : 'Save'"
+                (click)="saveSabbatical()">
+            </button>
         </div>
 
     </form>
