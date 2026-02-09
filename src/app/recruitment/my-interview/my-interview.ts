@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, Output,EventEmitter } from '@angular/core';
+import { Component, inject, signal, OnInit, Output, EventEmitter } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { Recuriting } from '../../services/recruiting/recuriting';
 import { TableModule } from 'primeng/table';
@@ -22,17 +22,17 @@ export class MyInterview {
   selectedInterview = signal<any | null>(null);
   loading = true
 
-  ngOnInit() { 
-    setTimeout(()=>{
-    this.loading = true
-    this.load();
+  ngOnInit() {
+    setTimeout(() => {
+      this.loading = true
+      this.load();
       this.loading = false
     }, 4000)
-   }
+  }
 
   load() {
     const empId = Number(localStorage.getItem('empId'));
-  
+
     this.svc.getPanelInterview(empId).subscribe({
       next: (data) => {
         const processed = (data || []).map((interview: any) => {
@@ -40,29 +40,47 @@ export class MyInterview {
           const myFeedback = interview.InterviewFeedback?.find(
             (f: any) => Number(f.panelUserId) === empId
           );
-  
+
           // determine status text
           const isSubmitted = (myFeedback?.status ?? '').toUpperCase() === 'SUBMITTED';
           const displayStatus = isSubmitted ? 'Interviewed' : 'Pending';
-  
+
           // optional: compute average score
           const avgScore = myFeedback?.average ?? '—';
-  
+
           return {
             ...interview,
             displayStatus,
             avgScore,
           };
         });
-  
+
         this.rows.set(processed);
       },
       error: () => this.rows.set([]),
     });
   }
-  
 
-  onEvaluate(row:any){
+
+  onEvaluate(row: any) {
     this.selectedInterview.set(row);
   }
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
+  }
+
+  selectedform: any | null = null;
+
+  openFrom(form: any) {
+    this.selectedform = form;
+  }
+
+  closeFrom() {
+    this.selectedInterview.set(null);
+  }
+
 }

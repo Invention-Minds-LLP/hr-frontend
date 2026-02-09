@@ -227,5 +227,13 @@ export class QuestionBank {
   }
 
 
+  selectedform: any | null = null;
+
+  openFrom(form: any) {
+    this.selectedform = form;
+  }
+
+
+
 
 }

@@ -12,7 +12,7 @@
 
 
 <div>
-    <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"></app-apprasial-form>
+    <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"  (backToList)="show('list')"></app-apprasial-form>
     <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
     <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>
 </div>

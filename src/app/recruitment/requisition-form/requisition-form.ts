@@ -582,6 +582,12 @@ export class RequisitionForm {
       }
     });
   }
+  
+  goBack() {
+    this.closeForm.emit();
+  }
+
+
 
 
 }

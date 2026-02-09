@@ -1,6 +1,8 @@
+<div class="btn">
+  <button class="back-btn" (click)="goBack()">← Back</button>
+</div>
 <p-card header="Create Training" class="m-3 training-form">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-fluid grid formgrid">
-
     <!-- Title -->
     <div class="field col-6">
       <p-floatLabel variant="on">
@@ -115,23 +117,17 @@
             <td>
               <p-toggleswitch formControlName="isMandatory"></p-toggleswitch>
             </td>
-                  <!-- NEW: Test date -->
-      <td>
-        <p-datePicker formControlName="testDate"
-                      [showTime]="true"
-                      hourFormat="24"
-                      dateFormat="yy-mm-dd">
-        </p-datePicker>
-      </td>
+            <!-- NEW: Test date -->
+            <td>
+              <p-datePicker formControlName="testDate" [showTime]="true" hourFormat="24" dateFormat="yy-mm-dd">
+              </p-datePicker>
+            </td>
 
-      <!-- NEW: Deadline -->
-      <td>
-        <p-datePicker formControlName="deadlineDate"
-                      [showTime]="true"
-                      hourFormat="24"
-                      dateFormat="yy-mm-dd">
-        </p-datePicker>
-      </td>
+            <!-- NEW: Deadline -->
+            <td>
+              <p-datePicker formControlName="deadlineDate" [showTime]="true" hourFormat="24" dateFormat="yy-mm-dd">
+              </p-datePicker>
+            </td>
           </tr>
         </tbody>
       </table>

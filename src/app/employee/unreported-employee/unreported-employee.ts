@@ -75,4 +75,11 @@ export class UnreportedEmployee {
     });
   
   }
+
+    getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
+  }
 }

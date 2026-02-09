@@ -30,10 +30,10 @@
         <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
       </div> -->
-       <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input id="searchBox" class="input" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
-            </p-iconfield>
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input id="searchBox" class="input" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+      </p-iconfield>
       <!-- </div> -->
 
 
@@ -124,90 +124,97 @@
     </ng-template>
   </p-table> -->
 
-  <p-table [value]="loading ? [1,2,3,4,5] : filteredSummaries"
-         [paginator]="!loading"
-         [rows]="10"
-         responsiveLayout="scroll">
+  <p-table [value]="loading ? [1,2,3,4,5] : filteredSummaries" [paginator]="!loading" [rows]="10"
+    responsiveLayout="scroll">
 
-  <ng-template pTemplate="header">
-    <tr>
-      <th>No</th>
-      <th>Emp ID</th>
-      <th>Employee Name</th>
-      <th>Department</th>
-      <th>Cycle</th>
-      <th>Period</th>
-      <th>Score</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-s let-i="rowIndex">
-
-    <!-- Show Skeleton while loading -->
-    <ng-container *ngIf="loading; else dataRow">
+    <ng-template pTemplate="header">
       <tr>
-        <td><p-skeleton width="2rem"></p-skeleton></td>
-        <td><p-skeleton width="4rem"></p-skeleton></td>
-        <td>
-          <div class="flex align-items-center">
-            <p-skeleton shape="circle" size="2.5rem" styleClass="mr-2"></p-skeleton>
-            <div>
-              <p-skeleton width="80px"></p-skeleton>
-              <p-skeleton width="60px"></p-skeleton>
-            </div>
-          </div>
-        </td>
-        <td><p-skeleton width="90px"></p-skeleton></td>
-        <td><p-skeleton width="70px"></p-skeleton></td>
-        <td><p-skeleton width="60px"></p-skeleton></td>
-        <td><p-skeleton width="50px"></p-skeleton></td>
-        <td><p-skeleton width="80px"></p-skeleton></td>
-        <td><p-skeleton width="40px"></p-skeleton></td>
-      </tr>
-    </ng-container>
-
-    <!-- Actual row -->
-    <ng-template #dataRow>
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ s.employee?.employeeCode }}</td>
-        <td>{{ s.employee?.firstName }} {{ s.employee?.lastName }}</td>
-        <td>
-          <span class="dept-badge"
-            [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).badgeColor }">
-            <span class="dot"
-              [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).dotColor }">
-            </span>
-            {{ getDepartmentName(s?.department?.id) }}
-          </span>
-        </td>
-        <td>{{ s.cycle }}</td>
-        <td>{{ s.period }}</td>
-        <td>{{ s.marksScored || '-' }}</td>
-        <td>{{ s.overallPerf || 'Draft' }}</td>
-        <td><button class="btn" (click)="openSummary(s)">Open</button></td>
+        <th>No</th>
+        <th>Emp ID</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Cycle</th>
+        <th>Period</th>
+        <th>Score</th>
+        <th>Status</th>
+        <th>Action</th>
       </tr>
     </ng-template>
 
-  </ng-template>
+    <ng-template pTemplate="body" let-s let-i="rowIndex">
 
-  <!-- NO DATA ROW — placed outside the body template -->
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="9" class="no-data center-right">
-        No Data Found
-      </td>
-    </tr>
-  </ng-template>
+      <!-- Show Skeleton while loading -->
+      <ng-container *ngIf="loading; else dataRow">
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td><p-skeleton width="4rem"></p-skeleton></td>
+          <td>
+            <div class="flex align-items-center">
+              <p-skeleton shape="circle" size="2.5rem" styleClass="mr-2"></p-skeleton>
+              <div>
+                <p-skeleton width="80px"></p-skeleton>
+                <p-skeleton width="60px"></p-skeleton>
+              </div>
+            </div>
+          </td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="70px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="50px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="40px"></p-skeleton></td>
+        </tr>
+      </ng-container>
 
-</p-table>
+      <!-- Actual row -->
+      <ng-template #dataRow>
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ s.employee?.employeeCode }}</td>
+          <td class="empname">
+            <img *ngIf="s.photoUrl; else defaultPhoto" [src]="s.photoUrl" alt="Profile" />
+            <ng-template #defaultPhoto>
+              <img style="background-color: white;" [src]="getDefaultImage(s?.gender)" alt="Default Profile" />
+            </ng-template>
+            <div>
+              <div class="name">{{ s.employee.firstName }} {{ s.employee.lastName }}</div>
+              <span class="email">{{ s.employee.email }}</span>
+            </div>
+          </td>
+          <!-- <td>{{ s.employee?.firstName }} {{ s.employee?.lastName }}</td> -->
+          <td>
+            <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).badgeColor }">
+              <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(s?.department?.id).dotColor }">
+              </span>
+              {{ getDepartmentName(s?.department?.id) }}
+            </span>
+          </td>
+          <td>{{ s.cycle }}</td>
+          <td>{{ s.period }}</td>
+          <td>{{ s.marksScored || '-' }}</td>
+          <td>{{ s.overallPerf || 'Draft' }}</td>
+          <td><button class="btn" (click)="openSummary(s)">Open</button></td>
+        </tr>
+      </ng-template>
+
+    </ng-template>
+
+    <!-- NO DATA ROW — placed outside the body template -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="no-data center-right">
+          No Data Found
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
 
 </div>
 
 <!-- Assign Popup -->
-<p-dialog header="Assign Performance Form" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width:'500px'}">
+<p-dialog header="Assign Performance Form" [(visible)]="visible" [modal]="true" [closable]="false"
+  [style]="{width:'500px'}">
 
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
@@ -219,7 +226,7 @@
         ✕
       </button>
     </div>
-    </ng-template>
+  </ng-template>
 
   <form [formGroup]="assignForm" (ngSubmit)="onAssign()">
 
@@ -245,16 +252,10 @@
       <div class="field">
         <label for="cycle">Appraisal Cycle</label>
         <!-- <input id="cycle" pInputText formControlName="cycle" placeholder="APR-2024 TO MAR-2025" /> -->
-        <p-select 
-        [options]="cycles"
-        optionLabel="label"
-        optionValue="value"
-        formControlName="cycle"
-        placeholder="Select Appraisal Cycle"
-        appendTo="body"
-        [showClear]="true">
-    </p-select>
-    
+        <p-select [options]="cycles" optionLabel="label" optionValue="value" formControlName="cycle"
+          placeholder="Select Appraisal Cycle" appendTo="body" [showClear]="true">
+        </p-select>
+
       </div>
 
       <!-- Period -->
@@ -266,11 +267,13 @@
     </div>
 
     <div style="margin-top: 34px;" class="flex justify-content-center">
-      <button pButton type="submit" label="Assign" [loading]="isLoading" [label]="isLoading ? 'Assigning': 'Assign'" [disabled]="assignForm.invalid"></button>
+      <button pButton type="submit" label="Assign" [loading]="isLoading" [label]="isLoading ? 'Assigning': 'Assign'"
+        [disabled]="assignForm.invalid"></button>
     </div>
   </form>
 </p-dialog>
 
 <div *ngIf="selectedSummary" style="margin-top: 40px;">
-  <app-appraisal-template [summaryData]="selectedSummary" (closeForm)="closeSummary()"></app-appraisal-template>
+  <app-appraisal-template [summaryData]="selectedSummary" (closeForm)="closeSummary()"
+    (closeForm)="closeSurvey()"></app-appraisal-template>
 </div>

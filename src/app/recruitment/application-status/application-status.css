@@ -715,6 +715,10 @@ td.actions {
 ::ng-deep .p-select-label {
   color: white !important;
 }
+
+::ng-deep .si-field .p-multiselect{
+  color: black !important;
+}
 /* ::ng-deep .card:focus-within .p-select-label.p-placeholder{
   color: black;
 } */
@@ -727,6 +731,7 @@ td.actions {
   color: white !important;
   width: 100% !important;
 }
+
 
 ::ng-deep .p-textarea{
   color: white !important;
@@ -817,3 +822,5 @@ td.actions {
     grid-template-columns: 1fr;
   }
 }
+
+

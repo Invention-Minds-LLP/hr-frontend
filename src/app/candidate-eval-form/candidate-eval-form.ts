@@ -1,6 +1,6 @@
 
 
-import { Component, computed, signal, effect, Input } from '@angular/core';
+import { Component, computed, signal, effect, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 
@@ -34,7 +34,7 @@ type SelectOpt = { label: string; value: string };
   imports: [
     CommonModule, ReactiveFormsModule,
     CardModule, InputTextModule, DatePicker, SelectModule,
-    InputNumberModule, TextareaModule, ButtonModule, DividerModule, ChipModule, ProgressBar,Tag
+    InputNumberModule, TextareaModule, ButtonModule, DividerModule, ChipModule, ProgressBar, Tag
   ],
   templateUrl: './candidate-eval-form.html',
   styleUrl: './candidate-eval-form.css'
@@ -54,12 +54,12 @@ export class CandidateEvalForm {
   totalPanelMembers = 0;
   submittedCount = 0;
   reviewerUserId: number | null = null; // set from auth service if you have it
-  deptId:number | null = null; // set from auth service if you have it
+  deptId: number | null = null; // set from auth service if you have it
 
   viewAllPanelReadOnly = false; // true if restricted -> show all read-only
-  isPanelMember:boolean = false;
+  isPanelMember: boolean = false;
 
-  isHr:boolean = false;
+  isHr: boolean = false;
 
 
   @Input() interviewId!: number;
@@ -95,7 +95,7 @@ export class CandidateEvalForm {
       }
     });
   }
-  constructor(private fb: FormBuilder,private api: Recuriting, private deptSvc: Departments, private messageService : MessageService) {
+  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments, private messageService: MessageService) {
     this.form = this.fb.group({
       candidate: this.fb.group({
         name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
@@ -119,7 +119,7 @@ export class CandidateEvalForm {
     });
     // start with two panelists (you can change)
     this.addPanelist();
-    
+
     const deptRaw =
       localStorage.getItem('deptId') ||
       (JSON.parse(localStorage.getItem('user') || '{}')?.deptId ?? '');
@@ -178,10 +178,10 @@ export class CandidateEvalForm {
   addPanelist(prefill = true) {
     const localName = localStorage.getItem('name') || '';
     const localDesignation = localStorage.getItem('designation') || '';
-  
+
     const g = this.fb.group({
       name: this.fb.control<string>(prefill ? localName : '', { validators: Validators.required, nonNullable: true }),
-      designation: this.fb.control<string>(prefill ? localDesignation : '', { nonNullable: true }),  
+      designation: this.fb.control<string>(prefill ? localDesignation : '', { nonNullable: true }),
       scores: this.fb.group({
         jobSkills: this.fb.control<number | null>(null, { validators: score01Validator }),
         jobKnowledge: this.fb.control<number | null>(null, { validators: score01Validator }),
@@ -310,7 +310,7 @@ export class CandidateEvalForm {
       remarks: v?.remarks ?? null,
       reviewerUserId: this.reviewerUserId, // set from auth service if you have it
       expectedDoj: v.hr?.expectedDoj ?? null,
-      noticePeriod: v.hr?.noticePeriod ?? null,   
+      noticePeriod: v.hr?.noticePeriod ?? null,
     };
 
 
@@ -325,8 +325,8 @@ export class CandidateEvalForm {
           detail: 'HR review saved.'
         });
       },
-      error: (err) => 
-        // alert(err?.error?.message || 'Failed to save HR review'),
+      error: (err) =>
+      // alert(err?.error?.message || 'Failed to save HR review'),
       {
         this.saving = false;
         this.messageService.add({
@@ -419,38 +419,38 @@ export class CandidateEvalForm {
     const experienceYears = v.application?.candidate?.experience ?? null;
     const qualification = v.application?.candidate?.qualification ?? '';
     this.form.patchValue({
-      candidate: { name: candidateName, date: start, position: jobTitle, department: deptName, qualification: qualification,experienceYears: experienceYears },
+      candidate: { name: candidateName, date: start, position: jobTitle, department: deptName, qualification: qualification, experienceYears: experienceYears },
     });
     console.log(this.form.value)
-  
+
     // ------ panelUsers: compute expected count ------
     const raw = (v?.panelUserIds ?? '').toString();
-    const arr = raw.split(',').map((s:any) => +s.trim()).filter((n:any) => Number.isFinite(n));
+    const arr = raw.split(',').map((s: any) => +s.trim()).filter((n: any) => Number.isFinite(n));
     this.expectedPanelIds = Array.from(new Set(arr));
     this.totalPanelMembers = this.expectedPanelIds.length;
     this.isPanelMember = this.expectedPanelIds.includes(this.panelId ?? 0);
-  
+
     // ------ feedbacks from API ------
     const allFeedback: any[] = Array.isArray(v?.InterviewFeedback) ? v.InterviewFeedback : [];
     const submitted = allFeedback.filter(f => (f?.status ?? '').toUpperCase() === 'SUBMITTED');
     this.submittedCount = submitted.length;
-  
+
     // Clear current UI rows
     this.panelArr.clear();
-  
+
     if (this.isRestricted && !this.isPanelMember) {
       // ============== RESTRICTED: show ALL (read-only) ==============
       this.viewAllPanelReadOnly = true;
-  
+
       // show submitted first (then drafts if you want)
       const visible = submitted.length ? submitted : allFeedback;
       visible.forEach(f => this.panelArr.push(this.fbFrom(f)));
 
       console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
-  
+
       // read-only
       this.panelArr.disable({ emitEvent: false });
-  
+
       if (v.InterviewHRReview) {
         this.form.patchValue({
           conclusion: v.InterviewHRReview.conclusion ?? 'Shortlisted',
@@ -471,24 +471,24 @@ export class CandidateEvalForm {
         });
       }
     }
-    else if(this.isRestricted && this.isPanelMember){
+    else if (this.isRestricted && this.isPanelMember) {
       // ============== RESTRICTED + PANEL: show my feedback + blanks ==============
       // this.viewAllPanelReadOnly = false;
-  
+
       const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
       console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
       if (mine) {
         // Already filled → show only in read-only mode
         this.panelArr.push(this.fbFrom(mine));
         this.viewAllPanelReadOnly = true;
-      } 
-      
+      }
+
       else {
         this.addPanelist(); // blank row for me to fill
-      console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
-      this.viewAllPanelReadOnly = false;
+        console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
+        this.viewAllPanelReadOnly = false;
       }
-  
+
       // enable editing my row
       this.panelArr.enable({ emitEvent: false });
       if (v.InterviewHRReview) {
@@ -510,23 +510,23 @@ export class CandidateEvalForm {
           hr: { presentSalary: null, payslip: 'No', expectedSalary: null, grossOffer: null },
         });
       }
-    
-      
+
+
     } else {
       // ============== NON-RESTRICTED: show ONLY my feedback ==============
       this.viewAllPanelReadOnly = false;
-  
+
       const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
       console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
       if (mine) this.panelArr.push(this.fbFrom(mine));
-      
+
       else this.addPanelist(); // blank row for me to fill
       console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
-  
+
       // enable editing my row
       this.panelArr.enable({ emitEvent: false });
     }
-  
+
     // Re-apply validators/enablement for HR + panel
     this.applyAccessRules();
   }
@@ -535,10 +535,10 @@ export class CandidateEvalForm {
       name: this.fb.control<string>(f?.name || '', { nonNullable: true }),
       designation: this.fb.control<string>(f?.designation || '', { nonNullable: true }),
       scores: this.fb.group({
-        jobSkills:      this.fb.control<number | null>(f?.jobSkills ?? null, { validators: score01Validator }),
-        jobKnowledge:   this.fb.control<number | null>(f?.jobKnowledge ?? null, { validators: score01Validator }),
-        attitude:       this.fb.control<number | null>(f?.attitude ?? null, { validators: score01Validator }),
-        communication:  this.fb.control<number | null>(f?.communication ?? null, { validators: score01Validator }),
+        jobSkills: this.fb.control<number | null>(f?.jobSkills ?? null, { validators: score01Validator }),
+        jobKnowledge: this.fb.control<number | null>(f?.jobKnowledge ?? null, { validators: score01Validator }),
+        attitude: this.fb.control<number | null>(f?.attitude ?? null, { validators: score01Validator }),
+        communication: this.fb.control<number | null>(f?.communication ?? null, { validators: score01Validator }),
       }),
       signature: this.fb.control<string>(f?.notes || ''),
       average: this.fb.control<number | null>({ value: f?.average ?? null, disabled: true }),
@@ -546,15 +546,24 @@ export class CandidateEvalForm {
       status: this.fb.control<string>(f?.status ?? 'DRAFT'),
       submittedAt: this.fb.control<Date | null>(f?.submittedAt ? new Date(f.submittedAt) : null),
     });
-  
+
     // keep average in sync
     g.get('scores')!.valueChanges.subscribe((scores: any) => {
       const vals = this.criteria.map(c => Number(scores?.[c.key])).filter(Number.isFinite);
-      const avg = vals.length ? +(vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1) : null;
+      const avg = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
       (g.get('average') as FormControl<number | null>).setValue(avg, { emitEvent: false });
     });
-  
+
     return g;
   }
+
+  @Output() closeForm = new EventEmitter<void>();
+
+  goBack() {
+    this.closeForm.emit();
+  }
+
+
+
 
 }

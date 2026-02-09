@@ -237,3 +237,23 @@
     padding: 20px;
     height: 40px !important;
   }
+
+  .back-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #FB9C2A;
+  color: white;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-left: 15px;
+  font-weight: 500;
+  font-family: "Sofia Sans";
+}
+
+.btn{
+  display: flex;
+  align-items: end;
+  justify-content: end;
+  margin-right: 5px;
+}

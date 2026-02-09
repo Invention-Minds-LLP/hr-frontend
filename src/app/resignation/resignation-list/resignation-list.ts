@@ -54,10 +54,10 @@ export class ResignationList {
   showApprovePopup = false;
   selectedLwd: Date | null = null;
   noteDialogVisible = false;
-noteDialogTitle = '';
-noteDialogAction: any = null;
-noteText = '';
-currentRecord: any = null;
+  noteDialogTitle = '';
+  noteDialogAction: any = null;
+  noteText = '';
+  currentRecord: any = null;
 
 
   constructor(private api: Resignation, private dept: Departments) { }
@@ -130,7 +130,7 @@ currentRecord: any = null;
         .subscribe(upd => this.replace(upd));
     });
   }
-  
+
   approveHR(r: any) {
     const lwd = prompt('Actual Last Working Day (yyyy-mm-dd)? Leave blank to keep proposed.') || '';
     this.api.hrApprove(r.id, { actualLastWorkingDay: lwd || undefined }).subscribe(upd => this.replace(upd));
@@ -145,7 +145,7 @@ currentRecord: any = null;
         .subscribe(upd => this.replace(upd));
     });
   }
-  
+
   cancelHR(r: any) {
     this.api.hrCancel(r.id).subscribe(upd => this.replace(upd));
   }
@@ -202,7 +202,7 @@ currentRecord: any = null;
         .subscribe(upd => this.replace(upd));
     });
   }
-  
+
   dialogOpen: Record<number, boolean> = {};
 
   openDialog(id: number) { this.dialogOpen[id] = true; }
@@ -219,7 +219,7 @@ currentRecord: any = null;
         .subscribe(upd => this.replace(upd));
     });
   }
-  
+
   // rejectWithdrawHR(r: any) {
   //   const note = prompt('Reason for rejecting withdraw?') || '';
   //   this.api.hrRejectWithdraw(r.id, { note, rejectedBy: this.employeeId })
@@ -232,7 +232,7 @@ currentRecord: any = null;
         .subscribe(upd => this.replace(upd));
     });
   }
-  
+
 
 
   toggleFilterDropdown() {
@@ -297,11 +297,18 @@ currentRecord: any = null;
   }
   submitNoteDialog() {
     if (!this.noteDialogAction || !this.currentRecord) return;
-  
+
     this.noteDialogAction(this.currentRecord.id, this.noteText);
-  
+
     this.noteDialogVisible = false;
     this.noteText = '';
   }
-    
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
+  }
+
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SurveryService, SurveyQuestion } from '../../services/surveyService/survery-service';
 import { CommonModule } from '@angular/common';
@@ -10,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { Employee, Employees } from '../../services/employees/employees';
 import { MessageService } from 'primeng/api';
+
 
 @Component({
   selector: 'app-survey-form',
@@ -31,6 +33,7 @@ export class SurveyForm {
   groupedQuestions: { section: string; questions: any[] }[] = [];
   @Input() surveyData: any | null = null;   // input from list
   @Output() closeForm = new EventEmitter<void>(); // to notify parent
+
   sectionTitles: Record<string, string> = {
     A: 'Job Satisfaction',
     B: 'Satisfaction with the Work',
@@ -47,8 +50,9 @@ export class SurveyForm {
   };
   isLoading = false;
 
-  constructor(private fb: FormBuilder, private surveyApi: SurveryService, private employeeApi: Employees, private messageService: MessageService) { }
+  constructor(private fb: FormBuilder, private surveyApi: SurveryService, private employeeApi: Employees, private messageService: MessageService, private location: Location) { }
 
+  sectionOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
   ngOnInit() {
     // get employee details from localStorage
@@ -63,7 +67,7 @@ export class SurveyForm {
 
     // init form
     this.form = this.fb.group({
-      surveyId: [this.surveyData.id], 
+      surveyId: [this.surveyData.id],
       employeeId: [empData.empId || ''], // send only this to backend
       answers: this.fb.array([]),
     });
@@ -83,7 +87,7 @@ export class SurveyForm {
           departmentName: this.surveyData.employee.Department?.name || '',
         };
 
-        
+
         console.log(this.employeeDetails)
 
         const arr = this.surveyData.responses.map((r: any) =>
@@ -100,10 +104,13 @@ export class SurveyForm {
           if (!groups[r.question.section]) groups[r.question.section] = [];
           groups[r.question.section].push(r.question);
         });
-        this.groupedQuestions = Object.keys(groups).map(sec => ({
-          section: sec,
-          questions: groups[sec],
-        }));
+        this.groupedQuestions = this.sectionOrder
+          .filter(sec => groups[sec]) // only existing sections
+          .map(sec => ({
+            section: sec,
+            questions: groups[sec]
+          }));
+
 
         this.form.patchValue({ employeeId: emp.id });
         this.form.patchValue({
@@ -175,7 +182,7 @@ export class SurveyForm {
     const currentGroup = this.groupedQuestions[this.currentIndex];
     return currentGroup.questions.every(q => {
       const control = this.getFormGroupFor(q.id).get('answer');
-      return control && control.value; 
+      return control && control.value;
     });
   }
 
@@ -193,5 +200,11 @@ export class SurveyForm {
       this.currentIndex--;
     }
   }
+
+  goBack() {
+    this.closeForm.emit();
+  }
+
+
 
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, EventEmitter, Output,SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray, FormControl, FormGroup, Validators,
@@ -19,18 +19,18 @@ import { QuestionBankService } from '../../../services/question-bank/question-ba
 import { QuestionsService } from '../../../services/questions/questions';
 import { Checkbox } from 'primeng/checkbox';
 
-type QType = 'MCQ'  | 'Descriptive';
+type QType = 'MCQ' | 'Descriptive';
 
 type AnswerType = 'single' | 'multiple' | null;
 
 type OptionFG = FormGroup<{
-  id: FormControl<number | null>; 
+  id: FormControl<number | null>;
   text: FormControl<string>;
   isCorrect: FormControl<boolean>;
 }>;
 
 type QuestionFG = FormGroup<{
-  id: FormControl<number | null>; 
+  id: FormControl<number | null>;
   type: FormControl<QType>;
   maxTime: FormControl<number | null>;
   weight: FormControl<number | null>;
@@ -99,7 +99,7 @@ export class QuestionBankEditor implements OnInit {
     private qbService: QuestionBankService,
     private qService: QuestionsService,
     private toast: MessageService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // initialize empty form as before
@@ -123,7 +123,7 @@ export class QuestionBankEditor implements OnInit {
   }
 
 
-  initForm(){
+  initForm() {
     this.bankForm = this.fb.group({
       name: this.fb.control('', { validators: [Validators.required] }),
       category: this.fb.control(''),
@@ -152,7 +152,7 @@ export class QuestionBankEditor implements OnInit {
   // ---------- factories
   createOption(text = '', isCorrect = false, id: number | null = null): OptionFG {
     return this.fb.group({
-      id:        new FormControl<number | null>(id),
+      id: new FormControl<number | null>(id),
       text: this.fb.control(text, { validators: [Validators.required] }),
       isCorrect: this.fb.control(isCorrect)
     });
@@ -161,7 +161,7 @@ export class QuestionBankEditor implements OnInit {
   createQuestionRow(type: QType): QuestionFG {
     const isDesc = type === 'Descriptive';
     return this.fb.group({
-      id:           new FormControl<number | null>(null),
+      id: new FormControl<number | null>(null),
       type: this.fb.control(type, { validators: [Validators.required] }),
       maxTime: new FormControl<number | null>(null),
       weight: new FormControl<number | null>(null),
@@ -196,7 +196,7 @@ export class QuestionBankEditor implements OnInit {
     const q = this.questionsFA.at(qIndex);
     const type = q.get('type')!.value;
     const opts = this.optionsFA(qIndex);
-  
+
     if (type === 'Descriptive') {
       while (opts.length) opts.removeAt(0);
       q.get('answerType')!.setValue(null);
@@ -206,7 +206,7 @@ export class QuestionBankEditor implements OnInit {
       if (!q.get('answerType')!.value) q.get('answerType')!.setValue('single');
     }
   }
-  
+
   onAnswerTypeChange(qIndex: number) {
     const q = this.questionsFA.at(qIndex);
     const at = q.get('answerType')!.value;
@@ -221,18 +221,18 @@ export class QuestionBankEditor implements OnInit {
       });
     }
   }
-  
+
   onCorrectChange(qIndex: number, optIndex: number) {
     const q = this.questionsFA.at(qIndex);
     if (q.get('answerType')!.value !== 'single') return;
-  
+
     // single choice → uncheck all others
     const opts = this.optionsFA(qIndex);
     opts.controls.forEach((c, i) =>
       c.get('isCorrect')!.setValue(i === optIndex, { emitEvent: false })
     );
   }
-  
+
   // Count correct answers for question at index
   countCorrectAt(qIndex: number): number {
     const opts = this.optionsFA(qIndex)?.controls ?? [];
@@ -244,39 +244,39 @@ export class QuestionBankEditor implements OnInit {
   isMCQorSC(q: QuestionFG) {
     return q.get('type')!.value === 'MCQ';
   }
-  
+
   isSingleChoice(q: QuestionFG) {
     return q.get('type')!.value === 'MCQ' && q.get('answerType')!.value === 'single';
   }
-  
+
   isMultipleChoice(q: QuestionFG) {
     return q.get('type')!.value === 'MCQ' && q.get('answerType')!.value === 'multiple';
   }
-  
+
 
   // ---------- validation
   invalidQuestion(q: QuestionFG): string[] {
     const errs: string[] = [];
     const type = q.get('type')!.value;
-  
+
     if (!q.get('text')!.value?.trim()) errs.push('Question text');
     if (!q.get('weight')!.value) errs.push('Weightage');
-  
+
     if (type !== 'Descriptive') {
       const answerType = q.get('answerType')!.value;
       if (!answerType) errs.push('Answer Type (Single/Multiple)');
-  
+
       const opts = q.get('options') as FormArray<OptionFG>;
       if ((opts?.length || 0) < 2) errs.push('At least 2 options');
       if (opts.controls.some(c => !c.get('text')!.value?.trim())) errs.push('Option text');
-  
+
       const correctCount = opts.controls.filter(c => !!c.get('isCorrect')!.value).length;
       if (answerType === 'single' && correctCount !== 1) errs.push('Exactly one correct');
       if (answerType === 'multiple' && correctCount < 1) errs.push('At least one correct');
     }
     return errs;
   }
-  
+
 
   validateAll(): boolean {
     if (this.bankForm.invalid) return false;
@@ -342,7 +342,7 @@ export class QuestionBankEditor implements OnInit {
   //           options: (q.options || []).map(o => ({ text: o.text!, isCorrect: !!o.isCorrect }))
   //         };
   //       });
-        
+
 
   //       let saved = 0;
   //       toSend.forEach(item =>
@@ -370,7 +370,7 @@ export class QuestionBankEditor implements OnInit {
   saveAll() {
     this.submitted = true;
     if (!this.validateAll()) return;
-  
+
     const header = this.bankForm.value;
     const qbPayload = {
       name: header.name!,
@@ -379,23 +379,23 @@ export class QuestionBankEditor implements OnInit {
       difficulty: header.level!,
       createdBy: header.createdBy!
     };
-  
+
     this.saving = true;
-  
+
     const afterHeader = (bankId: number) => {
       // Build a quick map of form questions
       const formQs = this.questionsFA.value;
-  
+
       // 1) Load existing IDs to find deletions
       this.qService.getByBank(bankId).subscribe({
         next: (existing: any[]) => {
           const existingIds = new Set((existing || []).map(q => q.id));
           const formIds = new Set(formQs.map(q => q.id).filter(Boolean));
-  
+
           const toDelete = [...existingIds].filter(id => !formIds.has(id));
           // delete removed questions
           toDelete.forEach(id => this.qService.delete(id).subscribe());
-  
+
           // 2) Upsert each form question
           let done = 0, total = formQs.length;
           const finish = () => {
@@ -406,7 +406,7 @@ export class QuestionBankEditor implements OnInit {
               this.saved.emit();
             }
           };
-  
+
           for (const q of formQs) {
             const payload: any = {
               questionBankId: bankId,
@@ -418,14 +418,14 @@ export class QuestionBankEditor implements OnInit {
                 ? undefined
                 : (q.options || []).map((o: any) => ({ text: o.text!, isCorrect: !!o.isCorrect }))
             };
-  
+
             const req$ = q.id
               ? this.qService.update(q.id, payload) // if you have update endpoint
               : this.qService.create(payload);
-  
-            req$.subscribe({ next: () => {}, error: () => {}, complete: finish });
+
+            req$.subscribe({ next: () => { }, error: () => { }, complete: finish });
           }
-  
+
           if (total === 0) finish();
         },
         error: () => {
@@ -434,7 +434,7 @@ export class QuestionBankEditor implements OnInit {
         }
       });
     };
-  
+
     // Create vs Update header
     if (this.bankId) {
       this.qbService.update(this.bankId, qbPayload).subscribe({
@@ -454,11 +454,11 @@ export class QuestionBankEditor implements OnInit {
       });
     }
   }
-  
+
   close() {
     this.closed.emit();
   }
-  
+
   private patchBankBasics(bank: any) {
     this.bankForm.patchValue({
       name: bank?.name ?? '',
@@ -474,7 +474,7 @@ export class QuestionBankEditor implements OnInit {
     // 1) load bank header (if your service has getById)
     this.qbService.getById?.(id).subscribe({
       next: (bank: any) => this.patchBankBasics(bank),
-      error: () => {} // it's ok if you only have header props already
+      error: () => { } // it's ok if you only have header props already
     });
 
     // 2) load questions
@@ -501,18 +501,18 @@ export class QuestionBankEditor implements OnInit {
         negativeWeight: this.fb.control(q.negativeWeight ?? 0),
         text: this.fb.control(q.text ?? '', { validators: [Validators.required] }),
         answerType: this.fb.control<AnswerType>(
-          q.type === 'Descriptive' ? null : (q.answerType ?? (q.options?.filter((o:any)=>o.isCorrect).length === 1 ? 'single' : 'multiple'))
+          q.type === 'Descriptive' ? null : (q.answerType ?? (q.options?.filter((o: any) => o.isCorrect).length === 1 ? 'single' : 'multiple'))
         ),
         options: this.fb.array<OptionFG>(
           q.type === 'Descriptive'
             ? []
             : (q.options || []).map((o: any) =>
-                this.fb.group({
-                  id: this.fb.control<number | null>(o.id ?? null),
-                  text: this.fb.control(o.text ?? '', { validators: [Validators.required] }),
-                  isCorrect: this.fb.control(!!o.isCorrect)
-                }) as OptionFG
-              )
+              this.fb.group({
+                id: this.fb.control<number | null>(o.id ?? null),
+                text: this.fb.control(o.text ?? '', { validators: [Validators.required] }),
+                isCorrect: this.fb.control(!!o.isCorrect)
+              }) as OptionFG
+            )
         )
       }) as QuestionFG;
       // ensure at least 2 option controls for MCQ
@@ -528,4 +528,10 @@ export class QuestionBankEditor implements OnInit {
       fa.push(this.createQuestionRow('MCQ'));
     }
   }
+
+  goBack() {
+    this.closed.emit();
+  }
+
+
 }

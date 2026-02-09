@@ -555,3 +555,29 @@
   background: red;
   color: white;
 }
+
+  /* Employee Name Column with Image */
+.empname {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.empname img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.email {
+  font-size: 12px;
+  color: #a1a1a1;
+}

@@ -22,7 +22,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
-    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule,InputIconModule, IconFieldModule],
+    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule, InputIconModule, IconFieldModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })
@@ -59,7 +59,7 @@ export class DeptPerformance {
 
   cycles: any[] = [];
 
-  constructor(private performanceService: PerformanceService, private employeeService: Employees, 
+  constructor(private performanceService: PerformanceService, private employeeService: Employees,
     private departmentService: Departments, private fb: FormBuilder, private messageService: MessageService) {
     this.assignForm = this.fb.group({
       employeeIds: [[], Validators.required],
@@ -127,16 +127,16 @@ export class DeptPerformance {
   generateCycles() {
     const currentYear = new Date().getFullYear();
     this.cycles = [];
-  
+
     for (let i = 0; i < 20; i++) {
       const startYear = currentYear + i;
       const endYear = startYear + 1;
       const cycle = `APR-${startYear} TO MAR-${endYear}`;
-  
+
       this.cycles.push({ label: cycle, value: cycle });
     }
   }
-  
+
   onFilterChange() {
     this.filteredSummaries = [...this.summaries];
     this.showFilterDropdown = false;
@@ -242,6 +242,21 @@ export class DeptPerformance {
 
   getDepartmentName(id: number): string {
     return this.departments.find(dep => dep.id === id)?.name || 'N/A';
+  }
+  selectedform: any | null = null;
+  openSurvey(survey: any) {
+    this.selectedform = survey;
+  }
+
+  closeSurvey() {
+    this.selectedform = null;
+  }
+
+      getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
   }
 
 

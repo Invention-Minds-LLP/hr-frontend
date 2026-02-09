@@ -27,6 +27,8 @@ export class ApprasialForm {
 
   @Input() selectedAppraisal: any;  // Data passed from parent
   @Output() formSubmitted = new EventEmitter<void>(); // Notify parent after save
+  @Output() backToList = new EventEmitter<void>();
+
   isLoading = false;
 
   appraisalForm!: FormGroup;
@@ -410,5 +412,10 @@ export class ApprasialForm {
       { emitEvent: false } // avoid infinite loops
     );
   }
+
+  goBack() {
+  this.backToList.emit();
+}
+
   
 }

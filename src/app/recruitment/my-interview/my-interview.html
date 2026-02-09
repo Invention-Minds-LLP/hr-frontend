@@ -95,8 +95,8 @@
 
 </div>
 
-<div class="" style="margin-top: 2rem; padding: 40px 60px;">
+<div class="" style="margin-top: 2rem; padding: 0px 60px 40px;">
     <app-candidate-eval-form id="eval-form" *ngIf="selectedInterview()" [interviewId]="selectedInterview()?.id"
-        [interview]="selectedInterview()">
+        [interview]="selectedInterview()" (closeForm)="closeFrom()">
     </app-candidate-eval-form>
 </div>
