@@ -15,6 +15,8 @@ interface CalendarDay {
   selected: boolean;
   isCurrentMonth: boolean;
   blocked?: boolean; // new optional flag
+  compOff?: boolean;
+  past?: boolean; 
 }
 
 @Component({
@@ -54,6 +56,7 @@ export class LeavePopup {
   filteredLeaveTypes: any[] = [];
   isHalfDay = false;
   halfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
+  compOffDates = new Set<string>();
 
 
 
@@ -95,6 +98,8 @@ export class LeavePopup {
   today = new Date();
   approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
   weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
+  compOffCredits: any[] = [];
+
 
 
 
@@ -102,6 +107,17 @@ export class LeavePopup {
 
 
   updateFromDate() {
+      const tempDate = new Date(
+    this.fromYear,
+    this.monthToIndex(this.fromMonth),
+    this.fromDay
+  );
+
+  if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    return; // stop selection
+  }
+
+
     this.fromDate = new Date(this.fromYear, this.monthToIndex(this.fromMonth), this.fromDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
@@ -110,7 +126,34 @@ export class LeavePopup {
     this.generateCalendar();
   }
 
+  getAvailableDays(monthStr: string, year: number): number[] {
+  const monthIndex = this.monthToIndex(monthStr);
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+  const validDays: number[] = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateObj = new Date(year, monthIndex, d);
+
+    if (!this.isPastDate(dateObj) && !this.isDayBlocked(dateObj)) {
+      validDays.push(d);
+    }
+  }
+
+  return validDays;
+}
+
+
   updateToDate() {
+      const tempDate = new Date(
+    this.toYear,
+    this.monthToIndex(this.toMonth),
+    this.toDay
+  );
+
+  if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    return;
+  }
     this.toDate = new Date(this.toYear, this.monthToIndex(this.toMonth), this.toDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
@@ -150,6 +193,28 @@ export class LeavePopup {
 
         this.generateCalendar();
       });
+    this.leaveService.getCompOffCredits(Number(this.employeeId))
+      .subscribe((credits: any[]) => {
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // keep only valid credits
+        this.compOffCredits = credits.filter(c =>
+          !c.used && new Date(c.expiryDate) >= today
+        );
+
+        this.compOffDates = new Set(
+          this.compOffCredits.map(c => {
+            const d = new Date(c.workDate);
+            d.setHours(0, 0, 0, 0);
+            return d.toISOString().slice(0, 10);
+          })
+        );
+
+        this.generateCalendar();
+      });
+
 
     const year = new Date().getFullYear();
     const today = new Date();
@@ -228,7 +293,7 @@ export class LeavePopup {
     this.declineReason = data.declineReason;
     this.isHalfDay = data.isHalfDay;
 
-  this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
+    this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.calculateDays();
 
@@ -263,9 +328,52 @@ export class LeavePopup {
 
   remainingLeave = 0;
 
+  checkCompOffAvailability() {
+    if (this.leaveType !== 'CO') return;
+
+    const selectedDates: Date[] = [];
+
+    for (
+      let d = new Date(this.fromDate);
+      d <= this.toDate;
+      d.setDate(d.getDate() + 1)
+    ) {
+      selectedDates.push(new Date(d));
+    }
+
+    for (const leaveDate of selectedDates) {
+      const validCredit = this.compOffCredits.find(c => {
+        const expiry = new Date(c.expiryDate);
+        expiry.setHours(0, 0, 0, 0);
+
+        return expiry >= this.stripTime(leaveDate);
+      });
+
+      if (!validCredit) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Comp-Off Expired',
+          detail: 'No valid comp-off credit available for selected date'
+        });
+        this.leaveType = '';
+        return;
+      }
+    }
+  }
+
+
+
+
   checkLeaveBalance() {
     const selected = this.leaveTypes.find(t => t.name === this.leaveType);
     if (!selected) return;
+
+    if (this.leaveType === 'CO') {
+      console.log('Checking comp-off availability for selected dates');
+      this.checkCompOffAvailability();
+      return;
+    }
+
 
     const year = this.fromDate.getFullYear();
 
@@ -289,6 +397,9 @@ export class LeavePopup {
 
     if (this.leaveType) {
       this.checkCausalLeaveBalance()
+    }
+    if (this.leaveType === 'EL') {
+      this.validateEarnedLeave();
     }
 
   }
@@ -371,6 +482,7 @@ export class LeavePopup {
     const firstDayOfMonth = new Date(this.currentYear, this.currentMonthIndex, 1).getDay();
     const daysInMonth = new Date(this.currentYear, this.currentMonthIndex + 1, 0).getDate();
 
+
     this.calendarDays = [];
 
     // Leading blanks
@@ -389,15 +501,20 @@ export class LeavePopup {
       const dateObj = new Date(this.currentYear, this.currentMonthIndex, day);
       const isSelected =
         dateObj >= this.fromDate && dateObj <= this.toDate;
+      const key = this.stripTime(dateObj).toISOString().slice(0, 10);
+      const isCompOff = this.compOffDates.has(key);
 
       const isBlocked = this.isDayBlocked(dateObj);
+      const isPast = this.isPastDate(dateObj);
 
       this.calendarDays.push({
         date: dateObj,
         number: day,
         selected: isSelected,
         isCurrentMonth: true,
-        blocked: isBlocked   // add new flag
+        blocked: isBlocked,   // add new flag
+        compOff: isCompOff,  // add comp off flag
+        past: isPast
       });
 
 
@@ -411,6 +528,7 @@ export class LeavePopup {
 
   }
   isDayBlocked(date: Date): boolean {
+    // if (this.isPastDate(date)) return true; 
     if (this.isApprovedWeekOff(date)) return true;
     return this.blockedRanges.some(range =>
       date >= range.startDate && date <= range.endDate
@@ -421,6 +539,10 @@ export class LeavePopup {
   // Handle date click
   onDateClick(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
+      // if (this.isPastDate(day.date)) return;
+      if (day.past) return;
+
+
     if (day.blocked || !day.isCurrentMonth) {
       this.messageService.add({
         severity: 'error',
@@ -468,14 +590,14 @@ export class LeavePopup {
   // Drag handling
   startDrag(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
-      if (this.isHalfDay) {
-    this.fromDate = day.date;
-    this.toDate = day.date;
-    this.calculateDays();
-    this.generateCalendar();
-    this.syncDropdownsFromDates();
-    return;
-  }
+    if (this.isHalfDay) {
+      this.fromDate = day.date;
+      this.toDate = day.date;
+      this.calculateDays();
+      this.generateCalendar();
+      this.syncDropdownsFromDates();
+      return;
+    }
 
     this.isDragging = true;
     this.fromDate = day.date;
@@ -554,6 +676,35 @@ export class LeavePopup {
       })
       return;
     }
+    if (this.leaveType === 'CO') {
+      for (
+        let d = new Date(this.fromDate);
+        d <= this.toDate;
+        d.setDate(d.getDate() + 1)
+      ) {
+        const leaveDate = this.stripTime(new Date(d));
+
+        const validCredit = this.compOffCredits.find(c => {
+          const expiry = this.stripTime(new Date(c.expiryDate));
+          return expiry >= leaveDate;
+        });
+
+        if (!validCredit) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Comp-Off Expired',
+            detail: 'Selected date exceeds comp-off expiry'
+          });
+          return;
+        }
+      }
+    }
+
+
+    // 🔴 EL validation
+    if (!this.validateEarnedLeave()) {
+      return;
+    }
     if (this.isRangeBlocked(this.fromDate, this.toDate)) {
       this.messageService.add({
         severity: 'error',
@@ -621,12 +772,13 @@ export class LeavePopup {
     if (dateObj < today) return true;
 
     // Block already applied days
-    if (this.isDayBlocked(dateObj)) return true;
+    return this.isPastDate(dateObj) || this.isDayBlocked(dateObj);
+    // if (this.isDayBlocked(dateObj)) return true;
 
-    const next = new Date(dateObj);
-    next.setDate(next.getDate() + 1);
+    // const next = new Date(dateObj);
+    // next.setDate(next.getDate() + 1);
 
-    return false;
+    // return false;
   }
   openDeclineDialog(id: number, level: 'LEVEL1' | 'LEVEL2') {
     let backendRole: 'REPORTING_MANAGER' | 'HR_MANAGER' | 'MANAGEMENT' | null = null;
@@ -813,7 +965,8 @@ export class LeavePopup {
   }
 
   checkCausalLeaveBalance() {
-    if (this.leaveType !== 'Casual Leave') return;
+    console.log('Checking casual leave balance for CL type', this.leaveType);
+    if (this.leaveType !== 'CL') return;
 
     const monthlySplit = this.splitByMonth(this.fromDate, this.toDate);
 
@@ -958,6 +1111,13 @@ export class LeavePopup {
 
   onHalfDayToggle() {
     if (this.isHalfDay) {
+      if (this.leaveType === 'EL') {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Invalid Selection',
+          detail: 'Half day is not allowed for Earned Leave.'
+        });
+      }
       // Force single-day selection
       this.toDate = this.fromDate;
       this.calculateDays();
@@ -965,5 +1125,37 @@ export class LeavePopup {
       this.syncDropdownsFromDates();
     }
   }
+  validateEarnedLeave(): boolean {
+    if (this.leaveType !== 'EL') return true;
+
+    if (this.days < 3) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid EL Request',
+        detail: 'Earned Leave must be at least 3 days.'
+      });
+      return false;
+    }
+
+    if (this.days > 7) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid EL Request',
+        detail: 'Earned Leave cannot exceed 7 days.'
+      });
+      return false;
+    }
+
+    return true;
+  }
+isPastDate(date: Date): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+
+  return d < today;
+}
 
 }

@@ -7,12 +7,15 @@ import { environment } from '../../../environment/environment.prod';
   providedIn: 'root'
 })
 export class Incident {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private baseUrl = environment.apiUrl + '/incidents';
 
   createIncident(payload: any): Observable<any> {
     return this.http.post(`${this.baseUrl}`, payload);
+  }
+  getAllIncidents() {
+    return this.http.get<any[]>(`${this.baseUrl}`);
   }
 
   getIncidentsByReporter(reporterId: number): Observable<any> {

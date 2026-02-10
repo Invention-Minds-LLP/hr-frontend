@@ -40,6 +40,10 @@ export class EmployeeForm {
 
   @Input() isProfileView: boolean = false; // true when accessed via My Profile
 
+  showSabbaticalDialog = false;
+  sabbaticalForm!: FormGroup;
+  loadingSabbatical = false;
+
   // private isInitialVaccinationAdded = false;
 
 
@@ -72,7 +76,8 @@ export class EmployeeForm {
     { label: 'Terminated', value: 'TERMINATED' },
     { label: 'Suspended', value: 'SUSPENDED' },
     { label: 'Notice Period', value: 'NOTICE_PERIOD' },
-    { label: 'Resigned', value: 'RESIGNED' }
+    { label: 'Resigned', value: 'RESIGNED' },
+    { label: 'Sabbatical', value: 'SABBATICAL' }
 
   ];
   documentCategories = [
@@ -146,6 +151,8 @@ export class EmployeeForm {
 
   leaveAllocationForm!: FormGroup;
   incharges: any[] = [];
+  currentSabbatical: any = null;
+
 
   // Check if a document of specific type is uploaded
 
@@ -277,7 +284,11 @@ export class EmployeeForm {
       shiftDate: [''],                              // keep (optional for fixed)
 
     });
-
+    this.sabbaticalForm = this.fb.group({
+      startDate: [null, Validators.required],
+      endDate: [null, Validators.required],
+      reason: ['']
+    });
     if (this.isProfileView) {
       // Disable Employment Info fields
       const employmentControls = [
@@ -564,12 +575,12 @@ export class EmployeeForm {
     });
   }
   generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
 
 
   createDocumentGroup(): FormGroup<{
@@ -932,7 +943,7 @@ export class EmployeeForm {
               detail: 'Error creating employee'
             })
             this.isLoading = false;
-            
+
           }
         });
       }
@@ -1309,6 +1320,20 @@ export class EmployeeForm {
       inchargeId: data.inchargeId ?? null
 
     });
+
+    if (data.sabbaticals && data.sabbaticals.length > 0) {
+      const active = data.sabbaticals.find((s: any) => s.status === 'ACTIVE');
+      if (active) {
+        this.currentSabbatical = active;
+
+        this.sabbaticalForm.patchValue({
+          startDate: new Date(active.startDate),
+          endDate: new Date(active.endDate),
+          reason: active.reason
+        });
+      }
+    }
+
     // 🔹 Patch health issues array
     this.healthIssues.clear();
     let parsedHealthIssues: any[] = [];
@@ -1580,7 +1605,7 @@ export class EmployeeForm {
       const shiftMode = this.employeeForm.get('shiftMode')?.value;
       if (shiftMode === 'FIXED') {
         controlsToValidate.push('fixedShiftId');
-      } 
+      }
       // else if (shiftMode === 'ROTATIONAL') {
       //   controlsToValidate.push('rotationPatternId', 'rotationStartDate');
       // }
@@ -1769,6 +1794,104 @@ export class EmployeeForm {
     //     });
     //   }
     // });
+  }
+  saveSabbatical() {
+    if (this.sabbaticalForm.invalid) return;
+
+    this.loadingSabbatical = true;
+    const data = this.sabbaticalForm.value;
+
+    this.employeeService.startSabbatical(
+      this.employeeData?.id,
+      data
+    ).subscribe({
+      next: () => {
+        this.showSabbaticalDialog = false;
+        this.loadingSabbatical = false;
+
+        // keep status as SABBATICAL
+        this.employeeForm.patchValue({
+          employmentStatus: 'SABBATICAL'
+        }, { emitEvent: false });
+      },
+      error: (err) => {
+        console.error(err);
+        this.loadingSabbatical = false;
+      }
+    });
+  }
+  onEmploymentStatusChange(event: any) {
+    const status = event.value;
+
+    if (status === 'SABBATICAL') {
+      this.openSabbaticalDialog(this.employeeData || this.employeeForm.value);
+    }
+  }
+  cancelSabbatical() {
+    this.showSabbaticalDialog = false;
+
+    // revert status back to ACTIVE or previous value
+    this.employeeForm.patchValue({
+      employmentStatus: 'ACTIVE'
+    }, { emitEvent: false });
+  }
+
+  openSabbaticalDialog(employee: any) {
+    this.employeeData = employee;
+    this.showSabbaticalDialog = true;
+
+    this.sabbaticalForm.reset();
+  }
+  openExistingSabbatical() {
+    if (this.currentSabbatical) {
+      this.sabbaticalForm.patchValue({
+        startDate: new Date(this.currentSabbatical.startDate),
+        endDate: new Date(this.currentSabbatical.endDate),
+        reason: this.currentSabbatical.reason
+      });
+      console
+    }
+
+    this.showSabbaticalDialog = true;
+  }
+  extendCurrentSabbatical() {
+    if (!this.currentSabbatical) return;
+
+    const endDate = this.sabbaticalForm.value.endDate;
+
+    this.employeeService
+      .extendSabbatical(this.currentSabbatical.id, endDate)
+      .subscribe(() => {
+        this.showSabbaticalDialog = false;
+      });
+  }
+  endCurrentSabbatical() {
+    if (!this.currentSabbatical) return;
+
+    this.employeeService
+      .endSabbatical(this.currentSabbatical.id)
+      .subscribe(() => {
+        this.employeeForm.patchValue({
+          employmentStatus: 'ACTIVE'
+        });
+
+        this.currentSabbatical = null;
+        this.showSabbaticalDialog = false;
+      });
+  }
+  terminateCurrentSabbatical() {
+    if (!this.currentSabbatical) return;
+
+    this.employeeService
+      .terminateFromSabbatical(this.currentSabbatical.id)
+      .subscribe(() => {
+        this.employeeForm.patchValue({
+          employmentStatus: 'TERMINATED'
+        });
+
+        this.currentSabbatical = null;
+        this.showSabbaticalDialog = false;
+      });
   }
 
 }

@@ -11,6 +11,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { Employee, Employees } from '../../services/employees/employees';
 import { ButtonModule } from 'primeng/button';
+import { Shifts } from '../../services/shifts/shifts';
 
 @Component({
   selector: 'app-incident-form',
@@ -43,26 +44,39 @@ export class IncidentForm {
   selectedFile: File | null = null;
 
   isLoading = false;
+  deptId = Number(localStorage.getItem('deptId')) || 0;
 
-  constructor(private incidentService: Incident, private toast: MessageService, private employeeService: Employees) {}
+  constructor(private incidentService: Incident, private toast: MessageService, private employeeService: Employees, private shifts: Shifts) { }
 
   ngOnInit() {
     this.fetchEmployees();
   }
 
-  
-fetchEmployees() {
-  this.employeeService.getActiveEmployees().subscribe({
-    next: (res: any[]) => {
-      this.employees = res.map((e) => ({
-        label: `${e.firstName} ${e.lastName} (${e.employeeCode})`,
-        value: e.id
-      }));
-    },
-    error: (err) => console.error('Failed to fetch employees', err),
-  });
-}
 
+  fetchEmployees() {
+    if (this.deptId === 1) {
+      this.employeeService.getActiveEmployees().subscribe({
+        next: (res: any[]) => {
+          this.employees = res.map((e) => ({
+            label: `${e.firstName} ${e.lastName} (${e.employeeCode})`,
+            value: e.id
+          }));
+        },
+        error: (err) => console.error('Failed to fetch employees', err),
+      });
+    } else {
+
+      this.shifts.getMyEmployees().subscribe({
+        next: (res: any[]) => {
+          this.employees = res.map((e) => ({
+            label: `${e.firstName} ${e.lastName} (${e.employeeCode})`,
+            value: e.id
+          }));
+        }
+      });
+    }
+
+  }
 
 
   onFileSelected(event: any) {
@@ -70,7 +84,7 @@ fetchEmployees() {
   }
 
 
-  
+
   submitIncident() {
     if (!this.incident.employeeId || !this.incident.title || !this.incident.description) {
       this.toast.add({
@@ -80,9 +94,9 @@ fetchEmployees() {
       });
       return;
     }
-  
+
     const reportedById = Number(localStorage.getItem('empid') || 0);
-  
+
     const payload = {
       employeeId: this.incident.employeeId,
       title: this.incident.title,
@@ -91,7 +105,7 @@ fetchEmployees() {
       attachment: null      // because you are NOT using attachment now
     };
     this.isLoading = true;
-  
+
     this.incidentService.createIncident(payload).subscribe({
       next: () => {
         this.toast.add({
@@ -112,6 +126,6 @@ fetchEmployees() {
       }
     });
   }
-  
-  
+
+
 }

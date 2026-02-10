@@ -100,5 +100,10 @@ export class Leaves {
     `${this.apiUrl}/casual/monthly-usage?employeeId=${empId}&year=${year}&month=${month}`
   );
 }
+getCompOffCredits(employeeId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/comp-off/credits?employeeId=${employeeId}`
+  );
+}
 
 }

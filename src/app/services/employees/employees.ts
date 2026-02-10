@@ -123,6 +123,12 @@ export class Employees {
   getEmployeesWithSpecificRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/specific-roles`);
   }
+  getEmployeesByRole(roleId: number) {
+  return this.http.get<any[]>(`${this.apiUrl}/by-role`, {
+    params: { roleId: roleId.toString() }
+  });
+}
+
   getActiveEmployees() {
     return this.http.get<any[]>(`${this.apiUrl}/active`);
   }
@@ -227,5 +233,9 @@ startSabbatical(employeeId: number, data: {
       {}
     );
   }
+  getByManager(managerId: number) {
+  return this.http.get<any[]>(`${this.apiUrl}/by-manager/${managerId}`);
+}
+
 }
 

@@ -18,7 +18,7 @@
           <p-floatLabel variant="on">
             <label for="departmentId">Department</label>
             <p-select [options]="departments" optionLabel="name" optionValue="id" id="departmentId"
-              formControlName="departmentId">
+              formControlName="departmentId" [filter]="true">
             </p-select>
           </p-floatLabel>
         </div>
@@ -312,7 +312,7 @@
           </div>
         </div>
 
-        <!-- Approved by SMO -->
+        <!-- Approved by SMO
         <div class="col-12 md:col-3 flex flex-column gap-3"
           [ngClass]="{ 'disabled-section': !(currentStep === 'COO' && isManagement) }">
 
@@ -337,8 +337,7 @@
               [readonly]="!(currentStep === 'COO' && isManagement)"></textarea>
             <label for="approvedBySMOComments">Comments</label>
           </p-floatLabel>
-
-          <!-- Approve/Reject buttons -->
+\
           <div class="p-mt-3 btn" *ngIf="currentStep === 'COO' && isManagement">
             <button pButton type="button" label="Approve" icon="pi pi-check" (click)="submitApproval('COO')"></button>
             <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
@@ -346,7 +345,7 @@
           </div>
         </div>
 
-        <!-- Received by HR -->
+       
         <div class="col-12 md:col-3 flex flex-column gap-3"
           [ngClass]="{ 'disabled-section': !(currentStep === 'HR' && isHRDept) }">
 
@@ -370,15 +369,15 @@
             <label for="receivedByHRComments">Comments</label>
           </p-floatLabel>
 
-          <!-- Approve/Reject buttons -->
+
           <div class="p-mt-3 flex gap-3 btn" *ngIf="currentStep === 'HR' && isHRDept">
             <button pButton type="button" label="Approve" icon="pi pi-check" (click)="submitApproval('HR')"></button>
             <button pButton type="button" label="Reject" icon="pi pi-times" severity="danger"
               (click)="openRejectDialog('HR')"></button>
           </div>
-        </div>
+        </div> -->
 
-      </div>
+
     </p-panel>
 
 

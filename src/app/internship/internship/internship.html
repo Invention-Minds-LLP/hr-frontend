@@ -178,7 +178,7 @@
                 </label>
                 <label class="field">Department
                     <p-select [options]="deptOptions" [(ngModel)]="createForm.departmentId"
-                        placeholder="Select department" [showClear]="true" appendTo="body"
+                        placeholder="Select department" [showClear]="true" appendTo="body" [filter]="true"
                         (onChange)="onCreateDeptChange($event.value)" style="min-width: 14rem">
                     </p-select>
                 </label>
@@ -190,7 +190,7 @@
 
                 <label class="field">Mentor
                     <p-select [options]="mentorOptionsCreate" [(ngModel)]="createForm.mentorId"
-                        placeholder="Select mentor" [showClear]="true" appendTo="body"
+                        placeholder="Select mentor" [showClear]="true" appendTo="body" [filter]="true"
                         [disabled]="!createForm.departmentId" style="min-width: 14rem">
                     </p-select>
                 </label>
@@ -253,7 +253,7 @@
                 </label>
                 <label class="field">Department
                     <p-select [options]="deptOptions" [(ngModel)]="editForm.departmentId"
-                        placeholder="Select department" [showClear]="true" appendTo="body"
+                        placeholder="Select department" [showClear]="true" appendTo="body" [filter]="true" 
                         (onChange)="onEditDeptChange($event.value)" style="min-width: 14rem">
                     </p-select>
                 </label>
@@ -264,7 +264,7 @@
                 </label>
 
                 <label class="field">Mentor
-                    <p-select [options]="mentorOptionsEdit" [(ngModel)]="editForm.mentorId" placeholder="Select mentor"
+                    <p-select [options]="mentorOptionsEdit" [(ngModel)]="editForm.mentorId" placeholder="Select mentor" [filter]="true"
                         [showClear]="true" appendTo="body" [disabled]="!editForm.departmentId" style="min-width: 14rem">
                     </p-select>
                 </label>

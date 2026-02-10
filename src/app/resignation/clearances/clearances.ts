@@ -22,7 +22,9 @@ import { SkeletonModule } from 'primeng/skeleton';
   styleUrl: './clearances.css'
 })
 export class Clearances {
-  clearanceTypes = ['IT', 'FINANCE', 'HR', 'ADMIN', 'SECURITY'];
+  // clearanceTypes = ['IT', 'FINANCE', 'HR', 'ADMIN', 'SECURITY'];
+  userDepartmentId = Number(localStorage.getItem('deptId')) || 0;
+
   clearanceStatusOptions = [
     { label: 'Pending', value: 'PENDING' },
     { label: 'Approved', value: 'APPROVED' },
@@ -93,10 +95,10 @@ export class Clearances {
   }
 
   /** ✅ Return clearance record for a given department type */
-  getClearance(r: any, type: string): any {
-    const clearances = r?.clearances || []; // ✅ fallback to empty array
-    return clearances.find((c: any) => c.type === type) || { type, decision: 'PENDING', note: '' };
-  }
+  // getClearance(r: any, type: string): any {
+  //   const clearances = r?.clearances || []; // ✅ fallback to empty array
+  //   return clearances.find((c: any) => c.type === type) || { type, decision: 'PENDING', note: '' };
+  // }
   /** ✅ Popup handlers */
   openPopup(resignation: any, action: 'APPROVED' | 'REJECTED'): void {
     this.selectedEmployee = resignation;
@@ -114,12 +116,19 @@ export class Clearances {
 
   submitAction(): void {
     if (!this.selectedEmployee || !this.popupAction) return;
+    // const payload = {
+    //   type: this.visibleClearanceTypes[0] as any,
+    //   decision: this.popupAction,
+    //   note: this.popupNote,
+    //   verifierId: this.loggedInUserId
+    // };
     const payload = {
-      type: this.visibleClearanceTypes[0] as any,
+      departmentId: this.userDepartmentId,
       decision: this.popupAction,
       note: this.popupNote,
       verifierId: this.loggedInUserId
     };
+
     this.isLoading = true;
     this.api.upsertClearance(this.selectedEmployee.id, payload).subscribe({
       next: () => {
@@ -148,20 +157,27 @@ export class Clearances {
   }
 
 
-  get visibleClearanceTypes() {
-    // HR Manager or Admin can see all clearances
-    if (this.role === 'HR Manager') {
-      return this.clearanceTypes;
-    }
+  // get visibleClearanceTypes() {
+  //   // HR Manager or Admin can see all clearances
+  //   if (this.role === 'HR Manager') {
+  //     return this.clearanceTypes;
+  //   }
 
-    // Reporting Manager: only their department clearance
-    if (this.userDeptName) {
-      return [this.userDeptName];
-    }
+  //   // Reporting Manager: only their department clearance
+  //   if (this.userDeptName) {
+  //     return [this.userDeptName];
+  //   }
 
-    return [];
+  //   return [];
+  // }
+
+  getClearance(r: any): any {
+    const clearances = r?.clearances || [];
+    console.log('Clearances for resignation', r.id, clearances);
+    return clearances.find(
+      (c: any) => c.departmentId === this.userDepartmentId
+    ) || { decision: 'PENDING', note: '' };
   }
-
   getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'

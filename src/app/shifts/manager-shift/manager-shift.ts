@@ -78,6 +78,11 @@ export class ManagerShift {
 
   weekOffDateMap: { [weekIndex: number]: Date | null } = {};
 
+  weekSelectableRanges: { min: Date; max: Date }[] = [];
+  weekDefaultDates: Date[] = [];
+
+
+
 
 
   patternItems: { dayIndex: number; shiftId?: number }[] = [];
@@ -652,20 +657,61 @@ export class ManagerShift {
 trackByWeek = (_: number, w: any) =>
   `${w.start.toISOString()}-${this.selectedMonth?.getMonth()}`;
 
+// getWeekSelectableRange(week: { start: Date; end: Date }) {
+//   const year = this.selectedMonth.getFullYear();
+//   const month = this.selectedMonth.getMonth();
+
+//   const monthStart = new Date(year, month, 1);
+//   const monthEnd = new Date(year, month + 1, 0);
+
+//   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
+//   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+
+//   // 🔒 SAFETY: if invalid range, lock it
+//   if (min > max) {
+//     return { min: null, max: null };
+//   }
+
+//   return { min, max };
+// }
+// getWeekSelectableRange(week: { start: Date; end: Date }) {
+//   const year = this.selectedMonth.getFullYear();
+//   const month = this.selectedMonth.getMonth();
+
+//   const monthStart = new Date(year, month, 1);
+//   const monthEnd = new Date(year, month + 1, 0);
+
+//   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
+//   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+
+//   // If week doesn't intersect month, lock to month start
+//   if (min > max) {
+//     return { min: monthStart, max: monthStart };
+//   }
+
+//   return { min, max };
+// }
+
 getWeekSelectableRange(week: { start: Date; end: Date }) {
+  if (!this.selectedMonth) {
+    return { min: null, max: null };
+  }
+
   const year = this.selectedMonth.getFullYear();
   const month = this.selectedMonth.getMonth();
 
   const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 0);
 
-  const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
-  const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+  let minTime = Math.max(week.start.getTime(), monthStart.getTime());
+  let maxTime = Math.min(week.end.getTime(), monthEnd.getTime());
 
-  // 🔒 SAFETY: if invalid range, lock it
-  if (min > max) {
-    return { min: null, max: null };
-  }
+  let min = new Date(minTime);
+  let max = new Date(maxTime);
+
+  // 🔑 normalize times
+  min.setHours(0, 0, 0, 0);
+  max.setHours(23, 59, 59, 999);
 
   return { min, max };
 }
@@ -824,35 +870,147 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
   }
 
 
-  generateWeeks() {
-    this.weeks = [];
-    this.weekShiftMap = {};
+  // generateWeeks() {
+  //   this.weeks = [];
+  //   this.weekShiftMap = {};
 
-    const year = this.selectedMonth.getFullYear();
-    const month = this.selectedMonth.getMonth();
+  //   const year = this.selectedMonth.getFullYear();
+  //   const month = this.selectedMonth.getMonth();
 
-    const monthStart = new Date(year, month, 1);
-    const monthEnd = new Date(year, month + 1, 0);
+  //   const monthStart = new Date(year, month, 1);
+  //   const monthEnd = new Date(year, month + 1, 0);
 
-    // Sunday of first week
-    const firstWeekStart = new Date(monthStart);
-    firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
+  //   // Sunday of first week
+  //   const firstWeekStart = new Date(monthStart);
+  //   firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
 
-    let current = new Date(firstWeekStart);
+  //   let current = new Date(firstWeekStart);
 
-    while (current <= monthEnd) {
-      const weekStart = new Date(current);
-      const weekEnd = new Date(current);
-      weekEnd.setDate(weekEnd.getDate() + 6);
+  //   while (current <= monthEnd) {
+  //     const weekStart = new Date(current);
+  //     const weekEnd = new Date(current);
+  //     weekEnd.setDate(weekEnd.getDate() + 6);
 
-      this.weeks.push({
-        start: new Date(weekStart),
-        end: new Date(weekEnd)
-      });
+  //     this.weeks.push({
+  //       start: new Date(weekStart),
+  //       end: new Date(weekEnd)
+  //     });
 
-      current.setDate(current.getDate() + 7);
+  //     current.setDate(current.getDate() + 7);
+  //   }
+  // }
+
+//   generateWeeks() {
+//   this.weeks = [];
+//   this.weekShiftMap = {};
+//   this.weekSelectableRanges = [];
+
+//   const year = this.selectedMonth.getFullYear();
+//   const month = this.selectedMonth.getMonth();
+
+//   const monthStart = new Date(year, month, 1);
+//   const monthEnd = new Date(year, month + 1, 0);
+
+//   const firstWeekStart = new Date(monthStart);
+//   firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
+
+//   let current = new Date(firstWeekStart);
+
+//   while (current <= monthEnd) {
+//     const weekStart = new Date(current);
+//     const weekEnd = new Date(current);
+//     weekEnd.setDate(weekEnd.getDate() + 6);
+
+//     this.weeks.push({
+//       start: new Date(weekStart),
+//       end: new Date(weekEnd)
+//     });
+
+//     let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
+//     let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
+
+//     const min = new Date(minTime);
+//     const max = new Date(maxTime);
+
+//     min.setHours(0, 0, 0, 0);
+//     max.setHours(23, 59, 59, 999);
+
+//     this.weekSelectableRanges.push({ min, max });
+
+//     current.setDate(current.getDate() + 7);
+//   }
+// }
+generateWeeks() {
+  this.weeks = [];
+  this.weekShiftMap = {};
+  this.weekSelectableRanges = [];
+  this.weekDefaultDates = [];
+
+  const year = this.selectedMonth.getFullYear();
+  const month = this.selectedMonth.getMonth();
+
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+
+  const firstWeekStart = new Date(monthStart);
+  firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
+
+  let current = new Date(firstWeekStart);
+
+  while (current <= monthEnd) {
+    const weekStart = new Date(current);
+    const weekEnd = new Date(current);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    this.weeks.push({
+      start: new Date(weekStart),
+      end: new Date(weekEnd)
+    });
+
+    // ----- min/max -----
+    let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
+    let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
+
+    const min = new Date(minTime);
+    const max = new Date(maxTime);
+
+    min.setHours(0, 0, 0, 0);
+    max.setHours(23, 59, 59, 999);
+
+    this.weekSelectableRanges.push({ min, max });
+
+    // ----- default date -----
+    this.weekDefaultDates.push(
+      this.calculateWeekDefaultDate(weekStart, weekEnd, month, year)
+    );
+
+    current.setDate(current.getDate() + 7);
+  }
+}
+calculateWeekDefaultDate(
+  weekStart: Date,
+  weekEnd: Date,
+  selectedMonth: number,
+  selectedYear: number
+): Date {
+  for (
+    let d = new Date(weekStart);
+    d <= weekEnd;
+    d.setDate(d.getDate() + 1)
+  ) {
+    if (
+      d.getMonth() === selectedMonth &&
+      d.getFullYear() === selectedYear
+    ) {
+      const result = new Date(d);
+      result.setHours(0, 0, 0, 0);
+      return result;
     }
   }
+
+  return new Date(selectedYear, selectedMonth, 1);
+}
+
 
   submitMonthlyRequest() {
     if (this.isMonthLocked) return;
@@ -1547,6 +1705,7 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
     // weeks & selections
     this.weeks = [];
     this.weekShiftMap = {};
+    this.weekOffDateMap = {};  
     this.lockedWeeks.clear();
 
     // rotation runtime state

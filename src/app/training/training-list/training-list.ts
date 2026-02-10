@@ -25,6 +25,8 @@ import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+
 
 
 @Component({
@@ -50,7 +52,8 @@ import { MessageService } from 'primeng/api';
     DatePickerModule,
     CheckboxModule,
     TableModule,
-    TooltipModule
+    TooltipModule,
+    ToastModule
   ],
   templateUrl: './training-list.html',
   styleUrl: './training-list.css',
@@ -103,6 +106,8 @@ export class TrainingList {
   maxDate = this.today;
   selectedRows: any[] = [];
   isLoading = false;
+  isReportingManager = false;
+
 
 
 
@@ -113,8 +118,10 @@ export class TrainingList {
 
   ngOnInit() {
     const role = localStorage.getItem('role') || 'EMPLOYEE';
+    const roleId = Number(localStorage.getItem('roleId'));
     this.currentPath = this.router.url;
-    this.userRole = role === 'HR' || role === 'HR Manager' || role === 'Reporting Manager' ? 'HR' : 'EMPLOYEE';
+    this.userRole = role === 'HR' || role === 'HR Manager' || role === 'Reporting Manager' || role === 'InCharge' ? 'HR' : 'EMPLOYEE';
+      this.isReportingManager = roleId === 3;
     this.fetchTrainings();
     this.loadEmployees();
     this.loadTests();
@@ -126,13 +133,13 @@ export class TrainingList {
     this.loadDepartments();
 
     // when departments change, load employees
-    this.form.get('departmentIds')?.valueChanges.subscribe((deptIds) => {
-      if (deptIds && deptIds.length > 0) {
-        this.loadEmployeesByDepartments(deptIds);
-      } else {
-        this.employeeOptions = [];
-      }
-    });
+    // this.form.get('departmentIds')?.valueChanges.subscribe((deptIds) => {
+    //   if (deptIds && deptIds.length > 0) {
+    //     this.loadEmployeesByDepartments(deptIds);
+    //   } else {
+    //     this.employeeOptions = [];
+    //   }
+    // });
     document.addEventListener('click', this.handleOutsideClick);
   }
 
@@ -147,24 +154,67 @@ export class TrainingList {
     }
   };
 
+  // loadEmployees() {
+  //   this.loading = true;
+  //   // this.employeeService.getActiveEmployees().subscribe({
+  //   //   next: (res) => {
+  //   //     // Map API data to dropdown format
+  //   //     this.employeeOptions = res.map((emp: any) => ({
+  //   //       label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+  //   //       value: emp.id
+  //   //     }));
+  //   //     this.employees = res;
+  //   //     this.loading = false;
+  //   //   },
+  //   //   error: (err) => {
+  //   //     console.error('❌ Failed to fetch employees', err);
+  //   //     this.loading = false;
+  //   //   }
+  //   // });
+  // }
   loadEmployees() {
+    const roleId = Number(localStorage.getItem('roleId'));
+    const empId = Number(localStorage.getItem('empId'));
+
     this.loading = true;
-    this.employeeService.getActiveEmployees().subscribe({
-      next: (res) => {
-        // Map API data to dropdown format
-        this.employeeOptions = res.map((emp: any) => ({
-          label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
-          value: emp.id
-        }));
-        this.employees = res;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('❌ Failed to fetch employees', err);
-        this.loading = false;
-      }
-    });
+
+    // If roleId = 3 → show only their employees
+    if (roleId === 3) {
+      this.employeeService.getByManager(empId).subscribe({
+        next: (res) => {
+          this.employeeOptions = res.map((emp: any) => ({
+            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+            value: emp.id
+          }));
+          this.employees = res;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('❌ Failed to fetch manager employees', err);
+          this.loading = false;
+        }
+      });
+    }
+
+    // HR or others → show all employees
+    else {
+      this.employeeService.getActiveEmployees().subscribe({
+        next: (res) => {
+          this.employeeOptions = res.map((emp: any) => ({
+            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+            value: emp.id
+          }));
+          this.employees = res;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('❌ Failed to fetch employees', err);
+          this.loading = false;
+        }
+      });
+    }
   }
+
 
   loadTests() {
     this.loading = true;
@@ -227,6 +277,7 @@ export class TrainingList {
 
 
   isIndividualOrEmployee() {
+    console.log('Checking view mode and role:', this.viewMode, this.userRole);
     return this.userRole === 'EMPLOYEE' || this.viewMode === 'individual';
   }
 
@@ -261,11 +312,85 @@ export class TrainingList {
     console.log('📤 Assigning payload:', payload);
     this.isLoading = true;
     this.trainingService.assignEmployees(payload).subscribe({
-      next: () => {
+      next: (res: any) => {
+        // this.isLoading = false;
+        // this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employees assigned successfully!' });
+        // this.showAssignEmpDialog = false;
+        // this.fetchTrainings();
+        // this.form.reset({
+        //   departmentIds: [],
+        //   employeeIds: []
+        // });
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employees assigned successfully!' });
+
+        const assigned = res.assignedEmployees || [];
+        const alreadyAssigned = res.alreadyAssignedEmployees || [];
+
+        // Success case
+        // if (assigned.length) {
+        //   this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Assigned',
+        //     detail: `${assigned.length} employee(s) assigned successfully.`
+        //   });
+        // }
+        if (assigned.length) {
+          const names = assigned
+            .map((id: number) => {
+              const emp = this.employees.find((e: any) => e.id === id);
+              return emp ? `${emp.firstName} ${emp.lastName}` : `#${id}`;
+            })
+            .join(', ');
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Assigned',
+            detail: `${names} assigned successfully.`
+          });
+        }
+
+
+        // Warning for already assigned
+        // if (alreadyAssigned.length) {
+        //   this.messageService.add({
+        //     severity: 'warn',
+        //     summary: 'Already Assigned',
+        //     detail: `${alreadyAssigned.length} employee(s) already had this training.`
+        //   });
+        // }
+        if (alreadyAssigned.length) {
+          const names = alreadyAssigned
+            .map((id: number) => {
+              const emp = this.employees.find((e: any) => e.id === id);
+              return emp ? `${emp.firstName} ${emp.lastName}` : `#${id}`;
+            })
+            .join(', ');
+
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Already Assigned',
+            detail: `${names} already had this training.`
+          });
+        }
+
+
+        // If nothing assigned
+        if (!assigned.length && alreadyAssigned.length) {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'No Changes',
+            detail: 'All selected employees already had this training.'
+          });
+        }
+
         this.showAssignEmpDialog = false;
         this.fetchTrainings();
+        this.form.reset({
+          departmentIds: [],
+          employeeIds: []
+        });
+
+
       },
       error: (err) => {
         console.error('❌ Failed to assign employees', err)
@@ -334,13 +459,62 @@ export class TrainingList {
     });
   }
 
-  loadEmployeesByDepartments(departmentIds: number[]) {
-    if (!Array.isArray(departmentIds) || !departmentIds.length) {
-      this.employeeOptions = [];
-      return;
-    }
+  // loadEmployeesByDepartments(departmentIds: number[]) {
+  //   if (!Array.isArray(departmentIds) || !departmentIds.length) {
+  //     this.employeeOptions = [];
+  //     return;
+  //   }
 
-    this.loadingEmployees = true;
+  //   this.loadingEmployees = true;
+  //   this.employeeService.getByDepartments(departmentIds).subscribe({
+  //     next: (res) => {
+  //       this.employeeOptions = res.map((emp: any) => ({
+  //         label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+  //         value: emp.id
+  //       }));
+  //       this.loadingEmployees = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('❌ Failed to load employees:', err);
+  //       this.loadingEmployees = false;
+  //     }
+  //   });
+  // }
+
+loadEmployeesByDepartments(departmentIds: number[]) {
+  if (!Array.isArray(departmentIds) || !departmentIds.length) {
+    this.employeeOptions = [];
+    return;
+  }
+
+  const roleId = Number(localStorage.getItem('roleId'));
+  const empId = Number(localStorage.getItem('empId'));
+
+  this.loadingEmployees = true;
+
+  // Manager → only their employees
+  if (roleId === 3) {
+    this.employeeService.getByManager(empId).subscribe({
+      next: (res) => {
+        const filtered = res.filter((e: any) =>
+          departmentIds.includes(e.departmentId)
+        );
+
+        this.employeeOptions = filtered.map((emp: any) => ({
+          label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+          value: emp.id
+        }));
+        this.loadingEmployees = false;
+      },
+      error: (err) => {
+        console.error('❌ Failed to load employees:', err);
+        this.loadingEmployees = false;
+      }
+    });
+  }
+
+  // HR → normal flow
+  else {
     this.employeeService.getByDepartments(departmentIds).subscribe({
       next: (res) => {
         this.employeeOptions = res.map((emp: any) => ({
@@ -355,7 +529,7 @@ export class TrainingList {
       }
     });
   }
-
+}
 
 
 
@@ -564,7 +738,17 @@ export class TrainingList {
     // If you're using selectAll somewhere
     this.selectAll = false;
 
+
     console.log("Attendance dialog reset");
+  }
+  closeAssignEmpDialog() {
+    this.showAssignEmpDialog = false;
+    this.selectedTraining = null;
+    this.form.reset({
+      departmentIds: [],
+      employeeIds: []
+    });
+
   }
 
   selectedform: any | null = null;

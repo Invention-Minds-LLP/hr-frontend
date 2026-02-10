@@ -166,7 +166,7 @@
             <!-- Department -->
             <div class="field col-12">
                 <p-floatLabel variant="on">
-                    <p-select [options]="departments" formControlName="departmentId" optionLabel="name" optionValue="id"
+                    <p-select [options]="departments" [filter]="true" formControlName="departmentId" optionLabel="name" optionValue="id"
                         class="dropdown"></p-select>
                     <label>Department</label>
                 </p-floatLabel>
@@ -176,7 +176,7 @@
             <div class="field col-12">
                 <p-floatLabel variant="on">
                     <p-select [options]="branches" formControlName="branchId" optionLabel="name" optionValue="id"
-                        class="dropdown"></p-select>
+                        class="dropdown" [filter]="true"></p-select>
                     <label>Branch</label>
                 </p-floatLabel>
             </div>

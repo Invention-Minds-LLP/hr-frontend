@@ -36,6 +36,13 @@ export class IncidentTable {
   ngOnInit() {
 
     console.log(this.employeeId, this.reporterId);
+
+    if (!this.employeeId && !this.reporterId) {
+      this.incidentService.getAllIncidents().subscribe(res => {
+        this.incidents = res;
+        this.filteredIncidents = [...this.incidents];
+      });
+    }
     if (this.employeeId) {
       this.incidentService.getIncidentsByEmployee(this.employeeId).subscribe(res => {
         this.incidents = res;

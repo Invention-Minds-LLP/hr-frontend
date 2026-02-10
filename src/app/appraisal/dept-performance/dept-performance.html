@@ -235,7 +235,7 @@
       <!-- Department -->
       <div class="field">
         <label for="departmentId">Department</label>
-        <p-select id="departmentId" [options]="departments" optionLabel="name" optionValue="id"
+        <p-select id="departmentId" [options]="departments" [filter]="true" optionLabel="name" optionValue="id"
           formControlName="departmentId" (onChange)="filterEmployees($event.value)">
         </p-select>
       </div>
@@ -252,7 +252,7 @@
       <div class="field">
         <label for="cycle">Appraisal Cycle</label>
         <!-- <input id="cycle" pInputText formControlName="cycle" placeholder="APR-2024 TO MAR-2025" /> -->
-        <p-select [options]="cycles" optionLabel="label" optionValue="value" formControlName="cycle"
+        <p-select [options]="cycles" [filter]="true" optionLabel="label" optionValue="value" formControlName="cycle"
           placeholder="Select Appraisal Cycle" appendTo="body" [showClear]="true">
         </p-select>
 
@@ -261,7 +261,7 @@
       <!-- Period -->
       <div class="field">
         <label for="period">Period</label>
-        <p-select id="period" [options]="periods" formControlName="period" appendTo="body">
+        <p-select id="period" [filter]="true" [options]="periods" formControlName="period" appendTo="body">
         </p-select>
       </div>
     </div>

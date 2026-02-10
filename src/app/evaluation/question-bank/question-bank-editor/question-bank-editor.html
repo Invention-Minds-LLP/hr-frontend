@@ -11,10 +11,10 @@
         <div class="row">
             <input pInputText placeholder="Question Bank Name" formControlName="name" />
             <!-- <input pInputText placeholder="Category" formControlName="category" /> -->
-            <p-select placeholder="Department" [options]="departments" optionLabel="name" optionValue="id"
+            <p-select placeholder="Department" [options]="departments" [filter]="true" optionLabel="name" optionValue="id"
                 formControlName="departmentId"></p-select>
             <input pInputText placeholder="Designation" formControlName="designation" />
-            <p-select placeholder="Select Test Level" [options]="testLevels" optionLabel="label" optionValue="value"
+            <p-select placeholder="Select Test Level" [filter]="true" [options]="testLevels" optionLabel="label" optionValue="value"
                 formControlName="level"></p-select>
         </div>
 

@@ -69,13 +69,29 @@
             </ng-template>
         </p-table>
     </section>
+    <!-- 🏢 Applicable Departments -->
+    <section class="card">
+        <div class="card-h">Applicable Departments for Clearance</div>
+
+        <p-multiSelect [options]="departments" [(ngModel)]="selectedDepartmentIds" optionLabel="label"
+            optionValue="value" placeholder="Select departments" [ngModelOptions]="{standalone:true}"
+            styleClass="w-full">
+        </p-multiSelect>
+
+        <div class="right" style="margin-top:10px;">
+            <button pButton label="Save Departments" class="save-btn" (click)="saveDepartments()">
+            </button>
+        </div>
+    </section>
+
 
     <!-- ✅ Clearances -->
     <section class="card">
         <div class="card-h">Department Clearances</div>
         <div class="clearance-grid">
-            <div class="cl-card" *ngFor="let t of clearanceTypes">
-                <div class="cl-head">{{ t }} Clearance</div>
+            <div class="cl-card" *ngFor="let c of clearances">
+                <!-- <div class="cl-head">{{ t }} Clearance</div> -->
+                <div class="cl-head">{{ c.departmentName }} Clearance</div>
 
                 <!-- <p-select [options]="[
               {label:'Pending', value:'PENDING'},
@@ -84,17 +100,24 @@
             ]" [(ngModel)]="clearanceDrafts[t].decision" [ngModelOptions]="{standalone:true}"
                     [disabled]="true">
                 </p-select> -->
-
+                <!-- 
                 <textarea pInputTextarea rows="3" placeholder="Notes (optional)" [(ngModel)]="clearanceDrafts[t].note"
-                    [ngModelOptions]="{standalone:true}" [disabled]="true"></textarea>
+                    [ngModelOptions]="{standalone:true}" [disabled]="true"></textarea> -->
 
                 <!-- <input pInputText  placeholder="Verifier Name"
                     [(ngModel)]="clearanceDrafts[t].verifierId" [ngModelOptions]="{standalone:true}"
                     [disabled]="true" /> -->
-                <input pInputText placeholder="Verifier Name" [(ngModel)]="clearanceDrafts[t].verifierName" [disabled]="true" />
+                <!-- <input pInputText placeholder="Verifier Name" [(ngModel)]="clearanceDrafts[t].verifierName" [disabled]="true" /> -->
+
+                <textarea pInputTextarea rows="3" placeholder="Notes (optional)" [(ngModel)]="c.note"
+                    [ngModelOptions]="{standalone:true}" [disabled]="true">
+</textarea>
+
+                <input pInputText placeholder="Verifier Name" [(ngModel)]="c.verifierName" [disabled]="true" />
+
 
                 <!-- <button  label="Save" *ngIf="!isClearanceLocked(t)" class="save-btn" style="width: 100%;height: 39px;" (click)="saveClearance(t)">Save</button> -->
-                <p-badge *ngIf="isClearanceLocked(t)" value="Approved" class="pending-btn"
+                <p-badge *ngIf="isClearanceLocked(c.departmentId)" value="Approved" class="pending-btn"
                     style="width: 100%;height: 39px;" severity="success">
                 </p-badge>
             </div>

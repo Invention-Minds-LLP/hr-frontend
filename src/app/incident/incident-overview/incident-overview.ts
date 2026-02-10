@@ -12,9 +12,13 @@ import { IncidentTable } from "../incident-table/incident-table";
 export class IncidentOverview {
   active: string = 'list';
   reporterId: number = 0;
+  isHR: boolean = false;
 
   ngOnInit() {
     this.reporterId = Number(localStorage.getItem('empId')) || 0;
+    const roleId = Number(localStorage.getItem('roleId'));
+
+    this.isHR = roleId === 1;
     console.log('Reporter ID:', this.reporterId);
   }
 

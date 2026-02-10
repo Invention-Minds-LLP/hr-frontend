@@ -229,7 +229,7 @@
       <p-select formControlName="stage" [options]="[
         { label:'Panel', value:'Panel'},
         { label:'Management', value:'Management'}
-      ]" placeholder="Choose stage">
+      ]" (onChange)="loadPanelOptions($event.value)" placeholder="Choose stage">
       </p-select>
 
     </div>

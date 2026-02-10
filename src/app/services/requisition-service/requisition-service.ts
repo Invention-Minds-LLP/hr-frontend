@@ -18,8 +18,8 @@ export class RequisitionService {
   }
 
   // Get all requisitions
-  getRequisitions(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getRequisitions(roleId: number, empId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}?roleId=${roleId}&empId=${empId}`);
   }
 
   // Update requisition approval status (RAISED, HOD, SMO, HR)

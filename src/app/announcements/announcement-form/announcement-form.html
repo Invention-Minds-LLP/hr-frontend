@@ -42,7 +42,7 @@
           { label: 'Policy', value: 'POLICY' },
           { label: 'Event', value: 'EVENT' },
           { label: 'Alert', value: 'ALERT' }
-        ]" formControlName="type" placeholder="Select Type" style="width: 100%"
+        ]" formControlName="type" placeholder="Select Type" style="width: 100%" [filter]="true"
         [invalid]="form.get('type')?.invalid && (form.get('type')?.touched || submitted)"></p-select>
       <div class="error-msg" *ngIf="form.get('type')?.invalid && (form.get('type')?.touched || submitted)">
         Type is required

@@ -22,7 +22,7 @@ export class RequisitionList {
 
   @Output() selectRequisition = new EventEmitter<any>();
 
-  constructor(private requisitionService: RequisitionService, private departmentService: Departments) {}
+  constructor(private requisitionService: RequisitionService, private departmentService: Departments) { }
 
   ngOnInit() {
     this.loadRequisitions();
@@ -45,12 +45,14 @@ export class RequisitionList {
   }
 
   loadRequisitions() {
-    this.loading = true
-    this.requisitionService.getRequisitions().subscribe({
+    this.loading = true;
+    const roleId = Number(localStorage.getItem('roleId'));
+    const empId = Number(localStorage.getItem('empId'));
+    this.requisitionService.getRequisitions(roleId, empId).subscribe({
       next: (data) => {
         this.requisitions = data;
         // this.loading = false;
-        setTimeout(()=>{
+        setTimeout(() => {
           this.loading = false
         }, 2000)
       },

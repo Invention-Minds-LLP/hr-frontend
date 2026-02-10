@@ -398,11 +398,22 @@
             <div class="mt-2">
                 <label class="block text-sm mb-1">Week Off</label>
 
-                <p-datepicker [(ngModel)]="weekOffDateMap[i]"   [minDate]="getWeekSelectableRange(w).min  || undefined"
+                <!-- <p-datepicker [(ngModel)]="weekOffDateMap[i]"   [minDate]="getWeekSelectableRange(w).min  || undefined"
   [maxDate]="getWeekSelectableRange(w).max  || undefined" [defaultDate]="getWeekDefaultDate(w)"
                     [disabled]="isMonthLocked || lockedWeeks.has(i)" dateFormat="dd M yy" appendTo="body"
                     placeholder="Select week off date">
+                </p-datepicker> -->
+
+                <!-- 
+                    <p-datepicker [(ngModel)]="weekOffDateMap[i]" (ngModelChange)="weekOffDateMap[i] = $event"[defaultDate]="getWeekDefaultDate(w)"
+                        dateFormat="dd M yy" appendTo="body" placeholder="Select week off date">
+                    </p-datepicker> -->
+
+                <p-datepicker [(ngModel)]="weekOffDateMap[i]" [minDate]="weekSelectableRanges[i]?.min"    [defaultDate]="weekOffDateMap[i] || weekDefaultDates[i]"
+                    [maxDate]="weekSelectableRanges[i]?.max" dateFormat="dd M yy" appendTo="body" [disabled]="isMonthLocked || lockedWeeks.has(i)" placeholder="Select week off date">
                 </p-datepicker>
+
+
             </div>
 
         </div>

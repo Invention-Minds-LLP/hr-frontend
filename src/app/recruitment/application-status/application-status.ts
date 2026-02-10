@@ -204,24 +204,25 @@ export class ApplicationStatus implements OnInit {
     this.selectedPanelIds = [];
 
     // load employees from job's department (ACTIVE only)
-    const depId = a?.job?.departmentId;
-    if (depId) {
-      this.employeeService.list({ departmentId: depId, status: 'ACTIVE' })
-        .subscribe(rows => {
-          this.panelOptions = rows.map(e => {
-            const code = e.employeeCode ?? undefined; // code?: string
-            const opt: { label: string; value: number; meta?: { code: string } } = {
-              label: `${e.firstName} ${e.lastName}${code ? ` (${code})` : ''}`,
-              value: e.id
-            };
-            if (code) opt.meta = { code }; // only add when it's a string
-            return opt;
-          });
-        });
-    } else {
-      // fallback: load none or all; choose your preference
-      this.panelOptions = [];
-    }
+    // const depId = a?.job?.departmentId;
+    // if (depId) {
+    //   this.employeeService.list({ departmentId: depId, status: 'ACTIVE' })
+    //     .subscribe(rows => {
+    //       this.panelOptions = rows.map(e => {
+    //         const code = e.employeeCode ?? undefined; // code?: string
+    //         const opt: { label: string; value: number; meta?: { code: string } } = {
+    //           label: `${e.firstName} ${e.lastName}${code ? ` (${code})` : ''}`,
+    //           value: e.id
+    //         };
+    //         if (code) opt.meta = { code }; // only add when it's a string
+    //         return opt;
+    //       });
+    //     });
+    // } else {
+    //   // fallback: load none or all; choose your preference
+    //   this.panelOptions = [];
+    // }
+      this.loadPanelOptions(stage);
   }
 
   // keep the CSV in your form control so submit logic stays simple
@@ -232,6 +233,48 @@ export class ApplicationStatus implements OnInit {
   private toIso(d: Date | string): string {
     return d instanceof Date ? d.toISOString() : new Date(d).toISOString();
   }
+
+//   loadPanelOptions() {
+//   this.employeeService.getEmployeesWithSpecificRoles()
+//     .subscribe((data: any[]) => {
+//       this.panelOptions = data.map(emp => {
+//         const code = emp.employeeCode ?? undefined;
+
+//         const opt: { label: string; value: number; meta?: { code: string } } = {
+//           label: `${emp.firstName} ${emp.lastName}${code ? ` (${code})` : ''}`,
+//           value: emp.id
+//         };
+
+//         if (code) opt.meta = { code };
+
+//         return opt;
+//       });
+//     });
+// }
+loadPanelOptions(stage: 'Panel' | 'Management') {
+  let roleId = 3; // default: reporting manager
+
+  if (stage === 'Management') {
+    roleId = 4; // management role
+  }
+
+  this.employeeService.getEmployeesByRole(roleId)
+    .subscribe((data: any[]) => {
+      this.panelOptions = data.map(emp => {
+        const code = emp.employeeCode ?? undefined;
+
+        const opt: { label: string; value: number; meta?: { code: string } } = {
+          label: `${emp.firstName} ${emp.lastName}${code ? ` (${code})` : ''}`,
+          value: emp.id
+        };
+
+        if (code) opt.meta = { code };
+        return opt;
+      });
+    });
+}
+
+
 
   submitInterview() {
     if (!this.currentApp) return;

@@ -15,17 +15,27 @@ import { Resignation } from '../../services/resignation/resignation';
 import { MessageService } from 'primeng/api';
 
 import { Employees } from '../../services/employees/employees';
+import { Departments } from '../../services/departments/departments';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 type TaskStatus = 'OPEN' | 'IN_PROGRESS' | 'DONE';
-type ClearanceType = 'IT'|'FINANCE'|'HR'|'ADMIN'|'SECURITY'|'OTHER';
-type ApprovalDecision = 'PENDING'|'APPROVED'|'REJECTED';
-type SettlementStatus = 'DUE'|'PROCESSING'|'PAID';
+// type ClearanceType = 'IT'|'FINANCE'|'HR'|'ADMIN'|'SECURITY'|'OTHER';
+type ApprovalDecision = 'PENDING' | 'APPROVED' | 'REJECTED';
+type SettlementStatus = 'DUE' | 'PROCESSING' | 'PAID';
+type ClearanceDraft = {
+  departmentId: number;
+  departmentName: string;
+  decision: ApprovalDecision;
+  note?: string;
+  verifierId?: number;
+  verifierName?: string;
+};
 
 @Component({
   selector: 'app-resign-post',
-  imports: [    CommonModule, FormsModule, ReactiveFormsModule,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,
     TableModule, ButtonModule, InputTextModule, TextareaModule,
-    Select, DatePicker, BadgeModule, ToastModule],
+    Select, DatePicker, BadgeModule, ToastModule, MultiSelectModule],
   templateUrl: './resign-post.html',
   styleUrl: './resign-post.css',
   providers: [MessageService]
@@ -40,15 +50,22 @@ export class ResignPost implements OnInit {
   tasksLocal: Array<any> = []; // shows tasks added in this session (until you add GET endpoints)
 
   // ---- CLEARANCE ----
-  clearanceTypes: ClearanceType[] = ['IT','FINANCE','HR','ADMIN','SECURITY','OTHER'];
-  clearanceDrafts: Record<ClearanceType, { decision: ApprovalDecision; note?: string; verifierId?: number ; verifierName?: string}> = {
-    IT: { decision: 'PENDING' },
-    FINANCE: { decision: 'PENDING' },
-    HR: { decision: 'PENDING' },
-    ADMIN: { decision: 'PENDING' },
-    SECURITY: { decision: 'PENDING' },
-    OTHER: { decision: 'PENDING' }
-  };
+  // clearanceTypes: ClearanceType[] = ['IT','FINANCE','HR','ADMIN','SECURITY','OTHER'];
+  // clearanceDrafts: Record<ClearanceType, { decision: ApprovalDecision; note?: string; verifierId?: number ; verifierName?: string}> = {
+  //   IT: { decision: 'PENDING' },
+  //   FINANCE: { decision: 'PENDING' },
+  //   HR: { decision: 'PENDING' },
+  //   ADMIN: { decision: 'PENDING' },
+  //   SECURITY: { decision: 'PENDING' },
+  //   OTHER: { decision: 'PENDING' }
+  // };
+  clearances: ClearanceDraft[] = [];
+  lockedClearances: Record<number, boolean> = {};
+
+  departments: any[] = [];
+selectedDepartmentIds: number[] = [];
+
+
 
   // ---- EXIT INTERVIEW ----
   exitAt?: Date | null = null;
@@ -61,35 +78,45 @@ export class ResignPost implements OnInit {
 
   // UI
   busy = signal(false);
-  toast = signal<{type:'success'|'error'|'info'; msg:string} | null>(null);
-  employeeId = Number(localStorage.getItem('empId') );
+  toast = signal<{ type: 'success' | 'error' | 'info'; msg: string } | null>(null);
+  employeeId = Number(localStorage.getItem('empId'));
 
-  lockedClearances: Record<ClearanceType, boolean> = {
-    IT: false, FINANCE: false, HR: false, ADMIN: false, SECURITY: false, OTHER: false
-  };
+  // lockedClearances: Record<ClearanceType, boolean> = {
+  //   IT: false, FINANCE: false, HR: false, ADMIN: false, SECURITY: false, OTHER: false
+  // };
   employees: any[] = [];
-allEmployees: any[] = [];
+  allEmployees: any[] = [];
 
 
-  constructor(private fb: FormBuilder, private api: Resignation, private msg: MessageService, private employeeService: Employees) {}
+  constructor(private fb: FormBuilder, private api: Resignation, private msg: MessageService,
+     private employeeService: Employees, private departmentService: Departments) { }
 
   ngOnInit(): void {
     if (!this.resignationId) return;
     this.loadEmployees();
+    this.loadDepartments();
     this.taskForm = this.fb.group({
-      tasks: this.fb.array([ this.newTaskRow() ])
+      tasks: this.fb.array([this.newTaskRow()])
     });
     this.loadPostHrSnapshot()
 
-    
+
   }
   private notify(
-    type: 'success'|'error'|'info'|'warn',
+    type: 'success' | 'error' | 'info' | 'warn',
     detail: string,
     summary = type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info'
   ) {
     this.msg.add({ severity: type, summary, detail });
   }
+loadDepartments() {
+  this.departmentService.getDepartments().subscribe(res => {
+    this.departments = res.map((d: any) => ({
+      label: d.name,
+      value: d.id
+    }));
+  });
+}
 
   loadEmployees() {
     this.employeeService.getActiveEmployees().subscribe(res => {
@@ -99,7 +126,7 @@ allEmployees: any[] = [];
         deptId: e.departmentId,
         branchId: e.branchId
       }));
-  
+
       // show all by default
       this.employees = [...this.allEmployees];
     });
@@ -115,13 +142,35 @@ allEmployees: any[] = [];
           // normalize dates to Date for templates if you want to display/edit
           dueDate: t.dueDate ? new Date(t.dueDate) : null
         }));
-  
+
         // --- clearances ---
         // start with defaults
-        this.clearanceTypes.forEach(t => {
-          this.clearanceDrafts[t] = { decision: 'PENDING' };
-          this.lockedClearances[t] = false;
+        // this.clearanceTypes.forEach(t => {
+        //   this.clearanceDrafts[t] = { decision: 'PENDING' };
+        //   this.lockedClearances[t] = false;
+        // });
+        this.clearances = [];
+        this.lockedClearances = {};
+
+        (row.clearances || []).forEach((c: any) => {
+          const verifierName = c.verifier
+            ? `${c.verifier.firstName} ${c.verifier.lastName}`
+            : '';
+
+          this.clearances.push({
+            departmentId: c.departmentId,
+            departmentName: c.department?.name || c.type,
+            decision: c.decision,
+            note: c.note ?? '',
+            verifierId: c.verifierId,
+            verifierName
+          });
+
+          if (c.decision === 'APPROVED') {
+            this.lockedClearances[c.departmentId] = true;
+          }
         });
+
         // (row.clearances || []).forEach((c: any) => {
         //   console.log(c)
         //   const type = c.type as ClearanceType;
@@ -134,36 +183,36 @@ allEmployees: any[] = [];
         //     this.lockedClearances[type] = true; // hide Save on approved
         //   }
         // });
-        (row.clearances || []).forEach((c: any) => {
-          const type = c.type as ClearanceType;
-        
-          const verifierName = c.verifier
-            ? `${c.verifier.firstName} ${c.verifier.lastName}`
-            : '';
-        
-          this.clearanceDrafts[type] = {
-            decision: c.decision,
-            note: c.note ?? '',
-            verifierId: c.verifierId,      // keep ID for reference
-            verifierName                   // <-- add this new field
-          };
-        
-          this.lockedClearances[type] = true; // entire UI is read-only
-          
-        });
-        
-  
+        // (row.clearances || []).forEach((c: any) => {
+        //   const type = c.type as ClearanceType;
+
+        //   const verifierName = c.verifier
+        //     ? `${c.verifier.firstName} ${c.verifier.lastName}`
+        //     : '';
+
+        //   this.clearanceDrafts[type] = {
+        //     decision: c.decision,
+        //     note: c.note ?? '',
+        //     verifierId: c.verifierId,      // keep ID for reference
+        //     verifierName                   // <-- add this new field
+        //   };
+
+        //   this.lockedClearances[type] = true; // entire UI is read-only
+
+        // });
+
+
         // --- exit interview ---
         if (row.exitInterview) {
-          this.exitAt      = row.exitInterview.scheduledAt ? new Date(row.exitInterview.scheduledAt) : null;
+          this.exitAt = row.exitInterview.scheduledAt ? new Date(row.exitInterview.scheduledAt) : null;
           this.interviewerId = row.exitInterview.interviewerId ?? undefined;
-          this.exitNotes     = row.exitInterview.notes ?? '';
+          this.exitNotes = row.exitInterview.notes ?? '';
         }
-  
+
         // --- final settlement ---
         if (row.finalSettlement) {
           this.fnfStatus = row.finalSettlement.status as SettlementStatus;
-          this.fnfNote   = row.finalSettlement.note ?? '';
+          this.fnfNote = row.finalSettlement.note ?? '';
         }
       },
       error: () => this.notify('error', 'Failed to load resignation details.')
@@ -185,10 +234,10 @@ allEmployees: any[] = [];
   removeTaskRow(i: number) { this.tasks.removeAt(i); }
 
   async submitTasks() {
-    if (this.taskForm.invalid) {this.notify('error', 'Please fill required fields.'); return; }
+    if (this.taskForm.invalid) { this.notify('error', 'Please fill required fields.'); return; }
     this.busy.set(true);
     try {
-      const payload = this.tasks.value.map((t:any)=>({
+      const payload = this.tasks.value.map((t: any) => ({
         title: t.title,
         description: t.description || undefined,
         assigneeId: t.assigneeId ? Number(t.assigneeId) : undefined,
@@ -198,7 +247,7 @@ allEmployees: any[] = [];
       // show what we just created
       this.tasksLocal.push(...(created || []));
       // reset to one blank row
-      this.taskForm.setControl('tasks', this.fb.array([ this.newTaskRow() ]));
+      this.taskForm.setControl('tasks', this.fb.array([this.newTaskRow()]));
       this.notify('success', 'Handover tasks added.');
     } catch {
       this.notify('error', 'Failed to add tasks.');
@@ -212,34 +261,55 @@ allEmployees: any[] = [];
       next: (upd) => {
         row.status = upd.status;
         row.completedAt = upd.completedAt;
-        this.notify('success','Task updated.'); 
+        this.notify('success', 'Task updated.');
       },
-      error: () => this.notify('error','Task update failed.')
+      error: () => this.notify('error', 'Task update failed.')
     });
   }
-  isClearanceLocked(t: ClearanceType) {
-    return !!this.lockedClearances[t];
+  // isClearanceLocked(t: ClearanceType) {
+  //   return !!this.lockedClearances[t];
+  // }
+  isClearanceLocked(departmentId: number) {
+    return !!this.lockedClearances[departmentId];
   }
+
   // ===== CLEARANCES =====
-  saveClearance(t: ClearanceType) {
-    const d = this.clearanceDrafts[t];
-    this.api.upsertClearance(this.resignationId, {
-      type: t,
-      decision: d.decision,
-      note: d.note,
-      verifierId: d.verifierId
-    }).subscribe({
-      next: (row: { decision: ApprovalDecision }) => {
-        // lock after a successful APPROVED save
-        if (row?.decision === 'APPROVED') {
-          this.lockedClearances[t] = true;
-        }
-        this.notify('success', `${t} clearance saved.`);
-      },
-      error: () => this.notify('error', `${t} clearance failed.`)
-  
-    });
-  }
+  // saveClearance(t: ClearanceType) {
+  //   const d = this.clearanceDrafts[t];
+  //   this.api.upsertClearance(this.resignationId, {
+  //     type: t,
+  //     decision: d.decision,
+  //     note: d.note,
+  //     verifierId: d.verifierId
+  //   }).subscribe({
+  //     next: (row: { decision: ApprovalDecision }) => {
+  //       // lock after a successful APPROVED save
+  //       if (row?.decision === 'APPROVED') {
+  //         this.lockedClearances[t] = true;
+  //       }
+  //       this.notify('success', `${t} clearance saved.`);
+  //     },
+  //     error: () => this.notify('error', `${t} clearance failed.`)
+
+  //   });
+  // }
+  //   saveClearance(c: ClearanceDraft) {
+  //   this.api.upsertClearance(this.resignationId, {
+  //     departmentId: c.departmentId,
+  //     decision: c.decision,
+  //     note: c.note,
+  //     verifierId: c.verifierId
+  //   }).subscribe({
+  //     next: (row: { decision: ApprovalDecision }) => {
+  //       if (row?.decision === 'APPROVED') {
+  //         this.lockedClearances[c.departmentId] = true;
+  //       }
+  //       this.notify('success', `${c.departmentName} clearance saved.`);
+  //     },
+  //     error: () => this.notify('error', `${c.departmentName} clearance failed.`)
+  //   });
+  // }
+
 
   // ===== EXIT INTERVIEW =====
   scheduleExit() {
@@ -267,4 +337,21 @@ allEmployees: any[] = [];
       error: () => this.notify('error', 'Completion failed.')
     });
   }
+  saveDepartments() {
+  if (!this.selectedDepartmentIds.length) {
+    this.notify('error', 'Select at least one department.');
+    return;
+  }
+
+  this.api.setApplicableDepartments(this.resignationId, {
+    departmentIds: this.selectedDepartmentIds
+  }).subscribe({
+    next: () => {
+      this.notify('success', 'Departments saved.');
+      this.loadPostHrSnapshot(); // reload clearances
+    },
+    error: () => this.notify('error', 'Failed to save departments.')
+  });
+}
+
 }

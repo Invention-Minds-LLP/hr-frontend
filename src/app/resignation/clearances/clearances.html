@@ -38,7 +38,9 @@
           <th>Department</th>
           <th>Manager</th>
           <th>Last Working Day</th>
-          <th *ngFor="let c of visibleClearanceTypes">{{ c }} Clearance Status</th>
+          <!-- <th *ngFor="let c of visibleClearanceTypes">{{ c }} Clearance Status</th> -->
+           <th>Clearance Status</th>
+
           <th>Resignation Status</th>
           <th>Action</th>
         </tr>
@@ -65,11 +67,17 @@
           <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
 
           <!-- Clearance column -->
-          <td *ngFor="let c of visibleClearanceTypes">
+          <!-- <td *ngFor="let c of visibleClearanceTypes">
             <div *ngIf="getClearance(r, c) as cl">
               {{ cl.decision }}
             </div>
-          </td>
+          </td> -->
+          <td>
+  <div *ngIf="getClearance(r) as cl">
+    {{ cl.decision }}
+  </div>
+</td>
+
 
           <!-- Status -->
           <td>
@@ -81,7 +89,7 @@
 
           <!-- Actions -->
           <td>
-            <ng-container *ngIf="getClearance(r, visibleClearanceTypes[0]).decision === 'PENDING'; else noAction">
+            <ng-container *ngIf="getClearance(r)?.decision === 'PENDING'; else noAction">
               <div class="flex gap-2">
                 <button pButton label="Approve" icon="pi pi-check" class="p-button-success p-button-sm"
                   (click)="openPopup(r, 'APPROVED')"></button>

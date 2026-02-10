@@ -333,7 +333,7 @@
     <div class="dialog-header-custom">
       <span>Assign Employees</span>
 
-      <button class="dialog-close-btn" (click)="showAssignEmpDialog = false">
+      <button class="dialog-close-btn" (click)="closeAssignEmpDialog()">
         ✕
       </button>
     </div>
@@ -341,7 +341,7 @@
   <form [formGroup]="form" class="p-fluid grid formgrid">
 
     <!-- Departments (Multi-Select) -->
-    <div class="field col-12">
+    <div class="field col-12"  *ngIf="!isReportingManager">
       <p-floatLabel variant="on">
         <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value"
           appendTo="body"  class="w-full"></p-multiSelect>
@@ -353,7 +353,7 @@
     <!-- Employees -->
     <div class="field col-12">
       <p-floatLabel variant="on">
-        <p-multiSelect [options]="employeeOptions" formControlName="employeeIds" 
+        <p-multiSelect [options]="employeeOptions" [resetFilterOnHide]="true" formControlName="employeeIds" 
           [loading]="loading" optionLabel="label" class="w-full" appendTo="body" optionValue="value"></p-multiSelect>
         <label>Select Employees</label>
       </p-floatLabel>
@@ -651,3 +651,5 @@
   </div>
 
 </p-dialog>
+
+<p-toast></p-toast>

@@ -53,6 +53,9 @@ export class Navbar {
   announcements: any[] = [];
   isIncharge = false;
   roleId = localStorage.getItem('roleId') || '';
+  deptId = Number(localStorage.getItem('deptId')) || 0;
+  executiveRoleId = Number(localStorage.getItem('roleId')) || 0;
+  
 
   ngOnInit(): void {
     const rawRole = localStorage.getItem('role') ?? '';
@@ -111,6 +114,8 @@ export class Navbar {
       },
       error: (err) => console.error('Failed to load announcements', err)
     });
+
+    console.log('Employee ID:', this.employeeId, 'Dept ID:', this.deptId, 'Executive Role ID:', this.executiveRoleId);
   }
 
   setActiveMenu(url: string): void {
@@ -167,6 +172,9 @@ export class Navbar {
     // Expand submenu
     if (this.isReportingManager) {
       this.router.navigate(['/recruitment/my-interview']);
+    }
+    else if (this.isIncharge) {
+      this.router.navigate(['/recruitment/recquisition']);
     }
     else {
       this.router.navigate(['/recruitment/jobs']);

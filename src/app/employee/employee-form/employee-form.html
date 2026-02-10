@@ -425,7 +425,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="designations" formControlName="designationId"
-                                            optionLabel="name" optionValue="id"
+                                            optionLabel="name" optionValue="id" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('designationId')) }"></p-select>
                                         <label>Designation *</label>
                                     </p-floatLabel>
@@ -449,7 +449,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="employmentTypes" formControlName="employmentType"
-                                            optionLabel="label" optionValue="value"
+                                            optionLabel="label" optionValue="value" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentType')) }"></p-select>
                                         <label>Employment Type *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('employmentType'))">
@@ -473,7 +473,8 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="employmentStatuses" formControlName="employmentStatus"
-                                            optionLabel="label" optionValue="value"
+                                            optionLabel="label" optionValue="value" [filter]="true"
+                                            (onChange)="onEmploymentStatusChange($event)"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('employmentStatus')) }"></p-select>
                                         <label>Employment Status *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('employmentStatus'))">
@@ -484,7 +485,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="departments" formControlName="departmentId"
-                                            optionLabel="name" optionValue="id"
+                                            optionLabel="name" optionValue="id" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('departmentId')) }"></p-select>
                                         <label>Department *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('departmentId'))">
@@ -495,7 +496,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="branches" formControlName="branchId" optionLabel="name"
-                                            optionValue="id"
+                                            optionValue="id" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('branchId')) }"></p-select>
                                         <label>Branch *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('branchId'))">
@@ -506,7 +507,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="roles" formControlName="roleId" optionLabel="name"
-                                            optionValue="id"
+                                            optionValue="id" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('roleId')) }"></p-select>
                                         <label>Role *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('roleId'))">
@@ -517,7 +518,7 @@
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="reportingManagers" formControlName="reportingManager"
-                                            optionLabel="label" optionValue="value"
+                                            optionLabel="label" optionValue="value" [filter]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('reportingManager')) }"></p-select>
                                         <label>Reporting Manager *</label>
                                         <div class="error-msg" *ngIf="showError(employeeForm.get('reportingManager'))">
@@ -527,7 +528,7 @@
                                 </div>
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-select [options]="incharges" formControlName="inchargeId" optionLabel="label"
+                                        <p-select [options]="incharges" [filter]="true" formControlName="inchargeId" optionLabel="label"
                                             optionValue="value">
                                         </p-select>
                                         <label>Incharge </label>
@@ -550,7 +551,7 @@
                                 <!-- If FIXED: choose a single template -->
                                 <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
                                     <p-floatLabel variant="on">
-                                        <p-select [options]="shifts" formControlName="fixedShiftId" optionLabel="name"
+                                        <p-select [options]="shifts" [filter]="true" formControlName="fixedShiftId" optionLabel="name"
                                             optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('fixedShiftId')) }"></p-select>
                                         <label>Shift Template *</label>
@@ -675,6 +676,13 @@
                                 </div> -->
 
                             </div>
+                            <div class="field col-4"
+                                *ngIf="employeeForm.get('employmentStatus')?.value === 'SABBATICAL'">
+                                <button pButton type="button" label="Manage Sabbatical" icon="pi pi-calendar"
+                                    class="p-button-warning" (click)="openExistingSabbatical()">
+                                </button>
+                            </div>
+
 
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(1)" />
@@ -1373,6 +1381,64 @@
         </div>
     </ng-container>
 
+</p-dialog>
+
+<p-dialog header="Start Sabbatical" [(visible)]="showSabbaticalDialog" [modal]="true" [style]="{ width: '35vw' }"
+    [closable]="false">
+
+    <ng-template pTemplate="header">
+        <div class="dialog-header-custom">
+            <span>Start Sabbatical</span>
+            <button class="dialog-close-btn" (click)="showSabbaticalDialog = false">✕</button>
+        </div>
+    </ng-template>
+
+    <form [formGroup]="sabbaticalForm">
+
+        <div class="field">
+            <label>Start Date</label>
+            <p-datepicker formControlName="startDate" dateFormat="yy-mm-dd" [showIcon]="true"
+                placeholder="Select start date" appendTo="body">
+            </p-datepicker>
+        </div>
+
+        <div class="field">
+            <label>End Date</label>
+            <p-datepicker formControlName="endDate" dateFormat="yy-mm-dd" [showIcon]="true"
+                placeholder="Select end date" appendTo="body">
+            </p-datepicker>
+        </div>
+
+        <div class="field">
+            <label>Reason</label>
+            <textarea pInputTextarea formControlName="reason" rows="3" autoResize="true"
+                placeholder="Enter reason (optional)">
+    </textarea>
+        </div>
+
+
+        <div class="flex justify-content-end gap-2 save-button">
+            <button pButton *ngIf="!currentSabbatical" [loading]="loadingSabbatical" [label]="loadingSabbatical ? 'Saving...' : 'Save'"
+                (click)="saveSabbatical()">
+            </button>
+
+            <!-- Extend -->
+            <button *ngIf="currentSabbatical" pButton label="Extend" class="p-button-info"
+                (click)="extendCurrentSabbatical()">
+            </button>
+
+            <!-- End -->
+            <button *ngIf="currentSabbatical" pButton label="End" class="p-button-success"
+                (click)="endCurrentSabbatical()">
+            </button>
+
+            <!-- Terminate -->
+            <button *ngIf="currentSabbatical" pButton label="Terminate" class="p-button-danger"
+                (click)="terminateCurrentSabbatical()">
+            </button>
+        </div>
+
+    </form>
 </p-dialog>
 
 <p-toast></p-toast>

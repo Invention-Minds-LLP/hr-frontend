@@ -14,6 +14,9 @@
   --p-floatlabel-on-active-background: #000 !important;
 }
 
+.save-button{
+    margin-top: 60px;
+}
 .steps-container .step {
   width: 100%;
 }

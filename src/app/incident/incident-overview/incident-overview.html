@@ -15,5 +15,6 @@
 
 <div class="table">
     <app-incident-form  ></app-incident-form>
-    <app-incident-table  [reporterId]="reporterId"></app-incident-table>
+    <app-incident-table *ngIf="isHR"></app-incident-table>
+    <app-incident-table *ngIf="!isHR" [reporterId]="reporterId"></app-incident-table>
 </div>

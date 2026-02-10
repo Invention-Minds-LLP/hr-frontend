@@ -63,9 +63,22 @@ export class Resignation {
     return this.http.patch<any>(`${this.apiUrl}/${id}/handover-tasks/${taskId}`, { status });
   }
 
-  upsertClearance(id: number, payload: { type: 'IT'|'FINANCE'|'HR'|'ADMIN'|'SECURITY'|'OTHER'; decision: 'PENDING'|'APPROVED'|'REJECTED'; note?: string; verifierId?: number }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${id}/clearance`, payload);
+  // upsertClearance(id: number, payload: { type: 'IT'|'FINANCE'|'HR'|'ADMIN'|'SECURITY'|'OTHER'; decision: 'PENDING'|'APPROVED'|'REJECTED'; note?: string; verifierId?: number }): Observable<any> {
+  //   return this.http.post<any>(`${this.apiUrl}/${id}/clearance`, payload);
+  // }
+
+  upsertClearance(
+  id: number,
+  payload: {
+    departmentId: number;
+    decision: 'PENDING'|'APPROVED'|'REJECTED';
+    note?: string;
+    verifierId?: number;
   }
+): Observable<any> {
+  return this.http.post<any>(`${this.apiUrl}/${id}/clearance`, payload);
+}
+
 
   scheduleExitInterview(id: number, payload: { scheduledAt?: string; interviewerId?: number; notes?: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/exit-interview`, payload);
@@ -107,6 +120,11 @@ export class Resignation {
   return this.http.get<any[]>(`${this.apiUrl}/exit-interview/employee/${employeeId}`);
 }
 
-
+setApplicableDepartments(resignationId: number, data: { departmentIds: number[] }) {
+  return this.http.post(
+    `${this.apiUrl}/${resignationId}/applicable-departments`,
+    data
+  );
+}
   
 }

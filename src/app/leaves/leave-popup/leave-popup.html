@@ -35,10 +35,14 @@
                         </select> -->
                         <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
 
-                            <option *ngFor="let d of daysList" [value]="d"
+                            <!-- <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
                                 {{ d }}
+                            </option> -->
+                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                                {{ d }}
                             </option>
+
 
                         </select>
 
@@ -64,12 +68,17 @@
                         <!-- <select [(ngModel)]="toDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
                         </select> -->
-                        <select [(ngModel)]="toDay" [disabled]="isHalfDay" (change)="updateToDate()" [ngModelOptions]="{standalone: true}">
+                        <select [(ngModel)]="toDay" [disabled]="isHalfDay" (change)="updateToDate()"
+                            [ngModelOptions]="{standalone: true}">
 
-                            <option *ngFor="let d of daysList" [value]="d"
+                            <!-- <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
                                 {{ d }}
+                            </option> -->
+                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                                {{ d }}
                             </option>
+
 
                         </select>
 
@@ -107,8 +116,8 @@
                 <!-- Half Day Toggle -->
                 <div class="form-row">
                     <label class="check-box">
-                        <input type="checkbox" [(ngModel)]="isHalfDay" [ngModelOptions]="{standalone: true}"
-                            (change)="onHalfDayToggle()" />
+                        <input type="checkbox" [(ngModel)]="isHalfDay" [disabled]="leaveType === 'CO'"
+                            [ngModelOptions]="{standalone: true}" (change)="onHalfDayToggle()" />
                         Half Day Leave
                     </label>
                 </div>
@@ -159,8 +168,8 @@
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
-                            [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
-                            (click)="onDateClick(day)">
+                            [class.blocked]="day.blocked" [class.past]="day.past" [class.comp-off]="day.compOff"
+                            (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
                     </div>
@@ -172,7 +181,12 @@
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
-                    <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading">
+                    <!-- <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading"> -->
+                    <button class="apply" (click)="applyLeave()" [disabled]="
+          (leaveType !== 'CO' && days > remainingLeave) ||
+          isLoading
+        ">
+
                         <span *ngIf="!isLoading">Apply Leave</span>
                         <span *ngIf="isLoading" class="spinner"></span>
                     </button>
@@ -219,10 +233,14 @@
                         <select [(ngModel)]="fromDay" [disabled]="!hasBackdrop" (change)="updateFromDate()"
                             [ngModelOptions]="{standalone: true}">
 
-                            <option *ngFor="let d of daysList" [value]="d"
+                            <!-- <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
                                 {{ d }}
+                            </option> -->
+                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                                {{ d }}
                             </option>
+
 
                         </select>
 
@@ -245,10 +263,14 @@
                         <select [(ngModel)]="toDay" [disabled]="!hasBackdrop" (change)="updateToDate()"
                             [ngModelOptions]="{standalone: true}">
 
-                            <option *ngFor="let d of daysList" [value]="d"
+                            <!-- <option *ngFor="let d of daysList" [value]="d"
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
                                 {{ d }}
+                            </option> -->
+                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                                {{ d }}
                             </option>
+
 
                         </select>
 
@@ -282,11 +304,11 @@
                     </select>
                 </div>
 
-                                <!-- Half Day Toggle -->
+                <!-- Half Day Toggle -->
                 <div class="form-row">
                     <label>
-                        <input type="checkbox" [(ngModel)]="isHalfDay" [ngModelOptions]="{standalone: true}"
-                            (change)="onHalfDayToggle()" />
+                        <input type="checkbox" [(ngModel)]="isHalfDay" [disabled]="leaveType === 'CO'"
+                            [ngModelOptions]="{standalone: true}" (change)="onHalfDayToggle()" />
                         Half Day Leave
                     </label>
                 </div>
@@ -334,8 +356,8 @@
                         <!-- Days -->
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
-                            [class.blocked]="day.blocked" (mouseenter)="dragOver(day)" (mouseup)="endDrag()"
-                            (click)="onDateClick(day)">
+                            [class.blocked]="day.blocked" [class.past]="day.past" [class.comp-off]="day.compOff"
+                            (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
                     </div>
