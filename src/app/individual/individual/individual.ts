@@ -177,19 +177,101 @@ export class Individual {
     }
   }
 
-  getLeaveBalance() {
-    const year = new Date().getFullYear();
-    const employeeId = Number(this.currentUserId); // logged-in user ID you already have
+  // getLeaveBalance() {
+  //   const year = new Date().getFullYear();
+  //   const employeeId = Number(this.currentUserId); // logged-in user ID you already have
 
-    this.leaveService.getLeaveBalance(employeeId, year)
-      .subscribe((balances: any) => {
-        this.leaveByTypeToday = balances.map((b: any) => ({
-          label: b.leaveType,
-          count: b.remaining,
-          total: b.totalAllowed
-        }));
+  //   this.leaveService.getLeaveBalance(employeeId, year)
+  //     .subscribe((balances: any) => {
+  //       this.leaveByTypeToday = balances.map((b: any) => ({
+  //         label: b.leaveType,
+  //         count: b.remaining,
+  //         total: b.totalAllowed
+  //       }));
+  //     });
+  // }
+//   getLeaveBalance() {
+//   const year = new Date().getFullYear();
+//   const employeeId = Number(this.currentUserId);
+
+//   this.leaveService.getLeaveBalance(employeeId, year)
+//     .subscribe((balances: any) => {
+
+//       const gender = this.employee?.gender?.toUpperCase() || '';
+
+//       // Define required order
+//       const leaveOrder = ['CL', 'SL', 'EL', 'CO', 'RH', 'Maternity Leave', 'Paternity Leave'];
+
+//       // Filter based on gender
+//       let filtered = balances.filter((b: any) => {
+//         if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
+//         if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
+//         return true;
+//       });
+
+//       // Sort based on required order
+//       filtered.sort((a: any, b: any) => {
+//         return leaveOrder.indexOf(a.leaveType) - leaveOrder.indexOf(b.leaveType);
+//       });
+
+//       console.log('Filtered and Sorted Leave Balances:', filtered);
+
+//       // Map to UI format
+//       this.leaveByTypeToday = filtered.map((b: any) => ({
+//         label: b.leaveType,
+//         count: b.remaining,
+//         total: b.totalAllowed
+//       }));
+//     });
+// }
+getLeaveBalance() {
+  const year = new Date().getFullYear();
+  const employeeId = Number(this.currentUserId);
+
+  this.leaveService.getLeaveBalance(employeeId, year)
+    .subscribe((balances: any) => {
+
+      // const gender = this.employee?.gender?.toUpperCase() || '';
+      const gender = localStorage.getItem('gender')?.toUpperCase() || '';
+      console.log('Employee Gender:', gender);
+
+
+      // Correct order using DB values
+      const leaveOrder = [
+        'CL',
+        'SL',
+        'EL',
+        'CO',
+        'RH',
+        'Maternity Leave',
+        'Paternity Leave'
+      ];
+
+      // Filter based on gender
+      let filtered = balances.filter((b: any) => {
+        if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
+        if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
+        return true;
       });
-  }
+
+      // Sort based on order
+      filtered.sort((a: any, b: any) => {
+        const indexA = leaveOrder.indexOf(a.leaveType);
+        const indexB = leaveOrder.indexOf(b.leaveType);
+        return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+      });
+
+      console.log('Filtered and Sorted Leave Balances:', filtered);
+
+      this.leaveByTypeToday = filtered.map((b: any) => ({
+        label: b.leaveType,
+        count: b.remaining,
+        total: b.totalAllowed
+      }));
+    });
+}
+
+
   loadToday(): void {
     this.employeeService.getToday()
       .pipe(finalize(() => (this.loadingToday = false)))

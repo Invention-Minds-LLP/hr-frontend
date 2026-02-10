@@ -16,7 +16,7 @@ interface CalendarDay {
   isCurrentMonth: boolean;
   blocked?: boolean; // new optional flag
   compOff?: boolean;
-  past?: boolean; 
+  past?: boolean;
 }
 
 @Component({
@@ -107,15 +107,15 @@ export class LeavePopup {
 
 
   updateFromDate() {
-      const tempDate = new Date(
-    this.fromYear,
-    this.monthToIndex(this.fromMonth),
-    this.fromDay
-  );
+    const tempDate = new Date(
+      this.fromYear,
+      this.monthToIndex(this.fromMonth),
+      this.fromDay
+    );
 
-  if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
-    return; // stop selection
-  }
+    if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+      return; // stop selection
+    }
 
 
     this.fromDate = new Date(this.fromYear, this.monthToIndex(this.fromMonth), this.fromDay);
@@ -127,33 +127,33 @@ export class LeavePopup {
   }
 
   getAvailableDays(monthStr: string, year: number): number[] {
-  const monthIndex = this.monthToIndex(monthStr);
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    const monthIndex = this.monthToIndex(monthStr);
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-  const validDays: number[] = [];
+    const validDays: number[] = [];
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateObj = new Date(year, monthIndex, d);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, monthIndex, d);
 
-    if (!this.isPastDate(dateObj) && !this.isDayBlocked(dateObj)) {
-      validDays.push(d);
+      if (!this.isPastDate(dateObj) && !this.isDayBlocked(dateObj)) {
+        validDays.push(d);
+      }
     }
-  }
 
-  return validDays;
-}
+    return validDays;
+  }
 
 
   updateToDate() {
-      const tempDate = new Date(
-    this.toYear,
-    this.monthToIndex(this.toMonth),
-    this.toDay
-  );
+    const tempDate = new Date(
+      this.toYear,
+      this.monthToIndex(this.toMonth),
+      this.toDay
+    );
 
-  if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
-    return;
-  }
+    if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+      return;
+    }
     this.toDate = new Date(this.toYear, this.monthToIndex(this.toMonth), this.toDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
@@ -256,23 +256,60 @@ export class LeavePopup {
     this.populateYears();
     this.generateCalendar();
     this.calculateDays();
+    // this.leaveService.getLeaveTypes().subscribe(types => {
+    //   this.leaveTypes = types;
+
+    //   this.filteredLeaveTypes = types.filter((t: any) => {
+    //     const name = t.name.toLowerCase();
+
+    //     if (name.includes('maternity')) {
+    //       return this.employeeGender === 'FEMALE';
+    //     }
+
+    //     if (name.includes('paternity')) {
+    //       return this.employeeGender === 'MALE';
+    //     }
+
+    //     return true; // all other leave types visible
+    //   });
+    // });
     this.leaveService.getLeaveTypes().subscribe(types => {
       this.leaveTypes = types;
 
-      this.filteredLeaveTypes = types.filter((t: any) => {
-        const name = t.name.toLowerCase();
+      // Required display order
+      const leaveOrder = [
+        'CL',
+        'SL',
+        'EL',
+        'CO',
+        'RH',
+        'Maternity Leave',
+        'Paternity Leave'
+      ];
 
-        if (name.includes('maternity')) {
+      // Step 1: Filter by gender
+      let filtered = types.filter((t: any) => {
+        const name = t.name;
+
+        if (name === 'Maternity Leave') {
           return this.employeeGender === 'FEMALE';
         }
 
-        if (name.includes('paternity')) {
+        if (name === 'Paternity Leave') {
           return this.employeeGender === 'MALE';
         }
 
-        return true; // all other leave types visible
+        return true;
       });
+
+      // Step 2: Sort in required order
+      filtered.sort((a: any, b: any) => {
+        return leaveOrder.indexOf(a.name) - leaveOrder.indexOf(b.name);
+      });
+
+      this.filteredLeaveTypes = filtered;
     });
+
 
     this.isHR = this.isHRRole(localStorage.getItem('role') || '')
   }
@@ -539,8 +576,8 @@ export class LeavePopup {
   // Handle date click
   onDateClick(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
-      // if (this.isPastDate(day.date)) return;
-      if (day.past) return;
+    // if (this.isPastDate(day.date)) return;
+    if (day.past) return;
 
 
     if (day.blocked || !day.isCurrentMonth) {
@@ -1148,14 +1185,14 @@ export class LeavePopup {
 
     return true;
   }
-isPastDate(date: Date): boolean {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  isPastDate(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
 
-  return d < today;
-}
+    return d < today;
+  }
 
 }

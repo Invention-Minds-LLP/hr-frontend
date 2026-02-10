@@ -277,7 +277,7 @@ export class TrainingList {
 
 
   isIndividualOrEmployee() {
-    console.log('Checking view mode and role:', this.viewMode, this.userRole);
+    // console.log('Checking view mode and role:', this.viewMode, this.userRole);
     return this.userRole === 'EMPLOYEE' || this.viewMode === 'individual';
   }
 
