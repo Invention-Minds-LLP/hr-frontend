@@ -368,3 +368,417 @@ td.title .text {
 ::ng-deep .card .p-select-dropdown {
   color: white !important;
 }
+/* ---------- Modal ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.28);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.sheet {
+  position: relative;
+  /* overflow-y: auto; */
+  width: 80%;
+  height: 100vh;
+  border-radius: 20px;
+  background: #020403;
+  box-shadow: 3px 4px 100px 0 #3A1D4D;
+  /* border: 1px solid #828282; */
+  /* padding: 10px 30px 20px; */
+  color: white !important;
+  /* max-height: 70vh; */
+  /* overflow-x: hidden; */
+  --p-checkbox-checked-background: #003366;
+  --p-checkbox-checked-hover-background: #003366;
+  --p-checkbox-focus-border-color: #003366;
+  --p-checkbox-hover-border-color: #003366;
+  --p-checkbox-checked-focus-border-color: #003366;
+  --p-checkbox-checked-border-color: #003366;
+}
+
+.sheet-1 {
+  position: relative;
+  overflow-y: auto;
+  width: 50%;
+  height: 100%;
+  /* background: white; */
+  /* border: 1px solid #828282; */
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.2);
+  /* padding: 10px 30px 20px; */
+  padding: 0;
+  /* max-height: 70vh; */
+  overflow-x: hidden;
+}
+
+.sheet::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -20% -20%;
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--magenta),
+    var(--blue),
+    var(--teal),
+    var(--amber)
+  );
+  filter: blur(12px);
+  opacity: 0.5;
+}
+
+.sheet h3 {
+  margin: 0 0 10px;
+  font-size: 25px;
+}
+
+.close {
+  float: right;
+  /* background: rgb(175, 169, 169); */
+  /* border: 1px solid var(--border); */
+  color: red;
+  /* padding: 8px 10px;  */
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.top {
+  margin-top: 10px;
+}
+
+/* Modal table (sticky header + floating rows) */
+.table-wrap {
+  max-height: 80vh;
+  overflow: auto;
+  margin-top: 10px;
+  /* padding: 2px 4px; */
+}
+
+.sheet .list {
+  border-collapse: separate !important;
+  border-spacing: 0 10px;
+  margin-top: 8px;
+}
+
+.sheet .list thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, #fbfcfe, #f6f9fd);
+  border: 1px solid var(--border);
+  color: #1e293b;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 0 rgba(2, 6, 23, 0.04);
+}
+
+.sheet .list thead th:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.sheet .list thead th:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.sheet .list tbody tr {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.sheet .list tbody tr:hover {
+  transform: translateY(-1px);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.12);
+}
+
+.sheet .list td {
+  padding: 12px 14px;
+  color: var(--text);
+}
+
+.sheet .list td:last-child,
+.sheet .list th:last-child {
+  text-align: right;
+}
+
+.sheet .list tbody td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.sheet .list tbody td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Optional column width hints */
+.sheet .list th:nth-child(1),
+.sheet .list td:nth-child(1) {
+  min-width: 200px;
+}
+
+.sheet .list th:nth-child(2),
+.sheet .list td:nth-child(2) {
+  min-width: 160px;
+}
+
+.sheet .list th:nth-child(3),
+.sheet .list td:nth-child(3) {
+  min-width: 170px;
+}
+
+.sheet .list th:nth-child(4),
+.sheet .list td:nth-child(4) {
+  min-width: 170px;
+}
+
+
+::ng-deep .p-paginator {
+  background: transparent;
+  justify-content: center;
+  padding: 0;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator-pages {
+  display: flex;
+  gap: 8px;
+}
+
+::ng-deep .p-paginator .p-paginator-page {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+::ng-deep .p-paginator-page.p-paginator-page-selected {
+  background: #FB9C2A !important;
+  color: #fff !important;
+  border: none;
+}
+
+.info {
+  position: relative;
+  top: -20px;
+  /* right: -100px; */
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+::ng-deep .p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+::ng-deep .p-dialog-content {
+  padding: 0px !important;
+}
+
+.header {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%) !important;
+  border-bottom: none !important;
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 20px;
+}
+.dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid red;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white !important;
+}
+.custom-table-container {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+}
+
+/* Header */
+.custom-table thead {
+  background: linear-gradient(96deg, #C160FF 0%, #E6CFFB 100%);
+  color: #020403;
+  font-family: "Sofia Sans";
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.custom-table thead th {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Body Wrapper */
+.custom-table-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Rows */
+.custom-table tbody tr {
+  background: white;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-table td {
+  padding: 16px 20px;
+  font-size: 15px;
+  color: #000;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.pagination button {
+  background: transparent;
+  border: 1px solid #aaa;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pagination button.active {
+  background: #ff0000;
+  color: white;
+  border: none;
+}
+
+::ng-deep .modal-table.p-datatable-table {
+  background: #020403 !important;
+}
+
+/* Header Row */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  background: #020403 !important;
+  color: white !important;
+  padding: 16px 20px;
+  border: none !important;
+  height: 60px;
+  text-align: left;
+  text-wrap: nowrap;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 20px !important;
+  font-style: normal;
+  font-weight: 900 !important;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  /* border-radius: 12px; */
+}
+::ng-deep .modal-table.p-datatable .p-datatable-thead{
+  border-bottom: 1px solid #727272 !important;
+}
+.no-data.center-right {
+  text-align: center !important; /* moves text to right */
+  padding-right: 2rem !important; /* spacing from edge */
+  color: #c5c5c5;
+  font-style: italic !important;
+  font-size: 16px !important;
+}
+/* Body Rows */
+::ng-deep .modal-table.p-datatable .p-datatable-tbody > tr > td {
+  background: #020403 !important;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+  border: none !important;
+  text-wrap: nowrap;
+  border-bottom: 1px solid #727272 !important;
+}
+/* Header bottom border same as body lines */
+::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+  border-bottom: 1px solid #727272 !important;
+}
+
+/* Remove hidden wrapper border */
+::ng-deep .modal-table.p-datatable .p-datatable-thead {
+  border-bottom: none !important; 
+}
+/* Checkbox box transparent background */
+::ng-deep .p-checkbox .p-checkbox-box {
+  background: transparent !important;
+  border: 1px solid #fff !important;   /* white border so visible on dark bg */
+}

@@ -17,6 +17,8 @@ import { SurveyList } from "../../survey/survey-list/survey-list";
 export class EmployeeOverview {
   active:string = 'list';
   selectedEmployee: any = null;
+  roleId: number = Number(localStorage.getItem('roleId')) || 0;
+
 
 
   show(value: string){

@@ -2,7 +2,7 @@
   <h2 class="heading">Recruiting</h2>
   <!-- Top pipeline stats -->
   <div class="stats" *ngIf="!selectedInterview()">
-    <div class="stat flex" data-kind="vacancies">
+    <div class="stat flex" data-kind="vacancies" (click)="openList('vacancies')">
       <strong class="flex">{{ stats()['vacancies'] || 0 }} <div>Vacancies</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('vacancies')" tooltipPosition="top"
@@ -11,7 +11,7 @@
       </div>
 
     </div>
-    <div class="stat flex" data-kind="applicationsReceived">
+    <div class="stat flex" data-kind="applicationsReceived" (click)="openList('applicationsReceived')">
       <strong class="flex">{{ stats()['applicationsReceived'] || 0 }} <div>Applications Received</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applicationsReceived')"
@@ -19,7 +19,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="applied">
+    <div class="stat flex" data-kind="applied" (click)="openList('applied')">
       <strong class="flex">{{ stats()['applied'] || 0 }} <div>Applied</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applied')" tooltipPosition="top"
@@ -27,7 +27,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="shortlisted">
+    <div class="stat flex" data-kind="shortlisted" (click)="openList('shortlisted')">
       <strong class="flex">{{ stats()['shortlisted'] || 0 }} <div>Shortlisted</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('shortlisted')" tooltipPosition="top"
@@ -35,7 +35,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="interviewing">
+    <div class="stat flex" data-kind="interviewing" (click)="openList('interviewing')">
       <strong class="flex">{{ stats()['interviewing'] || 0 }} <div>In Interview Stage</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('interviewing')" tooltipPosition="top"
@@ -43,7 +43,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="offered">
+    <div class="stat flex" data-kind="offered" (click)="openList('offered')">
       <strong class="flex">{{ stats()['offered'] || 0 }} <div>Offered</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offered')" tooltipPosition="top"
@@ -51,7 +51,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="accepted">
+    <div class="stat flex" data-kind="accepted" (click)="openList('accepted')">
       <strong class="flex">{{ stats()['accepted'] || 0 }} <div>Accepted</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('accepted')" tooltipPosition="top"
@@ -59,7 +59,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="offerDeclined">
+    <div class="stat flex" data-kind="offerDeclined" (click)="openList('offerDeclined')">
       <strong class="flex">{{ stats()['offerDeclined'] || 0 }} <div>Declined</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offerDeclined')" tooltipPosition="top"
@@ -67,7 +67,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="hired">
+    <div class="stat flex" data-kind="hired" (click)="openList('hired')">
       <strong class="flex">{{ stats()['hired'] || 0 }} <div>Hired</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('hired')" tooltipPosition="top"
@@ -75,7 +75,7 @@
         </i>
       </div>
     </div>
-    <div class="stat flex" data-kind="rejected">
+    <div class="stat flex" data-kind="rejected" (click)="openList('rejected')">
       <strong class="flex">{{ stats()['rejected'] || 0 }} <div>App. Rejected</div></strong>
       <div class="info">
         <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('rejected')" tooltipPosition="top"
@@ -240,4 +240,41 @@
     </app-candidate-eval-form>
   </div>
 </div>
+
+<div class="modal" [class.open]="modalOpen">
+  <div class="sheet" *ngIf="selectedList as list">
+    <div class="header">
+      <span class="actions">
+        <h3>{{ list.title }}</h3>
+      </span>
+
+      <div class="dialog-close-btn">
+        <i class="pi pi-times" (click)="closeModal()"></i>
+      </div>
+    </div>
+
+    <p-table
+      class="modal-table"
+      [value]="list.rows"
+      [paginator]="true"
+      [rows]="8"
+      [rowsPerPageOptions]="[10,25,50]"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let c of list.cols">{{ c }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td *ngFor="let cell of row.data">
+            {{ cell }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
 <p-toast></p-toast>

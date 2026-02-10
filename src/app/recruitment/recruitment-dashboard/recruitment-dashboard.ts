@@ -16,10 +16,13 @@ import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form
 import { RequisitionList } from "../requisition-list/requisition-list";
 import { Tooltip, TooltipModule } from "primeng/tooltip";
 import { SkeletonModule } from 'primeng/skeleton';
+import { TableModule } from 'primeng/table';
+
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm, RequisitionList, TooltipModule, SkeletonModule],
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm,
+    RequisitionList, TooltipModule, SkeletonModule, TableModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers: [MessageService]
@@ -49,6 +52,11 @@ export class RecruitmentDashboard implements OnInit {
 
   deptId = Number(localStorage.getItem('deptId')) || 0;
   roleId = Number(localStorage.getItem('roleId')) || 0;
+  modalOpen = false;
+  selectedList: any = null;
+  selectedListKey: string = '';
+  selectedRows: any[] = [];
+
 
   // Allowed transitions (tweak if you want to disallow reopening CLOSED, etc.)
   private jobMoves: Record<JobStatus, JobStatus[]> = {
@@ -244,6 +252,133 @@ export class RecruitmentDashboard implements OnInit {
 
   onBack() {
     this.selectedInterview.set(null);
+  }
+  // openList(key: string) {
+  //   this.selectedListKey = key;
+
+  //   // map stats tile → application status
+  //   const statusMap: Record<string, ApplicationStatuses> = {
+  //     applied: 'APPLIED',
+  //     shortlisted: 'SHORTLISTED',
+  //     interviewing: 'INTERVIEW_SCHEDULED',
+  //     offered: 'OFFERED',
+  //     accepted: 'OFFER_ACCEPTED',
+  //     hired: 'HIRED',
+  //     rejected: 'REJECTED',
+  //     offerDeclined: 'OFFER_DECLINED'
+  //   };
+
+  //   const status = statusMap[key];
+  //   if (!status) return;
+
+  //   this.api.listApplications({
+  //     status,
+  //     page: 1,
+  //     pageSize: 100
+  //   }).subscribe(res => {
+  //     this.selectedList = {
+  //       title: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
+  //       cols: ['Name', 'Email', 'Status'],
+  //       rows: res.rows.map((r: any) => ({
+  //         data: [
+  //           r.candidate?.name,
+  //           r.candidate?.email,
+  //           r.status
+  //         ]
+  //       }))
+  //     };
+
+  //     this.modalOpen = true;
+  //   });
+  // }
+  openList(key: string) {
+    this.selectedListKey = key;
+    if (key === 'vacancies') {
+      this.api.listJobs({ page: 1, pageSize: 100 }).subscribe(res => {
+        const openJobs = res.rows.filter((j: any) => j.status === 'OPEN');
+
+        this.selectedList = {
+          title: 'OPEN VACANCIES',
+          cols: ['Job Title', 'Department', 'Headcount'],
+          rows: openJobs.map((j: any) => ({
+            data: [
+              j.title || '-',
+              j.departmentName || '-',
+              j.headcount || 0
+            ]
+          }))
+        };
+
+        this.modalOpen = true;
+      });
+
+      return;
+    }
+
+    // --- Special case: All applications ---
+    if (key === 'applicationsReceived') {
+      this.api.listApplications({
+        page: 1,
+        pageSize: 100
+      }).subscribe(res => {
+        this.selectedList = {
+          title: 'ALL APPLICATIONS',
+          cols: ['Candidate', 'Email', 'Status'],
+          rows: res.rows.map((r: any) => ({
+            data: [
+              r.candidate?.name || '-',
+              r.candidate?.email || '-',
+              r.status
+            ]
+          }))
+        };
+
+        this.modalOpen = true;
+      });
+
+      return;
+    }
+
+    const statusMap: Record<string, ApplicationStatuses> = {
+      applied: 'APPLIED',
+      shortlisted: 'SHORTLISTED',
+      interviewing: 'INTERVIEW_SCHEDULED',
+      offered: 'OFFERED',
+      accepted: 'OFFER_ACCEPTED',
+      hired: 'HIRED',
+      rejected: 'REJECTED',
+      offerDeclined: 'OFFER_DECLINED'
+    };
+
+
+    const status = statusMap[key];
+    if (!status) return;
+
+    this.api.listApplications({
+      status,
+      page: 1,
+      pageSize: 100
+    }).subscribe(res => {
+      this.selectedList = {
+        title: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
+        cols: ['Candidate', 'Email', 'Status'],
+        rows: res.rows.map((r: any) => ({
+          data: [
+            r.candidate?.name || '-',
+            r.candidate?.email || '-',
+            r.status
+          ]
+        }))
+      };
+
+      this.modalOpen = true;
+    });
+  }
+
+  closeModal() {
+    this.modalOpen = false;
+    this.selectedList = null;
+    this.selectedRows = [];
   }
 
 

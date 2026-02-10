@@ -3,14 +3,10 @@
     <!-- <h2 >{{tebleHaeding}}</h2> -->
     <ul>
         <button (click)="show('list')"><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" >All Resignation</li></button>
-        <div class="br"></div>
-       <!-- <button (click)="show('form')"> <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" >My Resignation</li></button> -->
-       
-       <button (click)="show('exit')"> <li class="sub-item" [ngClass]="{ 'active': active === 'exit' }" >Exit Interview</li></button>
-        <!-- <div class="br"></div>
-       <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button> -->
-        <div class="br"></div>
-        <button (click)="show('clearance')"> <li class="sub-item" [ngClass]="{ 'active': active === 'clearance' }" >Clearance</li></button>
+        <div class="br" *ngIf="roleId !== 4"></div>
+       <button (click)="show('exit')" *ngIf="roleId !== 4"> <li class="sub-item" [ngClass]="{ 'active': active === 'exit' }" >Exit Interview</li></button>
+        <div class="br" *ngIf="roleId !== 4"></div>
+        <button (click)="show('clearance')" *ngIf="roleId !== 4"> <li class="sub-item" [ngClass]="{ 'active': active === 'clearance' }" >Clearance</li></button>
     </ul>
 </nav>
 <!-- <div>

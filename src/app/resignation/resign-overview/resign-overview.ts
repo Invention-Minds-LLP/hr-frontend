@@ -14,7 +14,7 @@ import { Clearances } from '../clearances/clearances';
 })
 export class ResignOverview {
   active:string = 'list';
-
+  roleId: number = Number(localStorage.getItem('roleId')) || 0;
   tebleHaeding: string = 'Resignations'
   
   show(value: string){

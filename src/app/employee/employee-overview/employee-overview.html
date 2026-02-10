@@ -3,14 +3,53 @@
     <ul class="nav-list">
         <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li></button>
         <!-- <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li> -->
-         <div class="br"></div>
+         <!-- <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li></button>
         <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'absent' }" (click)="show('absent')">Unmarked Attendance</li></button>
         <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'upload' }" (click)="show('upload')">Bulk Upload Employees</li></button>
         <div class="br"></div>
-        <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button>
+        <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button> -->
+            <!-- All other items hidden for roleId 4 -->
+    <ng-container *ngIf="roleId !== 4">
+
+      <div class="br"></div>
+      <button>
+        <li class="sub-item"
+            [ngClass]="{ 'active': active === 'form' }"
+            (click)="show('form')">
+          Add New Employee
+        </li>
+      </button>
+
+      <div class="br"></div>
+      <button>
+        <li class="sub-item"
+            [ngClass]="{ 'active': active === 'absent' }"
+            (click)="show('absent')">
+          Unmarked Attendance
+        </li>
+      </button>
+
+      <div class="br"></div>
+      <button>
+        <li class="sub-item"
+            [ngClass]="{ 'active': active === 'upload' }"
+            (click)="show('upload')">
+          Bulk Upload Employees
+        </li>
+      </button>
+
+      <div class="br"></div>
+      <button (click)="show('survey')">
+        <li class="sub-item"
+            [ngClass]="{ 'active': active === 'survey' }">
+          Survey
+        </li>
+      </button>
+
+    </ng-container>
     </ul>
 
     

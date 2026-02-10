@@ -79,6 +79,7 @@ export class Navbar {
     console.log('isIncharge:', this.isIncharge);
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
+    console.log(this.executiveRoleId, 'Executive Role id')
     // ✅ Connect to Notification Stream
     this.notificationsService.connectStream();
 

@@ -19,6 +19,8 @@ import { Departments, Department } from '../services/departments/departments';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 function score01Validator(ctrl: AbstractControl): ValidationErrors | null {
   const v = ctrl.value;
@@ -60,6 +62,11 @@ export class CandidateEvalForm {
   isPanelMember: boolean = false;
 
   isHr: boolean = false;
+  candidateResumeUrl: any = null;      // SafeResourceUrl for iframe
+  candidateResumeRawUrl: string = '';  // plain string for checks
+
+
+
 
 
   @Input() interviewId!: number;
@@ -95,7 +102,7 @@ export class CandidateEvalForm {
       }
     });
   }
-  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments, private messageService: MessageService) {
+  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments, private messageService: MessageService, private sanitizer: DomSanitizer) {
     this.form = this.fb.group({
       candidate: this.fb.group({
         name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
@@ -409,6 +416,12 @@ export class CandidateEvalForm {
       this.setHrValidators(true);
     }
   }
+get isImageResume(): boolean {
+  if (!this.candidateResumeRawUrl) return false;
+  return /\.(jpg|jpeg|png|webp)$/i.test(this.candidateResumeRawUrl);
+}
+
+
   private populateFromInterview(v: any) {
     console.log(v)
     // Candidate header (always)
@@ -418,6 +431,14 @@ export class CandidateEvalForm {
     const deptName = v.application?.job?.department?.name ?? null;
     const experienceYears = v.application?.candidate?.experience ?? null;
     const qualification = v.application?.candidate?.qualification ?? '';
+    // this.candidateResumeUrl = v.application?.candidate?.resumeUrl ?? '';
+    const resume = v.application?.candidate?.resumeUrl;
+
+    if (resume) {
+      this.candidateResumeRawUrl = resume; // plain string
+      this.candidateResumeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resume);
+    }
+
     this.form.patchValue({
       candidate: { name: candidateName, date: start, position: jobTitle, department: deptName, qualification: qualification, experienceYears: experienceYears },
     });
