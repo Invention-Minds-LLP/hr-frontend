@@ -40,7 +40,15 @@
       <ng-template pTemplate="body">
         <tr>
           <td><p-skeleton width="2rem"></p-skeleton></td>
-
+          <td>
+            <div class="profile-skeleton">
+              <p-skeleton shape="circle" size="3rem" styleClass="profile-avatar"></p-skeleton>
+              <div class="profile-text">
+                <p-skeleton width="90px" styleClass="mb-1"></p-skeleton>
+                <!-- <p-skeleton width="60px"></p-skeleton> -->
+              </div>
+            </div>
+          </td>
           <td><p-skeleton width="70px"></p-skeleton></td>
           <td><p-skeleton width="90px"></p-skeleton></td>
           <td><p-skeleton width="100px"></p-skeleton></td>
@@ -86,7 +94,7 @@
             </ng-template>
             <div>
               <div class="name">{{ r.employee.firstName }} {{ r.employee.lastName }}</div>
-              <span class="email">{{ r.employee.email }}</span>
+              <span class="email">{{ r.employee.empId }}</span>
             </div>
           </td>
           <!-- <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td> -->

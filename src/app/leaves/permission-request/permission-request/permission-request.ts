@@ -192,6 +192,8 @@ export class PermissionRequest {
             roleId: req.employee.roleId,
             inchargeId: req.employee.inchargeId || null,
             inChargeDecision: req.inChargeDecision ?? 'PENDING',
+            gender: req.employee?.gender,
+            photoUrl: req.employee?.photoUrl
           }
         });
         // this.requestData = this.isHR
@@ -451,6 +453,13 @@ export class PermissionRequest {
       }
 
     });
+  }
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
   }
 
 }

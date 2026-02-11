@@ -48,7 +48,7 @@ export class AssignedTest {
     this.loading = true
     this.assignedService.getAll().subscribe({
       next: data => {
-        this.assignedTests = data
+        this.assignedTests = this.mapAssignedRows(data);
         this.filteredAssignedtest = [...this.assignedTests]
         setTimeout(() => {
           this.loading = false
@@ -60,6 +60,14 @@ export class AssignedTest {
       }
     });
     document.addEventListener('click', this.handleOutsideClick);
+  }
+
+  private mapAssignedRows(list: any[]): any[] {
+    return (list || []).map(r => ({
+      ...r,
+      gender: r.employee?.gender,
+      photoUrl: r.employee?.photoUrl
+    }));
   }
 
   handleOutsideClick = (event: any) => {

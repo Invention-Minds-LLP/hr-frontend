@@ -567,3 +567,10 @@ textarea {
 :host ::ng-deep .p-skeleton::after {
   background: linear-gradient(90deg, transparent, #787d7d, transparent) !important;
 }
+
+.empname img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}

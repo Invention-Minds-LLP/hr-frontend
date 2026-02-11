@@ -58,7 +58,7 @@
 }
 .row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr auto;
+  grid-template-columns: 1.2fr 1.5fr 0.8fr 0.8fr auto;
   gap: 8px;
   align-items: center;
 }
@@ -193,7 +193,7 @@
   ::ng-deep.wrapper .p-datatable .p-datatable-tbody>tr>td {
   padding: 20px 30px;
   background: white;
-  color: black;
+  color: white;
   border: none;
   border-bottom: 2px solid #D9D9D9;
 
@@ -220,4 +220,22 @@
 ::ng-deep .p-inputtext{
   color: white !important;
   background-color: transparent !important;
+}
+
+::ng-deep .p-multiselect {
+  width: 20%;
+  background: #020403;
+}
+
+::ng-deep .p-multiselect-label,
+::ng-deep .p-multiselect-dropdown{
+  color: white !important;
+}
+
+::ng-deep .card .p-multiselect-filter{
+  color: #020403 !important;
+}
+
+:host ::ng-deep .due-date-picker input::placeholder {
+  color: #FFF !important;   
 }

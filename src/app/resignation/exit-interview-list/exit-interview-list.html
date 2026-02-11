@@ -29,7 +29,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
-        <th>EMP ID</th>
+        <!-- <th>EMP ID</th> -->
         <th>Name</th>
         <th>Department</th>
         <th>Date</th>
@@ -45,7 +45,7 @@
       <ng-container *ngIf="!loading; else skeletonRow">
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ interview.employee?.employeeCode }}</td>
+          
           <td>
             <div class="flex align-items-center gap-2 empname">
                <img *ngIf="interview.photoUrl; else defaultPhoto" [src]="interview.photoUrl" alt="Profile" />
@@ -55,7 +55,7 @@
                     </ng-template>
               <div>
                 <span>{{ interview.employee?.firstName }} {{ interview.employee?.lastName }}</span>
-                <span>{{interview.email}}</span>
+                <td class="email">{{ interview.employee?.employeeCode }}</td>
               </div>
             </div>
           </td>
@@ -88,13 +88,13 @@
       <ng-template #skeletonRow>
         <tr>
           <td><p-skeleton width="2rem"></p-skeleton></td>
-          <td><p-skeleton width="4rem"></p-skeleton></td>
+          <!-- <td><p-skeleton width="4rem"></p-skeleton></td> -->
           <td>
             <div class="flex align-items-center gap-2">
               <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
               <div class="skeleton">
                 <p-skeleton width="80px" height="12px"></p-skeleton>
-                <!-- <p-skeleton width="60px" height="10px"></p-skeleton> -->
+                <p-skeleton width="60px" height="10px"></p-skeleton>
               </div>
             </div>
           </td>

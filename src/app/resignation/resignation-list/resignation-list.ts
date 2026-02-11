@@ -91,31 +91,63 @@ export class ResignationList {
     }
   };
 
-  loadResignations() {
+  // loadResignations() {
+  //   if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
+  //     this.api.list({ scope: 'all' }).subscribe(r => {
+  //       this.rows = r;
+  //       this.filteredRows = [...this.rows]
+  //       // console.log(this.filteredRows)
+  //     });
+  //   } else if (this.role === 'Reporting Manager' || this.role === 'Manager' || this.role === 'HR Manager') {
+  //     this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {
+  //       this.rows = r
+  //       this.filteredRows = [...this.rows]
+  //       // console.log(this.filteredRows)
+  //     });
+  //   } else {
+  //     this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => {
+  //       this.rows = r
+  //       this.filteredRows = [...this.rows]
+  //       // console.log(this.filteredRows)
+  //     });
+  //   }
+
+
+  //   setTimeout(() => {
+  //     this.loading = false
+  //   }, 2000)
+  // }
+
+   loadResignations() {
+    const mapRows = (list: any[]) =>
+      (list || []).map(r => ({
+        ...r,
+        gender: r.employee?.gender,
+        photoUrl: r.employee?.photoUrl
+      }));
+
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
       this.api.list({ scope: 'all' }).subscribe(r => {
-        this.rows = r;
-        this.filteredRows = [...this.rows]
-        // console.log(this.filteredRows)
+        this.rows = mapRows(r);
+        this.filteredRows = [...this.rows];
       });
-    } else if (this.role === 'Reporting Manager' || this.role === 'Manager' || this.role === 'HR Manager') {
+    }
+    else if (this.role === 'Reporting Manager' || this.role === 'Manager') {
       this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {
-        this.rows = r
-        this.filteredRows = [...this.rows]
-        // console.log(this.filteredRows)
+        this.rows = mapRows(r);
+        this.filteredRows = [...this.rows];
       });
-    } else {
+    }
+    else {
       this.api.list({ scope: 'mine', employeeId: this.employeeId }).subscribe(r => {
-        this.rows = r
-        this.filteredRows = [...this.rows]
-        // console.log(this.filteredRows)
+        this.rows = mapRows(r);
+        this.filteredRows = [...this.rows];
       });
     }
 
-
     setTimeout(() => {
-      this.loading = false
-    }, 2000)
+      this.loading = false;
+    }, 2000);
   }
   approveManager(r: any) {
     this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));

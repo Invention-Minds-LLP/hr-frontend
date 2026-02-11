@@ -78,7 +78,7 @@
                     <tr>
                         <th>No</th>
                         <th>Employee Name</th>
-                        <th>Emp ID</th>
+                        <!-- <th>Emp ID</th> -->
                         <th>Department</th>
                         <!-- <th>Job Title</th> -->
                         <th>Perm. Date</th>
@@ -91,43 +91,47 @@
                 <ng-template pTemplate="body" let-requestData let-rowIndex="rowIndex">
                     <tr>
                         <td class="t-data al">{{ rowIndex + 1 }}</td>
-                        <td class="empname">
-                            <img class="image" src="/img.png" alt="">
+                        <td class="empname"><img *ngIf="requestData.photoUrl; else defaultPhoto"
+                                [src]="requestData.photoUrl" alt="Profile" />
+                            <ng-template #defaultPhoto>
+                                <img style="background-color: white;" [src]="getDefaultImage(requestData?.gender)"
+                                    alt="Default Profile" />
+                            </ng-template>
                             <div class="">
                                 <div class="name">{{ requestData.empName }}</div>
-                                <span class="email">{{requestData.email}}</span>
-                            </div>
-                        </td>
-                        <td class="t-data al">{{ requestData.empId }}</td>
-                        <td class="t-data al">
-                            <span class="dept-badge"
-                                [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).badgeColor }">
-                                <span class="dot"
-                                    [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).dotColor }">
-                                </span>
-                                {{ getDepartmentName(requestData.department) }}
-                            </span>
-                        </td>
-                        <!-- <td class="t-data al">{{ requestData.jobTitle }}</td> -->
-                        <td class="t-data al">{{ requestData.premDate }}</td>
-                        <td class="t-data al">{{ requestData.noOfHours }}</td>
-                        <!-- <td><span [pTooltip]="requestData.reson" tooltipPosition="top">
+                                <!-- <span class="email">{{requestData.email}}</span> -->
+                        <td class="email" >{{ requestData.empId }}</td>
+        </div>
+        </td>
+
+        <td class="t-data al">
+            <span class="dept-badge"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).badgeColor }">
+                <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(requestData.department).dotColor }">
+                </span>
+                {{ getDepartmentName(requestData.department) }}
+            </span>
+        </td>
+        <!-- <td class="t-data al">{{ requestData.jobTitle }}</td> -->
+        <td class="t-data al">{{ requestData.premDate }}</td>
+        <td class="t-data al">{{ requestData.noOfHours }}</td>
+        <!-- <td><span [pTooltip]="requestData.reson" tooltipPosition="top">
                             {{ requestData.reson | slice:0:20 }}<span *ngIf="requestData.reson.length > 20">...</span>
                         </span>
                     </td> -->
-                        <td>
-                            {{ getStatusLabel(requestData) }}
-                        </td>
+        <td>
+            {{ getStatusLabel(requestData) }}
+        </td>
 
-                        <td>
-                            <!-- <div class="btns">
+        <td>
+            <!-- <div class="btns">
                             <button class="btn-1 btn" (click)="approveRequest(requestData.id)">Accept</button>
                             <button class="btn-2 btn" (click)="openDeclineDialog(requestData.id)">Decline</button>
                             <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
                         </div> -->
-                            <div class="btns">
-                                <!-- Manager stage -->
-                                <!-- <ng-container *ngIf="role === 'Reporting Manager' || role === 'Manager'">
+            <div class="btns">
+                <!-- Manager stage -->
+                <!-- <ng-container *ngIf="role === 'Reporting Manager' || role === 'Manager'">
                                 <button *ngIf="requestData.hodDecision === 'PENDING'" class="btn-1 btn"
                                     (click)="approveRequest(requestData.id, 'MANAGER')">Approve</button>
                                 <button *ngIf="requestData.hodDecision === 'PENDING'" class="btn-2 btn"
@@ -143,94 +147,90 @@
                                     class="btn-2 btn" (click)="openDeclineDialog(requestData.id, 'HR')">Decline</button>
                             </ng-container> -->
 
-                                <!-- LEVEL 1 -->
-                                <button *ngIf="showLevel1Approve(requestData)" class="btn-1 btn"
-                                    (click)="approvePermission(requestData.id, 'LEVEL1')"
-                                    [disabled]="loadingRows[requestData.id]">
+                <!-- LEVEL 1 -->
+                <button *ngIf="showLevel1Approve(requestData)" class="btn-1 btn"
+                    (click)="approvePermission(requestData.id, 'LEVEL1')" [disabled]="loadingRows[requestData.id]">
 
-                                    <ng-container *ngIf="!loadingRows[requestData.id]; else l1Loading">
-                                        Approve
-                                    </ng-container>
+                    <ng-container *ngIf="!loadingRows[requestData.id]; else l1Loading">
+                        Approve
+                    </ng-container>
 
-                                    <ng-template #l1Loading>
-                                        <i class="pi pi-spin pi-spinner"></i>
-                                    </ng-template>
-                                </button>
+                    <ng-template #l1Loading>
+                        <i class="pi pi-spin pi-spinner"></i>
+                    </ng-template>
+                </button>
 
-                                <button *ngIf="showLevel1Approve(requestData)" class="btn-2 btn"
-                                    (click)="openDeclineDialog(requestData.id, 'LEVEL1')"
-                                    [disabled]="loadingRows[requestData.id]">
-                                    Decline
-                                </button>
+                <button *ngIf="showLevel1Approve(requestData)" class="btn-2 btn"
+                    (click)="openDeclineDialog(requestData.id, 'LEVEL1')" [disabled]="loadingRows[requestData.id]">
+                    Decline
+                </button>
 
 
-                                <!-- LEVEL 2 -->
-                                <button *ngIf="showLevel2Approve(requestData)" class="btn-1 btn"
-                                    (click)="approvePermission(requestData.id, 'LEVEL2')"
-                                    [disabled]="loadingRows[requestData.id]">
+                <!-- LEVEL 2 -->
+                <button *ngIf="showLevel2Approve(requestData)" class="btn-1 btn"
+                    (click)="approvePermission(requestData.id, 'LEVEL2')" [disabled]="loadingRows[requestData.id]">
 
-                                    <ng-container *ngIf="!loadingRows[requestData.id]; else l2Loading">
-                                        Approve
-                                    </ng-container>
+                    <ng-container *ngIf="!loadingRows[requestData.id]; else l2Loading">
+                        Approve
+                    </ng-container>
 
-                                    <ng-template #l2Loading>
-                                        <i class="pi pi-spin pi-spinner"></i>
-                                    </ng-template>
-                                </button>
+                    <ng-template #l2Loading>
+                        <i class="pi pi-spin pi-spinner"></i>
+                    </ng-template>
+                </button>
 
-                                <button *ngIf="showLevel2Approve(requestData)" class="btn-2 btn"
-                                    (click)="openDeclineDialog(requestData.id, 'LEVEL2')"
-                                    [disabled]="loadingRows[requestData.id]">
-                                    Decline
-                                </button>
+                <button *ngIf="showLevel2Approve(requestData)" class="btn-2 btn"
+                    (click)="openDeclineDialog(requestData.id, 'LEVEL2')" [disabled]="loadingRows[requestData.id]">
+                    Decline
+                </button>
 
 
 
-                                <!-- Always available -->
-                                <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
-                            </div>
-
-
-                        </td>
-
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td [attr.colspan]="columnCount" class="no-data-message">
-                            <i class="pi pi-info-circle"></i>
-                            No Permission requests found.
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-
-        </div>
-        <div class="custom-popup" *ngIf="declineDialogVisible">
-            <div class="popup-content">
-                <h3>Permission Request Decline Reason</h3>
-                <hr />
-
-                <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
-
-                <div class="popup-actions">
-                    <button class="btn btn-green" (click)="confirmDecline()" [disabled]="declineLoading">
-
-                        <ng-container *ngIf="!declineLoading; else declining">
-                            Decline
-                        </ng-container>
-
-                        <ng-template #declining>
-                            <i class="pi pi-spin pi-spinner"></i>
-                        </ng-template>
-
-                    </button>
-
-                    <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
-                </div>
+                <!-- Always available -->
+                <button class="btn-3" (click)="openDetailsPopup(requestData)">Perm. Details</button>
             </div>
-        </div>
+
+
+        </td>
+
+        </tr>
     </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="columnCount" class="no-data-message">
+                <i class="pi pi-info-circle"></i>
+                No Permission requests found.
+            </td>
+        </tr>
+    </ng-template>
+    </p-table>
+
+</div>
+<div class="custom-popup" *ngIf="declineDialogVisible">
+    <div class="popup-content">
+        <h3>Permission Request Decline Reason</h3>
+        <hr />
+
+        <textarea placeholder="Type your reason here..." [(ngModel)]="declineReason" rows="4"></textarea>
+
+        <div class="popup-actions">
+            <button class="btn btn-green" (click)="confirmDecline()" [disabled]="declineLoading">
+
+                <ng-container *ngIf="!declineLoading; else declining">
+                    Decline
+                </ng-container>
+
+                <ng-template #declining>
+                    <i class="pi pi-spin pi-spinner"></i>
+                </ng-template>
+
+            </button>
+
+            <button class="btn btn-red" (click)="closeDeclineDialog()">Cancel</button>
+        </div>
+    </div>
+</div>
+</ng-template>
 </div>
 
 <p-toast position="top-right"></p-toast>

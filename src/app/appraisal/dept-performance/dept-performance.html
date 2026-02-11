@@ -130,7 +130,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
-        <th>Emp ID</th>
+        <!-- <th>Emp ID</th> -->
         <th>Employee Name</th>
         <th>Department</th>
         <th>Cycle</th>
@@ -147,7 +147,7 @@
       <ng-container *ngIf="loading; else dataRow">
         <tr>
           <td><p-skeleton width="2rem"></p-skeleton></td>
-          <td><p-skeleton width="4rem"></p-skeleton></td>
+          <!-- <td><p-skeleton width="4rem"></p-skeleton></td> -->
           <td>
             <div class="flex align-items-center">
               <p-skeleton shape="circle" size="2.5rem" styleClass="mr-2"></p-skeleton>
@@ -170,7 +170,7 @@
       <ng-template #dataRow>
         <tr>
           <td>{{ i + 1 }}</td>
-          <td>{{ s.employee?.employeeCode }}</td>
+          
           <td class="empname">
             <img *ngIf="s.photoUrl; else defaultPhoto" [src]="s.photoUrl" alt="Profile" />
             <ng-template #defaultPhoto>
@@ -178,7 +178,8 @@
             </ng-template>
             <div>
               <div class="name">{{ s.employee.firstName }} {{ s.employee.lastName }}</div>
-              <span class="email">{{ s.employee.email }}</span>
+              <!-- <span class="email">{{ s.employee.email }}</span> -->
+               <td class="email">{{ s.employee?.employeeCode }}</td>
             </div>
           </td>
           <!-- <td>{{ s.employee?.firstName }} {{ s.employee?.lastName }}</td> -->

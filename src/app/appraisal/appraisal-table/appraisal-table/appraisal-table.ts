@@ -103,40 +103,44 @@ export class AppraisalTable {
 
 
   getAppraisals() {
-    this.loading = true
+    this.loading = true;
+
     this.appraisalService.getAllAppraisals().subscribe({
-      next: (data) => {
-        if (this.role === 'HR Manager'|| this.role === 'Management') {
-          this.appraisals = data;
+      next: (data: any[]) => {
+
+        let filtered = data || [];
+
+        if (this.role === 'HR Manager' || this.role === 'Management') {
+          filtered = data;
         } else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
-          // HR sees all OTHER departments except HR department
-          this.appraisals = (data || []).filter(
-            (a: any) => a.employee?.departmentId !== 1
+          filtered = data.filter(a => a.employee?.departmentId !== 1);
+        } else if (this.role === 'Reporting Manager') {
+          filtered = data.filter(
+            a => a.employee?.reportingManager === this.loggedEmployeeId
           );
         }
-        else if (this.role === 'Reporting Manager') {
-          this.appraisals = (data || []).filter(
-            (a: any) => a.employee?.reportingManager === this.loggedEmployeeId
-          );
-        }
-        setTimeout(() => {
-          this.filteredEmployees = [...this.appraisals];
-          this.loading = false; // 👈 stop loading
-        }, 800);
+
+        // ✅ FLATTEN HERE
+        this.appraisals = filtered.map(a => ({
+          ...a,
+          gender: a.employee?.gender,
+          photoUrl: a.employee?.photoUrl
+        }));
+
+        this.filteredEmployees = [...this.appraisals];
+        this.loading = false;
       },
       error: () => {
-        // alert('Error loading appraisals');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Error loading appraisals'
         });
-        this.loading = false
+        this.loading = false;
       }
     });
-
-
   }
+
 
   openForm() {
     this.showPopup = true;
@@ -281,4 +285,10 @@ export class AppraisalTable {
     this.editAppraisal.emit(mergedAppraisal);
   }
 
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
+  }
 }

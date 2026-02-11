@@ -75,11 +75,24 @@ export class ShiftRequests {
   }
 
 
+  // load() {
+  //   this.shifts.getApprovalsInbox().subscribe(r => this.approvals = r);
+  //   console.log(this.approvals);
+  //   this.shifts.getShiftTemplates().subscribe(s => this.allShifts = s)
+  // }
+
   load() {
-    this.shifts.getApprovalsInbox().subscribe(r => this.approvals = r);
-    console.log(this.approvals);
-    this.shifts.getShiftTemplates().subscribe(s => this.allShifts = s)
+    this.shifts.getApprovalsInbox().subscribe((res: any[]) => {
+      this.approvals = (res || []).map(a => ({
+        ...a,
+        gender: a.employee?.gender,
+        photoUrl: a.employee?.photoUrl
+      }));
+    });
+
+    this.shifts.getShiftTemplates().subscribe(s => this.allShifts = s);
   }
+
 
   private getWeekOffDate(
     week: { start: Date; end: Date },

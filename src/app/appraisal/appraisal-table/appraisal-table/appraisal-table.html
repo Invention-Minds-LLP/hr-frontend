@@ -1,43 +1,42 @@
 <div class="appraial-table">
-    <div class="heading-part">
-        <!-- <div class="heading">All Appraisal</div> -->
-        <div class="flex">
+  <div class="heading-part">
+    <!-- <div class="heading">All Appraisal</div> -->
+    <div class="flex">
 
-            <!-- NEW APPRAISAL BUTTON -->
-            <button class="new-app" *ngIf="role === 'HR' || role === 'HR Manager'" (click)="openForm()">
-                New Appraisal
-                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-                    <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
+      <!-- NEW APPRAISAL BUTTON -->
+      <button class="new-app" *ngIf="role === 'HR' || role === 'HR Manager'" (click)="openForm()">
+        New Appraisal
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
 
-            <!-- FILTER -->
-            <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
-                <i class="pi pi-filter"></i>
+      <!-- FILTER -->
+      <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
+        <i class="pi pi-filter"></i>
 
-                <ul id="filterDropdown" class="filter-dropdown" *ngIf="showFilterDropdown">
-                    <li class="list" *ngFor="let option of filterOptions"
-                        (click)="selectFilter(option); $event.stopPropagation()"
-                        [ngClass]="{ 'active': selectedFilter?.value === option.value }">
-                        {{ option.label }}
-                    </li>
-                </ul>
-            </div>
+        <ul id="filterDropdown" class="filter-dropdown" *ngIf="showFilterDropdown">
+          <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
+            [ngClass]="{ 'active': selectedFilter?.value === option.value }">
+            {{ option.label }}
+          </li>
+        </ul>
+      </div>
 
-            <!-- SEARCH -->
-            <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
-            </p-iconfield>
+      <!-- SEARCH -->
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+      </p-iconfield>
 
-        </div>
-
+    </div>
 
 
 
-        <!-- Filter Selector -->
-        <!-- <div class="filter" (click)="toggleFilterDropdown()">
+
+    <!-- Filter Selector -->
+    <!-- <div class="filter" (click)="toggleFilterDropdown()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M4.5 7.25H19.5M7.385 12H16.615M10.27 16.75H13.73" stroke="#9B9B9B" stroke-width="1.5"
                         stroke-linecap="round" stroke-linejoin="round" />
@@ -51,149 +50,151 @@
                     {{ option.label }}
                 </li>
             </ul> -->
-    </div>
-<!-- </div> -->
+  </div>
+  <!-- </div> -->
 
-<div class="table">
-    <p-table 
-    [value]="loading ? [1, 2, 3, 4, 5] : filteredEmployees"
-    [paginator]="!loading"
-    [rows]="10">
-  
-    <!-- HEADER -->
-    <ng-template pTemplate="header">
-      <tr>
-        <th>No</th>
-        <th>Emp ID</th>
-        <th>Employee Name</th>
-        <th>Department</th>
-        <th>Appraisal Cycle</th>
-        <th>Manager</th>
-        <th>Mgr. Score</th>
-        <th>Decision</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </ng-template>
-  
-    <!-- BODY -->
-    <ng-template pTemplate="body" let-appraisal let-rowIndex="rowIndex">
-  
-      <!-- LOADING SKELETONS -->
-      <ng-container *ngIf="loading; else realRows">
-        <tr *ngFor="let i of [1,2,3,4,5]">
-          <td><p-skeleton width="2rem"></p-skeleton></td>
-          <td><p-skeleton width="5rem"></p-skeleton></td>
-          <td class="empname">
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-            <div>
-              <p-skeleton width="6rem" class="mb-2"></p-skeleton>
-              <p-skeleton width="8rem"></p-skeleton>
-            </div>
-          </td>
-          <td><p-skeleton width="6rem"></p-skeleton></td>
-          <td><p-skeleton width="5rem"></p-skeleton></td>
-          <td><p-skeleton width="5rem"></p-skeleton></td>
-          <td><p-skeleton width="4rem"></p-skeleton></td>
-          <td><p-skeleton width="4rem"></p-skeleton></td>
-          <td><p-skeleton width="5rem"></p-skeleton></td>
-          <td><p-skeleton width="4rem"></p-skeleton></td>
-        </tr>
-      </ng-container>
-  
-      <!-- DATA ROWS -->
-      <ng-template #realRows>
+  <div class="table">
+    <p-table [value]="loading ? [1, 2, 3, 4, 5] : filteredEmployees" [paginator]="!loading" [rows]="10">
+
+      <!-- HEADER -->
+      <ng-template pTemplate="header">
         <tr>
-          <td>{{ rowIndex + 1 }}</td>
-          <td>{{ appraisal.employee.employeeCode }}</td>
-          <td class="empname">
-            <img class="image" src="/img.png" alt="">
-            <div>
-              <div class="name">{{ appraisal.employee.firstName }} {{ appraisal.employee.lastName }}</div>
-              <span class="email">{{ appraisal.employee.email }}</span>
-            </div>
-          </td>
-          <td>
-            <span class="dept-badge"
-              [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).badgeColor }">
-              <span class="dot"
-                [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).dotColor }">
+          <th>No</th>
+          <!-- <th>Emp ID</th> -->
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Appraisal Cycle</th>
+          <th>Manager</th>
+          <th>Mgr. Score</th>
+          <th>Decision</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </ng-template>
+
+      <!-- BODY -->
+      <ng-template pTemplate="body" let-appraisal let-rowIndex="rowIndex">
+
+        <!-- LOADING SKELETONS -->
+        <ng-container *ngIf="loading; else realRows">
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td><p-skeleton width="2rem"></p-skeleton></td>
+            <!-- <td><p-skeleton width="5rem"></p-skeleton></td> -->
+            <td class="empname">
+              <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+              <div>
+                <p-skeleton width="6rem" class="mb-2"></p-skeleton>
+                <p-skeleton width="8rem"></p-skeleton>
+              </div>
+            </td>
+            <td><p-skeleton width="6rem"></p-skeleton></td>
+            <td><p-skeleton width="5rem"></p-skeleton></td>
+            <td><p-skeleton width="5rem"></p-skeleton></td>
+            <td><p-skeleton width="4rem"></p-skeleton></td>
+            <td><p-skeleton width="4rem"></p-skeleton></td>
+            <td><p-skeleton width="5rem"></p-skeleton></td>
+            <td><p-skeleton width="4rem"></p-skeleton></td>
+          </tr>
+        </ng-container>
+
+        <!-- DATA ROWS -->
+        <ng-template #realRows>
+          <tr>
+            <td>{{ rowIndex + 1 }}</td>
+            
+            <td class="empname">
+              <img *ngIf="appraisal.photoUrl; else defaultPhoto" [src]="appraisal.photoUrl" alt="Profile" />
+              <ng-template #defaultPhoto>
+                <img style="background-color: white;" [src]="getDefaultImage(appraisal?.gender)"
+                  alt="Default Profile" />
+              </ng-template>
+              <div>
+                <div class="name">{{ appraisal.employee.firstName }} {{ appraisal.employee.lastName }}</div>
+                <!-- <span class="email">{{ appraisal.employee.email }}</span> -->
+                 <td class="email">{{ appraisal.employee.employeeCode }}</td>
+              </div>
+            </td>
+            <td>
+              <span class="dept-badge"
+                [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).badgeColor }">
+                <span class="dot"
+                  [ngStyle]="{ backgroundColor: getDepartmentColors(appraisal.employee.departmentId).dotColor }">
+                </span>
+                {{ getDepartmentName(appraisal.employee.departmentId) }}
               </span>
-              {{ getDepartmentName(appraisal.employee.departmentId) }}
-            </span>
-          </td>
-          <td>{{ appraisal.cycle }}</td>
-          <td>{{ appraisal.managerName || '-' }}</td>
-          <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
-          <td>{{ appraisal.finalDecision || '-' }}</td>
-          <td>{{ appraisal.status || '-' }}</td>
-          <td>
-            <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
+            </td>
+            <td>{{ appraisal.cycle }}</td>
+            <td>{{ appraisal.managerName || '-' }}</td>
+            <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
+            <td>{{ appraisal.finalDecision || '-' }}</td>
+            <td>{{ appraisal.status || '-' }}</td>
+            <td>
+              <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
+            </td>
+          </tr>
+        </ng-template>
+
+      </ng-template>
+
+      <!-- EMPTY MESSAGE (SHOWS WHEN filteredEmployees = []) -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" style="text-align:center; padding: 1rem;">
+            No Appraisal Found
           </td>
         </tr>
       </ng-template>
-  
-    </ng-template>
-  
-    <!-- EMPTY MESSAGE (SHOWS WHEN filteredEmployees = []) -->
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="10" style="text-align:center; padding: 1rem;">
-          No Appraisal Found
-        </td>
-      </tr>
-    </ng-template>
-  
-  </p-table>
-  
-</div>
+
+    </p-table>
+
+  </div>
 </div>
 
 
 <div class="popup-backdrop" *ngIf="showPopup">
-    <div class="popup-container">
-        <h2>Create Appraisal</h2>
+  <div class="popup-container">
+    <h2>Create Appraisal</h2>
 
-        <hr />
+    <hr />
 
-        <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="appraisalForm" (ngSubmit)="onSubmit()">
 
-            <!-- Cycle -->
-            <div class="field col-12">
-                <input type="text" formControlName="cycle" pInputText placeholder="Enter cycle (e.g., Quarter 1 2025)">
-            </div>
+      <!-- Cycle -->
+      <div class="field col-12">
+        <input type="text" formControlName="cycle" pInputText placeholder="Enter cycle (e.g., Quarter 1 2025)">
+      </div>
 
-            <!-- Department -->
-            <div class="field col-12">
-                <p-floatLabel variant="on">
-                    <p-select [options]="departments" [filter]="true" formControlName="departmentId" optionLabel="name" optionValue="id"
-                        class="dropdown"></p-select>
-                    <label>Department</label>
-                </p-floatLabel>
-            </div>
+      <!-- Department -->
+      <div class="field col-12">
+        <p-floatLabel variant="on">
+          <p-select [options]="departments" [filter]="true" formControlName="departmentId" optionLabel="name"
+            optionValue="id" class="dropdown"></p-select>
+          <label>Department</label>
+        </p-floatLabel>
+      </div>
 
-            <!-- Branch -->
-            <div class="field col-12">
-                <p-floatLabel variant="on">
-                    <p-select [options]="branches" formControlName="branchId" optionLabel="name" optionValue="id"
-                        class="dropdown" [filter]="true"></p-select>
-                    <label>Branch</label>
-                </p-floatLabel>
-            </div>
+      <!-- Branch -->
+      <div class="field col-12">
+        <p-floatLabel variant="on">
+          <p-select [options]="branches" formControlName="branchId" optionLabel="name" optionValue="id" class="dropdown"
+            [filter]="true"></p-select>
+          <label>Branch</label>
+        </p-floatLabel>
+      </div>
 
-            <!-- Employees (Multi Select) -->
-            <div class="field col-12">
-                <p-multiSelect [options]="employees" formControlName="employeeIds" optionLabel="label"
-                    optionValue="value" placeholder="Select Employees" display="chip" class="dropdown">
-                </p-multiSelect>
+      <!-- Employees (Multi Select) -->
+      <div class="field col-12">
+        <p-multiSelect [options]="employees" formControlName="employeeIds" optionLabel="label" optionValue="value"
+          placeholder="Select Employees" display="chip" class="dropdown">
+        </p-multiSelect>
 
-            </div>
+      </div>
 
-            <!-- Buttons -->
-            <div class="popup-actions">
-                <button type="submit" class="btn btn-green" [disabled]="appraisalForm.invalid">Create</button>
-                <button type="button" class="btn btn-red" (click)="closePopup()">Cancel</button>
-            </div>
-        </form>
-    </div>
+      <!-- Buttons -->
+      <div class="popup-actions">
+        <button type="submit" class="btn btn-green" [disabled]="appraisalForm.invalid">Create</button>
+        <button type="button" class="btn btn-red" (click)="closePopup()">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>

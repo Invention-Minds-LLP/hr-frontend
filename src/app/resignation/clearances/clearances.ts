@@ -89,10 +89,17 @@ export class Clearances {
   /** ✅ Load all resignations + clearance info */
   loadResignations(): void {
     this.api.listWithClearances().subscribe({
-      next: (data) => this.resignations = data,
+      next: (data: any[]) => {
+        this.resignations = (data || []).map(r => ({
+          ...r,
+          gender: r.employee?.gender,
+          photoUrl: r.employee?.photoUrl
+        }));
+      },
       error: () => this.notify('error', 'Failed to load resignations')
     });
   }
+
 
   /** ✅ Return clearance record for a given department type */
   // getClearance(r: any, type: string): any {

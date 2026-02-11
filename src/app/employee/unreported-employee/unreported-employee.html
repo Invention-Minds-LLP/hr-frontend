@@ -15,7 +15,7 @@
         <ng-template pTemplate="header">
             <tr>
                 <th>No</th>
-                <th>Employee Code</th>
+                <!-- <th>Employee Code</th> -->
                 <th>Name</th>
                 <th>Department</th>
                 <th>Date</th>
@@ -27,7 +27,6 @@
         <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
             <tr>
                 <td>{{ rowIndex + 1 }}</td>
-                <td>{{ row.employeeCode }}</td>
                 <td class="empname">
                     <img *ngIf="row.photoUrl; else defaultPhoto" [src]="row.photoUrl" alt="Profile" />
                     <ng-template #defaultPhoto>
@@ -37,7 +36,7 @@
                     <div>
                         <div class="name">{{ row.name }}</div>
                         <!-- <span class="email">{{ row.email || 'No Email' }}</span> -->
-
+                         <td>{{ row.employeeCode }}</td>
                     </div>
                 </td>
                 <!-- <td>{{ row.name }}</td> -->

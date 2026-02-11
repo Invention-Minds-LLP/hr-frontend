@@ -74,7 +74,7 @@
                     <tr>
                         <th>No</th>
                         <th>Employee Name</th>
-                        <th>Emp ID</th>
+                        <!-- <th>Emp ID</th> -->
                         <th>Department</th>
                         <th>Job Title</th>
                         <th>Leave Type</th>
@@ -89,13 +89,19 @@
                     <tr>
                         <td>{{ rowIndex + 1 }}</td>
                         <td class="empname">
-                            <img class="image" src="/img.png" alt="" />
+                            <img *ngIf="leaveData.photoUrl; else defaultPhoto" [src]="leaveData.photoUrl"
+                                alt="Profile" />
+                            <ng-template #defaultPhoto>
+                                <img style="background-color: white;" [src]="getDefaultImage(leaveData?.gender)"
+                                    alt="Default Profile" />
+                            </ng-template>
                             <div>
                                 <div class="name">{{ leaveData.empName }}</div>
-                                <span class="email">{{ leaveData.email }}</span>
+                                <!-- <span class="email">{{ leaveData.email }}</span> -->
+                                 <td class="email">{{ leaveData.empId }}</td>
                             </div>
                         </td>
-                        <td>{{ leaveData.empId }}</td>
+                        
                         <td>
                             <span class="dept-badge" [ngStyle]="{
                   backgroundColor: getDepartmentColors(leaveData.department).badgeColor}">
