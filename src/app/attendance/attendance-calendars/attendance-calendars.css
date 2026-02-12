@@ -36,6 +36,10 @@
 .permission-day {
   background: #ffe082 !important;
 }
+.force-present-day {
+  background: #2196F3 !important;
+  color: white;
+}
 
 .weekoff-day {
   background: #f21a02;

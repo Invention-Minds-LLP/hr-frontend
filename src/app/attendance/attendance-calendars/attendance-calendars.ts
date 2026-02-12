@@ -12,6 +12,7 @@ import { addHours } from 'date-fns';
 import { Subject } from 'rxjs';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 
 @Component({
@@ -21,7 +22,8 @@ import { MessageService } from 'primeng/api';
     DialogModule,
     ReactiveFormsModule,
     FormsModule,
-    TooltipModule
+    TooltipModule,
+    ToastModule
   ],
   templateUrl: './attendance-calendars.html',
   styleUrl: './attendance-calendars.css',
@@ -36,6 +38,10 @@ export class AttendanceCalendars {
   rejectPopupVisible = false;
   rejectReason = '';
   selectedEventForReject: any = null;
+  forcePopupVisible = false;
+  selectedForceEvent: any = null;
+  selectedForceDate: Date | undefined = undefined;
+
 
 
 
@@ -116,7 +122,7 @@ export class AttendanceCalendars {
         //       });
         //     }
         //   }
-          
+
 
 
         //   /** ------------------------------
@@ -147,104 +153,120 @@ export class AttendanceCalendars {
 
         // }); 
 
-res.forEach((item: any) => {
+        res.forEach((item: any) => {
 
-  /* ------------------------------
-     ✅ WEEK OFF EVENTS (NEW)
-  ------------------------------ */
-  if (item.type === 'weekoff') {
-    this.events.push({
-      start: new Date(item.start),
-      allDay: true,
-      title: 'Week Off',
-      meta: {
-        type: 'weekoff',
-        approved: item.approved === true
-      },
-      color: {
-        primary: this.getColor('weekoff'),
-        secondary: this.getColor('weekoff') + '33'
-      }
-    });
+          /* ------------------------------
+             ✅ WEEK OFF EVENTS (NEW)
+          ------------------------------ */
+          if (item.type === 'weekoff') {
+            this.events.push({
+              start: new Date(item.start),
+              allDay: true,
+              title: 'Week Off',
+              meta: {
+                type: 'weekoff',
+                approved: item.approved === true
+              },
+              color: {
+                primary: this.getColor('weekoff'),
+                secondary: this.getColor('weekoff') + '33'
+              }
+            });
 
-    return; // ⛔ IMPORTANT: stop here
-  }
+            return; // ⛔ IMPORTANT: stop here
+          }
 
-  /* ------------------------------
-     ATTENDANCE / PERMISSION
-  ------------------------------ */
-  if (item.type !== 'leave') {
-    const ev = {
-      start: new Date(item.start),
-      allDay: true,
-      title: item.title,
-      meta: {
-        type: item.type,
-        hours: item.hours,
-        checkIn: item.checkIn,
-        checkOut: item.checkOut,
-        status: item.status,
-        leaveType: item.title.replace('Leave (', '').replace(')', ''),
-        flag: item.flag,
-        finalStatus: item.finalStatus,
-        approvedBy: item.approvedBy,
-        approvedAt: item.approvedAt,
-        needsApproval: item.needsApproval,
-        attendanceId: item.attendanceId,
-        date: item.start
-      },
-      color: {
-        primary: this.getColor(item.type),
-        secondary: this.getColor(item.type) + '33'
-      }
-    };
+          /* ------------------------------
+             ATTENDANCE / PERMISSION
+          ------------------------------ */
+          if (item.type !== 'leave') {
+            const ev = {
+              start: new Date(item.start),
+              allDay: true,
+              title: item.title,
+              meta: {
+                type: item.type,
+                hours: item.hours,
+                checkIn: item.checkIn,
+                checkOut: item.checkOut,
+                status: item.status,
+                leaveType: item.title.replace('Leave (', '').replace(')', ''),
+                flag: item.flag,
+                finalStatus: item.finalStatus,
+                approvedBy: item.approvedBy,
+                approvedAt: item.approvedAt,
+                needsApproval: item.needsApproval,
+                attendanceId: item.attendanceId,
+                date: item.start
+              },
+              color: {
+                primary: this.getColor(item.type),
+                secondary: this.getColor(item.type) + '33'
+              }
+            };
 
-    this.events.push(ev);
+            this.events.push(ev);
 
-    if (item.needsApproval) {
-      this.pendingList.push({
-        attendanceId: item.attendanceId,
-        date: new Date(item.start),
-        checkIn: item.checkIn,
-        checkOut: item.checkOut,
-        flag: item.flag,
-        finalStatus: item.finalStatus
-      });
-    }
+            if (item.needsApproval) {
+              this.pendingList.push({
+                attendanceId: item.attendanceId,
+                date: new Date(item.start),
+                checkIn: item.checkIn,
+                checkOut: item.checkOut,
+                flag: item.flag,
+                finalStatus: item.finalStatus
+              });
+            }
 
-    return;
-  }
+            return;
+          }
 
-  /* ------------------------------
-     LEAVE EVENTS
-  ------------------------------ */
-  let current = new Date(item.start);
-  const end = new Date(item.end);
+          /* ------------------------------
+             LEAVE EVENTS
+          ------------------------------ */
+          let current = new Date(item.start);
+          const end = new Date(item.end);
 
-  while (current <= end) {
-    this.events.push({
-      start: new Date(current),
-      allDay: true,
-      title: item.title,
-      meta: {
-        type: 'leave',
-        leaveType: item.title
-      },
-      color: {
-        primary: this.getColor('leave'),
-        secondary: this.getColor('leave') + '33'
-      }
-    });
+          while (current <= end) {
+            this.events.push({
+              start: new Date(current),
+              allDay: true,
+              title: item.title,
+              meta: {
+                type: 'leave',
+                leaveType: item.title
+              },
+              color: {
+                primary: this.getColor('leave'),
+                secondary: this.getColor('leave') + '33'
+              }
+            });
 
-    current.setDate(current.getDate() + 1);
-  }
-});
+            current.setDate(current.getDate() + 1);
+          }
+        });
 
         console.log('Events:', this.events);
         console.log('Pending Approvals:', this.pendingList);
 
         this.refresh.next(null);
       });
+  }
+  forcePresent(event: any) {
+    const attendanceId = event.attendanceId || event.meta?.attendanceId;
+
+    this.attendanceService.approveAttendance(
+      attendanceId,
+      'FORCE_PRESENT',
+      Number(localStorage.getItem('empId'))
+    ).subscribe(() => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Attendance marked as force present.'
+      });
+      this.loadCalendar();
+    });
   }
 
   prevMonth() {
@@ -312,7 +334,7 @@ res.forEach((item: any) => {
     }
 
     if (ev.meta.type === 'weekoff') {
-      console.log('Weekoff event meta:', ev.meta);
+      // console.log('Weekoff event meta:', ev.meta);
       return ev.meta.approved
         ? 'Approved Week Off'
         : 'Weekly Off (Sunday)';
@@ -346,6 +368,11 @@ res.forEach((item: any) => {
     if (event.meta.finalStatus === 'Absent') return 'absent-day';
     if (event.meta.finalStatus === 'Present') return 'present-day';
 
+    if (event.meta.attendanceApproval === 'FORCE_PRESENT') {
+      return 'force-present-day';
+    }
+
+
     // Leave days
     if (event.meta.type === 'leave') return 'leave-day';
 
@@ -376,7 +403,9 @@ res.forEach((item: any) => {
     return `${hours}:${minutes} ${ampm}`;
   }
   approve(event: any) {
-    const attendanceId = event.meta.attendanceId;   // backend must send this
+    // const attendanceId = event.meta.attendanceId;   // backend must send this
+    const attendanceId =
+      event?.meta?.attendanceId || event?.attendanceId;
     console.log('Approving attendanceId:', attendanceId);
 
     this.attendanceService.approveAttendance(attendanceId, 'APPROVED', Number(localStorage.getItem('empId')))  // HR ID
@@ -405,7 +434,7 @@ res.forEach((item: any) => {
       return;
     }
 
-    const attendanceId = this.selectedEventForReject.meta.attendanceId;
+    const attendanceId = this.selectedEventForReject?.meta?.attendanceId || this.selectedEventForReject?.attendanceId;
 
     this.attendanceService.approveAttendance(
       attendanceId,
@@ -445,6 +474,55 @@ res.forEach((item: any) => {
     scale = Math.min(1, Math.max(scale, 0.65));
 
     wrapper.style.setProperty('--cal-scale', scale.toString());
+  }
+
+  onDayClick(day: any) {
+    const event = day.events?.[0];
+
+    this.selectedForceEvent = event || null;
+    this.selectedForceDate = day.date;
+    this.forcePopupVisible = true;
+  }
+
+  submitForcePresent() {
+    if (!this.selectedForceDate) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const selected = new Date(this.selectedForceDate);
+    selected.setHours(0, 0, 0, 0);
+
+    // Allow only today
+    if (selected.getTime() !== today.getTime()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Not allowed',
+        detail: 'Force present is allowed only for today.'
+      });
+      this.forcePopupVisible = false;
+      return;
+    }
+    const attendanceId = this.selectedForceEvent?.meta?.attendanceId || null;
+
+    this.attendanceService.approveAttendance(
+      attendanceId,
+      'FORCE_PRESENT',
+      Number(localStorage.getItem('empId')),
+      undefined,
+      this.selectedForceDate,
+      this.employeeId
+    ).subscribe(() => {
+      this.forcePopupVisible = false;
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Attendance marked as force present.'
+      });
+
+      this.loadCalendar();
+    });
   }
 
 

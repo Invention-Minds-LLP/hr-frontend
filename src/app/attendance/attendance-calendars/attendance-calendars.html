@@ -39,7 +39,8 @@
     
         <div class="day-cell"
              [ngClass]="getDayClass(day)"
-             [pTooltip]="day.events.length ? getTooltip(day.events[0]) : undefined">
+             [pTooltip]="day.events.length ? getTooltip(day.events[0]) : undefined"
+             (click)="onDayClick(day)">
           
           <div class="day-number">{{ day.date.getDate() }}</div>
       
@@ -88,6 +89,8 @@
         <div class="approval-actions">
           <button class="approve-btn" (click)="approve(item)">Approve</button>
           <button class="reject-btn" (click)="reject(item)">Reject</button>
+            <!-- <button class="force-btn" (click)="forcePresent(item)">Force Present</button> -->
+
         </div>
       </div>
   
@@ -118,3 +121,37 @@
 
 
 </p-dialog>
+<p-dialog [(visible)]="forcePopupVisible"
+          header="Force Present"
+          [closable]="false"
+          modal="true"
+          [style]="{width: '350px'}">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Force Present</span>
+      <button class="dialog-close-btn" (click)="forcePopupVisible = false">
+        ✕
+      </button>
+    </div>
+  </ng-template>
+
+  <div class="p-fluid">
+    <p>
+      Mark attendance as <strong>Present</strong> for
+      {{ selectedForceDate | date:'MMM d, yyyy' }}?
+    </p>
+  </div>
+
+  <div class="flex justify-center gap-3 mt-4">
+    <button class="btn btn-1" (click)="forcePopupVisible = false">
+      Cancel
+    </button>
+    <button class="btn btn-2" (click)="submitForcePresent()">
+      Force Present
+    </button>
+  </div>
+
+</p-dialog>
+
+<p-toast></p-toast>

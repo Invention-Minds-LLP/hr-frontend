@@ -35,6 +35,8 @@ interface individual {
 interface AttendanceDay {
   dayName: string;
   totalHours?: string;
+  checkIn?: string;
+  checkOut?: string;
   status?: 'Leave' | 'Day Off' | 'Present' | 'Empty';
 }
 
@@ -85,6 +87,10 @@ export class Individual {
   selectedSurvey: any = null;   // Holds the survey being taken
   showSurveyForm = false;
   defaultCover = "./default-cover.png";
+
+  approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
+  weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
+
 
   // Called when "Take Survey" button clicked
   openSurveyForm(survey?: any) {
@@ -190,86 +196,86 @@ export class Individual {
   //       }));
   //     });
   // }
-//   getLeaveBalance() {
-//   const year = new Date().getFullYear();
-//   const employeeId = Number(this.currentUserId);
+  //   getLeaveBalance() {
+  //   const year = new Date().getFullYear();
+  //   const employeeId = Number(this.currentUserId);
 
-//   this.leaveService.getLeaveBalance(employeeId, year)
-//     .subscribe((balances: any) => {
+  //   this.leaveService.getLeaveBalance(employeeId, year)
+  //     .subscribe((balances: any) => {
 
-//       const gender = this.employee?.gender?.toUpperCase() || '';
+  //       const gender = this.employee?.gender?.toUpperCase() || '';
 
-//       // Define required order
-//       const leaveOrder = ['CL', 'SL', 'EL', 'CO', 'RH', 'Maternity Leave', 'Paternity Leave'];
+  //       // Define required order
+  //       const leaveOrder = ['CL', 'SL', 'EL', 'CO', 'RH', 'Maternity Leave', 'Paternity Leave'];
 
-//       // Filter based on gender
-//       let filtered = balances.filter((b: any) => {
-//         if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
-//         if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
-//         return true;
-//       });
+  //       // Filter based on gender
+  //       let filtered = balances.filter((b: any) => {
+  //         if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
+  //         if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
+  //         return true;
+  //       });
 
-//       // Sort based on required order
-//       filtered.sort((a: any, b: any) => {
-//         return leaveOrder.indexOf(a.leaveType) - leaveOrder.indexOf(b.leaveType);
-//       });
+  //       // Sort based on required order
+  //       filtered.sort((a: any, b: any) => {
+  //         return leaveOrder.indexOf(a.leaveType) - leaveOrder.indexOf(b.leaveType);
+  //       });
 
-//       console.log('Filtered and Sorted Leave Balances:', filtered);
+  //       console.log('Filtered and Sorted Leave Balances:', filtered);
 
-//       // Map to UI format
-//       this.leaveByTypeToday = filtered.map((b: any) => ({
-//         label: b.leaveType,
-//         count: b.remaining,
-//         total: b.totalAllowed
-//       }));
-//     });
-// }
-getLeaveBalance() {
-  const year = new Date().getFullYear();
-  const employeeId = Number(this.currentUserId);
+  //       // Map to UI format
+  //       this.leaveByTypeToday = filtered.map((b: any) => ({
+  //         label: b.leaveType,
+  //         count: b.remaining,
+  //         total: b.totalAllowed
+  //       }));
+  //     });
+  // }
+  getLeaveBalance() {
+    const year = new Date().getFullYear();
+    const employeeId = Number(this.currentUserId);
 
-  this.leaveService.getLeaveBalance(employeeId, year)
-    .subscribe((balances: any) => {
+    this.leaveService.getLeaveBalance(employeeId, year)
+      .subscribe((balances: any) => {
 
-      // const gender = this.employee?.gender?.toUpperCase() || '';
-      const gender = localStorage.getItem('gender')?.toUpperCase() || '';
-      console.log('Employee Gender:', gender);
+        // const gender = this.employee?.gender?.toUpperCase() || '';
+        const gender = localStorage.getItem('gender')?.toUpperCase() || '';
+        console.log('Employee Gender:', gender);
 
 
-      // Correct order using DB values
-      const leaveOrder = [
-        'CL',
-        'SL',
-        'EL',
-        'CO',
-        'RH',
-        'Maternity Leave',
-        'Paternity Leave'
-      ];
+        // Correct order using DB values
+        const leaveOrder = [
+          'CL',
+          'SL',
+          'EL',
+          'CO',
+          'RH',
+          'Maternity Leave',
+          'Paternity Leave'
+        ];
 
-      // Filter based on gender
-      let filtered = balances.filter((b: any) => {
-        if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
-        if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
-        return true;
+        // Filter based on gender
+        let filtered = balances.filter((b: any) => {
+          if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
+          if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
+          return true;
+        });
+
+        // Sort based on order
+        filtered.sort((a: any, b: any) => {
+          const indexA = leaveOrder.indexOf(a.leaveType);
+          const indexB = leaveOrder.indexOf(b.leaveType);
+          return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+        });
+
+        console.log('Filtered and Sorted Leave Balances:', filtered);
+
+        this.leaveByTypeToday = filtered.map((b: any) => ({
+          label: b.leaveType,
+          count: b.remaining,
+          total: b.totalAllowed
+        }));
       });
-
-      // Sort based on order
-      filtered.sort((a: any, b: any) => {
-        const indexA = leaveOrder.indexOf(a.leaveType);
-        const indexB = leaveOrder.indexOf(b.leaveType);
-        return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
-      });
-
-      console.log('Filtered and Sorted Leave Balances:', filtered);
-
-      this.leaveByTypeToday = filtered.map((b: any) => ({
-        label: b.leaveType,
-        count: b.remaining,
-        total: b.totalAllowed
-      }));
-    });
-}
+  }
 
 
   loadToday(): void {
@@ -603,6 +609,25 @@ getLeaveBalance() {
   //   }
   // }
 
+  // setWeek(referenceDate: Date) {
+  //   const start = this.getMonday(referenceDate);
+  //   const end = new Date(start);
+  //   end.setDate(start.getDate() + 6);
+
+  //   this.weekStart = start;
+  //   this.weekEnd = end;
+
+  //   const employeeId = Number(this.currentUserId); // however you store the logged-in user
+  //   this.loadShiftName(employeeId);
+
+  //   this.attendanceService.getWeeklyAttendance(employeeId, start, end).subscribe({
+  //     next: (data) => {
+  //       this.rawAttendance = data;
+  //       this.buildAttendanceData(start);
+  //     },
+  //     error: (err) => console.error('Failed to fetch attendance', err)
+  //   });
+  // }
   setWeek(referenceDate: Date) {
     const start = this.getMonday(referenceDate);
     const end = new Date(start);
@@ -611,17 +636,41 @@ getLeaveBalance() {
     this.weekStart = start;
     this.weekEnd = end;
 
-    const employeeId = Number(this.currentUserId); // however you store the logged-in user
+    const employeeId = Number(this.currentUserId);
+
     this.loadShiftName(employeeId);
 
-    this.attendanceService.getWeeklyAttendance(employeeId, start, end).subscribe({
-      next: (data) => {
-        this.rawAttendance = data;
-        this.buildAttendanceData(start);
-      },
-      error: (err) => console.error('Failed to fetch attendance', err)
+    // load week offs for this month
+    const month = start.getMonth() + 1;
+    const year = start.getFullYear();
+
+    this.shiftService.getApprovedWeekOffs({
+      employeeId,
+      month,
+      year
+    }).subscribe(res => {
+      this.weekOffSource = res.source;
+
+      this.approvedWeekOffDates = new Set(
+        res.weekOffDates.map((d: string) => {
+          const x = new Date(d);
+          x.setHours(0, 0, 0, 0);
+          return x.toISOString().slice(0, 10);
+        })
+      );
+
+      // after week-off load → fetch attendance
+      this.attendanceService.getWeeklyAttendance(employeeId, start, end)
+        .subscribe({
+          next: (data) => {
+            this.rawAttendance = data;
+            this.buildAttendanceData(start);
+          },
+          error: (err) => console.error('Failed to fetch attendance', err)
+        });
     });
   }
+
 
   private buildAttendanceData(start: Date) {
     this.attendanceData = [];
@@ -634,14 +683,35 @@ getLeaveBalance() {
       );
 
       if (record) {
-        if (record.status === 'Present' && record.checkIn && record.checkOut) {
-          const total = this.calculateTotalHours(record.checkIn, record.checkOut);
+        // if (record.status === 'Present' && record.checkIn && record.checkOut) {
+        //   const total = this.calculateTotalHours(record.checkIn, record.checkOut);
+        //   this.attendanceData.push({
+        //     dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+        //     totalHours: total,
+        //               checkIn: this.formatTime(record.checkIn),
+        //   checkOut: this.formatTime(record.checkOut),
+        //     status: 'Present'
+        //   });
+        // }
+        if (record.status === 'Present' && record.checkIn) {
+
+          let total = '0 hrs 0 mins';
+          let checkOutTime: string | undefined;
+
+          if (record.checkOut) {
+            total = this.calculateTotalHours(record.checkIn, record.checkOut);
+            checkOutTime = this.formatTime(record.checkOut);
+          }
+
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
             totalHours: total,
+            checkIn: this.formatTime(record.checkIn),
+            checkOut: checkOutTime,
             status: 'Present'
           });
         }
+
         else {
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
@@ -649,11 +719,14 @@ getLeaveBalance() {
           });
         }
       } else {
+        const isWeekOff = this.isApprovedWeekOff(current);
+
         this.attendanceData.push({
           dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
-          status: current.getDay() === 0 ? 'Day Off' : 'Leave'
+          status: isWeekOff ? 'Day Off' : 'Leave'
         });
       }
+
     }
   }
 
@@ -841,7 +914,38 @@ getLeaveBalance() {
       this.leaveIndex -= this.visibleCount;
     }
   }
+  private stripTime(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
 
+  private isApprovedWeekOff(date: Date): boolean {
+    const key = this.stripTime(date).toISOString().slice(0, 10);
+
+    if (this.weekOffSource === 'MONTHLY_SHIFT') {
+      return this.approvedWeekOffDates.has(key);
+    }
+
+    // fallback → Sunday
+    return date.getDay() === 0;
+  }
+  formatTime(date: string | Date): string {
+    const d = new Date(date);
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+getTooltipText(day: AttendanceDay): string {
+  if (!day.checkIn) return '';
+
+  if (day.checkIn && day.checkOut) {
+    return `In: ${day.checkIn}\nOut: ${day.checkOut}`;
+  }
+
+  return `In: ${day.checkIn}`;
+}
 
 
 }

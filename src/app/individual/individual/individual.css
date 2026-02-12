@@ -21,6 +21,16 @@
   align-items: center;
 }
 
+.time .hours {
+  font-weight: 600;
+}
+
+.time .check {
+  font-size: 12px;
+  color: #666;
+}
+
+
 .part-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -544,7 +554,7 @@
 /* SINGLE ROW (Grid for perfect alignment) */
 .attendance-row {
   display: grid;
-  grid-template-columns: 100px 60px 1fr;
+  grid-template-columns: 116px 53px 1fr;
   /* Day | Dash | Value */
   justify-content: center;
   align-items: center;

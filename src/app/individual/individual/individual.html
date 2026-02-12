@@ -250,11 +250,17 @@
 
                         <div class="attendance-list">
                             <div *ngFor="let day of attendanceData" class="attendance-row">
-                                <div class="day">{{ day.dayName }}</div>
+
+                                <div class="day">
+                                    {{ day.dayName }}
+                                    <i *ngIf="day.checkIn" class="pi pi-info-circle info-icon"
+                                        pTooltip="{{ getTooltipText(day) }}" tooltipPosition="top">
+                                    </i>
+                                </div>
                                 <div class="dash">-</div>
                                 <ng-container [ngSwitch]="day.status">
                                     <div class="time" *ngSwitchCase="'Present'">
-                                        {{ day.totalHours || '0 hrs 0 mins' }}
+                                        {{ day.totalHours || '-' }}
                                     </div>
                                     <div class="status leave" *ngSwitchCase="'Leave'">Leave</div>
                                     <div class="status off" *ngSwitchCase="'Day Off'">Day Off</div>
