@@ -34,6 +34,7 @@ interface individual {
 
 interface AttendanceDay {
   dayName: string;
+  date?: Date;     
   totalHours?: string;
   checkIn?: string;
   checkOut?: string;
@@ -705,6 +706,7 @@ export class Individual {
 
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+            date: current,  
             totalHours: total,
             checkIn: this.formatTime(record.checkIn),
             checkOut: checkOutTime,
@@ -715,6 +717,7 @@ export class Individual {
         else {
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+            date: current,  
             status: record.status
           });
         }
@@ -723,6 +726,7 @@ export class Individual {
 
         this.attendanceData.push({
           dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+          date: current,  
           status: isWeekOff ? 'Day Off' : 'Leave'
         });
       }
@@ -940,12 +944,21 @@ export class Individual {
 getTooltipText(day: AttendanceDay): string {
   if (!day.checkIn) return '';
 
+  const dateText = day.date
+    ? new Date(day.date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
+    : '';
+
   if (day.checkIn && day.checkOut) {
-    return `In: ${day.checkIn}\nOut: ${day.checkOut}`;
+    return `${dateText}\nIn: ${day.checkIn}\nOut: ${day.checkOut}`;
   }
 
-  return `In: ${day.checkIn}`;
+  return `${dateText}\nIn: ${day.checkIn}`;
 }
+
 
 
 }
