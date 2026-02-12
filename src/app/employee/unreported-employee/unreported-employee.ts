@@ -21,7 +21,7 @@ export class UnreportedEmployee {
   departments: any[] = [];
   loading: boolean = false;
 
-  constructor(private absentService: Employees, private departmentService: Departments) {}
+  constructor(private absentService: Employees, private departmentService: Departments) { }
 
   ngOnInit() {
     this.loadAbsent();
@@ -56,7 +56,7 @@ export class UnreportedEmployee {
       next: (res) => {
         this.loading = false;
         const list = res ?? [];  // <-- safe fallback
-  
+
         this.absentList = list.map((emp: any) => ({
           employeeCode: emp.employeeCode,
           name: emp.name,
@@ -65,7 +65,9 @@ export class UnreportedEmployee {
           shiftEndTime: emp.shiftEndTime || 'N/A',
           shiftStartTime: emp.shiftStartTime || 'N/A',
           departmentId: emp.departmentId || 0,
-          status: 'Absent'
+          status: 'Absent',
+          gender: emp.employee?.gender,
+          photoUrl: emp.employee?.photoUrl
         }));
       },
       error: (err) => {
@@ -73,10 +75,10 @@ export class UnreportedEmployee {
         this.loading = false;
       }
     });
-  
+
   }
 
-    getDefaultImage(gender?: string | null): string {
+  getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'

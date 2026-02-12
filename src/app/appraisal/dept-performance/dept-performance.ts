@@ -154,42 +154,45 @@ export class DeptPerformance {
   }
 
   loadSummaries() {
-    this.loading = true
+    this.loading = true;
+
     this.performanceService.getSummaries().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
+
+        let filtered = data || [];
+
         if (this.role === 'HR Manager' || this.role === 'Management') {
-          this.summaries = data;
-        } else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
-          // HR sees all OTHER departments except HR department
-          this.summaries = (data || []).filter(
-            (a: any) => a?.departmentId !== 1
-          );
+          filtered = data;
+        }
+        else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
+          filtered = data.filter((a: any) => a?.departmentId !== 1);
         }
         else if (this.role === 'Reporting Manager') {
-          this.summaries = (data || []).filter(
+          filtered = data.filter(
             (a: any) => a.employee?.reportingManager === Number(this.loggedEmployeeId)
           );
-
         }
+
+        this.summaries = filtered.map(s => ({
+          ...s,
+          gender: s.employee?.gender,
+          photoUrl: s.employee?.photoUrl
+        }));
+
         this.filteredSummaries = [...this.summaries];
-        console.log('Loaded summaries:', this.filteredSummaries);
+        this.loading = false;
       },
       error: () => {
-        // alert('Error loading appraisals');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error loading appraisals'
+          detail: 'Error loading performance summaries'
         });
-        this.loading = false
+        this.loading = false;
       }
     });
-    setTimeout(() => {
-      this.filteredSummaries = [...this.summaries];
-      this.loading = false; // 👈 stop loading
-    }, 800);
-
   }
+
 
   loadEmployees() {
     this.employeeService.getActiveEmployees().subscribe(res => this.employees = res);
@@ -252,7 +255,7 @@ export class DeptPerformance {
     this.selectedform = null;
   }
 
-      getDefaultImage(gender?: string | null): string {
+  getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'

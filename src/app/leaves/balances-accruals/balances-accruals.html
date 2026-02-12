@@ -38,7 +38,7 @@
             <ng-template pTemplate="header">
                 <tr>
                     <th>No</th>
-                    <th>Emp ID</th>
+                    <!-- <th>Emp ID</th> -->
                     <th>Employee Name</th>
                     <th>Phone Number</th>
                     <th>Department</th>
@@ -56,7 +56,7 @@
                 <ng-container *ngIf="loading; else dataRow">
                     <tr>
                         <td><p-skeleton width="2rem"></p-skeleton></td>
-                        <td><p-skeleton width="4rem"></p-skeleton></td>
+                        <!-- <td><p-skeleton width="4rem"></p-skeleton></td> -->
 
                         <td>
                             <div class="profile-skeleton">
@@ -81,12 +81,18 @@
                 <ng-template #dataRow>
                     <tr>
                         <td class="t-data al">{{ rowIndex + 1 }}</td>
-                        <td class="t-data al">{{ balancesData.employeeCode }}</td>
+                        
                         <td class="empname">
-                            <img class="image" src="/img.png" alt="" />
+                            <img *ngIf="balancesData.photoUrl; else defaultPhoto" [src]="balancesData.photoUrl"
+                                alt="Profile" />
+                            <ng-template #defaultPhoto>
+                                <img style="background-color: white;" [src]="getDefaultImage(balancesData?.gender)"
+                                    alt="Default Profile" />
+                            </ng-template>
                             <div>
                                 <div class="name">{{ balancesData.name }}</div>
-                                <span class="email">{{ balancesData.email }}</span>
+                                <span class="email">{{ balancesData.employeeCode }}</span>
+                                <!-- <span class="email">{{ balancesData.email }}</span> -->
                             </div>
                         </td>
                         <td class="t-data al">{{ balancesData.phone }}</td>

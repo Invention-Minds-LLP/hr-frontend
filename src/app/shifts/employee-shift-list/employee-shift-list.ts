@@ -11,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
 import { Shifts } from '../../services/shifts/shifts';
 import { CardModule } from 'primeng/card';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-employee-shift-list',
@@ -25,6 +26,7 @@ import { CardModule } from 'primeng/card';
     TagModule,
     InputTextModule,
     CardModule,
+    SkeletonModule
   ],
   templateUrl: './employee-shift-list.html',
   styleUrl: './employee-shift-list.css',
@@ -33,6 +35,7 @@ export class EmployeeShiftList {
   shifts: any[] = [];
   filtered: any[] = [];
 
+  loading = true;
   search = '';
   fromDate!: Date;
   toDate!: Date;
@@ -46,6 +49,7 @@ export class EmployeeShiftList {
   constructor(private shiftService: Shifts) { }
 
   ngOnInit() {
+    this.loading = true;
     this.load();
 
     // this.shiftService.getShiftTemplates().subscribe(res => {
@@ -55,7 +59,9 @@ export class EmployeeShiftList {
       this.shiftOptions = res.map((s: any) => ({
         ...s,
         label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+
       }));
+      this.loading = false;
     });
     this.shiftService.getRotationPatterns().subscribe(res => {
       this.rotationPatterns = res;
@@ -70,6 +76,19 @@ export class EmployeeShiftList {
     });
   }
 
+  // load() {
+  //   const params: any = {};
+  //   if (this.fromDate && this.toDate) {
+  //     params.from = this.fromDate.toISOString().slice(0, 10);
+  //     params.to = this.toDate.toISOString().slice(0, 10);
+  //   }
+
+  //   this.shiftService.getEmployeeShifts(params).subscribe(res => {
+  //     this.shifts = res;
+  //     this.filtered = res;
+  //   });
+  // }
+
   load() {
     const params: any = {};
     if (this.fromDate && this.toDate) {
@@ -78,10 +97,16 @@ export class EmployeeShiftList {
     }
 
     this.shiftService.getEmployeeShifts(params).subscribe(res => {
-      this.shifts = res;
-      this.filtered = res;
+      this.shifts = (res || []).map((r: any) => ({
+        ...r,
+        gender: r.employee?.gender,
+        photoUrl: r.employee?.photoUrl
+      }));
+
+      this.filtered = [...this.shifts];
     });
   }
+
 
   applyFilter() {
     const val = this.search.toLowerCase();
@@ -252,7 +277,7 @@ export class EmployeeShiftList {
     }));
   }
 
-   getDefaultImage(gender?: string | null): string {
+  getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'

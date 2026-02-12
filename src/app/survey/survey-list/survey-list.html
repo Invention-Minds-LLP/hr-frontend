@@ -29,7 +29,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
-        <th>Employee ID</th>
+        <!-- <th>Employee ID</th> -->
         <th>Employee Name</th>
         <th>Department</th>
         <th>Assigned Date</th>
@@ -55,7 +55,7 @@
       <!-- Actual data rows when not loading -->
       <tr *ngIf="!loading">
         <td>{{ i + 1 }}</td>
-        <td>{{ survey.employee.employeeCode }}</td>
+        
         <td class="empname">
           <img *ngIf="survey.photoUrl; else defaultPhoto" [src]="survey.photoUrl" alt="Profile" />
           <ng-template #defaultPhoto>
@@ -64,6 +64,7 @@
           <div>
             <div class="name">{{ survey.employee.firstName }} {{ survey.employee.lastName }}</div>
             <!-- <span class="email">{{ survey.email || 'No Email' }}</span> -->
+             <td>{{ survey.employee.employeeCode }}</td>
 
           </div>
         </td>

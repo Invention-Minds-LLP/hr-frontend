@@ -1032,3 +1032,7 @@ section {
   font-size: 12px;
   color: #a1a1a1;
 }
+/* :host ::ng-deep .p-skeleton {
+  animation-duration: 3.5s;
+} */
+

@@ -44,18 +44,34 @@ export class SurveyList {
 
   ngOnInit() {
     this.loading = true
-    this.surveyApi.getAllSurveys().subscribe({
-      next: (res) => {
-        this.surveys = res;
-        this.filterSurveyData = [...this.surveys]
-        setTimeout(() => {
-          this.loading = false
-        }, 2000)
+    // this.surveyApi.getAllSurveys().subscribe({
+    //   next: (res) => {
+    //     this.surveys = res;
+    //     this.filterSurveyData = [...this.surveys]
+    //     setTimeout(() => {
+    //       this.loading = false
+    //     }, 2000)
 
+    //   },
+    //   error: (err) => {
+    //     console.error('Error fetching surveys:', err);
+    //     this.loading = false
+    //   },
+    // });
+    this.surveyApi.getAllSurveys().subscribe({
+      next: (res: any[]) => {
+        this.surveys = (res || []).map(s => ({
+          ...s,
+          gender: s.employee?.gender,
+          photoUrl: s.employee?.photoUrl
+        }));
+
+        this.filterSurveyData = [...this.surveys];
+        this.loading = false;
       },
       error: (err) => {
         console.error('Error fetching surveys:', err);
-        this.loading = false
+        this.loading = false;
       },
     });
     document.addEventListener('click', this.handleOutsideClick);
@@ -151,7 +167,7 @@ export class SurveyList {
     }
   }
 
-   getDefaultImage(gender?: string | null): string {
+  getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'

@@ -168,7 +168,9 @@ export class LeaveRequest {
             inchargeId: leave.employee?.inchargeId ?? null,
             inChargeDecision: leave.inChargeDecision ?? 'PENDING',
             isHalfDay: leave.isHalfDay,
-            halfDaySession: leave.halfDaySession
+            halfDaySession: leave.halfDaySession,
+            gender: leave.employee?.gender,
+            photoUrl: leave.employee?.photoUrl
           }
         });
         // Only pending rows are actionable in this screen
@@ -550,5 +552,12 @@ export class LeaveRequest {
   closePopup() {
     this.showLeaveDetailsPopup = false;
     this.loadLeaves()
+  }
+
+  getDefaultImage(gender?: string | null): string {
+    const g = gender?.toUpperCase?.() || 'MALE';
+    return g === 'FEMALE'
+      ? '/img-women.png'
+      : '/img.png';
   }
 }
