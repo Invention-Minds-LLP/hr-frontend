@@ -17,6 +17,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-resignation-list',
@@ -36,7 +38,10 @@ export class ResignationList {
 
   filteredRows: any[] = []
   showFilterDropdown = false
-  selectedFilter: any = null
+  selectedFilter: any = null;
+  noteSubmitting = false;
+  approveSubmitting = false;
+
 
   filterOptions = [
     { label: 'Name', value: 'name' },
@@ -58,6 +63,10 @@ export class ResignationList {
   noteDialogAction: any = null;
   noteText = '';
   currentRecord: any = null;
+  // buttonLoading: Record<number, boolean> = {};
+  buttonLoading: Record<string, boolean> = {};
+
+
 
 
   constructor(private api: Resignation, private dept: Departments) { }
@@ -118,7 +127,7 @@ export class ResignationList {
   //   }, 2000)
   // }
 
-   loadResignations() {
+  loadResignations() {
     const mapRows = (list: any[]) =>
       (list || []).map(r => ({
         ...r,
@@ -149,19 +158,46 @@ export class ResignationList {
       this.loading = false;
     }, 2000);
   }
+  // approveManager(r: any) {
+  //   this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));
+  // }
   approveManager(r: any) {
-    this.api.managerApprove(r.id, {}).subscribe(upd => this.replace(upd));
+    const key = `managerApprove-${r.id}`;
+    this.setLoading(key, true);
+    // this.setLoading(r.id, true);
+    this.api.managerApprove(r.id, {}).subscribe({
+      next: upd => this.replace(upd),
+      error: () => { },
+      complete: () => this.setLoading(key, false)
+    });
   }
+
   // rejectManager(r: any) {
   //   const note = prompt('Rejection reason?') || '';
   //   this.api.managerReject(r.id, { note }).subscribe(upd => this.replace(upd));
   // }
-  rejectManager(r: any) {
-    this.openNoteDialog(r, "Manager Rejection Reason", (id: number, note: string) => {
-      this.api.managerReject(id, { note })
-        .subscribe(upd => this.replace(upd));
+  // rejectManager(r: any) {
+  //   this.openNoteDialog(r, "Manager Rejection Reason", (id: number, note: string) => {
+  //     this.api.managerReject(id, { note })
+  //       .subscribe(upd => this.replace(upd));
+  //   });
+  // }
+
+rejectManager(r: any) {
+  this.openNoteDialog(r, "Manager Rejection Reason", (id: number, note: string) => {
+    const key = `managerReject-${id}`;
+    this.setLoading(key, true);
+
+    this.api.managerReject(id, { note }).subscribe({
+      next: upd => this.replace(upd),
+      complete: () => this.setLoading(key, false)
     });
-  }
+  });
+}
+
+
+
+
 
   approveHR(r: any) {
     const lwd = prompt('Actual Last Working Day (yyyy-mm-dd)? Leave blank to keep proposed.') || '';
@@ -171,16 +207,39 @@ export class ResignationList {
   //   const note = prompt('Rejection reason?') || '';
   //   this.api.hrReject(r.id, { note }).subscribe(upd => this.replace(upd));
   // }
-  rejectHR(r: any) {
-    this.openNoteDialog(r, "HR Rejection Reason", (id: number, note: string) => {
-      this.api.hrReject(id, { note })
-        .subscribe(upd => this.replace(upd));
-    });
-  }
+  // rejectHR(r: any) {
+  //   this.openNoteDialog(r, "HR Rejection Reason", (id: number, note: string) => {
+  //     this.api.hrReject(id, { note })
+  //       .subscribe(upd => this.replace(upd));
+  //   });
+  // }
+rejectHR(r: any) {
+  this.openNoteDialog(r, "HR Rejection Reason", (id: number, note: string) => {
+    const key = `hrReject-${id}`;
+    this.setLoading(key, true);
 
-  cancelHR(r: any) {
-    this.api.hrCancel(r.id).subscribe(upd => this.replace(upd));
-  }
+    return this.api.hrReject(id, { note }).pipe(
+      finalize(() => this.setLoading(key, false))
+    ).subscribe(upd => this.replace(upd));
+  });
+}
+
+
+  // cancelHR(r: any) {
+  //   this.api.hrCancel(r.id).subscribe(upd => this.replace(upd));
+  // }
+
+cancelHR(r: any) {
+  const key = `hrCancel-${r.id}`;
+  this.setLoading(key, true);
+
+  this.api.hrCancel(r.id).subscribe({
+    next: upd => this.replace(upd),
+    complete: () => this.setLoading(key, false)
+  });
+}
+
+
 
   openApprovePopup(r: any) {
     this.selectedRecord = r;
@@ -188,24 +247,92 @@ export class ResignationList {
     this.showApprovePopup = true;
   }
 
-  submitHRApproval() {
-    if (!this.selectedRecord) return;
+  // submitHRApproval() {
+  //   if (!this.selectedRecord) return;
 
-    const payload = {
-      actualLastWorkingDay: this.selectedLwd
-        ? this.selectedLwd.toISOString().split('T')[0] // gives "yyyy-mm-dd"
-        : undefined,
-    };
+  //   const id = this.selectedRecord.id;
+  //   this.setLoading(id, true);
+
+  //   const payload = {
+  //     // actualLastWorkingDay: this.selectedLwd
+  //     //   ? this.selectedLwd.toISOString().split('T')[0] // gives "yyyy-mm-dd"
+  //     //   : undefined,
+  //     actualLastWorkingDay: this.selectedLwd
+  //       ? this.formatDate(this.selectedLwd)
+  //       : undefined,
+
+  //   };
 
 
-    this.api.hrApprove(this.selectedRecord.id, payload).subscribe({
-      next: (upd) => {
-        this.replace(upd);
-        this.showApprovePopup = false;
-      },
-      error: (err) => console.error(err),
-    });
-  }
+  //   // this.api.hrApprove(this.selectedRecord.id, payload).subscribe({
+  //   //   next: (upd) => {
+  //   //     this.replace(upd);
+  //   //     this.showApprovePopup = false;
+  //   //   },
+  //   //   error: (err) => console.error(err),
+  //   // });
+  //   this.api.hrApprove(this.selectedRecord.id, payload).subscribe({
+  //     next: upd => {
+  //       this.replace(upd);
+  //       this.showApprovePopup = false;
+  //     },
+  //     error: () => { },
+  //     complete: () => this.setLoading(this.selectedRecord.id, false)
+  //   });
+  // }
+
+// submitHRApproval() {
+//   if (!this.selectedRecord) return;
+
+//   const id = this.selectedRecord.id;
+//   const key = `hrApprove-${id}`;
+
+//   this.setLoading(key, true);
+
+//   const payload = {
+//     actualLastWorkingDay: this.selectedLwd
+//       ? this.formatDate(this.selectedLwd)
+//       : undefined,
+//   };
+
+//   this.api.hrApprove(id, payload).subscribe({
+//     next: upd => {
+//       this.replace(upd);
+//       this.showApprovePopup = false;
+//     },
+//     complete: () => this.setLoading(key, false)
+//   });
+// }
+submitHRApproval() {
+  if (!this.selectedRecord) return;
+
+  const id = this.selectedRecord.id;
+  const key = `hrApprove-${id}`;
+
+  this.approveSubmitting = true;   // ← add this
+  this.setLoading(key, true);
+
+  const payload = {
+    actualLastWorkingDay: this.selectedLwd
+      ? this.formatDate(this.selectedLwd)
+      : undefined,
+  };
+
+  this.api.hrApprove(id, payload).subscribe({
+    next: upd => {
+      this.replace(upd);
+      this.showApprovePopup = false;
+    },
+    error: () => {},
+    complete: () => {
+      this.approveSubmitting = false;   // ← add this
+      this.setLoading(key, false);
+    }
+  });
+}
+
+
+
 
   private replace(upd: any) {
     this.rows = this.rows.map(x => x.id === upd.id ? upd : x);
@@ -228,12 +355,24 @@ export class ResignationList {
   //   const note = prompt('Reason for putting on hold?') || '';
   //   this.api.hrHold(r.id, { note }).subscribe(upd => this.replace(upd));
   // }
-  holdHR(r: any) {
-    this.openNoteDialog(r, "Put Resignation On Hold", (id: number, note: string) => {
-      this.api.hrHold(id, { note })
-        .subscribe(upd => this.replace(upd));
-    });
-  }
+  // holdHR(r: any) {
+  //   this.openNoteDialog(r, "Put Resignation On Hold", (id: number, note: string) => {
+  //     this.api.hrHold(id, { note })
+  //       .subscribe(upd => this.replace(upd));
+  //   });
+  // }
+holdHR(r: any) {
+  this.openNoteDialog(r, "Put Resignation On Hold", (id: number, note: string) => {
+    const key = `hrHold-${id}`;
+    this.setLoading(key, true);
+
+    return this.api.hrHold(id, { note }).pipe(
+      finalize(() => this.setLoading(key, false))
+    ).subscribe(upd => this.replace(upd));
+  });
+}
+
+
 
   dialogOpen: Record<number, boolean> = {};
 
@@ -245,12 +384,24 @@ export class ResignationList {
   //   this.api.hrApproveWithdraw(r.id, { note, approvedBy: this.employeeId })
   //     .subscribe(upd => this.replace(upd));
   // }
-  approveWithdrawHR(r: any) {
-    this.openNoteDialog(r, "Approve Withdraw – Optional Note", (id: number, note: string) => {
-      this.api.hrApproveWithdraw(id, { note, approvedBy: this.employeeId })
-        .subscribe(upd => this.replace(upd));
-    });
-  }
+  // approveWithdrawHR(r: any) {
+  //   this.openNoteDialog(r, "Approve Withdraw – Optional Note", (id: number, note: string) => {
+  //     this.api.hrApproveWithdraw(id, { note, approvedBy: this.employeeId })
+  //       .subscribe(upd => this.replace(upd));
+  //   });
+  // }
+approveWithdrawHR(r: any) {
+  this.openNoteDialog(r, "Approve Withdraw – Optional Note", (id: number, note: string) => {
+    const key = `approveWithdraw-${id}`;
+    this.setLoading(key, true);
+
+    return this.api.hrApproveWithdraw(id, { note, approvedBy: this.employeeId }).pipe(
+      finalize(() => this.setLoading(key, false))
+    ).subscribe(upd => this.replace(upd));
+  });
+}
+
+
 
   // rejectWithdrawHR(r: any) {
   //   const note = prompt('Reason for rejecting withdraw?') || '';
@@ -258,12 +409,24 @@ export class ResignationList {
   //     .subscribe(upd => this.replace(upd));
   // }
 
-  rejectWithdrawHR(r: any) {
-    this.openNoteDialog(r, "Reject Withdraw – Reason", (id: number, note: string) => {
-      this.api.hrRejectWithdraw(id, { note, rejectedBy: this.employeeId })
-        .subscribe(upd => this.replace(upd));
-    });
-  }
+  // rejectWithdrawHR(r: any) {
+  //   this.openNoteDialog(r, "Reject Withdraw – Reason", (id: number, note: string) => {
+  //     this.api.hrRejectWithdraw(id, { note, rejectedBy: this.employeeId })
+  //       .subscribe(upd => this.replace(upd));
+  //   });
+  // }
+rejectWithdrawHR(r: any) {
+  this.openNoteDialog(r, "Reject Withdraw – Reason", (id: number, note: string) => {
+    const key = `rejectWithdraw-${id}`;
+    this.setLoading(key, true);
+
+    return this.api.hrRejectWithdraw(id, { note, rejectedBy: this.employeeId }).pipe(
+      finalize(() => this.setLoading(key, false))
+    ).subscribe(upd => this.replace(upd));
+  });
+}
+
+
 
 
 
@@ -327,14 +490,38 @@ export class ResignationList {
     this.noteText = '';
     this.noteDialogVisible = true;
   }
+  // submitNoteDialog() {
+  //   if (!this.noteDialogAction || !this.currentRecord) return;
+
+  //   this.noteDialogAction(this.currentRecord.id, this.noteText);
+
+  //   this.noteDialogVisible = false;
+  //   this.noteText = '';
+  // }
   submitNoteDialog() {
     if (!this.noteDialogAction || !this.currentRecord) return;
 
-    this.noteDialogAction(this.currentRecord.id, this.noteText);
+    this.noteSubmitting = true;
 
-    this.noteDialogVisible = false;
-    this.noteText = '';
+    const done = () => {
+      this.noteSubmitting = false;
+      this.noteDialogVisible = false;
+      this.noteText = '';
+    };
+
+    const result = this.noteDialogAction(this.currentRecord.id, this.noteText);
+
+    // if it returns observable
+    if (result?.subscribe) {
+      result.subscribe({
+        complete: done,
+        error: done
+      });
+    } else {
+      done();
+    }
   }
+
 
   getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
@@ -342,5 +529,27 @@ export class ResignationList {
       ? '/img-women.png'
       : '/img.png';
   }
+  formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  // setLoading(id: number, state: boolean) {
+  //   this.buttonLoading[id] = state;
+  // }
+  // isLoading(id: number) {
+  //   return !!this.buttonLoading[id];
+  // }
+  setLoading(key: string, state: boolean) {
+    this.buttonLoading[key] = state;
+  }
 
+  isLoading(key: string) {
+    return !!this.buttonLoading[key];
+  }
+isManagerOf(r: any): boolean {
+  console.log(r.managerId === this.employeeId)
+  return r.managerId === this.employeeId;
+}
 }

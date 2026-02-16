@@ -1,70 +1,194 @@
-<div class="history">
+<div class="attendance">
     <div class="header">
-        <div class="heading">Attendance History</div>
         <div class="flex">
-            <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
-            </p-iconfield>
-            <div class="" (click)="toggleDropdown()">
-                <i class="pi pi-align-center"><span class="filter">Filter</span></i>
-                <ul class="menu-list" *ngIf="filterDropdown">
-                    <li class="list" *ngFor="let option of filterOption"
+            <!-- Filter -->
+            <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
+                <i class="pi pi-filter"></i>
+
+                <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
+                    <li class="list" *ngFor="let option of filterOptions"
                         (click)="selectFilter(option); $event.stopPropagation()"
-                        [ngClass]="{'active': selectedFilter?.value === option.value}">{{ option.label }}</li>
+                        [ngClass]="{ active: selectedFilter?.value === option.value }">
+                        {{ option.label }}
+                    </li>
                 </ul>
             </div>
+
+            <!-- Search -->
+            <p-iconfield>
+                <p-inputicon class="pi pi-search"></p-inputicon>
+                <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
+            </p-iconfield>
+            <!-- Calendar + Button -->
+            <p-datepicker [(ngModel)]="selectedDate" dateFormat="yy-mm-dd" [showIcon]="true"
+                class="bg-white border-round-sm" appendTo="body" (onSelect)="loadAttendance()">
+            </p-datepicker>
+            <button class="export-btn" (click)="openExportDialog()">
+                Export Register
+            </button>
+
+
         </div>
-    </div>
 
+    </div>
     <div class="table">
-        <p-table class="" [value]="filterHistoryData" [paginator]="true" [rows]="10" class="custom-table">
-            <ng-template #header>
-                <tr>
-                    <th>No</th>
-                    <th>Emp ID</th>
-                    <th>Employee Name</th>
-                    <th>Phone Number</th>
-                    <th>Department</th>
-                    <th>Job Title</th>
-                    <th>Employment Type</th>
-                    <th>Shift Type</th>
-                    <th>Leave Details</th>
-                    <th>Action</th>
-                </tr>
-            </ng-template>
-            <ng-template #body let-historyData let-rowIndex="rowIndex">
-                <tr>
-                    <td class="t-data al">{{ rowIndex + 1 }}</td>
-                    <td class="t-data al">{{ historyData.empId }}</td>
-                    <td class="empname">
-                        <img src="/img.png" alt="">
-                        <div class="">
-                            <div class="name">{{ historyData.empName }}</div>
-                            <span class="email">{{historyData.email}}</span>
-                        </div>
-                    </td>
-                    <td class="t-data al">{{ historyData.phoneNumber }}</td>
-                    <td class="t-data al">
-                        <span class="dept-badge" [ngClass]="getDeptClass(historyData.department)">
-                            <span class="dot"
-                                [ngStyle]="{ backgroundColor: getDotColor(historyData.department) }"></span>
-                            {{ historyData.department }}
-                        </span>
-                    </td>
+        <ng-container *ngIf="loading; else attendanceTable">
+            <p-table [value]="[1,2,3,4,5]">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            *ngFor="let h of ['No','Name','Emp ID','Department','Title','Type','Phone','Status','Action']">
+                            {{ h }}
+                        </th>
+                    </tr>
+                </ng-template>
 
-                    <td class="t-data al">{{ historyData.jobTitle }}</td>
-                    <td class="t-data al">{{ historyData.empType }}</td>
-                    <td class="t-data al">{{ historyData.shiftType }}</td>
-                    <td class="t-data al">{{ historyData.leaveDetails }}</td>
+                <ng-template pTemplate="body">
+                    <tr>
+                        <td><p-skeleton width="2rem"></p-skeleton></td>
 
-                    <td>
-                        <button class="btn">See Details</button>
-                    </td>
+                        <td>
+                            <div class="profile-skeleton">
+                                <p-skeleton shape="circle" size="3rem"></p-skeleton>
+                                <div>
+                                    <p-skeleton width="90px"></p-skeleton>
+                                    <p-skeleton width="60px"></p-skeleton>
+                                </div>
+                            </div>
+                        </td>
 
-                </tr>
-            </ng-template>
-        </p-table>
+                        <td><p-skeleton width="70px"></p-skeleton></td>
+                        <td><p-skeleton width="90px"></p-skeleton></td>
+                        <td><p-skeleton width="100px"></p-skeleton></td>
+                        <td><p-skeleton width="80px"></p-skeleton></td>
+                        <td><p-skeleton width="80px"></p-skeleton></td>
+                        <td><p-skeleton width="80px"></p-skeleton></td>
+                        <td><p-skeleton width="80px"></p-skeleton></td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </ng-container>
 
+        <ng-template #attendanceTable>
+            <p-table [value]="filteredAttendanceData" [paginator]="true" [rows]="10">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>No</th>
+                        <th>Employee Name</th>
+                        <!-- <th>Emp ID</th> -->
+                        <th>Department</th>
+                        <!-- <th>Job Title</th> -->
+                        <!-- <th>Employment Type</th> -->
+                        <!-- <th>Phone</th> -->
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Hours</th>
+                        <th>Login</th>
+                        <th>Logout</th>
+                        <th>Status</th>
+                        <!-- <th>Action</th> -->
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                    <tr>
+                        <td>{{ rowIndex + 1 }}</td>
+
+                        <td class="empname">
+                            <img *ngIf="data.photoUrl; else defaultPhoto" [src]="data.photoUrl" />
+                            <ng-template #defaultPhoto>
+                                <img [src]="getDefaultImage(data?.gender)" />
+                            </ng-template>
+                            <div>
+                                <div class="name">{{ data.empName }}</div>
+                                <div class="email">{{ data.empId }}</div>
+                            </div>
+                        </td>
+
+                        <!-- <td>{{ data.empId }}</td> -->
+
+                        <td>
+                            <span class="dept-badge" [ngStyle]="{
+                  backgroundColor: getDepartmentColors(data.departmentId).badgeColor}">
+                                <span class="dot" [ngStyle]="{
+                    backgroundColor: getDepartmentColors(data.departmentId).dotColor}"></span>
+                                {{ getDepartmentName(data.departmentId) }}
+                            </span>
+                        </td>
+                        <td>{{ data.checkIn | date:'shortTime' }}</td>
+                        <td>{{ data.checkOut | date:'shortTime' }}</td>
+                        <td>{{ data.workingHours }}h</td>
+                        <td>{{ data.loginFlag || '-' }}</td>
+                        <td>{{ data.logoutFlag || '-' }}</td>
+
+
+                        <!-- <td>{{ data.jobTitle }}</td> -->
+                        <!-- <td>{{ data.empType }}</td> -->
+                        <!-- <td>{{ data.phoneNumber }}</td> -->
+
+                        <!-- STATUS -->
+                        <td>
+                            <button [ngClass]="getStatusClass(data.status)" disabled>
+                                {{ getDisplayStatus(data.status) }}
+                            </button>
+                        </td>
+
+                        <!-- ACTION -->
+                        <!-- <td>
+                            <div class="btns" *ngIf="data.status === 'ON_HOLD' || data.status === 'IN_PROGRESS'">
+                                <button class="btn-1 btn" (click)="approve(data)">
+                                    Approve
+                                </button>
+                                <button class="btn-2 btn" (click)="reject(data)">
+                                    Reject
+                                </button>
+                            </div>
+                        </td> -->
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="9" class="no-data-message">
+                            No attendance records found.
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </ng-template>
     </div>
+
 </div>
+
+<p-dialog
+  header="Export Attendance Register"
+  [(visible)]="showExportDialog"
+  [modal]="true"
+  [style]="{ width: '350px' }"
+>
+
+  <div class="export-content">
+    <label>Select Month</label>
+
+    <p-datepicker
+      [(ngModel)]="selectedExportMonth"
+      view="month"
+      appendTo="body"
+      dateFormat="yy-mm"
+      [showIcon]="true">
+    </p-datepicker>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="btn btn-secondary" (click)="showExportDialog=false">
+      Cancel
+    </button>
+
+    <button class="btn btn-primary" (click)="exportMonthlyRegister()">
+      Export
+    </button>
+  </ng-template>
+
+</p-dialog>

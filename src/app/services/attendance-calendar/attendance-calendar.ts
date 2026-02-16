@@ -18,7 +18,7 @@ export class AttendanceCalendar {
   private baseUrl = environment.apiUrl + '/attendance';
   // private baseUrl = 'http://localhost:3002/api/attendance-calendar';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getCalendarData(employeeId: number, month: string): Observable<CalendarEventData[]> {
     return this.http.get<CalendarEventData[]>(`${this.baseUrl}/${employeeId}?month=${month}`);
@@ -40,22 +40,40 @@ export class AttendanceCalendar {
   //   });
   // }
   approveAttendance(
-  attendanceId: number | null,
-  decision: string,
-  hrId: number,
-  reason?: string,
-  date?: Date,
-  employeeId?: number
-) {
-  return this.http.post(`${this.baseUrl}/approve`, {
-    attendanceId,
-    decision,
-    hrId,
-    rejectReason: reason,
-    date,
-    employeeId
-  });
+    attendanceId: number | null,
+    decision: string,
+    hrId: number,
+    reason?: string,
+    date?: Date,
+    employeeId?: number
+  ) {
+    return this.http.post(`${this.baseUrl}/approve`, {
+      attendanceId,
+      decision,
+      hrId,
+      rejectReason: reason,
+      date,
+      employeeId
+    });
+  }
+  getAttendance(): Observable<any[]> {
+    return this.http.get<any[]>(this.baseUrl);
+  }
+
+  getTodayAttendance() {
+    return this.http.get<any[]>(`${this.baseUrl}/today`);
+  }
+
+getAttendanceHistory(date: string) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/history?date=${date}`
+  );
+}
+getMonthlyRegister(month: string) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/register?month=${month}`
+  );
 }
 
-  
+
 }

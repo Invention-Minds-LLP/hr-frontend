@@ -86,7 +86,7 @@ button.ghost {
 }
 
 /* Body Rows */
-::ng-deep .card .p-datatable .p-datatable-tbody>tr>td {
+::ng-deep .card .p-datatable .p-datatable-tbody > tr > td {
   background: #000 !important;
   padding: 16px 20px;
   font-size: 16px;

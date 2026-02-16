@@ -14,7 +14,7 @@ import { LoginCreation } from "../login-creation/login-creation";
 export class SettingsOverview {
   active:string = 'profile';
   selectedEmployee: any = null;
-  allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR EXECUTIVE'];
+  allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR_EXECUTIVE', 'REPORTING_MANAGER', 'INCHARGE'];
   isRestricted = true;
 
   show(value: string){

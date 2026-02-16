@@ -59,6 +59,7 @@ import { IncidentOverview } from './incident/incident-overview/incident-overview
 import { EmployeeShiftList } from './shifts/employee-shift-list/employee-shift-list';
 import { ManagerShift } from './shifts/manager-shift/manager-shift';
 import { ShiftOverview } from './shifts/shift-overview/shift-overview';
+import { AttendanceOverview } from './attendance/attendance-overview/attendance-overview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -76,7 +77,7 @@ export const routes: Routes = [
       { path: 'employee', component: EmployeeOverview,canActivate: [authGuard]},
       { path: 'leave', component: LeaveOverview, canActivate: [authGuard]},
       { path: 'appraisal', component: AppraisalOverview,canActivate: [authGuard] },
-      { path: 'attendance', component: AttendanceCalendars,canActivate: [authGuard] },
+      { path: 'attendance', component: AttendanceOverview,canActivate: [authGuard] },
       { path: 'resignation', component: ResignOverview,canActivate: [authGuard] },
       { path: 'evaluation', component: EvaluationOverview, canActivate: [authGuard] }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm, canActivate: [authGuard] },

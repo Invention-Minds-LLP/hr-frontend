@@ -55,7 +55,7 @@ export class ResignationForm {
     this.loading = true;
     this.api.create({ employeeId: this.employeeId, ...this.form.value as any })
       .subscribe({
-        next: (rec) => { this.submitted = rec; this.loading = false; },
+        next: (rec) => { this.submitted = rec; this.loading = false;    this.load(); },
         error: () => {
           // alert('Failed to submit'); 
           this.messageService.add({
@@ -64,9 +64,10 @@ export class ResignationForm {
             detail: 'Failed to submit resignation'
           })
           this.loading = false;
+              this.load();
+        
         }
       });
-    this.load();
   }
 
   // withdraw() {

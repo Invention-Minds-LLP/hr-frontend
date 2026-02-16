@@ -161,6 +161,75 @@
                                         </div>
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
+                                                <input pInputText formControlName="motherName" />
+                                                <label>Mother Name</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="alternatePhone" />
+                                                <label>Alternate Phone</label>
+                                            </p-floatLabel>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="field-row col-12">
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="panNumber" />
+                                                <label>PAN Number</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="aadharNumber" />
+                                                <label>Aadhar Number</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="uanNumber" />
+                                                <label>UAN Number</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="field-row col-12">
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <input pInputText formControlName="licenseNumber" />
+                                                <label>License Number</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="licenseRegDate"dateFormat="yy-mm-dd"
+                                                    showIcon iconDisplay="input" ></p-datePicker>
+                                                <label>License Registration Date</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-datePicker formControlName="licenseExpiryDate" dateFormat="yy-mm-dd"
+                                                    showIcon iconDisplay="input"
+                                                    ></p-datePicker>
+                                                <label>License Expiry Date</label>
+                                            </p-floatLabel>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="field-row col-12">
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
                                                 <p-select formControlName="marital" [options]="[
                 { label: 'Single', value: 'SINGLE' },
                 { label: 'Married', value: 'MARRIED' },
@@ -174,8 +243,6 @@
                                                 Marital Status is required
                                             </div> -->
                                         </div>
-
-
                                     </div>
 
                                     <div class="heading mb-2">Permanent Address</div>
@@ -528,8 +595,8 @@
                                 </div>
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-select [options]="incharges" [filter]="true" formControlName="inchargeId" optionLabel="label"
-                                            optionValue="value">
+                                        <p-select [options]="incharges" [filter]="true" formControlName="inchargeId"
+                                            optionLabel="label" optionValue="value">
                                         </p-select>
                                         <label>Incharge </label>
                                         <!-- <div class="error-msg" *ngIf="showError(employeeForm.get('inchargeId'))">
@@ -551,8 +618,8 @@
                                 <!-- If FIXED: choose a single template -->
                                 <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'FIXED'">
                                     <p-floatLabel variant="on">
-                                        <p-select [options]="shifts" [filter]="true" formControlName="fixedShiftId" optionLabel="name"
-                                            optionValue="id"
+                                        <p-select [options]="shifts" [filter]="true" formControlName="fixedShiftId"
+                                            optionLabel="name" optionValue="id"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('fixedShiftId')) }"></p-select>
                                         <label>Shift Template *</label>
                                     </p-floatLabel>
@@ -1418,8 +1485,8 @@
 
 
         <div class="flex justify-content-end gap-2 save-button">
-            <button pButton *ngIf="!currentSabbatical" [loading]="loadingSabbatical" [label]="loadingSabbatical ? 'Saving...' : 'Save'"
-                (click)="saveSabbatical()">
+            <button pButton *ngIf="!currentSabbatical" [loading]="loadingSabbatical"
+                [label]="loadingSabbatical ? 'Saving...' : 'Save'" (click)="saveSabbatical()">
             </button>
 
             <!-- Extend -->

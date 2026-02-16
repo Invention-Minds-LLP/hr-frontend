@@ -120,11 +120,29 @@ export class Resignation {
   return this.http.get<any[]>(`${this.apiUrl}/exit-interview/employee/${employeeId}`);
 }
 
-setApplicableDepartments(resignationId: number, data: { departmentIds: number[] }) {
-  return this.http.post(
-    `${this.apiUrl}/${resignationId}/applicable-departments`,
-    data
+// setApplicableDepartments(resignationId: number, data: { departmentIds: number[] }) {
+//   return this.http.post(
+//     `${this.apiUrl}/${resignationId}/applicable-departments`,
+//     data
+//   );
+// }
+
+
+  setApplicableDepartments(resignationId: number, payload: { departmentIds: number[] }) {
+    return this.http.post(`${this.apiUrl}/${resignationId}/applicable-departments`, payload);
+  }
+
+  bulkUpdateClearanceItems(
+    resignationId: number,
+    payload: { items: Array<{ id: number; status: "PENDING" | "CLEARED" | "DUE" | "NA"; note?: string }> }
+  ) {
+    return this.http.patch(`${this.apiUrl}/${resignationId}/clearances/items`, payload);
+  }
+  generateClearanceCertificate(resignationId: number) {
+  return this.http.post<any>(
+    `${this.apiUrl}/${resignationId}/clearance-certificate`,
+    {}
   );
 }
-  
+
 }

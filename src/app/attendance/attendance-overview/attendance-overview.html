@@ -1,0 +1,54 @@
+<!-- Submenu -->
+<nav class="sub-nav">
+    <ul class="nav-list">
+        <!-- <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li></button> -->
+        <!-- <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li> -->
+        <!-- <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">Add New Employee</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'absent' }" (click)="show('absent')">Unmarked Attendance</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'upload' }" (click)="show('upload')">Bulk Upload Employees</li></button>
+        <div class="br"></div>
+        <button (click)="show('survey')"> <li class="sub-item" [ngClass]="{ 'active': active === 'survey' }" >Survey</li></button> -->
+        <!-- All other items hidden for roleId 4 -->
+        <ng-container *ngIf="deptId === 1">
+
+
+
+            <!-- <div class="br"></div> -->
+            <button>
+                <li class="sub-item" [ngClass]="{ 'active': active === 'attendance' }" (click)="show('attendance')">
+                    Manage Attendance
+                </li>
+            </button>
+
+            <div class="br"></div>
+            <button>
+                <li class="sub-item" [ngClass]="{ 'active': active === 'absent' }" (click)="show('absent')">
+                    Unmarked Attendance
+                </li>
+            </button>
+
+            <div class="br"></div>
+            <button (click)="show('history')">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'history' }">
+                    History
+                </li>
+            </button>
+
+        </ng-container>
+    </ul>
+
+
+</nav>
+<!-- <div>
+    <hr>
+</div> -->
+
+
+<div>
+    <app-manage-attendance *ngIf="active === 'attendance'"></app-manage-attendance>
+    <app-unreported-employee *ngIf="active === 'absent'"></app-unreported-employee>
+    <app-history *ngIf="active === 'history'"></app-history>
+</div>

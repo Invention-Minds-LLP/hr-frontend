@@ -64,11 +64,9 @@
 
 /* hover effect */
 .stat:hover {
-  background: linear-gradient(
-    135deg,
-    var(--hover1, #22c55e),
-    var(--hover2, #14b8a6)
-  );
+  background: linear-gradient(135deg,
+      var(--hover1, #22c55e),
+      var(--hover2, #14b8a6));
   border-color: transparent;
   color: black;
   /* makes text readable */
@@ -226,6 +224,7 @@ table.jobs td {
   /* background: var(--panel, #fff); */
   /* color: black; */
 }
+
 /* 
 .card:focus-within,
 .card:focus-within table.jobs thead th,
@@ -344,16 +343,15 @@ td.title .text {
 }
 
 :host ::ng-deep .p-skeleton {
-  background-color: #ced6d7 !important; /* Light teal background */
+  background-color: #ced6d7 !important;
+  /* Light teal background */
 }
 
 :host ::ng-deep .p-skeleton::after {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #787d7d,
-    transparent
-  ) !important;
+  background: linear-gradient(90deg,
+      transparent,
+      #787d7d,
+      transparent) !important;
 }
 
 ::ng-deep .p-select .p-select-label .pill {
@@ -361,13 +359,15 @@ td.title .text {
   color: white !important;
   border: none;
 }
-::ng-deep .p-select{
+
+::ng-deep .p-select {
   width: 120px !important;
 }
 
 ::ng-deep .card .p-select-dropdown {
   color: white !important;
 }
+
 /* ---------- Modal ---------- */
 .modal {
   position: fixed;
@@ -388,17 +388,56 @@ td.title .text {
 
 .sheet {
   position: relative;
-  /* overflow-y: auto; */
   width: 80%;
-  height: 100vh;
+  height: 80vh;
   border-radius: 20px;
   background: #020403;
   box-shadow: 3px 4px 100px 0 #3A1D4D;
-  /* border: 1px solid #828282; */
-  /* padding: 10px 30px 20px; */
   color: white !important;
-  /* max-height: 70vh; */
-  /* overflow-x: hidden; */
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-table {
+  flex: 1;
+  min-height: 0;
+}
+
+.resume-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.resume-frame {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.resume-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.resume-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+
+.sheet {
   --p-checkbox-checked-background: #003366;
   --p-checkbox-checked-hover-background: #003366;
   --p-checkbox-focus-border-color: #003366;
@@ -427,13 +466,11 @@ td.title .text {
   position: absolute;
   inset: auto -20% -20% -20%;
   height: 8px;
-  background: linear-gradient(
-    90deg,
-    var(--magenta),
-    var(--blue),
-    var(--teal),
-    var(--amber)
-  );
+  background: linear-gradient(90deg,
+      var(--magenta),
+      var(--blue),
+      var(--teal),
+      var(--amber));
   filter: blur(12px);
   opacity: 0.5;
 }
@@ -549,12 +586,46 @@ td.title .text {
   min-width: 170px;
 }
 
+.actions h3 {
+  color: white;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: white;
+}
+
+.header-left button {
+  height: 36px;
+}
+
+.export-button {
+  display: inline-flex;
+  height: 34px;
+  padding: 6px 30px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  background: #194B9B;
+  color: #FFF;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  outline: none;
+  border: none;
+}
 
 ::ng-deep .p-paginator {
   background: transparent;
   justify-content: center;
   padding: 0;
   gap: 8px;
+  margin-bottom: 10px;
 }
 
 ::ng-deep .p-paginator-pages {
@@ -592,6 +663,7 @@ td.title .text {
   gap: 10px;
   width: 100%;
 }
+
 ::ng-deep .p-dialog {
   border-radius: 20px !important;
   background: #020403 !important;
@@ -600,6 +672,7 @@ td.title .text {
   color: white !important;
   padding: 0 !important;
 }
+
 ::ng-deep .p-dialog-content {
   padding: 0px !important;
 }
@@ -625,6 +698,7 @@ td.title .text {
   font-size: 20px;
   padding: 20px;
 }
+
 .dialog-header-custom {
   display: flex;
   justify-content: space-between;
@@ -653,6 +727,7 @@ td.title .text {
   background: red;
   color: white !important;
 }
+
 .custom-table-container {
   width: 100%;
   border-radius: 16px;
@@ -729,7 +804,7 @@ td.title .text {
 }
 
 /* Header Row */
-::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+::ng-deep .modal-table.p-datatable .p-datatable-thead>tr>th {
   background: #020403 !important;
   color: white !important;
   padding: 16px 20px;
@@ -746,18 +821,23 @@ td.title .text {
   letter-spacing: 0.2px;
   /* border-radius: 12px; */
 }
-::ng-deep .modal-table.p-datatable .p-datatable-thead{
+
+::ng-deep .modal-table.p-datatable .p-datatable-thead {
   border-bottom: 1px solid #727272 !important;
 }
+
 .no-data.center-right {
-  text-align: center !important; /* moves text to right */
-  padding-right: 2rem !important; /* spacing from edge */
+  text-align: center !important;
+  /* moves text to right */
+  padding-right: 2rem !important;
+  /* spacing from edge */
   color: #c5c5c5;
   font-style: italic !important;
   font-size: 16px !important;
 }
+
 /* Body Rows */
-::ng-deep .modal-table.p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .modal-table.p-datatable .p-datatable-tbody>tr>td {
   background: #020403 !important;
   padding: 20px;
   font-size: 16px;
@@ -768,17 +848,20 @@ td.title .text {
   text-wrap: nowrap;
   border-bottom: 1px solid #727272 !important;
 }
+
 /* Header bottom border same as body lines */
-::ng-deep .modal-table.p-datatable .p-datatable-thead > tr > th {
+::ng-deep .modal-table.p-datatable .p-datatable-thead>tr>th {
   border-bottom: 1px solid #727272 !important;
 }
 
 /* Remove hidden wrapper border */
 ::ng-deep .modal-table.p-datatable .p-datatable-thead {
-  border-bottom: none !important; 
+  border-bottom: none !important;
 }
+
 /* Checkbox box transparent background */
 ::ng-deep .p-checkbox .p-checkbox-box {
   background: transparent !important;
-  border: 1px solid #fff !important;   /* white border so visible on dark bg */
+  border: 1px solid #fff !important;
+  /* white border so visible on dark bg */
 }

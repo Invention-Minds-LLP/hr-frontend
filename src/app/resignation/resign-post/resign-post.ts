@@ -29,7 +29,9 @@ type ClearanceDraft = {
   note?: string;
   verifierId?: number;
   verifierName?: string;
+  items?: any[];
 };
+
 
 @Component({
   selector: 'app-resign-post',
@@ -48,6 +50,8 @@ export class ResignPost implements OnInit {
   // ---- HANDOVER ----
   taskForm!: FormGroup;
   tasksLocal: Array<any> = []; // shows tasks added in this session (until you add GET endpoints)
+  originalDepartmentIds: number[] = [];
+
 
   // ---- CLEARANCE ----
   // clearanceTypes: ClearanceType[] = ['IT','FINANCE','HR','ADMIN','SECURITY','OTHER'];
@@ -63,7 +67,8 @@ export class ResignPost implements OnInit {
   lockedClearances: Record<number, boolean> = {};
 
   departments: any[] = [];
-selectedDepartmentIds: number[] = [];
+  selectedDepartmentIds: number[] = [];
+  certificateUrl: string | null = null;
 
 
 
@@ -89,7 +94,7 @@ selectedDepartmentIds: number[] = [];
 
 
   constructor(private fb: FormBuilder, private api: Resignation, private msg: MessageService,
-     private employeeService: Employees, private departmentService: Departments) { }
+    private employeeService: Employees, private departmentService: Departments) { }
 
   ngOnInit(): void {
     if (!this.resignationId) return;
@@ -109,14 +114,14 @@ selectedDepartmentIds: number[] = [];
   ) {
     this.msg.add({ severity: type, summary, detail });
   }
-loadDepartments() {
-  this.departmentService.getDepartments().subscribe(res => {
-    this.departments = res.map((d: any) => ({
-      label: d.name,
-      value: d.id
-    }));
-  });
-}
+  loadDepartments() {
+    this.departmentService.getDepartments().subscribe(res => {
+      this.departments = res.map((d: any) => ({
+        label: d.name,
+        value: d.id
+      }));
+    });
+  }
 
   loadEmployees() {
     this.employeeService.getActiveEmployees().subscribe(res => {
@@ -131,6 +136,11 @@ loadDepartments() {
       this.employees = [...this.allEmployees];
     });
   }
+downloadCertificate() {
+  if (this.certificateUrl) {
+    window.open(this.certificateUrl, '_blank');
+  }
+}
 
   private loadPostHrSnapshot() {
     console.log(this.resignationId)
@@ -143,6 +153,14 @@ loadDepartments() {
           dueDate: t.dueDate ? new Date(t.dueDate) : null
         }));
 
+        // after loading settlement
+        if (row.documents?.clearanceCertificateUrl) {
+          this.certificateUrl = row.documents.clearanceCertificateUrl;
+        } else {
+          this.certificateUrl = null;
+        }
+
+
         // --- clearances ---
         // start with defaults
         // this.clearanceTypes.forEach(t => {
@@ -150,6 +168,14 @@ loadDepartments() {
         //   this.lockedClearances[t] = false;
         // });
         this.clearances = [];
+        // after you set this.clearances...
+        this.originalDepartmentIds = (row.clearances || [])
+          .map((c: any) => c.departmentId)
+          .filter((x: any) => !!x);
+
+        this.selectedDepartmentIds = [...this.originalDepartmentIds];
+
+
         this.lockedClearances = {};
 
         (row.clearances || []).forEach((c: any) => {
@@ -159,11 +185,22 @@ loadDepartments() {
 
           this.clearances.push({
             departmentId: c.departmentId,
-            departmentName: c.department?.name || c.type,
+            // departmentName: c.department?.name || c.type,
+            departmentName:
+              c.type === 'HOD'
+                ? 'HOD'
+                : c.department?.name || c.type,
             decision: c.decision,
             note: c.note ?? '',
             verifierId: c.verifierId,
-            verifierName
+            verifierName,
+            items: (c.items || []).map((it: any) => ({
+              id: it.id,
+              label: it.label,
+              status: it.status,
+              note: it.note,
+              verifierName: it.verifier ? `${it.verifier.firstName} ${it.verifier.lastName}` : ""
+            }))
           });
 
           if (c.decision === 'APPROVED') {
@@ -338,20 +375,98 @@ loadDepartments() {
     });
   }
   saveDepartments() {
-  if (!this.selectedDepartmentIds.length) {
-    this.notify('error', 'Select at least one department.');
-    return;
+    if (!this.selectedDepartmentIds.length) {
+      this.notify('error', 'Select at least one department.');
+      return;
+    }
+
+    this.api.setApplicableDepartments(this.resignationId, {
+      departmentIds: this.selectedDepartmentIds
+    }).subscribe({
+      next: () => {
+        this.notify('success', 'Departments saved.');
+        this.loadPostHrSnapshot(); // reload clearances
+      },
+      error: () => this.notify('error', 'Failed to save departments.')
+    });
+  }
+  onDepartmentChange() {
+    // ensure original departments are always included
+    this.originalDepartmentIds.forEach(id => {
+      if (!this.selectedDepartmentIds.includes(id)) {
+        this.selectedDepartmentIds.push(id);
+      }
+    });
+  }
+  // generateCertificate() {
+  //   if (!this.resignationId) return;
+
+  //   this.busy.set(true);
+
+  //   this.api.generateClearanceCertificate(this.resignationId).subscribe({
+  //     next: (res: any) => {
+  //       this.notify('success', 'Clearance certificate generated.');
+  //       if (res?.url) {
+  //         window.open(res.url, '_blank');
+  //       }
+  //       this.busy.set(false);
+  //     },
+  //     error: (err) => {
+  //       const msg = err?.error?.message || 'Certificate generation failed.';
+  //       this.notify('error', msg);
+  //       this.busy.set(false);
+  //     }
+  //   });
+  // }
+  generateCertificate() {
+    this.api.generateClearanceCertificate(this.resignationId).subscribe({
+      next: (res: any) => {
+        this.notify('success', 'Certificate generated.');
+        window.open(res.url, '_blank');
+      },
+      error: (err) => {
+        const details = err?.error?.details;
+
+        if (details) {
+          const reasons: string[] = [];
+
+          if (!details.statusOk) {
+            reasons.push('Resignation is not approved or completed');
+          }
+          if (!details.allClearancesApproved) {
+            reasons.push('All department clearances are not approved');
+          }
+          if (!details.allTasksDone) {
+            reasons.push('All handover tasks are not completed');
+          }
+          if (!details.settlementPaid) {
+            reasons.push('Final settlement is not paid');
+          }
+
+          this.notify('error', reasons.join('. '));
+        } else {
+          this.notify('error', 'Failed to generate certificate.');
+        }
+      }
+    });
   }
 
-  this.api.setApplicableDepartments(this.resignationId, {
-    departmentIds: this.selectedDepartmentIds
-  }).subscribe({
-    next: () => {
-      this.notify('success', 'Departments saved.');
-      this.loadPostHrSnapshot(); // reload clearances
-    },
-    error: () => this.notify('error', 'Failed to save departments.')
-  });
-}
+  allClearancesApproved(): boolean {
+    if (!this.clearances || !this.clearances.length) return false;
+    return this.clearances.every(c => c.decision === 'APPROVED');
+  }
+  canGenerateCertificate(): boolean {
+    const clearancesOk =
+      this.clearances.length > 0 &&
+      this.clearances.every(c => c.decision === 'APPROVED');
+
+    const tasksOk =
+      this.tasksLocal.length > 0 &&
+      this.tasksLocal.every(t => t.status === 'DONE');
+
+    const settlementOk = this.fnfStatus === 'PAID';
+
+    return clearancesOk && tasksOk && settlementOk;
+  }
 
 }

@@ -70,44 +70,31 @@
         </p-table>
     </section>
     <!-- 🏢 Applicable Departments -->
-    <section class="card">
+    <!-- <section class="card">
         <div class="card-h">Applicable Departments for Clearance</div>
-
+        
         <p-multiSelect [options]="departments" [(ngModel)]="selectedDepartmentIds" optionLabel="label"
-            optionValue="value" placeholder="Select departments" [ngModelOptions]="{standalone:true}"
-            styleClass="w-20">
+            optionValue="value" placeholder="Select departments" [ngModelOptions]="{standalone:true}" styleClass="w-20">
         </p-multiSelect>
+        <p-multiSelect [options]="departments" [(ngModel)]="selectedDepartmentIds" (onChange)="onDepartmentChange()"
+            optionLabel="label" optionValue="value" placeholder="Select departments"
+            [ngModelOptions]="{standalone:true}">
+        </p-multiSelect>
+
 
         <div class="right" style="margin-top:10px;">
             <button pButton label="Save Departments" class="save-btn" (click)="saveDepartments()">
             </button>
         </div>
-    </section>
+    </section> -->
 
 
     <!-- ✅ Clearances -->
-    <section class="card">
+    <!-- <section class="card">
         <div class="card-h">Department Clearances</div>
         <div class="clearance-grid">
             <div class="cl-card" *ngFor="let c of clearances">
-                <!-- <div class="cl-head">{{ t }} Clearance</div> -->
                 <div class="cl-head">{{ c.departmentName }} Clearance</div>
-
-                <!-- <p-select [options]="[
-              {label:'Pending', value:'PENDING'},
-              {label:'Approved', value:'APPROVED'},
-              {label:'Rejected', value:'REJECTED'}
-            ]" [(ngModel)]="clearanceDrafts[t].decision" [ngModelOptions]="{standalone:true}"
-                    [disabled]="true">
-                </p-select> -->
-                <!-- 
-                <textarea pInputTextarea rows="3" placeholder="Notes (optional)" [(ngModel)]="clearanceDrafts[t].note"
-                    [ngModelOptions]="{standalone:true}" [disabled]="true"></textarea> -->
-
-                <!-- <input pInputText  placeholder="Verifier Name"
-                    [(ngModel)]="clearanceDrafts[t].verifierId" [ngModelOptions]="{standalone:true}"
-                    [disabled]="true" /> -->
-                <!-- <input pInputText placeholder="Verifier Name" [(ngModel)]="clearanceDrafts[t].verifierName" [disabled]="true" /> -->
 
                 <textarea pInputTextarea rows="3" placeholder="Notes (optional)" [(ngModel)]="c.note"
                     [ngModelOptions]="{standalone:true}" [disabled]="true">
@@ -115,14 +102,159 @@
 
                 <input pInputText placeholder="Verifier Name" [(ngModel)]="c.verifierName" [disabled]="true" />
 
-
-                <!-- <button  label="Save" *ngIf="!isClearanceLocked(t)" class="save-btn" style="width: 100%;height: 39px;" (click)="saveClearance(t)">Save</button> -->
                 <p-badge *ngIf="isClearanceLocked(c.departmentId)" value="Approved" class="pending-btn"
                     style="width: 100%;height: 39px;" severity="success">
                 </p-badge>
             </div>
         </div>
+    </section> -->
+    <!-- <section class="card">
+        <div class="card-h">Department Clearances</div>
+
+        <div class="clearance-grid">
+            <div class="cl-card" *ngFor="let c of clearances">
+                <div class="cl-head">
+                    {{ c.departmentName }} Clearance
+                    <p-badge [value]="c.decision"
+                        [severity]="c.decision==='APPROVED' ? 'success' : c.decision==='REJECTED' ? 'danger' : 'warn'">
+                    </p-badge>
+                </div>
+
+                <div *ngIf="c.items?.length; else noItems">
+                    <div style="margin-top:8px" *ngFor="let it of c.items" class="item-row">
+                        <div style="font-weight:600">{{ it.label }}</div>
+                        <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                            <p-badge [value]="it.status"
+                                [severity]="it.status==='CLEARED' ? 'success' : it.status==='DUE' ? 'danger' : 'warn'">
+                            </p-badge>
+                            <span style="font-size:12px;color:#666" *ngIf="it.verifierName">
+                                by {{ it.verifierName }}
+                            </span>
+                        </div>
+                        <div style="font-size:12px;color:#666" *ngIf="it.note">{{ it.note }}</div>
+                        <hr />
+                    </div>
+                </div>
+
+                <ng-template #noItems>
+                    <div style="font-size:12px;color:#888; margin-top:8px">No checklist configured.</div>
+                </ng-template>
+            </div>
+        </div>
+    </section> -->
+    <section class="card">
+        <div class="card-h">Department Clearances</div>
+
+        <div class="clearance-grid">
+            <div class="cl-card" *ngFor="let c of clearances">
+
+                <!-- Header -->
+                <div class="cl-head">
+                    <span class="dept-name">{{ c.departmentName }}</span>
+                    <p-badge [value]="c.decision" [severity]="
+            c.decision === 'APPROVED'
+              ? 'success'
+              : c.decision === 'REJECTED'
+              ? 'danger'
+              : 'warn'
+          ">
+                    </p-badge>
+                </div>
+
+                <!-- Items -->
+                <div *ngIf="c.items?.length; else noItems" class="item-list">
+                    <!-- <div *ngFor="let it of c.items" class="item-row">
+          <div class="item-top">
+            <span class="item-label">{{ it.label }}</span>
+            <p-badge
+              [value]="it.status"
+              [severity]="
+                it.status === 'CLEARED'
+                  ? 'success'
+                  : it.status === 'DUE'
+                  ? 'danger'
+                  : 'warn'
+              ">
+            </p-badge>
+          </div>
+
+          <div class="item-meta" *ngIf="it.verifierName || it.note">
+            <span *ngIf="it.verifierName">By {{ it.verifierName }}</span>
+            <span *ngIf="it.note">• {{ it.note }}</span>
+          </div>
+        </div> -->
+                    <!-- <div *ngFor="let it of c.items" class="item-row">
+                        <div class="item-top">
+                            <span class="item-label">{{ it.label }}</span>
+
+                            <p-badge class="item-badge" [value]="it.status" [severity]="
+        it.status === 'CLEARED'
+          ? 'success'
+          : it.status === 'DUE'
+          ? 'danger'
+          : 'warn'
+      ">
+                            </p-badge>
+                        </div>
+
+                        <div class="item-meta" *ngIf="it.verifierName || it.note">
+                            <span *ngIf="it.verifierName">By {{ it.verifierName }}</span>
+                            <span *ngIf="it.note">• {{ it.note }}</span>
+                        </div>
+                    </div> -->
+                    <div class="item-row" *ngFor="let it of c.items">
+                        <div class="item-main">
+                            <div class="item-label" [title]="it.label">
+                                {{ it.label }}
+                            </div>
+
+                            <p-badge class="item-badge" [value]="it.status" [severity]="
+        it.status === 'CLEARED'
+          ? 'success'
+          : it.status === 'DUE'
+          ? 'danger'
+          : 'warn'
+      ">
+                            </p-badge>
+                        </div>
+
+                        <div class="item-meta" *ngIf="it.verifierName"
+                            [title]="'By ' + it.verifierName + (it.note ? ' - ' + it.note : '')">
+                            By {{ it.verifierName }}
+                            <span *ngIf="it.note"> • {{ it.note }}</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <ng-template #noItems>
+                    <div class="no-items">No checklist configured</div>
+                </ng-template>
+
+            </div>
+        </div>
+
+        <!-- <button
+        *ngIf="allClearancesApproved()"
+        pButton
+        label="Generate Clearance Certificate"
+        class="p-button-primary"
+        [disabled]="busy()"
+        (click)="generateCertificate()">
+    </button> -->
+        <div class="cert-actions" *ngIf="allClearancesApproved()">
+            <button *ngIf="!certificateUrl" pButton label="Generate Clearance Certificate"
+                class="p-button-primary cert-btn" [disabled]="busy()" (click)="generateCertificate()">
+            </button>
+
+            <button *ngIf="certificateUrl" pButton label="Download Clearance Certificate"
+                class="p-button-success cert-btn" icon="pi pi-download" (click)="downloadCertificate()">
+            </button>
+        </div>
+
+
     </section>
+
 
     <!-- 🗓 Exit Interview -->
     <section class="card">

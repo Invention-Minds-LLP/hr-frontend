@@ -83,6 +83,11 @@
   border-radius: 50%;
 }
 
+::ng-deep .cal-month-view .cal-header .cal-cell {
+  color: #000 !important;
+}
+
+
 /* Hours badge */
 .hours-badge {
   background: #000;

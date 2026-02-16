@@ -68,7 +68,9 @@ export class EmployeeForm {
     { label: 'Permanent', value: 'PERMANENT' },
     { label: 'Contract', value: 'CONTRACT' },
     { label: 'Probation', value: 'PROBATION' },
-    { label: 'Internship', value: 'INTERNSHIP' }
+    { label: 'Internship', value: 'INTERNSHIP' },
+    { label: 'Trainee', value: 'TRAINEE' },
+    { label: 'Doctor', value: 'DOCTOR' }
   ];
 
   employmentStatuses = [
@@ -251,6 +253,14 @@ export class EmployeeForm {
       inchargeId: [''],
       fatherName: [''],
       marital: [''],
+      motherName: [''],
+      alternatePhone: [''],
+      uanNumber: [''],
+      panNumber: [''],
+      aadharNumber: [''],
+      licenseNumber: [''],
+      licenseRegDate: [null],
+      licenseExpiryDate: [null],
 
       preEmploymentCheckDate: [null, Validators.required],
 
@@ -1284,6 +1294,14 @@ export class EmployeeForm {
       reportingManager: data.reportingManager,
       employeeType: data.employeeType,
       fatherName: data.fatherName,
+      motherName: data.motherName,
+      alternatePhone: data.alternatePhone,
+      uanNumber: data.uanNumber,
+      panNumber: data.panNumber,
+      aadharNumber: data.aadharNumber,
+      licenseNumber: data.licenseNumber,
+      licenseRegDate: data.licenseRegDate ? new Date(data.licenseRegDate) : null,
+      licenseExpiryDate: data.licenseExpiryDate ? new Date(data.licenseExpiryDate): null,
       marital: data.marital,
       shiftMode: mode,
       fixedShiftId:

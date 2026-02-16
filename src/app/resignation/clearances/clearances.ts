@@ -45,6 +45,19 @@ export class Clearances {
   employees: Employee[] = [];
   loading = true;
   isLoading = false;
+  selectedClearance: any = null;
+  isSaving: boolean = false;
+  showChecklistPopup: boolean = false;
+
+  itemStatusOptions = [
+    { label: "Pending", value: "PENDING" },
+    { label: "Cleared", value: "CLEARED" },
+    { label: "Due", value: "DUE" },
+    { label: "N/A", value: "NA" },
+  ];
+  selectedItems: any[] = [];
+
+
 
 
   constructor(
@@ -107,16 +120,58 @@ export class Clearances {
   //   return clearances.find((c: any) => c.type === type) || { type, decision: 'PENDING', note: '' };
   // }
   /** ✅ Popup handlers */
+  // openPopup(resignation: any, action: 'APPROVED' | 'REJECTED'): void {
+  //   this.selectedEmployee = resignation;
+  //   this.popupAction = action;
+  //   this.popupNote = '';
+  //   // const cl = (resignation.clearances || []).find((c: any) => c.departmentId === this.userDepartmentId) || (resignation.clearances || [])[0];
+  //   // this.selectedClearance = cl;
+  //   const deptClearances = (resignation.clearances || [])
+  //     .filter((c: any) => c.departmentId === this.userDepartmentId);
+
+  //   this.selectedClearance = deptClearances[0]; // or choose based on type
+
+
+  //   if (!this.selectedClearance) {
+  //     this.notify("error", "No clearance configured for your department.");
+  //     return;
+  //   }
+
+  //   this.showChecklistPopup = true;
+  // }
   openPopup(resignation: any, action: 'APPROVED' | 'REJECTED'): void {
     this.selectedEmployee = resignation;
+    this.selectedClearance = resignation.clearances
     this.popupAction = action;
     this.popupNote = '';
-    this.showPopup = true;
+
+    const deptClearances = (resignation.clearances || [])
+      .filter((c: any) => c.departmentId === this.userDepartmentId);
+
+    console.log(deptClearances)
+    if (!deptClearances.length) {
+      this.notify("error", "No clearance configured for your department.");
+      return;
+    }
+
+    // Merge all items from department clearances
+    this.selectedItems = deptClearances.flatMap((c: any) =>
+      (c.items || []).map((it: any) => ({
+        ...it,
+        clearanceId: c.id   // keep reference for saving
+      }))
+    );
+
+    console.log(this.selectedItems)
+
+    this.showChecklistPopup = true;
   }
 
+
   closePopup(): void {
-    this.showPopup = false;
+    this.showChecklistPopup = false;
     this.selectedEmployee = null;
+    this.selectedClearance = null;
     this.popupNote = '';
     this.popupAction = null;
   }
@@ -178,19 +233,101 @@ export class Clearances {
   //   return [];
   // }
 
-  getClearance(r: any): any {
+  // getClearance(r: any): any {
+  //   const clearances = r?.clearances || [];
+  //   console.log('Clearances for resignation', r.id, clearances);
+  //   return clearances.find(
+  //     (c: any) => c.departmentId === this.userDepartmentId
+  //   ) || { decision: 'PENDING', note: '' };
+  // }
+  getDepartmentClearances(r: any): any[] {
     const clearances = r?.clearances || [];
-    console.log('Clearances for resignation', r.id, clearances);
-    return clearances.find(
+    return clearances.filter(
       (c: any) => c.departmentId === this.userDepartmentId
-    ) || { decision: 'PENDING', note: '' };
+    );
   }
+
+  hasPendingClearance(r: any): boolean {
+    return this.getDepartmentClearances(r)
+      .some((c: any) => c.decision === 'PENDING');
+  }
+
+
   getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'
       : '/img.png';
   }
+  getClearanceDecision(r: any): string {
+    const cl = (r.clearances || []).find((c: any) => c.departmentId === this.userDepartmentId) || (r.clearances || [])[0];
+    return cl?.decision || "PENDING";
+  }
+
+  // async saveItems() {
+  //   if (!this.selectedEmployee || !this.selectedClearance) return;
+
+  //   const items = (this.selectedClearance.items || []).map((i: any) => ({
+  //     id: i.id,
+  //     status: i.status,
+  //     note: i.note,
+  //   }));
+
+  //   this.isSaving = true;
+  //   this.api.bulkUpdateClearanceItems(this.selectedEmployee.id, this.selectedClearance.id, { items }).subscribe({
+  //     next: () => {
+  //       this.notify("success", "Clearance checklist updated.");
+  //       this.closePopup();
+  //       this.loadResignations();
+  //       this.isSaving = false;
+  //     },
+  //     error: () => {
+  //       this.notify("error", "Failed to update clearance checklist.");
+  //       this.isSaving = false;
+  //     },
+  //   });
+  // }
+
+  async saveItems() {
+    if (!this.selectedEmployee || !this.selectedItems.length) return;
+
+    const payload = this.selectedItems.map((i: any) => ({
+      id: i.id,
+      status: i.status,
+      note: i.note,
+    }));
+
+    this.isSaving = true;
+
+    this.api.bulkUpdateClearanceItems(
+      this.selectedEmployee.id,
+      { items: payload }
+    ).subscribe({
+      next: () => {
+        this.notify("success", "Clearance checklist updated.");
+        this.closePopup();
+        this.loadResignations();
+        this.isSaving = false;
+      },
+      error: () => {
+        this.notify("error", "Failed to update clearance checklist.");
+        this.isSaving = false;
+      },
+    });
+  }
+
+  openSpecificClearance(resignation: any, clearance: any) {
+    this.selectedEmployee = resignation;
+    this.selectedClearance = clearance;
+    this.showChecklistPopup = true;
+  }
+canEditClearance(r: any): boolean {
+  const clearances = this.getDepartmentClearances(r);
+  if (!clearances.length) return false;
+
+  // editable unless all are approved
+  return clearances.some((c: any) => c.decision !== 'APPROVED');
+}
 
 
 }

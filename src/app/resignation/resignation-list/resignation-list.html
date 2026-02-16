@@ -118,31 +118,42 @@
           <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
           <td class="actions">
             <ng-container *ngIf="
-         (r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')) ||
+         (r.managerDecision === 'PENDING' && isManagerOf(r)) ||
          (r.managerDecision === 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')) ||
          (r.status === 'WITHDRAW_REQUESTED' && isHR);
        else dash">
-              <ng-container
-                *ngIf="r.managerDecision === 'PENDING' && (role === 'Manager' || role === 'Reporting Manager')">
-                <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"></button>
-                <button pButton size="small" label="Manager Reject" class="p-button-danger"
-                  (click)="rejectManager(r)"></button>
+              <ng-container *ngIf="
+    r.managerDecision === 'PENDING' &&
+    isManagerOf(r) &&
+    (r.status !== 'WITHDRAW_REQUESTED' && (r.status !== 'WITHDRAWN'))
+  ">
+                <button pButton size="small" label="Manager Approve" (click)="approveManager(r)"
+                  [loading]="isLoading('managerApprove-' + r.id)"
+                  [disabled]="isLoading('managerApprove-' + r.id)"></button>
+                <button pButton size="small" label="Manager Reject" class="p-button-danger" (click)="rejectManager(r)"
+                  [loading]="isLoading('managerReject-' + r.id)"
+                  [disabled]="isLoading('managerReject-' + r.id)"></button>
               </ng-container>
               <ng-container
                 *ngIf="r.managerDecision=== 'APPROVED' && r.hrDecision === 'PENDING' && (role === 'HR' || role === 'HR Manager')">
                 <button pButton size="small" label="HR Approve" class="p-button-success"
                   (click)="openApprovePopup(r)"></button>
-                <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"></button>
+                <button pButton size="small" label="HR Reject" class="p-button-danger" (click)="rejectHR(r)"
+                  [loading]="isLoading('hrReject-' + r.id)" [disabled]="isLoading('hrReject-' + r.id)"></button>
                 <button pButton size="small" label="On Hold" class="p-button-warning"
-                  style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"></button>
-                <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"></button>
+                  style="background-color: rgb(244, 233, 89);" (click)="holdHR(r)"
+                  [loading]="isLoading('hrHold-' + r.id)" [disabled]="isLoading('hrHold-' + r.id)"></button>
+                <button pButton size="small" label="Cancel" class="p-button-secondary" (click)="cancelHR(r)"
+                  [loading]="isLoading('hrCancel-' + r.id)" [disabled]="isLoading('hrCancel-' + r.id)"></button>
               </ng-container>
               <!-- HR withdraw request actions -->
               <ng-container *ngIf="r.status === 'WITHDRAW_REQUESTED' && isHR">
                 <button pButton size="small" label="Approve Withdraw" class="p-button-success"
-                  (click)="approveWithdrawHR(r)"></button>
+                  (click)="approveWithdrawHR(r)" [loading]="isLoading('approveWithdraw-' + r.id)"
+                  [disabled]="isLoading('approveWithdraw-' + r.id)"></button>
                 <button pButton size="small" label="Reject Withdraw" class="p-button-danger"
-                  (click)="rejectWithdrawHR(r)"></button>
+                  (click)="rejectWithdrawHR(r)" [loading]="isLoading('rejectWithdraw-' + r.id)"
+                  [disabled]="isLoading('rejectWithdraw-' + r.id)"></button>
               </ng-container>
             </ng-container>
           </td>
@@ -174,7 +185,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="10" class="no-data">No resignations.</td>
+          <td colspan="11" class="no-data">No resignations.</td>
         </tr>
       </ng-template>
     </p-table>
@@ -213,7 +224,7 @@
       <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
         (click)="showApprovePopup = false"></button>
       <button pButton label="Approve" icon="pi pi-check" class="p-button-success" (click)="submitHRApproval()"
-        [disabled]="!selectedLwd"></button>
+        [loading]="approveSubmitting" [disabled]="!selectedLwd || approveSubmitting"></button>
     </div>
   </ng-template>
 </p-dialog>
@@ -240,8 +251,8 @@
   <ng-template pTemplate="footer">
     <button pButton label="Cancel" class="p-button-text" (click)="noteDialogVisible=false"></button>
 
-    <button pButton label="Submit" class="p-button-success" (click)="submitNoteDialog()"
-      [disabled]="noteText.trim()===''">
+    <button pButton label="Submit" class="p-button-success" (click)="submitNoteDialog()" [loading]="noteSubmitting"
+      [disabled]="noteText.trim()==='' || noteSubmitting">
     </button>
   </ng-template>
 </p-dialog>

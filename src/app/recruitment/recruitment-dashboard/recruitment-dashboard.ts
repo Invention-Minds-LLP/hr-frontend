@@ -17,11 +17,17 @@ import { RequisitionList } from "../requisition-list/requisition-list";
 import { Tooltip, TooltipModule } from "primeng/tooltip";
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { DialogModule } from 'primeng/dialog';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 
 @Component({
   selector: 'app-recruitment-dashboard',
-  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus, ToastModule, SelectModule, Interview, CandidateEvalForm,
+  imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus,
+    ToastModule, SelectModule, Interview, CandidateEvalForm, DialogModule,
     RequisitionList, TooltipModule, SkeletonModule, TableModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
@@ -31,6 +37,12 @@ export class RecruitmentDashboard implements OnInit {
   private api = inject(Recuriting);
   private messages = inject(MessageService);
   selectedInterview = signal<any | null>(null);
+  applicationRows: any[] = [];
+  resumeDialogOpen = false;
+  resumeUrl: SafeResourceUrl | null = null;
+
+
+
 
   // top stats
   stats = signal<{ [k: string]: number }>({});
@@ -65,6 +77,8 @@ export class RecruitmentDashboard implements OnInit {
     DRAFT: ['OPEN', 'ON_HOLD', 'CLOSED'],
     CLOSED: ['OPEN', 'ON_HOLD', 'DRAFT'], // or [] if you do NOT allow reopen
   };
+
+  constructor(private sanitizer: DomSanitizer,) { }
 
   getJobStatusColors(status: JobStatus) {
     const statusIndexMap: Record<JobStatus, number> = {
@@ -321,23 +335,43 @@ export class RecruitmentDashboard implements OnInit {
         page: 1,
         pageSize: 100
       }).subscribe(res => {
+
         this.selectedList = {
           title: 'ALL APPLICATIONS',
-          cols: ['Candidate', 'Email', 'Status'],
-          rows: res.rows.map((r: any) => ({
+          cols: [
+            'S.No',
+            'Name',
+            'Role Applied',
+            'Date Applied',
+            'Experience',
+            'Qualification',
+            'Resume',
+            'Status'
+          ],
+          rows: res.rows.map((r: any, index: number) => ({
             data: [
+              index + 1,
               r.candidate?.name || '-',
-              r.candidate?.email || '-',
+              r.job?.title || '-',
+              new Date(r.createdAt).toLocaleDateString(),
+              r.candidate?.experience || '-',
+              r.candidate?.qualification || '-',
+              {
+                type: 'resume',
+                url: r.candidate?.resumeUrl || null
+              },
               r.status
             ]
           }))
         };
 
         this.modalOpen = true;
+        this.applicationRows = res.rows;
       });
 
       return;
     }
+
 
     const statusMap: Record<string, ApplicationStatuses> = {
       applied: 'APPLIED',
@@ -354,25 +388,66 @@ export class RecruitmentDashboard implements OnInit {
     const status = statusMap[key];
     if (!status) return;
 
+    // this.api.listApplications({
+    //   status,
+    //   page: 1,
+    //   pageSize: 100
+    // }).subscribe(res => {
+    //   this.selectedList = {
+    //     title: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
+    //     cols: ['Candidate', 'Email', 'Status'],
+    //     rows: res.rows.map((r: any) => ({
+    //       data: [
+    //         r.candidate?.name || '-',
+    //         r.candidate?.email || '-',
+    //         r.status
+    //       ]
+    //     }))
+    //   };
+
+    //   this.modalOpen = true;
+    // });
     this.api.listApplications({
       status,
       page: 1,
       pageSize: 100
     }).subscribe(res => {
+
       this.selectedList = {
         title: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
-        cols: ['Candidate', 'Email', 'Status'],
-        rows: res.rows.map((r: any) => ({
+        cols: [
+          'S.No',
+          'Name',
+          'Role Applied',
+          'Date Applied',
+          'Experience',
+          'Qualification',
+          'Resume',
+          'Status'
+        ],
+        rows: res.rows.map((r: any, index: number) => ({
           data: [
+            index + 1,
             r.candidate?.name || '-',
-            r.candidate?.email || '-',
+            r.job?.title || '-',
+            new Date(r.createdAt).toLocaleDateString(),
+            r.candidate?.experience || '-',
+            r.candidate?.qualification || '-',
+            {
+              type: 'resume',
+              url: r.candidate?.resumeUrl || null
+            },
             r.status
           ]
         }))
       };
 
+      // IMPORTANT: for Excel export
+      this.applicationRows = res.rows;
+
       this.modalOpen = true;
     });
+
   }
 
   closeModal() {
@@ -380,6 +455,61 @@ export class RecruitmentDashboard implements OnInit {
     this.selectedList = null;
     this.selectedRows = [];
   }
+  exportApplications() {
+    console.log(this.applicationRows)
+    if (!this.applicationRows.length) return;
+
+    const exportData = this.applicationRows.map((r: any, index: number) => ({
+      'S.No': index + 1,
+      'Name': r.candidate?.name || '-',
+      'Email': r.candidate?.email || '-',
+      'Role Applied': r.job?.title || '-',
+      'Date Applied': new Date(r.createdAt).toLocaleDateString(),
+      'Experience': r.candidate?.experience || '-',
+      'Qualification': r.candidate?.qualification || '-',
+      'Status': r.status
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Applications');
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array'
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: 'application/octet-stream'
+    });
+
+    saveAs(blob, 'Applications.xlsx');
+  }
+  candidateResumeRawUrl: string = '';
+  candidateResumeUrl: SafeResourceUrl | null = null;
+
+  openResume(url: string) {
+    if (!url) return;
+
+    this.candidateResumeRawUrl = url;
+    this.candidateResumeUrl =
+      this.sanitizer.bypassSecurityTrustResourceUrl(url);
+
+    this.resumeDialogOpen = true;
+  }
+
+  closeResume() {
+    this.resumeDialogOpen = false;
+    this.candidateResumeRawUrl = '';
+    this.candidateResumeUrl = null;
+  }
+
+  get isImageResume(): boolean {
+    if (!this.candidateResumeRawUrl) return false;
+    return /\.(jpg|jpeg|png|webp)$/i.test(this.candidateResumeRawUrl);
+  }
+
+
 
 
 }

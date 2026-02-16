@@ -178,7 +178,19 @@ export class PermissionPopup {
   }
 
   checkPermissionBalance() {
-    const year = new Date(this.day).getFullYear();
+    // const year = new Date(this.day).getFullYear();
+    let year: number;
+
+    console.log(this.day)
+
+    // If day selected → use its year
+    if (this.day) {
+      year = new Date(this.day).getFullYear();
+    } else {
+      // fallback → current year
+      year = new Date().getFullYear();
+    }
+
     const type = this.permissionType;
 
     this.permissionService.getPermissionBalance(Number(this.employeeId), year)

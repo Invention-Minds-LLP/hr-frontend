@@ -23,6 +23,16 @@
         </li>
       </button>
 
+      
+      <!-- <div class="br"></div>
+      <button>
+        <li class="sub-item"
+            [ngClass]="{ 'active': active === 'attendance' }"
+            (click)="show('attendance')">
+          Manage Attendance
+        </li>
+      </button>
+
       <div class="br"></div>
       <button>
         <li class="sub-item"
@@ -30,7 +40,7 @@
             (click)="show('absent')">
           Unmarked Attendance
         </li>
-      </button>
+      </button> -->
 
       <div class="br"></div>
       <button>
@@ -63,7 +73,8 @@
     <app-employee-form *ngIf="active === 'form'" [employeeData]="selectedEmployee"
         (closeForm)="onFormClose($event)"></app-employee-form>
     <app-employee-list *ngIf="active === 'list'" (editEmployee)="onEditEmployee($event)"></app-employee-list>
-    <app-unreported-employee *ngIf="active === 'absent'"></app-unreported-employee>
+    <!-- <app-manage-attendance *ngIf="active === 'attendance'"></app-manage-attendance> -->
+    <!-- <app-unreported-employee *ngIf="active === 'absent'"></app-unreported-employee> -->
     <div *ngIf="active === 'upload'">
         <div class="upload-section">
 

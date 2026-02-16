@@ -6,10 +6,11 @@ import { UnreportedEmployee } from "../unreported-employee/unreported-employee";
 import { Employee, Employees } from '../../services/employees/employees';
 import { MessageService } from 'primeng/api';
 import { SurveyList } from "../../survey/survey-list/survey-list";
+import { ManageAttendance } from "../../attendance/manage-attendance/manage-attendance";
 
 @Component({
   selector: 'app-employee-overview',
-  imports: [EmployeeForm, EmployeeList, CommonModule, UnreportedEmployee, SurveyList],
+  imports: [EmployeeForm, EmployeeList, CommonModule, UnreportedEmployee, SurveyList, ManageAttendance],
   templateUrl: './employee-overview.html',
   styleUrl: './employee-overview.css',
   providers: [MessageService]
