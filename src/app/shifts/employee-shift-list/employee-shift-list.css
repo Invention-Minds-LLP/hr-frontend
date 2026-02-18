@@ -491,8 +491,8 @@ hr {
 }
 
 ::ng-deep .p-datepicker input{
-    background: #000 !important;
-    color: white !important;
+    /* background: #FFF !important; */
+    color: black !important;
     font-family: "Sofia Sans";
     width: 100% !important;
 
@@ -501,14 +501,23 @@ hr {
     border: 1px solid #ccc !important;
 }
 
+ng-deep .p-datepicker input::placeholder{
+  color: black !important;
+}
 ::ng-deep .p-inputtext {
-    background: #000 !important;
-    color: white !important;
+    background: #FFF !important;
+    color: black !important;
     font-family: "Sofia Sans";
     border-radius: 8px !important;
     padding: 10px !important;
     border: 1px solid #ccc !important;
 }
+
+::ng-deep input::placeholder {
+  color: #000 !important;
+  opacity: 1;
+}
+
 
 .btns {
   display: flex;
@@ -1035,4 +1044,6 @@ section {
 /* :host ::ng-deep .p-skeleton {
   animation-duration: 3.5s;
 } */
+
+
 

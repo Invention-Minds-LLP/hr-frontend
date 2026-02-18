@@ -7,8 +7,8 @@
             (ngModelChange)="onSearchChange($event)">
 
         <select class="input" [(ngModel)]="status" (ngModelChange)="onImmediateFilterChange()">
-            <option value="">All Statuses</option>
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+            <option class="drop-down" value="">All Statuses</option>
+            <option class="drop-down" *ngFor="let s of statuses" [value]="s">{{ s }}</option>
         </select>
         <!-- <input class="input" type="number" placeholder="Employee ID" [(ngModel)]="employeeId">
       <input class="input" type="number" placeholder="Mentor ID" [(ngModel)]="mentorId"> -->
@@ -203,18 +203,19 @@
                 <label class="field">Status
                     <select class="input" [(ngModel)]="createForm.status"
                         (ngModelChange)="onCreateStatusChange($event)">
-                        <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                        <option class="drop-down" *ngFor="let s of statuses" [value]="s">{{ s }}</option>
                     </select>
                 </label>
 
                 <label class="field">Start
-                    <input class="input" type="date" [(ngModel)]="createForm.startDate">
-                    <!-- or <p-datepicker [(ngModel)]="createForm.startDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+                    <!-- <input class="input" type="date" [(ngModel)]="createForm.startDate"> -->
+                    
+                     <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.startDate" dateFormat="yy-mm-dd"></p-datepicker>
                 </label>
 
                 <label class="field">End
-                    <input class="input" type="date" [(ngModel)]="createForm.endDate">
-                    <!-- or <p-datepicker [(ngModel)]="createForm.endDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+                    <!-- <input class="input" type="date" [(ngModel)]="createForm.endDate"> -->
+                    <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.endDate" dateFormat="yy-mm-dd"></p-datepicker>
                 </label>
 
                 <label class="field span-2">Notes

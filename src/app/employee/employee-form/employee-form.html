@@ -1205,7 +1205,7 @@
                             <div class="mandatory-note">
                                 <strong>Note:</strong> Please add at least one health issue.
                             </div>
-                            <div formArrayName="healthIssues">
+                            <div formArrayName="healthIssues" class="health-issues">
                                 <div class="mb-3">
                                     <button pButton type="button" label="+ Add Health Issue" class="p-button-secondary"
                                         (click)="addHealthIssue()"></button>
@@ -1249,7 +1249,7 @@
                                 <strong>Note:</strong> Please add Hepatitis B vaccination.
                             </div>
 
-                            <div formArrayName="vaccinations">
+                            <div formArrayName="vaccinations" class="vaccinations">
                                 <div class="mb-3">
                                     <button pButton type="button" label="+ Add Vaccination" class="p-button-secondary"
                                         (click)="addVaccination()"></button>
@@ -1350,7 +1350,7 @@
                                                     (change)="onVaccineProofSelect($event, i)" />
 
                                                 <!-- Show local file name if user just selected -->
-                                                <small *ngIf="vac.value.proofFileName">{{ vac.value.proofFileName
+                                                <small *ngIf="vac.value.proofFileName">File Name: {{ vac.value.proofFileName
                                                     }}</small>
 
                                                 <!-- OR show existing proofUrl as link -->

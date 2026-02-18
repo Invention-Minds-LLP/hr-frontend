@@ -213,3 +213,8 @@ letter-spacing: 0.14px;
 option{
   color: black;
 }
+
+.drop-down{
+  background: black !important;
+  color: white !important; 
+}

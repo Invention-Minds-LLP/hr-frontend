@@ -12,16 +12,16 @@
 
     <div class="tc-field">
       <select [(ngModel)]="ui.roleId" name="roleId">
-        <option [ngValue]="null">Role</option>
-        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
+        <option class="drop-down" [ngValue]="null">Role</option>
+        <option class="drop-down" *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
       </select>
       <!-- <span class="tc-caret"></span> -->
     </div>
 
     <div class="tc-field">
       <select [(ngModel)]="ui.level" name="level">
-        <option value="">Level</option>
-        <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+        <option class="drop-down" value="">Level</option>
+        <option class="drop-down" *ngFor="let l of levels" [value]="l">{{ l }}</option>
       </select>
       <!-- <span class="tc-caret"></span> -->
     </div>
@@ -29,8 +29,8 @@
     <!-- Row 2 -->
     <div class="tc-field">
       <select [(ngModel)]="ui.purpose" name="purpose">
-        <option value="">Purpose</option>
-        <option *ngFor="let p of purposes" [value]="p">{{ p }}</option>
+        <option  class="drop-down" value="">Purpose</option>
+        <option class="drop-down" *ngFor="let p of purposes" [value]="p">{{ p }}</option>
       </select>
       <!-- <span class="tc-caret"></span> -->
     </div>
@@ -50,19 +50,19 @@
 
     <div class="tc-field">
       <select [(ngModel)]="ui.randomization" name="randomization">
-        <option value="">Randomization</option>
-        <option value="none">None</option>
-        <option value="shuffle_questions">Shuffle Questions</option>
-        <option value="shuffle_options">Shuffle Options</option>
-        <option value="both">Both</option>
+        <option class="drop-down" value="">Randomization</option>
+        <option class="drop-down" value="none">None</option>
+        <option class="drop-down" value="shuffle_questions">Shuffle Questions</option>
+        <option class="drop-down" value="shuffle_options">Shuffle Options</option>
+        <option class="drop-down" value="both">Both</option>
       </select>
       <!-- <span class="tc-caret"></span> -->
     </div>
 
     <div class="tc-field">
       <select [(ngModel)]="formData.questionBankId" name="questionBankId" (change)="clearPreview()">
-        <option [ngValue]="0">Select Question Bank</option>
-        <option *ngFor="let bank of questionBanks" [ngValue]="bank.id">{{ bank.name }}</option>
+        <option class="drop-down" [ngValue]="0">Select Question Bank</option>
+        <option  class="drop-down" *ngFor="let bank of questionBanks" [ngValue]="bank.id">{{ bank.name }}</option>
       </select>
       <!-- <span class="tc-caret"></span> -->
     </div>

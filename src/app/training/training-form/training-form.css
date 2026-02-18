@@ -1,56 +1,57 @@
 :host ::ng-deep .p-floatLabel {
-    color: #fffdfd;
-    font-size: 0.85rem;
-  }
+  color: #fffdfd;
+  font-size: 0.85rem;
+}
 
-   ::ng-deep .training-form .p-card-body{
-    padding: 0px 60px 20px ;
-     --p-toggleswitch-checked-hover-background:#0062A1;
-     --p-toggleswitch-checked-background:#0062A1;
-     
-   }
-  
-  :host ::ng-deep .p-inputtext,
-  :host ::ng-deep .p-select,
-  :host ::ng-deep .p-multiselect,
-  :host ::ng-deep textarea,
-  :host ::ng-deep .p-datepicker {
-    background-color: transparent;
-    border: 1px solid #FFFFFF;
-    color: #fff;
-  }
-  
-  :host ::ng-deep .p-inputtext:focus,
-  :host ::ng-deep .p-select:focus,
-  :host ::ng-deep .p-multiselect:focus,
-  :host ::ng-deep textarea:focus {
-    border-color: #044cb1 !important;
-    box-shadow: 0 0 3px #044cb1 !important;
-  }
-  .p-inputtext ,
-  ::ng-deep .p-icon{
-    color: white !important;
-  }
-  
-  .p-textarea {
-    color: white !important;
-    background: transparent !important;
-    width: 100% !important;
-  }
-  
-  ::ng-deep .p-datepicker-input,
-  ::ng-deep .p-multiselect-label,
-  .p-select,
-  .p-inputtext::placeholder {
-    color: white !important;
-    background: transparent !important;
-  }
-  
-  ::ng-deep .p-select-label{
-    color: white !important;
-  }
+::ng-deep .training-form .p-card-body {
+  padding: 0px 60px 20px;
+  --p-toggleswitch-checked-hover-background: #0062A1;
+  --p-toggleswitch-checked-background: #0062A1;
 
-  .p-fluid .field input,
+}
+
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep textarea,
+:host ::ng-deep .p-datepicker {
+  background-color: transparent;
+  border: 1px solid #FFFFFF;
+  color: #fff;
+}
+
+:host ::ng-deep .p-inputtext:focus,
+:host ::ng-deep .p-select:focus,
+:host ::ng-deep .p-multiselect:focus,
+:host ::ng-deep textarea:focus {
+  border-color: #044cb1 !important;
+  box-shadow: 0 0 3px #044cb1 !important;
+}
+
+.p-inputtext,
+::ng-deep .p-icon {
+  color: white !important;
+}
+
+.p-textarea {
+  color: white !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
+::ng-deep .p-datepicker-input,
+::ng-deep .p-multiselect-label,
+.p-select,
+.p-inputtext::placeholder {
+  color: white !important;
+  background: transparent !important;
+}
+
+::ng-deep .p-select-label {
+  color: white !important;
+}
+
+.p-fluid .field input,
 .p-fluid .field .p-select,
 .p-fluid .field .p-datepicker,
 .p-fluid .field .p-calendar {
@@ -60,6 +61,7 @@
   background-color: transparent !important;
 
 }
+
 .trainer-table-wrapper {
   overflow-x: auto;
   background-color: transparent;
@@ -112,25 +114,26 @@
 .p-button-success:enabled:hover {
   background-color: #00e676;
 }
- ::ng-deep .p-card-title{
+
+::ng-deep .p-card-title {
   color: white;
 }
 
-h3{
-   color: white;
+h3 {
+  color: white;
 }
 
 
-.training-form  label{
-    color: white !important;
-    background-color: #000 !important;
-  }
+.training-form label {
+  color: white !important;
+  background-color: #000 !important;
+}
 
 .button ::ng-deep.p-button {
   display: flex;
   width: 100%;
   height: 44px;
-  padding:22px 16px;
+  padding: 22px 16px;
   justify-content: center;
   align-items: center;
   gap: 8px;
@@ -139,6 +142,7 @@ h3{
   background: #0062A1;
   border-color: #0062A1;
 }
+
 .p-floatlabel.float-active label {
   top: -0.25rem;
   font-size: 0.75rem;
@@ -147,9 +151,10 @@ h3{
 }
 
 .p-error,
-.text-danger{
+.text-danger {
   color: red;
 }
+
 ::ng-deep .p-datepicker-input {
   border: none !important;
 }
@@ -167,11 +172,52 @@ h3{
   font-family: "Sofia Sans";
 }
 
-.btn{
+.btn {
   display: flex;
   align-items: end;
-  justify-content:end;
+  justify-content: end;
+}
+
+::ng-deep .p-select,
+::ng-deep .p-select-list {
+  background: #020403 !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-label,
+::ng-deep .p-select-dropdown,
+::ng-deep .p-select-option {
+  color: white !important;
+  /* background-color: transparent !important; */
+}
+
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected.p-focus,
+::ng-deep .p-select-option.p-select-option-selected {
+  color: black !important;
 }
 
 
+::ng-deep .p-multiselect-overlay {
+  background: #020403 !important;
+  color: white !important;
+}
 
+::ng-deep .p-multiselect-option,
+::ng-deep .p-multiselect-display-chip .p-multiselect-label {
+  color: white !important;
+}
+
+::ng-deep .p-multiselect-option.p-multiselect-option-selected,
+::ng-deep .p-chip-remove-icon {
+  color: black !important;
+}
+
+::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
+  color: black !important;
+}
+
+.field {
+  --p-form-field-background: #000 !important;
+  --p-checkbox-background: #000 !important;
+}

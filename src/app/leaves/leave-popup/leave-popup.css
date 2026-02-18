@@ -427,6 +427,11 @@ hr {
   background: #ff5151;
 }
 
+.drop-down{
+  background: #020403 !important;
+  color: white !important;
+}
+
 @media (max-width: 500px) {
   /* Popup Container */
   .popup-backdrop {

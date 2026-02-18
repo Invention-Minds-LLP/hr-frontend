@@ -93,6 +93,7 @@
 
 }
 
+
 /* Make buttons consistent */
 .mt-3 {
   margin-top: 1.5rem;
@@ -387,7 +388,9 @@ div[hidden] {
 
 .file-upload-wrapper {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  /* align-items: center; */
 }
 
 .file-upload-wrapper .pi-upload {
@@ -395,6 +398,13 @@ div[hidden] {
   right: 20px;
   color: white;
 }
+.file-upload-wrapper small{
+  color: white;
+  font-size: 14px;
+  /* padding: 10px 0; */
+  /* margin-top: 40px; */
+}
+
 
 .card label {
   color: white;
@@ -703,6 +713,52 @@ a{
 /* Optional: grey placeholder when disabled */
 ::ng-deep input:disabled::placeholder {
   color: #94a3b8 !important;
+}
+
+::ng-deep .p-datepicker-dropdown{
+  background: transparent;
+}
+::ng-deep .p-datepicker-dropdown:hover{
+  background: transparent !important;
+}
+
+::ng-deep .p-button{
+  background: #194B9B;
+  border: none;
+}
+::ng-deep  .p-button:not(:disabled):hover {
+  background: #194B9B !important;
+  border: none !important;
+}
+::ng-deep .p-iconfield .p-inputtext{
+  color: white !important;
+}
+::ng-deep .vaccinations .p-button-label,
+::ng-deep .health-issues .p-button-label {
+  color: white !important;
+}
+
+::ng-deep .p-select-header{
+    background: #020403 !important;
+}
+
+::ng-deep .p-select-list{
+    background: #020403 !important;
+    color: white !important;
+}
+
+::ng-deep .p-select-empty-message{
+    color: white;
+}
+
+::ng-deep .p-button,
+::ng-deep .p-select-option{
+  color: white !important;
+}
+
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected{
+  color: black !important;
 }
 
 

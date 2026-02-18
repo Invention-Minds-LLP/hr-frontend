@@ -865,3 +865,43 @@ td.title .text {
   border: 1px solid #fff !important;
   /* white border so visible on dark bg */
 }
+
+::ng-deep .p-select-list{
+  background: #020403 !important;
+  color: white !important; 
+}
+
+::ng-deep .p-select-list{
+    background: #020403 !important;
+    color: white !important;
+}
+
+::ng-deep .p-select-empty-message{
+    color: white;
+}
+
+::ng-deep .p-button,
+::ng-deep .p-select-option{
+  color: white !important;
+}
+
+
+::ng-deep .p-iconfield .p-inputtext:not(:last-child),
+::ng-deep .p-iconfield .p-inputicon:last-child{
+  color: white !important;
+}
+
+::ng-deep .p-select-label{
+  color: white !important;
+}
+
+::ng-deep .p-select-header
+{
+  background: #020403 !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected{
+  color: black !important;
+}

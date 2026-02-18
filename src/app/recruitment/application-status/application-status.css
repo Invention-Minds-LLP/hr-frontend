@@ -472,6 +472,7 @@ td.actions {
 .option-row {
   display: flex;
   align-items: center;
+  color: #6b7280;
 }
 .name {
   font-weight: 600;
@@ -815,6 +816,15 @@ td.actions {
 .dialog-close-btn:hover {
   background: red;
   color: white;
+}
+
+::ng-deep .p-button-text.p-button-secondary{
+  color: black !important;
+}
+::ng-deep .p-multiselect-header,
+::ng-deep .p-multiselect-list{
+  background: #020403 !important;
+  color: white !important;
 }
 /* Stack on small screens */
 @media (max-width: 640px) {

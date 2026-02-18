@@ -239,3 +239,8 @@ hr {
   pointer-events: none;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'><path d='M7 2v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7z'/></svg>") no-repeat center;
 }
+
+.drop-down{
+  background: #020403 !important;
+  color: white !important;
+}

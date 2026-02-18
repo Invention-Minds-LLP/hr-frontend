@@ -850,3 +850,28 @@ border-bottom: none !important;
 ::ng-deep .assign-emp .p-inputtext {
   color: black !important
 }
+
+
+::ng-deep .p-multiselect-overlay{
+  background: #020403 !important;
+  color: white !important;
+}
+
+::ng-deep .p-multiselect-option,
+::ng-deep .p-multiselect-display-chip .p-multiselect-label,
+::ng-deep .p-iconfield .p-inputtext:not(:last-child),
+::ng-deep .p-icon{
+  color: white !important;
+}
+::ng-deep .p-multiselect-option.p-multiselect-option-selected,
+::ng-deep .p-chip-remove-icon{
+  color: black !important;
+}
+
+::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus{
+  color: black !important;
+}
+
+.field label{
+  color: white !important;
+}

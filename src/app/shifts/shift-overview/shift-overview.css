@@ -125,7 +125,7 @@ button {
 
 
 ::ng-deep .p-inputtext {
-    background: white !important;
+    /* background: white !important; */
     font-family: "Sofia Sans";
     color: black !important;
 }
