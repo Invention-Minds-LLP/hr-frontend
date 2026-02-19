@@ -53,12 +53,45 @@ export class TestAssignment {
     });
   }
 
+  // loadEmployees() {
+  //   this.employeeService.getActiveEmployees().subscribe({
+  //     next: (data) => this.employees = data,
+  //     error: (err) => console.error('Failed to load employees', err)
+  //   });
+  // }
   loadEmployees() {
-    this.employeeService.getActiveEmployees().subscribe({
-      next: (data) => this.employees = data,
-      error: (err) => console.error('Failed to load employees', err)
-    });
+    const roleId = Number(localStorage.getItem('roleId'));
+    const empId = Number(localStorage.getItem('empId'));
+
+    // Reporting Manager → only their employees
+    if (roleId === 3) {
+      this.employeeService.getByManager(empId).subscribe({
+        next: (data) => {
+          this.employees = data.map((emp: any) => ({
+            ...emp,
+            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? '(' + emp.employeeCode + ')' : ''}`
+          }));
+        },
+
+        error: (err) => console.error('Failed to load manager employees', err)
+      });
+    }
+
+    // HR or others → all active employees
+    else {
+      this.employeeService.getActiveEmployees().subscribe({
+        next: (data) => {
+          this.employees = data.map((emp: any) => ({
+            ...emp,
+            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? '(' + emp.employeeCode + ')' : ''}`
+          }));
+        },
+
+        error: (err) => console.error('Failed to load employees', err)
+      });
+    }
   }
+
 
   toggleSelection(empId: number) {
     const index = this.selectedEmployeeIds.indexOf(empId);

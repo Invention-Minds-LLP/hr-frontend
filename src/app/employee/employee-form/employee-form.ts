@@ -23,13 +23,15 @@ import { AbstractControl } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 
 
 @Component({
   selector: 'app-employee-form',
   imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
-    StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule, DialogModule, ToastModule],
+    StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule,
+    DialogModule, ToastModule, ToggleSwitchModule],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css',
   providers: [MessageService]
@@ -192,7 +194,8 @@ export class EmployeeForm {
       // Auto-fill category & type
       group.patchValue({
         category: meta.category,
-        type: meta.value
+        type: meta.value,
+
       });
 
       // Lock auto-filled fields
@@ -268,6 +271,7 @@ export class EmployeeForm {
       qualifications: this.fb.array([]),
 
       sameAsPermanent: [false],
+      geoTrackingEnabled: [false],
 
       permanentAddress: this.fb.group({
         line1: ['', Validators.required],
@@ -1134,10 +1138,15 @@ export class EmployeeForm {
     // Deduplicate in case multiple qualifications map to same doc
     mandatoryDocs = [...new Set(mandatoryDocs)];
 
+    // const missingMandatory = mandatoryDocs.filter(m => {
+    //   const doc = uploadedDocs.find((d: any) => d.type === m);
+    //   return !doc || (!doc.file && !doc.fileUrl);
+    // });
     const missingMandatory = mandatoryDocs.filter(m => {
       const doc = uploadedDocs.find((d: any) => d.type === m);
       return !doc || (!doc.file && !doc.fileUrl);
     });
+
 
     return { required: mandatoryDocs, missing: missingMandatory };
   }
@@ -1196,28 +1205,51 @@ export class EmployeeForm {
     formData.append(
       'metadata',
       JSON.stringify(
-        this.uploadedDocsForm.value.map((d: any) => ({
-          id: d.id ?? null,
-          fileKey: d.id ? `id:${d.id}` : d.fileKey,
-          title: d.type,
-          type: d.type,
-          category: d.category,
-          issueDate: d.issueDate,
-          expiryDate: d.expiryDate
-        }))
+        // this.uploadedDocsForm.value.map((d: any) => ({
+        //   id: d.id ?? null,
+        //   fileKey: d.id ? `id:${d.id}` : d.fileKey,
+        //   title: d.type,
+        //   type: d.type,
+        //   category: d.category,
+        //   issueDate: d.issueDate,
+        //   expiryDate: d.expiryDate
+        // }))
+        this.uploadedDocsForm.getRawValue()
+          .filter((d: any) => d.file instanceof File || d.fileUrl)
+          .map((d: any) => ({
+            id: d.id ?? null,
+            fileKey: d.id ? `id:${d.id}` : d.fileKey,
+            title: d.type,
+            type: d.type,
+            category: d.category,
+            issueDate: d.issueDate,
+            expiryDate: d.expiryDate
+          }))
       )
     );
 
     // Files
+    // this.uploadedDocsForm.controls.forEach(ctrl => {
+    //   if (ctrl.value.file instanceof File) {
+    //     formData.append('file', ctrl.value.file);
+    //     formData.append(
+    //       'fileKey',
+    //       ctrl.value.id ? `id:${ctrl.value.id}` : ctrl.value.fileKey
+    //     );
+    //   }
+    // });
     this.uploadedDocsForm.controls.forEach(ctrl => {
-      if (ctrl.value.file instanceof File) {
-        formData.append('file', ctrl.value.file);
+      const v = ctrl.value;
+
+      if (v.file instanceof File) {
+        formData.append('file', v.file);
         formData.append(
           'fileKey',
-          ctrl.value.id ? `id:${ctrl.value.id}` : ctrl.value.fileKey
+          v.id ? `id:${v.id}` : v.fileKey
         );
       }
     });
+
 
     this.employeeService.uploadEmployeeDocuments(employeeId, formData).subscribe({
       next: () =>
@@ -1301,7 +1333,7 @@ export class EmployeeForm {
       aadharNumber: data.aadharNumber,
       licenseNumber: data.licenseNumber,
       licenseRegDate: data.licenseRegDate ? new Date(data.licenseRegDate) : null,
-      licenseExpiryDate: data.licenseExpiryDate ? new Date(data.licenseExpiryDate): null,
+      licenseExpiryDate: data.licenseExpiryDate ? new Date(data.licenseExpiryDate) : null,
       marital: data.marital,
       shiftMode: mode,
       fixedShiftId:

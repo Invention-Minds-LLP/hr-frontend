@@ -210,8 +210,8 @@
 
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="licenseRegDate"dateFormat="yy-mm-dd"
-                                                    showIcon iconDisplay="input" ></p-datePicker>
+                                                <p-datePicker formControlName="licenseRegDate" dateFormat="yy-mm-dd"
+                                                    showIcon iconDisplay="input"></p-datePicker>
                                                 <label>License Registration Date</label>
                                             </p-floatLabel>
                                         </div>
@@ -219,8 +219,7 @@
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
                                                 <p-datePicker formControlName="licenseExpiryDate" dateFormat="yy-mm-dd"
-                                                    showIcon iconDisplay="input"
-                                                    ></p-datePicker>
+                                                    showIcon iconDisplay="input"></p-datePicker>
                                                 <label>License Expiry Date</label>
                                             </p-floatLabel>
                                         </div>
@@ -243,6 +242,7 @@
                                                 Marital Status is required
                                             </div> -->
                                         </div>
+
                                     </div>
 
                                     <div class="heading mb-2">Permanent Address</div>
@@ -624,6 +624,19 @@
                                         <label>Shift Template *</label>
                                     </p-floatLabel>
                                 </div>
+
+                                <!-- Geo Tracking Toggle -->
+                                <!-- <div class="field col-4">
+                                    <div class="flex align-items-center gap-2 mt-3">
+                                        <p-toggleSwitch formControlName="geoTrackingEnabled"/>
+                                        <label class="m-0">Enable Geo Tracking</label>
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Employee will be required to share location during work sessions.
+                                    </small>
+                                </div> -->
+
 
                                 <!-- If ROTATIONAL: choose a pattern and start date -->
                                 <!-- <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
