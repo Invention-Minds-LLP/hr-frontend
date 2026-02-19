@@ -28,7 +28,7 @@
             <div class="form-section">
                 <!-- From Date -->
                 <div class="form-row">
-                    <label>From</label>
+                    <label >From</label>
                     <div class="date-selectors">
                         <!-- <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
@@ -39,7 +39,7 @@
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
                                 {{ d }}
                             </option> -->
-                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
                                 {{ d }}
                             </option>
 
@@ -49,12 +49,12 @@
 
                         <select [(ngModel)]="fromMonth" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let m of monthsList">{{ m }}</option>
+                            <option class="drop-down" *ngFor="let m of monthsList">{{ m }}</option>
                         </select>
 
                         <select [(ngModel)]="fromYear" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let y of yearsList">{{ y }}</option>
+                            <option class="drop-down" *ngFor="let y of yearsList">{{ y }}</option>
                         </select>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
                                 {{ d }}
                             </option> -->
-                            <option *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
                                 {{ d }}
                             </option>
 
@@ -85,12 +85,12 @@
 
                         <select [(ngModel)]="toMonth" [disabled]="isHalfDay" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let m of monthsList">{{ m }}</option>
+                            <option class="drop-down" *ngFor="let m of monthsList">{{ m }}</option>
                         </select>
 
                         <select [(ngModel)]="toYear" [disabled]="isHalfDay" (change)="onDropdownChange()"
                             [ngModelOptions]="{standalone: true}">
-                            <option *ngFor="let y of yearsList">{{ y }}</option>
+                            <option class="drop-down" *ngFor="let y of yearsList">{{ y }}</option>
                         </select>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                 <div class="form-row">
                     <label>No. of Days</label>
                     <select disabled>
-                        <option>{{ days }}</option>
+                        <option class="drop-down">{{ days }}</option>
                     </select>
                 </div>
 
@@ -108,8 +108,8 @@
                     <label>Leave Type</label>
                     <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}"
                         (change)="checkLeaveBalance()">
-                        <option value="">Select Leave Type</option>
-                        <option *ngFor="let type of filteredLeaveTypes" [value]="type.name">{{ type.name }}</option>
+                        <option class="drop-down" value="">Select Leave Type</option>
+                        <option class="drop-down" *ngFor="let type of filteredLeaveTypes" [value]="type.name">{{ type.name }}</option>
                     </select>
                 </div>
 
@@ -126,8 +126,8 @@
                 <div class="form-row" *ngIf="isHalfDay">
                     <label>Session</label>
                     <select [(ngModel)]="halfDaySession" [ngModelOptions]="{standalone: true}">
-                        <option value="FIRST_HALF">First Half</option>
-                        <option value="SECOND_HALF">Second Half</option>
+                        <option class="drop-down" value="FIRST_HALF">First Half</option>
+                        <option class="drop-down" value="SECOND_HALF">Second Half</option>
                     </select>
                 </div>
 

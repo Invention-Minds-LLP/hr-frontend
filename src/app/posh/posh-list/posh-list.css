@@ -515,6 +515,19 @@ tbody tr {
   background: red;
   color: white;
 }
+::ng-deep .p-select-list{
+  background: #020403 !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-option{
+  color: white !important;
+}
+
+::ng-deep .p-select-option.p-select-option-selected,
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus{
+  color: #000 !important;
+}
 
 
 @media(max-width:767px){

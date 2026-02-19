@@ -324,9 +324,10 @@
 
 
 ::ng-deep .balances-accruals .p-inputtext {
-    background: transparent !important;
+    background: white !important;
     font-family: "Sofia Sans";
     width: 100% !important;
+    color: black !important;
 }
 
 
@@ -560,4 +561,20 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+::ng-deep .p-datepicker-dropdown{
+  background: transparent;
+}
+::ng-deep .p-datepicker-dropdown:hover{
+  background: transparent !important;
+}
+
+::ng-deep .p-button{
+  background: #194B9B;
+  border: none;
+}
+::ng-deep  .p-button:not(:disabled):hover {
+  background: #194B9B !important;
+  border: none !important;
 }

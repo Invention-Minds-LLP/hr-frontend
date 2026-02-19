@@ -303,7 +303,7 @@
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #767676;
+    color: #FFF;
     cursor: pointer;
   }
 
@@ -355,4 +355,30 @@
 
 :host ::ng-deep .due-date-picker input::placeholder {
   color: #FFF !important;   
+}
+
+::ng-deep .p-select-label{
+  color: white !important;
+}
+
+::ng-deep .p-select-header{
+  background: #020403 !important;
+  color: white !important;
+}
+
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected{
+  color: black !important;
+}
+
+::ng-deep .p-select-list{
+    background: #020403 !important;
+    color: white !important;
+}
+
+::ng-deep .p-select-empty-message,
+::ng-deep .p-select-option,
+::ng-deep .p-select-dropdown,
+::ng-deep .p-iconfield .p-inputicon:last-child{
+    color: white;
 }

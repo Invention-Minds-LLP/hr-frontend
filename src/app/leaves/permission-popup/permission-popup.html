@@ -7,21 +7,21 @@
             <div class="form-group">
                 <label>Select Permission Type:</label>
                 <select [(ngModel)]="permissionType">
-                    <option value="">Select Type</option>
-                    <option value="PERSONAL">Personal</option>
-                    <option value="OFFICIAL">Official</option>
-                    <!-- <option value="MEDICAL">Medical</option> -->
-                    <!-- <option value="OTHER">Other</option> -->
+                    <option class="drop-down" value="">Select Type</option>
+                    <option class="drop-down" value="PERSONAL">Personal</option>
+                    <option class="drop-down" value="OFFICIAL">Official</option>
+                    <!-- <option class="drop-down" value="MEDICAL">Medical</option> -->
+                    <!-- <option class="drop-down" value="OTHER">Other</option> -->
                 </select>
             </div>
 
             <div class="form-group">
                 <label>Select Timing :</label>
                 <select [(ngModel)]="timing" (change)="checkPermissionBalance()">
-                    <option value="">Select Timing</option>
+                    <option class="drop-down" value="">Select Timing</option>
                     <!-- <option value="FULLDAY">Full Day</option> -->
                     <!-- <option value="HALFDAY">Half Day</option> -->
-                    <option value="HOURLY">Hourly</option>
+                    <option class="drop-down" value="HOURLY">Hourly</option>
                 </select>
             </div>
 
