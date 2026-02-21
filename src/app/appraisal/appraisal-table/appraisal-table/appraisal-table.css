@@ -3,6 +3,7 @@
   padding: 20px 60px;
   background-color: transparent;
   /* Light background like screenshot */
+    --p-floatlabel-focus-color: white !important;
 }
 
 .pi {
@@ -469,6 +470,18 @@ hr {
 ::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus{
   color: black !important;
 }
+
+label{
+  color: white;
+}
+
+:host ::ng-deep .p-float-label .p-select.p-focus ~ label,
+:host ::ng-deep .p-float-label .p-select.p-inputwrapper-focus ~ label,
+:host ::ng-deep .p-float-label .p-select.p-filled ~ label {
+  color:#FFF !important;
+  z-index: 1000;
+}
+
 
 
 
