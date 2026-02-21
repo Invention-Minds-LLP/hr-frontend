@@ -1936,4 +1936,11 @@ hr {
   display: flex;
   align-items: center;
   justify-content: center;
+}.status.coming-up {
+  color: #3b82f6; /* blue */
+  font-weight: 500;
+}
+.status.not-started {
+  /* background-color: #fef3c7; */
+  color: #d97706;
 }

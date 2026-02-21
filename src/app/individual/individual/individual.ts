@@ -34,11 +34,11 @@ interface individual {
 
 interface AttendanceDay {
   dayName: string;
-  date?: Date;     
+  date?: Date;
   totalHours?: string;
   checkIn?: string;
   checkOut?: string;
-  status?: 'Leave' | 'Day Off' | 'Present' | 'Empty';
+  status?: 'Leave' | 'Day Off' | 'Present' | 'Empty' | 'Coming Up'| 'Not Started';
 }
 
 // put this in your component class
@@ -706,7 +706,7 @@ export class Individual {
 
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
-            date: current,  
+            date: current,
             totalHours: total,
             checkIn: this.formatTime(record.checkIn),
             checkOut: checkOutTime,
@@ -717,20 +717,47 @@ export class Individual {
         else {
           this.attendanceData.push({
             dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
-            date: current,  
+            date: current,
             status: record.status
           });
         }
-      } else {
+      }
+      //  else {
+      //   const isWeekOff = this.isApprovedWeekOff(current);
+
+      //   this.attendanceData.push({
+      //     dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
+      //     date: current,  
+      //     status: isWeekOff ? 'Day Off' : 'Leave'
+      //   });
+      // }
+      else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDate = new Date(current);
+        currentDate.setHours(0, 0, 0, 0);
+
         const isWeekOff = this.isApprovedWeekOff(current);
+
+        let status: 'Leave' | 'Day Off' | 'Empty' | 'Coming Up' | 'Not Started' = 'Empty';
+
+        if (isWeekOff) {
+          status = 'Day Off';
+        } else if (currentDate.getTime() === today.getTime()) {
+          status = 'Not Started'; // ✅ today but no check-in
+        } else if (currentDate > today) {
+          status = 'Coming Up'; // ✅ future
+        } else {
+          status = 'Empty'; // or 'Absent' if you want to show explicitly
+        }
 
         this.attendanceData.push({
           dayName: current.toLocaleDateString('en-US', { weekday: 'long' }),
-          date: current,  
-          status: isWeekOff ? 'Day Off' : 'Leave'
+          date: current,
+          status
         });
       }
-
     }
   }
 
@@ -941,23 +968,23 @@ export class Individual {
     return `${hours}:${minutes}`;
   }
 
-getTooltipText(day: AttendanceDay): string {
-  if (!day.checkIn) return '';
+  getTooltipText(day: AttendanceDay): string {
+    if (!day.checkIn) return '';
 
-  const dateText = day.date
-    ? new Date(day.date).toLocaleDateString('en-GB', {
+    const dateText = day.date
+      ? new Date(day.date).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
       })
-    : '';
+      : '';
 
-  if (day.checkIn && day.checkOut) {
-    return `${dateText}\nIn: ${day.checkIn}\nOut: ${day.checkOut}`;
+    if (day.checkIn && day.checkOut) {
+      return `${dateText}\nIn: ${day.checkIn}\nOut: ${day.checkOut}`;
+    }
+
+    return `${dateText}\nIn: ${day.checkIn}`;
   }
-
-  return `${dateText}\nIn: ${day.checkIn}`;
-}
 
 
 
