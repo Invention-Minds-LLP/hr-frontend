@@ -254,3 +254,8 @@ label {
 ::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus{
   color: black !important;
 }
+
+.requisition-container label{
+  color: white;
+  z-index: 1;
+}

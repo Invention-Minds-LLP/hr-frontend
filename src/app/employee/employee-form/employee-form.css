@@ -396,6 +396,7 @@ div[hidden] {
 .file-upload-wrapper .pi-upload {
   position: absolute;
   right: 20px;
+  top: 12px;
   color: white;
 }
 .file-upload-wrapper small{
