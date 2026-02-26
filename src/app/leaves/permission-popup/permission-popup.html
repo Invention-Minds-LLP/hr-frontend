@@ -6,7 +6,7 @@
         <div style="padding: 30px;">
             <div class="form-group">
                 <label>Select Permission Type:</label>
-                <select [(ngModel)]="permissionType">
+                <select [(ngModel)]="permissionType" (ngModelChange)="loadMonthlyPermissionUsage()">
                     <option class="drop-down" value="">Select Type</option>
                     <option class="drop-down" value="PERSONAL">Personal</option>
                     <option class="drop-down" value="OFFICIAL">Official</option>
@@ -17,7 +17,7 @@
 
             <div class="form-group">
                 <label>Select Timing :</label>
-                <select [(ngModel)]="timing" (change)="checkPermissionBalance()">
+                <select [(ngModel)]="timing" (ngModelChange)="loadMonthlyPermissionUsage()">
                     <option class="drop-down" value="">Select Timing</option>
                     <!-- <option value="FULLDAY">Full Day</option> -->
                     <!-- <option value="HALFDAY">Half Day</option> -->
@@ -27,7 +27,7 @@
 
             <div class="form-group">
                 <label>Select Day :</label>
-                <input type="date" [(ngModel)]="day"  (change)="checkPermissionBalance()"/>
+                <input type="date" [(ngModel)]="day" (ngModelChange)="loadMonthlyPermissionUsage()"/>
             </div>
             <!-- <div class="date-wrapper">
                 <input type="date" [(ngModel)]="day" />

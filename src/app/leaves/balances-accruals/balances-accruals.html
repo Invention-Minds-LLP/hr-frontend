@@ -173,12 +173,12 @@
 
                 <div class="type">{{ l.value.type }}</div>
 
-                <input pInputText type="number" formControlName="totalAllowed" placeholder="Total"
+                <input pInputText type="number" formControlName="totalAllowed" inputmode="decimal" step="any" placeholder="Total"
                     (input)="calculateRemaining(l)" />
 
                 <!-- <input pInputText type="number" formControlName="used" placeholder="Used"
                     (input)="calculateRemaining(l)" /> -->
-                <input pInputText type="number" formControlName="used" placeholder="Full Days"
+                <input pInputText type="number" formControlName="used" inputmode="decimal"  step="any" placeholder="Full Days"
                     (input)="calculateRemaining(l)" />
 
                 <input pInputText type="number" formControlName="usedHalf" placeholder="Half Days"
@@ -190,26 +190,28 @@
             </div>
 
         </div>
-
+<!-- 
         <div class="mt-3 balance-heading">Permissions</div>
         <div formArrayName="permissions">
             <div class="balance-row" *ngFor="let p of permissions.controls; let i=index" [formGroupName]="i">
 
                 <div class="type">{{ p.value.type }}</div>
 
-                <input pInputText type="number" formControlName="totalAllowed" placeholder="Total"
+                <input pInputText type="number" formControlName="totalAllowed" inputmode="decimal" step="any" placeholder="Total"
                     (input)="calculateRemaining(p)" />
 
-                <input pInputText type="number" formControlName="used" placeholder="Used"
+                <input pInputText type="number" formControlName="used" inputmode="decimal"  step="any" placeholder="Used"
                     (input)="calculateRemaining(p)" />
 
                 <div class="remaining">
                     Remaining: {{ p.get('remaining')?.value }}
+                     Remaining: 
+{{ p.value.isUnlimited ? 'Unlimited' : p.get('remaining')?.value }}
                 </div>
 
             </div>
 
-        </div>
+        </div> -->
 
 
         <div class="flex justify-content-end mt-4">

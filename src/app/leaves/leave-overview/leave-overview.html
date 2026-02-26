@@ -19,9 +19,7 @@
             </button>
             <span class="br" *ngIf="deptId === 1"></span>
             <button (click)="show('balances')" *ngIf="deptId === 1">
-                <li class="sub-item" [ngClass]="{ 'active': active === 'balances' }">Balances
-                    &
-                    Accruals</li>
+                <li class="sub-item" [ngClass]="{ 'active': active === 'balances' }">Balances</li>
             </button>
         </ul>
     </nav>

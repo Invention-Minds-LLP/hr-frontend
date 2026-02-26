@@ -88,10 +88,6 @@ export class Leaves {
       leaveType: number;       // leaveTypeId
       totalAllowed: number;
     }[];
-    permissions: {
-      permissionType: string;  // PERSONAL | MEDICAL | OFFICIAL
-      totalAllowed: number;
-    }[];
   }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/leave-balances`, payload);
   }

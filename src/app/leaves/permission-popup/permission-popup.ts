@@ -177,18 +177,21 @@ export class PermissionPopup {
       });
   }
 
+  getFinancialYear(date: Date): number {
+    const month = date.getMonth() + 1; // Jan = 1
+    const year = date.getFullYear();
+
+    return month >= 4 ? year : year - 1;
+  }
+
   checkPermissionBalance() {
     // const year = new Date(this.day).getFullYear();
     let year: number;
 
-    console.log(this.day)
-
-    // If day selected → use its year
     if (this.day) {
-      year = new Date(this.day).getFullYear();
+      year = this.getFinancialYear(new Date(this.day));
     } else {
-      // fallback → current year
-      year = new Date().getFullYear();
+      year = this.getFinancialYear(new Date());
     }
 
     const type = this.permissionType;
@@ -201,7 +204,7 @@ export class PermissionPopup {
 
         this.remainingPermission = bal.remaining;
 
-        if (bal.remaining <= 0) {
+        if (!bal.isUnlimited && bal.remaining <= 0) {
           this.messageService.add({
             severity: 'error',
             summary: 'No Permission Balance',
@@ -236,17 +239,32 @@ export class PermissionPopup {
       return false;
     }
 
+    if (this.permissionType === 'OFFICIAL') {
+      return true;
+    }
+
     const totalAfterRequest =
       this.usedPermissionHours + requestedHours;
     console.log(totalAfterRequest)
 
+    //     if (totalAfterRequest > this.maxPermissionHours) {
+    //       this.messageService.add({
+    //         severity: 'error',
+    //         summary: 'Permission Limit Exceeded',
+    //         detail: `You already used ${this.usedPermissionHours} hrs this month.
+    // Only ${(this.maxPermissionHours - this.usedPermissionHours).toFixed(2)} hr(s) remaining.`
+    //       });
+    //       return false;
+    //     }
     if (totalAfterRequest > this.maxPermissionHours) {
+      const remaining = Math.max(0, this.maxPermissionHours - this.usedPermissionHours);
+
       this.messageService.add({
         severity: 'error',
         summary: 'Permission Limit Exceeded',
-        detail: `You already used ${this.usedPermissionHours} hrs this month.
-Only ${(this.maxPermissionHours - this.usedPermissionHours).toFixed(2)} hr(s) remaining.`
+        detail: `You are requesting ${requestedHours.toFixed(2)} hr(s), but only ${remaining.toFixed(2)} hr(s) remaining this month.`
       });
+
       return false;
     }
 

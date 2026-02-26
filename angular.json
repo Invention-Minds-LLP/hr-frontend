@@ -26,6 +26,7 @@
               "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
                 "node_modules/angular-calendar/css/angular-calendar.css",
+                  "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
             ]
           },

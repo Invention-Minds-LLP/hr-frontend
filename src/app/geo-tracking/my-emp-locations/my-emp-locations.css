@@ -881,3 +881,129 @@ section {
   font-size: 13px;
   cursor: pointer;
 }
+.session-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  min-width: 100px;
+}
+
+.session-date {
+  flex: 1;
+}
+
+::ng-deep .session-date .p-inputtext {
+  width: 100%;
+  background: #111;
+  color: white;
+  border: 1px solid #333;
+}
+.session-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-btn {
+  background: #194B9B;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.map-box {
+  height: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.photo-title {
+  margin-top: 10px;
+  color: white;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.photo-grid img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.time-dot {
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 2px 6px;
+  font-size: 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.time-label {
+  border: none;
+  background: transparent;
+}
+.map-stats {
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.map-stats-bar {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #0b0b0b;
+  color: #fff;
+  margin-bottom: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.map-stats-bar .stat {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  min-width: 120px;
+}
+
+.map-stats-bar .label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 2px;
+}
+
+.map-stats-bar .value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.map-box {
+  width: 100%;
+  height: 350px;
+  border-radius: 12px;
+  overflow: hidden;
+}

@@ -73,17 +73,18 @@
   [style]="{ width: '600px' }"
 >
 
-  <!-- Date filter -->
-  <div class="mb-3">
-    <label>Select Date</label>
-    <p-datepicker
-      [(ngModel)]="selectedSessionDate"
-      (onSelect)="filterSessionsByDate()"
-      dateFormat="yy-mm-dd"
-      appendTo="body"
-      [showIcon]="true">
-    </p-datepicker>
-  </div>
+<div class="session-filter">
+  <label class="filter-label">Select Date</label>
+
+  <p-datepicker
+    [(ngModel)]="selectedSessionDate"
+    (onSelect)="filterSessionsByDate()"
+    dateFormat="yy-mm-dd"
+    appendTo="body"
+     showIcon iconDisplay="input"
+    class="session-date">
+  </p-datepicker>
+</div>
 
 <div class="session-list">
 
@@ -111,7 +112,7 @@
       <button
         class="view-btn"
         (click)="openSessionDetails(s)">
-        View
+        View Map
       </button>
     </div>
 
@@ -122,24 +123,43 @@
 
 </p-dialog>
 <p-dialog
-  header="Session Details"
+  header="Session Map"
   [(visible)]="showSessionPopup"
   [modal]="true"
   [style]="{ width: '700px' }"
+  (onShow)="onMapDialogShow()"
 >
+  <!-- ✅ STATS OUTSIDE MAP -->
+  <div class="map-stats-bar" *ngIf="mapStats">
+    <div class="stat">
+      <div class="label">Distance</div>
+      <div class="value">{{ mapStats.distanceKm }} km</div>
+    </div>
 
-  <!-- Map -->
-  <div class="map-box">
-    <!-- replace with real map later -->
-    <div *ngIf="routePoints?.length">
-      Route points: {{ routePoints.length }}
+    <div class="stat">
+      <div class="label">Duration</div>
+      <div class="value">{{ mapStats.durationMin }} min</div>
+    </div>
+
+    <div class="stat" *ngIf="mapStats.startTime">
+      <div class="label">Start</div>
+      <div class="value">{{ mapStats.startTime }}</div>
+    </div>
+
+    <div class="stat" *ngIf="mapStats.endTime">
+      <div class="label">End</div>
+      <div class="value">{{ mapStats.endTime }}</div>
     </div>
   </div>
 
+  <!-- Map -->
+  <div id="routeMap" class="map-box"></div>
+
   <!-- Photos -->
-  <h4>Photos</h4>
+  <h4 class="photo-title">Photos</h4>
   <div class="photo-grid">
     <img *ngFor="let p of photos" [src]="p.url" />
   </div>
-
 </p-dialog>
+
+

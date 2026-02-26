@@ -35,7 +35,6 @@ export const AuthInterceptor: HttpInterceptorFn = (
     );
   }
 
-  // ✅ Always return the unmodified request if token logic doesn't run
   return next(req);
 };
 

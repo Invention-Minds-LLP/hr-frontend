@@ -79,7 +79,7 @@ export class BalancesAccruals {
   loading = true
 
   showBalanceDialog = false;
-  selectedYear = new Date().getFullYear();
+  selectedYear = this.getFinancialYear(new Date());
   balanceForm!: FormGroup;
   showDetailsDialog = false;
   isLoading = false;
@@ -109,7 +109,7 @@ export class BalancesAccruals {
     this.balanceForm = this.fb.group({
       year: [this.selectedYear, Validators.required],
       leaves: this.fb.array([]),
-      permissions: this.fb.array([])
+      // permissions: this.fb.array([])
     });
     this.sabbaticalForm = this.fb.group({
       startDate: [null, Validators.required],
@@ -204,7 +204,7 @@ export class BalancesAccruals {
   loadBalances(employeeId: number, year: number) {
     // reset form
     this.balanceForm.setControl('leaves', this.fb.array([]));
-    this.balanceForm.setControl('permissions', this.fb.array([]));
+    // this.balanceForm.setControl('permissions', this.fb.array([]));
     this.balanceForm.patchValue({ year });
 
     // 🔹 LEAVES
@@ -220,16 +220,16 @@ export class BalancesAccruals {
       });
 
     // 🔹 PERMISSIONS (using SAME API as requested)
-    this.permissionService.getPermissionBalance(employeeId, year)
-      .subscribe((permissions: any[]) => {
-        permissions.forEach(p => {
-          const row = this.createPermissionRow(p);
-          this.permissions.push(row);
+    // this.permissionService.getPermissionBalance(employeeId, year)
+    //   .subscribe((permissions: any[]) => {
+    //     permissions.forEach(p => {
+    //       const row = this.createPermissionRow(p);
+    //       this.permissions.push(row);
 
-          // ✅ calculate remaining immediately
-          this.calculateRemaining(row);
-        });
-      });
+    //       // ✅ calculate remaining immediately
+    //       this.calculateRemaining(row);
+    //     });
+    //   });
   }
 
   createLeaveRow(l: any) {
@@ -269,9 +269,31 @@ export class BalancesAccruals {
   openBalanceDialog(employee: any) {
     this.selectedEmployee = employee;
     this.showBalanceDialog = true;
+    this.selectedYear = this.getFinancialYear(new Date());
     this.loadBalances(employee.id, this.selectedYear);
   }
+  logFormErrors(form: FormGroup | FormArray) {
+    Object.keys(form.controls).forEach(key => {
+      const control = form.get(key);
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.logFormErrors(control);
+      } else {
+        if (control && control.invalid) {
+          console.log('❌ Field:', key, 'Errors:', control.errors);
+        }
+      }
+    });
+  }
   saveBalances() {
+    if (this.balanceForm.invalid) {
+      console.log(this.balanceForm);
+      console.log(this.balanceForm.errors);
+      console.log(this.balanceForm.value);
+
+      this.logFormErrors(this.balanceForm);
+      return;
+    }
     if (this.balanceForm.invalid) return;
 
     const v = this.balanceForm.value;
@@ -289,11 +311,12 @@ export class BalancesAccruals {
         halfDayUsed: l.usedHalf
       })),
 
-      permissions: v.permissions.map((p: any) => ({
-        permissionType: p.permissionType,
-        totalAllowed: p.totalAllowed,
-        used: p.used
-      }))
+      // permissions: v.permissions.map((p: any) => ({
+      //   permissionType: p.permissionType,
+      //   totalAllowed: p.permissionType === 'OFFICIAL' ? 0 : p.totalAllowed,
+      //   used: p.permissionType === 'OFFICIAL' ? 0 : p.used,
+      //   isUnlimited: p.permissionType === 'OFFICIAL'
+      // }))
     };
 
     this.leaveService.createLeaveAllocation(payload).subscribe(() => {
@@ -303,31 +326,42 @@ export class BalancesAccruals {
   }
 
   // calculateRemaining(row: AbstractControl) {
-  //   const total = Number(row.get('totalAllowed')?.value) || 0;
-  //   const used = Number(row.get('used')?.value) || 0;
+  //   const total = parseFloat(row.get('totalAllowed')?.value) || 0;
+  //   const usedFull = parseFloat(row.get('used')?.value) || 0;
+  //   const usedHalfCount = Number(row.get('usedHalf')?.value) || 0;
 
-  //   if (used > total) {
+  //   const usedHalfDays = usedHalfCount * 0.5;
+  //   const totalUsed = usedFull + usedHalfDays;
+
+  //   if (totalUsed > total) {
   //     row.get('used')?.setErrors({ exceedsTotal: true });
   //     return;
   //   }
 
-  //   row.get('remaining')?.setValue(total - used, { emitEvent: false });
+  //   row.get('remaining')?.setValue(total - totalUsed, { emitEvent: false });
   // }
+
   calculateRemaining(row: AbstractControl) {
-  const total = Number(row.get('totalAllowed')?.value) || 0;
-  const usedFull = Number(row.get('used')?.value) || 0;
-  const usedHalfCount = Number(row.get('usedHalf')?.value) || 0;
+    const total = parseFloat(row.get('totalAllowed')?.value) || 0;
+    const usedFull = parseFloat(row.get('used')?.value) || 0;
+    const usedHalfCount = parseFloat(row.get('usedHalf')?.value) || 0;
 
-  const usedHalfDays = usedHalfCount * 0.5;
-  const totalUsed = usedFull + usedHalfDays;
+    const totalUsed = usedFull + (usedHalfCount * 0.5);
 
-  if (totalUsed > total) {
-    row.get('used')?.setErrors({ exceedsTotal: true });
-    return;
+    const usedControl = row.get('used');
+
+    if (totalUsed > total) {
+      usedControl?.setErrors({ exceedsTotal: true });
+    } else {
+      // ✅ VERY IMPORTANT: clear error
+      if (usedControl?.hasError('exceedsTotal')) {
+        usedControl.setErrors(null);
+      }
+    }
+
+    const remaining = total - totalUsed;
+    row.get('remaining')?.setValue(remaining, { emitEvent: false });
   }
-
-  row.get('remaining')?.setValue(total - totalUsed, { emitEvent: false });
-}
 
   openSabbaticalDialog(employee: any) {
     this.selectedEmployee = employee;
@@ -355,12 +389,17 @@ export class BalancesAccruals {
     });
   }
 
-    getDefaultImage(gender?: string | null): string {
+  getDefaultImage(gender?: string | null): string {
     const g = gender?.toUpperCase?.() || 'MALE';
     return g === 'FEMALE'
       ? '/img-women.png'
       : '/img.png';
   }
+  getFinancialYear(date: Date): number {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
 
+    return month >= 4 ? year : year - 1;
+  }
 }
 
