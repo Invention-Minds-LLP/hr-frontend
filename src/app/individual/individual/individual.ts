@@ -232,7 +232,8 @@ export class Individual {
   //     });
   // }
   getLeaveBalance() {
-    const year = new Date().getFullYear();
+    // const year = new Date().getFullYear();.
+    const year = this.getFinancialYear(new Date());
     const employeeId = Number(this.currentUserId);
 
     this.leaveService.getLeaveBalance(employeeId, year)
@@ -986,7 +987,11 @@ export class Individual {
     return `${dateText}\nIn: ${day.checkIn}`;
   }
 
-
+getFinancialYear(date: Date): number {
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return month >= 4 ? year : year - 1;
+}
 
 }
 
