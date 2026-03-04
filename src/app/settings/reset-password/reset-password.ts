@@ -27,11 +27,11 @@ export class ResetPassword {
   selectedEmployee: any;
   role: string = '';
   disableSelect = false;
-  userId: any;
+  userId: number | null = null;
 
   formSubmitted = false;
 
-  constructor(private userService: User, private messageService : MessageService) { }
+  constructor(private userService: User, private messageService: MessageService) { }
 
   ngOnInit() {
     // const stored = localStorage.getItem('employee');
@@ -46,15 +46,14 @@ export class ResetPassword {
     const storedName = localStorage.getItem('name');
     const storedId = localStorage.getItem('userId');
 
-    if (storedId) {
-      this.userId = storedId;
-    }
+    if (storedId) this.userId = Number(storedId);
 
     if (storedRole) {
       this.role = storedRole.toLowerCase();
     }
 
     const restrictedRoles = ['executives', 'intern', 'junior executive'];
+    console.log(this.role)
     if (restrictedRoles.includes(this.role)) {
       // Just show their own employee
       this.disableSelect = true;
@@ -67,6 +66,7 @@ export class ResetPassword {
         next: (res: any) => {
           const items = Array.isArray(res) ? res : res?.items;
           const list = (items ?? []).map((u: any) => ({
+            userId: u.id,
             employeeId: u.employeeCode,
             name: u.username
           }));
@@ -84,14 +84,30 @@ export class ResetPassword {
   onResetPassword(form: NgForm) {
     this.formSubmitted = true;
     if (form.valid && !this.passwordMismatch()) {
+
+      const targetUserId =
+        this.disableSelect
+          ? Number(this.userId)                 // self reset
+          : Number(this.selectedEmployee?.userId);
+
+      console.log(targetUserId);
+      if (!targetUserId || Number.isNaN(targetUserId)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Please select an employee'
+        });
+        this.formSubmitted = false;
+        return;
+      }
       this.userService
-        .resetMyPassword(parseInt(this.userId), this.reset.confirmPassword, this.reset.newPassword)
+        .resetMyPassword(targetUserId, this.reset.confirmPassword, this.reset.newPassword)
         .subscribe({
           next: (res) => {
             // alert(res?.message || 'Password reset successfully!');
             this.messageService.add({
-              severity:'success',
-              summary:'Success',
+              severity: 'success',
+              summary: 'Success',
               detail: res.message || 'Password reset successfully!'
             })
             this.onClear(form);
@@ -103,26 +119,26 @@ export class ResetPassword {
               'Failed to reset password.';
             // alert(msg);
             this.messageService.add({
-              severity:'error',
-              summary:'Error',
-              detail:msg
-          })
+              severity: 'error',
+              summary: 'Error',
+              detail: msg
+            })
           }
         })
       // alert('Password reset successfully!');
       this.messageService.add({
-        severity:'success',
-        summary:'Success',
-        detail:'Password reset successfully!'
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Password reset successfully!'
       })
       console.log('Password Reset:', this.reset);
 
     } else {
       // alert('Confirm Password Not Mathched');
       this.messageService.add({
-        severity:'error',
-        summary:'Error',
-        detail:'Confirm Password Not Matched'
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Confirm Password Not Matched'
       })
     }
     // this.onClear(); 
