@@ -101,5 +101,7 @@ getCompOffCredits(employeeId: number) {
     `${this.apiUrl}/comp-off/credits?employeeId=${employeeId}`
   );
 }
-
+uploadPrescription(leaveId: number, data: FormData) {
+  return this.http.post(`${this.apiUrl}/${leaveId}/prescription`, data);
+}
 }

@@ -237,12 +237,17 @@
             ]" [ngClass]="{'ng-invalid': showError(employeeForm.get('marital'))}"></p-select>
                                                 <label>Marital Status</label>
                                             </p-floatLabel>
-                                            <!-- 
-                                            <div class="error-msg" *ngIf="showError(employeeForm.get('maritalStatus'))">
-                                                Marital Status is required
-                                            </div> -->
                                         </div>
 
+                                        <div class="field col-4">
+                                            <p-floatLabel variant="on">
+                                                <p-select formControlName="experienceType" [options]="[
+                { label: 'Fresher', value: 'FRESHER' },
+                { label: 'Experienced', value: 'EXPERIENCED' },
+            ]" [ngClass]="{'ng-invalid': showError(employeeForm.get('experienceType'))}"></p-select>
+                                                <label>Experience Type</label>
+                                            </p-floatLabel>
+                                        </div>
                                     </div>
 
                                     <div class="heading mb-2">Permanent Address</div>
@@ -1026,7 +1031,7 @@
                                     <div class="error-msg"
                                         *ngIf="showError(employeeForm.get('preEmploymentCheckDate'))">
                                         Date of
-                                        Birth is
+                                        Pre Employment Check is
                                         required</div>
                                 </p-floatLabel>
                             </div>
@@ -1363,7 +1368,8 @@
                                                     (change)="onVaccineProofSelect($event, i)" />
 
                                                 <!-- Show local file name if user just selected -->
-                                                <small *ngIf="vac.value.proofFileName">File Name: {{ vac.value.proofFileName
+                                                <small *ngIf="vac.value.proofFileName">File Name: {{
+                                                    vac.value.proofFileName
                                                     }}</small>
 
                                                 <!-- OR show existing proofUrl as link -->
@@ -1415,7 +1421,11 @@
                             <div class="flex py-6 gap-2 btn">
                                 <p-button label="Previous" severity="secondary" (onClick)="activateCallback(4)" />
                                 <p-button type="submit" label="Submit" [label]="isLoading ? 'Submitting': 'Submit'"
-                                    [loading]="isLoading" [disabled]="employeeForm.invalid"></p-button>
+                                    [loading]="isLoading"></p-button>
+
+                            </div>
+                            <div *ngIf="employeeForm.invalid" class="text-sm text-red-500">
+                                Please complete all required fields to enable Submit.
                             </div>
                         </ng-template>
                     </p-step-panel>

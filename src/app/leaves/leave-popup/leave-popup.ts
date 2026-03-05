@@ -57,6 +57,7 @@ export class LeavePopup {
   isHalfDay = false;
   halfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
   compOffDates = new Set<string>();
+  selectedPrescription: File | null = null;
 
 
 
@@ -99,6 +100,8 @@ export class LeavePopup {
   approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
   weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
   compOffCredits: any[] = [];
+  prescriptionUrl: string | null = null;
+  previewUrl: string | null = null;
 
 
 
@@ -329,6 +332,8 @@ export class LeavePopup {
     this.reason = data.reason;
     this.declineReason = data.declineReason;
     this.isHalfDay = data.isHalfDay;
+    this.selectedPrescription = null;
+    this.prescriptionUrl = data.prescriptionUrl || null;
 
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
@@ -713,6 +718,14 @@ export class LeavePopup {
       })
       return;
     }
+    if(!this.reason){
+            this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please provide a reason'
+      })
+      return;
+    }
     if (this.leaveType === 'CO') {
       for (
         let d = new Date(this.fromDate);
@@ -775,8 +788,23 @@ export class LeavePopup {
         });
         console.log('API response:', res);
         this.isLoading = false;
+                if (this.leaveType === 'SL' && this.selectedPrescription) {
+          const fileData = new FormData();
+          fileData.append('prescription', this.selectedPrescription);
+
+          this.leaveService.uploadPrescription(res.id, fileData)
+            .subscribe(() => {
+              // this.showSuccess();
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'File uploaded successfully!'
+              });
+            });
+        }
         this.closePopup();
         this.resetForm();
+
       },
       error: (err) => {
         console.error('Error applying leave:', err);
@@ -1194,5 +1222,21 @@ export class LeavePopup {
 
     return d < today;
   }
+  onPrescriptionSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
 
+    this.previewUrl = URL.createObjectURL(file);
+
+    if (!file.type.startsWith('image/')) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid File',
+        detail: 'Only image files allowed'
+      });
+      return;
+    }
+
+    this.selectedPrescription = file;
+  }
 }

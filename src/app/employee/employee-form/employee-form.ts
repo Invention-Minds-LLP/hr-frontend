@@ -256,6 +256,7 @@ export class EmployeeForm {
       inchargeId: [''],
       fatherName: [''],
       marital: [''],
+      experienceType: [''],
       motherName: [''],
       alternatePhone: [''],
       uanNumber: [''],
@@ -408,6 +409,11 @@ export class EmployeeForm {
     });
 
     this.employeeForm.get('employeeType')?.valueChanges.subscribe(() => {
+      this.autoAddMissingDocuments();
+      this.mandatoryDocStatus = this.getMandatoryDocs();
+    });
+
+    this.employeeForm.get('experienceType')?.valueChanges.subscribe(() => {
       this.autoAddMissingDocuments();
       this.mandatoryDocStatus = this.getMandatoryDocs();
     });
@@ -732,6 +738,68 @@ export class EmployeeForm {
   onSubmit() {
     const invalidFields = this.getInvalidFields(this.employeeForm);
     console.log('Invalid fields:', invalidFields);
+    // always allow click; if invalid show a helpful toast
+    this.markAllTouched(this.employeeForm);
+
+    // include your custom validations too
+    const invalidPaths = this.collectInvalidPaths(this.employeeForm);
+
+    const customProblems: string[] = [];
+
+    if (!this.validateMandatoryDocs()) {
+      const md = this.getMandatoryDocs();
+      customProblems.push(`Missing mandatory documents: ${md.missing.join(', ')}`);
+    }
+    if (!this.validateHepBVaccination()) {
+      customProblems.push('Hepatitis B vaccination details are required (vaccinated = Yes + first dose date).');
+    }
+
+    if (invalidPaths.length || customProblems.length) {
+      // build readable list, grouped by step
+      const items = invalidPaths.map(p => ({
+        step: this.stepForPath(p),
+        text: this.prettyLabel(p)
+      }));
+
+      const grouped = new Map<string, string[]>();
+      items.forEach(i => {
+        if (!grouped.has(i.step)) grouped.set(i.step, []);
+        grouped.get(i.step)!.push(i.text);
+      });
+
+      // Limit spam: show top N, tell count
+      const MAX = 10;
+      const flatLines: string[] = [];
+
+      grouped.forEach((fields, step) => {
+        const uniq = Array.from(new Set(fields));
+        flatLines.push(`${step}: ${uniq.join(', ')}`);
+      });
+
+      customProblems.forEach(p => flatLines.push(p));
+
+      const totalCount = invalidPaths.length + customProblems.length;
+      const preview = flatLines.slice(0, MAX).join(' | ');
+      const more = flatLines.length > MAX ? ` (+${flatLines.length - MAX} more)` : '';
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Cannot submit',
+        detail: `${preview}${more}`
+      });
+
+      // optional: jump user to the first invalid step
+      const first = invalidPaths[0];
+      if (first) {
+        const step = this.stepForPath(first);
+        if (step.startsWith('Step 1')) this.activeIndex = 0;
+        else if (step.startsWith('Step 2')) this.activeIndex = 1;
+        else if (step.startsWith('Step 3')) this.activeIndex = 2;
+        else if (step.startsWith('Step 4')) this.activeIndex = 3;
+      }
+
+      return;
+    }
     if (!this.validateMandatoryDocs()) {
       this.messageService.add({
         severity: 'error',
@@ -1108,16 +1176,26 @@ export class EmployeeForm {
   getMandatoryDocs(): { required: string[], missing: string[] } {
     const uploadedDocs = this.uploadedDocsForm.getRawValue();
     const employeeType = this.employeeForm.get('employeeType')?.value;
+    const experienceType = (this.employeeForm.get('experienceType')?.value || '').toUpperCase();
 
     let mandatoryDocs: string[] = [];
 
     // Employee type specific
-    if (employeeType === 'CLINICAL') {
-      mandatoryDocs = ['REGISTRATION_CERT'];
-      // mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-    } else if (employeeType === 'NONCLINICAL') {
-      // mandatoryDocs = ['REGISTRATION_CERT'];
-      mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    // if (employeeType === 'CLINICAL') {
+    //   mandatoryDocs = ['REGISTRATION_CERT'];
+    //   // mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    // } else if (employeeType === 'NONCLINICAL') {
+    //   // mandatoryDocs = ['REGISTRATION_CERT'];
+    //   mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
+    // }
+    const isFresher = experienceType === 'FRESHER'
+    console.log(isFresher)
+    if (!isFresher) {
+      if (employeeType === 'CLINICAL') {
+        mandatoryDocs.push('REGISTRATION_CERT');
+      } else if (employeeType === 'NONCLINICAL') {
+        mandatoryDocs.push('SALARY_CERT', 'VERIFICATION_CERT'); // or EXPERIENCE_CERT if you use that
+      }
     }
 
     // Always required
@@ -1335,6 +1413,7 @@ export class EmployeeForm {
       licenseRegDate: data.licenseRegDate ? new Date(data.licenseRegDate) : null,
       licenseExpiryDate: data.licenseExpiryDate ? new Date(data.licenseExpiryDate) : null,
       marital: data.marital,
+      experienceType: data.experienceType,
       shiftMode: mode,
       fixedShiftId:
         mode === 'FIXED'
@@ -1943,7 +2022,201 @@ export class EmployeeForm {
         this.showSabbaticalDialog = false;
       });
   }
+  private fieldLabels: Record<string, string> = {
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    dob: 'Date of Birth',
+    gender: 'Gender',
+    phone: 'Phone',
+    email: 'Email',
+    bloodGroup: 'Blood Group',
+    age: 'Age',
+    designationId: 'Designation',
+    departmentId: 'Department',
+    branchId: 'Branch',
+    roleId: 'Role',
+    dateOfJoining: 'Date of Joining',
+    employmentType: 'Employment Type',
+    employmentStatus: 'Employment Status',
+    reportingManager: 'Reporting Manager',
+    fixedShiftId: 'Fixed Shift',
+    preEmploymentCheckDate: 'Pre-employment check date',
 
+    'permanentAddress.line1': 'Permanent Address Line 1',
+    'permanentAddress.city': 'Permanent Address City',
+    'permanentAddress.state': 'Permanent Address State',
+    'permanentAddress.zipCode': 'Permanent Address Zip Code',
+    'permanentAddress.country': 'Permanent Address Country',
+  };
+  private markAllTouched(control: AbstractControl) {
+    control.markAsTouched();
+    control.updateValueAndValidity({ emitEvent: false });
+
+    if (control instanceof FormGroup) {
+      Object.values(control.controls).forEach(c => this.markAllTouched(c));
+    } else if (control instanceof FormArray) {
+      control.controls.forEach(c => this.markAllTouched(c));
+    }
+  }
+
+  private collectInvalidPaths(control: AbstractControl, path = ''): string[] {
+    const invalid: string[] = [];
+
+    if (control instanceof FormGroup) {
+      Object.keys(control.controls).forEach(key => {
+        const child = control.controls[key];
+        const childPath = path ? `${path}.${key}` : key;
+        invalid.push(...this.collectInvalidPaths(child, childPath));
+      });
+    } else if (control instanceof FormArray) {
+      control.controls.forEach((child, i) => {
+        const childPath = `${path}[${i}]`;
+        invalid.push(...this.collectInvalidPaths(child, childPath));
+      });
+    } else {
+      if (control.invalid) invalid.push(path);
+    }
+
+    return invalid;
+  }
+  private stepForPath(path: string): string {
+    // Step 1: Personal Info
+    if (
+      path.startsWith('firstName') || path.startsWith('lastName') || path.startsWith('dob') ||
+      path.startsWith('gender') || path.startsWith('phone') || path.startsWith('email') ||
+      path.startsWith('bloodGroup') || path.startsWith('age') || path.startsWith('employeeType') ||
+      path.startsWith('permanentAddress') || path.startsWith('temporaryAddress') ||
+      path.startsWith('emergencyContacts')
+    ) return 'Step 1 (Personal Info)';
+
+    // Step 2: Employment Info
+    if (
+      path.startsWith('employeeCode') || path.startsWith('referenceCode') ||
+      path.startsWith('designationId') || path.startsWith('departmentId') ||
+      path.startsWith('branchId') || path.startsWith('roleId') ||
+      path.startsWith('dateOfJoining') || path.startsWith('employmentType') ||
+      path.startsWith('employmentStatus') || path.startsWith('reportingManager') ||
+      path.startsWith('probationEndDate') || path.startsWith('shiftMode') ||
+      path.startsWith('fixedShiftId') || path.startsWith('rotationPatternId') ||
+      path.startsWith('rotationStartDate') || path.startsWith('shiftDate') ||
+      path.startsWith('inchargeId')
+    ) return 'Step 2 (Employment Info)';
+
+    // Step 3: Qualifications
+    if (path.startsWith('qualifications')) return 'Step 3 (Qualifications)';
+
+    // Step 4: Documents
+    if (path.startsWith('documents')) return 'Step 4 (Documents)';
+
+    // Step 5: Health & Wellness
+    if (
+      path.startsWith('preEmploymentCheckDate') ||
+      path.startsWith('healthIssues') ||
+      path.startsWith('vaccinations') ||
+      path.startsWith('height') || path.startsWith('weight') || path.startsWith('bmi') ||
+      path.startsWith('bloodPressure') || path.startsWith('bloodSugar') || path.startsWith('cholesterol') ||
+      path.startsWith('allergies') || path.startsWith('chronicConditions') ||
+      path.startsWith('smoking') || path.startsWith('alcohol') ||
+      path.startsWith('visionType') || path.startsWith('usesGlasses') || path.startsWith('visionRemarks') ||
+      path.startsWith('pastSurgeries') || path.startsWith('preferredHospital') ||
+      path.startsWith('primaryPhysician') || path.startsWith('emergencyNotes') ||
+      path.startsWith('hasDisability') || path.startsWith('disabilityType') ||
+      path.startsWith('disabilityDescription') || path.startsWith('disabilityProofFile')
+    ) return 'Step 5 (Health & Wellness)';
+
+    return 'Form';
+  }
+
+  private prettyLabel(path: string): string {
+
+    // Vaccinations
+    if (path.startsWith('vaccinations')) {
+      const index = path.match(/\[(\d+)\]/)?.[1];
+      const field = path.split('.').pop();
+
+      if (field === 'vaccinated')
+        return `Vaccination ${Number(index) + 1}: Vaccinated?`;
+
+      if (field === 'firstDose')
+        return `Vaccination ${Number(index) + 1}: First Dose Date`;
+
+      if (field === 'secondDose')
+        return `Vaccination ${Number(index) + 1}: Second Dose Date`;
+
+      return `Vaccination ${Number(index) + 1}`;
+    }
+
+    // Qualifications
+    if (path.startsWith('qualifications')) {
+      const index = path.match(/\[(\d+)\]/)?.[1];
+      const field = path.split('.').pop();
+
+      if (field === 'institution')
+        return `Qualification ${Number(index) + 1}: Institution`;
+
+      if (field === 'year')
+        return `Qualification ${Number(index) + 1}: Year`;
+
+      if (field === 'degree')
+        return `Qualification ${Number(index) + 1}: Qualification Type`;
+
+      return `Qualification ${Number(index) + 1}`;
+    }
+
+    // Emergency Contacts
+    if (path.startsWith('emergencyContacts')) {
+      const index = path.match(/\[(\d+)\]/)?.[1];
+      const field = path.split('.').pop();
+
+      if (field === 'name')
+        return `Emergency Contact ${Number(index) + 1}: Name`;
+
+      if (field === 'phone')
+        return `Emergency Contact ${Number(index) + 1}: Phone`;
+
+      if (field === 'relationship')
+        return `Emergency Contact ${Number(index) + 1}: Relationship`;
+
+      return `Emergency Contact ${Number(index) + 1}`;
+    }
+
+    // Documents
+    if (path.startsWith('documents')) {
+      const index = path.match(/\[(\d+)\]/)?.[1];
+      const field = path.split('.').pop();
+
+      if (field === 'file')
+        return `Document ${Number(index) + 1}: File Upload`;
+
+      if (field === 'category')
+        return `Document ${Number(index) + 1}: Category`;
+
+      if (field === 'type')
+        return `Document ${Number(index) + 1}: Document Type`;
+
+      return `Document ${Number(index) + 1}`;
+    }
+
+    // Simple fields
+    const labels: any = {
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      dob: 'Date of Birth',
+      gender: 'Gender',
+      phone: 'Phone',
+      email: 'Email',
+      bloodGroup: 'Blood Group',
+      designationId: 'Designation',
+      departmentId: 'Department',
+      branchId: 'Branch',
+      roleId: 'Role',
+      reportingManager: 'Reporting Manager',
+      fixedShiftId: 'Shift Template',
+      preEmploymentCheckDate: 'Pre-Employment Check Date'
+    };
+
+    return labels[path] || path;
+  }
 }
 
 

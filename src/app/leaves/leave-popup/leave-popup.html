@@ -28,7 +28,7 @@
             <div class="form-section">
                 <!-- From Date -->
                 <div class="form-row">
-                    <label >From</label>
+                    <label>From</label>
                     <div class="date-selectors">
                         <!-- <select [(ngModel)]="fromDay" (change)="updateFromDate()" [ngModelOptions]="{standalone: true}">
                             <option *ngFor="let d of daysList" [value]="d">{{ d }}</option>
@@ -39,7 +39,8 @@
                                 [disabled]="isDisabledDay(d, fromMonth, fromYear)">
                                 {{ d }}
                             </option> -->
-                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)"
+                                [value]="d">
                                 {{ d }}
                             </option>
 
@@ -75,7 +76,8 @@
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
                                 {{ d }}
                             </option> -->
-                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)" [value]="d">
+                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)"
+                                [value]="d">
                                 {{ d }}
                             </option>
 
@@ -109,7 +111,8 @@
                     <select [(ngModel)]="leaveType" [ngModelOptions]="{standalone: true}"
                         (change)="checkLeaveBalance()">
                         <option class="drop-down" value="">Select Leave Type</option>
-                        <option class="drop-down" *ngFor="let type of filteredLeaveTypes" [value]="type.name">{{ type.name }}</option>
+                        <option class="drop-down" *ngFor="let type of filteredLeaveTypes" [value]="type.name">{{
+                            type.name }}</option>
                     </select>
                 </div>
 
@@ -130,6 +133,33 @@
                         <option class="drop-down" value="SECOND_HALF">Second Half</option>
                     </select>
                 </div>
+
+                <!-- Prescription Upload -->
+                <div class="form-row" *ngIf="leaveType === 'SL'">
+
+                     <label>Prescription</label>
+                    <!-- Upload input -->
+                    <div class="form-row">
+                        <input *ngIf="!isViewOnly" type="file" accept="image/*" (change)="onPrescriptionSelected($event)" />
+                    </div>
+                </div>
+
+                <div *ngIf="leaveType === 'SL'">
+                                                        <!-- If existing saved prescription -->
+                    <div *ngIf="prescriptionUrl && !previewUrl" style="margin-bottom: 8px;">
+                        <a [href]="prescriptionUrl" target="_blank">
+                            View Uploaded Prescription
+                        </a>
+                    </div>
+
+                    <!-- If new file selected (before upload) -->
+                    <div *ngIf="previewUrl" style="margin-bottom: 8px;">
+                        <a [href]="previewUrl" target="_blank">
+                            Preview Selected Prescription
+                        </a>
+                    </div>
+                </div>
+
 
 
                 <!-- Reason -->
@@ -320,6 +350,14 @@
                         <option value="FIRST_HALF">First Half</option>
                         <option value="SECOND_HALF">Second Half</option>
                     </select>
+                </div>
+
+                <div *ngIf="leaveType === 'SL'">
+                                    <div *ngIf="prescriptionUrl && !previewUrl" style="margin-bottom: 8px;">
+                        <a [href]="prescriptionUrl" target="_blank">
+                            View Uploaded Prescription
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Reason -->

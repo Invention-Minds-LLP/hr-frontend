@@ -210,6 +210,7 @@ export class HrDashboard implements OnInit {
 
       'Clinical Staff Late (>15min)': 'clinicalLate',
       'Non-Clinical Staff Late (>15min)': 'nonClinicalLate',
+      'Para Medical Staff Late (>15min)': 'paraMedicalLate',
 
       'Pending approvals (Leave/WFH/Perm)': 'approvals',
       'Probation ending (7 days)': 'probation',
@@ -224,7 +225,7 @@ export class HrDashboard implements OnInit {
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
       'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending',
-      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'resignations', 'ahc'
+      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'paraMedicalLate' ,'resignations', 'ahc'
     ];
 
     const k = (known as string[]).includes(String(key))
@@ -530,6 +531,7 @@ export class HrDashboard implements OnInit {
         break;
       case 'clinicalLate':
       case 'nonClinicalLate':
+      case 'paraMedicalLate':
         if (action === 'Notify all') {
           // const employeeIds = this.selectedRows.map((r: any) => r.id);
           const rows = this.selectedRows || [];

@@ -170,7 +170,8 @@ export class LeaveRequest {
             isHalfDay: leave.isHalfDay,
             halfDaySession: leave.halfDaySession,
             gender: leave.employee?.gender,
-            photoUrl: leave.employee?.photoUrl
+            photoUrl: leave.employee?.photoUrl,
+            prescriptionUrl: leave.prescriptionUrl
           }
         });
         // Only pending rows are actionable in this screen
