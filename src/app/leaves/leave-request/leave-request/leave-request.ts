@@ -500,6 +500,7 @@ export class LeaveRequest {
 
     // HR Employee (dept = HR AND roleId ≠ HR Manager)
     if (leave.department === 1 && leave.roleId !== 1) {
+      console.log('hr department and role is executive')
       return this.isHRManager && leave.hodDecision === 'PENDING';
     }
 

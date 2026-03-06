@@ -60,6 +60,19 @@ export class Shifts {
     return this.http.get<any[]>(`${this.apiUrl}/assignments/employee/${employeeId}`);
   }
 
+  getEmployeeWeeklyShiftsForMonth(employeeId: number, month: number, year: number) {
+  return this.http.get<{ mode: string | null; weeks: any[] }>(
+    `${this.apiUrl}/weekly-month`,
+    {
+      params: {
+        employeeId,
+        month,
+        year
+      }
+    }
+  );
+}
+
   // Update Shift Assignment (acknowledge or modify)
   updateShiftAssignment(id: number, data: Partial<any>): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/assignments/${id}`, data);
@@ -195,5 +208,16 @@ getApprovedWeekOffs(payload: {
     params: payload as any
   });
 }
-
+getEmployeeDailyShiftsForRange(employeeId: number, from: string, to: string) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/employee-daily-shifts-range`,
+    {
+      params: {
+        employeeId,
+        from,
+        to
+      }
+    }
+  );
+}
 }

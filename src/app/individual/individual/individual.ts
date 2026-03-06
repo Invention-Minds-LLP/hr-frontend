@@ -38,7 +38,7 @@ interface AttendanceDay {
   totalHours?: string;
   checkIn?: string;
   checkOut?: string;
-  status?: 'Leave' | 'Day Off' | 'Present' | 'Empty' | 'Coming Up'| 'Not Started';
+  status?: 'Leave' | 'Day Off' | 'Present' | 'Empty' | 'Coming Up' | 'Not Started';
 }
 
 // put this in your component class
@@ -91,6 +91,20 @@ export class Individual {
 
   approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
   weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
+
+weeklyShiftTemplates: {
+  weekIndex: number;
+  label: string;
+  shiftId: number;
+  shiftName: string;
+  startTime: string;
+  endTime: string;
+  fromDate: string;
+  toDate: string;
+}[] = [];
+
+currentWeeklyShiftIndex = 0;
+
 
 
   // Called when "Take Survey" button clicked
@@ -163,7 +177,8 @@ export class Individual {
     this.loadToday();
     this.getLeaveBalance();
     this.startBirthdayAutoSlide();
-    this.startAnniversaryAutoSlide();
+    // this.startAnniversaryAutoSlide();
+    this.loadWeeklyShiftTemplates();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -182,6 +197,64 @@ export class Individual {
         }
       });
     }
+  }
+
+loadWeeklyShiftTemplates() {
+  const employeeId = Number(this.currentUserId);
+  if (!employeeId) return;
+
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+
+  this.shiftService.getEmployeeWeeklyShiftsForMonth(employeeId, month, year)
+    .subscribe({
+      next: (res: any) => {
+        this.weeklyShiftTemplates = (res.weeks || []).map((w: any) => ({
+          weekIndex: w.weekIndex,
+          label: w.label,
+          shiftId: w.shiftId,
+          shiftName: w.shiftName,
+          fromDate: w.fromDate,
+          toDate:w.toDate,
+          startTime: this.formatShiftDisplayTime(w.startTime),
+          endTime: this.formatShiftDisplayTime(w.endTime)
+        }));
+
+        this.currentWeeklyShiftIndex = 0;
+      },
+      error: (err) => {
+        console.error('Error fetching weekly shift templates:', err);
+        this.weeklyShiftTemplates = [];
+      }
+    });
+}
+prevWeeklyShift() {
+  if (this.currentWeeklyShiftIndex > 0) {
+    this.currentWeeklyShiftIndex--;
+  }
+}
+
+nextWeeklyShift() {
+  if (this.currentWeeklyShiftIndex < this.weeklyShiftTemplates.length - 1) {
+    this.currentWeeklyShiftIndex++;
+  }
+}
+formatShiftDisplayTime(value: string | Date): string {
+  if (!value) return '-';
+
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '-';
+
+  return d.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+  formatShiftTime(time: string | undefined): string {
+    if (!time) return '-';
+    return time.length >= 5 ? time.slice(0, 5) : time;
   }
 
   // getLeaveBalance() {
@@ -987,11 +1060,11 @@ export class Individual {
     return `${dateText}\nIn: ${day.checkIn}`;
   }
 
-getFinancialYear(date: Date): number {
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-  return month >= 4 ? year : year - 1;
-}
+  getFinancialYear(date: Date): number {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return month >= 4 ? year : year - 1;
+  }
 
 }
 

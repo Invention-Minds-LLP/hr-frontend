@@ -357,36 +357,7 @@
             <!-- </ng-template> -->
 
             <!-- Today Work Anniversary -->
-            <!-- <div class="box box-3">
-                <h4 class="box-title">Work Anniversaries Today</h4>
 
-                <div class="empty" *ngIf="anniversary.length === 0">No work anniversaries today</div>
-
-
-                <div class="list-3" *ngIf="anniversary.length > 0 && anniversary.length <= 1">
-                    <div class="person-chip" *ngFor="let a of anniversary">
-                        <div class="name">{{ a.employeeName }}</div>
-                        <div class="dept">
-                            {{ a.departmentName || '-' }}
-                        </div>
-                    </div>
-
-                </div>
-
-                <p-carousel *ngIf="anniversary.length > 1" [value]="anniversary" [numVisible]="1" [numScroll]="1"
-                    [circular]="true" [showIndicators]="true">
-                    <ng-template pTemplate="item" let-item>
-                        <div class="person-chip">
-                            <div class="name">{{ item.employeeName }}</div>
-                            <div class="dept">
-                                {{ item.departmentName || '-' }}
-                                <span *ngIf="item.years !== undefined"> · {{ item.years }} yr{{ item.years > 1 ? 's' :
-                                    '' }}</span>
-                            </div>
-                        </div>
-                    </ng-template>
-                </p-carousel>
-            </div> -->
 
             <div class="box box-2">
                 <h4 class="box-title">Today’s Birthdays</h4>
@@ -422,44 +393,49 @@
 
                 </div>
             </div>
-
             <div class="box box-3">
-                <h4 class="box-title">Work Anniversaries Today</h4>
+                <h4 class="box-title">Shift Plan for This Month</h4>
 
-                <!-- Empty -->
-                <div class="empty" *ngIf="anniversary.length === 0">
-                    No work anniversaries today
+                <div class="empty" *ngIf="weeklyShiftTemplates.length === 0">
+                    No shift template found for this month
                 </div>
 
-                <!-- Slider -->
-                <div class="slider" *ngIf="anniversary.length > 0">
+                <div class="slider" *ngIf="weeklyShiftTemplates.length > 0">
 
-                    <!-- Left arrow -->
-                    <button class="arrow" (click)="prevAnniversary()" [class.disabled]="currentAnniversaryIndex === 0">
+                    <button class="arrow" (click)="prevWeeklyShift()" [class.disabled]="currentWeeklyShiftIndex === 0">
                         ‹
                     </button>
 
-                    <!-- Content -->
                     <div class="person-chip">
                         <div class="name">
-                            {{ anniversary[currentAnniversaryIndex].employeeName }}
-                        </div>
-                        <div class="dept">
-                            {{ anniversary[currentAnniversaryIndex].departmentName || '-' }}
-                            · {{ anniversary[currentAnniversaryIndex].years }} yr
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].label }}
                         </div>
 
-                        <!-- Dots -->
-                        <div class="dots" *ngIf="anniversary.length > 1">
-                            <span *ngFor="let a of anniversary; let i = index"
-                                [class.active]="i === currentAnniversaryIndex">
+                        <div class="dept">
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].fromDate }}
+                            -
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].toDate }}
+                        </div>
+
+                        <div class="dept">
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].shiftName }}
+                        </div>
+
+                        <div class="dept">
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].startTime }}
+                            -
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].endTime }}
+                        </div>
+
+                        <div class="dots" *ngIf="weeklyShiftTemplates.length > 1">
+                            <span *ngFor="let s of weeklyShiftTemplates; let i = index"
+                                [class.active]="i === currentWeeklyShiftIndex">
                             </span>
                         </div>
                     </div>
 
-                    <!-- Right arrow -->
-                    <button class="arrow" (click)="nextAnniversary()"
-                        [class.disabled]="currentAnniversaryIndex === anniversary.length - 1">
+                    <button class="arrow" (click)="nextWeeklyShift()"
+                        [class.disabled]="currentWeeklyShiftIndex === weeklyShiftTemplates.length - 1">
                         ›
                     </button>
 
