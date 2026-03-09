@@ -880,12 +880,10 @@
                     <p-step-panel>
                         <ng-template #content let-activateCallback="activateCallback">
                             <div class="mandatory-note">
-                                <strong>Note:</strong> The following documents are mandatory based on employee type:
+                                <strong>Note:</strong> Recommended/expected documents based on employee type:
                                 <ul>
                                     <li *ngFor="let doc of mandatoryDocStatus.required">
                                         {{ doc }}
-                                        <!-- <span *ngIf="mandatoryDocStatus.missing.includes(doc)"
-                                            class="missing">(Missing)</span> -->
                                     </li>
 
                                 </ul>
@@ -911,11 +909,11 @@
                                                 (onChange)="filterDocumentTypes(i)"
                                                 [ngClass]="{'ng-invalid':showError(doc.get('category'))}">
                                             </p-select>
-                                            <label>Category *</label>
-                                            <div class="error-msg" *ngIf="showError(doc.get('category'))">Category
+                                            <label>Category</label>
+                                            <!-- <div class="error-msg" *ngIf="showError(doc.get('category'))">Category
                                                 is
                                                 required.
-                                            </div>
+                                            </div> -->
                                         </p-floatLabel>
                                     </div>
 
@@ -926,11 +924,11 @@
                                                 optionLabel="label" optionValue="value"
                                                 [ngClass]="{'ng-invalid':showError(doc.get('type'))}">
                                             </p-select>
-                                            <label>Document Type *</label>
-                                            <div class="error-msg" *ngIf="showError(doc.get('type'))">Document Type
+                                            <label>Document Type </label>
+                                            <!-- <div class="error-msg" *ngIf="showError(doc.get('type'))">Document Type
                                                 is
                                                 required
-                                            </div>
+                                            </div> -->
                                         </p-floatLabel>
                                     </div>
 
@@ -963,14 +961,14 @@
                                   }}" [attr.data-file-name]="
                                     uploadedDocsForm.at(i).value.file?.name ||
                                     uploadedDocsForm.at(i).value.fileUrl?.split('/').pop() ||
-                                    'Choose File *'
+                                    'Choose File '
                                   " (change)="onDocumentSelect($event, i)"
                                                 [ngClass]="{ 'ng-invalid': showError(doc.get('file')) }" />
                                             <i class="pi pi-upload"></i>
                                         </div>
-                                        <div class="error-msg" *ngIf="showError(doc.get('file'))">
+                                        <!-- <div class="error-msg" *ngIf="showError(doc.get('file'))">
                                             File is required.
-                                        </div>
+                                        </div> -->
 
                                     </div>
 

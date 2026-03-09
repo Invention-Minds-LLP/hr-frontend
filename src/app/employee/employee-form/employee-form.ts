@@ -613,14 +613,25 @@ export class EmployeeForm {
     file: FormControl<File | null>;
     fileUrl: FormControl<string | null>;
   }> {
-    return this.fb.group({
+    //mandatory for documents
+    // return this.fb.group({
+    //   id: this.fb.control<number | null>(null),
+    //   fileKey: this.fb.control(this.generateUUID()),
+    //   category: this.fb.control<string | null>(null, Validators.required),
+    //   type: this.fb.control<string | null>(null, Validators.required),
+    //   issueDate: this.fb.control<Date | null>(null),
+    //   expiryDate: this.fb.control<Date | null>(null),
+    //   file: this.fb.control<File | null>(null, Validators.required),
+    //   fileUrl: this.fb.control<string | null>(null)
+    // });
+        return this.fb.group({
       id: this.fb.control<number | null>(null),
       fileKey: this.fb.control(this.generateUUID()),
-      category: this.fb.control<string | null>(null, Validators.required),
-      type: this.fb.control<string | null>(null, Validators.required),
+      category: this.fb.control<string | null>(null),
+      type: this.fb.control<string | null>(null),
       issueDate: this.fb.control<Date | null>(null),
       expiryDate: this.fb.control<Date | null>(null),
-      file: this.fb.control<File | null>(null, Validators.required),
+      file: this.fb.control<File | null>(null),
       fileUrl: this.fb.control<string | null>(null)
     });
   }
@@ -1179,22 +1190,13 @@ export class EmployeeForm {
     const experienceType = (this.employeeForm.get('experienceType')?.value || '').toUpperCase();
 
     let mandatoryDocs: string[] = [];
-
-    // Employee type specific
-    // if (employeeType === 'CLINICAL') {
-    //   mandatoryDocs = ['REGISTRATION_CERT'];
-    //   // mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-    // } else if (employeeType === 'NONCLINICAL') {
-    //   // mandatoryDocs = ['REGISTRATION_CERT'];
-    //   mandatoryDocs = ['SALARY_CERT', 'VERIFICATION_CERT'];
-    // }
     const isFresher = experienceType === 'FRESHER'
     console.log(isFresher)
     if (!isFresher) {
       if (employeeType === 'CLINICAL') {
         mandatoryDocs.push('REGISTRATION_CERT');
       } else if (employeeType === 'NONCLINICAL') {
-        mandatoryDocs.push('SALARY_CERT', 'VERIFICATION_CERT'); // or EXPERIENCE_CERT if you use that
+        mandatoryDocs.push('SALARY_CERT', 'VERIFICATION_CERT');
       }
     }
 
@@ -1215,11 +1217,6 @@ export class EmployeeForm {
 
     // Deduplicate in case multiple qualifications map to same doc
     mandatoryDocs = [...new Set(mandatoryDocs)];
-
-    // const missingMandatory = mandatoryDocs.filter(m => {
-    //   const doc = uploadedDocs.find((d: any) => d.type === m);
-    //   return !doc || (!doc.file && !doc.fileUrl);
-    // });
     const missingMandatory = mandatoryDocs.filter(m => {
       const doc = uploadedDocs.find((d: any) => d.type === m);
       return !doc || (!doc.file && !doc.fileUrl);
@@ -1228,10 +1225,13 @@ export class EmployeeForm {
 
     return { required: mandatoryDocs, missing: missingMandatory };
   }
-
+// getMandatoryDocs(): { required: string[], missing: string[] } {
+//   return { required: [], missing: [] };
+// }
 
   validateMandatoryDocs(): boolean {
-    return this.getMandatoryDocs().missing.length === 0;
+    // return this.getMandatoryDocs().missing.length === 0;
+    return true;
   }
 
   // uploadEmployeeDocs(employeeId: number) {
