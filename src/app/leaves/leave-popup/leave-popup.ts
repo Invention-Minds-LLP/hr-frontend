@@ -417,7 +417,7 @@ export class LeavePopup {
     }
 
 
-    const year = this.fromDate.getFullYear();
+    const year = this.getFinancialYear(this.fromDate)
 
     this.leaveService.getLeaveBalance(Number(this.employeeId), year)
       .subscribe((balances: any) => {
@@ -1022,7 +1022,7 @@ export class LeavePopup {
     const map = new Map<string, number>();
 
     for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
       map.set(key, (map.get(key) || 0) + 1);
     }
 
@@ -1036,7 +1036,9 @@ export class LeavePopup {
     const monthlySplit = this.splitByMonth(this.fromDate, this.toDate);
 
     monthlySplit.forEach((days, key) => {
-      const [year, month] = key.split('-').map(Number);
+      const [years, month] = key.split('-').map(Number);
+
+      const year = this.getFinancialYear(this.fromDate)
 
       this.leaveService
         .getMonthlyCasualUsage(Number(this.employeeId), year, month)
@@ -1238,5 +1240,11 @@ export class LeavePopup {
     }
 
     this.selectedPrescription = file;
+  }
+    getFinancialYear(date: Date): number {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    return month >= 4 ? year : year - 1;
   }
 }
