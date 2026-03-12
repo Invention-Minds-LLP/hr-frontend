@@ -534,8 +534,8 @@ export class EmployeeForm {
     const isFirst = this.vaccinations.length === 0;
     this.vaccinations.push(
       this.fb.group({
-        vaccineName: [isFirst ? 'HEP_B' : null, Validators.required],
-        vaccinated: [null, Validators.required],
+        vaccineName: [isFirst ? 'HEP_B' : null],
+        vaccinated: [null],
         firstDose: [null],
         secondDose: [null],
         thirdDose: [null],
@@ -761,9 +761,9 @@ export class EmployeeForm {
       const md = this.getMandatoryDocs();
       customProblems.push(`Missing mandatory documents: ${md.missing.join(', ')}`);
     }
-    if (!this.validateHepBVaccination()) {
-      customProblems.push('Hepatitis B vaccination details are required (vaccinated = Yes + first dose date).');
-    }
+    // if (!this.validateHepBVaccination()) {
+    //   customProblems.push('Hepatitis B vaccination details are required (vaccinated = Yes + first dose date).');
+    // }
 
     if (invalidPaths.length || customProblems.length) {
       // build readable list, grouped by step
@@ -819,14 +819,14 @@ export class EmployeeForm {
       });
       return;
     }
-    if (!this.validateHepBVaccination()) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Vaccination Required',
-        detail: 'Hepatitis B vaccination details are mandatory before submitting.'
-      });
-      return;
-    }
+    // if (!this.validateHepBVaccination()) {
+    //   this.messageService.add({
+    //     severity: 'error',
+    //     summary: 'Vaccination Required',
+    //     detail: 'Hepatitis B vaccination details are mandatory before submitting.'
+    //   });
+    //   return;
+    // }
 
     if (this.employeeForm.get('preEmploymentCheckDate')?.invalid) {
       this.messageService.add({
@@ -1499,8 +1499,8 @@ export class EmployeeForm {
       parsedVaccinations.forEach((v: any) => {
         this.vaccinations.push(
           this.fb.group({
-            vaccineName: [v.vaccineName, Validators.required],
-            vaccinated: [v.vaccinated, Validators.required],
+            vaccineName: [v.vaccineName],
+            vaccinated: [v.vaccinated],
             firstDose: v.firstDose ? new Date(v.firstDose) : null,
             secondDose: v.secondDose ? new Date(v.secondDose) : null,
             thirdDose: v.thirdDose ? new Date(v.thirdDose) : null,
@@ -1873,15 +1873,15 @@ export class EmployeeForm {
     }
   }
   private validateHepBVaccination(): boolean {
-    const vaccinations = this.vaccinations.value || [];
+    // const vaccinations = this.vaccinations.value || [];
 
-    const hepB = vaccinations.find(
-      (v: any) => v.vaccineName === 'HEP_B'
-    );
+    // const hepB = vaccinations.find(
+    //   (v: any) => v.vaccineName === 'HEP_B'
+    // );
 
-    if (!hepB) return false;
-    if (hepB.vaccinated !== true) return false;
-    if (!hepB.firstDose) return false;
+    // if (!hepB) return false;
+    // if (hepB.vaccinated !== true) return false;
+    // if (!hepB.firstDose) return false;
 
     return true;
   }
