@@ -128,7 +128,7 @@ export class EmployeeList {
       .getEmployees(this.page, this.pageSize, this.searchText, this.selectedFilter?.value)
       .subscribe({
         next: (res: any) => {
-          this.filteredEmployees = res.data;
+          this.filteredEmployees = this.sortEmployeesByCode(res.data);
           this.totalRecords = res.total;
           this.loading = false;
         },
@@ -569,5 +569,27 @@ export class EmployeeList {
     this.modeEditVisible = false;
     this.loadEmployees();
   }
+  private parseEmployeeCode(code: string) {
+  const match = code.match(/^([A-Z]+)(\d+)$/);
+  if (!match) return { prefix: code, num: 0 };
 
+  return {
+    prefix: match[1],
+    num: Number(match[2])
+  };
+}
+sortEmployeesByCode(data: any[]) {
+  return data.sort((a, b) => {
+    const aCode = this.parseEmployeeCode(a.employeeCode);
+    const bCode = this.parseEmployeeCode(b.employeeCode);
+
+    // First sort by prefix
+    if (aCode.prefix !== bCode.prefix) {
+      return aCode.prefix.localeCompare(bCode.prefix);
+    }
+
+    // Then sort by numeric value
+    return aCode.num - bCode.num;
+  });
+}
 }

@@ -116,10 +116,13 @@ export class LeavePopup {
       this.fromDay
     );
 
-    if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    // if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    //   return; // stop selection
+    // }
+
+    if (this.isDayBlocked(tempDate)) {
       return; // stop selection
     }
-
 
     this.fromDate = new Date(this.fromYear, this.monthToIndex(this.fromMonth), this.fromDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
@@ -138,7 +141,10 @@ export class LeavePopup {
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(year, monthIndex, d);
 
-      if (!this.isPastDate(dateObj) && !this.isDayBlocked(dateObj)) {
+      // if (!this.isPastDate(dateObj) && !this.isDayBlocked(dateObj)) {
+      //   validDays.push(d);
+      // }
+      if (!this.isDayBlocked(dateObj)) {
         validDays.push(d);
       }
     }
@@ -154,9 +160,13 @@ export class LeavePopup {
       this.toDay
     );
 
-    if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    // if (this.isPastDate(tempDate) || this.isDayBlocked(tempDate)) {
+    //   return;
+    // }
+    if (this.isDayBlocked(tempDate)) {
       return;
     }
+
     this.toDate = new Date(this.toYear, this.monthToIndex(this.toMonth), this.toDay);
     this.currentMonthIndex = this.monthToIndex(this.fromMonth);
     this.currentYear = this.fromYear;
@@ -581,8 +591,7 @@ export class LeavePopup {
   // Handle date click
   onDateClick(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
-    // if (this.isPastDate(day.date)) return;
-    if (day.past) return;
+    // if (day.past) return;
 
 
     if (day.blocked || !day.isCurrentMonth) {
@@ -718,8 +727,8 @@ export class LeavePopup {
       })
       return;
     }
-    if(!this.reason){
-            this.messageService.add({
+    if (!this.reason) {
+      this.messageService.add({
         severity: 'warn',
         summary: 'Warning',
         detail: 'Please provide a reason'
@@ -788,7 +797,7 @@ export class LeavePopup {
         });
         console.log('API response:', res);
         this.isLoading = false;
-                if (this.leaveType === 'SL' && this.selectedPrescription) {
+        if (this.leaveType === 'SL' && this.selectedPrescription) {
           const fileData = new FormData();
           fileData.append('prescription', this.selectedPrescription);
 
@@ -837,7 +846,8 @@ export class LeavePopup {
     if (dateObj < today) return true;
 
     // Block already applied days
-    return this.isPastDate(dateObj) || this.isDayBlocked(dateObj);
+    // return this.isPastDate(dateObj) || this.isDayBlocked(dateObj);
+    return this.isDayBlocked(dateObj)
     // if (this.isDayBlocked(dateObj)) return true;
 
     // const next = new Date(dateObj);
@@ -1241,7 +1251,7 @@ export class LeavePopup {
 
     this.selectedPrescription = file;
   }
-    getFinancialYear(date: Date): number {
+  getFinancialYear(date: Date): number {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
