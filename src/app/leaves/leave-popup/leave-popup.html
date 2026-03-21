@@ -137,15 +137,16 @@
                 <!-- Prescription Upload -->
                 <div class="form-row" *ngIf="leaveType === 'SL'">
 
-                     <label>Prescription</label>
+                    <label>Prescription</label>
                     <!-- Upload input -->
                     <div class="form-row">
-                        <input *ngIf="!isViewOnly" type="file" accept="image/*" (change)="onPrescriptionSelected($event)" />
+                        <input *ngIf="!isViewOnly" type="file" accept="image/*"
+                            (change)="onPrescriptionSelected($event)" />
                     </div>
                 </div>
 
                 <div *ngIf="leaveType === 'SL'">
-                                                        <!-- If existing saved prescription -->
+                    <!-- If existing saved prescription -->
                     <div *ngIf="prescriptionUrl && !previewUrl" style="margin-bottom: 8px;">
                         <a [href]="prescriptionUrl" target="_blank">
                             View Uploaded Prescription
@@ -353,7 +354,7 @@
                 </div>
 
                 <div *ngIf="leaveType === 'SL'">
-                                    <div *ngIf="prescriptionUrl && !previewUrl" style="margin-bottom: 8px;">
+                    <div *ngIf="prescriptionUrl && !previewUrl" style="margin-bottom: 8px;">
                         <a [href]="prescriptionUrl" target="_blank">
                             View Uploaded Prescription
                         </a>

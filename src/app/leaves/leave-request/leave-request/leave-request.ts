@@ -187,7 +187,8 @@ export class LeaveRequest {
           ? pending
           : pending.filter(r =>
             (this.isReportingManager && r.reportingManagerId === this.loggedEmployeeId) ||
-            (this.isIncharge && r.inchargeId === this.loggedEmployeeId)
+            (this.isIncharge && r.inchargeId === this.loggedEmployeeId) ||
+            (this.isManagement && r.reportingManagerId === this.loggedEmployeeId)
           );
 
         this.filteredLeaveData = [...this.leaveData];

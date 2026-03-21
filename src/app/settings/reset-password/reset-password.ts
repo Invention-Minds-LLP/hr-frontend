@@ -28,6 +28,7 @@ export class ResetPassword {
   role: string = '';
   disableSelect = false;
   userId: number | null = null;
+  roleId: number | null = null;
 
   formSubmitted = false;
 
@@ -42,17 +43,21 @@ export class ResetPassword {
     // }
     const storedEmployee = localStorage.getItem('employee');
     const storedRole = localStorage.getItem('role');
+    this.roleId = Number(localStorage.getItem('roleId')) || 0;
+    console.log(this.roleId)
     const storedEmpId = localStorage.getItem('employeeId');
     const storedName = localStorage.getItem('name');
     const storedId = localStorage.getItem('userId');
 
     if (storedId) this.userId = Number(storedId);
 
+    console.log(this.userId)
+
     if (storedRole) {
       this.role = storedRole.toLowerCase();
     }
 
-    const restrictedRoles = ['executives', 'intern', 'junior executive'];
+    const restrictedRoles = ['executives', 'intern', 'junior executive', 'reporting manager'];
     console.log(this.role)
     if (restrictedRoles.includes(this.role)) {
       // Just show their own employee
@@ -87,7 +92,7 @@ export class ResetPassword {
 
       const targetUserId =
         this.disableSelect
-          ? Number(this.userId)                 // self reset
+          ? this.userId              // self reset
           : Number(this.selectedEmployee?.userId);
 
       console.log(targetUserId);
@@ -125,13 +130,6 @@ export class ResetPassword {
             })
           }
         })
-      // alert('Password reset successfully!');
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Password reset successfully!'
-      })
-      console.log('Password Reset:', this.reset);
 
     } else {
       // alert('Confirm Password Not Mathched');
