@@ -62,6 +62,7 @@ import { ShiftOverview } from './shifts/shift-overview/shift-overview';
 import { AttendanceOverview } from './attendance/attendance-overview/attendance-overview';
 import { OtApprovals } from './attendance/ot-approvals/ot-approvals';
 import { GeoTrackingOverview } from './geo-tracking/geo-tracking-overview/geo-tracking-overview';
+import { Export } from './settings/export/export';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -95,6 +96,7 @@ export const routes: Routes = [
       { path: 'shifts', component: ShiftOverview, canActivate: [authGuard] },
       { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]},
         { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
+        { path: 'reports', component: Export, canActivate: [authGuard]}
     ],
 
   },

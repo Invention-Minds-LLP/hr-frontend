@@ -328,6 +328,13 @@
               </svg>
               <span>Shifts</span></a>
           </li>
+
+        <li class="nav-items" *ngIf="!isRestricted">
+          <a [routerLink]="'/admin/reports'" routerLinkActive="active" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7zm-8 2V5h2v6h1.17L12 13.17L9.83 11zm-6 8h14v2H5z"/>
+            </svg>
+            <span>Data Export</span></a></li>
           <!-- <li class="nav-items" *ngIf="isReportingManager">
             <a [routerLink]="'/admin/tracking'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
