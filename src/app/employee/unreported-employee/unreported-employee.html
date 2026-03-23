@@ -4,7 +4,7 @@
 
     <!-- Calendar + Button -->
     <div class="flex align-items-center justify-content-end gap-3 mt-3">
-        <p-datepicker [(ngModel)]="selectedDate" dateFormat="yy-mm-dd" [showIcon]="true"
+        <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd-mm-yy" [showIcon]="true"
             class="bg-white border-round-sm" (onSelect)="loadAbsent()">
         </p-datepicker>
     </div>
@@ -49,7 +49,7 @@
                     </span>
                 </td>
 
-                <td>{{ row.date | date:'dd/MM/yyyy' }}</td>
+                <td>{{ row.date | date:'dd-MM-yyyy' }}</td>
                 <td>
                     {{ row.shiftStartTime | date:'HH:mm' }} -
                     {{ row.shiftEndTime | date:'HH:mm' }}

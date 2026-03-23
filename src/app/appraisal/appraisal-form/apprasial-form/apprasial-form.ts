@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Appraisal } from '../../../services/appraisal/appraisal';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
-
+import { formatDate } from '@angular/common';
 interface SelectOpton {
   name: string;
   value: string;
@@ -34,7 +34,8 @@ export class ApprasialForm {
   appraisalForm!: FormGroup;
   role: string = 'Reporting Manager'
 
-  constructor(private fb: FormBuilder, private appraisalService: Appraisal, private messageService: MessageService) { }
+  constructor(private fb: FormBuilder, private appraisalService: Appraisal,
+    private messageService: MessageService) { }
 
   ngOnInit() {
     this.initForm();
@@ -228,8 +229,8 @@ export class ApprasialForm {
       department: this.selectedAppraisal.departmentName,
       designation: this.selectedAppraisal.designation.name,
       dateOfJoining: this.selectedAppraisal.dateOfJoining
-        ? new Date(this.selectedAppraisal.dateOfJoining).toLocaleDateString()
-        : 'N/A',
+  ? formatDate(this.selectedAppraisal.dateOfJoining, 'dd-MM-yy', 'en-GB')
+  : 'N/A',
       cycle: this.selectedAppraisal.cycle,
       managerName: this.selectedAppraisal.managerName
     });
@@ -310,20 +311,20 @@ export class ApprasialForm {
       this.appraisalService.saveManagerReview(payload).subscribe({
         next: () => {
           this.isLoading = false;
-      
+
           // Optional success message
           this.messageService?.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Review saved successfully'
           });
-      
+
           this.formSubmitted.emit();
         },
         error: (err) => {
           this.isLoading = false;
           console.error('Error saving manager review:', err);
-      
+
           // Optional error message
           this.messageService?.add({
             severity: 'error',
@@ -370,7 +371,7 @@ export class ApprasialForm {
       'attendanceRating',
       'leadershipRating'
     ];
-  
+
     // Watch all rating fields
     ratingControls.forEach(controlName => {
       const control = this.appraisalForm.get(controlName);
@@ -379,7 +380,7 @@ export class ApprasialForm {
       }
     });
   }
-  
+
   private updateOverallScore() {
     const ratingControls = [
       'qualityOfWorkRating',
@@ -392,10 +393,10 @@ export class ApprasialForm {
       'attendanceRating',
       'leadershipRating'
     ];
-  
+
     let total = 0;
     let count = 0;
-  
+
     ratingControls.forEach(field => {
       const value = parseFloat(this.appraisalForm.get(field)?.value);
       if (!isNaN(value)) {
@@ -403,9 +404,9 @@ export class ApprasialForm {
         count++;
       }
     });
-  
+
     const average = count > 0 ? total / count : 0;
-  
+
     // Update the overall score (rounded to 2 decimals)
     this.appraisalForm.patchValue(
       { overallScore: parseFloat(average.toFixed(2)) },
@@ -414,8 +415,8 @@ export class ApprasialForm {
   }
 
   goBack() {
-  this.backToList.emit();
-}
+    this.backToList.emit();
+  }
 
-  
+
 }

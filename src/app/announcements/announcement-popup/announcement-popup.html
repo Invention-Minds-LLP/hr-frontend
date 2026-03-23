@@ -13,9 +13,9 @@
       <small>
         <i class="pi pi-calendar"></i>
         Valid from:
-        {{ current.startsAt | date:'MMM d, y, h:mm a' }}
+        {{ current.startsAt | date:'dd-MM-yyyy HH:mm' }}
         <span *ngIf="current.endsAt">
-          – until {{ current.endsAt | date:'MMM d, y, h:mm a' }}
+          – until {{ current.endsAt | date:'dd-MM-yyyy HH:mm' }}
         </span>
       </small>
     </div>

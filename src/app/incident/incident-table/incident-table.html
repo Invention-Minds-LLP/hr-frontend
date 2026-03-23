@@ -50,7 +50,7 @@
         <td>{{ row.employee?.firstName }} {{ row.employee?.lastName }}</td>
         <td>{{ row.reporter?.firstName }} {{ row.reporter?.lastName }}</td>
         <td>{{ row.status }}</td>
-        <td>{{ row.createdAt | date:'medium' }}</td>
+        <td>{{ row.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
       </tr>
     </ng-template>
 

@@ -73,7 +73,7 @@
 
 <td>{{ r.employee.Department?.name }}</td>
 <td>{{ getManagerName(r.managerId) }}</td>
-<td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+<td>{{ r.proposedLastWorkingDay | date:'dd-MM-yyyy' }}</td>
 
 <!-- Clearance column -->
 <!-- <td *ngFor="let c of visibleClearanceTypes">

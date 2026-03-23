@@ -113,7 +113,7 @@
         <span>Grievance Details</span>
         <span class="created-date">
           Raised At:
-          {{ selected?.createdAt | date:'short' }}
+          {{ selected?.createdAt | date:'dd-MM-yyyy HH:mm' }}
         </span>
       </span>
       <button class="dialog-close-btn" (click)="showDetails = false">
@@ -129,7 +129,7 @@
     <ul>
       <li *ngFor="let c of selected.comments">
         <b>{{ c.employee?.name || 'Employee ' + c.employeeId }}</b>: {{ c.comment }}
-        <b><small>({{ c.createdAt | date:'short' }})</small></b>
+        <b><small>({{ c.createdAt | date:'dd-MM-yyyy HH:mm' }})</small></b>
       </li>
     </ul>
 

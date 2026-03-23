@@ -156,7 +156,7 @@
 
     <div class="mt-4 mb-5" *ngIf="selectedMode === 'ROTATIONAL'">
         <label>Start Date</label>
-        <p-datepicker [(ngModel)]="startDate" appendTo="body"></p-datepicker>
+        <p-datepicker [(ngModel)]="startDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
     </div>
 
     <!-- <button pButton label="Save" (click)="save()"></button> -->
@@ -259,7 +259,7 @@
 
         <div class="mt-4 mb-5">
             <label>Start Date</label>
-            <p-datepicker [(ngModel)]="bulkStartDate" appendTo="body"></p-datepicker>
+            <p-datepicker [(ngModel)]="bulkStartDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
         </div>
 
         <div class="dialog-actions">
@@ -341,7 +341,7 @@
 
     <div class="mb-3">
       <label>Start Date</label>
-      <p-datepicker [(ngModel)]="requestForm.startDate" appendTo="body"></p-datepicker>
+      <p-datepicker [(ngModel)]="requestForm.startDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
     </div>
 
     <div class="dialog-actions">
@@ -385,8 +385,8 @@
 
             <div class="dates mb-2">
                 <b>Week {{ i + 1 }}</b> -
-                ({{ w.start | date:'dd MMM yyyy' }} –
-                {{ w.end | date:'dd MMM yyyy' }})
+                ({{ w.start | date:'dd-MM-yyyy' }} –
+                {{ w.end | date:'dd-MM-yyyy' }})
 
             </div>
 
@@ -410,7 +410,7 @@
                     </p-datepicker> -->
 
                 <p-datepicker [(ngModel)]="weekOffDateMap[i]" [minDate]="weekSelectableRanges[i]?.min"    [defaultDate]="weekOffDateMap[i] || weekDefaultDates[i]"
-                    [maxDate]="weekSelectableRanges[i]?.max" dateFormat="dd M yy" appendTo="body" [disabled]="isMonthLocked || lockedWeeks.has(i)" placeholder="Select week off date">
+                    [maxDate]="weekSelectableRanges[i]?.max" dateFormat="dd-mm-yy" appendTo="body" [disabled]="isMonthLocked || lockedWeeks.has(i)" placeholder="Select week off date">
                 </p-datepicker>
 
 

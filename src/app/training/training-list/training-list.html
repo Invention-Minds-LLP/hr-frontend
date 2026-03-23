@@ -116,8 +116,8 @@
                 </div>
               </td>
   
-              <td>{{ t?.startDate | date: 'short' }}</td>
-              <td>{{ t?.endDate | date: 'short' }}</td>
+              <td>{{ t?.startDate | date: 'dd-MM-yyyy' }}</td>
+              <td>{{ t?.endDate | date: 'dd-MM-yyyy' }}</td>
   
               <!-- Status -->
               <td class="t-data al">
@@ -267,8 +267,8 @@
             </td>
 
             <!-- Dates -->
-            <td>{{ (isIndividualOrEmployee() ? t?.startDate : t?.startDate) | date: 'short' }}</td>
-            <td>{{ (isIndividualOrEmployee() ? t?.endDate : t?.endDate) | date: 'short' }}</td>
+            <td>{{ (isIndividualOrEmployee() ? t?.startDate : t?.startDate) | date: 'dd-MM-yyyy' }}</td>
+            <td>{{ (isIndividualOrEmployee() ? t?.endDate : t?.endDate) | date: 'dd-MM-yyyy' }}</td>
 
             <!-- Status -->
             <td class="t-data al">

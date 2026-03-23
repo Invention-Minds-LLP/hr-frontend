@@ -20,12 +20,12 @@
                 <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
             </p-iconfield>
             <!-- Calendar + Button -->
-            <p-datepicker [(ngModel)]="selectedDate" dateFormat="yy-mm-dd" [showIcon]="true"
+            <p-datepicker [(ngModel)]="selectedDate" dateFormat="dd-mm-yy" [showIcon]="true"
                 class="bg-white border-round-sm" appendTo="body" (onSelect)="loadAttendance()">
             </p-datepicker>
-            <button class="export-btn" (click)="openExportDialog()">
+            <!-- <button class="export-btn" (click)="openExportDialog()">
                 Export Register
-            </button>
+            </button> -->
 
 
         </div>
@@ -37,7 +37,7 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th
-                            *ngFor="let h of ['No','Name','Emp ID','Department','Title','Type','Phone','Status','Action']">
+                            *ngFor="let h of ['No','Employee Name','Department','Check IN','Check Out','Hours','LOgin','Logout', 'Status']">
                             {{ h }}
                         </th>
                     </tr>
@@ -81,6 +81,7 @@
                         <!-- <th>Job Title</th> -->
                         <!-- <th>Employment Type</th> -->
                         <!-- <th>Phone</th> -->
+                         <th>Date</th>
                         <th>Check In</th>
                         <th>Check Out</th>
                         <th>Hours</th>
@@ -116,6 +117,7 @@
                                 {{ getDepartmentName(data.departmentId) }}
                             </span>
                         </td>
+                        <td>{{data.date | date: 'dd-mm-yy'}}</td>
                         <td>{{ data.checkIn | date:'shortTime' }}</td>
                         <td>{{ data.checkOut | date:'shortTime' }}</td>
                         <td>{{ data.workingHours }}h</td>
@@ -176,7 +178,7 @@
       [(ngModel)]="selectedExportMonth"
       view="month"
       appendTo="body"
-      dateFormat="yy-mm"
+      dateFormat="mm-yy"
       [showIcon]="true">
     </p-datepicker>
   </div>

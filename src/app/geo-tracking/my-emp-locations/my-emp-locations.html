@@ -79,7 +79,7 @@
   <p-datepicker
     [(ngModel)]="selectedSessionDate"
     (onSelect)="filterSessionsByDate()"
-    dateFormat="yy-mm-dd"
+    dateFormat="dd-mm-yy"
     appendTo="body"
      showIcon iconDisplay="input"
     class="session-date">
@@ -98,7 +98,7 @@
       </div>
 
       <div class="session-time">
-        {{ s.startedAt | date:'medium' }}
+        {{ s.startedAt | date:'dd-MM-yyyy HH:mm' }}
       </div>
     </div>
 

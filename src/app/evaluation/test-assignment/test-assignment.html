@@ -27,13 +27,13 @@
   </div>
   <div class="form-row">
     <label>Available From:</label>
-    <p-datepicker [(ngModel)]="availFromDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+    <p-datepicker [(ngModel)]="availFromDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" dateFormat="dd-mm-yy" />
 
   </div>
   
   <div class="form-row">
     <label>Available To:</label>
-    <p-datepicker [(ngModel)]="availToDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" />
+    <p-datepicker [(ngModel)]="availToDate" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay" dateFormat="dd-mm-yy" />
 
   </div>
   
@@ -83,13 +83,13 @@
         <div class="field">
           <label>Available From</label>
           <p-datepicker [(ngModel)]="availFromDate"
-            [showIcon]="true" inputId="from" appendTo="body"></p-datepicker>
+            [showIcon]="true" inputId="from" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
         </div>
 
         <div class="field">
           <label>Available To</label>
           <p-datepicker [(ngModel)]="availToDate"
-            [showIcon]="true" inputId="to" appendTo="body"></p-datepicker>
+            [showIcon]="true" inputId="to" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
         </div>
       </div>
 

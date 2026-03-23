@@ -105,7 +105,7 @@
                         </div>
                         <div class="flex2">
                             <strong>Date of Joining -</strong>
-                            <span class="div">{{ employee.dateOfJoining | date: 'dd MMM yyyy' }}</span>
+                            <span class="div">{{ employee.dateOfJoining | date: 'dd-MM-yyyy' }}</span>
                         </div>
                     </div>
 
@@ -203,8 +203,7 @@
                     <hr />
                     <div class="detail"><strong>Department:</strong> {{ employee?.departmentName }}</div>
                     <hr />
-                    <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd MMM
-                        yyyy' }}</div>
+                    <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd-MM-yyyy' }}</div>
                     <hr />
                     <div class="detail"><strong>Blood Group:</strong> {{ employee?.bloodGroup }}</div>
                     <hr />
@@ -309,7 +308,7 @@
                         </span>
 
                         <div class="holiday-display">
-                            <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd MMM yyyy' }}</div>
+                            <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd-MM-yyyy' }}</div>
                             <div class="holiday-name">{{ nearestHoliday?.name }}</div>
                         </div>
 
@@ -412,9 +411,9 @@
                         </div>
 
                         <div class="dept">
-                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].fromDate }}
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].fromDate | date:'dd-MM-yyyy' }}
                             -
-                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].toDate }}
+                            {{ weeklyShiftTemplates[currentWeeklyShiftIndex].toDate | date:'dd-MM-yyyy' }}
                         </div>
 
                         <div class="dept">

@@ -1,0 +1,58 @@
+<p-toast></p-toast>
+
+<p-card class="ot-approvals">
+  <div class="table-header">
+    <h3>OT Approvals – My Team</h3>
+  </div>
+
+  <p-table [value]="records" [loading]="loading" [paginator]="true" [rows]="10">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>No.</th>
+        <th>Employee</th>
+        <th>Department</th>
+        <th>Date</th>
+        <th>Sched. End</th>
+        <th>Checked Out</th>
+        <th>OT Duration</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+
+        <td>
+          <div class="name">{{ row.employeeName }}</div>
+          <div class="emp-code">{{ row.employeeCode }}</div>
+        </td>
+
+        <td>{{ row.department }}</td>
+        <td>{{ formatDate(row.date) }}</td>
+        <td>{{ formatTime(row.scheduledEnd) }}</td>
+        <td>{{ formatTime(row.checkOut) }}</td>
+        <td>{{ formatDuration(row.minutes) }}</td>
+
+        <td >
+          <div class="action-btns">
+            <button class="btn-approve" (click)="approve(row)" [disabled]="actionLoading[row.id]">
+              Approve
+            </button>
+            <button class="btn-reject" (click)="reject(row)" [disabled]="actionLoading[row.id]">
+              Reject
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="no-data">No OT records pending your approval.</td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</p-card>

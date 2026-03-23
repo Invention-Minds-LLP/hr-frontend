@@ -1,7 +1,7 @@
 <p-card class="performance-container">
  <div class="flex">
    <h3>Hearings for Case #{{ caseId }}</h3>
-   <div class="date"><b>{{ form.get('createdAt')?.value | date:'short' }}</b></div>
+   <div class="date"><b>{{ form.get('createdAt')?.value | date:'dd-MM-yyyy HH:mm' }}</b></div>
  </div>
   <p-table class="posh-hearing" [value]="hearings">
     <ng-template pTemplate="header">
@@ -13,7 +13,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-h>
       <tr>
-        <td>{{ h.date | date:'shortDate' }}</td>
+        <td>{{ h.date | date:'dd-MM-yyyy' }}</td>
         <td>{{ h.notes }}</td>
         <td>{{ h.outcome }}</td>
       </tr>
@@ -25,7 +25,7 @@
     <div class="p-fluid">
       <div class="p-field">
         <label>Date</label>
-        <p-datepicker class="mt-1" formControlName="date" appendTo="body"></p-datepicker>
+        <p-datepicker class="mt-1" formControlName="date" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
       </div>
       <div class="p-field">
         <label>Notes</label>

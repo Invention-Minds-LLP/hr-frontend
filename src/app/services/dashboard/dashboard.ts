@@ -9,7 +9,7 @@ import { environment } from '../../../environment/environment.prod';
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
   | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'|
-   'annAck' | 'annAckPending' | 'otPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'paraMedicalLate' |'resignations' | 'interviewsToday' | 'ahc';
+   'annAck' | 'annAckPending' | 'otPending' | 'managerOtPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'paraMedicalLate' |'resignations' | 'interviewsToday' | 'ahc';
 
 
    export interface ListRow {
@@ -134,6 +134,17 @@ export class Dashboard {
   approveOrRejectOT(ids: number[], action: 'APPROVE' | 'REJECT') {
     return this.http.post<{ ok: boolean; updated: number }>(
       `${this.baseUrl}/ot/approve-reject`,
+      { ids, action }
+    );
+  }
+
+  getManagerOtPending() {
+    return this.http.get<any[]>(`${this.baseUrl}/ot/manager-pending`);
+  }
+
+  approveOrRejectOTManager(ids: number[], action: 'APPROVE' | 'REJECT') {
+    return this.http.post<{ ok: boolean; updated: number }>(
+      `${this.baseUrl}/ot/manager-approve-reject`,
       { ids, action }
     );
   }

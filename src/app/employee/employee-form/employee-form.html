@@ -54,7 +54,7 @@
                                         <div class="field col-4">
                                             <p-floatlabel variant="on">
                                                 <!-- <label for="dob">Date of Birth</label> -->
-                                                <p-datePicker id="dob" formControlName="dob" dateFormat="yy-mm-dd"
+                                                <p-datePicker id="dob" formControlName="dob" dateFormat="dd-mm-yy"
                                                     showIcon iconDisplay="input"
                                                     [ngClass]="{'ng-invalid': showError(employeeForm.get('dob'))}"></p-datePicker>
                                                 <label for="dob">Date of Birth *</label>
@@ -210,7 +210,7 @@
 
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="licenseRegDate" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="licenseRegDate" dateFormat="dd-mm-yy"
                                                     showIcon iconDisplay="input"></p-datePicker>
                                                 <label>License Registration Date</label>
                                             </p-floatLabel>
@@ -218,7 +218,7 @@
 
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="licenseExpiryDate" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="licenseExpiryDate" dateFormat="dd-mm-yy"
                                                     showIcon iconDisplay="input"></p-datePicker>
                                                 <label>License Expiry Date</label>
                                             </p-floatLabel>
@@ -509,7 +509,7 @@
 
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-datePicker formControlName="dateOfJoining" dateFormat="yy-mm-dd" showIcon
+                                        <p-datePicker formControlName="dateOfJoining" dateFormat="dd-mm-yy" showIcon
                                             iconDisplay="input"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('dateOfJoining')) }"></p-datePicker>
                                         <label>Date of Joining *</label>
@@ -533,7 +533,7 @@
                                     *ngIf="employeeForm.get('employmentType')?.value === 'PROBATION'">
                                     <p-floatLabel variant="on">
                                         <p-datepicker formControlName="probationEndDate" [minDate]="today"
-                                            dateFormat="dd M yy" inputId="probEndDate" [showIcon]="true"
+                                            dateFormat="dd-mm-yy" inputId="probEndDate" [showIcon]="true"
                                             [ngClass]="{ 'ng-invalid': showError(employeeForm.get('probationEndDate')) }">
                                         </p-datepicker>
                                         <label for="probEndDate">Probation End Date *</label>
@@ -655,14 +655,14 @@
                                 <div class="field col-4" *ngIf="employeeForm.value.shiftMode === 'ROTATIONAL'">
                                     <p-floatLabel variant="on">
                                         <p-datePicker formControlName="rotationStartDate" showIcon iconDisplay="input"
-                                            dateFormat="yy-mm-dd"></p-datePicker>
+                                            dateFormat="dd-mm-yy"></p-datePicker>
                                         <label>Rotation Start Date *</label>
                                     </p-floatLabel>
                                 </div> -->
 
                                 <!-- <div class="field col-4">
                                     <p-floatLabel variant="on">
-                                        <p-datePicker formControlName="shiftDate" dateFormat="yy-mm-dd" showIcon
+                                        <p-datePicker formControlName="shiftDate" dateFormat="dd-mm-yy" showIcon
                                             iconDisplay="input"></p-datePicker>
                                         <label>Shift Date</label>
                                     </p-floatLabel>
@@ -937,7 +937,7 @@
                                         <p-floatLabel variant="on">
 
                                             <p-datePicker formControlName="issueDate" showIcon iconDisplay="input"
-                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                                dateFormat="dd-mm-yy"></p-datePicker>
                                             <label>Issue Date</label>
                                         </p-floatLabel>
                                     </div>
@@ -947,7 +947,7 @@
                                         <p-floatLabel variant="on">
 
                                             <p-datePicker formControlName="expiryDate" showIcon iconDisplay="input"
-                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                                dateFormat="dd-mm-yy"></p-datePicker>
                                             <label>Expiry Date</label>
                                         </p-floatLabel>
                                     </div>
@@ -1023,7 +1023,7 @@
                             <div class="field col-4">
                                 <p-floatLabel variant="on">
                                     <p-datePicker id="preEmploymentCheckDate" formControlName="preEmploymentCheckDate"
-                                        showIcon iconDisplay="input" dateFormat="yy-mm-dd"
+                                        showIcon iconDisplay="input" dateFormat="dd-mm-yy"
                                         [ngClass]="{'ng-invalid': showError(employeeForm.get('preEmploymentCheckDate'))}"></p-datePicker>
                                     <label>Pre-Employment Check Date *</label>
                                     <div class="error-msg"
@@ -1247,7 +1247,7 @@
                                     <div class="field col-3">
                                         <p-floatLabel variant="on">
                                             <p-datePicker formControlName="lastCheckupDate" showIcon iconDisplay="input"
-                                                dateFormat="yy-mm-dd"></p-datePicker>
+                                                dateFormat="dd-mm-yy"></p-datePicker>
                                             <label>Last Checkup Date</label>
                                         </p-floatLabel>
                                     </div>
@@ -1304,28 +1304,28 @@
 
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="firstDose" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="firstDose" dateFormat="dd-mm-yy"
                                                     inputId="firstDose{{i}}"></p-datePicker>
                                                 <label for="firstDose{{i}}">First Dose</label>
                                             </p-floatLabel>
                                         </div>
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="secondDose" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="secondDose" dateFormat="dd-mm-yy"
                                                     inputId="secondDose{{i}}"></p-datePicker>
                                                 <label for="secondDose{{i}}">Second Dose</label>
                                             </p-floatLabel>
                                         </div>
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="thirdDose" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="thirdDose" dateFormat="dd-mm-yy"
                                                     inputId="thirdDose{{i}}"></p-datePicker>
                                                 <label for="thirdDose{{i}}">Third Dose</label>
                                             </p-floatLabel>
                                         </div>
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="boosterDose" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="boosterDose" dateFormat="dd-mm-yy"
                                                     inputId="boosterDose{{i}}"></p-datePicker>
                                                 <label for="boosterDose{{i}}">Booster Dose(s)</label>
                                             </p-floatLabel>
@@ -1334,7 +1334,7 @@
 
                                         <div class="field col-4">
                                             <p-floatLabel variant="on">
-                                                <p-datePicker formControlName="testDate" dateFormat="yy-mm-dd"
+                                                <p-datePicker formControlName="testDate" dateFormat="dd-mm-yy"
                                                     inputId="testDate{{i}}"></p-datePicker>
                                                 <label for="testDate{{i}}">Date of Test</label>
                                             </p-floatLabel>
@@ -1485,14 +1485,14 @@
 
         <div class="field">
             <label>Start Date</label>
-            <p-datepicker formControlName="startDate" dateFormat="yy-mm-dd" [showIcon]="true"
+            <p-datepicker formControlName="startDate" dateFormat="dd-mm-yy" [showIcon]="true"
                 placeholder="Select start date" appendTo="body">
             </p-datepicker>
         </div>
 
         <div class="field">
             <label>End Date</label>
-            <p-datepicker formControlName="endDate" dateFormat="yy-mm-dd" [showIcon]="true"
+            <p-datepicker formControlName="endDate" dateFormat="dd-mm-yy" [showIcon]="true"
                 placeholder="Select end date" appendTo="body">
             </p-datepicker>
         </div>

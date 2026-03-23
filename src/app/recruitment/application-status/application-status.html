@@ -240,7 +240,7 @@
       <div class="dialog-field">
         <label class="si-label">Start <span class="si-req">*</span></label>
         <div class="si-input si-grid-2">
-          <p-datepicker formControlName="startDate" [showTime]="false" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="startDate" [showTime]="false" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
           <p-datepicker formControlName="startTime" [showTime]="true" [timeOnly]="true" hourFormat="24"
             appendTo="body"></p-datepicker>
         </div>
@@ -250,7 +250,7 @@
       <div class="dialog-field">
         <label class="si-label">End <span class="si-req">*</span></label>
         <div class="si-input si-grid-2">
-          <p-datepicker formControlName="endDate" [showTime]="false" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="endDate" [showTime]="false" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
           <p-datepicker formControlName="endTime" [showTime]="true" [timeOnly]="true" hourFormat="24"
             appendTo="body"></p-datepicker>
         </div>
@@ -306,7 +306,7 @@
   <form [formGroup]="offerForm" class="dialog-body p-fluid">
     <div class="dialog-field">
       <label class="label">Proposed Join <span class="muted">(optional)</span></label>
-      <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24" appendTo="body"></p-datepicker>
+      <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
       <small class="hint">You can leave this blank and set it later.</small>
     </div>
   </form>
@@ -384,7 +384,7 @@
         <!-- Test start -->
         <div class="dialog-field">
           <label class="at-label">Test date</label>
-          <p-datepicker formControlName="testDateDate" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="testDateDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
         </div>
         <div class="dialog-field">
           <label class="at-label">Time</label>
@@ -396,7 +396,7 @@
         <!-- Deadline -->
         <div class="dialog-field">
           <label class="at-label">Deadline date</label>
-          <p-datepicker formControlName="deadlineDateDate" appendTo="body"></p-datepicker>
+          <p-datepicker formControlName="deadlineDateDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
         </div>
         <div class="dialog-field">
           <label class="at-label">Time</label>

@@ -1,0 +1,79 @@
+<div class="export-page">
+
+  <!-- ── Global Filters ──────────────────────────────────────────────── -->
+  <div class="filters-card">
+    <h3 class="filters-title">Filters</h3>
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Start Date</label>
+        <input type="date" [(ngModel)]="startDate" />
+      </div>
+      <div class="filter-group">
+        <label>End Date</label>
+        <input type="date" [(ngModel)]="endDate" />
+      </div>
+      <div class="filter-group">
+        <label>Year</label>
+        <select [(ngModel)]="year">
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Month</label>
+        <select [(ngModel)]="month">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="date-warning" *ngIf="dateRangeWarning">
+      <span class="material-icons">warning</span>
+      Date range exceeds 31 days. Please select a range of 30 or 31 days for date-filtered exports.
+    </div>
+    <p class="filters-hint">
+      Date filters apply to exports marked with a calendar icon.
+      Year / Month filters apply to summary and balance exports.
+    </p>
+  </div>
+
+  <!-- ── Export Groups ───────────────────────────────────────────────── -->
+  <div class="groups">
+    <div class="group-card" *ngFor="let group of groups">
+
+      <div class="group-header">
+        <span class="material-icons group-icon">{{ group.icon }}</span>
+        <span class="group-title">{{ group.title }}</span>
+      </div>
+
+      <div class="items">
+        <div class="export-item" *ngFor="let item of group.items">
+          <div class="item-meta">
+            <span class="item-label">{{ item.label }}</span>
+            <div class="item-badges">
+              <span class="badge date-badge" *ngIf="item.needsDate">
+                <span class="material-icons" style="font-size:12px">date_range</span> Date
+              </span>
+              <span class="badge year-badge" *ngIf="item.needsYear">
+                <span class="material-icons" style="font-size:12px">event</span> Year
+              </span>
+              <span class="badge month-badge" *ngIf="item.needsMonth">
+                <span class="material-icons" style="font-size:12px">calendar_month</span> Month
+              </span>
+            </div>
+          </div>
+          <button
+            class="export-btn"
+            [class.loading]="loading[item.table]"
+            [disabled]="loading[item.table]"
+            (click)="export(item)"
+          >
+            <span class="material-icons btn-icon" *ngIf="!loading[item.table]">Download</span>
+            <span class="spinner" *ngIf="loading[item.table]"></span>
+            {{ loading[item.table] ? 'Exporting…' : 'Export' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

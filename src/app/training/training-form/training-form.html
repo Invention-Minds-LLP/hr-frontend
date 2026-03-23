@@ -44,7 +44,7 @@
     <div class="field col-6">
       <p-floatLabel variant="on">
         <p-datePicker inputId="startDate" formControlName="startDate" showIcon iconDisplay="input" [showTime]="true"
-          hourFormat="24" dateFormat="yy-mm-dd" class="w-full"></p-datePicker>
+          hourFormat="24" dateFormat="dd-mm-yy" class="w-full"></p-datePicker>
         <label for="startDate">Start Date</label>
       </p-floatLabel>
       <small *ngIf="form.get('startDate')?.touched && form.get('startDate')?.hasError('required')" class="p-error">
@@ -55,7 +55,7 @@
     <div class="field col-6">
       <p-floatLabel variant="on">
         <p-datePicker inputId="endDate" formControlName="endDate" showIcon iconDisplay="input" [showTime]="true"
-          hourFormat="24" dateFormat="yy-mm-dd" class="w-full"></p-datePicker>
+          hourFormat="24" dateFormat="dd-mm-yy" class="w-full"></p-datePicker>
         <label for="endDate">End Date</label>
       </p-floatLabel>
       <small *ngIf="form.get('endDate')?.touched && form.get('endDate')?.hasError('required')" class="p-error">
@@ -119,13 +119,13 @@
             </td>
             <!-- NEW: Test date -->
             <td>
-              <p-datePicker formControlName="testDate" [showTime]="true" hourFormat="24" dateFormat="yy-mm-dd">
+              <p-datePicker formControlName="testDate" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy">
               </p-datePicker>
             </td>
 
             <!-- NEW: Deadline -->
             <td>
-              <p-datePicker formControlName="deadlineDate" [showTime]="true" hourFormat="24" dateFormat="yy-mm-dd">
+              <p-datePicker formControlName="deadlineDate" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy">
               </p-datePicker>
             </td>
           </tr>

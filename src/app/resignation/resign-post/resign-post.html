@@ -55,7 +55,7 @@
                     <td>{{ i + 1}}</td>
                     <td>{{ t.title }}</td>
                     <td>{{ t.assigneeId || '-' }}</td>
-                    <td>{{ t.dueDate ? (t.dueDate | date:'mediumDate') : '-' }}</td>
+                    <td>{{ t.dueDate ? (t.dueDate | date:'dd-MM-yyyy') : '-' }}</td>
                     <td>{{ t.status || 'OPEN' }}</td>
                     <td class="task-btns" *ngIf="t.id">
                         <button size="small" label="Open" class="open-btn" style="width: 30%;"

@@ -142,7 +142,7 @@
     <div class="p-grid date">
       <div class="form-field p-col-6">
         <label for="startsAt">Valid From</label>
-        <p-datepicker id="startsAt" formControlName="startsAt" showIcon="true" dateFormat="dd M yy"
+        <p-datepicker id="startsAt" formControlName="startsAt" showIcon="true" dateFormat="dd-mm-yy"
           [invalid]="form.get('startsAt')?.invalid && (form.get('startsAt')?.touched || submitted)"></p-datepicker>
         <div class="error-msg" *ngIf="form.get('startsAt')?.invalid && (form.get('startsAt')?.touched || submitted)">
           Valid Form is required
@@ -150,7 +150,7 @@
       </div>
       <div class="form-field p-col-6">
         <label for="endsAt">Until</label>
-        <p-datepicker id="endsAt" formControlName="endsAt" showIcon="true" dateFormat="dd M yy"
+        <p-datepicker id="endsAt" formControlName="endsAt" showIcon="true" dateFormat="dd-mm-yy"
           [invalid]="form.get('endsAt')?.invalid && (form.get('endsAt')?.touched || submitted)"></p-datepicker>
 
         <div class="error-msg" *ngIf="form.get('endsAt')?.invalid && (form.get('endsAt')?.touched || submitted)">

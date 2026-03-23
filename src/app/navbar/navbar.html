@@ -39,7 +39,7 @@
             <div *ngFor="let notification of notifications; let i = index" class="notification-item"
               (click)="handleNotificationClick(i)">
               <div class="notification-message">{{ notification.message }}</div>
-              <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
+              <div class="notification-time">{{ notification.createdAt | date:'dd-MM-yyyy HH:mm' }}</div>
               <span class="mark-read" *ngIf="!notification.isRead" (click)="markAsRead(notification.id, i)">
                 Mark as read
               </span>
@@ -207,8 +207,8 @@
               </svg>
               <span>Employee</span></a>
           </li>
-          <!-- 
-                    <li class="nav-items">
+
+          <li class="nav-items" *ngIf="!isRestricted && !isReportingManager && !isIncharge">
             <a [routerLink]="'/admin/attendance'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -216,7 +216,7 @@
                   fill="currentColor" />
               </svg>
               <span>Attendance</span></a>
-          </li> -->
+          </li>
 
           <li class="nav-items">
             <a [routerLink]="'/admin/leave'" routerLinkActive="active" class="nav-link">
@@ -304,6 +304,17 @@
                 </g>
               </svg>
               <span>Shifts</span></a>
+          </li>
+
+          <li class="nav-items" *ngIf="isReportingManager">
+            <a [routerLink]="'admin/ot-approvals'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+              </svg>
+              <span>OT Approvals</span>
+            </a>
           </li>
 
           <li class="nav-items" *ngIf="(isReportingManager || isIncharge) && executiveRoleId !== 4">

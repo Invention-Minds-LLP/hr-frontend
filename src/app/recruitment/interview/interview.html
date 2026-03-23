@@ -91,7 +91,7 @@
               </ng-template>
             </td>
 
-            <td>{{ r.startTime | date:'medium' }}</td>
+            <td>{{ r.startTime | date:'dd-MM-yyyy HH:mm' }}</td>
 
             <!-- Status -->
             <td>
@@ -151,7 +151,7 @@
       <div class="summary-main">
         <div class="test-name">{{ reviewCtx?.test?.name }}</div>
         <div class="meta">
-          Completed: {{ reviewCtx?.completedAt | date:'MMM d, y, h:mm a' }}
+          Completed: {{ reviewCtx?.completedAt | date:'dd-MM-yyyy HH:mm' }}
         </div>
       </div>
       <p-tag class="score-tag" [value]="(reviewCtx?.score ?? 0) + '%'" severity="info"></p-tag>
@@ -189,7 +189,7 @@
       </div>
       <div class="field">
         <label class="label">Reviewed At</label>
-        <div>{{ reviewCtx.reviewedAt | date:'MMM d, y, h:mm a' }}</div>
+        <div>{{ reviewCtx.reviewedAt | date:'dd-MM-yyyy HH:mm' }}</div>
       </div>
       <div class="field" *ngIf="reviewCtx.reviewNote">
         <label class="label">Note</label>

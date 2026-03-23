@@ -12,7 +12,7 @@
         </select>
         <!-- <input class="input" type="number" placeholder="Employee ID" [(ngModel)]="employeeId">
       <input class="input" type="number" placeholder="Mentor ID" [(ngModel)]="mentorId"> -->
-        <p-datepicker [(ngModel)]="activeRange" selectionMode="range" dateFormat="yy-mm-dd" [showIcon]="true"
+        <p-datepicker [(ngModel)]="activeRange" selectionMode="range" dateFormat="dd-mm-yy" [showIcon]="true"
             (ngModelChange)="onRangeChange($event)">
         </p-datepicker>
 
@@ -104,8 +104,8 @@
 
 
 
-                    <td>{{ it.startDate | date: 'yyyy-MM-dd' }}</td>
-                    <td>{{ it.endDate | date: 'yyyy-MM-dd' }}</td>
+                    <td>{{ it.startDate | date: 'dd-MM-yyyy' }}</td>
+                    <td>{{ it.endDate | date: 'dd-MM-yyyy' }}</td>
                     <td>{{ it.stipend || '—' }}</td>
                     <td>{{ it.employeeName || '—' }}</td>
                     <td>{{ it.mentorName || '—' }}</td>
@@ -210,12 +210,12 @@
                 <label class="field">Start
                     <!-- <input class="input" type="date" [(ngModel)]="createForm.startDate"> -->
                     
-                     <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.startDate" dateFormat="yy-mm-dd"></p-datepicker>
+                     <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.startDate" dateFormat="dd-mm-yy"></p-datepicker>
                 </label>
 
                 <label class="field">End
                     <!-- <input class="input" type="date" [(ngModel)]="createForm.endDate"> -->
-                    <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.endDate" dateFormat="yy-mm-dd"></p-datepicker>
+                    <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.endDate" dateFormat="dd-mm-yy"></p-datepicker>
                 </label>
 
                 <label class="field span-2">Notes
@@ -283,7 +283,7 @@
                 <label class="field">Start
                     <input class="input" type="date" [(ngModel)]="editForm.startDate">
                     <!-- or PrimeNG:
-      <p-datepicker [(ngModel)]="editForm.startDate" dateFormat="yy-mm-dd"></p-datepicker> -->
+      <p-datepicker [(ngModel)]="editForm.startDate" dateFormat="dd-mm-yy"></p-datepicker> -->
                 </label>
 
                 <label class="field">End

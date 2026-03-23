@@ -32,7 +32,7 @@
     <!-- Date of Joining -->
     <div class="col-12 md:col-3">
       <p-floatlabel variant="on">
-        <input pInputText id="doj" [value]="joiningDate | date:'mediumDate'" disabled />
+        <input pInputText id="doj" [value]="joiningDate | date:'dd-MM-yyyy'" disabled />
         <label for="doj">Date of Joining</label>
       </p-floatlabel>
     </div>
@@ -283,7 +283,7 @@
           <td>{{ incident.title }}</td>
           <td>{{ incident.description }}</td>
           <td>{{ incident.reporter?.firstName }} {{ incident.reporter?.lastName }}</td>
-          <td>{{ incident.createdAt | date:'mediumDate' }}</td>
+          <td>{{ incident.createdAt | date:'dd-MM-yyyy' }}</td>
         </tr>
       </ng-template>
     </p-table>

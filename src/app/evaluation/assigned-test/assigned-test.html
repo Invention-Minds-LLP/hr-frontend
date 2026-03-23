@@ -63,9 +63,9 @@
         <!-- <td>{{ a.employee?.firstName }} {{ a.employee?.lastName }}</td> -->
         <td>{{ a.test?.name }}</td>
         <td>{{ a.attempts }}</td>
-        <td>{{ a.assignedAt | date: 'short' }}</td>
-        <td>{{ (a.startedAt | date:'short') || '-' }}</td>
-        <td>{{ (a.completedAt | date:'short') || '-' }}</td>
+        <td>{{ a.assignedAt | date: 'dd-MM-yyyy HH:mm' }}</td>
+        <td>{{ (a.startedAt | date:'dd-MM-yyyy HH:mm') || '-' }}</td>
+        <td>{{ (a.completedAt | date:'dd-MM-yyyy HH:mm') || '-' }}</td>
         <td>{{ a.latestScore !== null ? a.latestScore : '-' }}</td>
         <td>{{ a.result || '-' }}</td>
         <td>{{ a.status }}</td>
@@ -120,8 +120,8 @@
         <div class="ovr-title">{{ o.employeeName }} • {{ o.testName }}</div>
         <div class="ovr-sub">
           Attempt #{{ o.attemptId }} ·
-          Started: {{ o.startedAt | date:'short' }} ·
-          Completed: {{ (o.completedAt | date:'short') || '-' }} ·
+          Started: {{ o.startedAt | date:'dd-MM-yyyy HH:mm' }} ·
+          Completed: {{ (o.completedAt | date:'dd-MM-yyyy HH:mm') || '-' }} ·
           Time: {{ fmtDuration(o.timeTakenSec) }}
         </div>
       </div>

@@ -207,8 +207,8 @@
             <div class="week-title">
                 <span class="week-badge">Week {{ i + 1 }}</span>
                 <span class="week-dates">
-                    {{ week.start | date:'dd MMM yyyy' }} –
-                    {{ week.end | date:'dd MMM yyyy' }}
+                    {{ week.start | date:'dd-MM-yyyy' }} –
+                    {{ week.end | date:'dd-MM-yyyy' }}
                 </span>
             </div>
 
@@ -226,7 +226,7 @@
             <div *ngIf="week.weekOffDate" class="week-off">
                 <span class="week-off-label">Week Off:</span>
                 <span class="week-off-date">
-                    {{ week.weekOffDate | date:'EEE, dd MMM yyyy' }}
+                    {{ week.weekOffDate | date:'EEE, dd-MM-yyyy' }}
                 </span>
             </div>
 

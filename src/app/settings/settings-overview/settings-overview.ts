@@ -4,10 +4,11 @@ import { Profile } from "../profile/profile";
 import { ResetPassword } from "../reset-password/reset-password";
 import { Table } from "../table/table";
 import { LoginCreation } from "../login-creation/login-creation";
+import { Export } from "../export/export";
 
 @Component({
   selector: 'app-settings-overview',
-  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation],
+  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation, Export],
   templateUrl: './settings-overview.html',
   styleUrl: './settings-overview.css'
 })

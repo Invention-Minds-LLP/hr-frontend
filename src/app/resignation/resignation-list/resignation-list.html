@@ -113,8 +113,8 @@
           </td>
           <td>{{ r.managerDecision }}</td>
           <td>{{ r.hrDecision }}</td>
-          <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
-          <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'mediumDate') : '-' }}</td>
+          <td>{{ r.proposedLastWorkingDay | date:'dd-MM-yyyy' }}</td>
+          <td>{{ r.actualLastWorkingDay ? (r.actualLastWorkingDay | date:'dd-MM-yyyy') : '-' }}</td>
           <td><span class="chip s-{{ r.status }}">{{ r.status }}</span></td>
           <td class="actions">
             <ng-container *ngIf="
@@ -206,7 +206,7 @@
   <div class="p-fluid">
     <div class="p-field">
       <label for="lwd">Actual Last Working Day</label>
-      <p-datepicker id="lwd" [(ngModel)]="selectedLwd" dateFormat="yy-mm-dd" [showIcon]="true" inputId="lwd"
+      <p-datepicker id="lwd" [(ngModel)]="selectedLwd" dateFormat="dd-mm-yy" [showIcon]="true" inputId="lwd"
         style="width: 100%;" appendTo="body" class="mt-2"></p-datepicker>
     </div>
 
@@ -214,7 +214,7 @@
     <div class="p-field" *ngIf="selectedRecord">
       <p><strong>Employee:</strong> {{ selectedRecord?.employee?.firstName }} {{ selectedRecord?.employee?.lastName }}
       </p>
-      <p><strong>Proposed LWD:</strong> {{ selectedRecord?.proposedLastWorkingDay | date: 'yyyy-MM-dd' }}</p>
+      <p><strong>Proposed LWD:</strong> {{ selectedRecord?.proposedLastWorkingDay | date: 'dd-MM-yyyy' }}</p>
     </div>
   </div>
 

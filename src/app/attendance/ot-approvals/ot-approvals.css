@@ -1,0 +1,74 @@
+.table-header {
+  margin-bottom: 1rem;
+}
+.ot-approvals{
+
+    font-family: "Sofia Sans";
+    padding: 0 60px;
+    /* width: 100%; */
+}
+
+.table-header h3 {
+    color: white;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.emp-code {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.action-btns {
+  display: flex !important;
+  gap: 0.5rem;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: nowrap;
+}
+
+.btn-approve,
+.btn-reject {
+  padding: 0.3rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-approve {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.btn-approve:hover:not(:disabled) {
+  background: #a7f3d0;
+}
+
+.btn-reject {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.btn-approve:disabled,
+.btn-reject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}

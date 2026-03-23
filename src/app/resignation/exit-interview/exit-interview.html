@@ -30,7 +30,7 @@
 
           <div class="col-4">
             <p-floatlabel variant="on">
-              <p-datepicker id="interviewDate" formControlName="interviewDate" dateFormat="dd/mm/yy"
+              <p-datepicker id="interviewDate" formControlName="interviewDate" dateFormat="dd-mm-yy"
                 [invalid]="form.get('interviewDate') ?.invalid && (form.get('interviewDate')?.touched || submitted)"></p-datepicker>
               <label for="interviewDate"><i class="pi pi-calendar mr-2"></i>Interview Date</label>
             </p-floatlabel>

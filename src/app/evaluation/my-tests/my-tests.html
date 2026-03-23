@@ -60,7 +60,7 @@
         <td>{{ t.test?.name }}</td>
         <td>{{ t.test?.duration }} min</td>
         <td>{{ t.status }}</td>
-        <td>{{ t.assignedAt | date:'short' }}</td>
+        <td>{{ t.assignedAt | date:'dd-MM-yyyy HH:mm' }}</td>
         <td class="action-cell">
           <ng-container *ngIf="t.canStart; else maxMsg">
             <button class="button" (click)="startTest(t)">Start</button>
@@ -145,16 +145,16 @@
             <td>{{ t.test?.duration }} Min</td>
             <td>{{ t.status }}</td>
 
-            <td>{{ t.assignedAt | date:'short' }}</td>
+            <td>{{ t.assignedAt | date:'dd-MM-yyyy HH:mm' }}</td>
             <td>
               <ng-container *ngIf="t.testDate; else noDate">
-                {{ t.testDate | date:'short' }}
+                {{ t.testDate | date:'dd-MM-yyyy' }}
               </ng-container>
               <ng-template #noDate>-</ng-template>
             </td>
             <td>
               <ng-container *ngIf="t.deadlineDate; else noDeadline">
-                {{ t.deadlineDate | date:'short' }}
+                {{ t.deadlineDate | date:'dd-MM-yyyy' }}
               </ng-container>
               <ng-template #noDeadline>-</ng-template>
             </td>

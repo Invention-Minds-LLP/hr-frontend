@@ -70,7 +70,7 @@
                 {{ getDepartmentName(row.departmentId) }}
               </span>
             </td>
-            <td>{{ row.createdAt | date:'short' }}</td>
+            <td>{{ row.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
             <td>
               <p-tag [value]="row.status" [severity]="row.status === 'REJECTED' ? 'danger' :
                                      row.status.includes('APPROVED') ? 'success' :

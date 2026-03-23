@@ -36,6 +36,15 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class RecruitmentDashboard implements OnInit {
   private api = inject(Recuriting);
   private messages = inject(MessageService);
+
+  private fmtDate(d: any): string {
+    if (!d) return '-';
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return '-';
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    return `${dd}-${mm}-${dt.getFullYear()}`;
+  }
   selectedInterview = signal<any | null>(null);
   applicationRows: any[] = [];
   resumeDialogOpen = false;
@@ -353,7 +362,7 @@ export class RecruitmentDashboard implements OnInit {
               index + 1,
               r.candidate?.name || '-',
               r.job?.title || '-',
-              new Date(r.createdAt).toLocaleDateString(),
+              this.fmtDate(r.createdAt),
               r.candidate?.experience || '-',
               r.candidate?.qualification || '-',
               {
@@ -430,7 +439,7 @@ export class RecruitmentDashboard implements OnInit {
             index + 1,
             r.candidate?.name || '-',
             r.job?.title || '-',
-            new Date(r.createdAt).toLocaleDateString(),
+            this.fmtDate(r.createdAt),
             r.candidate?.experience || '-',
             r.candidate?.qualification || '-',
             {
@@ -464,7 +473,7 @@ export class RecruitmentDashboard implements OnInit {
       'Name': r.candidate?.name || '-',
       'Email': r.candidate?.email || '-',
       'Role Applied': r.job?.title || '-',
-      'Date Applied': new Date(r.createdAt).toLocaleDateString(),
+      'Date Applied': this.fmtDate(r.createdAt),
       'Experience': r.candidate?.experience || '-',
       'Qualification': r.candidate?.qualification || '-',
       'Status': r.status

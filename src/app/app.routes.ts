@@ -60,6 +60,7 @@ import { EmployeeShiftList } from './shifts/employee-shift-list/employee-shift-l
 import { ManagerShift } from './shifts/manager-shift/manager-shift';
 import { ShiftOverview } from './shifts/shift-overview/shift-overview';
 import { AttendanceOverview } from './attendance/attendance-overview/attendance-overview';
+import { OtApprovals } from './attendance/ot-approvals/ot-approvals';
 import { GeoTrackingOverview } from './geo-tracking/geo-tracking-overview/geo-tracking-overview';
 
 export const routes: Routes = [
@@ -92,7 +93,8 @@ export const routes: Routes = [
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
       { path: 'incidents', component: IncidentOverview, canActivate: [authGuard] },
       { path: 'shifts', component: ShiftOverview, canActivate: [authGuard] },
-      { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]}
+      { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]},
+        { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
     ],
 
   },
@@ -122,6 +124,7 @@ export const routes: Routes = [
   { path: 'balances-accruals', component: BalancesAccruals,canActivate: [authGuard]},
   { path: 'attendance', component: AttendanceCalendars,canActivate: [authGuard]},
   { path: 'history', component: History,canActivate: [authGuard]},
+  { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
   { path: 'resignation', component: ResignOverview,canActivate: [authGuard]},
   { path: 'interview', component: CandidateEvalForm,canActivate: [authGuard]},
   { path: 'popup', component: PopUp,canActivate: [authGuard] },

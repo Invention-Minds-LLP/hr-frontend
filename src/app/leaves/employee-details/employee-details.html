@@ -70,7 +70,7 @@
             <div class="toolbar">
                 <p-datePicker [(ngModel)]="selectedDates" [selectionMode]="'range'" [showIcon]="true"
                     [showButtonBar]="true" [panelStyle]="{minWidth:'320px'}" inputId="filterDates"
-                    placeholder="Select date(s)" (onSelect)="applyFilters()">
+                    placeholder="Select date(s)" dateFormat="dd-mm-yyyy" (onSelect)="applyFilters()">
                 </p-datePicker>
 
                 <button class="iconbtn" type="button" (click)="clearFilters()" title="Clear">
@@ -98,8 +98,8 @@
                             <tbody>
                                 <tr *ngFor="let leave of filtered.leave; let i = index">
                                     <td>{{ (i+1) | number:'2.0' }}</td>
-                                    <td>{{ leave.startDate | date:'dd/MM/yyyy' }}<ng-container *ngIf="leave.endDate">
-                                            to {{ leave.endDate | date:'dd/MM/yyyy' }}</ng-container></td>
+                                    <td>{{ leave.startDate | date:'dd-MM-yyyy' }}<ng-container *ngIf="leave.endDate">
+                                            to {{ leave.endDate | date:'dd-MM-yyyy' }}</ng-container></td>
                                     <td>{{ getDurationDays(leave.startDate, leave.endDate) | number:'2.0' }}</td>
                                     <td><button class="btn-pill" (click)="openLeaveDetails(leave)">See Details</button>
                                     </td>
@@ -152,7 +152,7 @@
                             <tbody>
                                 <tr *ngFor="let perm of filtered.permission; let i = index">
                                     <td>{{ (i+1) | number:'2.0' }}</td>
-                                    <td>{{ perm.day | date:'dd/MM/yyyy' }}</td>
+                                    <td>{{ perm.day | date:'dd-MM-yyyy' }}</td>
                                     <td>{{ getPermissionHours(perm) | number:'2.0' }}</td>
                                     <td><button class="btn-pill" (click)="openDetailsPopup(perm)">See Details</button>
                                     </td>
@@ -179,8 +179,8 @@
                                 <tbody>
                                     <tr *ngFor="let wfh of filtered.wfh; let i = index">
                                         <td>{{ (i+1) | number:'2.0' }}</td>
-                                        <td>{{ wfh.startDate | date:'dd/MM/yyyy' }} to {{ wfh.endDate |
-                                            date:'dd/MM/yyyy' }}</td>
+                                        <td>{{ wfh.startDate | date:'dd-MM-yyyy' }} to {{ wfh.endDate |
+                                            date:'dd-MM-yyyy' }}</td>
                                         <td>{{ getDurationDays(wfh.startDate, wfh.endDate) | number:'2.0' }}</td>
                                         <td><button class="btn-pill" (click)="openWFHDetails(wfh)">See Details</button>
                                         </td>

@@ -224,7 +224,7 @@ export class HrDashboard implements OnInit {
 
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
-      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending',
+      'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending', 'managerOtPending',
       'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'paraMedicalLate' ,'resignations', 'ahc'
     ];
 
@@ -401,12 +401,17 @@ export class HrDashboard implements OnInit {
     // --- Case 2: OT Approval/Rejection
     if ((action === 'Approve selected' || action === 'Reject selected') && this.selectedRows.length) {
       const ids = this.selectedRows.map((r: any) => r.id);
-      this.api
-        .approveOrRejectOT(ids, action.startsWith('Approve') ? 'APPROVE' : 'REJECT')
-        .subscribe(() => {
-          // this.closeModal();
-          this.reloadData(); // refresh dashboard
+      const otAction = action.startsWith('Approve') ? 'APPROVE' : 'REJECT';
+
+      if (this.selectedListKey === 'managerOtPending') {
+        this.api.approveOrRejectOTManager(ids, otAction).subscribe(() => {
+          this.reloadData();
         });
+      } else {
+        this.api.approveOrRejectOT(ids, otAction).subscribe(() => {
+          this.reloadData();
+        });
+      }
       return;
     }
 

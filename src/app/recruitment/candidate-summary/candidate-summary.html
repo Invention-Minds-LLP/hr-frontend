@@ -39,7 +39,7 @@
           <p-tag [value]="i.result || 'Pending'"
             [severity]="i.result==='Pass' ? 'success' : i.result==='Fail' ? 'danger' : 'warn'"></p-tag>
         </div>
-        <p class="muted">{{ i.startTime | date:'MMM d, y, h:mm a' }}</p>
+        <p class="muted">{{ i.startTime | date:'dd-MM-yyyy HH:mm' }}</p>
 
         <!-- Feedback list -->
         <div *ngIf="i.InterviewFeedback?.length" class="feedback">

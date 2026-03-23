@@ -39,7 +39,7 @@
                         </div>
 
                         <div class="field readonly">
-                            <div>{{ proposedLWD | date:'mediumDate' }}</div>
+                            <div>{{ proposedLWD | date:'dd-MM-yyyy' }}</div>
                             <label>[Proposed Last Working Day]</label>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                 <div><strong>Status:</strong> {{ submitted.status }}</div>
                 <div><strong>Manager Decision:</strong> {{ submitted.managerDecision }}</div>
                 <div><strong>HR Decision:</strong> {{ submitted.hrDecision }}</div>
-                <div><strong>Proposed LWD:</strong> {{ submitted.proposedLastWorkingDay | date:'mediumDate' }}</div>
+                <div><strong>Proposed LWD:</strong> {{ submitted.proposedLastWorkingDay | date:'dd-MM-yyyy' }}</div>
                 <button pButton class="p-button-danger button" label="Withdraw" (click)="withdraw()"
                     *ngIf="submitted.hrDecision === 'PENDING'"></button>
             </div>
@@ -84,8 +84,8 @@
                 <ng-template pTemplate="body" let-r let-i="rowIndex">
                     <tr>
                         <td>{{ i + 1 }}</td>
-                        <td>{{ r.createdAt | date:'short' }}</td>
-                        <td>{{ r.proposedLastWorkingDay | date:'mediumDate' }}</td>
+                        <td>{{ r.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
+                        <td>{{ r.proposedLastWorkingDay | date:'dd-MM-yyyy' }}</td>
                         <td>{{ r.noticePeriodDays }} days</td>
                         <td><span class="{{ badgeClass(r.status) }}">{{ r.status }}</span></td>
                         <td>

@@ -12,8 +12,8 @@
 
             <input pInputText type="text" placeholder="Search employee" [(ngModel)]="search" (input)="applyFilter()" />
 
-            <p-datepicker placeholder="From Date" [(ngModel)]="fromDate" dateFormat="yy-mm-dd"></p-datepicker>
-            <p-datepicker placeholder="To Date" [(ngModel)]="toDate" dateFormat="yy-mm-dd"></p-datepicker>
+            <p-datepicker placeholder="From Date" [(ngModel)]="fromDate" dateFormat="dd-mm-yy"></p-datepicker>
+            <p-datepicker placeholder="To Date" [(ngModel)]="toDate" dateFormat="dd-mm-yy"></p-datepicker>
 
             <button pButton label="" icon="pi pi-filter" (click)="load()"></button>
         </div>
@@ -95,7 +95,7 @@
                     <td>{{ row.employee.designation?.name }}</td>
                     <td>{{ row.employee.employmentType }}</td>
 
-                    <td>{{ row.date | date:'dd MMM yyyy' }}</td>
+                    <td>{{ row.date | date:'dd-MM-yyyy' }}</td>
 
                     <!-- <td>{{ row.shift.name }}</td> -->
                     <td>
@@ -148,7 +148,7 @@
         </div>
     </ng-template>
     <div *ngIf="selectedRow">
-        <p>{{ selectedRow.employee.firstName }} – {{ selectedRow.date | date }}</p>
+        <p>{{ selectedRow.employee.firstName }} – {{ selectedRow.date | date:'dd-MM-yyyy' }}</p>
         <!-- 
         <p-select [options]="shiftOptions" optionLabel="name" optionValue="id" [(ngModel)]="selectedShiftId"
             placeholder="Select shift" appendTo="body">
