@@ -118,9 +118,9 @@
                             </span>
                         </td>
                         <td>{{data.date | date: 'dd-MM-yy'}}</td>
-                        <td>{{ data.checkIn | date:'shortTime' }}</td>
-                        <td>{{ data.checkOut | date:'shortTime' }}</td>
-                        <td>{{ data.workingHours }}h</td>
+                        <td>{{ (data.checkIn | date:'shortTime') || '-' }}</td>
+                        <td>{{ (data.checkOut | date:'shortTime') || '-' }}</td>
+                        <td>{{ data.workingHours || '-' }}h</td>
                         <td>{{ data.loginFlag || '-' }}</td>
                         <td>{{ data.logoutFlag || '-' }}</td>
 
