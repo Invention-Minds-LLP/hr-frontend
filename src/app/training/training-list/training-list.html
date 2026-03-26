@@ -1,20 +1,16 @@
 <!-- <p-card header="Training Management"> -->
 <p-card class="training"  [ngClass]="{'individual-view': currentPath === '/individual'}">
 
-<div class="guide">
+<div class="" *ngIf="currentPath === '/individual'">
     <app-module-guide
     title="Training Management"
     subtitle="Plan, assign, and track employee training programs, tests, and feedback."
     [points]="[
-      { label: 'Training Programs', desc: 'Create and manage training sessions with internal or external trainers.' },
-      { label: 'Assign Employees', desc: 'Assign specific employees or departments to training programs.' },
-      { label: 'Linked Tests', desc: 'Attach evaluation tests to trainings to assess learning outcomes.' },
-      { label: 'Mark Attendance', desc: 'Reporting managers can mark employee attendance for each training session.' },
+      { label: 'Training Programs', desc: 'View and manage all training programs you are part of, including trainers, schedules and feedback options.' }, 
       { label: 'Feedback', desc: 'Employees submit feedback on trainers, content quality, and relevance after completion.' }
     ]">
   </app-module-guide>
 </div>
-
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">
     <app-training-form (ngSubmit)="onTrainingCreated()" #trainingFormRef  (closeForm)="closeFrom()"></app-training-form>
@@ -159,7 +155,7 @@
     </div>
     <ng-template #adminTable>
       <!-- HR: Create Training -->
-      <div class="flex justify-content-between align-items-center">
+      <div class="flex justify-content-between align-items-center guide">
         <div class="header">
           <h2>
             Training Management
@@ -202,7 +198,7 @@
         </div>
       </div>
       <p-table [value]="loading ? [1,2,3,4,5] : filteredTrainings" [paginator]="!loading" [rows]="10"
-        styleClass="p-datatable-gridlines">
+        styleClass="p-datatable-gridlines" class="guide-1">
 
         <!-- Header -->
         <ng-template pTemplate="header">

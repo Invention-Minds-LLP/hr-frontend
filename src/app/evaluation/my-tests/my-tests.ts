@@ -9,10 +9,11 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-my-tests',
-  imports: [DatePipe, CommonModule, TableModule, ButtonModule, TooltipModule,SkeletonModule],
+  imports: [DatePipe, CommonModule, TableModule, ButtonModule, TooltipModule,SkeletonModule, ModuleGuide],
   templateUrl: './my-tests.html',
   styleUrl: './my-tests.css'
 

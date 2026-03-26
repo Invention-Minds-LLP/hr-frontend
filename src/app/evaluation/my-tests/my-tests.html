@@ -75,6 +75,17 @@
   </p-table>
 </ng-template>
 </div> -->
+<app-module-guide
+  title="My Assigned Tests"
+  subtitle="View all tests assigned to you, check schedules and deadlines, track attempt limits, and start available tests."
+  [points]="[
+    { label: 'Assigned Test List', desc: 'See all tests assigned to you in one place with test name, duration, and current status.' },
+    { label: 'Schedule Tracking', desc: 'Check when each test was assigned, the planned test date, and the submission deadline.' },
+    { label: 'Attempt Monitoring', desc: 'View how many attempts you have used compared with the maximum allowed attempts for each test.' },
+    { label: 'Start Available Tests', desc: 'Launch a test directly when it is available and eligible to be started.' },
+    { label: 'Status Visibility', desc: 'Quickly identify whether a test is pending, completed, or no longer available due to attempt limits.' }
+  ]">
+</app-module-guide>
 <div class="question-bank">
 
   <div class="header">

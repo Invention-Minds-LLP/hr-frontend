@@ -112,14 +112,10 @@
     </div>
   </ng-container> -->
   <ng-container *ngIf="canEditClearance(r); else noAction">
-  <button
-    pButton
-    label="Open Checklist"
-    icon="pi pi-list"
-    class="p-button-primary p-button-sm"
-    (click)="openPopup(r, 'APPROVED')">
-  </button>
-</ng-container>
+    <button pButton label="Open Checklist" icon="pi pi-list" class="p-button-primary p-button-sm"
+      (click)="openPopup(r, 'APPROVED')">
+    </button>
+  </ng-container>
 
 
   <ng-template #noAction>
@@ -129,6 +125,11 @@
 
 
 </tr>
+</ng-template>
+<ng-template pTemplate="emptymessage" >
+  <tr>
+    <td colspan="8" class="no-data">No clearances found.</td>
+  </tr>
 </ng-template>
 </p-table>
 </ng-template>
@@ -180,8 +181,8 @@
         <tr>
           <td>{{ it.label }}</td>
           <td>
-            <p-select [options]="itemStatusOptions" optionLabel="label" optionValue="value" appendTo="body" [(ngModel)]="it.status"
-              [ngModelOptions]="{standalone:true}">
+            <p-select [options]="itemStatusOptions" optionLabel="label" optionValue="value" appendTo="body"
+              [(ngModel)]="it.status" [ngModelOptions]="{standalone:true}">
             </p-select>
           </td>
           <td>

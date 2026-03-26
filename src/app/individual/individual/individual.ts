@@ -10,7 +10,7 @@ import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 import { Holiday, Holidays } from '../../services/holidays/holidays';
 import { CarouselModule } from 'primeng/carousel';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
@@ -86,6 +86,7 @@ export class Individual {
   currentUserId = localStorage.getItem('empId');
 
   leaveByTypeToday: LeaveTypeCount[] = [];
+  financialYearLabel = '';
   selectedSurvey: any = null;   // Holds the survey being taken
   showSurveyForm = false;
   defaultCover = "./default-cover.png";
@@ -308,15 +309,25 @@ formatShiftDisplayTime(value: string | Date): string {
   getLeaveBalance() {
     // const year = new Date().getFullYear();.
     const year = this.getFinancialYear(new Date());
+    this.financialYearLabel = `${year}-${year + 1}`;
     const employeeId = Number(this.currentUserId);
 
-    this.leaveService.getLeaveBalance(employeeId, year)
-      .subscribe((balances: any) => {
+    forkJoin({
+      balances: this.leaveService.getLeaveBalance(employeeId, year),
+      compOffCredits: this.leaveService.getCompOffCredits(employeeId)
+    }).subscribe(({ balances, compOffCredits }: any) => {
 
         // const gender = this.employee?.gender?.toUpperCase() || '';
         const gender = localStorage.getItem('gender')?.toUpperCase() || '';
         console.log('Employee Gender:', gender);
 
+        // Calculate comp off balance from credits (unused & non-expired)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const validCompOffs = (compOffCredits || []).filter((c: any) =>
+          !c.used && new Date(c.expiryDate) >= today
+        );
+        const totalCompOffs = (compOffCredits || []).filter((c: any) => !c.used).length;
 
         // Correct order using DB values
         const leaveOrder = [
@@ -329,8 +340,9 @@ formatShiftDisplayTime(value: string | Date): string {
           'Paternity Leave'
         ];
 
-        // Filter based on gender
+        // Filter based on gender and remove CO from balance API (calculated separately)
         let filtered = balances.filter((b: any) => {
+          if (b.leaveType === 'CO') return false;
           if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
           if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
           return true;
@@ -350,6 +362,21 @@ formatShiftDisplayTime(value: string | Date): string {
           count: b.remaining,
           total: b.totalAllowed
         }));
+
+        // Add comp off balance at the correct position (after EL, index 3)
+        const coEntry: LeaveTypeCount = {
+          label: 'CO',
+          count: validCompOffs.length,
+          total: totalCompOffs
+        };
+        const coPosition = this.leaveByTypeToday.findIndex(
+          (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('CO')
+        );
+        if (coPosition === -1) {
+          this.leaveByTypeToday.push(coEntry);
+        } else {
+          this.leaveByTypeToday.splice(coPosition, 0, coEntry);
+        }
       });
   }
 

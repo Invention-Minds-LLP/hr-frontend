@@ -141,6 +141,9 @@ selectedExportMonth: Date = new Date();
     switch (status) {
       case 'Present':
         return 'present-btn';
+      
+      case 'PRESENT':
+        return 'present-btn'
 
       case 'Absent':
         return 'absent-btn';
