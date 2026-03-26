@@ -4,6 +4,10 @@
   font-family: "Sofia Sans";
 
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 .wrap h2 {
   color: white;

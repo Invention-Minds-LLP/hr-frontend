@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { IncidentForm } from "../incident-form/incident-form";
 import { IncidentTable } from "../incident-table/incident-table";
 
 @Component({
   selector: 'app-incident-overview',
-  imports: [CommonModule, IncidentForm, IncidentTable],
+  imports: [CommonModule, IncidentForm, IncidentTable, ModuleGuide],
   templateUrl: './incident-overview.html',
   styleUrl: './incident-overview.css',
 })

@@ -5,6 +5,10 @@
   gap: 20px;
  
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 h2{
   color: white;
   width: 220px;

@@ -13,11 +13,12 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-posh-list',
   imports: [CommonModule, ReactiveFormsModule, CardModule, TableModule, ButtonModule,
-     TagModule, DialogModule, PoshForm, PoshHearing, SelectModule, FormsModule, TooltipModule, SkeletonModule],
+     TagModule, DialogModule, PoshForm, PoshHearing, SelectModule, FormsModule, TooltipModule, SkeletonModule, ModuleGuide],
   templateUrl: './posh-list.html',
   styleUrl: './posh-list.css'
 })

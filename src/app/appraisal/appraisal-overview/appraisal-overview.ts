@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { AppraisalTable} from '../appraisal-table/appraisal-table/appraisal-table';
 import { ApprasialForm } from '../appraisal-form/apprasial-form/apprasial-form';
 import { CommonModule } from '@angular/common';
@@ -6,7 +7,7 @@ import { DeptPerformance } from "../dept-performance/dept-performance";
 
 @Component({
   selector: 'app-appraisal-overview',
-  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance],
+  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, ModuleGuide],
   templateUrl: './appraisal-overview.html',
   styleUrl: './appraisal-overview.css'
 })

@@ -1,0 +1,694 @@
+<div class="payroll-page">
+
+  <app-module-guide title="Payroll"
+    subtitle="Manage salary structures, run monthly payroll, and distribute payslips to employees." [points]="[
+      { label: 'Salary Structures', desc: 'Set up per-employee CTC breakdown: Basic, HRA, allowances, PF, ESI, and PT applicability.' },
+      { label: 'Payroll Run', desc: 'Generate monthly payroll for all employees with a salary structure. Attendance, leaves, and OT are auto-pulled.' },
+      { label: 'Payslip Review', desc: 'Review computed payslips before publishing. Edit remarks per employee if needed.' },
+      { label: 'Publish & Distribute', desc: 'Once published, payslips become visible to each employee in their My Payslips tab.' },
+      { label: 'My Payslips', desc: 'Employees can view and download their own payslips for any published month.' }
+    ]">
+  </app-module-guide>
+
+  <!-- ── Tabs ─────────────────────────────────────────────────────────────── -->
+  <p-tabs [(value)]="activeTab" class="payroll-tabs">
+    <p-tablist>
+      <p-tab [value]="0">Salary Structures</p-tab>
+      <p-tab [value]="1" *ngIf="isHR()">Payroll Runs</p-tab>
+      <p-tab [value]="2" *ngIf="isHR()">Payslips</p-tab>
+      <p-tab [value]="3">My Payslips</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ══ TAB 0: Salary Structures ═══════════════════════════════════════ -->
+      <p-tabpanel [value]="0">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Salary Structures</h3>
+            <span class="sub">Configure CTC components per employee</span>
+          </div>
+          <div class="tab-header-right">
+            <input pInputText [(ngModel)]="structureSearch" (input)="onStructureSearch()" placeholder="Search employee…"
+              class="search-input" />
+            <button class="new-app" *ngIf="isHR()" (click)="openAddStructure()">
+              Add / Edit Structure
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p-table [value]="structureLoading ? skeletonRows : structures" [paginator]="!structureLoading" [rows]="20"
+          [totalRecords]="structuresTotal" [lazy]="true" (onLazyLoad)="onStructurePage($event)"
+          responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Basic</th>
+              <th>HRA</th>
+              <th>Allowances</th>
+              <th>Gross</th>
+              <th>PF</th>
+              <th>ESI</th>
+              <th *ngIf="isHR()">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-s let-i="rowIndex">
+            <tr *ngIf="!structureLoading; else skelRow0">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ s.employee?.firstName }} {{ s.employee?.lastName }}</span>
+                  <span class="emp-code">{{ s.employee?.employeeCode }}</span>
+                </div>
+              </td>
+              <td>{{ s.employee?.Department?.name || '—' }}</td>
+              <td>{{ formatINR(s.basic) }}</td>
+              <td>{{ formatINR(s.hra) }}</td>
+              <td>{{
+                formatINR((s.medicalAllowance||0)+(s.travelAllowance||0)+(s.specialAllowance||0)+(s.otherAllowances||0))
+                }}</td>
+              <td><strong>{{ formatINR(grossOf(s)) }}</strong></td>
+              <td>
+                <p-tag [value]="s.pfApplicable ? 'Yes' : 'No'"
+                  [severity]="s.pfApplicable ? 'success' : 'secondary'"></p-tag>
+              </td>
+              <td>
+                <p-tag [value]="s.esiApplicable ? 'Yes' : 'No'"
+                  [severity]="s.esiApplicable ? 'success' : 'secondary'"></p-tag>
+              </td>
+              <td *ngIf="isHR()">
+                <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" label="Edit"
+                  (click)="openEditStructure(s)"></button>
+              </td>
+            </tr>
+            <ng-template #skelRow0>
+              <tr>
+                <td><p-skeleton width="2rem"></p-skeleton></td>
+                <td><p-skeleton width="120px"></p-skeleton></td>
+                <td><p-skeleton width="90px"></p-skeleton></td>
+                <td><p-skeleton width="70px"></p-skeleton></td>
+                <td><p-skeleton width="70px"></p-skeleton></td>
+                <td><p-skeleton width="80px"></p-skeleton></td>
+                <td><p-skeleton width="80px"></p-skeleton></td>
+                <td><p-skeleton width="40px"></p-skeleton></td>
+                <td><p-skeleton width="40px"></p-skeleton></td>
+                <td *ngIf="isHR()"><p-skeleton width="60px"></p-skeleton></td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="10" class="no-data center-right">No salary structures configured yet.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 1: Payroll Runs ════════════════════════════════════════════ -->
+      <p-tabpanel [value]="1" *ngIf="isHR()">
+
+        <!-- Run detail view -->
+        <ng-container *ngIf="selectedRun; else runList">
+          <div class="tab-header">
+            <div class="tab-header-left">
+              <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-sm back-btn" label="Back to Runs"
+                (click)="backToRuns()"></button>
+              <h3>{{ monthLabel(selectedRun.month) }} {{ selectedRun.year }} — Payslips</h3>
+              <p-tag [value]="selectedRun.status" [severity]="runStatusSeverity(selectedRun.status)"></p-tag>
+            </div>
+            <div class="tab-header-right">
+              <button class="new-app publish-btn" *ngIf="selectedRun.status === 'DRAFT'"
+                (click)="publishRun(selectedRun)">
+                <i class="pi pi-send"></i> Publish Payroll
+              </button>
+            </div>
+          </div>
+
+          <div class="run-summary-cards">
+            <div class="sum-card">
+              <span class="sum-label">Employees</span>
+              <span class="sum-val">{{ runPayslips.length }}</span>
+            </div>
+            <div class="sum-card">
+              <span class="sum-label">Total Gross</span>
+              <span class="sum-val">{{ formatINR(sum(runPayslips,'grossEarnings')) }}</span>
+            </div>
+            <div class="sum-card">
+              <span class="sum-label">Total Deductions</span>
+              <span class="sum-val">{{ formatINR(sum(runPayslips,'totalDeductions')) }}</span>
+            </div>
+            <div class="sum-card highlight">
+              <span class="sum-label">Net Payable</span>
+              <span class="sum-val">{{ formatINR(sum(runPayslips,'netPay')) }}</span>
+            </div>
+            <div class="sum-card">
+              <span class="sum-label">Total PF (Emp+Empr)</span>
+              <span class="sum-val">{{ formatINR(sum(runPayslips,'pfEmployee') + sum(runPayslips,'pfEmployer'))
+                }}</span>
+            </div>
+            <div class="sum-card">
+              <span class="sum-label">Total ESI (Emp+Empr)</span>
+              <span class="sum-val">{{ formatINR(sum(runPayslips,'esiEmployee') + sum(runPayslips,'esiEmployer'))
+                }}</span>
+            </div>
+          </div>
+
+          <p-table [value]="runPayslipsLoading ? skeletonRows : runPayslips" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>No.</th>
+                <th>Employee</th>
+                <th>Dept</th>
+                <th>Working Days</th>
+                <th>Present</th>
+                <th>LOP</th>
+                <th>Gross</th>
+                <th>Deductions</th>
+                <th>Net Pay</th>
+                <th>View</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-p let-i="rowIndex">
+              <tr *ngIf="!runPayslipsLoading; else skelRow1">
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <div class="emp-cell">
+                    <span class="emp-name">{{ p.employee?.firstName }} {{ p.employee?.lastName }}</span>
+                    <span class="emp-code">{{ p.employee?.employeeCode }}</span>
+                  </div>
+                </td>
+                <td>{{ p.employee?.Department?.name || '—' }}</td>
+                <td>{{ p.workingDays }}</td>
+                <td>{{ p.presentDays }}</td>
+                <td>
+                  <span [class.lop-warn]="p.lopDays > 0">{{ p.lopDays }}</span>
+                </td>
+                <td>{{ formatINR(p.grossEarnings) }}</td>
+                <td class="deduction-col">{{ formatINR(p.totalDeductions) }}</td>
+                <td><strong class="net-pay">{{ formatINR(p.netPay) }}</strong></td>
+                <td>
+                  <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="openPayslip(p)"></button>
+                </td>
+              </tr>
+              <ng-template #skelRow1>
+                <tr>
+                  <td *ngFor="let _ of [1,2,3,4,5,6,7,8,9,10]">
+                    <p-skeleton width="60px"></p-skeleton>
+                  </td>
+                </tr>
+              </ng-template>
+            </ng-template>
+          </p-table>
+        </ng-container>
+
+        <!-- Runs list -->
+        <ng-template #runList>
+          <div class="tab-header">
+            <div class="tab-header-left">
+              <h3>Payroll Runs</h3>
+              <span class="sub">Create and manage monthly payroll runs</span>
+            </div>
+            <button class="new-app" (click)="openRunDialog()">
+              New Payroll Run
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          <p-table [value]="runsLoading ? skeletonRows : runs" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>No.</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Employees</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-r let-i="rowIndex">
+              <tr *ngIf="!runsLoading; else skelRow2" class="run-row" (click)="openRun(r)">
+                <td>{{ i + 1 }}</td>
+                <td>{{ monthLabel(r.month) }}</td>
+                <td>{{ r.year }}</td>
+                <td>{{ r._count?.payslips ?? 0 }}</td>
+                <td>
+                  <p-tag [value]="r.status" [severity]="runStatusSeverity(r.status)"></p-tag>
+                </td>
+                <td>{{ r.createdAt | date:'dd-MM-yyyy' }}</td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="run-actions">
+                    <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" pTooltip="Open"
+                      (click)="openRun(r)"></button>
+                    <button pButton icon="pi pi-send" class="p-button-text p-button-sm" pTooltip="Publish"
+                      *ngIf="r.status === 'DRAFT'" (click)="publishRun(r)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                      pTooltip="Delete" *ngIf="r.status === 'DRAFT'" (click)="deleteRun(r)"></button>
+                  </div>
+                </td>
+              </tr>
+              <ng-template #skelRow2>
+                <tr>
+                  <td *ngFor="let _ of [1,2,3,4,5,6,7]"><p-skeleton width="80px"></p-skeleton></td>
+                </tr>
+              </ng-template>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="no-data center-right">No payroll runs yet. Click "New Payroll Run" to start.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-template>
+      </p-tabpanel>
+
+      <!-- ══ TAB 2: All Payslips ════════════════════════════════════════════ -->
+      <p-tabpanel [value]="2" *ngIf="isHR()">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Payslips</h3>
+            <span class="sub">Search and view all employee payslips</span>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>Month</label>
+            <p-select [options]="months" [(ngModel)]="payslipFilterMonth" optionLabel="label" optionValue="value"
+              placeholder="All Months" [showClear]="true" appendTo="body"
+              (onChange)="onPayslipFilterChange()"></p-select>
+          </div>
+          <div class="filter-group">
+            <label>Year</label>
+            <p-select [options]="years" [(ngModel)]="payslipFilterYear" placeholder="All Years" [showClear]="true"
+              appendTo="body" (onChange)="onPayslipFilterChange()"></p-select>
+          </div>
+          <div class="filter-group">
+            <label>Employee</label>
+            <p-autoComplete [(ngModel)]="payslipFilterEmployee" [suggestions]="payslipEmployeeSuggestions"
+              (completeMethod)="searchEmployeesForPayslip($event)" (onSelect)="onPayslipEmployeeSelect()"
+              (onClear)="onPayslipFilterChange()" field="firstName" placeholder="Search employee…"
+              [forceSelection]="false" appendTo="body">
+              <ng-template let-e pTemplate="item">
+                {{ e.firstName }} {{ e.lastName }} ({{ e.employeeCode }})
+              </ng-template>
+            </p-autoComplete>
+          </div>
+          <button pButton icon="pi pi-times" class="p-button-outlined p-button-sm clear-btn" label="Clear"
+            (click)="clearPayslipFilters()"></button>
+        </div>
+
+        <p-table [value]="payslipsLoading ? skeletonRows : payslips" [paginator]="!payslipsLoading" [rows]="20"
+          [totalRecords]="payslipsTotal" [lazy]="true" (onLazyLoad)="onPayslipPage($event)" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Month / Year</th>
+              <th>Working Days</th>
+              <th>LOP</th>
+              <th>Gross</th>
+              <th>Net Pay</th>
+              <th>Status</th>
+              <th>View</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-p let-i="rowIndex">
+            <tr *ngIf="!payslipsLoading; else skelRow3">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ p.employee?.firstName }} {{ p.employee?.lastName }}</span>
+                  <span class="emp-code">{{ p.employee?.employeeCode }}</span>
+                </div>
+              </td>
+              <td>{{ monthLabel(p.month) }} {{ p.year }}</td>
+              <td>{{ p.workingDays }}</td>
+              <td><span [class.lop-warn]="p.lopDays > 0">{{ p.lopDays }}</span></td>
+              <td>{{ formatINR(p.grossEarnings) }}</td>
+              <td><strong class="net-pay">{{ formatINR(p.netPay) }}</strong></td>
+              <td>
+                <p-tag [value]="p.payrollRun?.status || '—'"
+                  [severity]="runStatusSeverity(p.payrollRun?.status)"></p-tag>
+              </td>
+              <td>
+                <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="openPayslip(p)"></button>
+              </td>
+            </tr>
+            <ng-template #skelRow3>
+              <tr>
+                <td *ngFor="let _ of [1,2,3,4,5,6,7,8,9]"><p-skeleton width="70px"></p-skeleton></td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9" class="no-data center-right">No payslips found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 3: My Payslips ═════════════════════════════════════════════ -->
+      <p-tabpanel [value]="3">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>My Payslips</h3>
+            <span class="sub">Your published monthly payslips</span>
+          </div>
+        </div>
+
+        <p-table [value]="myPayslipsLoading ? skeletonRows : myPayslips" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Month / Year</th>
+              <th>Working Days</th>
+              <th>Present</th>
+              <th>LOP</th>
+              <th>Gross</th>
+              <th>Deductions</th>
+              <th>Net Pay</th>
+              <th>View</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-p let-i="rowIndex">
+            <tr *ngIf="!myPayslipsLoading; else skelRow4">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ monthLabel(p.month) }} {{ p.year }}</strong></td>
+              <td>{{ p.workingDays }}</td>
+              <td>{{ p.presentDays }}</td>
+              <td><span [class.lop-warn]="p.lopDays > 0">{{ p.lopDays }}</span></td>
+              <td>{{ formatINR(p.grossEarnings) }}</td>
+              <td>{{ formatINR(p.totalDeductions) }}</td>
+              <td><strong class="net-pay">{{ formatINR(p.netPay) }}</strong></td>
+              <td>
+                <button pButton icon="pi pi-eye" label="View" class="p-button-text p-button-sm"
+                  (click)="openMyPayslip(p)"></button>
+              </td>
+            </tr>
+            <ng-template #skelRow4>
+              <tr>
+                <td *ngFor="let _ of [1,2,3,4,5,6,7,8,9]"><p-skeleton width="70px"></p-skeleton></td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9" class="no-data center-right">No published payslips available yet.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+</div>
+
+<!-- ── Salary Structure Dialog ─────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showStructureDialog" [modal]="true" [closable]="false" [style]="{ width: '52vw' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>{{ editingStructure.id ? 'Edit' : 'Add' }} Salary Structure</span>
+      <button class="dialog-close-btn" (click)="showStructureDialog = false">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="structure-form">
+    <!-- Employee picker (only when adding) -->
+    <div class="form-row" *ngIf="!editingStructure.id">
+      <label>Employee <span class="req">*</span></label>
+      <p-autoComplete [(ngModel)]="selectedStructureEmployee" [suggestions]="structureEmployeeSuggestions"
+        (completeMethod)="searchEmployeesForStructure($event)" (onSelect)="onStructureEmployeeSelect($event)"
+        field="label" placeholder="Search employee…" [forceSelection]="true" appendTo="body">
+        <ng-template let-e pTemplate="item">
+          {{ e.firstName }} {{ e.lastName }} ({{ e.employeeCode }})
+        </ng-template>
+      </p-autoComplete>
+    </div>
+    <div class="form-row" *ngIf="editingStructure.id">
+      <label>Employee</label>
+      <span class="emp-display">
+        {{ editingStructure['employee']?.firstName }} {{ editingStructure['employee']?.lastName }}
+        ({{ editingStructure['employee']?.employeeCode }})
+      </span>
+    </div>
+
+    <p-divider align="left"><span class="divider-label">Earnings</span></p-divider>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Basic</label>
+        <p-inputNumber [(ngModel)]="editingStructure.basic" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+      <div class="form-field">
+        <label>HRA</label>
+        <p-inputNumber [(ngModel)]="editingStructure.hra" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+      <div class="form-field">
+        <label>Medical Allowance</label>
+        <p-inputNumber [(ngModel)]="editingStructure.medicalAllowance" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+      <div class="form-field">
+        <label>Travel Allowance</label>
+        <p-inputNumber [(ngModel)]="editingStructure.travelAllowance" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+      <div class="form-field">
+        <label>Special Allowance</label>
+        <p-inputNumber [(ngModel)]="editingStructure.specialAllowance" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+      <div class="form-field">
+        <label>Other Allowances</label>
+        <p-inputNumber [(ngModel)]="editingStructure.otherAllowances" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+    </div>
+
+    <p-divider align="left"><span class="divider-label">Deductions</span></p-divider>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>TDS / Month (₹)</label>
+        <p-inputNumber [(ngModel)]="editingStructure.tdsMonthly" mode="currency" currency="INR" locale="en-IN"
+          [minFractionDigits]="0"></p-inputNumber>
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <label class="check-label">
+        <p-checkbox [(ngModel)]="editingStructure.pfApplicable" [binary]="true"></p-checkbox>
+        PF Applicable (12% of Basic)
+      </label>
+      <label class="check-label">
+        <p-checkbox [(ngModel)]="editingStructure.esiApplicable" [binary]="true"></p-checkbox>
+        ESI Applicable (if Gross ≤ ₹21,000)
+      </label>
+      <label class="check-label">
+        <p-checkbox [(ngModel)]="editingStructure.ptApplicable" [binary]="true"></p-checkbox>
+        Professional Tax Applicable
+      </label>
+    </div>
+
+    <div class="gross-preview" *ngIf="editingStructure.basic !== undefined">
+      <span>CTC Gross Preview:</span>
+      <strong>{{ formatINR(editingGross) }}</strong>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="showStructureDialog = false"></button>
+    <button pButton label="Save Structure" icon="pi pi-check" [loading]="savingStructure"
+      (click)="saveStructure()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── New Run Dialog ───────────────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showRunDialog" [modal]="true" [closable]="false" [style]="{ width: '30vw' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>New Payroll Run</span>
+      <button class="dialog-close-btn" (click)="showRunDialog = false">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="run-form">
+    <div class="form-field">
+      <label>Month <span class="req">*</span></label>
+      <p-select [options]="months" [(ngModel)]="newRunMonth" optionLabel="label" optionValue="value"
+        appendTo="body"></p-select>
+    </div>
+    <div class="form-field">
+      <label>Year <span class="req">*</span></label>
+      <p-select [options]="years" [(ngModel)]="newRunYear" appendTo="body"></p-select>
+    </div>
+    <div class="form-field">
+      <label>Notes</label>
+      <input pInputText [(ngModel)]="newRunNotes" placeholder="Optional notes…" />
+    </div>
+    <div class="info-box">
+      <i class="pi pi-info-circle"></i>
+      Payslips will be calculated for all employees who have a salary structure. Attendance, approved leaves, and OT
+      records will be pulled automatically.
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="showRunDialog = false"></button>
+    <button pButton label="Generate Payroll" icon="pi pi-cog" [loading]="creatingRun" (click)="createRun()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Payslip Detail Dialog ────────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showPayslipDialog" [modal]="true" [closable]="false" [style]="{ width: '50vw' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Payslip — {{ selectedPayslip?.employee?.firstName }} {{ selectedPayslip?.employee?.lastName }}</span>
+      <button class="dialog-close-btn" (click)="showPayslipDialog = false">✕</button>
+    </div>
+  </ng-template>
+  <ng-container *ngIf="selectedPayslip">
+    <div class="payslip-detail">
+      <div class="ps-meta">
+        <span><strong>Period:</strong> {{ monthLabel(selectedPayslip.month) }} {{ selectedPayslip.year }}</span>
+        <span><strong>Department:</strong> {{ selectedPayslip.employee?.Department?.name }}</span>
+        <span><strong>Designation:</strong> {{ selectedPayslip.employee?.designation?.name || '—' }}</span>
+        <span><strong>Emp Code:</strong> {{ selectedPayslip.employee?.employeeCode }}</span>
+      </div>
+      <p-divider></p-divider>
+      <div class="ps-grid">
+        <div class="ps-col">
+          <h4>Attendance</h4>
+          <div class="ps-row"><span>Working Days</span><span>{{ selectedPayslip.workingDays }}</span></div>
+          <div class="ps-row"><span>Present Days</span><span>{{ selectedPayslip.presentDays }}</span></div>
+          <div class="ps-row"><span>Leave Days</span><span>{{ selectedPayslip.leaveDays }}</span></div>
+          <div class="ps-row lop"><span>LOP Days</span><span>{{ selectedPayslip.lopDays }}</span></div>
+          <div class="ps-row"><span>OT Hours</span><span>{{ selectedPayslip.overtimeHours }}</span></div>
+        </div>
+        <div class="ps-col">
+          <h4>Earnings</h4>
+          <div class="ps-row"><span>Basic</span><span>{{ formatINR(selectedPayslip.basic) }}</span></div>
+          <div class="ps-row"><span>HRA</span><span>{{ formatINR(selectedPayslip.hra) }}</span></div>
+          <div class="ps-row"><span>Medical Allowance</span><span>{{ formatINR(selectedPayslip.medicalAllowance)
+              }}</span></div>
+          <div class="ps-row"><span>Travel Allowance</span><span>{{ formatINR(selectedPayslip.travelAllowance) }}</span>
+          </div>
+          <div class="ps-row"><span>Special Allowance</span><span>{{ formatINR(selectedPayslip.specialAllowance)
+              }}</span></div>
+          <div class="ps-row"><span>Other Allowances</span><span>{{ formatINR(selectedPayslip.otherAllowances) }}</span>
+          </div>
+          <div class="ps-row"><span>OT Pay</span><span>{{ formatINR(selectedPayslip.overtimePay) }}</span></div>
+          <div class="ps-row total"><span>Gross Earnings</span><span>{{ formatINR(selectedPayslip.grossEarnings)
+              }}</span></div>
+        </div>
+        <div class="ps-col">
+          <h4>Deductions</h4>
+          <div class="ps-row"><span>PF (Employee)</span><span>{{ formatINR(selectedPayslip.pfEmployee) }}</span></div>
+          <div class="ps-row"><span>PF (Employer)</span><span class="muted">{{ formatINR(selectedPayslip.pfEmployer)
+              }}</span></div>
+          <div class="ps-row"><span>ESI (Employee)</span><span>{{ formatINR(selectedPayslip.esiEmployee) }}</span></div>
+          <div class="ps-row"><span>ESI (Employer)</span><span class="muted">{{ formatINR(selectedPayslip.esiEmployer)
+              }}</span></div>
+          <div class="ps-row"><span>Professional Tax</span><span>{{ formatINR(selectedPayslip.professionalTax) }}</span>
+          </div>
+          <div class="ps-row"><span>TDS</span><span>{{ formatINR(selectedPayslip.tds) }}</span></div>
+          <div class="ps-row total"><span>Total Deductions</span><span>{{ formatINR(selectedPayslip.totalDeductions)
+              }}</span></div>
+        </div>
+      </div>
+      <div class="net-pay-banner">
+        <span>Net Pay</span>
+        <strong>{{ formatINR(selectedPayslip.netPay) }}</strong>
+      </div>
+      <div class="remarks-section" *ngIf="isHR()">
+        <label>Remarks (HR)</label>
+        <div class="remarks-input-row">
+          <input pInputText [(ngModel)]="remarksEdit" placeholder="Add a remark…" />
+          <button pButton label="Save" icon="pi pi-check" class="p-button-sm" [loading]="savingRemarks"
+            (click)="saveRemarks()"></button>
+        </div>
+      </div>
+      <div class="remarks-display" *ngIf="!isHR() && selectedPayslip.remarks">
+        <label>Remarks:</label> {{ selectedPayslip.remarks }}
+      </div>
+    </div>
+  </ng-container>
+</p-dialog>
+
+<!-- ── My Payslip Detail Dialog ─────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showMyPayslipDialog" [modal]="true" [closable]="false" [style]="{ width: '50vw' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>My Payslip — {{ monthLabel(selectedMyPayslip?.month ?? 0) }} {{ selectedMyPayslip?.year }}</span>
+      <button class="dialog-close-btn" (click)="showMyPayslipDialog = false">✕</button>
+    </div>
+  </ng-template>
+  <ng-container *ngIf="selectedMyPayslip">
+    <div class="payslip-detail">
+      <div class="ps-meta">
+        <span><strong>Period:</strong> {{ monthLabel(selectedMyPayslip.month) }} {{ selectedMyPayslip.year }}</span>
+        <span><strong>Department:</strong> {{ selectedMyPayslip.employee?.Department?.name }}</span>
+        <span><strong>Designation:</strong> {{ selectedMyPayslip.employee?.designation?.name || '—' }}</span>
+      </div>
+      <p-divider></p-divider>
+      <div class="ps-grid">
+        <div class="ps-col">
+          <h4>Attendance</h4>
+          <div class="ps-row"><span>Working Days</span><span>{{ selectedMyPayslip.workingDays }}</span></div>
+          <div class="ps-row"><span>Present Days</span><span>{{ selectedMyPayslip.presentDays }}</span></div>
+          <div class="ps-row"><span>Leave Days</span><span>{{ selectedMyPayslip.leaveDays }}</span></div>
+          <div class="ps-row lop"><span>LOP Days</span><span>{{ selectedMyPayslip.lopDays }}</span></div>
+          <div class="ps-row"><span>OT Hours</span><span>{{ selectedMyPayslip.overtimeHours }}</span></div>
+        </div>
+        <div class="ps-col">
+          <h4>Earnings</h4>
+          <div class="ps-row"><span>Basic</span><span>{{ formatINR(selectedMyPayslip.basic) }}</span></div>
+          <div class="ps-row"><span>HRA</span><span>{{ formatINR(selectedMyPayslip.hra) }}</span></div>
+          <div class="ps-row"><span>Medical Allowance</span><span>{{ formatINR(selectedMyPayslip.medicalAllowance)
+              }}</span></div>
+          <div class="ps-row"><span>Travel Allowance</span><span>{{ formatINR(selectedMyPayslip.travelAllowance)
+              }}</span></div>
+          <div class="ps-row"><span>Special Allowance</span><span>{{ formatINR(selectedMyPayslip.specialAllowance)
+              }}</span></div>
+          <div class="ps-row"><span>Other Allowances</span><span>{{ formatINR(selectedMyPayslip.otherAllowances)
+              }}</span></div>
+          <div class="ps-row"><span>OT Pay</span><span>{{ formatINR(selectedMyPayslip.overtimePay) }}</span></div>
+          <div class="ps-row total"><span>Gross Earnings</span><span>{{ formatINR(selectedMyPayslip.grossEarnings)
+              }}</span></div>
+        </div>
+        <div class="ps-col">
+          <h4>Deductions</h4>
+          <div class="ps-row"><span>PF (Employee)</span><span>{{ formatINR(selectedMyPayslip.pfEmployee) }}</span></div>
+          <div class="ps-row"><span>ESI (Employee)</span><span>{{ formatINR(selectedMyPayslip.esiEmployee) }}</span>
+          </div>
+          <div class="ps-row"><span>Professional Tax</span><span>{{ formatINR(selectedMyPayslip.professionalTax)
+              }}</span></div>
+          <div class="ps-row"><span>TDS</span><span>{{ formatINR(selectedMyPayslip.tds) }}</span></div>
+          <div class="ps-row total"><span>Total Deductions</span><span>{{ formatINR(selectedMyPayslip.totalDeductions)
+              }}</span></div>
+        </div>
+      </div>
+      <div class="net-pay-banner">
+        <span>Net Pay</span>
+        <strong>{{ formatINR(selectedMyPayslip.netPay) }}</strong>
+      </div>
+      <div class="remarks-display" *ngIf="selectedMyPayslip.remarks">
+        <label>HR Remarks:</label> {{ selectedMyPayslip.remarks }}
+      </div>
+    </div>
+  </ng-container>
+</p-dialog>
+
+<p-toast></p-toast>

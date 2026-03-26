@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { EmployeeForm } from "../employee-form/employee-form";
 import { EmployeeList } from "../employee-list/employee-list";
 import { CommonModule } from '@angular/common';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { UnreportedEmployee } from "../unreported-employee/unreported-employee";
 import { Employee, Employees } from '../../services/employees/employees';
 import { MessageService } from 'primeng/api';
@@ -10,7 +11,7 @@ import { ManageAttendance } from "../../attendance/manage-attendance/manage-atte
 
 @Component({
   selector: 'app-employee-overview',
-  imports: [EmployeeForm, EmployeeList, CommonModule, UnreportedEmployee, SurveyList, ManageAttendance],
+  imports: [EmployeeForm, EmployeeList, CommonModule, UnreportedEmployee, SurveyList, ManageAttendance, ModuleGuide],
   templateUrl: './employee-overview.html',
   styleUrl: './employee-overview.css',
   providers: [MessageService]

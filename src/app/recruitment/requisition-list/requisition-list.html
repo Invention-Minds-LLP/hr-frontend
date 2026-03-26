@@ -1,4 +1,18 @@
 <div *ngIf="!selectedRequisition" class="card">
+
+<div class="">
+    <app-module-guide
+    title="Manpower Requisition"
+    subtitle="Department heads raise hiring requests; HR approves and converts them to job postings."
+    [points]="[
+      { label: 'Raise Requisition', desc: 'Submit a manpower request with job title, department, headcount, and justification.' },
+      { label: 'Approval Workflow', desc: 'Requisitions go through manager and HR approval before becoming active job postings.' },
+      { label: 'Track Status', desc: 'Monitor your requisition from Pending → Approved → Converted or Rejected.' },
+      { label: 'Job Conversion', desc: 'Approved requisitions are converted into job vacancies open for applications.' }
+    ]">
+  </app-module-guide>
+</div>
+
   <div class="header flex justify-content-between align-items-center">
     <h2>Man Power Requisition List</h2>
     <button pButton type="button" icon="pi pi-plus" label="New Requisition" class="p-button-success"

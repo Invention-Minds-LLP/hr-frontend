@@ -1,5 +1,17 @@
 <div class="individual-container" *ngIf="!showSurveyForm">
 
+  <app-module-guide
+    title="My Workspace"
+    subtitle="Your personal HR dashboard — attendance, leaves, training, surveys, grievances, and more."
+    [points]="[
+      { label: 'Attendance', desc: 'View your attendance calendar, check-in/out history, and weekly status.' },
+      { label: 'Leaves & Permissions', desc: 'Apply for leaves, WFH, or permissions and track their approval status.' },
+      { label: 'Training', desc: 'View training programs you are assigned to and submit feedback after completion.' },
+      { label: 'Grievances & POSH', desc: 'Raise grievances or POSH complaints confidentially for HR review.' },
+      { label: 'Surveys & Tests', desc: 'Respond to HR surveys and complete evaluation tests assigned to you.' }
+    ]">
+  </app-module-guide>
+
     <div class="individual-top">
         <div class="part-1">
             <!-- Attendance-card -->

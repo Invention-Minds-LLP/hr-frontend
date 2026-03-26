@@ -5,6 +5,10 @@
 .heading {
   color: white;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 .stats {
   display: grid;

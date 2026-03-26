@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { IconField } from 'primeng/iconfield';
@@ -10,7 +11,7 @@ import { EmployeeShiftList } from "../employee-shift-list/employee-shift-list";
 
 @Component({
   selector: 'app-shift-overview',
-  imports: [IconField, InputTextModule, FormsModule, CommonModule, ShiftRequests, ManagerShift, EmployeeDetails, EmployeeShiftList],
+  imports: [IconField, InputTextModule, FormsModule, CommonModule, ShiftRequests, ManagerShift, EmployeeDetails, EmployeeShiftList, ModuleGuide],
   templateUrl: './shift-overview.html',
   styleUrl: './shift-overview.css',
 })

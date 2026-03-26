@@ -4,6 +4,10 @@
   border-radius: 12px;
   padding: 40px 60px;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 h2{
     font-weight: 600;

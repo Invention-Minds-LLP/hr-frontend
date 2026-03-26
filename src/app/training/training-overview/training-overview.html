@@ -1,3 +1,16 @@
+<div class="guide">
+  <app-module-guide
+  title="Training"
+  subtitle="Plan, schedule, and track employee training programs and feedback."
+  [points]="[
+    { label: 'Training Programs', desc: 'View all active and upcoming training sessions assigned to you or your team.' },
+    { label: 'Training Feedback', desc: 'Submit feedback after completing a training — ratings, comments, and suggestions.' },
+    { label: 'Track Completion', desc: 'HR monitors training attendance and completion rates across departments.' },
+    { label: 'Training History', desc: 'Review past training records per employee for appraisal and skill-gap analysis.' }
+  ]">
+</app-module-guide>
+</div>
+
 <p-card *ngIf="!submitted; else thankYouCard" header="Training Feedback" class="m-3">
   <form [formGroup]="feedbackForm" class="p-fluid grid formgrid">
 

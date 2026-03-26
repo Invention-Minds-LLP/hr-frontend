@@ -1,4 +1,17 @@
 <div class="wrap">
+<div class="guide">
+    <app-module-guide
+    title="Recruitment"
+    subtitle="Manage job vacancies, candidate pipeline, interviews, and hiring decisions."
+    [points]="[
+      { label: 'Job Vacancies', desc: 'View and create open positions. Track how many applications each job has received.' },
+      { label: 'Candidate Pipeline', desc: 'Move candidates through stages — Applied → Shortlisted → Interviewed → Offered → Joined.' },
+      { label: 'Interview Scheduling', desc: 'Schedule and record interview outcomes. Panellists can submit their evaluation directly.' },
+      { label: 'Requisition Management', desc: 'Department heads raise manpower requisitions; HR approves and converts them into job postings.' },
+      { label: 'Offer Letters', desc: 'Generate and track offer letters. Monitor acceptance, joining dates, and no-shows.' }
+    ]">
+  </app-module-guide>
+</div>
   <h2 class="heading">Recruiting</h2>
   <!-- Top pipeline stats -->
   <div class="stats" *ngIf="!selectedInterview()">

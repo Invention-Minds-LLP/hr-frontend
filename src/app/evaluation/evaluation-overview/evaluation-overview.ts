@@ -8,10 +8,11 @@ import { AssignedTest } from "../assigned-test/assigned-test";
 import { TrainingForm } from '../../training/training-form/training-form';
 import { TrainingList } from '../../training/training-list/training-list';
 import { TrainingOverview } from "../../training/training-overview/training-overview";
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-evaluation-overview',
-  imports: [CommonModule, QuestionBank, AllTest, AssignedTest, TrainingForm, TrainingList, TrainingOverview],
+  imports: [CommonModule, QuestionBank, AllTest, AssignedTest, TrainingForm, TrainingList, TrainingOverview, ModuleGuide],
   templateUrl: './evaluation-overview.html',
   styleUrl: './evaluation-overview.css'
 })

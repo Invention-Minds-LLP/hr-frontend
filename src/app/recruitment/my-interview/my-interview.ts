@@ -8,10 +8,11 @@ import { CandidateEvalForm } from '../../candidate-eval-form/candidate-eval-form
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-my-interview',
-  imports: [CardModule, TableModule, CommonModule, ReactiveFormsModule, CandidateEvalForm, ButtonModule, TagModule, SkeletonModule],
+  imports: [CardModule, TableModule, CommonModule, ReactiveFormsModule, CandidateEvalForm, ButtonModule, TagModule, SkeletonModule, ModuleGuide],
   templateUrl: './my-interview.html',
   styleUrl: './my-interview.css'
 })

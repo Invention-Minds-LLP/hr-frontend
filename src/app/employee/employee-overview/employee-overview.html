@@ -1,5 +1,18 @@
 <!-- Submenu -->
+  <div class="guide">
+     <app-module-guide
+  title="Employee Management"
+  subtitle="View and manage all employee profiles, records, and attendance."
+  [points]="[
+    { label: 'Manage Employees', desc: 'Search, view, and update employee profiles and personal details.' },
+    { label: 'Add New Employee', desc: 'Onboard a new employee by filling in their details and assigning a department.' },
+    { label: 'Attendance Correction', desc: 'Spot and fix unmarked or incorrect attendance entries for your team.' },
+    { label: 'Role-based Access', desc: 'HR sees all employees; Reporting Managers see only their direct team.' }
+  ]">
+</app-module-guide>
+  </div>
 <nav class="sub-nav">
+  
     <ul class="nav-list">
         <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li></button>
         <!-- <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li> -->

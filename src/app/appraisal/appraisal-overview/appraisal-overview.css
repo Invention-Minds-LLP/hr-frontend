@@ -1,3 +1,7 @@
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 .sub-nav {
     display: flex;
     background:transparent;

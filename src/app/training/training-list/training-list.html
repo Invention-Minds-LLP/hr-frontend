@@ -1,6 +1,19 @@
 <!-- <p-card header="Training Management"> -->
 <p-card class="training"  [ngClass]="{'individual-view': currentPath === '/individual'}">
 
+<div class="guide">
+    <app-module-guide
+    title="Training Management"
+    subtitle="Plan, assign, and track employee training programs, tests, and feedback."
+    [points]="[
+      { label: 'Training Programs', desc: 'Create and manage training sessions with internal or external trainers.' },
+      { label: 'Assign Employees', desc: 'Assign specific employees or departments to training programs.' },
+      { label: 'Linked Tests', desc: 'Attach evaluation tests to trainings to assess learning outcomes.' },
+      { label: 'Mark Attendance', desc: 'Reporting managers can mark employee attendance for each training session.' },
+      { label: 'Feedback', desc: 'Employees submit feedback on trainers, content quality, and relevance after completion.' }
+    ]">
+  </app-module-guide>
+</div>
 
   <!-- FORM -->
   <div *ngIf="showForm; else trainingTable">

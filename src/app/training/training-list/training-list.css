@@ -8,7 +8,10 @@
     font-weight: 500;
   }
 }
-
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 .header {
   display: flex;
   justify-content: space-between;

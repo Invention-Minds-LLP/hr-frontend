@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { ResignationForm } from "../resignation-form/resignation-form";
 import { ResignationList } from "../resignation-list/resignation-list";
 import { CommonModule } from '@angular/common';
@@ -8,7 +9,7 @@ import { Clearances } from '../clearances/clearances';
 
 @Component({
   selector: 'app-resign-overview',
-  imports: [ResignationForm, ResignationList, CommonModule, ExitInterviewList, SurveyList, Clearances],
+  imports: [ResignationForm, ResignationList, CommonModule, ExitInterviewList, SurveyList, Clearances, ModuleGuide],
   templateUrl: './resign-overview.html',
   styleUrl: './resign-overview.css'
 })

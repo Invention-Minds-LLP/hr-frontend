@@ -4,6 +4,10 @@
     padding: 30px 60px;
     gap: 30px;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
     background: #fff !important;

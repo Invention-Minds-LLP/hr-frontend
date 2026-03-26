@@ -61,8 +61,11 @@ import { ManagerShift } from './shifts/manager-shift/manager-shift';
 import { ShiftOverview } from './shifts/shift-overview/shift-overview';
 import { AttendanceOverview } from './attendance/attendance-overview/attendance-overview';
 import { OtApprovals } from './attendance/ot-approvals/ot-approvals';
+import { ForcePresent } from './attendance/force-present/force-present';
+import { HrCorrections } from './attendance/hr-corrections/hr-corrections';
 import { GeoTrackingOverview } from './geo-tracking/geo-tracking-overview/geo-tracking-overview';
 import { Export } from './settings/export/export';
+import { PayrollOverview } from './payroll/payroll-overview/payroll-overview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -96,7 +99,10 @@ export const routes: Routes = [
       { path: 'shifts', component: ShiftOverview, canActivate: [authGuard] },
       { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]},
         { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
-        { path: 'reports', component: Export, canActivate: [authGuard]}
+        { path: 'reports', component: Export, canActivate: [authGuard]},
+        { path: 'force-present', component: ForcePresent, canActivate: [authGuard]},
+        { path: 'hr-corrections', component: HrCorrections, canActivate: [authGuard]},
+        { path: 'payroll', component: PayrollOverview, canActivate: [authGuard]},
     ],
 
   },

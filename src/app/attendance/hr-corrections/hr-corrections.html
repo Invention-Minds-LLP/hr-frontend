@@ -1,0 +1,1087 @@
+<p-toast></p-toast>
+
+<div class="guide">
+  <app-module-guide
+  title="HR Force Entry"
+  subtitle="Manually correct or override records across all HR modules — for cases the system missed or got wrong."
+  [points]="[
+    { label: 'Punch Time Correction', desc: 'Fix wrong or missing check-in / check-out times due to biometric failure or client visits.' },
+    { label: 'Leave Balance Adjustment', desc: 'Manually credit or debit leave days — for carry-forward errors or policy-driven corrections.' },
+    { label: 'Attendance Status Override', desc: 'Change an employee\'s status to WFH, Field Duty, On Duty, or correct a wrong Absent/Present.' },
+    { label: 'Permission Override', desc: 'Grant a permission directly without going through the approval chain.' },
+    { label: 'Comp-Off Manual Grant', desc: 'Give a Comp-Off credit for a day the employee worked that the system did not capture.' },
+    { label: 'OT Manual Entry', desc: 'Enter overtime hours that the biometric missed — auto-approved, feeds into payroll.' },
+    { label: 'Week-Off / Holiday Override', desc: 'Grant a week-off or holiday to a specific employee, or mark a holiday as a working day.' },
+    { label: 'Appraisal Override', desc: 'Correct or update the final score, decision, or status on an employee\'s appraisal form.' }
+  ]">
+</app-module-guide>
+</div>
+
+<div class="hr-corrections-page">
+
+  <div class="page-header">
+    <div class="section-title">HR Force Entry</div>
+    <p class="section-sub">Manually correct missed or incorrect records across attendance, punch times, and leave balances.</p>
+  </div>
+
+  <p-tabs [(value)]="activeTab">
+
+    <p-tablist>
+      <p-tab [value]="0">Punch Time Correction</p-tab>
+      <p-tab [value]="1">Leave Balance Adjustment</p-tab>
+      <p-tab [value]="2">Attendance Status Override</p-tab>
+      <p-tab [value]="3">Permission Override</p-tab>
+      <p-tab [value]="4">Comp-Off Grant</p-tab>
+      <p-tab [value]="5">OT Manual Entry</p-tab>
+      <p-tab [value]="6">Week-Off / Holiday</p-tab>
+      <p-tab [value]="7">Appraisal Override</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+    <!-- ── TAB 1: PUNCH CORRECTION ───────────────────────────────── -->
+    <p-tabpanel [value]="0">
+
+      <p-card>
+        <div class="tab-desc">Correct missing or wrong check-in / check-out times due to biometric failure, system glitch, or client visits.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="punchEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Date</label>
+            <p-datepicker
+              [(ngModel)]="punchDate"
+              dateFormat="dd-mm-yy"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Corrected Check-In <span class="optional">(leave blank to keep existing)</span></label>
+            <p-datepicker
+              [(ngModel)]="punchCorrectedIn"
+              [showTime]="true"
+              [timeOnly]="false"
+              dateFormat="dd-mm-yy"
+              placeholder="Check-in date & time"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Corrected Check-Out <span class="optional">(leave blank to keep existing)</span></label>
+            <p-datepicker
+              [(ngModel)]="punchCorrectedOut"
+              [showTime]="true"
+              [timeOnly]="false"
+              dateFormat="dd-mm-yy"
+              placeholder="Check-out date & time"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field full-width">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="punchReason" placeholder="Reason for correction" class="w-full" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Correct Punch" icon="pi pi-clock" [disabled]="punchSubmitting" [loading]="punchSubmitting" (click)="submitPunch()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetPunch()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Punch Correction History</div>
+        <p-table
+          [value]="punchRecords"
+          [loading]="punchLoading"
+          [paginator]="true"
+          [rows]="punchLimit"
+          [totalRecords]="punchTotal"
+          [lazy]="true"
+          (onLazyLoad)="onPunchPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Original In</th>
+              <th>Original Out</th>
+              <th>Corrected In</th>
+              <th>Corrected Out</th>
+              <th>Reason</th>
+              <th>Corrected On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (punchPage - 1) * punchLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.date) }}</td>
+              <td><p-tag [value]="row.correctionType" severity="info"></p-tag></td>
+              <td>{{ formatTime(row.originalIn) }}</td>
+              <td>{{ formatTime(row.originalOut) }}</td>
+              <td class="corrected">{{ formatTime(row.correctedIn) }}</td>
+              <td class="corrected">{{ formatTime(row.correctedOut) }}</td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="11" class="no-data">No punch corrections recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 2: LEAVE BALANCE ADJUSTMENT ──────────────────────── -->
+    <p-tabpanel [value]="1">
+
+      <p-card>
+        <div class="tab-desc">Manually credit or debit a leave balance — for opening balance corrections, carry-forward errors, or policy-driven adjustments.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="balEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Leave Type</label>
+            <p-select
+              [(ngModel)]="balLeaveTypeId"
+              [options]="leaveTypeOptions"
+              placeholder="Select leave type"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Financial Year</label>
+            <p-inputNumber
+              [(ngModel)]="balYear"
+              [useGrouping]="false"
+              placeholder="e.g. 2025"
+              class="w-full">
+            </p-inputNumber>
+          </div>
+
+          <div class="form-field">
+            <label>Adjustment Type</label>
+            <p-select
+              [(ngModel)]="balAdjustType"
+              [options]="adjustTypeOptions"
+              placeholder="Select type"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Days</label>
+            <p-inputNumber
+              [(ngModel)]="balDays"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="1"
+              [min]="0.5"
+              placeholder="e.g. 1 or 0.5"
+              class="w-full">
+            </p-inputNumber>
+          </div>
+
+          <div class="form-field">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="balReason" placeholder="Reason for adjustment" class="w-full" />
+          </div>
+        </div>
+
+        @if (balAdjustType === 'CREDIT') {
+          <div class="info-box credit">
+            <strong>Credit:</strong> Adds days to <em>totalAllowed</em> — the employee gains additional leave entitlement.
+          </div>
+        }
+        @if (balAdjustType === 'DEBIT') {
+          <div class="info-box debit">
+            <strong>Debit:</strong> Marks days as <em>used</em> — reduces available balance without a formal leave request.
+          </div>
+        }
+
+        <div class="form-actions">
+          <button pButton label="Apply Adjustment" icon="pi pi-sliders-h" [disabled]="balSubmitting" [loading]="balSubmitting" (click)="submitBalance()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetBalance()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Balance Adjustment History</div>
+        <p-table
+          [value]="balRecords"
+          [loading]="balLoading"
+          [paginator]="true"
+          [rows]="balLimit"
+          [totalRecords]="balTotal"
+          [lazy]="true"
+          (onLazyLoad)="onBalPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Leave Type</th>
+              <th>Year</th>
+              <th>Type</th>
+              <th>Days</th>
+              <th>Balance Before</th>
+              <th>Balance After</th>
+              <th>Reason</th>
+              <th>Adjusted On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (balPage - 1) * balLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ row.leaveType?.name ?? '—' }}</td>
+              <td>{{ row.year }}</td>
+              <td><p-tag [value]="row.adjustType" [severity]="adjustSeverity(row.adjustType)"></p-tag></td>
+              <td>{{ row.days }}</td>
+              <td>{{ row.balanceBefore }}</td>
+              <td>{{ row.balanceAfter }}</td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="11" class="no-data">No balance adjustments recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 3: ATTENDANCE OVERRIDE ───────────────────────────── -->
+    <p-tabpanel [value]="2">
+
+      <p-card>
+        <div class="tab-desc">Override an employee's attendance status — mark as WFH, Field Duty, On Duty, or correct a wrongly marked Absent/Present.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="ovEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Date</label>
+            <p-datepicker
+              [(ngModel)]="ovDate"
+              dateFormat="dd-mm-yy"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>New Status</label>
+            <p-select
+              [(ngModel)]="ovNewStatus"
+              [options]="statusOptions"
+              placeholder="Select status"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="ovReason" placeholder="Reason for override" class="w-full" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Override Status" icon="pi pi-pencil" [disabled]="ovSubmitting" [loading]="ovSubmitting" (click)="submitOverride()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetOverride()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Attendance Override History</div>
+        <p-table
+          [value]="ovRecords"
+          [loading]="ovLoading"
+          [paginator]="true"
+          [rows]="ovLimit"
+          [totalRecords]="ovTotal"
+          [lazy]="true"
+          (onLazyLoad)="onOvPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Original Status</th>
+              <th>New Status</th>
+              <th>Reason</th>
+              <th>Overridden On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (ovPage - 1) * ovLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.date) }}</td>
+              <td>
+                @if (row.originalStatus) {
+                  <p-tag [value]="statusLabel(row.originalStatus)" [severity]="statusSeverity(row.originalStatus)"></p-tag>
+                } @else {
+                  <span class="no-record">No prior record</span>
+                }
+              </td>
+              <td><p-tag [value]="statusLabel(row.newStatus)" [severity]="statusSeverity(row.newStatus)"></p-tag></td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="8" class="no-data">No attendance overrides recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 4: PERMISSION OVERRIDE ──────────────────────────── -->
+    <p-tabpanel [value]="3">
+
+      <p-card>
+        <div class="tab-desc">Grant a permission directly on behalf of an employee — bypasses the approval chain. Use when an employee forgot to apply or the system missed the request.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="permEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Date</label>
+            <p-datepicker
+              [(ngModel)]="permDay"
+              dateFormat="dd-mm-yy"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Permission Type</label>
+            <p-select
+              [(ngModel)]="permType"
+              [options]="permTypeOptions"
+              placeholder="Select type"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Timing</label>
+            <p-select
+              [(ngModel)]="permTiming"
+              [options]="permTimingOptions"
+              placeholder="Select timing"
+              class="w-full">
+            </p-select>
+          </div>
+
+          @if (permTiming === 'HOURLY' || permTiming === 'HALFDAY') {
+            <div class="form-field">
+              <label>Start Time</label>
+              <p-datepicker
+                [(ngModel)]="permStartTime"
+                [showTime]="true"
+                [timeOnly]="true"
+                placeholder="HH:MM"
+                [showIcon]="true"
+                iconDisplay="input"
+                class="w-full">
+              </p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label>End Time</label>
+              <p-datepicker
+                [(ngModel)]="permEndTime"
+                [showTime]="true"
+                [timeOnly]="true"
+                placeholder="HH:MM"
+                [showIcon]="true"
+                iconDisplay="input"
+                class="w-full">
+              </p-datepicker>
+            </div>
+          }
+
+          <div class="form-field full-width">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="permReason" placeholder="Reason for permission override" class="w-full" />
+          </div>
+
+          <!-- <div class="form-field full-width comp-off-row">
+            <p-checkbox [(ngModel)]="permDeductBalance" [binary]="true" inputId="permDeduct"></p-checkbox>
+            <label for="permDeduct">Deduct from permission balance (uncheck if no balance should be consumed)</label>
+          </div> -->
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Grant Permission" icon="pi pi-check-circle" [disabled]="permSubmitting" [loading]="permSubmitting" (click)="submitPermission()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetPermission()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Permission Override History</div>
+        <p-table
+          [value]="permRecords"
+          [loading]="permLoading"
+          [paginator]="true"
+          [rows]="permLimit"
+          [totalRecords]="permTotal"
+          [lazy]="true"
+          (onLazyLoad)="onPermPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Timing</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Reason</th>
+              <th>Granted On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (permPage - 1) * permLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.day) }}</td>
+              <td><p-tag [value]="row.permissionType" severity="info"></p-tag></td>
+              <td>{{ row.timing }}</td>
+              <td>{{ formatTime(row.startTime) }}</td>
+              <td>{{ formatTime(row.endTime) }}</td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="10" class="no-data">No permission overrides recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 5: COMP-OFF MANUAL GRANT ─────────────────────────── -->
+    <p-tabpanel [value]="4">
+
+      <p-card>
+        <div class="tab-desc">Manually grant a Comp-Off credit for a day the employee worked (holiday, week-off, or extended hours) that the system did not capture automatically.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="coEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Work Date <span class="optional">(date they actually worked)</span></label>
+            <p-datepicker
+              [(ngModel)]="coWorkDate"
+              dateFormat="dd-mm-yy"
+              iconDisplay="input"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Expiry Date <span class="optional">(default: 3 months from work date)</span></label>
+            <p-datepicker
+              [(ngModel)]="coExpiryDate"
+              dateFormat="dd-mm-yy"
+              placeholder="Leave blank for default"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="coReason" placeholder="e.g. Worked on public holiday" class="w-full" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Grant Comp-Off" icon="pi pi-gift" [disabled]="coSubmitting" [loading]="coSubmitting" (click)="submitCompOff()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetCompOff()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Comp-Off Grant History</div>
+        <p-table
+          [value]="coRecords"
+          [loading]="coLoading"
+          [paginator]="true"
+          [rows]="coLimit"
+          [totalRecords]="coTotal"
+          [lazy]="true"
+          (onLazyLoad)="onCoPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Work Date</th>
+              <th>Expiry</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Granted On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (coPage - 1) * coLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.workDate) }}</td>
+              <td [class.expired-cell]="isExpired(row)">
+  {{ coExpiryLabel(row) }}
+</td>
+              <td>
+                <p-tag
+                  [value]="row.used ? 'Used' : 'Available'"
+                  [severity]="row.used ? 'secondary' : 'success'">
+                </p-tag>
+              </td>
+              <td class="reason-cell">{{ row.grantReason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="8" class="no-data">No manual comp-off grants recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 6: OT MANUAL ENTRY ────────────────────────────────── -->
+    <p-tabpanel [value]="5">
+
+      <p-card>
+        <div class="tab-desc">Manually enter overtime hours that the biometric system missed — for client-site work, system downtime, or off-site official duty beyond shift hours.</div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="otEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Date</label>
+            <p-datepicker
+              [(ngModel)]="otDate"
+              dateFormat="dd-mm-yy"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field">
+            <label>Overtime Hours</label>
+            <p-inputNumber
+              [(ngModel)]="otHours"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              [min]="0.25"
+              placeholder="e.g. 2 or 1.5"
+              suffix=" hrs"
+              class="w-full">
+            </p-inputNumber>
+          </div>
+
+          <div class="form-field">
+            <label>Scheduled Shift End <span class="optional">(optional, for reference)</span></label>
+            <p-datepicker
+              [(ngModel)]="otScheduledEnd"
+              [showTime]="true"
+              [timeOnly]="false"
+              dateFormat="dd-mm-yy"
+              placeholder="Shift end date & time"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field full-width">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="otReason" placeholder="e.g. Worked after shift for project deadline" class="w-full" />
+          </div>
+        </div>
+
+        <div class="info-box credit">
+          The OT entry will be created as <strong>APPROVED</strong> — no further manager or HR approval required.
+          If an OT record already exists for this date, it will be updated.
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Submit OT Entry" icon="pi pi-clock" [disabled]="otSubmitting" [loading]="otSubmitting" (click)="submitOT()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetOT()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">OT Manual Entry History</div>
+        <p-table
+          [value]="otRecords"
+          [loading]="otLoading"
+          [paginator]="true"
+          [rows]="otLimit"
+          [totalRecords]="otTotal"
+          [lazy]="true"
+          (onLazyLoad)="onOtPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Entered On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (otPage - 1) * otLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.date) }}</td>
+              <td class="corrected">{{ minutesToHours(row.minutes) }}</td>
+              <td><p-tag [value]="row.status" severity="success"></p-tag></td>
+              <td class="reason-cell">{{ row.manualEntryReason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="8" class="no-data">No manual OT entries recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 7: WEEK-OFF / HOLIDAY OVERRIDE ────────────────────────── -->
+    <p-tabpanel [value]="6">
+
+      <p-card>
+        <div class="tab-desc">
+          Grant a week-off or holiday to an employee for a specific date, or mark a holiday/week-off day as a working day.
+          When marking as working, you can auto-grant a comp-off credit.
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="woEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Date</label>
+            <p-datepicker
+              [(ngModel)]="woDate"
+              dateFormat="dd-mm-yy"
+              placeholder="Select date"
+              [showIcon]="true"
+              iconDisplay="input"
+              class="w-full">
+            </p-datepicker>
+          </div>
+
+          <div class="form-field full-width">
+            <label>Override Type</label>
+            <p-select
+              [(ngModel)]="woOverrideType"
+              [options]="woOverrideTypeOptions"
+              placeholder="Select override type"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field full-width">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="woReason" placeholder="Reason for override" class="w-full" />
+          </div>
+
+          @if (woOverrideType === 'MARK_WORKING') {
+            <div class="form-field full-width comp-off-row">
+              <p-checkbox [(ngModel)]="woAutoCompOff" [binary]="true" inputId="woAutoCompOff"></p-checkbox>
+              <label for="woAutoCompOff">Auto-grant Comp-Off credit for this working day (3-month expiry)</label>
+            </div>
+          }
+        </div>
+
+        @if (woOverrideType === 'MARK_WORKING') {
+          <div class="info-box debit">
+            The employee will be marked as <strong>PRESENT</strong> on this date.
+            @if (woAutoCompOff) {
+              A Comp-Off credit will be automatically granted with a 3-month expiry.
+            }
+          </div>
+        }
+        @if (woOverrideType === 'GRANT_WEEK_OFF' || woOverrideType === 'GRANT_HOLIDAY') {
+          <div class="info-box credit">
+            The attendance for this date will be marked as <strong>{{ woOverrideType === 'GRANT_WEEK_OFF' ? 'WEEK_OFF' : 'HOLIDAY' }}</strong>.
+          </div>
+        }
+
+        <div class="form-actions">
+          <button pButton label="Apply Override" icon="pi pi-calendar-times" [disabled]="woSubmitting" [loading]="woSubmitting" (click)="submitWeekOff()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetWeekOff()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Week-Off / Holiday Override History</div>
+        <p-table
+          [value]="woRecords"
+          [loading]="woLoading"
+          [paginator]="true"
+          [rows]="woLimit"
+          [totalRecords]="woTotal"
+          [lazy]="true"
+          (onLazyLoad)="onWoPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Override Type</th>
+              <th>Prev Status</th>
+              <th>New Status</th>
+              <th>Comp-Off</th>
+              <th>Reason</th>
+              <th>Done On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (woPage - 1) * woLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ formatDate(row.date) }}</td>
+              <td><p-tag [value]="woTypeLabel(row.overrideType)" [severity]="woTypeSeverity(row.overrideType)"></p-tag></td>
+              <td>
+                @if (row.prevStatus) {
+                  <p-tag [value]="statusLabel(row.prevStatus)" [severity]="statusSeverity(row.prevStatus)"></p-tag>
+                } @else {
+                  <span class="no-record">No prior record</span>
+                }
+              </td>
+              <td><p-tag [value]="statusLabel(row.newStatus)" [severity]="statusSeverity(row.newStatus)"></p-tag></td>
+              <td>
+                <p-tag [value]="row.autoCompOff ? 'Yes' : 'No'" [severity]="row.autoCompOff ? 'success' : 'secondary'"></p-tag>
+              </td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="10" class="no-data">No week-off / holiday overrides recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ── TAB 8: APPRAISAL OVERRIDE ─────────────────────────────────── -->
+    <p-tabpanel [value]="7">
+
+      <p-card>
+        <div class="tab-desc">
+          Override the final score, decision, status, or comments on an employee's appraisal form.
+          All changes are logged for audit purposes.
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="apEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              (onSelect)="onApEmployeeSelect($event.value)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Appraisal Cycle</label>
+            <p-select
+              [(ngModel)]="apSelectedFormId"
+              [options]="apFormOptions"
+              placeholder="{{ apFormsLoading ? 'Loading...' : (apForms.length === 0 ? 'Select employee first' : 'Select appraisal cycle') }}"
+              [disabled]="!apEmployee || apFormsLoading"
+              (onChange)="onApFormSelect($event.value)"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Overall Score <span class="optional">(out of 5 or 10)</span></label>
+            <p-inputNumber
+              [(ngModel)]="apOverallScore"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              [min]="0"
+              [max]="10"
+              placeholder="e.g. 4.5"
+              [disabled]="!apSelectedFormId"
+              class="w-full">
+            </p-inputNumber>
+          </div>
+
+          <div class="form-field">
+            <label>Final Decision</label>
+            <p-select
+              [(ngModel)]="apFinalDecision"
+              [options]="apDecisionOptions"
+              placeholder="Select decision"
+              [disabled]="!apSelectedFormId"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Appraisal Status</label>
+            <p-select
+              [(ngModel)]="apStatus"
+              [options]="apStatusOptions"
+              placeholder="Select status"
+              [disabled]="!apSelectedFormId"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>Reason <span class="optional">(required — audit trail)</span></label>
+            <input pInputText [(ngModel)]="apReason" placeholder="Why is this override needed?" class="w-full" [disabled]="!apSelectedFormId" />
+          </div>
+
+          <div class="form-field full-width">
+            <label>Final Comments <span class="optional">(optional)</span></label>
+            <input pInputText [(ngModel)]="apFinalComments" placeholder="HR final comments on this appraisal" class="w-full" [disabled]="!apSelectedFormId" />
+          </div>
+        </div>
+
+        <div class="info-box credit">
+          All overrides are logged. The original values are preserved in the audit log for traceability.
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Apply Appraisal Override" icon="pi pi-star" [disabled]="apSubmitting || !apSelectedFormId" [loading]="apSubmitting" (click)="submitAppraisal()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetAppraisal()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">Appraisal Override History</div>
+        <p-table
+          [value]="apRecords"
+          [loading]="apLoading"
+          [paginator]="true"
+          [rows]="apLimit"
+          [totalRecords]="apTotal"
+          [lazy]="true"
+          (onLazyLoad)="onApPageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Cycle</th>
+              <th>Prev Score</th>
+              <th>New Score</th>
+              <th>Prev Decision</th>
+              <th>New Decision</th>
+              <th>Status Change</th>
+              <th>Reason</th>
+              <th>Done On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (apPage - 1) * apLimit + i + 1 }}</td>
+              <td>
+                <div class="emp-name">{{ empName(row) }}</div>
+                <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+              </td>
+              <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+              <td>{{ row.cycle }}</td>
+              <td>{{ row.prevOverallScore ?? '—' }}</td>
+              <td class="corrected">{{ row.newOverallScore ?? '—' }}</td>
+              <td>{{ row.prevFinalDecision ?? '—' }}</td>
+              <td class="corrected">{{ row.newFinalDecision ?? '—' }}</td>
+              <td>
+                @if (row.prevStatus || row.newStatus) {
+                  <span>{{ row.prevStatus ?? '—' }} → {{ row.newStatus ?? '—' }}</span>
+                } @else {
+                  <span class="no-record">—</span>
+                }
+              </td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ formatDate(row.createdAt) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="11" class="no-data">No appraisal overrides recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    </p-tabpanels>
+
+  </p-tabs>
+
+</div>

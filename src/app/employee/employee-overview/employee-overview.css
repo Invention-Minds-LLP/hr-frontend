@@ -9,6 +9,10 @@
     /* margin-right: 20px; */
  
   }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
   .sub-nav ul {
     list-style: none;
     display: flex;

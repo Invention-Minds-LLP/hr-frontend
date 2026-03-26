@@ -1,4 +1,17 @@
 <div class="card" *ngIf="!selectedInterview()">
+
+<div class="" style="padding-top: 30px;">
+      <app-module-guide
+    title="My Interviews"
+    subtitle="View and evaluate all candidate interviews assigned to you as a panellist."
+    [points]="[
+      { label: 'Assigned Interviews', desc: 'See all interviews where you are listed as a panel member or evaluator.' },
+      { label: 'Test Reviews', desc: 'Review candidate test submissions and record a pass/fail decision.' },
+      { label: 'Evaluation Form', desc: 'Submit a structured evaluation with scores and comments for each interview.' }
+    ]">
+  </app-module-guide>
+</div>
+
     <div class="header">
         <h2 style="color: white">Interviews Scheduled</h2>
         <!-- <button pButton label="Refresh" (click)="load()"></button> -->

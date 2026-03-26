@@ -1,4 +1,18 @@
 <div class="card">
+
+<div class="guide">
+    <app-module-guide
+    title="Interviews"
+    subtitle="Schedule and evaluate candidate interviews across panel and test-based rounds."
+    [points]="[
+      { label: 'Scheduled Interviews', desc: 'View all interviews assigned to you as a panellist, including date, round, and candidate.' },
+      { label: 'Panel Rounds', desc: 'Conduct and record scores for panel interview rounds with candidates.' },
+      { label: 'Test Rounds', desc: 'Review auto-graded test results and submit a pass/fail decision.' },
+      { label: 'Evaluate', desc: 'Submit structured evaluation forms with scores and remarks for each candidate.' }
+    ]">
+  </app-module-guide>
+</div>
+
   <div class="header">
     <h2>Interviews Scheduled</h2>
     <!-- <button pButton label="Refresh" (click)="load()"></button> -->

@@ -1,4 +1,19 @@
 <div class="wrap">
+
+ <div class="guide">
+     <app-module-guide
+    title="Internship Management"
+    subtitle="Manage candidate internships from onboarding through completion or conversion to employee."
+    [points]="[
+      { label: 'Create Internship', desc: 'Register new internships with candidate details, department, mentor, and stipend.' },
+      { label: 'Status Workflow', desc: 'Progress internships through Draft → Offered → Active → Completed or Converted stages.' },
+      { label: 'Convert to Employee', desc: 'Convert successful interns directly into employees on completion.' },
+      { label: 'Mentor Assignment', desc: 'Assign a department mentor to guide and supervise the intern.' },
+      { label: 'Drop & Extend', desc: 'Drop an internship early or extend the end date as needed.' }
+    ]">
+  </app-module-guide>
+ </div>
+
     <h2>Internships</h2>
 
     <!-- Filters -->

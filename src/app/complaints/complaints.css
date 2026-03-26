@@ -12,7 +12,7 @@
   
   /* Header Row */
   ::ng-deep .complaints .p-datatable .p-datatable-thead > tr > th {
-    background: transparent !important;
+    background: #fff !important;
     color: white;
     font-size: 16px;
     font-weight: 600;

@@ -1,4 +1,16 @@
 <!-- Submenu -->
+<div class="guide">
+    <app-module-guide
+  title="Attendance"
+  subtitle="Track daily attendance, fix unmarked entries, and review attendance history."
+  [points]="[
+    { label: 'Manage Attendance', desc: 'View and correct daily attendance records for all employees — mark present, absent, WFH, or On Duty.' },
+    { label: 'Unmarked Attendance', desc: 'Identify employees whose attendance was not captured by the biometric or system for the day.' },
+    { label: 'History', desc: 'Browse month-wise attendance records per employee, including check-in and check-out times.' },
+    { label: 'Auto Sync', desc: 'Attendance is auto-synced from biometric devices daily — manual correction is available when needed.' }
+  ]">
+</app-module-guide>
+</div>
 <nav class="sub-nav">
     <ul class="nav-list">
         <!-- <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Manage Employees</li></button> -->

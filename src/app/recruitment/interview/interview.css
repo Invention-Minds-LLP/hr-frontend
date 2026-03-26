@@ -5,6 +5,10 @@
   /* padding: 16px; */
   color: white;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 .filters {
   display: flex;

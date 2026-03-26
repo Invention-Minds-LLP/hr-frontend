@@ -1,5 +1,18 @@
 <p-toast></p-toast>
 
+  <div class="guide">
+    <app-module-guide
+  title="OT Approvals"
+  subtitle="Review and approve overtime requests submitted by your team members."
+  [points]="[
+    { label: 'Pending OT Requests', desc: 'View overtime records awaiting your approval — submitted automatically by the biometric system or manually by HR.' },
+    { label: 'Approve / Reject', desc: 'Approve valid overtime or reject with a reason. Approved OT feeds into the payroll calculation.' },
+    { label: 'Duration Check', desc: 'Review exact overtime minutes per employee per date before taking action.' },
+    { label: 'HR Manual Entry', desc: 'If biometric missed an OT session, HR can create it manually via HR Force Entry → OT Manual Entry.' }
+  ]">
+</app-module-guide>
+  </div>
+
 <p-card class="ot-approvals">
   <div class="table-header">
     <h3>OT Approvals – My Team</h3>

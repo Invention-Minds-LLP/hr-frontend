@@ -1,4 +1,16 @@
 <!-- Submenu -->
+<div class="guide">
+  <app-module-guide
+  title="Location Tracking"
+  subtitle="Monitor real-time employee locations and field attendance for on-site and remote teams."
+  [points]="[
+    { label: 'Live Locations', desc: 'See where your teammates are currently checked in — office, field, or remote.' },
+    { label: 'Check-in Points', desc: 'View geo-stamped check-in and check-out locations captured via the mobile app.' },
+    { label: 'Field Visit Tracking', desc: 'Track employees on client visits or field duty with their live GPS coordinates.' },
+    { label: 'Location History', desc: 'Review daily location logs per employee for audit and payroll purposes.' }
+  ]">
+</app-module-guide>
+</div>
 <nav class="sub-nav">
     <ul class="nav-list">
         <button> <li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">My Teammates</li></button>

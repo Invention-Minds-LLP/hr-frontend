@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExportService, ExportParams } from '../../services/export/export.service';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 interface ExportItem {
   label:      string;
@@ -21,7 +22,7 @@ interface ExportGroup {
 @Component({
   selector: 'app-export',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModuleGuide],
   templateUrl: './export.html',
   styleUrl: './export.css',
 })

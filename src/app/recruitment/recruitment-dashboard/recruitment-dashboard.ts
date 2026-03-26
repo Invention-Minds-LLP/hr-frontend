@@ -21,6 +21,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 
 
@@ -28,7 +29,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   selector: 'app-recruitment-dashboard',
   imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus,
     ToastModule, SelectModule, Interview, CandidateEvalForm, DialogModule,
-    RequisitionList, TooltipModule, SkeletonModule, TableModule],
+    RequisitionList, TooltipModule, SkeletonModule, TableModule, ModuleGuide],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers: [MessageService]

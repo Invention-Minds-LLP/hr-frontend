@@ -7,10 +7,11 @@ import { Tag } from 'primeng/tag';
 import { RequisitionForm } from '../requisition-form/requisition-form';
 import { Departments } from '../../services/departments/departments';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-requisition-list',
-  imports: [CommonModule, TableModule, ButtonModule, Tag, RequisitionForm, SkeletonModule],
+  imports: [CommonModule, TableModule, ButtonModule, Tag, RequisitionForm, SkeletonModule, ModuleGuide],
   templateUrl: './requisition-list.html',
   styleUrl: './requisition-list.css'
 })

@@ -1,4 +1,16 @@
 <!-- Submenu -->
+<div class="guide">
+    <app-module-guide
+  title="Appraisal"
+  subtitle="Conduct, review, and track employee performance appraisals across cycles."
+  [points]="[
+    { label: 'Managerial Appraisal', desc: 'Review and submit appraisal ratings for your direct reports across performance criteria.' },
+    { label: 'Dept Performance Indicator', desc: 'View aggregated performance scores by department to identify trends and top performers.' },
+    { label: 'Appraisal Cycles', desc: 'Appraisals are organized by cycle (e.g. Q1 2025). Each cycle has self, manager, and HR reviews.' },
+    { label: 'Final Decision', desc: 'HR records the final outcome — Promoted, Retained, Increment, or Probation — after all reviews.' }
+  ]">
+</app-module-guide>
+</div>
 <nav class="sub-nav">
     <ul>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Managerial Appraisal</li></button>

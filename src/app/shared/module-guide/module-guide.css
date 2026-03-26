@@ -1,0 +1,127 @@
+.module-guide {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 7px;
+  margin-bottom: 1.25rem;
+  font-family: "Sofia Sans", sans-serif;
+  overflow: hidden;
+}
+
+.guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  gap: 1rem;
+}
+
+.guide-header:hover {
+  background: #161616;
+}
+
+.guide-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  color: #888;
+  font-size: 0.82rem;
+  overflow: hidden;
+}
+
+.guide-left svg {
+  flex-shrink: 0;
+  color: #f97316;
+}
+
+.guide-module-name {
+  font-weight: 600;
+  color: #bbb;
+  white-space: nowrap;
+}
+
+.guide-sep {
+  color: #444;
+}
+
+.guide-short-desc {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #666;
+}
+
+.guide-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  border-radius: 5px;
+  color: #888;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.guide-toggle:hover {
+  border-color: #f97316;
+  color: #f97316;
+}
+
+.guide-toggle svg {
+  transition: transform 0.2s;
+}
+
+.guide-toggle.open svg {
+  transform: rotate(180deg);
+}
+
+.guide-body {
+  border-top: 1px solid #1e1e1e;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.guide-points {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.6rem 1.5rem;
+}
+
+.guide-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.guide-point-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f97316;
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+}
+
+.guide-point-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.guide-point-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.guide-point-desc {
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.4;
+}

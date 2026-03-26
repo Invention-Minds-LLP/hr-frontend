@@ -152,6 +152,16 @@
             </a>
           </li>
 
+          <li class="nav-item" (click)="onHrManualClick()" *ngIf="!isReportingManager && !isIncharge && executiveRoleId === 1">
+            <a (click)="activeMenu='hrmanual'" [class.active]="activeMenu === 'hrmanual'" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>HR Manual Entries</span>
+            </a>
+          </li>
+
           <li class="nav-item" (click)="onRecruitClick()" *ngIf="!isRestricted">
             <a (click)="activeMenu ='recruit'" [class.active]="activeMenu === 'recruit'" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -294,7 +304,7 @@
               <span>Complaints</span></a>
           </li>
 
-          <li class="nav-items" *ngIf="!isReportingManager && !isIncharge && executiveRoleId !== 4">
+          <li class="nav-items" *ngIf="executiveRoleId !== 4">
             <a [routerLink]="'/admin/shifts'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -317,24 +327,24 @@
             </a>
           </li>
 
-          <li class="nav-items" *ngIf="(isReportingManager || isIncharge) && executiveRoleId !== 4">
-            <a [routerLink]="'/admin/shifts'" routerLinkActive="active" class="nav-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                  <path d="M16 14v2.2l1.6 1M16 4h2a2 2 0 0 1 2 2v.832M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2" />
-                  <circle cx="16" cy="16" r="6" />
-                  <rect width="8" height="4" x="8" y="2" rx="1" />
-                </g>
-              </svg>
-              <span>Shifts</span></a>
-          </li>
-
-        <li class="nav-items" *ngIf="!isRestricted">
+        <li class="nav-items" *ngIf="!isRestricted && !isIncharge">
           <a [routerLink]="'/admin/reports'" routerLinkActive="active" class="nav-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7zm-8 2V5h2v6h1.17L12 13.17L9.83 11zm-6 8h14v2H5z"/>
             </svg>
             <span>Data Export</span></a></li>
+<!-- 
+          <li class="nav-items" *ngIf="!isReportingManager && !isIncharge && executiveRoleId === 1">
+            <a [routerLink]="'/admin/payroll'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M2 10h20" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="17" cy="15" r="1.5" fill="currentColor"/>
+              </svg>
+              <span>Payroll</span>
+            </a>
+          </li> -->
           <!-- <li class="nav-items" *ngIf="isReportingManager">
             <a [routerLink]="'/admin/tracking'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -345,6 +355,31 @@
               </svg>
               <span>Site Tracking</span></a>
           </li> -->
+        </ul>
+
+        <!-- HR Manual Entries sub-row -->
+        <ul *ngIf="activeMenu === 'hrmanual'" class="sub-row flex1">
+
+          <li class="nav-items">
+            <a [routerLink]="'admin/force-present'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Force Present</span>
+            </a>
+          </li>
+
+          <li class="nav-items">
+            <a [routerLink]="'admin/hr-corrections'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>HR Force Entry</span>
+            </a>
+          </li>
+
         </ul>
 
         <ul *ngIf="activeMenu === 'recruit'" class="sub-row flex1">

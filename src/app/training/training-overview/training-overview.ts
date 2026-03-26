@@ -9,6 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { RatingModule } from 'primeng/rating';
 import { TextareaModule } from 'primeng/textarea';
 import { Trainings } from '../../services/trainings/trainings';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 
@@ -21,7 +22,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     RatingModule,
     TextareaModule,
     ButtonModule,
-    FloatLabelModule
+    FloatLabelModule,
+    ModuleGuide,
   ],
   templateUrl: './training-overview.html',
   styleUrl: './training-overview.css'

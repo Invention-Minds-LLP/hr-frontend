@@ -15,11 +15,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
 import { CalendarTooltipDirective } from "angular-calendar";
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-grievance-list',
   imports: [TableModule, CardModule, GrievanceForm, CardModule, ButtonModule, TagModule,
-    DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule, TooltipModule, SkeletonModule, CalendarTooltipDirective],
+    DialogModule, CommonModule, SelectModule, ReactiveFormsModule, FormsModule, InputTextModule, TextareaModule, TooltipModule, SkeletonModule, CalendarTooltipDirective, ModuleGuide],
   templateUrl: './grievance-list.html',
   styleUrl: './grievance-list.css'
 })

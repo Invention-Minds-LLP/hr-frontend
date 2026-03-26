@@ -1,0 +1,172 @@
+<p-toast></p-toast>
+
+<div class="guide">
+  <app-module-guide
+  title="Force Present"
+  subtitle="Override an employee's attendance to Present — cancels an active leave or corrects a missed biometric entry."
+  [points]="[
+    { label: 'Cancel Leave & Mark Present', desc: 'If an employee came in despite having an approved leave, cancel the leave and restore the day as Present.' },
+    { label: 'Correct Absent Record', desc: 'If biometric failed and the employee was actually present, mark them as Present for that date.' },
+    { label: 'Auto Comp-Off Option', desc: 'Optionally grant a Comp-Off credit when forcing present on a holiday or week-off day.' },
+    { label: 'Audit Trail', desc: 'Every force-present action is logged with the HR who performed it and the reason provided.' }
+  ]">
+</app-module-guide>
+</div>
+
+<div class="force-present-page">
+
+  <!-- Mark Force Present Form -->
+  <p-card>
+    <div class="section-title">Mark Force Present</div>
+    <p class="section-sub">Select an employee and date to cancel their approved leave and mark attendance as Present. If no leave exists, attendance is simply corrected to Present.</p>
+
+    <div class="form-grid">
+
+      <!-- Employee search -->
+      <div class="form-field">
+        <label>Employee</label>
+        <p-autoComplete
+          [(ngModel)]="selectedEmployee"
+          [suggestions]="employeeSuggestions"
+          (completeMethod)="searchEmployees($event)"
+          (onSelect)="onDateChange()"
+          field="label"
+          placeholder="Search employee..."
+          [dropdown]="true"
+          class="w-full">
+        </p-autoComplete>
+      </div>
+
+      <!-- Date picker -->
+      <div class="form-field">
+        <label>Date</label>
+        <p-datepicker
+          [(ngModel)]="selectedDate"
+          (ngModelChange)="onDateChange()"
+          dateFormat="dd-mm-yy"
+          placeholder="Select date"
+          [showIcon]="true"
+          class="w-full">
+        </p-datepicker>
+      </div>
+
+      <!-- Reason -->
+      <div class="form-field full-width">
+        <label>Reason</label>
+        <input pInputText [(ngModel)]="reason" placeholder="Reason for force present" class="w-full" />
+      </div>
+
+      <!-- Comp-off toggle -->
+      <div class="form-field full-width comp-off-row">
+        <p-checkbox [(ngModel)]="createCompOff" [binary]="true" inputId="compOff"></p-checkbox>
+        <label for="compOff">Grant a Comp-Off credit (expires in 3 months)</label>
+      </div>
+
+    </div>
+
+    <!-- Leave preview -->
+    @if (previewing) {
+      <div class="preview-info">Checking for approved leaves...</div>
+    }
+    @if (!previewing && previewLeaves.length > 0) {
+      <div class="preview-box">
+        <strong>Approved leave found:</strong>
+        <ul>
+          @for (l of previewLeaves; track l.id) {
+            <li>
+              <span class="leave-type-name">{{ l.leaveType?.name }}</span>
+              &mdash; {{ formatDate(l.startDate) }} to {{ formatDate(l.endDate) }}
+              @if (l.isHalfDay) { <span>(Half Day)</span> }
+              <div class="action-hint">&#8614; {{ l.action }}</div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+    @if (!previewing && selectedEmployee && selectedDate && previewLeaves.length === 0) {
+      <div class="no-leave-notice">
+        No approved leave found on this date &mdash; attendance will be corrected to Present without any leave cancellation.
+      </div>
+    }
+
+    <div class="form-actions">
+      <button
+        pButton
+        label="Mark Force Present"
+        icon="pi pi-check"
+        [disabled]="submitting"
+        [loading]="submitting"
+        (click)="submit()">
+      </button>
+      <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetForm()"></button>
+    </div>
+  </p-card>
+
+  <p-divider></p-divider>
+
+  <!-- History Table -->
+  <p-card>
+    <div class="section-title">Force Present History</div>
+
+    <p-table
+      [value]="records"
+      [loading]="loadingList"
+      [paginator]="true"
+      [rows]="limit"
+      [totalRecords]="total"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>No.</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Date</th>
+          <th>Leave Cancelled</th>
+          <th>Days Restored</th>
+          <th>Comp-Off</th>
+          <th>Reason</th>
+          <th>Marked On</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr>
+          <td>{{ (page - 1) * limit + i + 1 }}</td>
+          <td>
+            <div class="emp-name">{{ empName(row) }}</div>
+            <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+          </td>
+          <td>{{ row.employee?.Department?.name ?? '—' }}</td>
+          <td>{{ formatDate(row.date) }}</td>
+          <td>
+            @if (row.leaveRequest) {
+              {{ row.leaveRequest?.leaveType?.name }}
+              ({{ formatDate(row.leaveRequest?.startDate) }}–{{ formatDate(row.leaveRequest?.endDate) }})
+            } @else {
+              <span class="no-leave-tag">No leave (attendance correction)</span>
+            }
+          </td>
+          <td>{{ row.daysRestored }}</td>
+          <td>
+            <p-tag
+              [value]="row.compOffGranted ? 'Yes' : 'No'"
+              [severity]="row.compOffGranted ? 'success' : 'secondary'">
+            </p-tag>
+          </td>
+          <td class="reason-cell">{{ row.reason }}</td>
+          <td>{{ formatDate(row.createdAt) }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="no-data">No force present actions recorded yet.</td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </p-card>
+
+</div>

@@ -5,6 +5,10 @@
   padding: 0px 60px;
   color: black;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 .filters {
   display: flex;

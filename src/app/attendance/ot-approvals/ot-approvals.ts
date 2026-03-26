@@ -9,6 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Dashboard } from '../../services/dashboard/dashboard';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-ot-approvals',
@@ -21,6 +22,7 @@ import { Dashboard } from '../../services/dashboard/dashboard';
     ButtonModule,
     TooltipModule,
     ToastModule,
+    ModuleGuide,
   ],
   providers: [MessageService],
   templateUrl: './ot-approvals.html',

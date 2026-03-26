@@ -26,6 +26,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 
 
@@ -53,7 +54,8 @@ import { ToastModule } from 'primeng/toast';
     CheckboxModule,
     TableModule,
     TooltipModule,
-    ToastModule
+    ToastModule,
+    ModuleGuide
   ],
   templateUrl: './training-list.html',
   styleUrl: './training-list.css',

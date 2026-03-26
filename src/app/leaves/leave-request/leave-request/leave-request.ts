@@ -269,6 +269,9 @@ export class LeaveRequest {
     }
   }
   getStatusLabel(leave: any): string {
+    if (leave.status === 'CANCELLED') {
+      return 'Cancelled';
+    }
     if (leave.inChargeDecision === 'REJECTED') {
       return 'Incharge Rejected';
     }

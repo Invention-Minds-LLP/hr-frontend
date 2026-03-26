@@ -1,0 +1,467 @@
+.hr-corrections-page {
+  font-family: "Sofia Sans";
+  padding: 0 60px;
+}
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
+/* ── Dark theme overrides for PrimeNG components ─────────────────────── */
+
+/* Tabs container */
+::ng-deep .hr-corrections-page .p-tabs {
+  background: transparent;
+}
+
+::ng-deep .hr-corrections-page .p-tablist {
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .hr-corrections-page .p-tablist-active-bar {
+  background: #f97316 !important;
+}
+
+::ng-deep .hr-corrections-page .p-tabs .p-tablist::before,
+::ng-deep .hr-corrections-page .p-tabs .p-tablist::after {
+  display: none !important;
+}
+
+::ng-deep .hr-corrections-page .p-tab {
+  color: #d4d2d2;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+}
+
+::ng-deep .hr-corrections-page .p-tab:hover {
+  color: #fff;
+  background: #222;
+}
+
+::ng-deep .hr-corrections-page .p-tab.p-tab-active {
+  color: #f97316;
+  border-bottom-color: #f97316;
+  border-top: none;
+  background: transparent;
+}
+
+::ng-deep .hr-corrections-page .p-tabpanels {
+  background: transparent;
+  padding: 1.25rem 0;
+}
+
+::ng-deep .hr-corrections-page .p-tabpanel {
+  background: transparent;
+  padding: 0;
+}
+::ng-deep .hr-corrections-page .p-tablist-nav-button{
+  box-shadow: none !important;
+}
+::ng-deep .hr-corrections-page .p-tablist-nav-button .p-icon{
+  color: #797575 !important;
+
+}
+
+::ng-deep .hr-corrections-page .p-icon{
+  color: white !important;
+}
+
+/* Cards */
+::ng-deep .hr-corrections-page .p-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #eee;
+  box-shadow: none;
+}
+
+::ng-deep .hr-corrections-page .p-card .p-card-body {
+  background: transparent;
+  padding: 1.25rem;
+}
+
+::ng-deep .hr-corrections-page .p-card .p-card-content {
+  padding: 0;
+}
+
+/* Divider */
+::ng-deep .hr-corrections-page .p-divider .p-divider-content {
+  background: #1a1a1a;
+}
+
+::ng-deep .hr-corrections-page .p-divider-horizontal::before {
+  border-top-color: #2a2a2a;
+}
+
+/* Text inputs */
+::ng-deep .hr-corrections-page input.p-inputtext,
+::ng-deep .hr-corrections-page .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  border-radius: 6px;
+}
+
+::ng-deep .hr-corrections-page input.p-inputtext::placeholder,
+::ng-deep .hr-corrections-page .p-inputtext::placeholder {
+  color: #fff !important;
+}
+
+::ng-deep .hr-corrections-page input.p-inputtext:focus,
+::ng-deep .hr-corrections-page .p-inputtext:focus {
+  border-color: #555 !important;
+  box-shadow: none !important;
+}
+
+/* AutoComplete */
+::ng-deep .hr-corrections-page .p-autocomplete .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-autocomplete-dropdown {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-left: none !important;
+  color: #aaa !important;
+}
+
+::ng-deep .hr-corrections-page .p-autocomplete-option{
+  color: white !important;
+}
+
+::ng-deep .hr-corrections-page .p-autocomplete-overlay {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-autocomplete-option:hover,
+::ng-deep .hr-corrections-page .p-autocomplete-option.p-focus {
+  background: #2a2a2a !important;
+}
+
+/* Select (p-select / p-dropdown) */
+::ng-deep .hr-corrections-page .p-select,
+::ng-deep .hr-corrections-page .p-dropdown {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  border-radius: 6px;
+}
+
+::ng-deep .hr-corrections-page  .p-select-option{
+  color: white !important;
+}
+
+::ng-deep .hr-corrections-page .p-select .p-select-label,
+::ng-deep .hr-corrections-page .p-dropdown .p-dropdown-label {
+  color: #eee !important;
+  background: transparent !important;
+}
+
+::ng-deep .hr-corrections-page .p-select .p-select-label.p-placeholder,
+::ng-deep .hr-corrections-page .p-dropdown .p-dropdown-label.p-placeholder {
+  color: #fff !important;
+}
+
+::ng-deep .hr-corrections-page .p-select-overlay,
+::ng-deep .hr-corrections-page .p-dropdown-panel {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-select-option:hover,
+::ng-deep .hr-corrections-page .p-dropdown-item:hover,
+::ng-deep .hr-corrections-page .p-select-option.p-focus,
+::ng-deep .hr-corrections-page .p-dropdown-item.p-highlight {
+  background: #2a2a2a !important;
+  color: #fff !important;
+}
+
+::ng-deep .hr-corrections-page .p-select-option.p-selected,
+::ng-deep .hr-corrections-page .p-dropdown-item.p-highlight {
+  background: #2a2a2a !important;
+  color: #fff !important;
+}
+
+/* InputNumber */
+::ng-deep .hr-corrections-page .p-inputnumber .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-inputnumber-button {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+  color: #aaa !important;
+}
+
+/* DatePicker */
+::ng-deep .hr-corrections-page .p-datepicker .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  width: 100% !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-input-icon-container .p-datepicker-button,
+::ng-deep .hr-corrections-page .p-datepicker .p-datepicker-button {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-left: none !important;
+  color: #aaa !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-overlay,
+::ng-deep .hr-corrections-page .p-datepicker-panel {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-header {
+  background: #111 !important;
+  border-bottom: 1px solid #2a2a2a !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-day-cell:not(.p-datepicker-day-selected):hover .p-datepicker-day {
+  background: #2a2a2a !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-day-selected .p-datepicker-day {
+  background: #444 !important;
+  color: #fff !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-day {
+  color: #ccc !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-day.p-datepicker-day-other-month {
+  color: #444 !important;
+}
+
+::ng-deep .hr-corrections-page .p-datepicker-weekday {
+  color: #666 !important;
+}
+
+::ng-deep .hr-corrections-page .p-timepicker {
+  background: #111 !important;
+  border-top: 1px solid #2a2a2a !important;
+  color: #eee !important;
+}
+
+::ng-deep .hr-corrections-page .p-timepicker button {
+  color: #aaa !important;
+}
+
+::ng-deep .hr-corrections-page .p-timepicker span {
+  color: #eee !important;
+}
+
+/* Checkbox */
+::ng-deep .hr-corrections-page .p-checkbox .p-checkbox-box {
+  background: #111 !important;
+  border: 1px solid #444 !important;
+}
+
+::ng-deep .hr-corrections-page .p-checkbox .p-checkbox-box.p-checked {
+  background: #444 !important;
+  border-color: #555 !important;
+}
+
+/* Table */
+::ng-deep .hr-corrections-page .p-datatable .p-datatable-thead > tr > th {
+  background: #111 !important;
+  color: #aaa !important;
+  border-color: #2a2a2a !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+::ng-deep .hr-corrections-page .p-datatable .p-datatable-tbody > tr {
+  background: #1a1a1a !important;
+  color: #ddd !important;
+  border-bottom: 1px solid #222 !important;
+}
+
+::ng-deep .hr-corrections-page .p-datatable .p-datatable-tbody > tr:hover {
+  background: #222 !important;
+}
+
+::ng-deep .hr-corrections-page .p-datatable .p-datatable-tbody > tr > td {
+  border-color: #2a2a2a !important;
+  font-size: 0.85rem;
+}
+
+::ng-deep .hr-corrections-page .p-datatable-paginator-bottom {
+  background: #111 !important;
+  border-top: 1px solid #2a2a2a !important;
+  color: #aaa !important;
+}
+
+::ng-deep .hr-corrections-page .p-paginator {
+  background: #111 !important;
+  color: #aaa !important;
+  border: none !important;
+}
+
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-page,
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-first,
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-prev,
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-next,
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-last {
+  color: #aaa !important;
+  background: transparent !important;
+}
+
+::ng-deep .hr-corrections-page .p-paginator .p-paginator-page.p-highlight {
+  background: #333 !important;
+  color: #fff !important;
+  border-radius: 4px;
+}
+
+::ng-deep .hr-corrections-page .p-datatable-loading-overlay {
+  background: rgba(0,0,0,0.5) !important;
+}
+
+.page-header {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.section-title-sm {
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.section-sub {
+  font-size: 0.88rem;
+  color: #aaa;
+}
+
+.tab-desc {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.optional {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.info-box {
+  margin-top: 1rem;
+  padding: 0.65rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.info-box.credit {
+  background: #1a3a2a;
+  border: 1px solid #2d6a4f;
+  color: #a7f3d0;
+}
+
+.info-box.debit {
+  background: #2a1a1a;
+  border: 1px solid #6b2020;
+  color: #fca5a5;
+}
+
+.emp-name {
+  font-weight: 500;
+}
+
+.emp-code {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.reason-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.corrected {
+  color: #fdba74;
+  font-weight: 500;
+}
+
+.no-record {
+  font-size: 0.78rem;
+  color: #666;
+  font-style: italic;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
+
+.comp-off-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.comp-off-row label {
+  font-size: 0.88rem;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.expired-cell {
+  color: #f87171;
+  font-weight: 500;
+}

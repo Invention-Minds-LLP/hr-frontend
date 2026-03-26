@@ -25,6 +25,7 @@ import { InternshipService } from '../../services/internship/internship-service'
 import { Select } from "primeng/select";
 import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert';
 // add near the top with your other types
@@ -38,7 +39,7 @@ type EmpPick = { id: number; firstName: string; lastName: string; employeeCode?:
 
 @Component({
   selector: 'app-internship',
-  imports: [CommonModule, FormsModule, DatePipe, DatePicker, TableModule, ButtonModule, TagModule, Select, SkeletonModule],
+  imports: [CommonModule, FormsModule, DatePipe, DatePicker, TableModule, ButtonModule, TagModule, Select, SkeletonModule, ModuleGuide],
   templateUrl: './internship.html',
   styleUrl: './internship.css'
 })

@@ -1,5 +1,16 @@
 <div class="performance-container">
 
+  <app-module-guide
+    title="Grievances"
+    subtitle="Raise, review, and resolve employee workplace concerns and complaints formally."
+    [points]="[
+      { label: 'Raise a Grievance', desc: 'Employees can submit concerns about workplace issues, interpersonal conflicts, or policy violations.' },
+      { label: 'Confidential Review', desc: 'Grievances are reviewed only by HR. The identity of the reporter is protected.' },
+      { label: 'Track Status', desc: 'Follow each grievance from Submitted → Acknowledged → Under Review → Resolved or Closed.' },
+      { label: 'HR Response', desc: 'HR records remarks, actions taken, and final resolution for every grievance for audit purposes.' }
+    ]">
+  </app-module-guide>
+
   <div class="header">
     <h2>Employee Grievances <i class="pi pi-info-circle info-icon"
         pTooltip="Raise official concerns, complaints, or suggestions regarding workplace issues. These requests are confidential and will be reviewed by HR"

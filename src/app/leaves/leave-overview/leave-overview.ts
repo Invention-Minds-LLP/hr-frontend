@@ -1,5 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { LeaveRequest } from "../leave-request/leave-request/leave-request";
 import { WfhPopup } from "../wfh-popup/wfh-popup";
 import { WorkFromHome } from "../work-from-home/work-from-home";
@@ -13,7 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-leave-overview',
-  imports: [CommonModule, LeaveRequest, WorkFromHome, PermissionRequest, BalancesAccruals, IconField, InputIcon, FormsModule, InputTextModule],
+  imports: [CommonModule, LeaveRequest, WorkFromHome, PermissionRequest, BalancesAccruals, IconField, InputIcon, FormsModule, InputTextModule, ModuleGuide],
   templateUrl: './leave-overview.html',
   styleUrl: './leave-overview.css'
 })

@@ -18,11 +18,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PaginatorModule } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-interview',
   imports: [CommonModule, DatePipe, TableModule, CardModule, ButtonModule, RadioButtonModule, DividerModule,
-    FormsModule, DialogModule, Tag, ReactiveFormsModule, TextareaModule, SkeletonModule, PaginatorModule, TooltipModule],
+    FormsModule, DialogModule, Tag, ReactiveFormsModule, TextareaModule, SkeletonModule, PaginatorModule, TooltipModule, ModuleGuide],
   templateUrl: './interview.html',
   styleUrl: './interview.css'
 })

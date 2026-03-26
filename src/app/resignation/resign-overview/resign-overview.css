@@ -7,6 +7,10 @@
     /* margin-top: 20px; */
     align-items: center;
   }
+    .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
   h2{
     color: white;
     font-family: "Sofia Sans";

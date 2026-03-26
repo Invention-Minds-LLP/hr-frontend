@@ -120,7 +120,9 @@ export class Navbar {
   }
 
   setActiveMenu(url: string): void {
-    if (url.startsWith('/admin')) {
+    if (url.startsWith('/admin/hr-corrections') || url.startsWith('/admin/force-present')) {
+      this.activeMenu = 'hrmanual';
+    } else if (url.startsWith('/admin')) {
       this.activeMenu = 'admin';
     } else if (url.startsWith('/recruitment')) {
       this.activeMenu = 'recruit';
@@ -169,6 +171,10 @@ export class Navbar {
     }
   }
 
+  onHrManualClick() {
+    this.router.navigate(['/admin/force-present']);
+  }
+
   onRecruitClick() {
     // Expand submenu
     if (this.isReportingManager) {
@@ -206,7 +212,7 @@ export class Navbar {
 
   activeMenu: string | null = null;
 
-  toggle(menu: 'admin' | 'recruit') {
+  toggle(menu: 'admin' | 'recruit' | 'hrmanual') {
     this.activeMenu = this.activeMenu === menu ? null : menu;
   }
 

@@ -32,6 +32,10 @@ textarea {
 :host ::ng-deep .p-rating-cancel {
   display: none;
 }
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 
 ::ng-deep .p-dialog .p-btn {
   background-color: red !important;
