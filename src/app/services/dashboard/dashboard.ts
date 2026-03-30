@@ -9,7 +9,7 @@ import { environment } from '../../../environment/environment.prod';
 export type ListKey =
   | 'unmarked' | 'approvals' | 'probation' | 'docs' |  'offersPendingSignature' | 'clearances'
   | 'leaves' | 'wfh' | 'permissions' | 'late' | 'ot' | 'joiners' | 'birthdays' | 'anniversaries'|
-   'annAck' | 'annAckPending' | 'otPending' | 'managerOtPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'paraMedicalLate' |'resignations' | 'interviewsToday' | 'ahc';
+   'annAck' | 'annAckPending' | 'otPending' | 'managerOtPending' | 'feedback' |'clinicalLate'| 'nonClinicalLate' | 'paraMedicalLate' |'resignations' | 'interviewsToday' | 'ahc' | 'missingDocs';
 
 
    export interface ListRow {
@@ -107,7 +107,12 @@ export class Dashboard {
 
     return this.http.get<DashboardResponse>(this.baseUrl, { params });
   }
-
+downloadMissingDocs() {
+  return this.http.get(
+    `${this.baseUrl}/missing-docs`,
+    { responseType: 'blob' }
+  );
+}
 
   getList(arg: ListKey | { key: string; [k: string]: string }): Observable<List> {
     let params = new HttpParams();

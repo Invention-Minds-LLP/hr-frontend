@@ -239,7 +239,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let r of d.learnPerf; trackBy: trackByIndex">
+                        <tr *ngFor="let r of d.learnPerf; trackBy: trackByIndex" (click)="onLearnPerfRowClick(r)">
                             <td>{{ r[0] }}</td>
                             <td>{{r[1]}}</td>
                         </tr>

@@ -225,7 +225,7 @@ export class HrDashboard implements OnInit {
     const known: ListKey[] = [
       'unmarked', 'approvals', 'probation', 'docs', 'offersPendingSignature', 'clearances',
       'leaves', 'wfh', 'permissions', 'late', 'ot', 'joiners', 'birthdays', 'anniversaries', 'otPending', 'managerOtPending',
-      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'paraMedicalLate' ,'resignations', 'ahc'
+      'annAck', 'annAckPending', 'feedback', 'clinicalLate', 'nonClinicalLate', 'missingDocs', 'paraMedicalLate', 'resignations', 'ahc'
     ];
 
     const k = (known as string[]).includes(String(key))
@@ -534,6 +534,11 @@ export class HrDashboard implements OnInit {
         }
 
         break;
+      case 'missingDocs':
+        if (action === 'Download Excel') {
+          this.downloadMissingDocsExcel();
+        }
+        break;
       case 'clinicalLate':
       case 'nonClinicalLate':
       case 'paraMedicalLate':
@@ -570,6 +575,17 @@ export class HrDashboard implements OnInit {
     }
   }
 
+  downloadMissingDocsExcel() {
+    this.api.downloadMissingDocs().subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Missing_Documents.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
   confirmAssignDelegate() {
     if (this.selectedClearance && this.selectedDelegateId) {
       this.isLoading = true;
@@ -589,5 +605,12 @@ export class HrDashboard implements OnInit {
   pageSize = 8;          // rows per page
   totalRecords = 0;      // total rows (from selectedList)
   currentPage = 0;       // paginator page index
+  onLearnPerfRowClick(row: any[]) {
+    const metric = row[0];
 
+    if (metric === 'Employees missing mandatory documents') {
+      this.downloadMissingDocsExcel();
+      return;
+    }
+  }
 }
