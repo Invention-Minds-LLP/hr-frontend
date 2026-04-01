@@ -1,0 +1,275 @@
+<div class="guide">
+  <app-module-guide
+    title="Weekly Performance Tracker"
+    subtitle="Track, review and approve employee weekly task reports with multi-level approval."
+    [points]="[
+      { label: 'Weekly Reports', desc: 'View all weekly performance submissions. Create, edit, and submit your weekly tasks.' },
+      { label: 'Task Management', desc: 'Add daily tasks with priority, deadlines, status tracking, and carry-forward support.' },
+      { label: 'Approval Flow', desc: 'Multi-level approval: Incharge, Reporting Manager, and HR with ratings and feedback.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<div class="over-view">
+  <nav class="sub-nav">
+    <ul>
+      <button (click)="show('list')">
+        <li class="sub-item" [ngClass]="{ 'active': active === 'list' }">All Reports</li>
+      </button>
+      <span class="br"></span>
+      <button (click)="openForm()">
+        <li class="sub-item" [ngClass]="{ 'active': active === 'form' }">New Report</li>
+      </button>
+    </ul>
+  </nav>
+
+  <div class="filter-area" *ngIf="active === 'list'">
+    <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+      placeholder="Filter by Status" (onChange)="onStatusFilter()" [style]="{'min-width': '160px'}">
+    </p-select>
+    <span class="p-input-icon-left">
+      <input type="text" pInputText [(ngModel)]="searchText" (input)="onFilter()"
+        placeholder="Search by name, code or week..." style="width: 250px" />
+    </span>
+  </div>
+</div>
+
+<p-toast></p-toast>
+
+<!-- ── REPORT LIST ──────────────────────────────────────────────────────── -->
+<div class="table-container" *ngIf="active === 'list'">
+  <p-table [value]="filteredReports" [paginator]="true" [rows]="15" [loading]="loading"
+    [rowsPerPageOptions]="[10, 15, 25, 50]" styleClass="p-datatable-sm" [scrollable]="true"
+    [globalFilterFields]="['employee.employeeCode', 'employee.firstName', 'weekLabel']">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Week</th>
+        <th>Period</th>
+        <th>Tasks</th>
+        <th>Status</th>
+        <th>Incharge</th>
+        <th>Manager</th>
+        <th>HR</th>
+        <th style="width: 220px">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-report let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ report.employee?.employeeCode }}</td>
+        <td>{{ report.employee?.firstName }} {{ report.employee?.lastName }}</td>
+        <td>{{ report.employee?.Department?.name }}</td>
+        <td>{{ report.weekLabel }}</td>
+        <td>{{ fmtDate(report.weekStartDate) }} - {{ fmtDate(report.weekEndDate) }}</td>
+        <td>{{ report._count?.dailyTasks || 0 }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(report.status)">
+            {{ report.status }}
+          </span>
+        </td>
+        <td>
+          <span class="decision-badge" [ngClass]="{
+            'decision-approved': report.inChargeDecision === 'APPROVED',
+            'decision-rejected': report.inChargeDecision === 'REJECTED',
+            'decision-pending': report.inChargeDecision === 'PENDING'
+          }">{{ report.inChargeDecision }}</span>
+        </td>
+        <td>
+          <span class="decision-badge" [ngClass]="{
+            'decision-approved': report.hodDecision === 'APPROVED',
+            'decision-rejected': report.hodDecision === 'REJECTED',
+            'decision-pending': report.hodDecision === 'PENDING'
+          }">{{ report.hodDecision }}</span>
+        </td>
+        <td>
+          <span class="decision-badge" [ngClass]="{
+            'decision-approved': report.hrDecision === 'APPROVED',
+            'decision-rejected': report.hrDecision === 'REJECTED',
+            'decision-pending': report.hrDecision === 'PENDING'
+          }">{{ report.hrDecision }}</span>
+        </td>
+        <td class="action-cell">
+          <button class="btn-icon view" (click)="viewReport(report)" pTooltip="View Details" tooltipPosition="top">
+            <i class="pi pi-eye"></i>
+          </button>
+
+          <button class="btn-icon edit" *ngIf="report.status === 'DRAFT' && report.employeeId === loggedEmpId"
+            (click)="openForm(report)" pTooltip="Edit" tooltipPosition="top">
+            <i class="pi pi-pencil"></i>
+          </button>
+
+          <button class="btn-icon submit" *ngIf="report.status === 'DRAFT' && report.employeeId === loggedEmpId"
+            (click)="submitReport(report)" pTooltip="Submit" tooltipPosition="top">
+            <i class="pi pi-send"></i>
+          </button>
+
+          <button class="btn-icon approve" *ngIf="canApproveLevel1(report)"
+            (click)="openApprovalDialog(report, 'LEVEL1')" pTooltip="Approve (Level 1)" tooltipPosition="top">
+            <i class="pi pi-check"></i>
+          </button>
+
+          <button class="btn-icon decline" *ngIf="canApproveLevel1(report)"
+            (click)="openDeclineDialog(report, 'LEVEL1')" pTooltip="Decline (Level 1)" tooltipPosition="top">
+            <i class="pi pi-times"></i>
+          </button>
+
+          <button class="btn-icon approve" *ngIf="canApproveLevel2(report)"
+            (click)="openApprovalDialog(report, 'LEVEL2')" pTooltip="Approve (HR)" tooltipPosition="top">
+            <i class="pi pi-check-circle"></i>
+          </button>
+
+          <button class="btn-icon decline" *ngIf="canApproveLevel2(report)"
+            (click)="openDeclineDialog(report, 'LEVEL2')" pTooltip="Decline (HR)" tooltipPosition="top">
+            <i class="pi pi-times-circle"></i>
+          </button>
+
+          <button class="btn-icon delete" *ngIf="report.status === 'DRAFT' && report.employeeId === loggedEmpId"
+            (click)="deleteReport(report)" pTooltip="Delete" tooltipPosition="top">
+            <i class="pi pi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="12" style="text-align: center; padding: 2rem; color: #888;">No reports found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- ── FORM ──────────────────────────────────────────────────────────────── -->
+<app-weekly-tracker-form *ngIf="active === 'form'"
+  [report]="editReport" (close)="onFormClose()">
+</app-weekly-tracker-form>
+
+<!-- ── APPROVAL DIALOG ──────────────────────────────────────────────────── -->
+<p-dialog header="Approve Report" [(visible)]="approvalDialogVisible" [modal]="true"
+  [style]="{ width: '450px' }" [closable]="true">
+  <div class="dialog-body">
+    <div class="field">
+      <label>Rating (1-5)</label>
+      <p-select [options]="ratingOptions" [(ngModel)]="approvalRating" optionLabel="label" optionValue="value"
+        placeholder="Select Rating" [style]="{'width': '100%'}">
+      </p-select>
+    </div>
+    <div class="field">
+      <label>Note / Feedback</label>
+      <textarea pTextarea [(ngModel)]="approvalNote" rows="3" style="width: 100%"
+        placeholder="Optional feedback..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="approvalDialogVisible = false"></button>
+    <button pButton label="Approve" class="p-button-success" (click)="confirmApproval()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── DECLINE DIALOG ───────────────────────────────────────────────────── -->
+<p-dialog header="Decline Report" [(visible)]="declineDialogVisible" [modal]="true"
+  [style]="{ width: '450px' }" [closable]="true">
+  <div class="dialog-body">
+    <div class="field">
+      <label>Reason for Declining <span style="color:red">*</span></label>
+      <textarea pTextarea [(ngModel)]="declineReason" rows="3" style="width: 100%"
+        placeholder="Enter reason..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="declineDialogVisible = false"></button>
+    <button pButton label="Decline" class="p-button-danger" (click)="confirmDecline()"
+      [disabled]="!declineReason.trim()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── DETAIL VIEW DIALOG ───────────────────────────────────────────────── -->
+<p-dialog header="Weekly Report Details" [(visible)]="detailDialogVisible" [modal]="true"
+  [style]="{ width: '900px', maxHeight: '90vh' }" [closable]="true">
+  <div class="detail-body" *ngIf="detailReport">
+    <div class="detail-header">
+      <div class="detail-row">
+        <span class="detail-label">Employee:</span>
+        <span>{{ detailReport.employee?.firstName }} {{ detailReport.employee?.lastName }}
+          ({{ detailReport.employee?.employeeCode }})</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Department:</span>
+        <span>{{ detailReport.employee?.Department?.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Week:</span>
+        <span>{{ detailReport.weekLabel }} ({{ fmtDate(detailReport.weekStartDate) }} - {{ fmtDate(detailReport.weekEndDate) }})</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <span class="status-badge" [ngClass]="getStatusClass(detailReport.status)">{{ detailReport.status }}</span>
+      </div>
+      <div class="detail-row" *ngIf="detailReport.employeeSummary">
+        <span class="detail-label">Employee Summary:</span>
+        <span>{{ detailReport.employeeSummary }}</span>
+      </div>
+
+      <div class="approval-info">
+        <div class="approval-card" *ngIf="detailReport.inChargeDecision !== 'PENDING' || detailReport.inChargeRating">
+          <strong>Incharge:</strong> {{ detailReport.inChargeDecision }}
+          <span *ngIf="detailReport.inChargeRating"> | Rating: {{ detailReport.inChargeRating }}/5</span>
+          <p *ngIf="detailReport.inChargeNote" class="approval-note">{{ detailReport.inChargeNote }}</p>
+        </div>
+        <div class="approval-card" *ngIf="detailReport.hodDecision !== 'PENDING' || detailReport.hodRating">
+          <strong>Manager:</strong> {{ detailReport.hodDecision }}
+          <span *ngIf="detailReport.hodRating"> | Rating: {{ detailReport.hodRating }}/5</span>
+          <p *ngIf="detailReport.hodNote" class="approval-note">{{ detailReport.hodNote }}</p>
+        </div>
+        <div class="approval-card" *ngIf="detailReport.hrDecision !== 'PENDING' || detailReport.hrRating">
+          <strong>HR:</strong> {{ detailReport.hrDecision }}
+          <span *ngIf="detailReport.hrRating"> | Rating: {{ detailReport.hrRating }}/5</span>
+          <p *ngIf="detailReport.hrNote" class="approval-note">{{ detailReport.hrNote }}</p>
+        </div>
+      </div>
+    </div>
+
+    <h4 style="margin: 1rem 0 0.5rem; color: #333;">Tasks ({{ detailTasks.length }})</h4>
+    <p-table [value]="detailTasks" styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 40px">#</th>
+          <th>Date</th>
+          <th>Task</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>%</th>
+          <th>Assigned By</th>
+          <th>Deadline</th>
+          <th>Completed</th>
+          <th>Remarks</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-task let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ fmtDate(task.taskDate) }}</td>
+          <td>{{ task.taskDescription }}</td>
+          <td>{{ task.category || '-' }}</td>
+          <td><span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">{{ task.priority }}</span></td>
+          <td><span class="task-status-badge" [ngClass]="getTaskStatusClass(task.taskStatus)">{{ task.taskStatus?.replace('_', ' ') }}</span></td>
+          <td>{{ task.percentComplete }}%</td>
+          <td>{{ task.assignedByName || '-' }}</td>
+          <td>{{ fmtDate(task.deadline) || '-' }}</td>
+          <td>{{ fmtDate(task.completionDate) || '-' }}</td>
+          <td>{{ task.remarks || '-' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="11" style="text-align: center; color: #888;">No tasks added</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>

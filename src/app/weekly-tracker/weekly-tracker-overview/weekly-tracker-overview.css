@@ -1,0 +1,224 @@
+.over-view {
+  display: flex;
+  align-items: center;
+  padding: 0px 60px 0;
+  gap: 20px;
+}
+
+.guide {
+  padding: 0px 60px;
+  padding-top: 30px;
+}
+
+.sub-nav {
+  display: flex;
+  background: none;
+}
+
+.sub-nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+}
+
+.sub-item {
+  cursor: pointer;
+  padding-bottom: 0.2rem;
+  color: white;
+  position: relative;
+}
+
+.sub-item.active {
+  color: #FB9C2A;
+  font-feature-settings: "salt" on, "liga" off;
+  font-family: "Sofia Sans";
+  font-style: normal;
+}
+
+button {
+  display: flex;
+  height: 44px;
+  padding: 0 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.br {
+  border-right: 2px solid #828282;
+  height: 25px;
+}
+
+.filter-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: end;
+  flex: auto;
+}
+
+.table-container {
+  padding: 0 60px 30px;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-draft { background: #f0f0f0; color: #666; }
+.status-submitted { background: #fff3cd; color: #856404; }
+.status-approved { background: #d4edda; color: #155724; }
+.status-rejected { background: #f8d7da; color: #721c24; }
+
+/* Decision badges */
+.decision-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.decision-approved { background: #d4edda; color: #155724; }
+.decision-rejected { background: #f8d7da; color: #721c24; }
+.decision-pending { background: #e2e3e5; color: #383d41; }
+
+/* Priority badges */
+.priority-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.priority-critical { background: #f8d7da; color: #721c24; }
+.priority-high { background: #fff3cd; color: #856404; }
+.priority-medium { background: #d1ecf1; color: #0c5460; }
+.priority-low { background: #d4edda; color: #155724; }
+
+/* Task status badges */
+.task-status-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.task-completed { background: #d4edda; color: #155724; }
+.task-progress { background: #cce5ff; color: #004085; }
+.task-blocked { background: #f8d7da; color: #721c24; }
+.task-carried { background: #fff3cd; color: #856404; }
+.task-not-started { background: #e2e3e5; color: #383d41; }
+
+/* Action buttons */
+.action-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.view { background: #e3f2fd; color: #1565c0; }
+.btn-icon.edit { background: #fff3e0; color: #e65100; }
+.btn-icon.submit { background: #e8f5e9; color: #2e7d32; }
+.btn-icon.approve { background: #e8f5e9; color: #2e7d32; }
+.btn-icon.decline { background: #fce4ec; color: #c62828; }
+.btn-icon.delete { background: #fce4ec; color: #c62828; }
+
+/* Dialog */
+.dialog-body {
+  padding: 0.5rem 0;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Detail view */
+.detail-body {
+  padding: 0.5rem;
+}
+
+.detail-header {
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 120px;
+}
+
+.approval-info {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.approval-card {
+  background: #f8f9fa;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid #e0e0e0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.approval-note {
+  margin: 4px 0 0;
+  font-style: italic;
+  color: #666;
+  font-size: 12px;
+}
+
+::ng-deep .p-inputtext {
+  background: white !important;
+  font-family: "Sofia Sans";
+  color: black !important;
+}

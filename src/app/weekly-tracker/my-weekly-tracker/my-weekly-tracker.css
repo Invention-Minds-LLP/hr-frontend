@@ -1,0 +1,220 @@
+.tracker-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0 60px 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #333;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+}
+
+.task-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-header-right {
+  display: flex;
+  gap: 8px;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #333;
+  height: auto;
+  width: auto;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  border-color: #FB9C2A;
+  color: #FB9C2A;
+}
+
+.summary-note {
+  background: #f8f9fa;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-draft { background: #f0f0f0; color: #666; }
+.status-submitted { background: #fff3cd; color: #856404; }
+.status-approved { background: #d4edda; color: #155724; }
+.status-rejected { background: #f8d7da; color: #721c24; }
+
+.decision-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.decision-approved { background: #d4edda; color: #155724; }
+.decision-rejected { background: #f8d7da; color: #721c24; }
+.decision-pending { background: #e2e3e5; color: #383d41; }
+
+/* Priority */
+.priority-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.priority-critical { background: #f8d7da; color: #721c24; }
+.priority-high { background: #fff3cd; color: #856404; }
+.priority-medium { background: #d1ecf1; color: #0c5460; }
+.priority-low { background: #d4edda; color: #155724; }
+
+/* Task status */
+.task-status-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.task-completed { background: #d4edda; color: #155724; }
+.task-progress { background: #cce5ff; color: #004085; }
+.task-blocked { background: #f8d7da; color: #721c24; }
+.task-carried { background: #fff3cd; color: #856404; }
+.task-not-started { background: #e2e3e5; color: #383d41; }
+
+.carried-tag {
+  background: #fff3cd;
+  color: #856404;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* Action buttons */
+.action-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.view { background: #e3f2fd; color: #1565c0; }
+.btn-icon.edit { background: #fff3e0; color: #e65100; }
+.btn-icon.submit { background: #e8f5e9; color: #2e7d32; }
+.btn-icon.delete { background: #fce4ec; color: #c62828; }
+
+/* Dialog form */
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0.5rem 0;
+}
+
+.task-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 0.5rem 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.req { color: red; }
+
+/* Detail view */
+.detail-body {
+  padding: 0.5rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 80px;
+}
+
+.approval-info {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.approval-card {
+  background: #f8f9fa;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid #e0e0e0;
+  flex: 1;
+  min-width: 180px;
+}
+
+.approval-card .note {
+  margin: 4px 0 0;
+  font-style: italic;
+  color: #666;
+  font-size: 12px;
+}

@@ -259,3 +259,11 @@ label {
   color: white;
   z-index: 1;
 }
+
+::ng-deep .ng-invalid.ng-dirty .p-inputtext,
+::ng-deep .ng-invalid.ng-dirty .p-select,
+::ng-deep .p-inputtext.ng-invalid.ng-dirty,
+::ng-deep .p-select.ng-invalid.ng-dirty {
+  border-color: #f44336 !important;
+  box-shadow: 0 0 0 1px #f44336 !important;
+}

@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <p-card header="Manpower Requisition Form" class="requisition-container">
   <div class="btn">
     <button class="back-btn" (click)="goBack()">← Back</button>
@@ -10,7 +11,8 @@
         <div class="p-field col-6">
           <p-floatLabel variant="on">
             <label for="title">Job Title</label>
-            <input pInputText id="title" formControlName="title" />
+            <input pInputText id="title" formControlName="title"
+              [ngClass]="{'ng-invalid ng-dirty': requisitionForm.get('title')?.invalid && requisitionForm.get('title')?.touched}" />
           </p-floatLabel>
         </div>
 
@@ -18,7 +20,8 @@
           <p-floatLabel variant="on">
             <label for="departmentId">Department</label>
             <p-select [options]="departments" optionLabel="name" optionValue="id" id="departmentId"
-              formControlName="departmentId" [filter]="true">
+              formControlName="departmentId" [filter]="true"
+              [ngClass]="{'ng-invalid ng-dirty': requisitionForm.get('departmentId')?.invalid && requisitionForm.get('departmentId')?.touched}">
             </p-select>
           </p-floatLabel>
         </div>

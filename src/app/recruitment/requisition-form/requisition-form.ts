@@ -16,6 +16,7 @@ import { EditorModule } from 'primeng/editor';
 import { TextareaModule } from 'primeng/textarea';
 import { Departments } from '../../services/departments/departments';
 import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
 import { Footer } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 
@@ -24,7 +25,7 @@ import { MessageService } from 'primeng/api';
   selector: 'app-requisition-form',
   imports: [CommonModule, ReactiveFormsModule, CardModule, InputText, SelectModule,
     DatePickerModule, CheckboxModule, ButtonModule, PanelModule, FloatLabelModule,
-    TableModule, FormsModule, EditorModule, TextareaModule, DialogModule],
+    TableModule, FormsModule, EditorModule, TextareaModule, DialogModule, ToastModule],
   templateUrl: './requisition-form.html',
   styleUrl: './requisition-form.css',
   providers: [MessageService]
@@ -323,7 +324,31 @@ export class RequisitionForm {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to submit requisition.' });
         }
       });
+    } else {
+      this.requisitionForm.markAllAsTouched();
+      const missingFields = this.getMissingRequiredFields();
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Required Fields Missing',
+        detail: `Please fill in: ${missingFields.join(', ')}`
+      });
     }
+  }
+
+  private getMissingRequiredFields(): string[] {
+    const fieldLabels: { [key: string]: string } = {
+      title: 'Job Title',
+      departmentId: 'Department',
+      headcount: 'Headcount'
+    };
+    const missing: string[] = [];
+    Object.keys(this.requisitionForm.controls).forEach(key => {
+      const control = this.requisitionForm.get(key);
+      if (control?.errors?.['required']) {
+        missing.push(fieldLabels[key] || key);
+      }
+    });
+    return missing;
   }
 
 

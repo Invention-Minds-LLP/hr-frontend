@@ -61,8 +61,9 @@ export class Export {
       title: 'Employee',
       icon: 'people',
       items: [
-        { label: 'Employee Master (with all sub-details)', table: 'employee-master',    filename: 'Employee_Master' },
-        { label: 'Employee Addresses',                     table: 'employee-addresses', filename: 'Employee_Addresses' },
+        { label: 'Employee Master (with all sub-details)', table: 'employee-master',          filename: 'Employee_Master' },
+        { label: 'Consolidated Employee Details',          table: 'consolidated-employee',   filename: 'Consolidated_Employee_Details' },
+        { label: 'Employee Addresses',                     table: 'employee-addresses',      filename: 'Employee_Addresses' },
         { label: 'Emergency Contacts',                     table: 'emergency-contacts', filename: 'Emergency_Contacts' },
         { label: 'Qualifications',                         table: 'qualifications',     filename: 'Qualifications' },
         { label: 'Employee Documents',                     table: 'employee-documents', filename: 'Employee_Documents' },

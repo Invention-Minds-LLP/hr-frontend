@@ -1,0 +1,176 @@
+<p-toast></p-toast>
+
+<div class="form-container">
+  <div class="form-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="pi pi-arrow-left"></i> Back
+    </button>
+    <h3>{{ reportId ? 'Edit' : 'New' }} Weekly Performance Report</h3>
+    <span class="status-badge" *ngIf="reportId" [ngClass]="{
+      'status-draft': reportStatus === 'DRAFT',
+      'status-submitted': reportStatus === 'SUBMITTED',
+      'status-approved': reportStatus === 'APPROVED',
+      'status-rejected': reportStatus === 'REJECTED'
+    }">{{ reportStatus }}</span>
+  </div>
+
+  <!-- Report Details -->
+  <div class="report-section">
+    <div class="form-grid">
+      <div class="field">
+        <label>Week Start Date</label>
+        <p-datepicker [(ngModel)]="weekStartDate" dateFormat="dd-mm-yy" [showIcon]="true"
+          [disabled]="!!reportId" placeholder="Select start date" [style]="{'width': '100%'}">
+        </p-datepicker>
+      </div>
+      <div class="field">
+        <label>Week End Date</label>
+        <p-datepicker [(ngModel)]="weekEndDate" dateFormat="dd-mm-yy" [showIcon]="true"
+          [disabled]="!!reportId" placeholder="Select end date" [style]="{'width': '100%'}">
+        </p-datepicker>
+      </div>
+      <div class="field full-width">
+        <label>Weekly Summary / Comments</label>
+        <textarea pTextarea [(ngModel)]="employeeSummary" rows="3" style="width: 100%"
+          placeholder="Summarize your week's work, achievements, blockers..."
+          [disabled]="reportStatus !== 'DRAFT'"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button pButton [label]="reportId ? 'Update Report' : 'Create Report'" class="p-button-primary"
+        (click)="saveReport()" [loading]="saving" [disabled]="reportStatus !== 'DRAFT' && !!reportId">
+      </button>
+    </div>
+  </div>
+
+  <!-- Tasks Section (only after report is created) -->
+  <div class="tasks-section" *ngIf="reportId">
+    <div class="section-header">
+      <h4>Daily Tasks</h4>
+      <button pButton label="Add Task" icon="pi pi-plus" class="p-button-sm p-button-success"
+        (click)="openTaskDialog()" *ngIf="reportStatus === 'DRAFT'">
+      </button>
+    </div>
+
+    <p-table [value]="tasks" styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 40px">#</th>
+          <th>Date</th>
+          <th>Task Description</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>%</th>
+          <th>Deadline</th>
+          <th>Completed</th>
+          <th>Remarks</th>
+          <th style="width: 100px" *ngIf="reportStatus === 'DRAFT'">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-task let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ fmtDate(task.taskDate) }}</td>
+          <td>
+            {{ task.taskDescription }}
+            <span *ngIf="task.isCarriedForward" class="carried-tag">CF</span>
+          </td>
+          <td>{{ task.category || '-' }}</td>
+          <td><span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">{{ task.priority }}</span></td>
+          <td><span class="task-status-badge" [ngClass]="getTaskStatusClass(task.taskStatus)">{{ task.taskStatus?.replace('_', ' ') }}</span></td>
+          <td>{{ task.percentComplete }}%</td>
+          <td>{{ fmtDate(task.deadline) || '-' }}</td>
+          <td>{{ fmtDate(task.completionDate) || '-' }}</td>
+          <td>{{ task.remarks || '-' }}</td>
+          <td *ngIf="reportStatus === 'DRAFT'" class="action-cell">
+            <button class="btn-icon edit" (click)="openTaskDialog(task, i)">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button class="btn-icon delete" (click)="deleteTask(task)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="reportStatus === 'DRAFT' ? 11 : 10"
+            style="text-align: center; padding: 2rem; color: #888;">
+            No tasks added yet. Click "Add Task" to get started.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="form-actions" *ngIf="reportStatus === 'DRAFT' && tasks.length > 0">
+      <button pButton label="Submit for Approval" icon="pi pi-send" class="p-button-warning"
+        (click)="submitReport()">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TASK DIALOG ──────────────────────────────────────────────────────── -->
+<p-dialog [header]="editingTaskIndex !== null ? 'Edit Task' : 'Add Task'" [(visible)]="taskDialogVisible"
+  [modal]="true" [style]="{ width: '600px' }" [closable]="true">
+  <div class="task-form-grid">
+    <div class="field">
+      <label>Task Date <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="taskForm.taskDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        [style]="{'width': '100%'}"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Priority</label>
+      <p-select [options]="priorityOptions" [(ngModel)]="taskForm.priority"
+        optionLabel="label" optionValue="value" [style]="{'width': '100%'}"></p-select>
+    </div>
+    <div class="field full-width">
+      <label>Task Description <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="taskForm.taskDescription" rows="3" style="width: 100%"
+        placeholder="Describe the task..."></textarea>
+    </div>
+    <div class="field">
+      <label>Category / Project</label>
+      <input type="text" pInputText [(ngModel)]="taskForm.category" placeholder="e.g. Development, Admin..."
+        style="width: 100%" />
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <p-select [options]="taskStatusOptions" [(ngModel)]="taskForm.taskStatus"
+        optionLabel="label" optionValue="value" [style]="{'width': '100%'}"></p-select>
+    </div>
+    <div class="field">
+      <label>% Complete</label>
+      <input type="number" pInputText [(ngModel)]="taskForm.percentComplete" min="0" max="100"
+        style="width: 100%" />
+    </div>
+    <div class="field">
+      <label>Assigned By (Emp ID)</label>
+      <input type="number" pInputText [(ngModel)]="taskForm.assignedById" placeholder="Employee ID"
+        style="width: 100%" />
+    </div>
+    <div class="field">
+      <label>Deadline</label>
+      <p-datepicker [(ngModel)]="taskForm.deadline" dateFormat="dd-mm-yy" [showIcon]="true"
+        [style]="{'width': '100%'}"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Completion Date</label>
+      <p-datepicker [(ngModel)]="taskForm.completionDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        [style]="{'width': '100%'}"></p-datepicker>
+    </div>
+    <div class="field full-width">
+      <label>Remarks</label>
+      <textarea pTextarea [(ngModel)]="taskForm.remarks" rows="2" style="width: 100%"
+        placeholder="Any additional notes..."></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="taskDialogVisible = false"></button>
+    <button pButton [label]="editingTaskIndex !== null ? 'Update Task' : 'Add Task'" class="p-button-primary"
+      (click)="saveTask()"></button>
+  </ng-template>
+</p-dialog>

@@ -26,6 +26,7 @@ import { SurveyForm } from '../../survey/survey-form/survey-form';
 import { Leaves } from '../../services/leaves/leaves';
 import { Shifts } from '../../services/shifts/shifts';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
+import { MyWeeklyTracker } from '../../weekly-tracker/my-weekly-tracker/my-weekly-tracker';
 
 interface individual {
   date: string;
@@ -49,7 +50,7 @@ type LeaveTypeCount = { label: string; count: number; total: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SkeletonModule, SurveyForm, ModuleGuide],
+    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
