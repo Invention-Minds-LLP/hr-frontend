@@ -1,0 +1,238 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="masters-container">
+  <!-- Tab Navigation -->
+  <div class="tab-bar">
+    <button *ngFor="let tab of [
+      { key: 'departments', label: 'Departments', icon: 'pi-building' },
+      { key: 'branches', label: 'Branches', icon: 'pi-map-marker' },
+      { key: 'designations', label: 'Designations', icon: 'pi-id-card' },
+      { key: 'roles', label: 'Roles', icon: 'pi-users' },
+      { key: 'leaveTypes', label: 'Leave Types', icon: 'pi-calendar' },
+      { key: 'shiftTemplates', label: 'Shift Templates', icon: 'pi-clock' }
+    ]" class="tab-btn" [class.active]="activeTab === tab.key" (click)="switchTab($any(tab.key))">
+      <i class="pi" [ngClass]="tab.icon"></i>
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- Header with Add button -->
+  <div class="table-header">
+    <h4>{{ getTabLabel() }}s</h4>
+    <button pButton [label]="'Add ' + getTabLabel()" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openCreateDialog()"></button>
+  </div>
+
+  <!-- ── DEPARTMENTS TABLE ────────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'departments'" [value]="departments" [loading]="loading"
+    [paginator]="departments.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Department Name</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="3" class="empty-msg">No departments found</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ── BRANCHES TABLE ───────────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'branches'" [value]="branches" [loading]="loading"
+    [paginator]="branches.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Branch Name</th>
+        <th>Location</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.location || '-' }}</td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-msg">No branches found</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ── DESIGNATIONS TABLE ───────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'designations'" [value]="designations" [loading]="loading"
+    [paginator]="designations.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Designation Name</th>
+        <th style="width: 100px">Active</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td>
+          <span class="active-badge" [class.active]="item.isActive" [class.inactive]="!item.isActive">
+            {{ item.isActive ? 'Yes' : 'No' }}
+          </span>
+        </td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-msg">No designations found</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ── ROLES TABLE ──────────────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'roles'" [value]="roles" [loading]="loading"
+    [paginator]="roles.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Role Name</th>
+        <th>Description</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.description || '-' }}</td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-msg">No roles found</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ── LEAVE TYPES TABLE ────────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'leaveTypes'" [value]="leaveTypes" [loading]="loading"
+    [paginator]="leaveTypes.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Leave Type Name</th>
+        <th>Description</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.description || '-' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="3" class="empty-msg">No leave types found</td></tr>
+    </ng-template>
+  </p-table>
+    <!-- ── SHIFT TEMPLATES TABLE ──────────────────────────────────────────── -->
+  <p-table *ngIf="activeTab === 'shiftTemplates'" [value]="shiftTemplates" [loading]="loading"
+    [paginator]="shiftTemplates.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px">#</th>
+        <th>Shift Name</th>
+        <th>Shift Type</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th style="width: 120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td><span class="shift-type-badge">{{ item.shiftType }}</span></td>
+        <td>{{ item.startTime | date:'HH:mm' }}</td>
+        <td>{{ item.endTime | date:'HH:mm' }}</td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="6" class="empty-msg">No shift templates found</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+
+
+<!-- ── ADD / EDIT DIALOG ──────────────────────────────────────────────── -->
+<p-dialog [header]="dialogTitle" [(visible)]="dialogVisible" [modal]="true"
+  [style]="{ width: '450px' }" [closable]="true" >
+  <div class="dialog-form">
+    <div class="field">
+      <label>Name <span class="req">*</span></label>
+      <input type="text" pInputText [(ngModel)]="formName" style="width: 100%" placeholder="Enter name..." />
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'branches'">
+      <label>Location</label>
+      <input type="text" pInputText [(ngModel)]="formLocation" style="width: 100%" placeholder="Enter location..." />
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'roles'">
+      <label>Description</label>
+      <input type="text" pInputText [(ngModel)]="formDescription" style="width: 100%" placeholder="Enter description..." />
+    </div>
+
+    <div class="field toggle-field" *ngIf="activeTab === 'designations'">
+      <label>Active</label>
+      <p-toggleSwitch [(ngModel)]="formIsActive"></p-toggleSwitch>
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'shiftTemplates'">
+      <label>Shift Type <span class="req">*</span></label>
+      <select [(ngModel)]="formShiftType" class="form-select">
+        <option *ngFor="let opt of shiftTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'shiftTemplates'">
+      <label>Start Time <span class="req">*</span></label>
+      <input type="time" [(ngModel)]="formStartTime" class="form-input" />
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'shiftTemplates'">
+      <label>End Time <span class="req">*</span></label>
+      <input type="time" [(ngModel)]="formEndTime" class="form-input" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton [label]="isEditing ? 'Update' : 'Create'" class="p-button-primary" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
