@@ -183,12 +183,14 @@ export class Employees {
     return this.http.get<any[]>(`${this.apiUrl}/absent-without-leave`, { params });
   }
 
-  uploadExcel(file: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('file', file);
+uploadExcel(file: File, year: number, month: number) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('year', String(year));
+  formData.append('month', String(month));
 
-    return this.http.post(`${this.apiUrl}/bulk-upload`, formData);
-  }
+  return this.http.post<any>(`${this.apiUrl}/bulk-upload`, formData);
+}
   getDesignations(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/designation`);
   }

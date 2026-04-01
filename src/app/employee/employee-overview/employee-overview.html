@@ -92,6 +92,39 @@
         <div class="upload-section">
 
             <h2>Bulk Employee Excel Upload</h2>
+            <div class="filters">
+      <div class="field">
+        <label for="year">Year</label>
+        <input
+          id="year"
+          type="number"
+          [(ngModel)]="uploadYear"
+          min="2000"
+          max="2100"
+          placeholder="Enter year"
+        />
+      </div>
+
+      <div class="field">
+        <label for="month">Month</label>
+        <select id="month" [(ngModel)]="uploadMonth">
+          <option [ngValue]="null">Select month</option>
+          <option [ngValue]="1">January</option>
+          <option [ngValue]="2">February</option>
+          <option [ngValue]="3">March</option>
+          <option [ngValue]="4">April</option>
+          <option [ngValue]="5">May</option>
+          <option [ngValue]="6">June</option>
+          <option [ngValue]="7">July</option>
+          <option [ngValue]="8">August</option>
+          <option [ngValue]="9">September</option>
+          <option [ngValue]="10">October</option>
+          <option [ngValue]="11">November</option>
+          <option [ngValue]="12">December</option>
+        </select>
+      </div>
+    </div>
+
           
             <!-- Drag & Drop Zone -->
             <div
