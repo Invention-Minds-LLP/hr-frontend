@@ -1,7 +1,20 @@
+
+
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
-<div class="masters-container">
+<div class="masters-container master-table">
+  <div class="">
+  <app-module-guide
+    title="Masters"
+    subtitle="Manage core organizational data — departments, branches, designations, roles, leave types, shifts, and holidays."
+    [points]="[
+      { label: 'Organization Structure', desc: 'Create and manage departments, branches, and designations.' },
+      { label: 'Roles & Leave Types', desc: 'Define employee roles and configure leave type categories.' },
+      { label: 'Shifts & Holidays', desc: 'Set up shift templates and maintain holiday calendars by year.' }
+    ]">
+  </app-module-guide>
+</div>
   <!-- Tab Navigation -->
   <div class="tab-bar">
     <button *ngFor="let tab of [
@@ -10,7 +23,8 @@
       { key: 'designations', label: 'Designations', icon: 'pi-id-card' },
       { key: 'roles', label: 'Roles', icon: 'pi-users' },
       { key: 'leaveTypes', label: 'Leave Types', icon: 'pi-calendar' },
-      { key: 'shiftTemplates', label: 'Shift Templates', icon: 'pi-clock' }
+      { key: 'shiftTemplates', label: 'Shift Templates', icon: 'pi-clock' },
+      { key: 'holidays', label: 'Holidays', icon: 'pi-sun' }
     ]" class="tab-btn" [class.active]="activeTab === tab.key" (click)="switchTab($any(tab.key))">
       <i class="pi" [ngClass]="tab.icon"></i>
       {{ tab.label }}
@@ -185,9 +199,70 @@
       <tr><td colspan="6" class="empty-msg">No shift templates found</td></tr>
     </ng-template>
   </p-table>
+    <div *ngIf="activeTab === 'holidays'">
+    <!-- Year selector + Create calendar -->
+    <div class="holiday-controls">
+      <div class="year-selector">
+        <label>Year:</label>
+        <select [(ngModel)]="holidayYear" (change)="onHolidayYearChange()" class="form-select" style="width: 120px">
+          <option *ngFor="let y of [2024, 2025, 2026, 2027, 2028]" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+
+      <div class="create-calendar" *ngIf="!holidayCalendar">
+        <input type="text" pInputText [(ngModel)]="formCalendarName" placeholder="Calendar name (e.g. FY 2026)"
+          style="width: 220px" />
+        <button pButton label="Create Calendar" icon="pi pi-plus" class="p-button-sm p-button-success"
+          (click)="createCalendar()"></button>
+      </div>
+
+      <div *ngIf="holidayCalendar" class="calendar-info">
+        <span class="calendar-name">{{ holidayCalendar.name }}</span>
+        <span class="holiday-count">{{ holidays.length }} holidays</span>
+      </div>
+    </div>
+
+    <p-table [value]="holidays" [loading]="loading" [paginator]="holidays.length > 10" [rows]="10"
+      styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 60px">#</th>
+          <th>Holiday Name</th>
+          <th>Date</th>
+          <th>Description</th>
+          <th style="width: 100px">Optional</th>
+          <th style="width: 120px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.title }}</td>
+          <td>{{ item.date | date:'dd-MM-yyyy' }}</td>
+          <td>{{ item.description || '-' }}</td>
+          <td>
+            <span class="active-badge" [class.active]="item.isOptional" [class.inactive]="!item.isOptional">
+              {{ item.isOptional ? 'Yes' : 'No' }}
+            </span>
+          </td>
+          <td class="action-cell">
+            <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+            <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" class="empty-msg">
+          {{ holidayCalendar ? 'No holidays added yet' : 'Create a holiday calendar first' }}
+        </td></tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
 
 
+
+  <!-- ── HOLIDAYS TABLE ────────────────────────────────────────────────── -->
 
 <!-- ── ADD / EDIT DIALOG ──────────────────────────────────────────────── -->
 <p-dialog [header]="dialogTitle" [(visible)]="dialogVisible" [modal]="true"
@@ -228,6 +303,22 @@
     <div class="field" *ngIf="activeTab === 'shiftTemplates'">
       <label>End Time <span class="req">*</span></label>
       <input type="time" [(ngModel)]="formEndTime" class="form-input" />
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'holidays'">
+      <label>Date <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="formDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        [style]="{'width': '100%'}"></p-datepicker>
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'holidays'">
+      <label>Description</label>
+      <input type="text" pInputText [(ngModel)]="formDescription" style="width: 100%" placeholder="Optional description..." />
+    </div>
+
+    <div class="field toggle-field" *ngIf="activeTab === 'holidays'">
+      <label>Optional Holiday</label>
+      <p-toggleSwitch [(ngModel)]="formIsOptional"></p-toggleSwitch>
     </div>
   </div>
 

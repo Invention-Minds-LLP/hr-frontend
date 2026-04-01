@@ -75,8 +75,8 @@ export class Individual {
   wfhViewMode = false;
 
   // Holidays
-  nearestHoliday: { name: string; date: Date } | null = null;
-  holidayDates: { name: string; date: Date }[] = [];
+  nearestHoliday: { name: string; date: Date; isOptional?: boolean } | null = null;
+  holidayDates: { name: string; date: Date; isOptional?: boolean }[] = [];
   allHolidays: { name: string; date: string }[] = [];
 
   currentIndex = 0;
@@ -479,12 +479,13 @@ formatShiftDisplayTime(value: string | Date): string {
         // Map backend holidays to a usable format
         const allHolidays = (calendar.holidays || []).map((h: any) => ({
           name: h.title,
-          date: new Date(h.date)
+          date: new Date(h.date),
+          isOptional: h.isOptional || false
         }));
 
         // Keep only upcoming holidays
         const futureHolidays = allHolidays
-          .filter((h: { name: string; date: Date }) => h.date >= today)
+          .filter((h: { name: string; date: Date; isOptional?: boolean }) => h.date >= today)
           .sort((a: { name: string; date: Date }, b: { name: string; date: Date }) => a.date.getTime() - b.date.getTime());
 
         if (futureHolidays.length) {

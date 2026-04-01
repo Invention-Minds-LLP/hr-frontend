@@ -37,7 +37,10 @@
   border-color: #FB9C2A;
   color: white;
 }
-
+  .guide{
+    padding: 0px 60px;
+    padding-top: 30px;
+  }
 /* Table header bar */
 .table-header {
   display: flex;
@@ -153,6 +156,56 @@
   border-color: #FB9C2A;
 }
 
+/* Holiday controls */
+.holiday-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-family: "Sofia Sans";
+  font-weight: 600;
+}
+
+.year-selector .form-select {
+  width: 120px;
+}
+
+.create-calendar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-name {
+  color: #FB9C2A;
+  font-weight: 600;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+}
+
+.holiday-count {
+  background: #333;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* ── Table styles (matching app design) ─────────────────────────────── */
 ::ng-deep .p-datatable {
   border: none;
@@ -161,14 +214,14 @@
 
 /* Header Row */
 ::ng-deep .master-table .p-datatable .p-datatable-thead > tr > th {
-  background: #dcdcdc;
+  background: #dcdcdc !important;
   color: black;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 5px;
   border: none !important;
-  height: 60px;
-  text-align: center;
+  height: 60px !important;
+  text-align: center !important;
   text-wrap: nowrap;
   width: 5vw;
 }
@@ -190,7 +243,7 @@
   font-size: 16px;
   font-weight: 500;
   color: white;
-  text-align: left;
+  text-align: center !important;
   border: none !important;
   border-bottom: 2px solid #d9d9d9 !important;
   text-wrap: nowrap;

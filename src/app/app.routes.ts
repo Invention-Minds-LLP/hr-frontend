@@ -67,6 +67,7 @@ import { GeoTrackingOverview } from './geo-tracking/geo-tracking-overview/geo-tr
 import { Export } from './settings/export/export';
 import { PayrollOverview } from './payroll/payroll-overview/payroll-overview';
 import { WeeklyTrackerOverview } from './weekly-tracker/weekly-tracker-overview/weekly-tracker-overview';
+import { Masters } from './settings/masters/masters';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -105,6 +106,7 @@ export const routes: Routes = [
         { path: 'hr-corrections', component: HrCorrections, canActivate: [authGuard]},
         { path: 'payroll', component: PayrollOverview, canActivate: [authGuard]},
         { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard]},
+        { path: 'masters', component: Masters, canActivate: [authGuard]},
     ],
 
   },

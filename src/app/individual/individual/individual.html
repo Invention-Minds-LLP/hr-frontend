@@ -322,6 +322,9 @@
                         <div class="holiday-display">
                             <div class="holiday-date">{{ nearestHoliday?.date | date: 'dd-MM-yyyy' }}</div>
                             <div class="holiday-name">{{ nearestHoliday?.name }}</div>
+                            <span class="holiday-type-badge" [ngClass]="nearestHoliday?.isOptional ? 'rh-badge' : 'mandatory-badge'">
+                                {{ nearestHoliday?.isOptional ? 'RH (Optional)' : 'Mandatory' }}
+                            </span>
                         </div>
 
                         <span class="arrow next" [class.disabled]="currentIndex === holidayDates.length - 1"

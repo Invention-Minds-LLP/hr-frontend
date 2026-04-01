@@ -10,20 +10,23 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { Departments, Department } from '../../services/departments/departments';
 import { Branches, Branch } from '../../services/branches/branches';
 import { Designations, Designation } from '../../services/designations/designations';
 import { Roles, Role } from '../../services/roles/roles';
 import { Leaves } from '../../services/leaves/leaves';
 import { Shifts } from '../../services/shifts/shifts';
+import { Holidays } from '../../services/holidays/holidays';
+import { DatePickerModule } from 'primeng/datepicker';
 
-type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates';
+type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates' | 'holidays';
 
 @Component({
   selector: 'app-masters',
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, ToastModule,
-    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule
+    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, ModuleGuide
   ],
   templateUrl: './masters.html',
   styleUrl: './masters.css',
@@ -39,6 +42,9 @@ export class Masters implements OnInit {
   roles: Role[] = [];
   leaveTypes: any[] = [];
   shiftTemplates: any[] = [];
+  holidayCalendar: any = null;
+  holidays: any[] = [];
+  holidayYear = new Date().getFullYear();
 
   loading = false;
 
@@ -56,6 +62,10 @@ export class Masters implements OnInit {
   formShiftType = 'MORNING';
   formStartTime = '';
   formEndTime = '';
+  formDate: Date | null = null;
+  formCalendarYear: number = new Date().getFullYear();
+  formCalendarName = '';
+  formIsOptional = false;
 
   shiftTypeOptions = [
     { label: 'Morning', value: 'MORNING' },
@@ -72,6 +82,7 @@ export class Masters implements OnInit {
     private roleService: Roles,
     private leaveService: Leaves,
     private shiftService: Shifts,
+    private holidayService: Holidays,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -124,6 +135,16 @@ export class Masters implements OnInit {
           error: () => { this.showError('Failed to load shift templates'); this.loading = false; }
         });
         break;
+      case 'holidays':
+        this.holidayService.getHolidaysByYear(this.holidayYear).subscribe({
+          next: (data) => {
+            this.holidayCalendar = data;
+            this.holidays = data?.holidays || [];
+            this.loading = false;
+          },
+          error: () => { this.holidays = []; this.holidayCalendar = null; this.loading = false; }
+        });
+        break;
     }
   }
 
@@ -138,6 +159,9 @@ export class Masters implements OnInit {
     this.formShiftType = 'MORNING';
     this.formStartTime = '';
     this.formEndTime = '';
+    this.formDate = null;
+    this.formDescription = '';
+    this.formIsOptional = false;
     this.dialogTitle = `Add ${this.getTabLabel()}`;
     this.dialogVisible = true;
   }
@@ -145,13 +169,15 @@ export class Masters implements OnInit {
   openEditDialog(item: any) {
     this.isEditing = true;
     this.editingId = item.id;
-    this.formName = item.name || '';
+    this.formName = item.name || item.title || '';
     this.formLocation = item.location || '';
     this.formDescription = item.description || '';
     this.formIsActive = item.isActive !== undefined ? item.isActive : true;
     this.formShiftType = item.shiftType || 'MORNING';
     this.formStartTime = item.startTime ? this.toTimeString(item.startTime) : '';
     this.formEndTime = item.endTime ? this.toTimeString(item.endTime) : '';
+    this.formDate = item.date ? new Date(item.date) : null;
+    this.formIsOptional = item.isOptional ?? false;
     this.dialogTitle = `Edit ${this.getTabLabel()}`;
     this.dialogVisible = true;
   }
@@ -176,7 +202,26 @@ export class Masters implements OnInit {
       case 'roles': return 'Role';
       case 'leaveTypes': return 'Leave Type';
       case 'shiftTemplates': return 'Shift Template';
+      case 'holidays': return 'Holiday';
     }
+  }
+
+  onHolidayYearChange() {
+    this.loadData();
+  }
+
+  createCalendar() {
+    if (!this.formCalendarName.trim()) {
+      this.showWarn('Calendar name is required');
+      return;
+    }
+    this.holidayService.createCalendar({ year: this.formCalendarYear, name: this.formCalendarName }).subscribe({
+      next: () => {
+        this.onSaveSuccess('Holiday calendar created');
+        this.formCalendarName = '';
+      },
+      error: (e) => this.onSaveError(e)
+    });
   }
 
   // ── Save (Create / Update) ─────────────────────────────────────────────
@@ -278,13 +323,41 @@ export class Masters implements OnInit {
           });
         }
         break;
+
+      case 'holidays':
+        if (!this.formDate) {
+          this.showWarn('Date is required');
+          return;
+        }
+        const holidayPayload = {
+          title: this.formName,
+          date: this.formDate.toISOString(),
+          description: this.formDescription || undefined,
+          isOptional: this.formIsOptional,
+        };
+        if (this.isEditing) {
+          this.holidayService.updateHoliday(this.editingId!, holidayPayload).subscribe({
+            next: () => { this.onSaveSuccess('Holiday updated'); },
+            error: (e) => this.onSaveError(e)
+          });
+        } else {
+          if (!this.holidayCalendar?.id) {
+            this.showWarn('Create a holiday calendar first');
+            return;
+          }
+          this.holidayService.addHoliday(this.holidayCalendar.id, holidayPayload).subscribe({
+            next: () => { this.onSaveSuccess('Holiday added'); },
+            error: (e) => this.onSaveError(e)
+          });
+        }
+        break;
     }
   }
 
   // ── Delete ─────────────────────────────────────────────────────────────
   confirmDelete(item: any) {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete "${item.name}"?`,
+      message: `Are you sure you want to delete "${item.name || item.title}"?`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => this.deleteItem(item),
@@ -319,6 +392,12 @@ export class Masters implements OnInit {
         break;
       case 'shiftTemplates':
         this.shiftService.deleteShiftTemplate(item.id).subscribe({
+          next: () => this.onDeleteSuccess(),
+          error: (e) => this.onDeleteError(e)
+        });
+        break;
+      case 'holidays':
+        this.holidayService.deleteHoliday(item.id).subscribe({
           next: () => this.onDeleteSuccess(),
           error: (e) => this.onDeleteError(e)
         });
