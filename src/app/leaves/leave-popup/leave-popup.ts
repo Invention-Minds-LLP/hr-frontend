@@ -460,7 +460,7 @@ export class LeavePopup {
 
     // RH uses request count, not balance table
     if (this.leaveType === 'RH') {
-      this.remainingLeave = Math.max(0, this.rhTotal - this.rhUsedCount);
+      this.remainingLeave = Math.max(0, 2 - this.rhUsedCount);
       if (this.remainingLeave <= 0) {
         this.messageService.add({
           severity: 'error',
@@ -813,11 +813,11 @@ export class LeavePopup {
 
     // 🔴 RH validation
     if (this.leaveType === 'RH') {
-      if (this.rhUsedCount >= this.rhTotal) {
+      if (this.rhUsedCount >= 2) {
         this.messageService.add({
           severity: 'error',
           summary: 'RH Limit Reached',
-          detail: `You have already used all ${this.rhTotal} Restricted Holidays this year.`
+          detail: 'You have already used 2 Restricted Holidays this year.'
         });
         return;
       }

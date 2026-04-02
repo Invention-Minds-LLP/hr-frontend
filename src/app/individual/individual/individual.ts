@@ -390,10 +390,11 @@ formatShiftDisplayTime(value: string | Date): string {
           l.leaveType?.name === 'RH' &&
           (l.status === 'PENDING' || l.status === 'APPROVED')
         ).length;
+        const rhAllowed = 2;
         const rhEntry: LeaveTypeCount = {
           label: 'RH',
-          count: Math.max(0, optionalHolidayCount - rhUsed),
-          total: optionalHolidayCount
+          count: Math.max(0, rhAllowed - rhUsed),
+          total: rhAllowed
         };
         const rhPosition = this.leaveByTypeToday.findIndex(
           (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('RH')
