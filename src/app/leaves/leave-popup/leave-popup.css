@@ -571,3 +571,30 @@ hr {
     font-size: 18px;
   }
 }
+
+/* Balance display */
+.balance-info {
+  align-items: center;
+}
+
+.balance-display {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4caf50;
+  font-family: "Sofia Sans";
+}
+
+.balance-display.low {
+  color: #FB9C2A;
+}
+
+.balance-sep {
+  color: #888;
+  margin: 0 2px;
+}
+
+.balance-unit {
+  font-size: 13px;
+  font-weight: 500;
+  color: #888;
+}

@@ -1,0 +1,253 @@
+<div class="guide">
+  <app-module-guide
+    title="Weekly Performance Rating"
+    [subtitle]="isHRManager ? 'View weekly performance ratings submitted by managers across all departments.' : 'Rate your team members weekly on predefined criteria (1-10 scale).'"
+    [points]="[
+      { label: 'Weekly Rating', desc: 'Rate each team member on active questions every week. Score 1-10 per question.' },
+      { label: 'Overall Score', desc: 'Auto-calculated average of all question scores.' },
+      { label: 'Questions', desc: '5 default questions + up to 5 custom. Deactivate or add as needed.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+
+<div class="page-container weekly-rating-overview">
+  <!-- Tab bar -->
+  <div class="controls">
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'team'" (click)="activeTab = 'team'; loadTeam()"
+        *ngIf="isManager || isHRManager">
+        My Team
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'allRatings'" (click)="activeTab = 'allRatings'; loadAllRatings()"
+        *ngIf="isHRManager">
+        All Ratings
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'questions'" (click)="activeTab = 'questions'"
+        *ngIf="isHRManager || isManager">
+        Manage Questions
+      </button>
+    </div>
+
+    <div class="week-selector">
+      <label>Week Start:</label>
+      <p-datepicker [(ngModel)]="weekStartDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        iconDisplay="input" (onSelect)="onWeekChange()" [style]="{'width':'180px'}" appendTo="body">
+      </p-datepicker>
+      <span class="week-end">to {{ weekEndDate | date:'dd-MM-yyyy' }}</span>
+    </div>
+  </div>
+
+  <!-- ── TEAM TAB ──────────────────────────────────────────────────── -->
+  <div *ngIf="activeTab === 'team'">
+    <p-table [value]="team" [loading]="loading" styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Emp Code</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Status</th>
+          <th>Score</th>
+          <th style="width:120px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-emp let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ emp.employeeCode }}</td>
+          <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+          <td>{{ emp.Department?.name || '-' }}</td>
+          <td>{{ emp.designation?.name || '-' }}</td>
+          <td>
+            <span *ngIf="emp.rating" class="status-badge" [class.submitted]="emp.rating.status === 'SUBMITTED'" [class.draft]="emp.rating.status === 'DRAFT'">
+              {{ emp.rating.status }}
+            </span>
+            <span *ngIf="!emp.rating" class="status-badge not-rated">Not Rated</span>
+          </td>
+          <td>
+            <span *ngIf="emp.rating?.overallScore" class="score-badge" [ngClass]="getScoreClass(emp.rating.overallScore)">
+              {{ emp.rating.overallScore }}/10
+            </span>
+            <span *ngIf="!emp.rating?.overallScore">-</span>
+          </td>
+          <td class="action-cell">
+            <button class="btn-icon edit" (click)="openRatingDialog(emp)" pTooltip="Rate" tooltipPosition="top">
+              <i class="pi pi-star"></i>
+            </button>
+            <button class="btn-icon view" *ngIf="emp.rating" (click)="viewRatingDetail(emp)" pTooltip="View" tooltipPosition="top">
+              <i class="pi pi-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="8" class="empty-msg">No team members found</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ── ALL RATINGS TAB (HR) ──────────────────────────────────────── -->
+  <div *ngIf="activeTab === 'allRatings'">
+    <p-table [value]="allRatings" [loading]="loading" [paginator]="allRatings.length > 15" [rows]="15"
+      styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Emp Code</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Week</th>
+          <th>Rated By</th>
+          <th>Overall Score</th>
+          <th>Status</th>
+          <th style="width:80px">View</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-r let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ r.employee?.employeeCode }}</td>
+          <td>{{ r.employee?.firstName }} {{ r.employee?.lastName }}</td>
+          <td>{{ r.employee?.Department?.name || '-' }}</td>
+          <td>{{ r.weekLabel }}</td>
+          <td>{{ r.ratedByName }}</td>
+          <td>
+            <span class="score-badge" [ngClass]="getScoreClass(r.overallScore)">{{ r.overallScore }}/10</span>
+          </td>
+          <td>
+            <span class="status-badge" [class.submitted]="r.status === 'SUBMITTED'" [class.draft]="r.status === 'DRAFT'">
+              {{ r.status }}
+            </span>
+          </td>
+          <td class="action-cell">
+            <button class="btn-icon view" (click)="viewRatingDetail(r)" pTooltip="View Details">
+              <i class="pi pi-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="9" class="empty-msg">No ratings found for this week</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ── QUESTIONS TAB ─────────────────────────────────────────────── -->
+  <div *ngIf="activeTab === 'questions'" class="questions-section">
+    <div class="q-header">
+      <h4>Rating Questions</h4>
+      <div class="q-header-actions">
+        <select [(ngModel)]="selectedDesignationId" (change)="onDesignationFilter()" class="form-input">
+          <option [ngValue]="null">All Designations</option>
+          <option *ngFor="let d of designations" [ngValue]="d.id">{{ d.name }}</option>
+        </select>
+        <button pButton label="Seed Defaults" icon="pi pi-refresh" class="p-button-sm p-button-text"
+          (click)="seedDefaults()"></button>
+      </div>
+    </div>
+
+    <div class="q-list">
+      <div class="q-item" *ngFor="let q of questions; let i = index" [class.inactive]="!q.isActive">
+        <span class="q-order">{{ i + 1 }}</span>
+        <span class="q-text">{{ q.text }}</span>
+        <span class="q-badge default" *ngIf="q.isDefault">Default</span>
+        <span class="q-badge custom" *ngIf="!q.isDefault">{{ q.designation?.name || 'Custom' }}</span>
+        <span class="q-badge" [class.active-badge]="q.isActive" [class.inactive-badge]="!q.isActive">
+          {{ q.isActive ? 'Active' : 'Inactive' }}
+        </span>
+        <button class="btn-icon toggle" (click)="toggleQ(q)" [pTooltip]="q.isActive ? 'Deactivate' : 'Activate'">
+          <i class="pi" [ngClass]="q.isActive ? 'pi-eye-slash' : 'pi-eye'"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="q-add">
+      <select [(ngModel)]="selectedDesignationId" class="form-input" style="min-width: 160px">
+        <option [ngValue]="null" disabled>Select Designation</option>
+        <option *ngFor="let d of designations" [ngValue]="d.id">{{ d.name }}</option>
+      </select>
+      <input type="text" pInputText [(ngModel)]="newQuestionText" placeholder="Enter new question..."
+        style="flex: 1" />
+      <button pButton label="Add" icon="pi pi-plus" class="p-button-sm p-button-success"
+        (click)="addQuestion()" [disabled]="!selectedDesignationId"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RATING DIALOG ───────────────────────────────────────────────── -->
+<p-dialog header="Rate Employee" [(visible)]="ratingDialogVisible" [modal]="true"
+  [style]="{ width: '600px', maxHeight: '85vh' }" [closable]="true">
+  <div class="rating-form" *ngIf="ratingEmployee">
+    <div class="rating-header">
+      <strong>{{ ratingEmployee.firstName }} {{ ratingEmployee.lastName }}</strong>
+      <span>({{ ratingEmployee.employeeCode }})</span>
+      <span class="overall-score" [ngClass]="getScoreClass(getOverallScore())">
+        Overall: {{ getOverallScore() }}/10
+      </span>
+    </div>
+
+    <div class="rating-questions">
+      <div class="rq-item" *ngFor="let a of ratingAnswers; let i = index">
+        <div class="rq-header">
+          <span class="rq-num">{{ i + 1 }}.</span>
+          <span class="rq-text">{{ a.text }}</span>
+          <span class="rq-score" [ngClass]="getScoreClass(a.score)">{{ a.score }}/10</span>
+        </div>
+        <div class="rq-slider">
+          <input type="range" min="1" max="10" [(ngModel)]="a.score" class="slider" />
+          <div class="rq-labels">
+            <span>1</span><span>5</span><span>10</span>
+          </div>
+        </div>
+        <input type="text" pInputText [(ngModel)]="a.remarks" placeholder="Remarks (optional)"
+          class="rq-remarks" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Manager Remarks</label>
+      <textarea pTextarea [(ngModel)]="managerRemarks" rows="2" style="width: 100%"
+        placeholder="Overall comments..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Save Draft" class="p-button-text" (click)="submitRating(true)"></button>
+    <button pButton label="Submit" class="p-button-success" (click)="submitRating(false)"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── VIEW RATING DIALOG ──────────────────────────────────────────── -->
+<p-dialog header="Rating Details" [(visible)]="viewDialogVisible" [modal]="true"
+  [style]="{ width: '600px', maxHeight: '85vh' }" [closable]="true">
+  <div *ngIf="viewRating" class="view-body">
+    <div class="info-row">
+      <span class="info-label">Employee:</span>
+      <span>{{ viewRating.employee?.firstName }} {{ viewRating.employee?.lastName }} ({{ viewRating.employee?.employeeCode }})</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Week:</span>
+      <span>{{ viewRating.weekLabel }} ({{ fmtDate(viewRating.weekStartDate) }} - {{ fmtDate(viewRating.weekEndDate) }})</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Overall Score:</span>
+      <span class="score-badge" [ngClass]="getScoreClass(viewRating.overallScore)">{{ viewRating.overallScore }}/10</span>
+    </div>
+    <div class="info-row" *ngIf="viewRating.managerRemarks">
+      <span class="info-label">Remarks:</span>
+      <span>{{ viewRating.managerRemarks }}</span>
+    </div>
+
+    <h4 style="margin: 1rem 0 0.5rem; color: #333;">Scores</h4>
+    <div class="score-list">
+      <div class="score-item" *ngFor="let a of viewRating.answers; let i = index">
+        <span class="score-num">{{ i + 1 }}.</span>
+        <span class="score-text">{{ a.question?.text }}</span>
+        <span class="score-value" [ngClass]="getScoreClass(a.score)">{{ a.score }}/10</span>
+        <span class="score-remarks" *ngIf="a.remarks">{{ a.remarks }}</span>
+      </div>
+    </div>
+  </div>
+</p-dialog>

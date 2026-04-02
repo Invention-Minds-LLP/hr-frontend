@@ -1,0 +1,117 @@
+.guide { padding: 0px 60px; padding-top: 30px; }
+.page-container { padding: 20px 60px 40px; }
+
+.controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.tab-bar { display: flex; gap: 8px; }
+.tab-btn { padding: 10px 20px; border: 1px solid #555; border-radius: 8px; background: transparent; color: white; font-family: "Sofia Sans"; font-size: 14px; font-weight: 600; cursor: pointer; height: auto; }
+.tab-btn:hover { border-color: #FB9C2A; color: #FB9C2A; }
+.tab-btn.active { background: #FB9C2A; border-color: #FB9C2A; color: white; }
+
+.week-selector { display: flex; align-items: center; gap: 8px; color: white; font-family: "Sofia Sans"; font-weight: 600; }
+.week-end { color: #888; font-size: 13px; }
+.form-input { padding: 8px 12px; border: 1px solid #555; border-radius: 6px; font-family: "Sofia Sans"; font-size: 14px; color: white; background: #1a1a1a; outline: none; }
+
+/* Status badges */
+.status-badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; background: #e2e3e5; color: #383d41; }
+.status-badge.submitted { background: #d4edda; color: #155724; }
+.status-badge.draft { background: #fff3cd; color: #856404; }
+.status-badge.not-rated { background: #f8d7da; color: #721c24; }
+
+/* Score badges */
+.score-badge { padding: 3px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+.score-high { background: #d4edda; color: #155724; }
+.score-mid { background: #fff3cd; color: #856404; }
+.score-low { background: #f8d7da; color: #721c24; }
+
+/* Action buttons */
+.action-cell { display: flex; gap: 6px; align-items: center; }
+.btn-icon { width: 32px; height: 32px; padding: 0; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.edit { background: #fff3e0; color: #e65100; }
+.btn-icon.view { background: #e3f2fd; color: #1565c0; }
+.btn-icon.toggle { background: #e2e3e5; color: #383d41; }
+.btn-icon.delete { background: #fce4ec; color: #c62828; }
+.empty-msg { text-align: center; padding: 2rem; color: #888; }
+
+/* Questions section */
+.questions-section { background: #111; border-radius: 10px; padding: 24px; }
+.q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.q-header h4 { margin: 0; color: white; font-family: "Sofia Sans"; font-size: 18px; }
+.q-header-actions { display: flex; align-items: center; gap: 8px; }
+.q-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.q-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; }
+.q-item.inactive { opacity: 0.5; }
+.q-order { color: #888; font-weight: 600; min-width: 24px; }
+.q-text { flex: 1; color: white; font-family: "Sofia Sans"; font-size: 15px; }
+.q-badge { padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+.q-badge.default { background: #e3f2fd; color: #1565c0; }
+.q-badge.custom { background: #fff3e0; color: #e65100; }
+.q-badge.active-badge { background: #d4edda; color: #155724; }
+.q-badge.inactive-badge { background: #f8d7da; color: #721c24; }
+.q-add { display: flex; gap: 8px; align-items: center; }
+
+/* Rating dialog — dark theme */
+::ng-deep .weekly-rating-overview .p-dialog {
+  background: #1a1a1a !important;
+}
+::ng-deep .weekly-rating-overview .p-dialog .p-dialog-content {
+  background: #1a1a1a !important;
+  color: white !important;
+}
+::ng-deep .weekly-rating-overview .p-dialog .p-dialog-footer {
+  background: #1a1a1a !important;
+}
+::ng-deep .weekly-rating-overview .p-dialog .p-dialog-header {
+  background: #111 !important;
+  color: white !important;
+}
+
+.rating-form { padding: 0.5rem 0; }
+.rating-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 16px; color: white; }
+.overall-score { margin-left: auto; padding: 4px 12px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+.rating-questions { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+.rq-item { background: #222; border-radius: 8px; padding: 12px 16px; border: 1px solid #333; }
+.rq-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.rq-num { font-weight: 700; color: #888; }
+.rq-text { flex: 1; font-weight: 600; color: white; }
+.rq-score { padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.rq-slider { margin-bottom: 6px; }
+.slider { width: 100%; cursor: pointer; accent-color: #FB9C2A; }
+.rq-labels { display: flex; justify-content: space-between; font-size: 11px; color: #666; }
+.rq-remarks { width: 100%; padding: 6px 10px; border: 1px solid #444; border-radius: 6px; font-size: 13px; margin-top: 4px; background: #111; color: white; }
+.field { margin-bottom: 14px; }
+.field label { display: block; margin-bottom: 6px; font-weight: 600; color: #ccc; font-size: 14px; }
+
+::ng-deep .weekly-rating-overview .p-dialog textarea {
+  background: #111 !important;
+  color: white !important;
+  border: 1px solid #444 !important;
+}
+
+/* View dialog */
+.view-body { padding: 0.5rem; color: white; }
+.info-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 14px; }
+.info-label { font-weight: 600; color: #999; min-width: 100px; }
+.score-list { display: flex; flex-direction: column; gap: 8px; }
+.score-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #222; border-radius: 6px; border: 1px solid #333; }
+.score-num { font-weight: 700; color: #888; min-width: 24px; }
+.score-text { flex: 1; font-weight: 500; color: white; }
+.score-value { padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.score-remarks { font-size: 12px; color: #888; font-style: italic; }
+
+/* Table styles */
+::ng-deep .p-datatable { border: none; background: transparent; }
+::ng-deep .weekly-rating-overview .p-datatable .p-datatable-thead > tr > th {
+  background: #dcdcdc; color: black; font-size: 16px; font-weight: 600; padding: 16px 5px; border: none !important; height: 60px; text-align: center; text-wrap: nowrap; width: 5vw;
+}
+::ng-deep .weekly-rating-overview .p-datatable .p-datatable-thead > tr > th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+::ng-deep .weekly-rating-overview .p-datatable .p-datatable-thead > tr > th:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+::ng-deep .weekly-rating-overview .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important; padding: 16px 20px; font-size: 16px; font-weight: 500; color: white; text-align: center; border: none !important; border-bottom: 2px solid #d9d9d9 !important; text-wrap: nowrap;
+}
+::ng-deep .weekly-rating-overview .p-datatable .p-datatable-tbody > tr:hover > td { background: #1a1a1a !important; }
+::ng-deep .weekly-rating-overview .p-paginator { display: flex; justify-content: center; gap: 4px; margin-top: 1rem; padding: 0.5rem; background: transparent; border: none; }
+::ng-deep .weekly-rating-overview .p-paginator .p-paginator-page, ::ng-deep .weekly-rating-overview .p-paginator .p-paginator-first, ::ng-deep .weekly-rating-overview .p-paginator .p-paginator-prev, ::ng-deep .weekly-rating-overview .p-paginator .p-paginator-next, ::ng-deep .weekly-rating-overview .p-paginator .p-paginator-last { width: 40px; height: 40px; border-radius: 8px; background: #fff; color: #333; font-weight: 600; font-size: 13px; border: none; }
+::ng-deep .weekly-rating-overview .p-paginator .p-paginator-page.p-highlight { background: #FB9C2A !important; color: white !important; }
+::ng-deep .p-textarea{ background-color: transparent !important;color: #FFF !important}
+::ng-deep .p-datepicker .p-inputtext{ width: 100% !important;color:#FFF !important}

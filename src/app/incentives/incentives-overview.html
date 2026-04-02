@@ -1,0 +1,106 @@
+<div class="guide">
+  <app-module-guide title="Incentives"
+    subtitle="Manage employee incentives — bonuses, performance rewards, festival payouts, and referral bonuses."
+    [points]="[
+      { label: 'Add Incentive', desc: 'Create incentive entries with type, amount, and effective date.' },
+      { label: 'Track Status', desc: 'Move incentives through Pending, Approved, Paid, or Cancelled stages.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-container incentives-overview">
+  <div class="controls">
+    <button pButton label="Add Incentive" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openDialog()"></button>
+  </div>
+
+  <p-table [value]="incentives" [loading]="loading" [paginator]="incentives.length > 15" [rows]="15"
+    styleClass="p-datatable-sm" [scrollable]="true" >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Effective Date</th>
+        <th>Status</th>
+        <th>Paid On</th>
+        <th>Description</th>
+        <th style="width:120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.employee?.employeeCode }}</td>
+        <td>{{ item.employee?.firstName }} {{ item.employee?.lastName }}</td>
+        <td>{{ item.employee?.Department?.name || '-' }}</td>
+        <td>{{ item.type }}</td>
+        <td>{{ item.amount | number:'1.2-2' }}</td>
+        <td>{{ fmtDate(item.effectiveDate) }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
+        </td>
+        <td>{{ fmtDate(item.paidOn) || '-' }}</td>
+        <td>{{ item.description || '-' }}</td>
+        <td class="action-cell">
+          <button class="btn-icon edit" (click)="openStatusDialog(item)" pTooltip="Update Status"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="11" class="empty-msg">No incentives found</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Add Incentive" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '480px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Employee <span class="req">*</span></label>
+      <p-autoComplete [(ngModel)]="selectedEmployee" [suggestions]="filteredEmployees"
+        (completeMethod)="searchEmployees($event)" optionLabel="displayName" [dropdown]="true"
+        placeholder="Search employee..." [style]="{'width':'100%'}" appendTo="body">
+      </p-autoComplete>
+    </div>
+    <div class="field">
+      <label>Type <span class="req">*</span></label>
+      <p-select [options]="typeOptions" [(ngModel)]="formType" optionLabel="label" optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+    <div class="field">
+      <label>Amount <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="formAmount" style="width: 100%" placeholder="Amount" />
+    </div>
+    <div class="field">
+      <label>Effective Date <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="formEffectiveDate" dateFormat="dd-mm-yy" [showIcon]="true" [style]="{'width':'100%'}"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea pTextarea [(ngModel)]="formDescription" rows="2" style="width: 100%"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Create" class="p-button-success" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Update Status" [(visible)]="statusDialogVisible" [modal]="true" [style]="{ width: '350px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Status</label>
+      <p-select [options]="statusOptions" [(ngModel)]="statusValue" optionLabel="label" optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="statusDialogVisible = false"></button>
+    <button pButton label="Update" class="p-button-primary" (click)="updateStatus()"></button>
+  </ng-template>
+</p-dialog>

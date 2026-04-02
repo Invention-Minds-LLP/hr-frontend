@@ -1,0 +1,187 @@
+<div class="guide">
+  <app-module-guide title="Loans & Advances"
+    subtitle="Manage employee salary advances, personal loans, and emergency loans with EMI tracking."
+    [points]="[
+      { label: 'Apply Loan', desc: 'Create loan entries with principal, interest rate, tenure, and auto-calculated EMI.' },
+      { label: 'Track Repayments', desc: 'Record monthly repayments and track outstanding balance until closure.' },
+      { label: 'Loan Lifecycle', desc: 'Manage loans through Pending, Approved, Active, Closed, or Rejected stages.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-container loans-overview">
+  <div class="controls">
+    <button pButton label="Add Loan" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openDialog()"></button>
+  </div>
+
+  <p-table [value]="loans" [loading]="loading" [paginator]="loans.length > 15" [rows]="15"
+    styleClass="p-datatable-sm" [scrollable]="true" >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Loan Type</th>
+        <th>Principal</th>
+        <th>Interest %</th>
+        <th>Tenure</th>
+        <th>EMI</th>
+        <th>Repaid</th>
+        <th>Outstanding</th>
+        <th>Status</th>
+        <th style="width:160px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.employee?.employeeCode }}</td>
+        <td>{{ item.employee?.firstName }} {{ item.employee?.lastName }}</td>
+        <td>{{ item.loanType?.replace('_', ' ') }}</td>
+        <td>{{ item.principalAmount | number:'1.2-2' }}</td>
+        <td>{{ item.interestRate }}%</td>
+        <td>{{ item.tenure }} months</td>
+        <td>{{ item.emiAmount | number:'1.2-2' }}</td>
+        <td>{{ item.totalRepaid | number:'1.2-2' }}</td>
+        <td>
+          <span [class.outstanding-high]="item.outstandingBalance > 0">
+            {{ item.outstandingBalance | number:'1.2-2' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
+        </td>
+        <td class="action-cell">
+          <button class="btn-icon view" (click)="viewDetail(item)" pTooltip="View Details"><i class="pi pi-eye"></i></button>
+          <button class="btn-icon edit" (click)="openStatusDialog(item)" pTooltip="Update Status"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon repay" *ngIf="item.status === 'ACTIVE'" (click)="openRepayDialog(item)" pTooltip="Add Repayment">
+            <i class="pi pi-indian-rupee"></i>
+          </button>
+          <button class="btn-icon delete" *ngIf="item.status === 'PENDING'" (click)="confirmDelete(item)" pTooltip="Delete">
+            <i class="pi pi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="12" class="empty-msg">No loans found</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Create Loan -->
+<p-dialog header="Add Loan" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '500px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Employee <span class="req">*</span></label>
+      <p-autoComplete [(ngModel)]="selectedEmployee" [suggestions]="filteredEmployees"
+        (completeMethod)="searchEmployees($event)" optionLabel="displayName" [dropdown]="true"
+        placeholder="Search employee..." [style]="{'width':'100%'}" appendTo="body">
+      </p-autoComplete>
+    </div>
+    <div class="field">
+      <label>Loan Type <span class="req">*</span></label>
+      <p-select [options]="loanTypeOptions" [(ngModel)]="formLoanType" optionLabel="label" optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+    <div class="field">
+      <label>Principal Amount <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="formPrincipal" style="width: 100%" placeholder="Amount" />
+    </div>
+    <div class="field">
+      <label>Interest Rate (%)</label>
+      <input type="number" pInputText [(ngModel)]="formInterestRate" style="width: 100%" placeholder="0 for interest-free" />
+    </div>
+    <div class="field">
+      <label>Tenure (months) <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="formTenure" style="width: 100%" placeholder="Number of months" />
+    </div>
+    <div class="field">
+      <label>Reason</label>
+      <textarea pTextarea [(ngModel)]="formReason" rows="2" style="width: 100%"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Create" class="p-button-success" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Update Status -->
+<p-dialog header="Update Loan Status" [(visible)]="statusDialogVisible" [modal]="true" [style]="{ width: '350px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Status</label>
+      <p-select [options]="statusOptions" [(ngModel)]="statusValue" optionLabel="label" optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="statusDialogVisible = false"></button>
+    <button pButton label="Update" class="p-button-primary" (click)="updateStatus()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Add Repayment -->
+<p-dialog header="Record Repayment" [(visible)]="repayDialogVisible" [modal]="true" [style]="{ width: '450px' }">
+  <div class="dialog-form" *ngIf="repayLoan">
+    <div class="info-row"><span class="info-label">Outstanding:</span><span>{{ repayLoan.outstandingBalance | number:'1.2-2' }}</span></div>
+    <div class="info-row"><span class="info-label">EMI Amount:</span><span>{{ repayLoan.emiAmount | number:'1.2-2' }}</span></div>
+    <div class="field">
+      <label>Amount <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="repayAmount" style="width: 100%" />
+    </div>
+    <div class="field">
+      <label>Paid On <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="repayDate" dateFormat="dd-mm-yy" [showIcon]="true" [style]="{'width':'100%'}"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Mode</label>
+      <p-select [options]="modeOptions" [(ngModel)]="repayMode" optionLabel="label" optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+    <div class="field">
+      <label>Remarks</label>
+      <textarea pTextarea [(ngModel)]="repayRemarks" rows="2" style="width: 100%"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="repayDialogVisible = false"></button>
+    <button pButton label="Record Payment" class="p-button-warning" (click)="addRepayment()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Detail View -->
+<p-dialog header="Loan Details" [(visible)]="detailDialogVisible" [modal]="true" [style]="{ width: '650px', maxHeight: '80vh' }">
+  <div *ngIf="detailLoan" class="detail-body">
+    <div class="info-row"><span class="info-label">Employee:</span><span>{{ detailLoan.employee?.firstName }} {{ detailLoan.employee?.lastName }} ({{ detailLoan.employee?.employeeCode }})</span></div>
+    <div class="info-row"><span class="info-label">Type:</span><span>{{ detailLoan.loanType?.replace('_', ' ') }}</span></div>
+    <div class="info-row"><span class="info-label">Principal:</span><span>{{ detailLoan.principalAmount | number:'1.2-2' }}</span></div>
+    <div class="info-row"><span class="info-label">Interest:</span><span>{{ detailLoan.interestRate }}%</span></div>
+    <div class="info-row"><span class="info-label">EMI:</span><span>{{ detailLoan.emiAmount | number:'1.2-2' }} x {{ detailLoan.tenure }} months</span></div>
+    <div class="info-row"><span class="info-label">Repaid:</span><span>{{ detailLoan.totalRepaid | number:'1.2-2' }}</span></div>
+    <div class="info-row"><span class="info-label">Outstanding:</span><span>{{ detailLoan.outstandingBalance | number:'1.2-2' }}</span></div>
+    <div class="info-row"><span class="info-label">Status:</span><span class="status-badge" [ngClass]="getStatusClass(detailLoan.status)">{{ detailLoan.status }}</span></div>
+    <div class="info-row" *ngIf="detailLoan.reason"><span class="info-label">Reason:</span><span>{{ detailLoan.reason }}</span></div>
+
+    <h4 style="margin: 1rem 0 0.5rem; color: #333;">Repayment History ({{ detailLoan.repayments?.length || 0 }})</h4>
+    <p-table [value]="detailLoan.repayments || []" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr><th>#</th><th>Amount</th><th>Paid On</th><th>Mode</th><th>Remarks</th></tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-r let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ r.amount | number:'1.2-2' }}</td>
+          <td>{{ fmtDate(r.paidOn) }}</td>
+          <td>{{ r.mode?.replace('_', ' ') || '-' }}</td>
+          <td>{{ r.remarks || '-' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="5" class="empty-msg">No repayments yet</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>

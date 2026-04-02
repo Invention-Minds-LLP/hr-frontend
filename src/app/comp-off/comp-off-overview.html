@@ -1,0 +1,94 @@
+<div class="guide">
+  <app-module-guide title="Comp Off Management"
+    subtitle="Grant and manage compensatory off credits for employees who worked on holidays or off-days."
+    [points]="[
+      { label: 'Grant Comp Off', desc: 'Manually grant comp off for employees who worked extra days.' },
+      { label: 'Track Usage', desc: 'View which comp offs are used, unused, or expired.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-container comp-off-overview">
+  <div class="controls">
+    <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+      placeholder="Filter" (onChange)="loadData()" [style]="{'min-width': '140px'}"></p-select>
+    <button pButton label="Grant Comp Off" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openDialog()"></button>
+  </div>
+
+  <p-table [value]="credits" [loading]="loading" [paginator]="credits.length > 15" [rows]="15"
+    styleClass="p-datatable-sm" [scrollable]="true" >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Work Date</th>
+        <th>Expiry Date</th>
+        <th>Used</th>
+        <th>Used On</th>
+        <th>Granted By</th>
+        <th>Reason</th>
+        <th style="width:80px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.employee?.employeeCode }}</td>
+        <td>{{ item.employee?.firstName }} {{ item.employee?.lastName }}</td>
+        <td>{{ item.employee?.Department?.name || '-' }}</td>
+        <td>{{ fmtDate(item.workDate) }}</td>
+        <td>{{ fmtDate(item.expiryDate) }}</td>
+        <td>
+          <span class="status-badge" [class.used]="item.used" [class.unused]="!item.used">
+            {{ item.used ? 'Yes' : 'No' }}
+          </span>
+        </td>
+        <td>{{ fmtDate(item.usedOn) || '-' }}</td>
+        <td>{{ item.grantedBy || '-' }}</td>
+        <td>{{ item.grantReason || '-' }}</td>
+        <td class="action-cell">
+          <button class="btn-icon delete" *ngIf="!item.used" (click)="confirmDelete(item)" pTooltip="Delete">
+            <i class="pi pi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="11" class="empty-msg">No comp off credits found</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Grant Comp Off" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '450px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Employee <span class="req">*</span></label>
+      <p-autoComplete [(ngModel)]="selectedEmployee" [suggestions]="filteredEmployees"
+        (completeMethod)="searchEmployees($event)" optionLabel="displayName" [dropdown]="true"
+        placeholder="Search employee..." [style]="{'width':'100%'}" appendTo="body">
+      </p-autoComplete>
+    </div>
+    <div class="field">
+      <label>Work Date <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="formWorkDate" dateFormat="dd-mm-yy" [showIcon]="true"  iconDisplay="input"[style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Expiry Date</label>
+      <p-datepicker [(ngModel)]="formExpiryDate" dateFormat="dd-mm-yy" [showIcon]="true"iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Reason</label>
+      <textarea pTextarea [(ngModel)]="formReason" rows="2" style="width: 100%" placeholder="Reason for granting..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Grant" class="p-button-success" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

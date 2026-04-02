@@ -315,8 +315,9 @@ formatShiftDisplayTime(value: string | Date): string {
 
     forkJoin({
       balances: this.leaveService.getLeaveBalance(employeeId, year),
-      compOffCredits: this.leaveService.getCompOffCredits(employeeId)
-    }).subscribe(({ balances, compOffCredits }: any) => {
+      compOffCredits: this.leaveService.getCompOffCredits(employeeId),
+      allLeaves: this.leaveService.getLeaves()
+    }).subscribe(({ balances, compOffCredits, allLeaves }: any) => {
 
         // const gender = this.employee?.gender?.toUpperCase() || '';
         const gender = localStorage.getItem('gender')?.toUpperCase() || '';
@@ -341,9 +342,10 @@ formatShiftDisplayTime(value: string | Date): string {
           'Paternity Leave'
         ];
 
-        // Filter based on gender and remove CO from balance API (calculated separately)
+        // Filter based on gender and remove CO/RH from balance API (calculated separately)
         let filtered = balances.filter((b: any) => {
           if (b.leaveType === 'CO') return false;
+          if (b.leaveType === 'RH') return false;
           if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
           if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
           return true;
@@ -377,6 +379,26 @@ formatShiftDisplayTime(value: string | Date): string {
           this.leaveByTypeToday.push(coEntry);
         } else {
           this.leaveByTypeToday.splice(coPosition, 0, coEntry);
+        }
+
+        // Add RH balance (max 2 per FY, counted from leave requests)
+        const rhUsed = (allLeaves || []).filter((l: any) =>
+          l.employee?.id === employeeId &&
+          l.leaveType?.name === 'RH' &&
+          (l.status === 'PENDING' || l.status === 'APPROVED')
+        ).length;
+        const rhEntry: LeaveTypeCount = {
+          label: 'RH',
+          count: Math.max(0, 2 - rhUsed),
+          total: 2
+        };
+        const rhPosition = this.leaveByTypeToday.findIndex(
+          (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('RH')
+        );
+        if (rhPosition === -1) {
+          this.leaveByTypeToday.push(rhEntry);
+        } else {
+          this.leaveByTypeToday.splice(rhPosition, 0, rhEntry);
         }
       });
   }

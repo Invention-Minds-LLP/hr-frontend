@@ -120,12 +120,16 @@ export class Navbar {
   }
 
   setActiveMenu(url: string): void {
-    if (url.startsWith('/admin/hr-corrections') || url.startsWith('/admin/force-present')) {
+    if (url.startsWith('/admin/hr-corrections') || url.startsWith('/admin/force-present')
+      || url.startsWith('/admin/encashment') || url.startsWith('/admin/comp-off')
+      || url.startsWith('/admin/incentives') || url.startsWith('/admin/loans')) {
       this.activeMenu = 'hrmanual';
     } else if (url.startsWith('/admin')) {
       this.activeMenu = 'admin';
     } else if (url.startsWith('/recruitment')) {
       this.activeMenu = 'recruit';
+    } else if (url.startsWith('/masters')) {
+      this.activeMenu = 'masters';
     } else {
       this.activeMenu = null;
     }
@@ -212,7 +216,11 @@ export class Navbar {
 
   activeMenu: string | null = null;
 
-  toggle(menu: 'admin' | 'recruit' | 'hrmanual') {
+  onMastersClick() {
+    this.router.navigate(['/masters/departments']);
+  }
+
+  toggle(menu: 'admin' | 'recruit' | 'hrmanual' | 'masters') {
     this.activeMenu = this.activeMenu === menu ? null : menu;
   }
 

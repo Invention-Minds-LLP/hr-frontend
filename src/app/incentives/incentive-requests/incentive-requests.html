@@ -1,0 +1,153 @@
+<div class="guide">
+  <app-module-guide
+    title="Incentive Requests"
+    [subtitle]="isHRManager ? 'Review and approve incentive requests from reporting managers.' : 'Request incentives for your team members. HR will review and approve.'"
+    [points]="isHRManager ? [
+      { label: 'Pending Requests', desc: 'View all incentive requests submitted by reporting managers.' },
+      { label: 'Approve / Reject', desc: 'Approve or reject with reason. Employee and manager get notified.' }
+    ] : [
+      { label: 'Request Incentive', desc: 'Select a team member, choose incentive type, enter amount and submit to HR.' },
+      { label: 'Track Status', desc: 'View the status of your requests — Pending, Approved, Rejected, or Paid.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-container incentive-requests">
+  <div class="controls">
+    <button pButton label="Request Incentive" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openRequestDialog()" *ngIf="!isHRManager"></button>
+  </div>
+
+  <p-table [value]="incentives" [loading]="loading" [paginator]="incentives.length > 15" [rows]="15"
+    styleClass="p-datatable-sm" [scrollable]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Effective Date</th>
+        <th>Source</th>
+        <th>Status</th>
+        <th>Description</th>
+        <th style="width:120px" *ngIf="isHRManager">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.employee?.employeeCode }}</td>
+        <td>{{ item.employee?.firstName }} {{ item.employee?.lastName }}</td>
+        <td>{{ item.employee?.Department?.name || '-' }}</td>
+        <td>{{ item.type }}</td>
+        <td>{{ item.amount | number:'1.2-2' }}</td>
+        <td>{{ fmtDate(item.effectiveDate) }}</td>
+        <td>
+          <span class="source-badge" [class.manual]="item.source === 'MANUAL'" [class.request]="item.source === 'REQUEST'">
+            {{ item.source === 'REQUEST' ? 'Manager Request' : 'HR Manual' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
+        </td>
+        <td>{{ item.description || '-' }}</td>
+        <td *ngIf="isHRManager" class="action-cell">
+          <button class="btn-icon approve" *ngIf="item.status === 'PENDING'"
+            (click)="openActionDialog(item, 'approve')" pTooltip="Approve">
+            <i class="pi pi-check"></i>
+          </button>
+          <button class="btn-icon reject" *ngIf="item.status === 'PENDING'"
+            (click)="openActionDialog(item, 'reject')" pTooltip="Reject">
+            <i class="pi pi-times"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td [attr.colspan]="isHRManager ? 11 : 10" class="empty-msg">No incentive requests found</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Request Dialog -->
+<p-dialog header="Request Incentive" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '500px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Employee <span class="req">*</span></label>
+      <p-autoComplete [(ngModel)]="selectedEmployee" [suggestions]="filteredEmployees"
+        (completeMethod)="searchEmployees($event)" optionLabel="displayName" [dropdown]="true"
+        placeholder="Search team member..." [style]="{'width':'100%'}" appendTo="body">
+      </p-autoComplete>
+    </div>
+    <div class="field">
+      <label>Incentive Type <span class="req">*</span></label>
+      <p-select [options]="typeOptions" [(ngModel)]="formType" optionLabel="label" optionValue="value"
+        [style]="{'width':'100%'}" appendTo="body"></p-select>
+    </div>
+    <div class="field">
+      <label>Amount <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="formAmount" style="width: 100%" placeholder="Enter amount" />
+    </div>
+    <div class="field">
+      <label>Effective Date <span class="req">*</span></label>
+      <p-datepicker [(ngModel)]="formEffectiveDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Description / Reason</label>
+      <textarea pTextarea [(ngModel)]="formDescription" rows="3" style="width: 100%"
+        placeholder="Why is this incentive recommended?"></textarea>
+    </div>
+    <div class="field">
+      <label>Remarks</label>
+      <textarea pTextarea [(ngModel)]="formRemarks" rows="2" style="width: 100%"
+        placeholder="Any additional notes..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Submit Request" class="p-button-success" (click)="submitRequest()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Approve/Reject Dialog -->
+<p-dialog [header]="actionType === 'approve' ? 'Approve Incentive' : 'Reject Incentive'"
+  [(visible)]="actionDialogVisible" [modal]="true" [style]="{ width: '420px' }">
+  <div class="dialog-form" *ngIf="actionItem">
+    <div class="action-info">
+      <div class="info-row">
+        <span class="info-label">Employee:</span>
+        <span>{{ actionItem.employee?.firstName }} {{ actionItem.employee?.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Type:</span>
+        <span>{{ actionItem.type }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Amount:</span>
+        <span>{{ actionItem.amount | number:'1.2-2' }}</span>
+      </div>
+      <div class="info-row" *ngIf="actionItem.description">
+        <span class="info-label">Reason:</span>
+        <span>{{ actionItem.description }}</span>
+      </div>
+    </div>
+
+    <div class="field" *ngIf="actionType === 'reject'">
+      <label>Rejection Reason <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="rejectReason" rows="3" style="width: 100%"
+        placeholder="Enter reason for rejection..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="actionDialogVisible = false"></button>
+    <button pButton [label]="actionType === 'approve' ? 'Approve' : 'Reject'"
+      [class]="actionType === 'approve' ? 'p-button-success' : 'p-button-danger'"
+      (click)="confirmAction()"></button>
+  </ng-template>
+</p-dialog>

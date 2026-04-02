@@ -68,6 +68,12 @@ import { Export } from './settings/export/export';
 import { PayrollOverview } from './payroll/payroll-overview/payroll-overview';
 import { WeeklyTrackerOverview } from './weekly-tracker/weekly-tracker-overview/weekly-tracker-overview';
 import { Masters } from './settings/masters/masters';
+import { EncashmentOverview } from './encashment/encashment-overview';
+import { CompOffOverview } from './comp-off/comp-off-overview';
+import { IncentivesOverview } from './incentives/incentives-overview';
+import { LoansOverview } from './loans/loans-overview';
+import { IncentiveRequests } from './incentives/incentive-requests/incentive-requests';
+import { WeeklyRatingOverview } from './weekly-rating/weekly-rating-overview';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -106,9 +112,31 @@ export const routes: Routes = [
         { path: 'hr-corrections', component: HrCorrections, canActivate: [authGuard]},
         { path: 'payroll', component: PayrollOverview, canActivate: [authGuard]},
         { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard]},
-        { path: 'masters', component: Masters, canActivate: [authGuard]},
+        { path: 'incentive-requests', component: IncentiveRequests, canActivate: [authGuard]},
+        { path: 'weekly-rating', component: WeeklyRatingOverview, canActivate: [authGuard]},
+        { path: 'encashment', component: EncashmentOverview, canActivate: [authGuard]},
+        { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard]},
+        { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard]},
+        { path: 'loans', component: LoansOverview, canActivate: [authGuard]},
     ],
 
+  },
+
+  // --- Masters group ---
+  {
+    path: 'masters',
+    canActivate: [authGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'departments' },
+      { path: 'departments', component: Masters },
+      { path: 'branches', component: Masters },
+      { path: 'designations', component: Masters },
+      { path: 'roles', component: Masters },
+      { path: 'leave-types', component: Masters },
+      { path: 'shift-templates', component: Masters },
+      { path: 'holidays', component: Masters },
+      { path: 'rating-questions', component: Masters },
+    ],
   },
 
   // --- Recruitment group ---

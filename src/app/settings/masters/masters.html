@@ -16,7 +16,7 @@
   </app-module-guide>
 </div>
   <!-- Tab Navigation -->
-  <div class="tab-bar">
+  <!-- <div class="tab-bar">
     <button *ngFor="let tab of [
       { key: 'departments', label: 'Departments', icon: 'pi-building' },
       { key: 'branches', label: 'Branches', icon: 'pi-map-marker' },
@@ -24,12 +24,13 @@
       { key: 'roles', label: 'Roles', icon: 'pi-users' },
       { key: 'leaveTypes', label: 'Leave Types', icon: 'pi-calendar' },
       { key: 'shiftTemplates', label: 'Shift Templates', icon: 'pi-clock' },
-      { key: 'holidays', label: 'Holidays', icon: 'pi-sun' }
+      { key: 'holidays', label: 'Holidays', icon: 'pi-sun' },
+      { key: 'ratingQuestions', label: 'Rating Questions', icon: 'pi-star' }
     ]" class="tab-btn" [class.active]="activeTab === tab.key" (click)="switchTab($any(tab.key))">
       <i class="pi" [ngClass]="tab.icon"></i>
       {{ tab.label }}
     </button>
-  </div>
+  </div> -->
 
   <!-- Header with Add button -->
   <div class="table-header">
@@ -264,6 +265,51 @@
 
   <!-- ── HOLIDAYS TABLE ────────────────────────────────────────────────── -->
 
+  <!-- ── RATING QUESTIONS ──────────────────────────────────────────────── -->
+  <!-- <div *ngIf="activeTab === 'ratingQuestions'" class="questions-section">
+    <div class="q-header">
+      <h4>Rating Questions ({{ ratingQuestions.length }})</h4>
+      <div class="q-header-actions">
+        <select [(ngModel)]="ratingDesignationFilter" (change)="onRatingDesignationFilter()" class="form-input">
+          <option [ngValue]="null">All Designations</option>
+          <option *ngFor="let d of designations" [ngValue]="d.id">{{ d.name }}</option>
+        </select>
+        <button pButton label="Seed Defaults" icon="pi pi-refresh" class="p-button-sm p-button-text"
+          (click)="seedDefaultQuestions()"></button>
+      </div>
+    </div>
+
+    <div class="q-empty" *ngIf="ratingQuestions.length === 0">
+      No rating questions found. Click "Seed Defaults" to create the 5 default questions.
+    </div>
+
+    <div class="q-list">
+      <div class="q-item" *ngFor="let q of ratingQuestions; let i = index" [class.inactive]="!q.isActive">
+        <span class="q-order">{{ i + 1 }}</span>
+        <span class="q-text">{{ q.text }}</span>
+        <span class="q-badge default" *ngIf="q.isDefault">Default</span>
+        <span class="q-badge custom" *ngIf="!q.isDefault">{{ q.designation?.name || 'Custom' }}</span>
+        <span class="q-badge" [class.active-badge]="q.isActive" [class.inactive-badge]="!q.isActive">
+          {{ q.isActive ? 'Active' : 'Inactive' }}
+        </span>
+        <button class="btn-icon toggle" (click)="toggleRatingQuestion(q)"
+          [pTooltip]="q.isActive ? 'Deactivate' : 'Activate'" tooltipPosition="top">
+          <i class="pi" [ngClass]="q.isActive ? 'pi-eye-slash' : 'pi-eye'"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="q-add">
+      <select [(ngModel)]="newQuestionDesignationId" class="form-input" style="min-width: 180px">
+        <option [ngValue]="null" disabled>Select Designation</option>
+        <option *ngFor="let d of designations" [ngValue]="d.id">{{ d.name }}</option>
+      </select>
+      <input type="text" pInputText [(ngModel)]="formName" placeholder="Enter new question..." style="flex: 1" />
+      <button pButton label="Add" icon="pi pi-plus" class="p-button-sm p-button-success"
+        (click)="save()" [disabled]="!newQuestionDesignationId || !formName?.trim()"></button>
+    </div>
+  </div> -->
+
 <!-- ── ADD / EDIT DIALOG ──────────────────────────────────────────────── -->
 <p-dialog [header]="dialogTitle" [(visible)]="dialogVisible" [modal]="true"
   [style]="{ width: '450px' }" [closable]="true" >
@@ -308,7 +354,7 @@
     <div class="field" *ngIf="activeTab === 'holidays'">
       <label>Date <span class="req">*</span></label>
       <p-datepicker [(ngModel)]="formDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
 
     <div class="field" *ngIf="activeTab === 'holidays'">

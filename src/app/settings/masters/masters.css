@@ -156,6 +156,99 @@
   border-color: #FB9C2A;
 }
 
+/* Rating questions — card-based design */
+.questions-section {
+  background: #111;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.q-header h4 {
+  margin: 0;
+  color: white;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+}
+
+.q-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.q-empty {
+  color: #888;
+  text-align: center;
+  padding: 2rem;
+  font-size: 14px;
+}
+
+.q-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.q-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.q-item.inactive {
+  opacity: 0.5;
+}
+
+.q-order {
+  color: #888;
+  font-weight: 600;
+  min-width: 24px;
+}
+
+.q-text {
+  flex: 1;
+  color: white;
+  font-family: "Sofia Sans";
+  font-size: 15px;
+}
+
+.q-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.q-badge.default { background: #e3f2fd; color: #1565c0; }
+.q-badge.custom { background: #fff3e0; color: #e65100; }
+.q-badge.active-badge { background: #d4edda; color: #155724; }
+.q-badge.inactive-badge { background: #f8d7da; color: #721c24; }
+
+.btn-icon.toggle {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.q-add {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 /* Holiday controls */
 .holiday-controls {
   display: flex;
@@ -309,3 +402,40 @@
   background: #555;
   border-radius: 3px;
 }
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-inputtextarea {
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  padding: 0.6rem;
+  background-color: transparent !important;
+}
+
+
+
+::ng-deep .p-textarea{
+  background-color: transparent !important;
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  padding: 0.6rem;
+}
+
+label{
+    color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+}
+

@@ -58,6 +58,9 @@ export class LeavePopup {
   halfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
   compOffDates = new Set<string>();
   selectedPrescription: File | null = null;
+  optionalHolidays: any[] = [];
+  optionalHolidayDates = new Set<string>();
+  rhUsedCount = 0;
 
 
 
@@ -197,10 +200,16 @@ export class LeavePopup {
     this.leaveService.getBlockedDates(Number(localStorage.getItem('empId')))
       .subscribe((res: any[]) => {
         console.log('Blocked Dates Response:', res);
-        this.blockedRanges = res.map(r => ({
-          startDate: new Date(r.startDate),
-          endDate: new Date(r.endDate)
-        }));
+        this.blockedRanges = res
+          .filter((r: any) => {
+            // When viewing an existing leave, exclude its own dates from blocked ranges
+            if (this.leaveData?.id && r.id === this.leaveData.id) return false;
+            return true;
+          })
+          .map(r => ({
+            startDate: new Date(r.startDate),
+            endDate: new Date(r.endDate)
+          }));
 
         console.log('Blocked Ranges:', this.blockedRanges);
 
@@ -257,6 +266,27 @@ export class LeavePopup {
         d.setHours(0, 0, 0, 0);
         return d;
       });
+
+      // Store optional holidays for RH
+      this.optionalHolidays = (res.holidays || []).filter((h: any) => h.isOptional);
+      this.optionalHolidayDates = new Set(
+        this.optionalHolidays.map((h: any) => {
+          const d = new Date(h.date);
+          d.setHours(0, 0, 0, 0);
+          return d.toISOString();
+        })
+      );
+    });
+
+    // Load RH usage count for current FY
+    this.leaveService.getLeaves().subscribe((leaves: any[]) => {
+      const empId = Number(this.employeeId);
+      this.rhUsedCount = leaves.filter((l: any) =>
+        l.employee?.id === empId &&
+        l.leaveType?.name === 'RH' &&
+        (l.status === 'PENDING' || l.status === 'APPROVED')
+      ).length;
+      console.log("RH used count for employee", empId, "is", this.rhUsedCount)
     });
 
 
@@ -423,6 +453,20 @@ export class LeavePopup {
     if (this.leaveType === 'CO') {
       console.log('Checking comp-off availability for selected dates');
       this.checkCompOffAvailability();
+      return;
+    }
+
+    // RH uses request count, not balance table
+    if (this.leaveType === 'RH') {
+      this.remainingLeave = Math.max(0, 2 - this.rhUsedCount);
+      if (this.remainingLeave <= 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'RH Limit Reached',
+          detail: 'You have already used 2 Restricted Holidays this year.'
+        });
+        this.leaveType = '';
+      }
       return;
     }
 
@@ -764,6 +808,37 @@ export class LeavePopup {
     if (!this.validateEarnedLeave()) {
       return;
     }
+
+    // 🔴 RH validation
+    if (this.leaveType === 'RH') {
+      if (this.rhUsedCount >= 2) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'RH Limit Reached',
+          detail: 'You have already used 2 Restricted Holidays this year.'
+        });
+        return;
+      }
+      const fromKey = new Date(this.fromDate);
+      fromKey.setHours(0, 0, 0, 0);
+      if (!this.optionalHolidayDates.has(fromKey.toISOString())) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Invalid Date',
+          detail: 'RH can only be applied on a Restricted Holiday (optional holiday) date.'
+        });
+        return;
+      }
+      if (this.days > 1) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Invalid',
+          detail: 'RH can only be applied for 1 day at a time.'
+        });
+        return;
+      }
+    }
+
     if (this.isRangeBlocked(this.fromDate, this.toDate)) {
       this.messageService.add({
         severity: 'error',
@@ -1166,6 +1241,9 @@ export class LeavePopup {
 
   validateSandwichOrReset(): boolean {
     if (!this.fromDate || !this.toDate) return true;
+
+    // RH is applied ON a holiday — skip sandwich check
+    if (this.leaveType === 'RH') return true;
 
     if (this.isSandwichLeave(this.fromDate, this.toDate)) {
       this.messageService.add({

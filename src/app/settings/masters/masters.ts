@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -18,15 +19,16 @@ import { Roles, Role } from '../../services/roles/roles';
 import { Leaves } from '../../services/leaves/leaves';
 import { Shifts } from '../../services/shifts/shifts';
 import { Holidays } from '../../services/holidays/holidays';
+import { WeeklyRatingService } from '../../services/weekly-rating/weekly-rating';
 import { DatePickerModule } from 'primeng/datepicker';
 
-type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates' | 'holidays';
+type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates' | 'holidays' | 'ratingQuestions';
 
 @Component({
   selector: 'app-masters',
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, ToastModule,
-    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, ModuleGuide
+    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, ModuleGuide, RouterModule
   ],
   templateUrl: './masters.html',
   styleUrl: './masters.css',
@@ -45,6 +47,9 @@ export class Masters implements OnInit {
   holidayCalendar: any = null;
   holidays: any[] = [];
   holidayYear = new Date().getFullYear();
+  ratingQuestions: any[] = [];
+  ratingDesignationFilter: number | null = null;
+  newQuestionDesignationId: number | null = null;
 
   loading = false;
 
@@ -83,16 +88,47 @@ export class Masters implements OnInit {
     private leaveService: Leaves,
     private shiftService: Shifts,
     private holidayService: Holidays,
+    private ratingService: WeeklyRatingService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private router: Router
   ) {}
 
   ngOnInit() {
+    this.setTabFromUrl();
     this.loadData();
+  }
+
+  private setTabFromUrl() {
+    const url = this.router.url;
+    const tabMap: Record<string, MasterTab> = {
+      'departments': 'departments',
+      'branches': 'branches',
+      'designations': 'designations',
+      'roles': 'roles',
+      'leave-types': 'leaveTypes',
+      'shift-templates': 'shiftTemplates',
+      'holidays': 'holidays',
+    };
+    const segment = url.split('/').pop() || '';
+    if (tabMap[segment]) {
+      this.activeTab = tabMap[segment];
+    }
   }
 
   switchTab(tab: MasterTab) {
     this.activeTab = tab;
+    const routeMap: Record<MasterTab, string> = {
+      departments: '/masters/departments',
+      branches: '/masters/branches',
+      designations: '/masters/designations',
+      roles: '/masters/roles',
+      leaveTypes: '/masters/leave-types',
+      shiftTemplates: '/masters/shift-templates',
+      holidays: '/masters/holidays',
+      ratingQuestions: '/masters/rating-questions',
+    };
+    this.router.navigate([routeMap[tab]]);
     this.loadData();
   }
 
@@ -145,7 +181,42 @@ export class Masters implements OnInit {
           error: () => { this.holidays = []; this.holidayCalendar = null; this.loading = false; }
         });
         break;
+      case 'ratingQuestions':
+        const desigFilter = this.ratingDesignationFilter || undefined;
+        this.ratingService.getQuestions(desigFilter).subscribe({
+          next: (data) => { this.ratingQuestions = data; this.loading = false; },
+          error: () => { this.showError('Failed to load questions'); this.loading = false; }
+        });
+        break;
     }
+  }
+
+  onRatingDesignationFilter() { this.loadData(); }
+
+  seedDefaultQuestions() {
+    this.ratingService.seedDefaults().subscribe({
+      next: (res) => { this.messageService.add({ severity: 'success', summary: 'Done', detail: res.message }); this.loadData(); },
+      error: (e) => this.showError(e.error?.error || 'Failed')
+    });
+  }
+
+  toggleRatingQuestion(q: any) {
+    this.ratingService.toggleQuestion(q.id, !q.isActive).subscribe({
+      next: () => this.loadData(),
+      error: (e) => this.showError(e.error?.error || 'Max 5 custom per designation')
+    });
+  }
+
+  deleteRatingQuestion(q: any) {
+    this.confirmationService.confirm({
+      message: `Delete question "${q.text}"?`,
+      accept: () => {
+        this.ratingService.deleteQuestion(q.id).subscribe({
+          next: () => { this.messageService.add({ severity: 'success', summary: 'Deleted' }); this.loadData(); },
+          error: (e) => this.showError(e.error?.error || 'Failed')
+        });
+      }
+    });
   }
 
   // ── Dialog Open ────────────────────────────────────────────────────────
@@ -203,6 +274,7 @@ export class Masters implements OnInit {
       case 'leaveTypes': return 'Leave Type';
       case 'shiftTemplates': return 'Shift Template';
       case 'holidays': return 'Holiday';
+      case 'ratingQuestions': return 'Rating Question';
     }
   }
 
@@ -350,6 +422,17 @@ export class Masters implements OnInit {
             error: (e) => this.onSaveError(e)
           });
         }
+        break;
+
+      case 'ratingQuestions':
+        if (!this.newQuestionDesignationId) {
+          this.showWarn('Select a designation');
+          return;
+        }
+        this.ratingService.createQuestion(this.formName, this.newQuestionDesignationId).subscribe({
+          next: () => { this.onSaveSuccess('Question added'); },
+          error: (e) => this.onSaveError(e)
+        });
         break;
     }
   }

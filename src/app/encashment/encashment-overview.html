@@ -1,0 +1,244 @@
+<div class="guide">
+  <app-module-guide
+    title="EL Encashment"
+    subtitle="Track and process Earned Leave encashment for employees whose balance exceeds the carry forward limit."
+    [points]="[
+      { label: 'Eligible Employees', desc: 'View employees with EL balance above the carry forward limit (45 days) and their encashment-eligible days.' },
+      { label: 'Process Encashment', desc: 'Encash excess EL days — debits from balance and creates a ledger entry for payroll.' },
+      { label: 'Encashment History', desc: 'Track all past encashments with dates, amounts, and who processed them.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="encashment-container encashment-overview">
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-value">{{ maxCarryForward }}</div>
+      <div class="card-label">Max Carry Forward</div>
+    </div>
+    <div class="card">
+      <div class="card-value">{{ maxBalance }}</div>
+      <div class="card-label">Max Balance</div>
+    </div>
+    <div class="card highlight">
+      <div class="card-value">{{ eligible.length }}</div>
+      <div class="card-label">Eligible Employees</div>
+    </div>
+    <div class="card">
+      <div class="card-value">{{ totalExcessDays }}</div>
+      <div class="card-label">Total Excess Days</div>
+    </div>
+    <div class="card">
+      <div class="card-value">{{ totalEncashedDays }}</div>
+      <div class="card-label">Already Encashed</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'eligible'" (click)="activeTab = 'eligible'">
+        Encashment Eligible ({{ eligible.length }})
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">
+        All EL Balances ({{ allEmployees.length }})
+      </button>
+    </div>
+    <div class="year-select">
+      <label>FY:</label>
+      <select [(ngModel)]="year" (change)="onYearChange()" class="form-select">
+        <option *ngFor="let y of years" [value]="y">{{ y }}-{{ y + 1 }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Eligible Table -->
+  <p-table *ngIf="activeTab === 'eligible'" [value]="eligible" [loading]="loading"
+    [paginator]="eligible.length > 15" [rows]="15" styleClass="p-datatable-sm"
+    [scrollable]="true" >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Total Allowed</th>
+        <th>Used</th>
+        <th>Current Balance</th>
+        <th>Max Carry Fwd</th>
+        <th>Excess (Eligible)</th>
+        <th>Already Encashed</th>
+        <th>Pending</th>
+        <th style="width: 150px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-emp let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ emp.employeeCode }}</td>
+        <td>{{ emp.employeeName }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.totalAllowed }}</td>
+        <td>{{ emp.used }}</td>
+        <td>
+          <span class="balance-badge" [class.over]="emp.currentBalance > maxCarryForward">
+            {{ emp.currentBalance }}
+          </span>
+        </td>
+        <td>{{ maxCarryForward }}</td>
+        <td>
+          <span class="excess-badge">{{ emp.excessOverCarryForward }}</span>
+        </td>
+        <td>{{ emp.totalEncashed }}</td>
+        <td>
+          <span class="pending-badge" *ngIf="emp.pendingEncashment > 0">{{ emp.pendingEncashment }}</span>
+          <span *ngIf="emp.pendingEncashment <= 0" class="done-badge">Done</span>
+        </td>
+        <td class="action-cell">
+          <button class="btn-icon encash" *ngIf="emp.pendingEncashment > 0"
+            (click)="openEncashDialog(emp)" pTooltip="Process Encashment" tooltipPosition="top">
+            <i class="pi pi-indian-rupee"></i>
+          </button>
+          <button class="btn-icon view" (click)="viewHistory(emp)" pTooltip="View History" tooltipPosition="top">
+            <i class="pi pi-history"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="12" class="empty-msg">No employees with excess EL balance</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- All Employees Table -->
+  <p-table *ngIf="activeTab === 'all'" [value]="allEmployees" [loading]="loading"
+    [paginator]="allEmployees.length > 15" [rows]="15" styleClass="p-datatable-sm"
+    [scrollable]="true" >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Total Allowed</th>
+        <th>Used</th>
+        <th>Current Balance</th>
+        <th>Excess</th>
+        <th>Encashed</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-emp let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ emp.employeeCode }}</td>
+        <td>{{ emp.employeeName }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.totalAllowed }}</td>
+        <td>{{ emp.used }}</td>
+        <td>
+          <span class="balance-badge" [class.over]="emp.currentBalance > maxCarryForward">
+            {{ emp.currentBalance }}
+          </span>
+        </td>
+        <td>{{ emp.excessOverCarryForward || '-' }}</td>
+        <td>{{ emp.totalEncashed || '-' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="9" class="empty-msg">No EL balances found for this year</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- ── ENCASHMENT DIALOG ────────────────────────────────────────────────── -->
+<p-dialog header="Process Encashment" [(visible)]="encashDialogVisible" [modal]="true"
+  [style]="{ width: '480px' }" [closable]="true">
+  <div class="encash-form" *ngIf="selectedEmployee">
+    <div class="encash-info">
+      <div class="info-row">
+        <span class="info-label">Employee:</span>
+        <span>{{ selectedEmployee.employeeName }} ({{ selectedEmployee.employeeCode }})</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Current Balance:</span>
+        <span>{{ selectedEmployee.currentBalance }} days</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Max Carry Forward:</span>
+        <span>{{ maxCarryForward }} days</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Excess (Eligible):</span>
+        <span class="excess-badge">{{ selectedEmployee.excessOverCarryForward }} days</span>
+      </div>
+      <div class="info-row" *ngIf="selectedEmployee.totalEncashed > 0">
+        <span class="info-label">Already Encashed:</span>
+        <span>{{ selectedEmployee.totalEncashed }} days</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Days to Encash <span class="req">*</span></label>
+      <input type="number" pInputText [(ngModel)]="encashDays" [max]="selectedEmployee.pendingEncashment"
+        min="0.5" step="0.5" style="width: 100%" />
+    </div>
+
+    <div class="field">
+      <label>Remarks</label>
+      <textarea pTextarea [(ngModel)]="encashRemarks" rows="2" style="width: 100%"
+        placeholder="Optional remarks..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="encashDialogVisible = false"></button>
+    <button pButton label="Process Encashment" class="p-button-warning" (click)="confirmEncash()"
+      [loading]="processing" [disabled]="encashDays <= 0 || encashDays > selectedEmployee?.pendingEncashment"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── HISTORY DIALOG ───────────────────────────────────────────────────── -->
+<p-dialog header="Encashment History" [(visible)]="historyDialogVisible" [modal]="true"
+  [style]="{ width: '650px', maxHeight: '80vh' }" [closable]="true">
+  <div *ngIf="historyEmployee" class="history-body">
+    <div class="info-row">
+      <span class="info-label">Employee:</span>
+      <span>{{ historyEmployee.employeeName }} ({{ historyEmployee.employeeCode }})</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Total Encashed:</span>
+      <span class="excess-badge">{{ historyTotal }} days</span>
+    </div>
+
+    <p-table [value]="historyEntries" styleClass="p-datatable-sm" [scrollable]="true" class="history-table">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Year</th>
+          <th>Days</th>
+          <th>Balance After</th>
+          <th>Remarks</th>
+          <th>Processed By</th>
+          <th>Date</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-entry let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ entry.year }}</td>
+          <td>{{ entry.days }}</td>
+          <td>{{ entry.balanceAfter }}</td>
+          <td>{{ entry.remarks || '-' }}</td>
+          <td>{{ entry.performedBy || '-' }}</td>
+          <td>{{ fmtDate(entry.createdAt) }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="7" class="empty-msg">No encashment history</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>

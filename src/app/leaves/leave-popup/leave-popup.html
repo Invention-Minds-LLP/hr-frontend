@@ -116,6 +116,16 @@
                     </select>
                 </div>
 
+                <!-- Leave Balance Info -->
+                <div class="form-row balance-info" *ngIf="leaveType && leaveType !== 'CO'">
+                    <label>Balance</label>
+                    <span class="balance-display" [class.low]="remainingLeave <= 1">
+                        {{ remainingLeave }} <span class="balance-sep">/</span>
+                        {{ leaveType === 'RH' ? '2' : (remainingLeave + days) }}
+                        <span class="balance-unit">days</span>
+                    </span>
+                </div>
+
                 <!-- Half Day Toggle -->
                 <div class="form-row">
                     <label class="check-box">
@@ -214,7 +224,7 @@
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
                     <!-- <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading"> -->
                     <button class="apply" (click)="applyLeave()" [disabled]="
-          (leaveType !== 'CO' && days > remainingLeave) ||
+          (leaveType !== 'CO' && leaveType !== 'RH' && days > remainingLeave) ||
           isLoading
         ">
 
