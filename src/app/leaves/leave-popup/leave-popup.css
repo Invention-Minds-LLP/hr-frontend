@@ -292,6 +292,7 @@ button.reset {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 30px;
 }
 .close-btn {
   position: relative;
@@ -598,3 +599,63 @@ hr {
   font-weight: 500;
   color: #888;
 }
+
+/* ── Calendar Day Color Codes ────────────────────────────────────── */
+.calendar-day.nh {
+  background: #503ce7;
+  color: white;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.calendar-day.rh {
+  background: #f39c12;
+  color: white;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.calendar-day.week-off {
+  background: #8e44ad;
+  color: white;
+  border-radius: 6px;
+}
+
+/* Selected overrides all */
+.calendar-day.selected.nh,
+.calendar-day.selected.rh,
+.calendar-day.selected.week-off {
+  background: #ff5151;
+}
+
+/* ── Calendar Legend ─────────────────────────────────────────────── */
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #aaa;
+  font-family: "Sofia Sans";
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.selected-dot { background: #ff5151; }
+.nh-dot { background: #503ce7; }
+.rh-dot { background: #f39c12; }
+.weekoff-dot { background: #8e44ad; }
+.compoff-dot { background: #22c55e; }
+.blocked-dot { background: #f5a8a8; }

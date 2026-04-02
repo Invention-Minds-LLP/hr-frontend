@@ -210,6 +210,7 @@
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
                             [class.blocked]="day.blocked" [class.past]="day.past" [class.comp-off]="day.compOff"
+                            [class.nh]="day.isNH" [class.rh]="day.isRH" [class.week-off]="day.isWeekOff"
                             (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>
@@ -217,7 +218,15 @@
 
                 </div>
 
-
+                <!-- Color Legend -->
+                <div class="calendar-legend">
+                    <div class="legend-item"><span class="legend-dot selected-dot"></span> Selected</div>
+                    <div class="legend-item"><span class="legend-dot nh-dot"></span> National Holiday</div>
+                    <div class="legend-item"><span class="legend-dot rh-dot"></span> Restricted Holiday (RH)</div>
+                    <div class="legend-item"><span class="legend-dot weekoff-dot"></span> Week Off</div>
+                    <div class="legend-item"><span class="legend-dot compoff-dot"></span> Comp Off</div>
+                    <div class="legend-item"><span class="legend-dot blocked-dot"></span> Already Applied</div>
+                </div>
 
                 <!-- Buttons -->
                 <div class="buttons" *ngIf="!isViewOnly">
@@ -406,6 +415,7 @@
                         <div *ngFor="let day of calendarDays" class="calendar-day" [class.selected]="day.selected"
                             [class.empty]="!day.isCurrentMonth" (mousedown)="startDrag(day)"
                             [class.blocked]="day.blocked" [class.past]="day.past" [class.comp-off]="day.compOff"
+                            [class.nh]="day.isNH" [class.rh]="day.isRH" [class.week-off]="day.isWeekOff"
                             (mouseenter)="dragOver(day)" (mouseup)="endDrag()" (click)="onDateClick(day)">
                             {{ day.number || '' }}
                         </div>

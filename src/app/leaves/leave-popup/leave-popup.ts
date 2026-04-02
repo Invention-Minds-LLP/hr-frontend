@@ -14,9 +14,12 @@ interface CalendarDay {
   number: number;
   selected: boolean;
   isCurrentMonth: boolean;
-  blocked?: boolean; // new optional flag
+  blocked?: boolean;
   compOff?: boolean;
   past?: boolean;
+  isNH?: boolean;
+  isRH?: boolean;
+  isWeekOff?: boolean;
 }
 
 @Component({
@@ -605,14 +608,23 @@ export class LeavePopup {
       const isBlocked = this.isDayBlocked(dateObj);
       const isPast = this.isPastDate(dateObj);
 
+      // Holiday type detection
+      const strippedDate = this.stripTime(dateObj);
+      const isOptionalHoliday = this.optionalHolidayDates.has(strippedDate.toISOString());
+      const isNationalHoliday = !isOptionalHoliday && this.isHoliday(dateObj);
+      const isWeekOff = this.isApprovedWeekOff(dateObj);
+
       this.calendarDays.push({
         date: dateObj,
         number: day,
         selected: isSelected,
         isCurrentMonth: true,
-        blocked: isBlocked,   // add new flag
-        compOff: isCompOff,  // add comp off flag
-        past: isPast
+        blocked: isBlocked,
+        compOff: isCompOff,
+        past: isPast,
+        isNH: isNationalHoliday,
+        isRH: isOptionalHoliday,
+        isWeekOff: isWeekOff,
       });
 
 
@@ -1205,25 +1217,41 @@ export class LeavePopup {
     from = this.stripTime(from);
     to = this.stripTime(to);
 
-    let hasWeekend = false;
+    // Check if leave range contains a mix of week-off/holiday + working days
+    let hasOffDay = false;
     let hasWorkingDay = false;
 
     for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
       const current = this.stripTime(new Date(d));
 
-      if (this.isApprovedWeekOff(current)) {
-        hasWeekend = true;
-      } else if (this.isHoliday(current)) {
-        // holidays always count as sandwich
-        return true;
+      if (this.isApprovedWeekOff(current) || this.isHoliday(current)) {
+        hasOffDay = true;
       } else {
         hasWorkingDay = true;
       }
 
-      // 🚨 weekend + working day together = sandwich
-      if (hasWeekend && hasWorkingDay) {
+      // Working day + off day in the same range = sandwich
+      if (hasOffDay && hasWorkingDay) {
         return true;
       }
+    }
+
+    // Check day BEFORE the leave — if it's a week-off/holiday, NOT sandwich
+    // (taking leave on Monday when Sunday is off is normal)
+
+    // Check day AFTER the leave — if it's a week-off/holiday AND day before is also off
+    // that means leave is between two off-days = sandwich
+    const dayBefore = this.stripTime(new Date(from));
+    dayBefore.setDate(dayBefore.getDate() - 1);
+    const dayAfter = this.stripTime(new Date(to));
+    dayAfter.setDate(dayAfter.getDate() + 1);
+
+    const beforeIsOff = this.isApprovedWeekOff(dayBefore) || this.isHoliday(dayBefore);
+    const afterIsOff = this.isApprovedWeekOff(dayAfter) || this.isHoliday(dayAfter);
+
+    // Sandwich = leave is between two off-days (holiday/weekend before AND after)
+    if (beforeIsOff && afterIsOff) {
+      return true;
     }
 
     return false;
