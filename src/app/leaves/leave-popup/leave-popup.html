@@ -121,7 +121,7 @@
                     <label>Balance</label>
                     <span class="balance-display" [class.low]="remainingLeave <= 1">
                         {{ remainingLeave }} <span class="balance-sep">/</span>
-                        {{ leaveType === 'RH' ? '2' : (remainingLeave + days) }}
+                        {{ leaveType === 'RH' ? rhTotal : (remainingLeave + days) }}
                         <span class="balance-unit">days</span>
                     </span>
                 </div>

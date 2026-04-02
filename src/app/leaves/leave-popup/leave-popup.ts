@@ -60,6 +60,7 @@ export class LeavePopup {
   selectedPrescription: File | null = null;
   optionalHolidays: any[] = [];
   optionalHolidayDates = new Set<string>();
+  rhTotal = 0;
   rhUsedCount = 0;
 
 
@@ -269,6 +270,7 @@ export class LeavePopup {
 
       // Store optional holidays for RH
       this.optionalHolidays = (res.holidays || []).filter((h: any) => h.isOptional);
+      this.rhTotal = this.optionalHolidays.length;
       this.optionalHolidayDates = new Set(
         this.optionalHolidays.map((h: any) => {
           const d = new Date(h.date);
@@ -458,12 +460,12 @@ export class LeavePopup {
 
     // RH uses request count, not balance table
     if (this.leaveType === 'RH') {
-      this.remainingLeave = Math.max(0, 2 - this.rhUsedCount);
+      this.remainingLeave = Math.max(0, this.rhTotal - this.rhUsedCount);
       if (this.remainingLeave <= 0) {
         this.messageService.add({
           severity: 'error',
           summary: 'RH Limit Reached',
-          detail: 'You have already used 2 Restricted Holidays this year.'
+          detail: `You have already used all ${this.rhTotal} Restricted Holidays this year.`
         });
         this.leaveType = '';
       }
@@ -811,11 +813,11 @@ export class LeavePopup {
 
     // 🔴 RH validation
     if (this.leaveType === 'RH') {
-      if (this.rhUsedCount >= 2) {
+      if (this.rhUsedCount >= this.rhTotal) {
         this.messageService.add({
           severity: 'error',
           summary: 'RH Limit Reached',
-          detail: 'You have already used 2 Restricted Holidays this year.'
+          detail: `You have already used all ${this.rhTotal} Restricted Holidays this year.`
         });
         return;
       }

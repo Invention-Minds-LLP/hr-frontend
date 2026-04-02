@@ -313,11 +313,13 @@ formatShiftDisplayTime(value: string | Date): string {
     this.financialYearLabel = `${year}-${year + 1}`;
     const employeeId = Number(this.currentUserId);
 
+    const calYear = new Date().getMonth() >= 3 ? year : year + 1;
     forkJoin({
       balances: this.leaveService.getLeaveBalance(employeeId, year),
       compOffCredits: this.leaveService.getCompOffCredits(employeeId),
-      allLeaves: this.leaveService.getLeaves()
-    }).subscribe(({ balances, compOffCredits, allLeaves }: any) => {
+      allLeaves: this.leaveService.getLeaves(),
+      holidayData: this.holidaysService.getHolidaysByYear(calYear)
+    }).subscribe(({ balances, compOffCredits, allLeaves, holidayData }: any) => {
 
         // const gender = this.employee?.gender?.toUpperCase() || '';
         const gender = localStorage.getItem('gender')?.toUpperCase() || '';
@@ -381,16 +383,17 @@ formatShiftDisplayTime(value: string | Date): string {
           this.leaveByTypeToday.splice(coPosition, 0, coEntry);
         }
 
-        // Add RH balance (max 2 per FY, counted from leave requests)
+        // Add RH balance (counted from optional holidays in calendar)
+        const optionalHolidayCount = ((holidayData?.holidays || []) as any[]).filter((h: any) => h.isOptional).length;
         const rhUsed = (allLeaves || []).filter((l: any) =>
-          l.employee?.id === employeeId &&
+          (l.employee?.id === employeeId || l.employeeId === employeeId) &&
           l.leaveType?.name === 'RH' &&
           (l.status === 'PENDING' || l.status === 'APPROVED')
         ).length;
         const rhEntry: LeaveTypeCount = {
           label: 'RH',
-          count: Math.max(0, 2 - rhUsed),
-          total: 2
+          count: Math.max(0, optionalHolidayCount - rhUsed),
+          total: optionalHolidayCount
         };
         const rhPosition = this.leaveByTypeToday.findIndex(
           (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('RH')
