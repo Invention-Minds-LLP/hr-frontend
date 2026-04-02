@@ -117,7 +117,7 @@
                 </div>
 
                 <!-- Leave Balance Info -->
-                <div class="form-row balance-info" *ngIf="leaveType && leaveType !== 'CO'">
+                <div class="form-row balance-info" *ngIf="leaveType && leaveType === 'RH'">
                     <label>Balance</label>
                     <span class="balance-display" [class.low]="remainingLeave <= 1">
                         {{ remainingLeave }} <span class="balance-sep">/</span>
