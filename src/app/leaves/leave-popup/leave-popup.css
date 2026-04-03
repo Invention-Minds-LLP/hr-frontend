@@ -621,10 +621,18 @@ hr {
   border-radius: 6px;
 }
 
+/* Comp-off takes priority over week-off */
+.calendar-day.comp-off.week-off,
+.calendar-day.comp-off {
+  background: #22c55e;
+  color: white;
+}
+
 /* Selected overrides all */
 .calendar-day.selected.nh,
 .calendar-day.selected.rh,
-.calendar-day.selected.week-off {
+.calendar-day.selected.week-off,
+.calendar-day.selected.comp-off {
   background: #ff5151;
 }
 

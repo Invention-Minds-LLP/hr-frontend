@@ -604,6 +604,7 @@ export class LeavePopup {
         dateObj >= this.fromDate && dateObj <= this.toDate;
       const key = this.stripTime(dateObj).toISOString().slice(0, 10);
       const isCompOff = this.compOffDates.has(key);
+      console.log(isCompOff, key)
 
       const isBlocked = this.isDayBlocked(dateObj);
       const isPast = this.isPastDate(dateObj);
@@ -626,6 +627,8 @@ export class LeavePopup {
         isRH: isOptionalHoliday,
         isWeekOff: isWeekOff,
       });
+
+      console.log(this.calendarDays)
 
 
       // this.calendarDays.push({

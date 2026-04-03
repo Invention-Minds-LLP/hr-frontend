@@ -942,6 +942,7 @@
 
 .pending {
   background: #eddd00;
+  color: #000;
 }
 
 .rejected {
@@ -951,6 +952,10 @@
 
 .approved {
   background: #0de121;
+  color: white;
+}
+.cancelled {
+  background: #b7242b;
   color: white;
 }
 

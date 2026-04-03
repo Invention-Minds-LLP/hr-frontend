@@ -139,6 +139,8 @@ currentWeeklyShiftIndex = 0;
         return 'approved';
       case 'rejected':
         return 'rejected';
+      case 'cancelled':
+        return 'cancelled';
       default:
         return '';
     }
