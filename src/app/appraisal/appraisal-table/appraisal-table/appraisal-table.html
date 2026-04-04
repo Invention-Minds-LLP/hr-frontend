@@ -65,6 +65,8 @@
           <th>Department</th>
           <th>Appraisal Cycle</th>
           <th>Manager</th>
+          <th>Self-Appraisal</th>
+          <th>Manager Review</th>
           <th>Mgr. Score</th>
           <th>Decision</th>
           <th>Status</th>
@@ -90,6 +92,8 @@
             <td><p-skeleton width="6rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
+            <td><p-skeleton width="3rem"></p-skeleton></td>
+            <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="4rem"></p-skeleton></td>
             <td><p-skeleton width="4rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
@@ -125,11 +129,40 @@
             </td>
             <td>{{ appraisal.cycle }}</td>
             <td>{{ appraisal.managerName || '-' }}</td>
+            <td>
+              <span *ngIf="appraisal.selfAppraisalSubmittedAt" pTooltip="Submitted">
+                <i class="pi pi-check-circle" style="color: #4CAF50; font-size: 18px"></i>
+              </span>
+              <span *ngIf="!appraisal.selfAppraisalSubmittedAt && !['AUTO_DRAFT','Draft'].includes(appraisal.status)" pTooltip="Pending">
+                <i class="pi pi-clock" style="color: #FF9800; font-size: 18px"></i>
+              </span>
+              <span *ngIf="['AUTO_DRAFT','Draft'].includes(appraisal.status)" style="color:#888">-</span>
+            </td>
+            <td>
+              <span *ngIf="appraisal.managerAppraisalSubmittedAt" pTooltip="Submitted">
+                <i class="pi pi-check-circle" style="color: #4CAF50; font-size: 18px"></i>
+              </span>
+              <span *ngIf="!appraisal.managerAppraisalSubmittedAt && !['AUTO_DRAFT','Draft'].includes(appraisal.status)" pTooltip="Pending">
+                <i class="pi pi-clock" style="color: #FF9800; font-size: 18px"></i>
+              </span>
+              <span *ngIf="['AUTO_DRAFT','Draft'].includes(appraisal.status)" style="color:#888">-</span>
+            </td>
             <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
             <td>{{ appraisal.finalDecision || '-' }}</td>
-            <td>{{ appraisal.status || '-' }}</td>
             <td>
-              <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
+              <span [ngStyle]="{'color': getStatusColor(appraisal)}">
+                {{ getStatusLabel(appraisal) }}
+              </span>
+            </td>
+            <td>
+              <div class="flex gap-2">
+                <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
+              <button class="btn view-btn" *ngIf="isHRManager" (click)="viewFullDetail(appraisal)" pTooltip="View Self & Manager Appraisal">View All</button>
+              <button class="btn verify-btn" *ngIf="canHRVerify(appraisal)" (click)="openVerifyDialog(appraisal)" pTooltip="Verify & Send to Employee">Verify & Send</button>
+              <button class="btn review-btn" *ngIf="canHRReview(appraisal)" (click)="openHRReviewDialog(appraisal)" pTooltip="HR Review & Approve">Review</button>
+              <button class="btn edit-respond-btn" *ngIf="canHRRespondEdit(appraisal)" (click)="openEditResponseDialog(appraisal)" pTooltip="Respond to Edit Request">Edit Req</button>
+              <button class="btn edit-req-btn" *ngIf="canManagerRequestEdit(appraisal)" (click)="openManagerEditRequest(appraisal)" pTooltip="Request to Edit">Request Edit</button>
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -198,3 +231,356 @@
     </form>
   </div>
 </div>
+
+<p-toast></p-toast>
+
+<!-- HR: VERIFY & SEND DIALOG -->
+<p-dialog header="Verify & Send Appraisal" [(visible)]="verifyDialogVisible" [modal]="true" [style]="{ width: '480px' }">
+  <div *ngIf="verifyAppraisal" style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0">
+    <div><strong>Employee:</strong> {{ verifyAppraisal.employee?.firstName }} {{ verifyAppraisal.employee?.lastName }} ({{ verifyAppraisal.empId }})</div>
+    <div><strong>Cycle:</strong> {{ verifyAppraisal.cycle }}</div>
+    <div>
+      <label>Start Date</label>
+      <p-datepicker [(ngModel)]="verifyStartDate" dateFormat="dd-mm-yy" [showIcon]="true" iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div>
+      <label>End Date</label>
+      <p-datepicker [(ngModel)]="verifyEndDate" dateFormat="dd-mm-yy" [showIcon]="true" iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div>
+      <label>Due Date</label>
+      <p-datepicker [(ngModel)]="verifyDueDate" dateFormat="dd-mm-yy" [showIcon]="true" iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="verifyDialogVisible = false"></button>
+    <button pButton label="Verify & Send" class="p-button-success" (click)="confirmVerify()" [loading]="verifyLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- HR: REVIEW & APPROVE DIALOG -->
+<p-dialog header="HR Review & Approve" [(visible)]="hrReviewDialogVisible" [modal]="true" [style]="{ width: '500px' }">
+  <div *ngIf="hrReviewAppraisal" style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0">
+    <div><strong>Employee:</strong> {{ hrReviewAppraisal.employee?.firstName }} {{ hrReviewAppraisal.employee?.lastName }}</div>
+    <div><strong>Cycle:</strong> {{ hrReviewAppraisal.cycle }}</div>
+    <div><strong>Manager Score:</strong> {{ hrReviewAppraisal.managerReview?.overallScore || hrReviewAppraisal.overallScore || '-' }}</div>
+    <div><strong>Decision:</strong> {{ hrReviewAppraisal.finalDecision || '-' }}</div>
+    <div>
+      <label>HR Comments</label>
+      <textarea pTextarea [(ngModel)]="hrReviewComments" rows="3" style="width:100%" placeholder="HR review comments..."></textarea>
+    </div>
+    <div>
+      <label>HR Recommendations</label>
+      <textarea pTextarea [(ngModel)]="hrRecommendations" rows="2" style="width:100%" placeholder="Recommendations..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="hrReviewDialogVisible = false"></button>
+    <button pButton label="Save Review" class="p-button-text" (click)="submitHRReview('SAVE')" [loading]="hrReviewLoading"></button>
+    <button pButton label="Approve & Complete" class="p-button-success" (click)="submitHRReview('APPROVE')" [loading]="hrReviewLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- HR: EDIT REQUEST RESPONSE DIALOG -->
+<p-dialog header="Respond to Edit Request" [(visible)]="editResponseDialogVisible" [modal]="true" [style]="{ width: '450px' }">
+  <div *ngIf="editResponseItem" style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0">
+    <div><strong>Requested By:</strong> {{ editResponseItem.requestedByName }}</div>
+    <div><strong>Type:</strong> {{ editResponseItem.requestType }}</div>
+    <div><strong>Reason:</strong> {{ editResponseItem.reason }}</div>
+    <div style="display:flex;gap:8px">
+      <button pButton label="Approve" [class]="editResponseAction === 'APPROVE' ? 'p-button-success' : 'p-button-outlined'" (click)="editResponseAction = 'APPROVE'"></button>
+      <button pButton label="Reject" [class]="editResponseAction === 'REJECT' ? 'p-button-danger' : 'p-button-outlined'" (click)="editResponseAction = 'REJECT'"></button>
+    </div>
+    <div *ngIf="editResponseAction === 'REJECT'">
+      <label>Rejection Reason *</label>
+      <textarea pTextarea [(ngModel)]="editRejectionReason" rows="2" style="width:100%" placeholder="Reason..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="editResponseDialogVisible = false"></button>
+    <button pButton label="Confirm" [class]="editResponseAction === 'APPROVE' ? 'p-button-success' : 'p-button-danger'"
+      (click)="confirmEditResponse()" [disabled]="editResponseAction === 'REJECT' && !editRejectionReason.trim()" [loading]="editResponseLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- MANAGER: EDIT REQUEST DIALOG -->
+<p-dialog header="Request Edit" [(visible)]="managerEditRequestDialogVisible" [modal]="true" [style]="{ width: '420px' }">
+  <div style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0">
+    <div>
+      <label>Reason for Edit <span style="color:red">*</span></label>
+      <textarea pTextarea [(ngModel)]="managerEditRequestReason" rows="3" style="width:100%"
+        placeholder="Why do you need to edit your review?"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="managerEditRequestDialogVisible = false"></button>
+    <button pButton label="Submit Request" class="p-button-warning" (click)="submitManagerEditRequest()"
+      [disabled]="!managerEditRequestReason.trim()" [loading]="managerEditLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- HR: FULL DETAIL DIALOG -->
+<p-dialog header="Appraisal Full Details" [(visible)]="fullDetailDialogVisible" [modal]="true"
+  [style]="{ width: '780px', maxHeight: '88vh' }" [closable]="true">
+  <div *ngIf="fullDetailAppraisal" class="fd">
+
+    <!-- ── Top Summary Bar ────────────────────────────────────────── -->
+    <div class="fd-summary">
+      <div class="fd-emp">
+        <div class="fd-name">{{ fullDetailAppraisal.employee?.firstName }} {{ fullDetailAppraisal.employee?.lastName }}</div>
+        <div class="fd-meta">{{ fullDetailAppraisal.employee?.employeeCode }} &bull; {{ fullDetailAppraisal.employee?.Department?.name }}</div>
+      </div>
+      <div class="fd-pills">
+        <span class="fd-pill fd-cycle">{{ fullDetailAppraisal.cycle }}</span>
+        <span class="fd-pill" [ngClass]="{
+          'fd-status-completed': fullDetailAppraisal.status === 'COMPLETED',
+          'fd-status-review': fullDetailAppraisal.status === 'HR_REVIEW',
+          'fd-status-pending': fullDetailAppraisal.status === 'PENDING_FILL'
+        }">{{ fullDetailAppraisal.status?.split('_').join(' ') }}</span>
+      </div>
+    </div>
+
+    <div class="fd-period" *ngIf="fullDetailAppraisal.appraisalStartDate">
+      {{ fmtDate(fullDetailAppraisal.appraisalStartDate) }} — {{ fmtDate(fullDetailAppraisal.appraisalEndDate) }}
+      <span *ngIf="fullDetailAppraisal.dueDate" class="fd-due">Due: {{ fmtDate(fullDetailAppraisal.dueDate) }}</span>
+    </div>
+
+    <!-- ── Score Overview (if both submitted) ──────────────────────── -->
+    <div class="fd-scores" *ngIf="fullDetailAppraisal.overallScore || fullDetailAppraisal.finalDecision">
+      <div class="fd-score-card" *ngIf="fullDetailAppraisal.overallScore">
+        <div class="fd-score-num">{{ fullDetailAppraisal.overallScore }}</div>
+        <div class="fd-score-label">Overall Score</div>
+        <div class="fd-score-max">/10</div>
+      </div>
+      <div class="fd-score-card fd-decision-card" *ngIf="fullDetailAppraisal.finalDecision">
+        <div class="fd-decision-val">{{ fullDetailAppraisal.finalDecision }}</div>
+        <div class="fd-score-label">Decision</div>
+      </div>
+    </div>
+
+    <!-- ── Employee Insights ─────────────────────────────────────── -->
+    <div class="fd-section" *ngIf="employeeInsights">
+      <div class="fd-section-head fd-orange">
+        <i class="pi pi-chart-line"></i> Employee Insights
+        <span class="fd-tag">{{ fmtDate(employeeInsights.period?.start) }} — {{ fmtDate(employeeInsights.period?.end) }}</span>
+      </div>
+      <div class="fd-section-body">
+        <!-- Summary Cards — clickable to expand -->
+        <div class="fd-insight-row">
+          <div class="fd-insight-card fd-clickable" (click)="insightExpanded = insightExpanded === 'rating' ? '' : 'rating'"
+            [class.fd-card-active]="insightExpanded === 'rating'">
+            <div class="fd-insight-num">{{ employeeInsights.weeklyRatings?.overallAverage || '-' }}</div>
+            <div class="fd-insight-label">Avg Weekly Rating</div>
+            <i class="pi fd-expand-icon" [ngClass]="insightExpanded === 'rating' ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </div>
+          <div class="fd-insight-card fd-clickable" (click)="insightExpanded = insightExpanded === 'weeks' ? '' : 'weeks'"
+            [class.fd-card-active]="insightExpanded === 'weeks'">
+            <div class="fd-insight-num">{{ employeeInsights.weeklyRatings?.totalWeeks || 0 }}</div>
+            <div class="fd-insight-label">Weeks Rated</div>
+            <i class="pi fd-expand-icon" [ngClass]="insightExpanded === 'weeks' ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </div>
+          <div class="fd-insight-card fd-incident-card fd-clickable" (click)="insightExpanded = insightExpanded === 'incidents' ? '' : 'incidents'"
+            [class.fd-card-active]="insightExpanded === 'incidents'">
+            <div class="fd-insight-num">{{ employeeInsights.incidents?.count || 0 }}</div>
+            <div class="fd-insight-label">Incidents</div>
+            <i class="pi fd-expand-icon" [ngClass]="insightExpanded === 'incidents' ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </div>
+        </div>
+
+        <!-- Expanded: Monthly Averages Chart -->
+        <div *ngIf="insightExpanded === 'rating' && employeeInsights.weeklyRatings?.monthlyAverages?.length" class="fd-expand-panel">
+          <div class="fd-monthly-title">Monthly Average Scores</div>
+          <div class="fd-monthly-chart">
+            <div class="fd-month-col" *ngFor="let m of employeeInsights.weeklyRatings.monthlyAverages">
+              <div class="fd-month-bar-wrap">
+                <div class="fd-month-bar" [style.height.%]="m.average * 10"
+                  [ngClass]="{'fd-bar-high': m.average >= 8, 'fd-bar-mid': m.average >= 5 && m.average < 8, 'fd-bar-low': m.average < 5}">
+                </div>
+              </div>
+              <div class="fd-month-val">{{ m.average }}</div>
+              <div class="fd-month-label">{{ m.month.split('-')[1] }}/{{ m.month.split('-')[0].slice(2) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded: Weekly Ratings List -->
+        <div *ngIf="insightExpanded === 'weeks'" class="fd-expand-panel">
+          <div class="fd-monthly-title">Weekly Rating Details</div>
+          <div class="fd-week-list">
+            <div class="fd-week-item" *ngFor="let w of employeeInsights.weeklyRatings?.raw">
+              <span class="fd-week-label">{{ w.weekLabel }}</span>
+              <div class="fd-bar-wrap" style="flex:1">
+                <div class="fd-bar" [style.width.%]="(w.overallScore || 0) * 10"
+                  [ngClass]="{'fd-bar-high': w.overallScore >= 8, 'fd-bar-mid': w.overallScore >= 5 && w.overallScore < 8, 'fd-bar-low': w.overallScore < 5}"></div>
+              </div>
+              <span class="fd-week-score">{{ w.overallScore }}/10</span>
+              <span class="fd-week-date">{{ fmtDate(w.weekStartDate) }}</span>
+            </div>
+          </div>
+          <div *ngIf="!employeeInsights.weeklyRatings?.raw?.length" class="fd-empty">No weekly ratings found</div>
+        </div>
+
+        <!-- Expanded: Incidents List -->
+        <div *ngIf="insightExpanded === 'incidents'" class="fd-expand-panel">
+          <div class="fd-monthly-title">Incidents</div>
+          <div class="fd-incident-item" *ngFor="let inc of employeeInsights.incidents?.list">
+            <span class="fd-inc-title">{{ inc.title }}</span>
+            <span class="fd-inc-status" [ngClass]="{'fd-inc-open': inc.status === 'OPEN', 'fd-inc-closed': inc.status === 'CLOSED', 'fd-inc-progress': inc.status === 'IN_PROGRESS'}">{{ inc.status }}</span>
+            <span class="fd-inc-date">{{ fmtDate(inc.createdAt) }}</span>
+          </div>
+          <div *ngIf="!employeeInsights.incidents?.list?.length" class="fd-empty">No incidents found</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Self-Appraisal ─────────────────────────────────────────── -->
+    <div class="fd-section">
+      <div class="fd-section-head fd-green">
+        <i class="pi pi-user"></i> Self-Appraisal
+        <span class="fd-tag" *ngIf="fullDetailAppraisal.selfAppraisalSubmittedAt">
+          <i class="pi pi-check" style="font-size:10px"></i> {{ fmtDate(fullDetailAppraisal.selfAppraisalSubmittedAt) }}
+        </span>
+        <span class="fd-tag fd-tag-pending" *ngIf="!fullDetailAppraisal.selfAppraisalSubmittedAt">Pending</span>
+      </div>
+      <div class="fd-section-body" *ngIf="fullDetailAppraisal.selfAppraisal">
+        <div class="fd-text-grid">
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.selfAppraisal.achievements">
+            <div class="fd-text-title">Achievements</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.achievements }}</div>
+          </div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.selfAppraisal.goalsObjective">
+            <div class="fd-text-title">Goals</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.goalsObjective }}</div>
+          </div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.selfAppraisal.challenges">
+            <div class="fd-text-title">Challenges</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.challenges }}</div>
+          </div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.selfAppraisal.trainingNeeds">
+            <div class="fd-text-title">Training Needs</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.trainingNeeds }}</div>
+          </div>
+        </div>
+        <!-- Self ratings -->
+        <div *ngIf="fullDetailAppraisal.selfAnswers?.length" class="fd-ratings">
+          <div class="fd-rating-item" *ngFor="let a of fullDetailAppraisal.selfAnswers; let i = index">
+            <span class="fd-rating-q">{{ a.question?.text }}</span>
+            <div class="fd-bar-wrap">
+              <div class="fd-bar" [style.width.%]="a.rating * 10"
+                [ngClass]="{'fd-bar-high': a.rating >= 8, 'fd-bar-mid': a.rating >= 5 && a.rating < 8, 'fd-bar-low': a.rating < 5}"></div>
+            </div>
+            <span class="fd-rating-val">{{ a.rating }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.selfAppraisal && !fullDetailAppraisal.selfAnswers?.length">
+        Not yet submitted
+      </div>
+    </div>
+
+    <!-- ── Manager Review ─────────────────────────────────────────── -->
+    <div class="fd-section">
+      <div class="fd-section-head fd-blue">
+        <i class="pi pi-briefcase"></i> Manager Review
+        <span class="fd-tag" *ngIf="fullDetailAppraisal.managerAppraisalSubmittedAt">
+          <i class="pi pi-check" style="font-size:10px"></i> {{ fmtDate(fullDetailAppraisal.managerAppraisalSubmittedAt) }}
+        </span>
+        <span class="fd-tag fd-tag-pending" *ngIf="!fullDetailAppraisal.managerAppraisalSubmittedAt">Pending</span>
+      </div>
+      <div class="fd-section-body" *ngIf="fullDetailAppraisal.managerReview">
+        <div class="fd-mgr-score">
+          <span class="fd-mgr-num">{{ fullDetailAppraisal.managerReview.overallScore }}</span>
+          <span class="fd-mgr-max">/10</span>
+        </div>
+
+        <div class="fd-criteria-grid">
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.qualityOfWorkRating != null">
+            <span class="fd-criteria-name">Quality of Work</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.qualityOfWorkRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.qualityOfWorkRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.qualityOfWorkRating >= 5 && fullDetailAppraisal.managerReview.qualityOfWorkRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.qualityOfWorkRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.qualityOfWorkRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.knowledgeOfJobRating != null">
+            <span class="fd-criteria-name">Knowledge</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.knowledgeOfJobRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.knowledgeOfJobRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.knowledgeOfJobRating >= 5 && fullDetailAppraisal.managerReview.knowledgeOfJobRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.knowledgeOfJobRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.knowledgeOfJobRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.teamworkRating != null">
+            <span class="fd-criteria-name">Teamwork</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.teamworkRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.teamworkRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.teamworkRating >= 5 && fullDetailAppraisal.managerReview.teamworkRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.teamworkRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.teamworkRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.independenceRating != null">
+            <span class="fd-criteria-name">Independence</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.independenceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.independenceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.independenceRating >= 5 && fullDetailAppraisal.managerReview.independenceRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.independenceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.independenceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.recordsRating != null">
+            <span class="fd-criteria-name">Records</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.recordsRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.recordsRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.recordsRating >= 5 && fullDetailAppraisal.managerReview.recordsRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.recordsRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.recordsRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.guestServiceRating != null">
+            <span class="fd-criteria-name">Guest Service</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.guestServiceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.guestServiceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.guestServiceRating >= 5 && fullDetailAppraisal.managerReview.guestServiceRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.guestServiceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.guestServiceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.safetyRating != null">
+            <span class="fd-criteria-name">Safety</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.safetyRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.safetyRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.safetyRating >= 5 && fullDetailAppraisal.managerReview.safetyRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.safetyRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.safetyRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.attendanceRating != null">
+            <span class="fd-criteria-name">Attendance</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.attendanceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.attendanceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.attendanceRating >= 5 && fullDetailAppraisal.managerReview.attendanceRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.attendanceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.attendanceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managerReview.leadershipRating != null">
+            <span class="fd-criteria-name">Leadership</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managerReview.leadershipRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managerReview.leadershipRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managerReview.leadershipRating >= 5 && fullDetailAppraisal.managerReview.leadershipRating < 8, 'fd-bar-low': fullDetailAppraisal.managerReview.leadershipRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managerReview.leadershipRating }}</span>
+          </div>
+        </div>
+
+        <div class="fd-text-grid" *ngIf="fullDetailAppraisal.managerReview.comments || fullDetailAppraisal.managerReview.recommendations">
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.managerReview.comments">
+            <div class="fd-text-title">Comments</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.managerReview.comments }}</div>
+          </div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.managerReview.recommendations">
+            <div class="fd-text-title">Recommendations</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.managerReview.recommendations }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.managerReview">Not yet submitted</div>
+    </div>
+
+    <!-- ── HR Review ──────────────────────────────────────────────── -->
+    <div class="fd-section" *ngIf="fullDetailAppraisal.hrReviewComments">
+      <div class="fd-section-head fd-purple">
+        <i class="pi pi-shield"></i> HR Review
+      </div>
+      <div class="fd-section-body">
+        <div class="fd-text-grid">
+          <div class="fd-text-item"><div class="fd-text-title">Comments</div><div class="fd-text-body">{{ fullDetailAppraisal.hrReviewComments }}</div></div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.hrRecommendations"><div class="fd-text-title">Recommendations</div><div class="fd-text-body">{{ fullDetailAppraisal.hrRecommendations }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Edit History ───────────────────────────────────────────── -->
+    <div class="fd-section" *ngIf="fullDetailAppraisal.editHistory?.length">
+      <div class="fd-section-head fd-grey">
+        <i class="pi pi-history"></i> Edit History
+      </div>
+      <div class="fd-section-body">
+        <div class="fd-hist" *ngFor="let h of fullDetailAppraisal.editHistory">
+          <span class="fd-hist-type">{{ h.editType?.split('_').join(' ') }}</span>
+          <span class="fd-hist-date">{{ fmtDate(h.editedAt) }}</span>
+          <span class="fd-hist-reason" *ngIf="h.editReason">{{ h.editReason }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</p-dialog>

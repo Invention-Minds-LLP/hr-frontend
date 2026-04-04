@@ -265,12 +265,12 @@ export class TrainingList {
           console.log('📥 Fetched trainings for employee', empId, this.filteredTrainings);
           setTimeout(() => {
             this.loading = false;
-            this.messageService.add({ severity: 'success', summary: 'Trainings Loaded', detail: 'Your trainings have been loaded successfully.' });
+            // this.messageService.add({ severity: 'success', summary: 'Trainings Loaded', detail: 'Your trainings have been loaded successfully.' });
           }, 3000)
         },
         error: (err: any) => {
           console.error(err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load trainings. Please try again later.' });
+          // this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load trainings. Please try again later.' });
           this.loading = false;
         },
       });

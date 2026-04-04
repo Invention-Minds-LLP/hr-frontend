@@ -11,6 +11,7 @@ import { Appraisal } from '../../../services/appraisal/appraisal';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { formatDate } from '@angular/common';
+import { Toast, ToastModule } from "primeng/toast";
 interface SelectOpton {
   name: string;
   value: string;
@@ -18,7 +19,7 @@ interface SelectOpton {
 
 @Component({
   selector: 'app-apprasial-form',
-  imports: [FormsModule, InputTextModule, FloatLabel, TextareaModule, ButtonModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, InputTextModule, FloatLabel, TextareaModule, ButtonModule, ReactiveFormsModule, CommonModule, ToastModule],
   templateUrl: './apprasial-form.html',
   styleUrl: './apprasial-form.css',
   providers: [MessageService]
@@ -33,6 +34,11 @@ export class ApprasialForm {
 
   appraisalForm!: FormGroup;
   role: string = 'Reporting Manager'
+
+  // Employee insights
+  employeeInsights: any = null;
+  insightsLoading = false;
+  insightExpanded: string = '';
 
   constructor(private fb: FormBuilder, private appraisalService: Appraisal,
     private messageService: MessageService) { }
@@ -49,6 +55,8 @@ export class ApprasialForm {
       }
       // Use setTimeout to ensure DOM is ready
       setTimeout(() => this.patchEmployeeData(), 0);
+      // Load employee insights
+      this.loadInsights();
     }
   }
 
@@ -278,6 +286,16 @@ export class ApprasialForm {
   onSubmit() {
     const invalidFields = this.getInvalidFields(this.appraisalForm);
     console.log('Invalid fields:', invalidFields);
+
+    if (!this.appraisalForm.valid) {
+      this.messageService?.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'Please fill all required fields: ' + invalidFields.join(', ')
+      });
+      return;
+    }
+
     this.isLoading = true;
 
     if (this.appraisalForm.valid) {
@@ -303,12 +321,12 @@ export class ApprasialForm {
       });
 
       const payload = {
-        appraisalId: this.selectedAppraisal.id,
-        ...rawValues
+        ...rawValues,
+        isDraft: false,
       };
 
       console.log('Payload:', payload);
-      this.appraisalService.saveManagerReview(payload).subscribe({
+      this.appraisalService.submitManagerAppraisalV2(this.selectedAppraisal.id, payload).subscribe({
         next: () => {
           this.isLoading = false;
 
@@ -333,6 +351,14 @@ export class ApprasialForm {
           });
         }
       });
+    }
+    else{
+      this.isLoading = false;
+      this.messageService?.add({
+        severity: 'error',
+        summary: 'Invalid Form',
+        detail: 'Please correct the highlighted fields before submitting.'
+      })
     }
   }
   onCancel() {
@@ -418,5 +444,17 @@ export class ApprasialForm {
     this.backToList.emit();
   }
 
+  loadInsights() {
+    if (!this.selectedAppraisal?.id) return;
+    this.insightsLoading = true;
+    this.appraisalService.getEmployeeInsights(this.selectedAppraisal.id).subscribe({
+      next: (data: any) => { this.employeeInsights = data; this.insightsLoading = false; },
+      error: () => { this.employeeInsights = null; this.insightsLoading = false; }
+    });
+  }
 
+  fmtInsightDate(d: any): string {
+    if (!d) return '';
+    try { return new Date(d).toLocaleDateString('en-GB'); } catch { return ''; }
+  }
 }

@@ -1,0 +1,400 @@
+<div class="guide">
+  <app-module-guide
+    title="Self Appraisal"
+    subtitle="Complete your self-assessment for each appraisal cycle. Share your achievements, challenges, and rate yourself."
+    [points]="[
+      { label: 'Fill Self-Appraisal', desc: 'Once HR initiates your appraisal, fill in your achievements, goals, challenges, and rate yourself on the given questions.' },
+      { label: 'Track Status', desc: 'View the current status of your appraisal — Pending Fill, Submitted, HR Review, or Completed.' },
+      { label: 'Request Edit', desc: 'If you need to change your submission before HR approves, send an edit request with a reason.' },
+      { label: 'Due Date', desc: 'Submit before the due date. After the due date passes, self-appraisal cannot be submitted.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+
+<div class="self-appraisal-container">
+  <div class="section-header">
+    <div class="main-heading">My Appraisals</div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="appraisal-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cycle</th>
+          <th>Period</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Self Score</th>
+          <th *ngIf="isHRManager">Manager Score</th>
+          <th *ngIf="isHRManager">Decision</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of myAppraisals; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ a.cycle }}</td>
+          <td>{{ fmtDate(a.appraisalStartDate) }} - {{ fmtDate(a.appraisalEndDate) }}</td>
+          <td>{{ fmtDate(a.dueDate) || '-' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(a.status)">
+              {{ a.status?.split('_').join(' ') }}
+            </span>
+          </td>
+          <td>{{ a.selfAppraisal?.overallScore || '-' }}</td>
+          <td *ngIf="isHRManager">{{ a.managerReview?.overallScore || a.overallScore || '-' }}</td>
+          <td *ngIf="isHRManager">{{ a.finalDecision || '-' }}</td>
+          <td class="action-cell">
+            <!-- Employee: Fill self-appraisal -->
+            <button class="btn-icon edit" *ngIf="canFillSelf(a)" (click)="openSelfAppraisalForm(a)" pTooltip="Fill Self-Appraisal" tooltipPosition="top">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <span *ngIf="isDueDatePassed(a) && !a.selfAppraisalSubmittedAt" style="color:#f44336; font-size:11px">Due Passed</span>
+            <!-- View details -->
+            <button class="btn-icon view" (click)="viewDetail(a)" pTooltip="View Details" tooltipPosition="top">
+              <i class="pi pi-eye"></i>
+            </button>
+            <!-- Employee: Request edit -->
+            <button class="btn-icon request-edit" *ngIf="canRequestEdit(a)" (click)="openEditRequestDialog(a.id)" pTooltip="Request Edit" tooltipPosition="top">
+              <i class="pi pi-undo"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="myAppraisals.length === 0 && !loading">
+          <td colspan="9" class="no-data">No appraisals found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── SELF-APPRAISAL FORM DIALOG ──────────────────────────────────── -->
+<p-dialog header="Self-Appraisal" [(visible)]="formDialogVisible" [modal]="true"
+  [style]="{ width: '700px', maxHeight: '85vh' }" [closable]="true">
+  <div class="self-form" *ngIf="selectedAppraisal">
+    <div class="form-info">
+      <span>Cycle: <strong>{{ selectedAppraisal.cycle }}</strong></span>
+    </div>
+
+    <!-- Free-text sections -->
+    <div class="form-section">
+      <h4>Key Achievements</h4>
+      <textarea pTextarea [(ngModel)]="achievements" rows="3" style="width: 100%"
+        placeholder="List your key achievements during this period..."></textarea>
+    </div>
+
+    <div class="form-section">
+      <h4>Goals & Objectives Met</h4>
+      <textarea pTextarea [(ngModel)]="goalsObjective" rows="3" style="width: 100%"
+        placeholder="What goals/objectives did you meet?"></textarea>
+    </div>
+
+    <div class="form-section">
+      <h4>Challenges Faced</h4>
+      <textarea pTextarea [(ngModel)]="challenges" rows="3" style="width: 100%"
+        placeholder="What challenges did you encounter?"></textarea>
+    </div>
+
+    <div class="form-section">
+      <h4>Training Needs</h4>
+      <textarea pTextarea [(ngModel)]="trainingNeeds" rows="2" style="width: 100%"
+        placeholder="Any training or skill development needs?"></textarea>
+    </div>
+
+    <!-- Question-based ratings -->
+    <div class="form-section" *ngIf="answers.length">
+      <h4>Self-Rating Questions</h4>
+      <div class="question-list">
+        <div class="q-card" *ngFor="let a of answers; let i = index">
+          <div class="q-header">
+            <span class="q-num">{{ i + 1 }}.</span>
+            <span class="q-text">{{ a.text }}</span>
+            <span class="q-score" *ngIf="a.rating">{{ a.rating }}/10</span>
+          </div>
+          <div class="q-slider">
+            <input type="range" min="1" max="10" [(ngModel)]="a.rating" class="slider" />
+            <div class="q-labels"><span>1</span><span>5</span><span>10</span></div>
+          </div>
+          <input type="text" pInputText [(ngModel)]="a.comments" placeholder="Comments (optional)" class="q-comments" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Save Draft" class="p-button-text" (click)="saveSelfAppraisal(true)" [loading]="saving"></button>
+    <button pButton label="Submit" class="p-button-success" (click)="saveSelfAppraisal(false)" [loading]="saving"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── DETAIL VIEW DIALOG ──────────────────────────────────────────── -->
+<p-dialog header="Appraisal Details" [(visible)]="detailDialogVisible" [modal]="true"
+  [style]="{ width: '700px', maxHeight: '85vh' }" [closable]="true">
+  <div *ngIf="detailAppraisal" class="detail-container">
+
+    <!-- Employee Info Card -->
+    <div class="detail-card info-card">
+      <div class="detail-card-header">
+        <i class="pi pi-user"></i> Employee Information
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-key">Name</span>
+            <span class="detail-val">{{ detailAppraisal.employee?.firstName }} {{ detailAppraisal.employee?.lastName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-key">Department</span>
+            <span class="detail-val">{{ detailAppraisal.employee?.Department?.name || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-key">Cycle</span>
+            <span class="detail-val">{{ detailAppraisal.cycle }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-key">Status</span>
+            <span class="status-badge" [ngClass]="getStatusClass(detailAppraisal.status)">{{ detailAppraisal.status?.split('_').join(' ') }}</span>
+          </div>
+          <div class="detail-item" *ngIf="detailAppraisal.appraisalStartDate">
+            <span class="detail-key">Period</span>
+            <span class="detail-val">{{ fmtDate(detailAppraisal.appraisalStartDate) }} — {{ fmtDate(detailAppraisal.appraisalEndDate) }}</span>
+          </div>
+          <div class="detail-item" *ngIf="detailAppraisal.dueDate">
+            <span class="detail-key">Due Date</span>
+            <span class="detail-val">{{ fmtDate(detailAppraisal.dueDate) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-Appraisal Card -->
+    <div *ngIf="detailAppraisal.selfAppraisal" class="detail-card self-card">
+      <div class="detail-card-header self-header">
+        <i class="pi pi-pencil"></i> My Self-Appraisal
+        <span class="submitted-tag" *ngIf="detailAppraisal.selfAppraisalSubmittedAt">
+          Submitted {{ fmtDate(detailAppraisal.selfAppraisalSubmittedAt) }}
+        </span>
+      </div>
+      <div class="detail-card-body">
+        <div class="text-block" *ngIf="detailAppraisal.selfAppraisal.achievements">
+          <div class="text-label">Key Achievements</div>
+          <div class="text-content">{{ detailAppraisal.selfAppraisal.achievements }}</div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.selfAppraisal.goalsObjective">
+          <div class="text-label">Goals & Objectives</div>
+          <div class="text-content">{{ detailAppraisal.selfAppraisal.goalsObjective }}</div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.selfAppraisal.challenges">
+          <div class="text-label">Challenges</div>
+          <div class="text-content">{{ detailAppraisal.selfAppraisal.challenges }}</div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.selfAppraisal.trainingNeeds">
+          <div class="text-label">Training Needs</div>
+          <div class="text-content">{{ detailAppraisal.selfAppraisal.trainingNeeds }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-Rating Answers Card -->
+    <div *ngIf="detailAppraisal.selfAnswers?.length" class="detail-card rating-card">
+      <div class="detail-card-header self-header">
+        <i class="pi pi-star"></i> Self-Rating Scores
+      </div>
+      <div class="detail-card-body">
+        <div class="rating-row" *ngFor="let a of detailAppraisal.selfAnswers; let i = index">
+          <span class="rating-num">{{ i + 1 }}</span>
+          <span class="rating-text">{{ a.question?.text }}</span>
+          <span class="rating-score" [ngClass]="{'high': a.rating >= 8, 'mid': a.rating >= 5 && a.rating < 8, 'low': a.rating < 5}">
+            {{ a.rating }}/10
+          </span>
+          <span class="rating-remark" *ngIf="a.comments">{{ a.comments }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manager Review Card (HR only) -->
+    <div *ngIf="detailAppraisal.managerReview && isHRManager" class="detail-card manager-card">
+      <div class="detail-card-header manager-header">
+        <i class="pi pi-briefcase"></i> Manager Review
+        <span class="submitted-tag" *ngIf="detailAppraisal.managerAppraisalSubmittedAt">
+          Submitted {{ fmtDate(detailAppraisal.managerAppraisalSubmittedAt) }}
+        </span>
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-key">Overall Score</span>
+            <span class="detail-val score-highlight">{{ detailAppraisal.managerReview.overallScore }}/10</span>
+          </div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.managerReview.comments">
+          <div class="text-label">Comments</div>
+          <div class="text-content">{{ detailAppraisal.managerReview.comments }}</div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.managerReview.recommendations">
+          <div class="text-label">Recommendations</div>
+          <div class="text-content">{{ detailAppraisal.managerReview.recommendations }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Score & Decision (HR only) -->
+    <div *ngIf="isHRManager && detailAppraisal.finalDecision" class="detail-card decision-card">
+      <div class="detail-card-header decision-header">
+        <i class="pi pi-flag"></i> Final Decision
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-key">Decision</span>
+            <span class="detail-val decision-text">{{ detailAppraisal.finalDecision }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-key">Overall Score</span>
+            <span class="detail-val score-highlight">{{ detailAppraisal.overallScore }}/10</span>
+          </div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.finalComments">
+          <div class="text-label">Comments</div>
+          <div class="text-content">{{ detailAppraisal.finalComments }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HR Review Card -->
+    <div *ngIf="detailAppraisal.hrReviewComments" class="detail-card hr-card">
+      <div class="detail-card-header hr-header">
+        <i class="pi pi-shield"></i> HR Review
+      </div>
+      <div class="detail-card-body">
+        <div class="text-block">
+          <div class="text-label">Comments</div>
+          <div class="text-content">{{ detailAppraisal.hrReviewComments }}</div>
+        </div>
+        <div class="text-block" *ngIf="detailAppraisal.hrRecommendations">
+          <div class="text-label">Recommendations</div>
+          <div class="text-content">{{ detailAppraisal.hrRecommendations }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit History Card -->
+    <div *ngIf="detailAppraisal.editHistory?.length" class="detail-card history-card">
+      <div class="detail-card-header history-header">
+        <i class="pi pi-history"></i> Edit History
+      </div>
+      <div class="detail-card-body">
+        <div class="history-entry" *ngFor="let h of detailAppraisal.editHistory">
+          <div class="history-type">{{ h.editType?.split('_').join(' ') }}</div>
+          <div class="history-date">{{ fmtDate(h.editedAt) }}</div>
+          <div class="history-reason" *ngIf="h.editReason">{{ h.editReason }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</p-dialog>
+
+<!-- ── EDIT REQUEST DIALOG ─────────────────────────────────────────── -->
+<p-dialog header="Request Edit" [(visible)]="editRequestDialogVisible" [modal]="true" [style]="{ width: '420px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Reason for Edit <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="editRequestReason" rows="3" style="width: 100%"
+        placeholder="Why do you need to edit your submission?"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="editRequestDialogVisible = false"></button>
+    <button pButton label="Submit Request" class="p-button-warning" (click)="submitEditRequest()"
+      [disabled]="!editRequestReason.trim()" [loading]="editRequestLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── HR: VERIFY & SEND DIALOG ────────────────────────────────────── -->
+<p-dialog header="Verify & Send Appraisal" [(visible)]="verifyDialogVisible" [modal]="true" [style]="{ width: '480px' }">
+  <div class="dialog-form" *ngIf="verifyAppraisal">
+    <div class="info-row"><span class="info-label">Employee:</span><span>{{ verifyAppraisal.employee?.firstName }} {{ verifyAppraisal.employee?.lastName }}</span></div>
+    <div class="info-row"><span class="info-label">Cycle:</span><span>{{ verifyAppraisal.cycle }}</span></div>
+
+    <div class="field">
+      <label>Appraisal Start Date</label>
+      <p-datepicker [(ngModel)]="verifyStartDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Appraisal End Date</label>
+      <p-datepicker [(ngModel)]="verifyEndDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Due Date</label>
+      <p-datepicker [(ngModel)]="verifyDueDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        iconDisplay="input" [style]="{'width':'100%'}" appendTo="body"></p-datepicker>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="verifyDialogVisible = false"></button>
+    <button pButton label="Verify & Send" class="p-button-success" (click)="confirmVerify()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── HR: REVIEW & APPROVE DIALOG ─────────────────────────────────── -->
+<p-dialog header="HR Review & Approve" [(visible)]="hrReviewDialogVisible" [modal]="true" [style]="{ width: '500px' }">
+  <div class="dialog-form" *ngIf="hrReviewAppraisal">
+    <div class="info-row"><span class="info-label">Employee:</span><span>{{ hrReviewAppraisal.employee?.firstName }} {{ hrReviewAppraisal.employee?.lastName }}</span></div>
+    <div class="info-row"><span class="info-label">Cycle:</span><span>{{ hrReviewAppraisal.cycle }}</span></div>
+    <div class="info-row"><span class="info-label">Manager Score:</span><span>{{ hrReviewAppraisal.overallScore || '-' }}</span></div>
+    <div class="info-row"><span class="info-label">Decision:</span><span>{{ hrReviewAppraisal.finalDecision || '-' }}</span></div>
+
+    <div class="field">
+      <label>HR Comments</label>
+      <textarea pTextarea [(ngModel)]="hrReviewComments" rows="3" style="width: 100%"
+        placeholder="HR review comments..."></textarea>
+    </div>
+    <div class="field">
+      <label>HR Recommendations</label>
+      <textarea pTextarea [(ngModel)]="hrRecommendations" rows="2" style="width: 100%"
+        placeholder="Recommendations..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="hrReviewDialogVisible = false"></button>
+    <button pButton label="Save Review" class="p-button-text" (click)="submitHRReview('SAVE')"></button>
+    <button pButton label="Approve & Complete" class="p-button-success" (click)="submitHRReview('APPROVE')"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── HR: EDIT REQUEST RESPONSE DIALOG ────────────────────────────── -->
+<p-dialog header="Respond to Edit Request" [(visible)]="editResponseDialogVisible" [modal]="true" [style]="{ width: '450px' }">
+  <div class="dialog-form" *ngIf="editResponseItem">
+    <div class="info-row"><span class="info-label">Requested By:</span><span>Employee #{{ editResponseItem.requestedBy }}</span></div>
+    <div class="info-row"><span class="info-label">Type:</span><span>{{ editResponseItem.requestType }}</span></div>
+    <div class="info-row"><span class="info-label">Reason:</span><span>{{ editResponseItem.reason }}</span></div>
+
+    <div class="field">
+      <label>Action</label>
+      <div class="action-buttons-row">
+        <button pButton label="Approve" [class]="editResponseAction === 'APPROVE' ? 'p-button-success' : 'p-button-outlined'"
+          (click)="editResponseAction = 'APPROVE'"></button>
+        <button pButton label="Reject" [class]="editResponseAction === 'REJECT' ? 'p-button-danger' : 'p-button-outlined'"
+          (click)="editResponseAction = 'REJECT'"></button>
+      </div>
+    </div>
+
+    <div class="field" *ngIf="editResponseAction === 'REJECT'">
+      <label>Rejection Reason <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="editRejectionReason" rows="2" style="width: 100%"
+        placeholder="Reason for rejecting..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="editResponseDialogVisible = false"></button>
+    <button pButton label="Confirm" [class]="editResponseAction === 'APPROVE' ? 'p-button-success' : 'p-button-danger'"
+      (click)="confirmEditResponse()"
+      [disabled]="editResponseAction === 'REJECT' && !editRejectionReason.trim()"></button>
+  </ng-template>
+</p-dialog>

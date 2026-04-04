@@ -54,6 +54,75 @@
             </div>
           </div>
           
+        <!-- ================= Employee Insights ================= -->
+        <div class="insights-panel" *ngIf="employeeInsights">
+          <div class="insights-header" (click)="insightExpanded = insightExpanded ? '' : 'open'">
+            <h3 class="insights-title">
+              <i class="pi pi-chart-line"></i> Employee Insights
+              <span class="insights-period" *ngIf="employeeInsights.period">
+                {{ fmtInsightDate(employeeInsights.period.start) }} — {{ fmtInsightDate(employeeInsights.period.end) }}
+              </span>
+            </h3>
+            <i class="pi insights-chevron" [ngClass]="insightExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </div>
+
+          <div class="insights-body" *ngIf="insightExpanded">
+            <!-- Summary Cards -->
+            <div class="insights-cards">
+              <div class="insight-card">
+                <div class="insight-num">{{ employeeInsights.weeklyRatings?.overallAverage || '-' }}</div>
+                <div class="insight-label">Avg Weekly Rating</div>
+              </div>
+              <div class="insight-card">
+                <div class="insight-num">{{ employeeInsights.weeklyRatings?.totalWeeks || 0 }}</div>
+                <div class="insight-label">Weeks Rated</div>
+              </div>
+              <div class="insight-card insight-incident">
+                <div class="insight-num">{{ employeeInsights.incidents?.count || 0 }}</div>
+                <div class="insight-label">Incidents</div>
+              </div>
+            </div>
+
+            <!-- Monthly Chart -->
+            <div *ngIf="employeeInsights.weeklyRatings?.monthlyAverages?.length" class="insights-chart">
+              <div class="insights-chart-title">Monthly Trend</div>
+              <div class="insights-bars">
+                <div class="insight-bar-col" *ngFor="let m of employeeInsights.weeklyRatings.monthlyAverages">
+                  <div class="insight-bar-wrap">
+                    <div class="insight-bar" [style.height.%]="m.average * 10"
+                      [ngClass]="{'bar-high': m.average >= 8, 'bar-mid': m.average >= 5 && m.average < 8, 'bar-low': m.average < 5}"></div>
+                  </div>
+                  <div class="insight-bar-val">{{ m.average }}</div>
+                  <div class="insight-bar-label">{{ m.month.split('-')[1] }}/{{ m.month.split('-')[0].slice(2) }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weekly Ratings List -->
+            <div *ngIf="employeeInsights.weeklyRatings?.raw?.length" class="insights-list">
+              <div class="insights-list-title">Weekly Ratings</div>
+              <div class="insight-week" *ngFor="let w of employeeInsights.weeklyRatings.raw">
+                <span class="iw-label">{{ w.weekLabel }}</span>
+                <div class="iw-bar-wrap">
+                  <div class="iw-bar" [style.width.%]="(w.overallScore || 0) * 10"
+                    [ngClass]="{'bar-high': w.overallScore >= 8, 'bar-mid': w.overallScore >= 5 && w.overallScore < 8, 'bar-low': w.overallScore < 5}"></div>
+                </div>
+                <span class="iw-score">{{ w.overallScore }}/10</span>
+              </div>
+            </div>
+
+            <!-- Incidents -->
+            <div *ngIf="employeeInsights.incidents?.list?.length" class="insights-list">
+              <div class="insights-list-title">Incidents</div>
+              <div class="insight-incident-row" *ngFor="let inc of employeeInsights.incidents.list">
+                <span class="inc-title">{{ inc.title }}</span>
+                <span class="inc-status" [ngClass]="{'inc-open': inc.status === 'OPEN', 'inc-closed': inc.status === 'CLOSED', 'inc-progress': inc.status === 'IN_PROGRESS'}">{{ inc.status }}</span>
+                <span class="inc-date">{{ fmtInsightDate(inc.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <h3 class="text-center mt-4 mb-3">Manager Remarks (Out of 10)</h3>
 
         <div class="grid formgrid">
@@ -134,11 +203,11 @@
         
   
         <!-- ================= Buttons ================= -->
-        <div class="btns" *ngIf="role === 'Reporting Manager'">
+        <div class="btns" *ngIf="role === 'Reporting Manager' && !['COMPLETED','HR_REVIEW'].includes(selectedAppraisal?.status) && !selectedAppraisal?.managerAppraisalSubmittedAt">
             <p-button label="Submit" severity="success" class="submit-btn" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" type="submit" (click)="onSubmit()" />
             <p-button label="Cancel" severity="danger" class="submit-btn" (click)="onCancel()" />
         </div>
       </div>
     </form>
   </div>
-  
+  <p-toast></p-toast>

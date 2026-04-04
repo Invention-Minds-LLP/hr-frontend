@@ -685,15 +685,6 @@ export class LeavePopup {
       tempFrom = tempTo;
     }
 
-    if (this.isSandwichLeave(tempFrom, tempTo)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Sandwich Leave Not Allowed',
-        detail: 'Leave cannot be applied before and after holidays/weekends'
-      });
-      return;
-    }
-
     this.calculateDays();
     this.generateCalendar();
     this.syncDropdownsFromDates();
@@ -736,10 +727,10 @@ export class LeavePopup {
 
   endDrag() {
     this.isDragging = false;
-    this.updateFromDate();
-    this.updateToDate();
     this.syncDropdownsFromDates();
-
+    if (!this.validateSandwichOrReset()) return;
+    this.calculateDays();
+    this.generateCalendar();
   }
   syncDropdownsFromDates() {
     this.fromDay = this.fromDate.getDate();
@@ -1220,7 +1211,7 @@ export class LeavePopup {
     from = this.stripTime(from);
     to = this.stripTime(to);
 
-    // Check if leave range contains a mix of week-off/holiday + working days
+    // Check 1: Off-day inside the leave range (week-off/holiday mixed with working days)
     let hasOffDay = false;
     let hasWorkingDay = false;
 
@@ -1233,17 +1224,38 @@ export class LeavePopup {
         hasWorkingDay = true;
       }
 
-      // Working day + off day in the same range = sandwich
       if (hasOffDay && hasWorkingDay) {
         return true;
       }
     }
 
-    // Check day BEFORE the leave — if it's a week-off/holiday, NOT sandwich
-    // (taking leave on Monday when Sunday is off is normal)
+    // Check 2: Consecutive off-days AFTER leave contain both week-off and holiday
+    // e.g. Leave(Sat 4) → WeekOff(Sun 5) → Holiday(Mon 6) = sandwich
+    let afterHasWeekOff = false;
+    let afterHasHoliday = false;
+    let d = new Date(to);
+    d.setDate(d.getDate() + 1);
+    while (this.isApprovedWeekOff(this.stripTime(new Date(d))) || this.isHoliday(this.stripTime(new Date(d)))) {
+      if (this.isApprovedWeekOff(this.stripTime(new Date(d)))) afterHasWeekOff = true;
+      if (this.isHoliday(this.stripTime(new Date(d)))) afterHasHoliday = true;
+      d.setDate(d.getDate() + 1);
+    }
+    if (afterHasWeekOff && afterHasHoliday) return true;
 
-    // Check day AFTER the leave — if it's a week-off/holiday AND day before is also off
-    // that means leave is between two off-days = sandwich
+    // Check 3: Consecutive off-days BEFORE leave contain both week-off and holiday
+    // e.g. Holiday(Thu) → WeekOff(Fri) → Leave(Sat) = sandwich
+    let beforeHasWeekOff = false;
+    let beforeHasHoliday = false;
+    d = new Date(from);
+    d.setDate(d.getDate() - 1);
+    while (this.isApprovedWeekOff(this.stripTime(new Date(d))) || this.isHoliday(this.stripTime(new Date(d)))) {
+      if (this.isApprovedWeekOff(this.stripTime(new Date(d)))) beforeHasWeekOff = true;
+      if (this.isHoliday(this.stripTime(new Date(d)))) beforeHasHoliday = true;
+      d.setDate(d.getDate() - 1);
+    }
+    if (beforeHasWeekOff && beforeHasHoliday) return true;
+
+    // Check 4: Leave is between two off-days (off → leave → off)
     const dayBefore = this.stripTime(new Date(from));
     dayBefore.setDate(dayBefore.getDate() - 1);
     const dayAfter = this.stripTime(new Date(to));
@@ -1252,7 +1264,6 @@ export class LeavePopup {
     const beforeIsOff = this.isApprovedWeekOff(dayBefore) || this.isHoliday(dayBefore);
     const afterIsOff = this.isApprovedWeekOff(dayAfter) || this.isHoliday(dayAfter);
 
-    // Sandwich = leave is between two off-days (holiday/weekend before AND after)
     if (beforeIsOff && afterIsOff) {
       return true;
     }

@@ -15,6 +15,12 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
+import { DialogModule } from 'primeng/dialog';
+import { DatePickerModule } from 'primeng/datepicker';
+import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 
 interface Table {
   empName: string;
@@ -32,7 +38,8 @@ interface Table {
 
 @Component({
   selector: 'app-appraisal-table',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule, DialogModule, DatePickerModule, TextareaModule, TooltipModule, ButtonModule, ToastModule],
+  providers: [MessageService],
   templateUrl: './appraisal-table.html',
   styleUrl: './appraisal-table.css'
 })
@@ -59,7 +66,40 @@ export class AppraisalTable {
   showFilterDropdown = false;
   role: string = '';
   loggedEmployeeId: number = 0;
-  loading = true
+  loggedRoleId: number = 0;
+  isHRManager = false;
+  loading = true;
+
+  // Full detail dialog (HR sees both self + manager)
+  fullDetailDialogVisible = false;
+  fullDetailAppraisal: any = null;
+  employeeInsights: any = null;
+  insightExpanded: string = '';
+
+  // HR Verify dialog
+  verifyDialogVisible = false;
+  verifyAppraisal: any = null;
+  verifyStartDate: Date | null = null;
+  verifyEndDate: Date | null = null;
+  verifyDueDate: Date | null = null;
+
+  // HR Review dialog
+  hrReviewDialogVisible = false;
+  hrReviewAppraisal: any = null;
+  hrReviewComments = '';
+  hrRecommendations = '';
+
+  // Loading states
+  verifyLoading = false;
+  hrReviewLoading = false;
+  editResponseLoading = false;
+  managerEditLoading = false;
+
+  // Edit request response dialog
+  editResponseDialogVisible = false;
+  editResponseItem: any = null;
+  editResponseAction: 'APPROVE' | 'REJECT' = 'APPROVE';
+  editRejectionReason = ''
 
 
   constructor(private fb: FormBuilder,
@@ -84,6 +124,8 @@ export class AppraisalTable {
 
     this.role = localStorage.getItem('role') || '';
     this.loggedEmployeeId = Number(localStorage.getItem('empId'));
+    this.loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
+    this.isHRManager = this.loggedRoleId === 1;
 
     this.loadDropdownData();
     this.getAppraisals();
@@ -117,7 +159,11 @@ export class AppraisalTable {
         } else if (this.role === 'Reporting Manager') {
           filtered = data.filter(
             a => a.employee?.reportingManager === this.loggedEmployeeId
+              && !['AUTO_DRAFT', 'Draft'].includes(a.status)
           );
+        } else {
+          // Any other role — hide drafts
+          filtered = data.filter(a => !['AUTO_DRAFT', 'Draft'].includes(a.status));
         }
 
         // ✅ FLATTEN HERE
@@ -290,5 +336,207 @@ export class AppraisalTable {
     return g === 'FEMALE'
       ? '/img-women.png'
       : '/img.png';
+  }
+
+  // ── View Full Detail (HR) ─────────────────────────────────────────
+  viewFullDetail(a: any) {
+    this.appraisalService.getAppraisalDetail(a.id, 'HR').subscribe({
+      next: (data: any) => {
+        this.fullDetailAppraisal = data;
+        this.fullDetailDialogVisible = true;
+        // Load insights
+        this.appraisalService.getEmployeeInsights(a.id).subscribe({
+          next: (insights: any) => { this.employeeInsights = insights; },
+          error: () => { this.employeeInsights = null; }
+        });
+      }
+    });
+  }
+
+  fmtDate(d: any): string {
+    if (!d) return '';
+    try { return new Date(d).toLocaleDateString('en-GB'); } catch { return ''; }
+  }
+
+  getStatusLabel(a: any): string {
+    if (a.status === 'COMPLETED') return 'Completed';
+    if (a.status === 'HR_REVIEW') return 'HR Review';
+    if (a.status === 'EDIT_REQUESTED') return 'Edit Requested';
+    if (a.status === 'AUTO_DRAFT' || a.status === 'Draft') return 'Draft';
+    if (a.status === 'PENDING_FILL') {
+      const selfDone = !!a.selfAppraisalSubmittedAt;
+      const mgrDone = !!a.managerAppraisalSubmittedAt;
+      if (selfDone && mgrDone) return 'Both Submitted';
+      if (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId) {
+        return mgrDone ? 'Submitted' : 'Pending Fill';
+      }
+      return 'Pending Fill';
+    }
+    return a.status?.split('_').join(' ') || '-';
+  }
+
+  getStatusColor(a: any): string {
+    if (a.status === 'COMPLETED') return '#4CAF50';
+    if (a.status === 'HR_REVIEW') return '#2196F3';
+    if (a.status === 'EDIT_REQUESTED') return '#FF9800';
+    if (a.status === 'AUTO_DRAFT' || a.status === 'Draft') return '#888';
+    if (a.status === 'PENDING_FILL') {
+      const selfDone = !!a.selfAppraisalSubmittedAt;
+      const mgrDone = !!a.managerAppraisalSubmittedAt;
+      if (selfDone && mgrDone) return '#4CAF50';
+      if (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId && mgrDone) return '#4CAF50';
+      return '#FF9800';
+    }
+    return '#ccc';
+  }
+
+  // Manager edit request
+  managerEditRequestDialogVisible = false;
+  managerEditRequestAppraisalId: number | null = null;
+  managerEditRequestReason = '';
+
+  canManagerRequestEdit(a: any): boolean {
+    return !this.isHRManager &&
+      a.employee?.reportingManager === this.loggedEmployeeId &&
+      !!a.managerAppraisalSubmittedAt &&
+      !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+  }
+
+  openManagerEditRequest(a: any) {
+    this.managerEditRequestAppraisalId = a.id;
+    this.managerEditRequestReason = '';
+    this.managerEditRequestDialogVisible = true;
+  }
+
+  submitManagerEditRequest() {
+    if (!this.managerEditRequestReason.trim()) return;
+    this.managerEditLoading = true;
+    this.appraisalService.requestEdit(this.managerEditRequestAppraisalId!, {
+      requestedBy: this.loggedEmployeeId,
+      reason: this.managerEditRequestReason,
+      requestType: 'MANAGER',
+    }).subscribe({
+      next: () => {
+        this.managerEditLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Submitted', detail: 'Edit request sent to HR' });
+        this.managerEditRequestDialogVisible = false;
+        this.getAppraisals();
+      },
+      error: (e: any) => { this.managerEditLoading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' }); }
+    });
+  }
+
+  // ── HR Actions ──────────────────────────────────────────────────────
+  canHRVerify(a: any): boolean {
+    return this.isHRManager && ['AUTO_DRAFT', 'Draft'].includes(a.status);
+  }
+
+  canHRReview(a: any): boolean {
+    return this.isHRManager && ['HR_REVIEW', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status);
+  }
+
+  canHRRespondEdit(a: any): boolean {
+    return this.isHRManager && a.editRequests?.length > 0;
+  }
+
+  openVerifyDialog(a: any) {
+    this.verifyAppraisal = a;
+    this.verifyStartDate = a.appraisalStartDate ? new Date(a.appraisalStartDate) : null;
+    this.verifyEndDate = a.appraisalEndDate ? new Date(a.appraisalEndDate) : null;
+    this.verifyDueDate = a.dueDate ? new Date(a.dueDate) : null;
+    this.verifyDialogVisible = true;
+  }
+
+  confirmVerify() {
+    this.verifyLoading = true;
+    this.appraisalService.hrVerifyAppraisal(this.verifyAppraisal.id, {
+      appraisalStartDate: this.verifyStartDate?.toISOString(),
+      appraisalEndDate: this.verifyEndDate?.toISOString(),
+      dueDate: this.verifyDueDate?.toISOString(),
+      hrVerifiedBy: this.loggedEmployeeId,
+    }).subscribe({
+      next: () => {
+        this.verifyLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Verified', detail: 'Appraisal sent to employee & manager' });
+        this.verifyDialogVisible = false;
+        this.loadAppraisals();
+      },
+      error: (e: any) => { this.verifyLoading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' }); }
+    });
+  }
+
+  openHRReviewDialog(a: any) {
+    this.hrReviewAppraisal = a;
+    this.hrReviewComments = '';
+    this.hrRecommendations = '';
+    this.hrReviewDialogVisible = true;
+  }
+
+  submitHRReview(action: string) {
+    this.hrReviewLoading = true;
+    this.appraisalService.hrReviewAppraisal(this.hrReviewAppraisal.id, {
+      hrReviewComments: this.hrReviewComments,
+      hrRecommendations: this.hrRecommendations,
+      hrApprovedBy: this.loggedEmployeeId,
+      action,
+    }).subscribe({
+      next: () => {
+        this.hrReviewLoading = false;
+        this.messageService.add({
+          severity: action === 'APPROVE' ? 'success' : 'info',
+          summary: action === 'APPROVE' ? 'Approved' : 'Saved',
+          detail: action === 'APPROVE' ? 'Appraisal approved & completed' : 'HR review saved'
+        });
+        this.hrReviewDialogVisible = false;
+        this.loadAppraisals();
+      },
+      error: (e: any) => { this.hrReviewLoading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' }); }
+    });
+  }
+
+  openEditResponseDialog(a: any) {
+    this.appraisalService.getAppraisalDetail(a.id, 'HR').subscribe({
+      next: (detail: any) => {
+        const pending = (detail.editRequests || []).find((r: any) => r.status === 'PENDING');
+        if (!pending) {
+          this.messageService.add({ severity: 'warn', summary: 'No Request', detail: 'No pending edit request found' });
+          return;
+        }
+        this.editResponseItem = pending;
+        this.editResponseAction = 'APPROVE';
+        this.editRejectionReason = '';
+        this.editResponseDialogVisible = true;
+      }
+    });
+  }
+
+  confirmEditResponse() {
+    this.editResponseLoading = true;
+    this.appraisalService.respondEditRequest(this.editResponseItem.id, {
+      action: this.editResponseAction,
+      approvedBy: this.loggedEmployeeId,
+      rejectionReason: this.editResponseAction === 'REJECT' ? this.editRejectionReason : undefined,
+    }).subscribe({
+      next: () => {
+        this.editResponseLoading = false;
+        this.messageService.add({
+          severity: this.editResponseAction === 'APPROVE' ? 'success' : 'warn',
+          summary: this.editResponseAction === 'APPROVE' ? 'Approved' : 'Rejected',
+        });
+        this.editResponseDialogVisible = false;
+        this.loadAppraisals();
+      },
+      error: (e: any) => { this.editResponseLoading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' }); }
+    });
+  }
+
+  private loadAppraisals() {
+    this.appraisalService.getAllAppraisals().subscribe({
+      next: (data) => {
+        // Reuse existing filter logic
+        this.appraisals = data;
+        this.filteredEmployees = [...data];
+      }
+    });
   }
 }

@@ -14,8 +14,12 @@
 <nav class="sub-nav">
     <ul>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Managerial Appraisal</li></button>
+        <!-- <div class="br"></div> -->
+        <!-- <button><li class="sub-item" [ngClass]="{ 'active': active === 'self' }" (click)="show('self')">Self Appraisal</li></button> -->
         <div class="br"></div>
        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'dept' }" (click)="show('dept')">Dept Performance Indicator</li></button>
+        <div class="br"></div>
+       <button> <li class="sub-item" [ngClass]="{ 'active': active === 'rating' }" (click)="show('rating')">Weekly Rating</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -26,5 +30,7 @@
 <div>
     <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"  (backToList)="show('list')"></app-apprasial-form>
     <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
+    <!-- <app-self-appraisal *ngIf="active === 'self'"></app-self-appraisal> -->
     <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>
+    <app-weekly-rating-overview *ngIf="active === 'rating'"></app-weekly-rating-overview>
 </div>

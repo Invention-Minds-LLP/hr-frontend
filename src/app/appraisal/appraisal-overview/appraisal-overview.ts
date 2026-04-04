@@ -4,10 +4,12 @@ import { AppraisalTable} from '../appraisal-table/appraisal-table/appraisal-tabl
 import { ApprasialForm } from '../appraisal-form/apprasial-form/apprasial-form';
 import { CommonModule } from '@angular/common';
 import { DeptPerformance } from "../dept-performance/dept-performance";
+import { SelfAppraisalComponent } from "../self-appraisal/self-appraisal";
+import { WeeklyRatingOverview } from "../../weekly-rating/weekly-rating-overview";
 
 @Component({
   selector: 'app-appraisal-overview',
-  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, ModuleGuide],
+  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, SelfAppraisalComponent, WeeklyRatingOverview, ModuleGuide],
   templateUrl: './appraisal-overview.html',
   styleUrl: './appraisal-overview.css'
 })

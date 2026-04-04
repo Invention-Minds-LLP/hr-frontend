@@ -195,3 +195,172 @@ label {
     justify-content: end;
     margin-right: 10px;
 }
+
+/* ── Employee Insights Panel ──────────────────────────────── */
+.insights-panel {
+  margin: 20px 0;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #111;
+}
+
+.insights-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  cursor: pointer;
+  background: #1a1a1a;
+  transition: background 0.2s;
+}
+
+.insights-header:hover { background: #222; }
+
+.insights-title {
+  margin: 0;
+  font-size: 16px;
+  color: #FB9C2A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insights-period {
+  font-size: 12px;
+  color: #888;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.insights-chevron { color: #888; font-size: 14px; }
+
+.insights-body {
+  padding: 16px 20px;
+  animation: insightSlide 0.2s ease-out;
+}
+
+@keyframes insightSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.insights-cards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.insight-card {
+  flex: 1;
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.insight-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #FB9C2A;
+  font-family: "Sofia Sans";
+}
+
+.insight-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.insight-incident .insight-num { color: #f44336; }
+
+/* Monthly Chart */
+.insights-chart { margin-bottom: 16px; }
+.insights-chart-title {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.insights-bars {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  height: 100px;
+}
+
+.insight-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.insight-bar-wrap {
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.insight-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 0.3s;
+}
+
+.bar-high { background: #4CAF50; }
+.bar-mid { background: #FF9800; }
+.bar-low { background: #f44336; }
+
+.insight-bar-val { font-size: 11px; font-weight: 700; color: white; margin-top: 4px; }
+.insight-bar-label { font-size: 10px; color: #666; }
+
+/* Weekly Ratings List */
+.insights-list { margin-bottom: 16px; }
+.insights-list-title {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.insight-week {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.insight-week:last-child { border-bottom: none; }
+.iw-label { font-size: 13px; color: #bbb; min-width: 70px; font-weight: 600; }
+.iw-bar-wrap { flex: 1; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+.iw-bar { height: 100%; border-radius: 3px; }
+.iw-score { font-size: 13px; font-weight: 700; color: white; min-width: 40px; text-align: right; }
+
+/* Incidents */
+.insight-incident-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.insight-incident-row:last-child { border-bottom: none; }
+.inc-title { flex: 1; font-size: 13px; color: #ddd; }
+.inc-status { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 8px; }
+.inc-open { background: rgba(244,67,54,0.15); color: #f44336; }
+.inc-closed { background: rgba(76,175,80,0.15); color: #4CAF50; }
+.inc-progress { background: rgba(255,152,0,0.15); color: #FF9800; }
+.inc-date { font-size: 11px; color: #666; }

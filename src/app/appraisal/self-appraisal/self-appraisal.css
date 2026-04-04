@@ -1,0 +1,349 @@
+.self-appraisal-container {
+  padding: 0 0px 0px;
+  color: white;
+  font-family: "Sofia Sans";
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.main-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.table-wrap {
+  max-height: 400px;
+  overflow: auto;
+  border-radius: 14px;
+  width: 100%;
+}
+
+.appraisal-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 14px;
+}
+
+/* Header */
+.appraisal-table thead tr {
+  background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
+  height: 50px;
+}
+
+.appraisal-table thead tr th:first-child {
+  border-top-left-radius: 16px;
+}
+
+.appraisal-table thead tr th:last-child {
+  border-top-right-radius: 16px;
+}
+
+.appraisal-table th {
+  padding: 14px 20px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+/* Rows */
+.appraisal-table tbody tr {
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+}
+
+.appraisal-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.appraisal-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+.appraisal-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+.appraisal-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  text-wrap: nowrap;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+  font-size: 14px;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-draft { background: rgba(255,255,255,0.15); color: #aaa; }
+.status-pending { background: #eddd00; color: #000; }
+.status-submitted { background: #4CAF50; color: #fff; }
+.status-review { background: #2196F3; color: #fff; }
+.status-edit { background: #FF9800; color: #fff; }
+.status-completed { background: #8BC34A; color: #fff; }
+
+/* Action buttons */
+.action-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.edit { background: #fff3e0; color: #e65100; }
+.btn-icon.view { background: #e3f2fd; color: #1565c0; }
+.btn-icon.verify { background: #e8f5e9; color: #2e7d32; }
+.btn-icon.approve { background: #e8f5e9; color: #2e7d32; }
+.btn-icon.edit-respond { background: #e3f2fd; color: #1565c0; }
+.btn-icon.request-edit { background: #fce4ec; color: #c62828; }
+
+.action-buttons-row { display: flex; gap: 8px; }
+
+/* Self-appraisal form dialog */
+.self-form { padding: 0.5rem 0; }
+.form-info { margin-bottom: 16px; font-size: 14px; color: #FFF; }
+.form-section { margin-bottom: 20px; }
+.form-section h4 { margin: 0 0 8px; color: #FFF; font-size: 15px; font-weight: 600; }
+
+.question-list { display: flex; flex-direction: column; gap: 14px; }
+.q-card { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; border: 1px solid #eee; }
+.q-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.q-num { font-weight: 700; color: #FFF; }
+.q-text { flex: 1; font-weight: 600; color: #FFF; font-size: 14px; }
+.q-score { padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 13px; background: #d4edda; color: #155724; }
+.q-slider { margin-bottom: 6px; }
+.slider { width: 100%; cursor: pointer; accent-color: #FB9C2A; }
+.q-labels { display: flex; justify-content: space-between; font-size: 11px; color: #888; }
+.q-comments { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-top: 4px; }
+
+/* ── Detail View — Card-based Design ─────────────────────────────── */
+.detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px;
+}
+
+.detail-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.detail-card-header {
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Sofia Sans";
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  background: #1a1a1a;
+}
+
+.detail-card-header i { font-size: 16px; }
+.self-header { border-left: 4px solid #4CAF50; }
+.manager-header { border-left: 4px solid #2196F3; }
+.decision-header { border-left: 4px solid #FF9800; }
+.hr-header { border-left: 4px solid #9C27B0; }
+.history-header { border-left: 4px solid #607D8B; }
+
+.submitted-tag {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  background: rgba(255,255,255,0.1);
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.detail-card-body {
+  padding: 14px 16px;
+  background: #111;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-key {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.detail-val {
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+
+.score-highlight {
+  color: #FB9C2A;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.decision-text {
+  color: #4CAF50;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.text-block {
+  margin-bottom: 12px;
+}
+
+.text-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.text-content {
+  font-size: 14px;
+  color: #ddd;
+  line-height: 1.5;
+}
+
+/* Rating rows */
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+
+.rating-row:last-child { border-bottom: none; }
+
+.rating-num {
+  font-size: 12px;
+  color: #666;
+  font-weight: 700;
+  min-width: 20px;
+}
+
+.rating-text {
+  flex: 1;
+  font-size: 14px;
+  color: white;
+}
+
+.rating-score {
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rating-score.high { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+.rating-score.mid { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.rating-score.low { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+
+.rating-remark {
+  font-size: 12px;
+  color: #888;
+  font-style: italic;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Edit history */
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+
+.history-entry:last-child { border-bottom: none; }
+
+.history-type {
+  font-size: 13px;
+  color: #ddd;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.history-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.history-reason {
+  font-size: 12px;
+  color: #FB9C2A;
+  font-style: italic;
+  margin-left: auto;
+}
+
+.dialog-form { display: flex; flex-direction: column; gap: 14px; padding: 0.5rem 0; }
+.field { display: flex; flex-direction: column; }
+.field label { margin-bottom: 6px; font-weight: 600; color: #FFF; font-size: 14px; }
+.req { color: red; }
+
+::ng-deep .p-textarea{
+  background-color: transparent !important;
+  color: #FFF !important;
+  font-family: 'Sofia Sans';
+  font-size: 18px;
+}
