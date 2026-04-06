@@ -161,7 +161,7 @@ export class LeaveRequest {
             empID: leave.employee.id,
             declineReason: leave.declineReason,
             reportingManagerId: leave.employee?.reportingManager ?? null,
-            leaveDate: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
+            leaveDate: `${this.formatDMY(leave.startDate)} - ${this.formatDMY(leave.endDate)}`,
             hodDecision: leave.hodDecision,
             hrDecision: leave.hrDecision,
             roleId: leave.employee?.roleId,
@@ -268,6 +268,14 @@ export class LeaveRequest {
       start.setDate(start.getDate() + 1);
     }
   }
+  formatDMY(dateStr: string): string {
+    const d = new Date(dateStr);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${dd}-${mm}-${yy}`;
+  }
+
   getStatusLabel(leave: any): string {
     if (leave.status === 'CANCELLED') {
       return 'Cancelled';
@@ -490,6 +498,7 @@ export class LeaveRequest {
     this.expanded[key] = !this.expanded[key];
   }
   showLevel1Approve(leave: any): boolean {
+    if (leave.status === 'CANCELLED') return false;
 
     // console.log('Checking Level 1 approval for leave:', leave);
     const hasIncharge = !!leave.inchargeId;
@@ -525,6 +534,7 @@ export class LeaveRequest {
     return false;
   }
   showLevel2Approve(leave: any): boolean {
+    if (leave.status === 'CANCELLED') return false;
 
     const hasIncharge = !!leave.inchargeId;
 
