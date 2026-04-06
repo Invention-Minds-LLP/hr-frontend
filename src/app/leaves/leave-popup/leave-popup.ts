@@ -63,6 +63,7 @@ export class LeavePopup {
   selectedPrescription: File | null = null;
   optionalHolidays: any[] = [];
   optionalHolidayDates = new Set<string>();
+  mandatoryHolidayDates = new Set<string>();
   rhTotal = 0;
   rhUsedCount = 0;
 
@@ -280,6 +281,17 @@ export class LeavePopup {
           d.setHours(0, 0, 0, 0);
           return d.toISOString();
         })
+      );
+
+      // Store mandatory national holidays (non-optional) — excluded from day count
+      this.mandatoryHolidayDates = new Set(
+        (res.holidays || [])
+          .filter((h: any) => !h.isOptional)
+          .map((h: any) => {
+            const d = new Date(h.date);
+            d.setHours(0, 0, 0, 0);
+            return d.toISOString().slice(0, 10);
+          })
       );
     });
 
@@ -641,8 +653,11 @@ export class LeavePopup {
 
   }
   isDayBlocked(date: Date): boolean {
-    // if (this.isPastDate(date)) return true; 
+    // if (this.isPastDate(date)) return true;
     if (this.isApprovedWeekOff(date)) return true;
+    // Mandatory national holidays are non-working days
+    const key = this.stripTime(date).toISOString().slice(0, 10);
+    if (this.mandatoryHolidayDates.has(key)) return true;
     return this.blockedRanges.some(range =>
       date >= range.startDate && date <= range.endDate
     );
@@ -847,14 +862,7 @@ export class LeavePopup {
       }
     }
 
-    if (this.isRangeBlocked(this.fromDate, this.toDate)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Blocked Range',
-        detail: 'Your selected dates overlap with existing leave request.'
-      });
-      return;
-    }
+
     if (!this.validateSandwichOrReset()) {
       return;
     }
@@ -1287,7 +1295,8 @@ export class LeavePopup {
     if (!this.fromDate || !this.toDate) return true;
 
     // RH is applied ON a holiday — skip sandwich check
-    if (this.leaveType === 'RH') return true;
+    // SL is unplanned (illness) — employee cannot control dates around holidays
+    if (this.leaveType === 'RH' || this.leaveType === 'SL') return true;
 
     if (this.isSandwichLeave(this.fromDate, this.toDate)) {
       this.messageService.add({
