@@ -215,6 +215,7 @@ export class Navbar {
   }
 
   activeMenu: string | null = null;
+  activeAdminGroup: string = 'workforce';
 
   onMastersClick() {
     this.router.navigate(['/masters/departments']);

@@ -74,9 +74,12 @@ import { IncentivesOverview } from './incentives/incentives-overview';
 import { LoansOverview } from './loans/loans-overview';
 import { IncentiveRequests } from './incentives/incentive-requests/incentive-requests';
 import { WeeklyRatingOverview } from './weekly-rating/weekly-rating-overview';
+import { PipOverview } from './pip/pip-overview/pip-overview';
+import { PipResponseForm } from './pip/pip-response-form/pip-response-form';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
+  { path: 'pip-respond/:token', component: PipResponseForm }, // public — no authGuard
 
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
@@ -114,6 +117,7 @@ export const routes: Routes = [
         { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard]},
         { path: 'incentive-requests', component: IncentiveRequests, canActivate: [authGuard]},
         { path: 'weekly-rating', component: WeeklyRatingOverview, canActivate: [authGuard]},
+        { path: 'pip', component: PipOverview, canActivate: [authGuard]},
         { path: 'encashment', component: EncashmentOverview, canActivate: [authGuard]},
         { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard]},
         { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard]},

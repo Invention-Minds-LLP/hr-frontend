@@ -158,8 +158,14 @@ export class WeeklyRatingOverview implements OnInit {
 
     // Load questions specific to this employee's designation
     this.ratingService.getQuestionsForEmployee(emp.id).subscribe({
-      next: (empQuestions) => {
-        const activeEmpQuestions = empQuestions.filter((q: any) => q.isActive);
+      next: (res: any) => {
+        // API returns { designationId, questions }
+        const allQuestions: any[] = res.questions ?? res;
+        const activeEmpQuestions = allQuestions.filter((q: any) => q.isActive);
+
+        if (!res.designationId && !Array.isArray(res)) {
+          this.messageService.add({ severity: 'warn', summary: 'No Designation', detail: 'This employee has no designation assigned. Only default questions will be used.' });
+        }
 
         if (emp.rating?.id) {
           // Load existing rating
@@ -185,7 +191,19 @@ export class WeeklyRatingOverview implements OnInit {
 
   getOverallScore(): number {
     if (!this.ratingAnswers.length) return 0;
-    return Math.round((this.ratingAnswers.reduce((sum, a) => sum + a.score, 0) / this.ratingAnswers.length) * 10) / 10;
+    // Matches backend: Math.round((sum / count) * 10) → out of 100
+    return Math.round((this.ratingAnswers.reduce((sum, a) => sum + a.score, 0) / this.ratingAnswers.length) * 10);
+  }
+
+  // Max points one question can contribute to the total of 100
+  getPerQuestionMax(): number {
+    if (!this.ratingAnswers.length) return 10;
+    return Math.round(100 / this.ratingAnswers.length);
+  }
+
+  // Points this question contributes to the total (score 1-10 mapped to 0–perQuestionMax)
+  getContribution(score: number): number {
+    return Math.round((score / 10) * this.getPerQuestionMax());
   }
 
   submitRating(asDraft = false) {
@@ -260,8 +278,10 @@ export class WeeklyRatingOverview implements OnInit {
   }
 
   getScoreClass(score: number): string {
-    if (score >= 8) return 'score-high';
-    if (score >= 5) return 'score-mid';
+    // Overall score is out of 100; per-question score is 1-10 — normalise for colouring
+    const normalised = score > 10 ? score : score * 10;
+    if (normalised >= 70) return 'score-high';
+    if (normalised >= 50) return 'score-mid';
     return 'score-low';
   }
 }

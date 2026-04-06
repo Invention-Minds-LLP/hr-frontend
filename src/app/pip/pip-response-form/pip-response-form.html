@@ -1,0 +1,65 @@
+<div class="response-page">
+  <div class="response-card">
+
+    <!-- Logo / Org Name -->
+    <div class="card-header">
+      <h2>HR Minds</h2>
+      <p>Performance Improvement Plan — Employee Response</p>
+    </div>
+
+    <!-- Invalid token -->
+    <div *ngIf="invalid" class="state-box state-error">
+      <i class="pi pi-times-circle"></i>
+      <h3>Invalid or Expired Link</h3>
+      <p>This response link is invalid or has expired. Please contact your HR department.</p>
+    </div>
+
+    <!-- Already used -->
+    <div *ngIf="alreadyUsed && !invalid" class="state-box state-warn">
+      <i class="pi pi-exclamation-triangle"></i>
+      <h3>Response Already Submitted</h3>
+      <p>You have already submitted a response using this link. Each link can only be used once.</p>
+      <p>If you need to submit additional information, please contact HR directly.</p>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="submitted && !invalid" class="state-box state-success">
+      <i class="pi pi-check-circle"></i>
+      <h3>Response Submitted Successfully</h3>
+      <p *ngIf="result?.pipNumber">
+        Your response for PIP reference <strong>{{ result.pipNumber }}</strong> has been recorded.
+      </p>
+      <p>HR will review your response and get in touch with you. Thank you.</p>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="!invalid && !alreadyUsed && !submitted" class="form-body">
+      <div class="info-note">
+        <i class="pi pi-info-circle"></i>
+        You have received a Performance Improvement Plan communication. Please read the email carefully
+        and submit your response below. Your response will be recorded and acknowledged by HR.
+      </div>
+
+      <div class="field-group">
+        <label for="responseText">Your Response <span style="color:#ef4444">*</span></label>
+        <textarea id="responseText" pTextarea [(ngModel)]="responseText" rows="8"
+          placeholder="Write your response here. You may include your acknowledgement, questions, concerns, or any additional context..."
+          style="width:100%">
+        </textarea>
+      </div>
+
+      <div class="submit-row">
+        <button pButton label="Submit Response" icon="pi pi-send"
+          (click)="submit()" [loading]="submitting" [disabled]="!responseText.trim()">
+        </button>
+      </div>
+
+      <p class="disclaimer">
+        <i class="pi pi-lock" style="font-size:12px"></i>
+        This link is single-use and linked to your employee record. By submitting, you confirm that this
+        response is your own. For queries, contact your HR department directly.
+      </p>
+    </div>
+
+  </div>
+</div>

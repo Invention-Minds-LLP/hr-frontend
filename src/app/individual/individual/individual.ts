@@ -28,6 +28,9 @@ import { Shifts } from '../../services/shifts/shifts';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { MyWeeklyTracker } from '../../weekly-tracker/my-weekly-tracker/my-weekly-tracker';
 import { SelfAppraisalComponent } from '../../appraisal/self-appraisal/self-appraisal';
+import { DialogModule } from 'primeng/dialog';
+import { TextareaModule } from 'primeng/textarea';
+import { PipService } from '../../services/pip/pip.service';
 
 interface individual {
   date: string;
@@ -51,7 +54,9 @@ type LeaveTypeCount = { label: string; count: number; total: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList, SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent],
+    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList,
+    SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent,
+    DialogModule, TextareaModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })
@@ -129,8 +134,21 @@ currentWeeklyShiftIndex = 0;
 
 
 
+  // ── PIP section ────────────────────────────────────────────────────────────
+  myPIPs: any[] = [];
+  pipLoading = false;
+  pipDetailVisible = false;
+  selectedPIP: any = null;
+  pipResponses: any[] = [];
+  pipResponsesLoading = false;
+  myResponseText = '';
+  myResponseSubmitting = false;
+  myResponseSubmitted = false;
+  logResponseVisible = false;
+
   constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar,
-    private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts, private holidaysService: Holidays) { }
+    private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts,
+    private holidaysService: Holidays, private pipService: PipService) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -185,6 +203,7 @@ currentWeeklyShiftIndex = 0;
     this.startBirthdayAutoSlide();
     // this.startAnniversaryAutoSlide();
     this.loadWeeklyShiftTemplates();
+    this.loadMyPIPs();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -1123,6 +1142,75 @@ formatShiftDisplayTime(value: string | Date): string {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     return month >= 4 ? year : year - 1;
+  }
+
+  // ── PIP methods ────────────────────────────────────────────────────────────
+  loadMyPIPs() {
+    const empId = Number(localStorage.getItem('empId'));
+    if (!empId) return;
+    this.pipLoading = true;
+    this.pipService.getEmployeePIPHistory(empId).subscribe({
+      next: (d) => { this.myPIPs = d; this.pipLoading = false; },
+      error: () => { this.pipLoading = false; },
+    });
+  }
+
+  openPIPDetail(pip: any) {
+    this.selectedPIP = pip;
+    this.pipDetailVisible = true;
+    this.loadPIPResponses(pip.id);
+  }
+
+  loadPIPResponses(pipId: number) {
+    this.pipResponsesLoading = true;
+    this.pipService.getPIPResponses(pipId).subscribe({
+      next: (d) => { this.pipResponses = d; this.pipResponsesLoading = false; },
+      error: () => { this.pipResponsesLoading = false; },
+    });
+  }
+
+  openLogMyResponse(pip: any) {
+    this.selectedPIP = pip;
+    this.myResponseText = '';
+    this.myResponseSubmitted = false;
+    this.logResponseVisible = true;
+  }
+
+  submitMyResponse() {
+    if (!this.myResponseText.trim() || !this.selectedPIP) return;
+    const empId = Number(localStorage.getItem('empId'));
+    this.myResponseSubmitting = true;
+    this.pipService.logManualResponse(this.selectedPIP.id, { employeeId: empId, responseText: this.myResponseText, method: 'EMPLOYEE_SELF' }).subscribe({
+      next: () => {
+        this.myResponseSubmitting = false;
+        this.myResponseSubmitted = true;
+        this.loadPIPResponses(this.selectedPIP.id);
+      },
+      error: () => { this.myResponseSubmitting = false; },
+    });
+  }
+
+  getPIPStatusLabel(status: string): string {
+    const m: Record<string, string> = {
+      WARNING_ISSUED: 'Warning Issued', PIP_ACTIVE: 'PIP Active',
+      PIP_EXTENDED: 'PIP Extended', PIP_CLOSED_IMPROVED: 'Closed – Improved',
+      TERMINATION_INITIATED: 'Termination Initiated', TERMINATED: 'Terminated',
+    };
+    return m[status] ?? status;
+  }
+
+  getPIPStatusClass(status: string): string {
+    const m: Record<string, string> = {
+      WARNING_ISSUED: 'pip-warning', PIP_ACTIVE: 'pip-active',
+      PIP_EXTENDED: 'pip-extended', PIP_CLOSED_IMPROVED: 'pip-improved',
+      TERMINATION_INITIATED: 'pip-term', TERMINATED: 'pip-term',
+    };
+    return m[status] ?? '';
+  }
+
+  fmtDate(d: string | Date | null): string {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
 }

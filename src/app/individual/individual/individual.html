@@ -872,6 +872,164 @@
         <app-training-list [viewMode]="'individual'"></app-training-list>
     </div>
 
+    <!-- ── PIP SECTION ──────────────────────────────────────────────────── -->
+    <div class="pip-section" (click)="loadMyPIPs()">
+      <h3 class="section-heading">My Performance Improvement Plans (PIP)</h3>
+
+      <div *ngIf="pipLoading" style="padding:1rem;color:#888;text-align:center">
+        <i class="pi pi-spinner pi-spin"></i> Loading...
+      </div>
+
+      <div *ngIf="!pipLoading && !myPIPs.length" class="pip-empty">
+        No PIP records found. Keep maintaining your performance!
+      </div>
+
+      <div class="pip-card" *ngFor="let pip of myPIPs">
+        <div class="pip-card-header">
+          <div>
+            <span class="pip-number" *ngIf="pip.pipNumber">{{ pip.pipNumber }}</span>
+            <span class="pip-status" [ngClass]="getPIPStatusClass(pip.status)">
+              {{ getPIPStatusLabel(pip.status) }}
+            </span>
+          </div>
+          <div class="pip-card-actions">
+            <button *ngIf="pip.status !== 'PIP_CLOSED_IMPROVED' && pip.status !== 'TERMINATED'"
+              (click)="openLogMyResponse(pip); $event.stopPropagation()"
+              style="padding:4px 12px;border:1px solid #FB9C2A;background:transparent;color:#FB9C2A;border-radius:6px;cursor:pointer;font-size:13px">
+              Submit Response
+            </button>
+            <button (click)="openPIPDetail(pip); $event.stopPropagation()"
+              style="padding:4px 12px;border:1px solid #555;background:transparent;color:#ccc;border-radius:6px;cursor:pointer;font-size:13px">
+              View Detail
+            </button>
+          </div>
+        </div>
+        <div class="pip-card-body">
+          <div class="pip-info-row">
+            <span class="pip-info-label">Month</span>
+            <span>{{ pip.triggerMonth || '—' }}</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">Trigger Score</span>
+            <span style="color:#FB9C2A;font-weight:700">{{ pip.triggerScore }}/100</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">Warning Date</span>
+            <span>{{ fmtDate(pip.warningDate) }}</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">Response Deadline</span>
+            <span [style.color]="pip.responseDeadline ? '#f59e0b' : '#666'">{{ fmtDate(pip.responseDeadline) }}</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">PIP Period</span>
+            <span>{{ pip.pipStartDate ? (fmtDate(pip.pipStartDate) + ' – ' + fmtDate(pip.pipEndDate)) : '—' }}</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">Targets</span>
+            <span>{{ pip.targets?.length ? pip.targets.length + ' set' : '—' }}</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">Reviews Done</span>
+            <span>{{ pip.weeklyReviews?.length || 0 }} / 4</span>
+          </div>
+          <div class="pip-info-row">
+            <span class="pip-info-label">My Responses</span>
+            <span>{{ pip.responses?.length || 0 }} submitted</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIP Detail Dialog -->
+    <p-dialog [(visible)]="pipDetailVisible" [modal]="true" [style]="{width:'660px',maxHeight:'85vh'}">
+      <ng-template pTemplate="header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span>PIP Detail</span>
+          <span *ngIf="selectedPIP?.pipNumber" style="font-family:monospace;font-size:12px;color:#FB9C2A;background:#1a1a1a;padding:2px 8px;border-radius:20px">
+            {{ selectedPIP.pipNumber }}
+          </span>
+        </div>
+      </ng-template>
+      <div *ngIf="selectedPIP" style="padding:4px 0">
+        <div class="pip-detail-block">
+          <div class="pip-detail-row"><span class="pdl">Status</span><span class="pdv pip-status" [ngClass]="getPIPStatusClass(selectedPIP.status)">{{ getPIPStatusLabel(selectedPIP.status) }}</span></div>
+          <div class="pip-detail-row"><span class="pdl">Month</span><span class="pdv">{{ selectedPIP.triggerMonth }}</span></div>
+          <div class="pip-detail-row"><span class="pdl">Trigger Score</span><span class="pdv" style="color:#FB9C2A;font-weight:600">{{ selectedPIP.triggerScore }}/100</span></div>
+          <div class="pip-detail-row" *ngIf="selectedPIP.warningDate"><span class="pdl">Warning Date</span><span class="pdv">{{ fmtDate(selectedPIP.warningDate) }}</span></div>
+          <div class="pip-detail-row" *ngIf="selectedPIP.responseDeadline"><span class="pdl">Response Deadline</span><span class="pdv" style="color:#f59e0b">{{ fmtDate(selectedPIP.responseDeadline) }}</span></div>
+          <div class="pip-detail-row" *ngIf="selectedPIP.pipStartDate"><span class="pdl">PIP Period</span><span class="pdv">{{ fmtDate(selectedPIP.pipStartDate) }} – {{ fmtDate(selectedPIP.pipEndDate) }}</span></div>
+          <div class="pip-detail-row" *ngIf="selectedPIP.remarks"><span class="pdl">HR Remarks</span><span class="pdv">{{ selectedPIP.remarks }}</span></div>
+        </div>
+
+        <div *ngIf="selectedPIP.targets?.length" class="pip-detail-block">
+          <h5 style="color:#FB9C2A;margin:0 0 10px">Targets</h5>
+          <ul style="margin:0;padding-left:20px;color:#e0e0e0;line-height:1.8;font-size:14px">
+            <li *ngFor="let t of selectedPIP.targets">{{ t }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="selectedPIP.weeklyReviews?.length" class="pip-detail-block">
+          <h5 style="color:#FB9C2A;margin:0 0 10px">Weekly Reviews</h5>
+          <div *ngFor="let r of selectedPIP.weeklyReviews" style="display:flex;gap:12px;padding:6px 0;border-bottom:1px solid #222;font-size:13px;color:#ccc">
+            <span>Week {{ r.weekNumber }}</span>
+            <span>{{ fmtDate(r.reviewDate) }}</span>
+            <span *ngIf="r.weeklyScore !== null">Score: {{ r.weeklyScore }}/100</span>
+            <span [ngClass]="r.status === 'IMPROVED' ? 'pip-improved' : r.status === 'NOT_IMPROVED' ? 'pip-term' : 'pip-warning'" class="pip-status">{{ r.status }}</span>
+          </div>
+        </div>
+
+        <div class="pip-detail-block">
+          <h5 style="color:#FB9C2A;margin:0 0 10px">My Responses ({{ pipResponses.length }})</h5>
+          <div *ngIf="pipResponsesLoading" style="color:#888;font-size:13px"><i class="pi pi-spinner pi-spin"></i> Loading...</div>
+          <div *ngIf="!pipResponsesLoading && !pipResponses.length" style="color:#666;font-size:13px">No responses submitted yet.</div>
+          <div *ngFor="let r of pipResponses" style="background:#1a1a1a;border-radius:6px;padding:10px 14px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:#888">{{ fmtDate(r.respondedAt) }}</span>
+              <span style="font-size:11px;color:#aaa">
+                {{ r.method === 'EMAIL_LINK' ? 'Via Email Link' : r.method === 'EMPLOYEE_SELF' ? 'Self Submitted' : 'HR Logged' }}
+              </span>
+            </div>
+            <p style="margin:0;font-size:14px;color:#e0e0e0;white-space:pre-wrap">{{ r.responseText }}</p>
+            <p *ngIf="r.acknowledgedAt" style="margin:6px 0 0;font-size:12px;color:#4caf50"><i class="pi pi-check-circle"></i> Acknowledged by HR on {{ fmtDate(r.acknowledgedAt) }}</p>
+          </div>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button *ngIf="selectedPIP?.status !== 'PIP_CLOSED_IMPROVED' && selectedPIP?.status !== 'TERMINATED'"
+          pButton label="Submit Response" icon="pi pi-reply" class="p-button-sm p-button-outlined"
+          (click)="openLogMyResponse(selectedPIP)">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Log My Response Dialog -->
+    <p-dialog header="Submit My Response" [(visible)]="logResponseVisible" [modal]="true" [style]="{width:'480px'}">
+      <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
+        <div *ngIf="myResponseSubmitted" style="text-align:center;padding:20px;color:#22c55e">
+          <i class="pi pi-check-circle" style="font-size:36px;display:block;margin-bottom:8px"></i>
+          <strong>Response submitted successfully.</strong>
+          <p style="color:#aaa;font-size:13px;margin-top:6px">HR will review and acknowledge your response.</p>
+        </div>
+        <ng-container *ngIf="!myResponseSubmitted">
+          <p style="color:#ccc;font-size:13px;margin:0">
+            Submitting response for PIP <strong style="color:#FB9C2A">{{ selectedPIP?.pipNumber }}</strong>
+          </p>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="color:white;font-weight:600;font-size:14px">Your Response <span style="color:#ef4444">*</span></label>
+            <textarea pTextarea [(ngModel)]="myResponseText" rows="6" style="width:100%"
+              placeholder="Write your response here..."></textarea>
+          </div>
+        </ng-container>
+      </div>
+      <ng-template pTemplate="footer">
+        <button pButton label="Close" class="p-button-text p-button-sm" (click)="logResponseVisible = false"></button>
+        <button *ngIf="!myResponseSubmitted" pButton label="Submit" icon="pi pi-send" class="p-button-sm"
+          (click)="submitMyResponse()" [loading]="myResponseSubmitting" [disabled]="!myResponseText.trim()">
+        </button>
+      </ng-template>
+    </p-dialog>
+
     <div class="my-test">
         <app-my-tests></app-my-tests>
     </div>

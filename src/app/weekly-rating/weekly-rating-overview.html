@@ -1,10 +1,10 @@
 <div class="guide">
   <app-module-guide
     title="Weekly Performance Rating"
-    [subtitle]="isHRManager ? 'View weekly performance ratings submitted by managers across all departments.' : 'Rate your team members weekly on predefined criteria (1-10 scale).'"
+    [subtitle]="isHRManager ? 'View weekly performance ratings submitted by managers across all departments.' : 'Rate your team members weekly on predefined criteria. Each question scored 1-10; overall score is out of 100.'"
     [points]="[
       { label: 'Weekly Rating', desc: 'Rate each team member on active questions every week. Score 1-10 per question.' },
-      { label: 'Overall Score', desc: 'Auto-calculated average of all question scores.' },
+      { label: 'Overall Score', desc: 'Auto-calculated out of 100: each question contributes equally (100 ÷ number of questions).' },
       { label: 'Questions', desc: '5 default questions + up to 5 custom. Deactivate or add as needed.' }
     ]">
   </app-module-guide>
@@ -69,7 +69,7 @@
           </td>
           <td>
             <span *ngIf="emp.rating?.overallScore" class="score-badge" [ngClass]="getScoreClass(emp.rating.overallScore)">
-              {{ emp.rating.overallScore }}/10
+              {{ emp.rating.overallScore }}/100
             </span>
             <span *ngIf="!emp.rating?.overallScore">-</span>
           </td>
@@ -115,7 +115,7 @@
           <td>{{ r.weekLabel }}</td>
           <td>{{ r.ratedByName }}</td>
           <td>
-            <span class="score-badge" [ngClass]="getScoreClass(r.overallScore)">{{ r.overallScore }}/10</span>
+            <span class="score-badge" [ngClass]="getScoreClass(r.overallScore)">{{ r.overallScore }}/100</span>
           </td>
           <td>
             <span class="status-badge" [class.submitted]="r.status === 'SUBMITTED'" [class.draft]="r.status === 'DRAFT'">
@@ -185,7 +185,7 @@
       <strong>{{ ratingEmployee.firstName }} {{ ratingEmployee.lastName }}</strong>
       <span>({{ ratingEmployee.employeeCode }})</span>
       <span class="overall-score" [ngClass]="getScoreClass(getOverallScore())">
-        Overall: {{ getOverallScore() }}/10
+        Overall: {{ getOverallScore() }}/100
       </span>
     </div>
 
@@ -194,12 +194,16 @@
         <div class="rq-header">
           <span class="rq-num">{{ i + 1 }}.</span>
           <span class="rq-text">{{ a.text }}</span>
-          <span class="rq-score" [ngClass]="getScoreClass(a.score)">{{ a.score }}/10</span>
+          <span class="rq-score" [ngClass]="getScoreClass(a.score)">
+            {{ getContribution(a.score) }}/{{ getPerQuestionMax() }} pts
+          </span>
         </div>
         <div class="rq-slider">
           <input type="range" min="1" max="10" [(ngModel)]="a.score" class="slider" />
           <div class="rq-labels">
-            <span>1</span><span>5</span><span>10</span>
+            <span>{{ getContribution(1) }} pts</span>
+            <span>{{ getContribution(5) }} pts</span>
+            <span>{{ getContribution(10) }} pts</span>
           </div>
         </div>
         <input type="text" pInputText [(ngModel)]="a.remarks" placeholder="Remarks (optional)"
@@ -233,7 +237,7 @@
     </div>
     <div class="info-row">
       <span class="info-label">Overall Score:</span>
-      <span class="score-badge" [ngClass]="getScoreClass(viewRating.overallScore)">{{ viewRating.overallScore }}/10</span>
+      <span class="score-badge" [ngClass]="getScoreClass(viewRating.overallScore)">{{ viewRating.overallScore }}/100</span>
     </div>
     <div class="info-row" *ngIf="viewRating.managerRemarks">
       <span class="info-label">Remarks:</span>

@@ -1,0 +1,742 @@
+<div class="guide">
+  <app-module-guide
+    title="Performance Improvement Plan (PIP)"
+    subtitle="Monitor underperforming employees (monthly avg ≤ 50/100), manage the full PIP lifecycle, and maintain an audit trail of all communications."
+    [points]="[
+      { label: 'Underperformers', desc: 'Auto-identifies employees with monthly avg score ≤ 50/100 from weekly ratings. Select and send formal warning emails.' },
+      { label: 'PIP Lifecycle', desc: 'Issue warning → Start 30-day PIP → Weekly reviews → Close (improved) or Extend → Termination with notice period.' },
+      { label: 'Email Templates', desc: 'Create and manage reusable HTML email templates with dynamic placeholders for each stage of the PIP process.' },
+      { label: 'Email Logs', desc: 'Immutable audit log of every email sent — who, when, to whom, and which template — for compliance and record-keeping.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+
+<div class="page-container pip-overview">
+
+  <!-- Tabs + actions -->
+  <div class="controls">
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'underperformers'" (click)="switchTab('underperformers')">Underperformers</button>
+      <button class="tab-btn" [class.active]="activeTab === 'pips'" (click)="switchTab('pips')">Active PIPs</button>
+      <button class="tab-btn" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">Email Logs</button>
+      <button class="tab-btn" [class.active]="activeTab === 'templates'" (click)="switchTab('templates')">Templates</button>
+    </div>
+
+    <div class="tab-actions">
+      <!-- Underperformers: month picker + send warning -->
+      <ng-container *ngIf="activeTab === 'underperformers'">
+        <p-select [options]="monthOptions" [(ngModel)]="selectedMonth"
+          optionLabel="label" optionValue="value"
+          [style]="{'width':'180px'}" (onChange)="loadUnderperformers(); selectedEmployees = []">
+        </p-select>
+        <button pButton label="Send Warning" icon="pi pi-send" class="p-button-sm p-button-warning"
+          [disabled]="!selectedEmployees.length" (click)="openSendWarningDialog()">
+        </button>
+      </ng-container>
+
+      <!-- PIP list: status filter + refresh -->
+      <ng-container *ngIf="activeTab === 'pips'">
+        <p-select [options]="pipStatusOptions" [(ngModel)]="pipStatusFilter"
+          optionLabel="label" optionValue="value" placeholder="All Statuses"
+          [style]="{'width':'180px'}" (onChange)="loadPIPList()">
+        </p-select>
+        <button pButton icon="pi pi-refresh" class="p-button-sm p-button-outlined" pTooltip="Refresh" (click)="loadPIPList()"></button>
+      </ng-container>
+
+      <!-- Logs refresh -->
+      <ng-container *ngIf="activeTab === 'logs'">
+        <button pButton icon="pi pi-refresh" class="p-button-sm p-button-outlined" pTooltip="Refresh" (click)="loadEmailLogs()"></button>
+      </ng-container>
+
+      <!-- Templates: new template -->
+      <ng-container *ngIf="activeTab === 'templates'">
+        <button pButton label="New Template" icon="pi pi-plus" class="p-button-sm" (click)="openTemplateDialog()"></button>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 1: UNDERPERFORMERS                                               -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'underperformers'">
+    <div class="info-banner" *ngIf="isCurrentMonth" style="border-left-color:#888;color:#aaa">
+      <i class="pi pi-clock"></i>
+      Showing <strong>partial data</strong> — the month is still in progress. Scores will update as managers submit weekly ratings.
+    </div>
+
+    <div class="info-banner" *ngIf="underperformers.length">
+      <i class="pi pi-info-circle"></i>
+      {{ underperformers.length }} employee(s) with monthly avg ≤ 50/100 for <strong>{{ selectedMonth }}</strong>.
+      Check the rows, select employees, then click <strong>Send Warning</strong>.
+    </div>
+
+    <p-table [value]="underperformers" [loading]="loading" styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">Select</th>
+          <th>Emp Code</th>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Avg Score</th>
+          <th>Weeks Rated</th>
+          <th>PIP Status</th>
+          <th>Preview</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-emp>
+        <tr>
+          <td>
+            <input type="checkbox" [checked]="isSelected(emp)" (change)="toggleSelection(emp)"
+              style="width:16px;height:16px;accent-color:#FB9C2A;cursor:pointer" />
+          </td>
+          <td>{{ emp.employeeCode }}</td>
+          <td>
+            <div class="emp-name">{{ emp.firstName }} {{ emp.lastName }}</div>
+          </td>
+          <td>{{ emp.Department?.name }}</td>
+          <td>{{ emp.designation?.name || '—' }}</td>
+          <td>
+            <span class="score-badge" [ngClass]="getScoreClass(emp.monthlyAvgScore)">
+              {{ emp.monthlyAvgScore }}/100
+            </span>
+          </td>
+          <td>{{ emp.ratingCount }}</td>
+          <td>
+            <span *ngIf="emp.currentPIP" class="status-badge" [ngClass]="getPIPStatusClass(emp.currentPIP.status)">
+              {{ getPIPStatusLabel(emp.currentPIP.status) }}
+            </span>
+            <span *ngIf="!emp.currentPIP" style="color:#888;font-size:13px">No PIP</span>
+          </td>
+          <td>
+            <button class="btn-icon view" pTooltip="Preview Warning Email" tooltipPosition="top"
+              (click)="previewEmail(warningTemplates[0]?.id, emp)" [disabled]="!warningTemplates.length">
+              <i class="pi pi-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="9" class="empty-msg">No underperformers found for {{ selectedMonth }}. All employees are performing well!</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 2: ACTIVE PIPs                                                   -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'pips'">
+    <p-table [value]="pipList" [loading]="loading" styleClass="p-datatable-sm"
+      [scrollable]="true" [paginator]="pipList.length > 15" [rows]="15">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>PIP ID</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Score</th>
+          <th>Month</th>
+          <th>Status</th>
+          <th>PIP Period</th>
+          <th>Reviews</th>
+          <th>Responses</th>
+          <th style="width:220px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-pip let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>
+            <span style="font-family:monospace;font-size:12px;color:#FB9C2A">
+              {{ pip.pipNumber || '—' }}
+            </span>
+          </td>
+          <td>
+            <div class="emp-name">{{ pip.employee?.firstName }} {{ pip.employee?.lastName }}</div>
+            <div class="emp-code">{{ pip.employee?.employeeCode }}</div>
+          </td>
+          <td>{{ pip.employee?.Department?.name }}</td>
+          <td>
+            <span class="score-badge" [ngClass]="getScoreClass(pip.triggerScore)">
+              {{ pip.triggerScore }}/100
+            </span>
+          </td>
+          <td>{{ pip.triggerMonth }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getPIPStatusClass(pip.status)">
+              {{ getPIPStatusLabel(pip.status) }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="pip.pipStartDate" style="font-size:13px">
+              {{ pip.pipStartDate | date:'dd MMM' }} – {{ pip.pipEndDate | date:'dd MMM yy' }}
+            </span>
+            <span *ngIf="!pip.pipStartDate" style="color:#888;font-size:13px">Not started</span>
+          </td>
+          <td>{{ pip.weeklyReviews?.length || 0 }}/4</td>
+          <td>
+            <button class="btn-icon view" pTooltip="View Responses" tooltipPosition="top"
+              (click)="openResponsesDialog(pip)">
+              <i class="pi pi-comments"></i>
+            </button>
+          </td>
+          <td>
+            <div class="action-cell">
+              <button class="btn-icon view" pTooltip="View Detail" tooltipPosition="top" (click)="openPIPDetail(pip)">
+                <i class="pi pi-eye"></i>
+              </button>
+              <button class="btn-icon start" pTooltip="Start 30-day PIP" tooltipPosition="top"
+                *ngIf="pip.status === 'WARNING_ISSUED'" (click)="openInitiatePIPDialog(pip)">
+                <i class="pi pi-play"></i>
+              </button>
+              <button class="btn-icon review" pTooltip="Add Weekly Review" tooltipPosition="top"
+                *ngIf="pip.status === 'PIP_ACTIVE' || pip.status === 'PIP_EXTENDED'"
+                (click)="openWeeklyReviewDialog(pip)">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon close" pTooltip="Close PIP (Improved)" tooltipPosition="top"
+                *ngIf="pip.status === 'PIP_ACTIVE' || pip.status === 'PIP_EXTENDED'"
+                (click)="openClosePIPDialog(pip)">
+                <i class="pi pi-check"></i>
+              </button>
+              <button class="btn-icon extend" pTooltip="Extend PIP 30 days" tooltipPosition="top"
+                *ngIf="pip.status === 'PIP_ACTIVE' && pip.extendedCount < 1"
+                (click)="openExtendPIPDialog(pip)">
+                <i class="pi pi-refresh"></i>
+              </button>
+              <button class="btn-icon term" pTooltip="Initiate Termination" tooltipPosition="top"
+                *ngIf="pip.status === 'PIP_ACTIVE' || pip.status === 'PIP_EXTENDED'"
+                (click)="openTerminateDialog(pip)">
+                <i class="pi pi-ban"></i>
+              </button>
+              <button class="btn-icon" style="background:#e8f5e9;color:#2e7d32" pTooltip="Log Employee Response" tooltipPosition="top"
+                *ngIf="pip.status !== 'PIP_CLOSED_IMPROVED' && pip.status !== 'TERMINATED'"
+                (click)="openLogResponseDialog(pip)">
+                <i class="pi pi-reply"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="11" class="empty-msg">No PIP records found.</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 3: EMAIL LOGS                                                    -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'logs'">
+    <p-table [value]="emailLogs" [loading]="loading" styleClass="p-datatable-sm"
+      [scrollable]="true" [paginator]="emailLogs.length > 15" [rows]="15">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Employee</th>
+          <th>Template</th>
+          <th>Sent To</th>
+          <th>Subject</th>
+          <th>Sent At</th>
+          <th>Status</th>
+          <th>PIP Month</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-log let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="emp-name">{{ log.employee?.firstName }} {{ log.employee?.lastName }}</div>
+            <div class="emp-code">{{ log.employee?.employeeCode }}</div>
+          </td>
+          <td>{{ log.template?.name || '—' }}</td>
+          <td style="font-size:13px">{{ log.sentTo }}</td>
+          <td style="font-size:13px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log.subject }}</td>
+          <td style="font-size:13px">{{ log.sentAt | date:'dd MMM yyyy, HH:mm' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="log.status === 'SENT' ? 'badge-improved' : 'badge-terminated'">
+              {{ log.status }}
+            </span>
+          </td>
+          <td>{{ log.pip?.triggerMonth || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="8" class="empty-msg">No email logs found.</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 4: TEMPLATES                                                     -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'templates'">
+    <p-table [value]="templates" styleClass="p-datatable-sm" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th style="width:100px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-t let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ t.name }}</td>
+          <td>
+            <span class="status-badge badge-active">{{ t.type }}</span>
+          </td>
+          <td style="font-size:13px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.subject }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="t.isActive ? 'badge-improved' : 'badge-default'">
+              {{ t.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-cell">
+              <button class="btn-icon edit" pTooltip="Edit" tooltipPosition="top" (click)="openTemplateDialog(t)">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon term" pTooltip="Deactivate" tooltipPosition="top" (click)="deactivateTemplate(t.id)" *ngIf="t.isActive">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" class="empty-msg">No templates. They will be auto-seeded on first load.</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: SEND WARNING                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Send Performance Warning" [(visible)]="warningDialogVisible"
+  [modal]="true" [style]="{ width: '520px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Email Template</label>
+      <p-select [options]="warningTemplates" [(ngModel)]="selectedTemplateId"
+        optionLabel="name" optionValue="id" placeholder="Select template" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+    <div>
+      <div class="selected-label">Sending to {{ selectedEmployees.length }} employee(s):</div>
+      <div class="chip-list">
+        <span class="chip" *ngFor="let e of selectedEmployees">
+          <i class="pi pi-user" style="font-size:11px"></i>
+          {{ e.firstName }} {{ e.lastName }} — {{ e.monthlyAvgScore }}/100
+        </span>
+      </div>
+    </div>
+    <div class="note note-warn">
+      <i class="pi pi-info-circle"></i>
+      A 7-day response window is set automatically (labour law). Employee status becomes <strong>WARNING_ISSUED</strong>.
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Preview" icon="pi pi-eye" class="p-button-sm p-button-outlined"
+      (click)="previewEmail(selectedTemplateId, selectedEmployees[0])" [disabled]="!selectedTemplateId || !selectedEmployees.length">
+    </button>
+    <button pButton label="Send Warning" icon="pi pi-send" class="p-button-sm p-button-warning"
+      (click)="sendWarning()" [loading]="sendingWarning" [disabled]="!selectedTemplateId">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: EMAIL PREVIEW                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Email Preview" [(visible)]="previewDialogVisible"
+  [modal]="true" [style]="{ width: '680px', maxHeight: '85vh' }">
+  <div class="preview-subject"><strong>Subject:</strong> {{ previewSubject }}</div>
+  <p-divider></p-divider>
+  <div class="preview-body" [innerHTML]="previewBody"></div>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: PIP DETAIL                                                       -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="PIP Detail" [(visible)]="detailDialogVisible"
+  [modal]="true" [style]="{ width: '720px', maxHeight: '90vh' }">
+  <div *ngIf="selectedPIP">
+
+    <div class="detail-section">
+      <h4>Employee Info</h4>
+      <div class="detail-row" *ngIf="selectedPIP.pipNumber">
+        <span class="detail-label">PIP Reference</span>
+        <span class="detail-value" style="font-family:monospace;color:#FB9C2A">{{ selectedPIP.pipNumber }}</span>
+      </div>
+      <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">{{ selectedPIP.employee?.firstName }} {{ selectedPIP.employee?.lastName }} ({{ selectedPIP.employee?.employeeCode }})</span></div>
+      <div class="detail-row"><span class="detail-label">Department</span><span class="detail-value">{{ selectedPIP.employee?.Department?.name }}</span></div>
+      <div class="detail-row"><span class="detail-label">Trigger Month</span><span class="detail-value">{{ selectedPIP.triggerMonth }}</span></div>
+      <div class="detail-row"><span class="detail-label">Trigger Score</span><span class="detail-value"><span class="score-badge" [ngClass]="getScoreClass(selectedPIP.triggerScore)">{{ selectedPIP.triggerScore }}/100</span></span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge" [ngClass]="getPIPStatusClass(selectedPIP.status)">{{ getPIPStatusLabel(selectedPIP.status) }}</span></span></div>
+      <div class="detail-row" *ngIf="selectedPIP.warningDate"><span class="detail-label">Warning Date</span><span class="detail-value">{{ selectedPIP.warningDate | date:'dd MMM yyyy' }}</span></div>
+      <div class="detail-row" *ngIf="selectedPIP.responseDeadline"><span class="detail-label">Response Deadline</span><span class="detail-value">{{ selectedPIP.responseDeadline | date:'dd MMM yyyy' }}</span></div>
+      <div class="detail-row" *ngIf="selectedPIP.pipStartDate"><span class="detail-label">PIP Period</span><span class="detail-value">{{ selectedPIP.pipStartDate | date:'dd MMM yyyy' }} – {{ selectedPIP.pipEndDate | date:'dd MMM yyyy' }}</span></div>
+    </div>
+
+    <div class="detail-section" *ngIf="selectedPIP.targets?.length">
+      <h4>Targets</h4>
+      <div class="chip-list">
+        <span class="chip" *ngFor="let t of selectedPIP.targets"><i class="pi pi-check-circle" style="font-size:11px"></i>{{ t }}</span>
+      </div>
+    </div>
+
+    <div class="detail-section" *ngIf="selectedPIP.weeklyRatings?.length">
+      <h4>Weekly Rating Scores (auto-pulled during PIP)</h4>
+      <p-table [value]="selectedPIP.weeklyRatings" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr><th>Week Label</th><th>Start Date</th><th>Score</th></tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-r>
+          <tr>
+            <td>{{ r.weekLabel }}</td>
+            <td>{{ r.weekStartDate | date:'dd MMM yyyy' }}</td>
+            <td><span class="score-badge" [ngClass]="getScoreClass(r.overallScore)">{{ r.overallScore }}/100</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="detail-section" *ngIf="selectedPIP.weeklyReviews?.length">
+      <h4>PIP Weekly Reviews</h4>
+      <p-table [value]="selectedPIP.weeklyReviews" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr><th>Week</th><th>Date</th><th>Score</th><th>Status</th><th>Remarks</th></tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-r>
+          <tr>
+            <td>Week {{ r.weekNumber }}</td>
+            <td>{{ r.reviewDate | date:'dd MMM yyyy' }}</td>
+            <td>{{ r.weeklyScore !== null ? (r.weeklyScore + '/100') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="getReviewStatusClass(r.status)">{{ r.status }}</span></td>
+            <td style="font-size:13px">{{ r.remarks || '—' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="detail-section termination-section" *ngIf="selectedPIP.terminationReason">
+      <h4><i class="pi pi-ban"></i> Termination Details</h4>
+      <div class="detail-row"><span class="detail-label">Reason</span><span class="detail-value">{{ selectedPIP.terminationReason }}</span></div>
+      <div class="detail-row"><span class="detail-label">Notice Period</span><span class="detail-value">{{ selectedPIP.noticePeriodDays }} days</span></div>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: INITIATE PIP                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Initiate 30-Day PIP" [(visible)]="initiatePIPDialogVisible"
+  [modal]="true" [style]="{ width: '520px' }">
+  <div class="dialog-form" *ngIf="selectedPIP">
+    <p style="color:#ccc;font-size:14px;margin:0">
+      Starting PIP for <strong style="color:white">{{ selectedPIP.employee?.firstName }} {{ selectedPIP.employee?.lastName }}</strong>. Duration: 30 days from today.
+    </p>
+    <div class="field">
+      <label>Performance Targets <span style="color:#888;font-size:12px;font-weight:400">(press Enter to add)</span></label>
+      <div class="target-input-row">
+        <input pInputText [(ngModel)]="newTarget" placeholder="e.g. Maintain score above 60/100"
+          (keydown.enter)="addTarget()" style="flex:1" />
+        <button pButton icon="pi pi-plus" class="p-button-sm" (click)="addTarget()"></button>
+      </div>
+      <div class="target-list">
+        <div class="target-item" *ngFor="let t of initTargets; let i = index">
+          <i class="pi pi-check-circle" style="color:#FB9C2A;font-size:13px"></i>
+          <span>{{ t }}</span>
+          <button class="target-remove" (click)="removeTarget(i)"><i class="pi pi-times"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Send Initiation Email (optional)</label>
+      <p-select [options]="pipTemplates" [(ngModel)]="initiateTemplateId"
+        optionLabel="name" optionValue="id" placeholder="Select PIP initiation template" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+    <div class="note note-warn">
+      <i class="pi pi-info-circle"></i>
+      Assign training via the <strong>Training</strong> module after PIP starts.
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="initiatePIPDialogVisible = false"></button>
+    <button pButton label="Start PIP" icon="pi pi-play" class="p-button-sm" (click)="initiatePIP()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: WEEKLY REVIEW                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Add Weekly Review" [(visible)]="reviewDialogVisible"
+  [modal]="true" [style]="{ width: '460px' }">
+  <div class="dialog-form">
+    <p style="color:#ccc;font-size:13px;margin:0">
+      <i class="pi pi-info-circle"></i>
+      Weekly score is auto-fetched from the <strong>Weekly Rating</strong> records for this employee.
+    </p>
+    <div class="field">
+      <label>Week Number</label>
+      <input pInputText type="number" [(ngModel)]="reviewData.weekNumber" min="1" max="8" style="width:100%" />
+    </div>
+    <div class="field">
+      <label>Review Date</label>
+      <p-datepicker [(ngModel)]="reviewData.reviewDate" dateFormat="dd-mm-yy" [showIcon]="true" appendTo="body" [style]="{'width':'100%'}"></p-datepicker>
+    </div>
+    <div class="field">
+      <label>Overall Status</label>
+      <p-select [options]="reviewStatusOptions" [(ngModel)]="reviewData.status"
+        optionLabel="label" optionValue="value" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+    <div class="field">
+      <label>Remarks</label>
+      <textarea pTextarea [(ngModel)]="reviewData.remarks" rows="3" style="width:100%"
+        placeholder="Observations, improvement noted, challenges..."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="reviewDialogVisible = false"></button>
+    <button pButton label="Save Review" icon="pi pi-save" class="p-button-sm" (click)="saveWeeklyReview()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: CLOSE PIP                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Close PIP – Employee Improved" [(visible)]="closePIPDialogVisible"
+  [modal]="true" [style]="{ width: '440px' }">
+  <div class="dialog-form">
+    <p style="color:#ccc;font-size:14px;margin:0">Confirm that <strong style="color:white">{{ selectedPIP?.employee?.firstName }} {{ selectedPIP?.employee?.lastName }}</strong> has met the required performance standards and the PIP can be closed.</p>
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" [(ngModel)]="sendClosureEmail" id="sendClosure" />
+        <label for="sendClosure" style="padding:0">Notify employee via email</label>
+      </div>
+    </div>
+    <div class="field" *ngIf="sendClosureEmail">
+      <label>Closure Email Template</label>
+      <p-select [options]="closureTemplates" [(ngModel)]="closureTemplateId"
+        optionLabel="name" optionValue="id" placeholder="Select template" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="closePIPDialogVisible = false"></button>
+    <button pButton label="Close PIP" icon="pi pi-check" class="p-button-sm p-button-success" (click)="confirmClosePIP()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: EXTEND PIP                                                       -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Extend PIP by 30 Days" [(visible)]="extendPIPDialogVisible"
+  [modal]="true" [style]="{ width: '440px' }">
+  <div class="dialog-form">
+    <p style="color:#ccc;font-size:14px;margin:0">Extending PIP for <strong style="color:white">{{ selectedPIP?.employee?.firstName }} {{ selectedPIP?.employee?.lastName }}</strong> by 30 more days.</p>
+    <div class="note note-danger">
+      <i class="pi pi-exclamation-triangle"></i>
+      PIP can only be extended <strong>once</strong>. After this, you must close or initiate termination.
+    </div>
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" [(ngModel)]="sendExtensionEmail" id="sendExt" />
+        <label for="sendExt" style="padding:0">Notify employee via email</label>
+      </div>
+    </div>
+    <div class="field" *ngIf="sendExtensionEmail">
+      <label>Extension Email Template</label>
+      <p-select [options]="extensionTemplates" [(ngModel)]="extensionTemplateId"
+        optionLabel="name" optionValue="id" placeholder="Select template" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="extendPIPDialogVisible = false"></button>
+    <button pButton label="Extend PIP" icon="pi pi-refresh" class="p-button-sm p-button-warning" (click)="confirmExtendPIP()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: TERMINATION                                                      -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Initiate Termination" [(visible)]="terminateDialogVisible"
+  [modal]="true" [style]="{ width: '520px' }">
+  <div class="dialog-form">
+    <div class="note note-danger">
+      <i class="pi pi-exclamation-triangle"></i>
+      <div>
+        <strong>Labour Law:</strong> Termination is only valid after a written warning and at least one full PIP cycle.
+        Notice period is auto-calculated from date of joining (&lt;1yr: 30d, 1–3yr: 45d, 3+yr: 60d).
+      </div>
+    </div>
+    <div class="field">
+      <label>Termination Reason <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="terminationReason" rows="4" style="width:100%"
+        placeholder="Provide detailed reason for termination..."></textarea>
+    </div>
+    <div class="field">
+      <label>Notice Period Override (days) <span style="color:#888;font-size:12px;font-weight:400">Leave blank to auto-calculate from tenure</span></label>
+      <input pInputText type="number" [(ngModel)]="noticePeriodOverride" placeholder="e.g. 30, 45, 60" style="width:100%" />
+    </div>
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" [(ngModel)]="sendTerminationEmail" id="sendTerm" />
+        <label for="sendTerm" style="padding:0">Send termination notice to employee</label>
+      </div>
+    </div>
+    <div class="field" *ngIf="sendTerminationEmail">
+      <label>Termination Email Template</label>
+      <p-select [options]="terminationTemplates" [(ngModel)]="terminationTemplateId"
+        optionLabel="name" optionValue="id" placeholder="Select template" [style]="{'width':'100%'}">
+      </p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="terminateDialogVisible = false"></button>
+    <button pButton label="Initiate Termination" icon="pi pi-ban" class="p-button-sm p-button-danger" (click)="confirmTerminate()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: TEMPLATE EDITOR                                                  -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog [header]="editingTemplate ? 'Edit Template' : 'New Email Template'"
+  [(visible)]="templateDialogVisible" [modal]="true" [style]="{ width: '760px', maxHeight: '90vh' }">
+  <div class="dialog-form">
+    <div class="tmpl-grid">
+      <div class="field">
+        <label>Template Name <span class="req">*</span></label>
+        <input pInputText [(ngModel)]="templateForm.name" placeholder="e.g. Warning Letter – General" style="width:100%" />
+      </div>
+      <div class="field">
+        <label>Type <span class="req">*</span></label>
+        <p-select [options]="templateTypeOptions" [(ngModel)]="templateForm.type"
+          optionLabel="label" optionValue="value" placeholder="Select type" [style]="{'width':'100%'}">
+        </p-select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Subject <span class="req">*</span></label>
+      <input pInputText [(ngModel)]="templateForm.subject" style="width:100%"
+        placeholder="e.g. Performance Warning – {{ '{{employeeName}}' }}" />
+    </div>
+    <div class="field">
+      <label>CC (optional)</label>
+      <small class="hint-label" style="display:block;margin-bottom:4px">Comma-separated email addresses</small>
+      <input pInputText [(ngModel)]="templateForm.cc" placeholder="cc@example.com, cc2@example.com" style="width:100%" />
+    </div>
+    <div class="field">
+      <label>BCC (optional)</label>
+      <small class="hint-label" style="display:block;margin-bottom:4px">Comma-separated email addresses</small>
+      <input pInputText [(ngModel)]="templateForm.bcc" placeholder="bcc@example.com" style="width:100%" />
+    </div>
+    <div class="field">
+      <label>Body (HTML supported) <span class="req">*</span></label>
+      <div class="placeholder-row">
+        <span class="hint-label">Insert:</span>
+        <span class="ph-chip" *ngFor="let ph of placeholders" (click)="insertPlaceholder(ph)">{{ ph }}</span>
+      </div>
+      <textarea pTextarea [(ngModel)]="templateForm.body" rows="14" style="width:100%"
+        class="template-ta" placeholder="Write email body here. HTML is supported."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="templateDialogVisible = false"></button>
+    <button pButton label="Save Template" icon="pi pi-save" class="p-button-sm" (click)="saveTemplate()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: PIP RESPONSES                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="responsesDialogVisible" [modal]="true"
+  [style]="{ width: '680px', maxHeight: '85vh' }">
+  <ng-template pTemplate="header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span>Employee Responses</span>
+      <span *ngIf="selectedPIP?.pipNumber" style="font-family:monospace;font-size:13px;color:#FB9C2A;background:#1a1a1a;padding:2px 10px;border-radius:20px">
+        {{ selectedPIP.pipNumber }}
+      </span>
+    </div>
+  </ng-template>
+  <div *ngIf="selectedPIP">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="color:#aaa;font-size:13px">
+        {{ selectedPIP.employee?.firstName }} {{ selectedPIP.employee?.lastName }} — responses to PIP communications
+      </span>
+      <button pButton label="Log Response" icon="pi pi-reply" class="p-button-sm p-button-outlined"
+        (click)="logResponseDialogVisible = true">
+      </button>
+    </div>
+
+    <div *ngIf="loadingResponses" style="text-align:center;padding:2rem;color:#888">
+      <i class="pi pi-spinner pi-spin"></i> Loading...
+    </div>
+
+    <div *ngIf="!loadingResponses && !pipResponses.length" class="empty-msg">
+      No responses yet. Employee can reply via the link in the warning email, or HR can log a response manually.
+    </div>
+
+    <div class="detail-section" *ngFor="let r of pipResponses">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <span class="status-badge"
+            [ngClass]="r.method === 'EMAIL_LINK' ? 'badge-active' : r.method === 'EMPLOYEE_SELF' ? 'badge-improved' : 'badge-warning'"
+            style="margin-right:8px">
+            {{ r.method === 'EMAIL_LINK' ? 'Via Email Link' : r.method === 'EMPLOYEE_SELF' ? 'Self Submitted' : 'HR Logged' }}
+          </span>
+          <span style="font-size:12px;color:#888">{{ fmtDate(r.respondedAt) }}</span>
+        </div>
+        <div>
+          <span *ngIf="r.acknowledgedAt" style="font-size:12px;color:#4caf50">
+            <i class="pi pi-check-circle"></i> Acknowledged {{ fmtDate(r.acknowledgedAt) }}
+          </span>
+          <button *ngIf="!r.acknowledgedAt" class="btn-icon view" pTooltip="Mark as Acknowledged"
+            (click)="acknowledgeResponse(r)" style="width:auto;padding:0 10px;font-size:12px">
+            <i class="pi pi-check"></i> Acknowledge
+          </button>
+        </div>
+      </div>
+      <p style="font-size:14px;color:#e0e0e0;margin:0;line-height:1.6;white-space:pre-wrap">{{ r.responseText }}</p>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- DIALOG: LOG MANUAL RESPONSE                                               -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<p-dialog header="Log Employee Response" [(visible)]="logResponseDialogVisible"
+  [modal]="true" [style]="{ width: '500px' }">
+  <div class="dialog-form">
+    <p style="color:#ccc;font-size:13px;margin:0">
+      Use this when the employee responded via phone, in-person, or physical letter. The record will be stored with method <strong>"HR Logged"</strong>.
+    </p>
+    <div class="field">
+      <label>Response Text <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="manualResponseText" rows="5" style="width:100%"
+        placeholder="Enter the employee's response as received..."></textarea>
+    </div>
+    <div class="note note-warn">
+      <i class="pi pi-info-circle"></i>
+      This will be linked to PIP <strong>{{ selectedPIP?.pipNumber }}</strong> for {{ selectedPIP?.employee?.firstName }} {{ selectedPIP?.employee?.lastName }}.
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="logResponseDialogVisible = false"></button>
+    <button pButton label="Save Response" icon="pi pi-save" class="p-button-sm"
+      (click)="saveManualResponse()" [loading]="savingResponse">
+    </button>
+  </ng-template>
+</p-dialog>
