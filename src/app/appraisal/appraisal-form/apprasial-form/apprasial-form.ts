@@ -26,14 +26,16 @@ interface SelectOpton {
 })
 export class ApprasialForm {
 
-  @Input() selectedAppraisal: any;  // Data passed from parent
-  @Output() formSubmitted = new EventEmitter<void>(); // Notify parent after save
+  @Input() selectedAppraisal: any;
+  @Input() formType: 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
+  @Output() formSubmitted = new EventEmitter<void>();
   @Output() backToList = new EventEmitter<void>();
 
   isLoading = false;
 
   appraisalForm!: FormGroup;
-  role: string = 'Reporting Manager'
+  role: string = '';
+  loggedRoleId: number = 0;
 
   // Employee insights
   employeeInsights: any = null;
@@ -44,6 +46,8 @@ export class ApprasialForm {
     private messageService: MessageService) { }
 
   ngOnInit() {
+    this.role = localStorage.getItem('role') || '';
+    this.loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
     this.initForm();
     this.setupAutoCalculation();
   }
@@ -243,41 +247,51 @@ export class ApprasialForm {
       managerName: this.selectedAppraisal.managerName
     });
 
-    if (this.selectedAppraisal.managerReview) {
-      const review = this.selectedAppraisal.managerReview;
+    // Load existing review data based on formType
+    const review = this.formType === 'MANAGEMENT'
+      ? this.selectedAppraisal.managementReview
+      : this.selectedAppraisal.managerReview;
+
+    if (review) {
       this.appraisalForm.patchValue({
         qualityOfWorkRating: review.qualityOfWorkRating?.toString() || '',
         qualityOfWorkComments: review.qualityOfWorkComments || '',
-
         knowledgeOfJobRating: review.knowledgeOfJobRating?.toString() || '',
         knowledgeOfJobComments: review.knowledgeOfJobComments || '',
-
         teamworkRating: review.teamworkRating?.toString() || '',
         teamworkComments: review.teamworkComments || '',
-
         independenceRating: review.independenceRating?.toString() || '',
         independenceComments: review.independenceComments || '',
-
         recordsRating: review.recordsRating?.toString() || '',
         recordsComments: review.recordsComments || '',
-
         guestServiceRating: review.guestServiceRating?.toString() || '',
         guestServiceComments: review.guestServiceComments || '',
-
         safetyRating: review.safetyRating?.toString() || '',
         safetyComments: review.safetyComments || '',
-
         attendanceRating: review.attendanceRating?.toString() || '',
         attendanceComments: review.attendanceComments || '',
-
         leadershipRating: review.leadershipRating?.toString() || '',
         leadershipComments: review.leadershipComments || '',
-
         overallScore: review.overallScore?.toString() || '',
         comments: review.comments || '',
         recommendations: review.recommendations || '',
-        finalDecision: this.selectedAppraisal.finalDecision || '',
-        finalComments: this.selectedAppraisal.finalComments || ''
+        finalDecision: this.formType === 'MANAGEMENT' ? '' : (this.selectedAppraisal.finalDecision || ''),
+        finalComments: this.formType === 'MANAGEMENT' ? '' : (this.selectedAppraisal.finalComments || ''),
+      });
+    } else {
+      // No existing review — clear all rating fields so manager's values don't bleed through
+      this.appraisalForm.patchValue({
+        qualityOfWorkRating: '', qualityOfWorkComments: '',
+        knowledgeOfJobRating: '', knowledgeOfJobComments: '',
+        teamworkRating: '', teamworkComments: '',
+        independenceRating: '', independenceComments: '',
+        recordsRating: '', recordsComments: '',
+        guestServiceRating: '', guestServiceComments: '',
+        safetyRating: '', safetyComments: '',
+        attendanceRating: '', attendanceComments: '',
+        leadershipRating: '', leadershipComments: '',
+        overallScore: '', comments: '', recommendations: '',
+        finalDecision: '', finalComments: '',
       });
     }
   }
@@ -325,8 +339,11 @@ export class ApprasialForm {
         isDraft: false,
       };
 
-      console.log('Payload:', payload);
-      this.appraisalService.submitManagerAppraisalV2(this.selectedAppraisal.id, payload).subscribe({
+      const submit$ = this.formType === 'MANAGEMENT'
+        ? this.appraisalService.submitManagementAppraisal(this.selectedAppraisal.id, payload)
+        : this.appraisalService.submitManagerAppraisalV2(this.selectedAppraisal.id, payload);
+
+      submit$.subscribe({
         next: () => {
           this.isLoading = false;
 

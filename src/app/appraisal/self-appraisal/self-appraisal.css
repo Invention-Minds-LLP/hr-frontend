@@ -144,16 +144,72 @@
 .form-section { margin-bottom: 20px; }
 .form-section h4 { margin: 0 0 8px; color: #FFF; font-size: 15px; font-weight: 600; }
 
-.question-list { display: flex; flex-direction: column; gap: 14px; }
-.q-card { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; border: 1px solid #eee; }
-.q-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.q-num { font-weight: 700; color: #FFF; }
-.q-text { flex: 1; font-weight: 600; color: #FFF; font-size: 14px; }
-.q-score { padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 13px; background: #d4edda; color: #155724; }
-.q-slider { margin-bottom: 6px; }
-.slider { width: 100%; cursor: pointer; accent-color: #FB9C2A; }
-.q-labels { display: flex; justify-content: space-between; font-size: 11px; color: #888; }
-.q-comments { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-top: 4px; }
+.section-heading {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #FB9C2A;
+  border-left: 4px solid #FB9C2A;
+  padding-left: 10px;
+}
+
+.rating-scale-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.question-list { display: flex; flex-direction: column; gap: 10px; }
+
+.q-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.q-header { flex: 1; }
+.q-text { font-weight: 600; color: #fff; font-size: 14px; }
+
+.q-rating-buttons {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.rating-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: #aaa;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-btn:hover {
+  border-color: #FB9C2A;
+  color: #FB9C2A;
+}
+
+.rating-btn.active {
+  background: #FB9C2A;
+  border-color: #FB9C2A;
+  color: #000;
+}
 
 /* ── Detail View — Card-based Design ─────────────────────────────── */
 .detail-container {
@@ -304,6 +360,46 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Detail view — section grouping */
+.detail-section-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: #FB9C2A;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 0 4px;
+  border-bottom: 1px solid rgba(251,156,42,0.2);
+  margin-bottom: 6px;
+  margin-top: 10px;
+}
+
+.detail-section-heading:first-child { margin-top: 0; }
+
+.detail-rating-dots {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dot-rating {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+}
+
+.dot-rating.filled {
+  background: #FB9C2A;
+  border-color: #FB9C2A;
+  color: #000;
 }
 
 /* Edit history */

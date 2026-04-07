@@ -104,21 +104,31 @@
         placeholder="Any training or skill development needs?"></textarea>
     </div>
 
-    <!-- Question-based ratings -->
-    <div class="form-section" *ngIf="answers.length">
-      <h4>Self-Rating Questions</h4>
-      <div class="question-list">
-        <div class="q-card" *ngFor="let a of answers; let i = index">
-          <div class="q-header">
-            <span class="q-num">{{ i + 1 }}.</span>
-            <span class="q-text">{{ a.text }}</span>
-            <span class="q-score" *ngIf="a.rating">{{ a.rating }}/10</span>
+    <!-- Question-based ratings grouped by section -->
+    <div *ngIf="groupedQuestions.length">
+      <div class="form-section" *ngFor="let group of groupedQuestions">
+        <h4 class="section-heading">{{ group.section }}</h4>
+        <div class="rating-scale-legend">
+          <span>1 - Needs Improvement</span>
+          <span>2 - Below Expectations</span>
+          <span>3 - Meets Expectations</span>
+          <span>4 - Exceeds Expectations</span>
+          <span>5 - Outstanding</span>
+        </div>
+        <div class="question-list">
+          <div class="q-card" *ngFor="let q of group.questions; let i = index">
+            <div class="q-header">
+              <span class="q-text">{{ q.text }}</span>
+            </div>
+            <div class="q-rating-buttons">
+              <button *ngFor="let r of ratingScale" type="button"
+                class="rating-btn"
+                [class.active]="getAnswer(q.id)?.rating === r"
+                (click)="setRating(q.id, r)">
+                {{ r }}
+              </button>
+            </div>
           </div>
-          <div class="q-slider">
-            <input type="range" min="1" max="10" [(ngModel)]="a.rating" class="slider" />
-            <div class="q-labels"><span>1</span><span>5</span><span>10</span></div>
-          </div>
-          <input type="text" pInputText [(ngModel)]="a.comments" placeholder="Comments (optional)" class="q-comments" />
         </div>
       </div>
     </div>
@@ -198,20 +208,23 @@
       </div>
     </div>
 
-    <!-- Self-Rating Answers Card -->
+    <!-- Self-Rating Answers Card (grouped by section) -->
     <div *ngIf="detailAppraisal.selfAnswers?.length" class="detail-card rating-card">
       <div class="detail-card-header self-header">
         <i class="pi pi-star"></i> Self-Rating Scores
       </div>
       <div class="detail-card-body">
-        <div class="rating-row" *ngFor="let a of detailAppraisal.selfAnswers; let i = index">
-          <span class="rating-num">{{ i + 1 }}</span>
-          <span class="rating-text">{{ a.question?.text }}</span>
-          <span class="rating-score" [ngClass]="{'high': a.rating >= 8, 'mid': a.rating >= 5 && a.rating < 8, 'low': a.rating < 5}">
-            {{ a.rating }}/10
-          </span>
-          <span class="rating-remark" *ngIf="a.comments">{{ a.comments }}</span>
-        </div>
+        <ng-container *ngFor="let sec of groupAnswersBySection(detailAppraisal.selfAnswers)">
+          <div class="detail-section-heading">{{ sec.section }}</div>
+          <div class="rating-row" *ngFor="let a of sec.answers">
+            <span class="rating-text">{{ a.question?.text }}</span>
+            <div class="detail-rating-dots">
+              <span *ngFor="let r of [1,2,3,4,5]" class="dot-rating"
+                [class.filled]="a.rating === r">{{ r }}</span>
+            </div>
+            <span class="rating-remark" *ngIf="a.comments">{{ a.comments }}</span>
+          </div>
+        </ng-container>
       </div>
     </div>
 

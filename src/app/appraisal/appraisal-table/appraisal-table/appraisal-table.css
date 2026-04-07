@@ -353,6 +353,8 @@ form{
 .edit-respond-btn:hover { background: #FF9800; color: white; }
 .edit-req-btn { border-color: #f44336; color: #f44336; font-size: 14px; padding: 8px 16px; }
 .edit-req-btn:hover { background: #f44336; color: white; }
+.mgmt-btn { border-color: #FB9C2A; color: #FB9C2A; font-size: 14px; padding: 8px 16px; }
+.mgmt-btn:hover { background: #FB9C2A; color: white; }
 
 .btn-green {
   background-color: #3465b0;

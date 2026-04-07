@@ -68,6 +68,7 @@ export class AppraisalTable {
   loggedEmployeeId: number = 0;
   loggedRoleId: number = 0;
   isHRManager = false;
+  isManagement = false;
   loading = true;
 
   // Full detail dialog (HR sees both self + manager)
@@ -126,6 +127,7 @@ export class AppraisalTable {
     this.loggedEmployeeId = Number(localStorage.getItem('empId'));
     this.loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
     this.isHRManager = this.loggedRoleId === 1;
+    this.isManagement = this.loggedRoleId === 4;
 
     this.loadDropdownData();
     this.getAppraisals();
@@ -152,18 +154,21 @@ export class AppraisalTable {
 
         let filtered = data || [];
 
-        if (this.role === 'HR Manager' || this.role === 'Management') {
+        if (this.isHRManager || this.isManagement) {
+          // HR and Management see all
           filtered = data;
-        } else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
-          filtered = data.filter(a => a.employee?.departmentId !== 1);
-        } else if (this.role === 'Reporting Manager') {
-          filtered = data.filter(
-            a => a.employee?.reportingManager === this.loggedEmployeeId
-              && !['AUTO_DRAFT', 'Draft'].includes(a.status)
+        } else if (this.role === 'Reporting Manager' || this.loggedRoleId === 3) {
+          // Reporting Manager: their direct reports + their own appraisal
+          filtered = data.filter(a =>
+            (a.employee?.reportingManager === this.loggedEmployeeId || a.employeeId === this.loggedEmployeeId)
+            && !['AUTO_DRAFT', 'Draft'].includes(a.status)
           );
         } else {
-          // Any other role — hide drafts
-          filtered = data.filter(a => !['AUTO_DRAFT', 'Draft'].includes(a.status));
+          // All other employees: only their own appraisal
+          filtered = data.filter(a =>
+            a.employeeId === this.loggedEmployeeId
+            && !['AUTO_DRAFT', 'Draft'].includes(a.status)
+          );
         }
 
         // ✅ FLATTEN HERE
@@ -311,6 +316,27 @@ export class AppraisalTable {
     this.onFilterChange(); // trigger filter logic
   }
 
+  onManagementEditClick(appraisal: any) {
+    this.appraisalService.getAppraisalDetail(appraisal.id, 'MANAGEMENT').subscribe({
+      next: (detail: any) => {
+        const mergedAppraisal = {
+          ...appraisal,
+          employeeId: appraisal.employee.id,
+          employeeCode: appraisal.employee.employeeCode,
+          fullName: `${appraisal.employee.firstName} ${appraisal.employee.lastName}`,
+          designation: appraisal.employee.designation?.name,
+          departmentName: this.getDepartmentName(appraisal.employee.departmentId),
+          dateOfJoining: appraisal.employee.dateOfJoining,
+          email: appraisal.employee.email,
+          managementReview: detail.managementReview || null,
+          formType: 'MANAGEMENT',
+        };
+        delete mergedAppraisal.employee;
+        this.editAppraisal.emit(mergedAppraisal);
+      }
+    });
+  }
+
   onEditClick(appraisal: any) {
     const departmentName = this.getDepartmentName(appraisal.employee.departmentId);
 
@@ -340,7 +366,8 @@ export class AppraisalTable {
 
   // ── View Full Detail (HR) ─────────────────────────────────────────
   viewFullDetail(a: any) {
-    this.appraisalService.getAppraisalDetail(a.id, 'HR').subscribe({
+    const viewerRole = this.isManagement ? 'MANAGEMENT' : 'HR';
+    this.appraisalService.getAppraisalDetail(a.id, viewerRole).subscribe({
       next: (data: any) => {
         this.fullDetailAppraisal = data;
         this.fullDetailDialogVisible = true;
@@ -396,8 +423,9 @@ export class AppraisalTable {
   managerEditRequestReason = '';
 
   canManagerRequestEdit(a: any): boolean {
-    return !this.isHRManager &&
+    return this.loggedRoleId === 3 &&
       a.employee?.reportingManager === this.loggedEmployeeId &&
+      a.employeeId !== this.loggedEmployeeId &&
       !!a.managerAppraisalSubmittedAt &&
       !['COMPLETED', 'HR_APPROVED'].includes(a.status);
   }
@@ -423,6 +451,51 @@ export class AppraisalTable {
         this.getAppraisals();
       },
       error: (e: any) => { this.managerEditLoading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' }); }
+    });
+  }
+
+  // ── Management Actions ──────────────────────────────────────────────
+  canManagementFill(a: any): boolean {
+    return this.isManagement &&
+      ['PENDING_FILL', 'SELF_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status) &&
+      !a.managementAppraisalSubmittedAt;
+  }
+
+  canManagementRequestEdit(a: any): boolean {
+    return this.isManagement &&
+      !!a.managementAppraisalSubmittedAt &&
+      !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+  }
+
+  managementEditRequestDialogVisible = false;
+  managementEditRequestAppraisalId: number | null = null;
+  managementEditRequestReason = '';
+  managementEditLoading = false;
+
+  openManagementEditRequest(a: any) {
+    this.managementEditRequestAppraisalId = a.id;
+    this.managementEditRequestReason = '';
+    this.managementEditRequestDialogVisible = true;
+  }
+
+  submitManagementEditRequest() {
+    if (!this.managementEditRequestReason.trim()) return;
+    this.managementEditLoading = true;
+    this.appraisalService.requestEdit(this.managementEditRequestAppraisalId!, {
+      requestedBy: this.loggedEmployeeId,
+      reason: this.managementEditRequestReason,
+      requestType: 'MANAGEMENT',
+    }).subscribe({
+      next: () => {
+        this.managementEditLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Submitted', detail: 'Edit request sent to HR' });
+        this.managementEditRequestDialogVisible = false;
+        this.getAppraisals();
+      },
+      error: (e: any) => {
+        this.managementEditLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' });
+      }
     });
   }
 

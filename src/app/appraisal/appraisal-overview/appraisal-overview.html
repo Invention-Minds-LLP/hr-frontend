@@ -28,7 +28,7 @@
 
 
 <div>
-    <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" (formSubmitted)="onFormSubmitted()"  (backToList)="show('list')"></app-apprasial-form>
+    <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" [formType]="formType" (formSubmitted)="onFormSubmitted()" (backToList)="show('list')"></app-apprasial-form>
     <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
     <!-- <app-self-appraisal *ngIf="active === 'self'"></app-self-appraisal> -->
     <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>

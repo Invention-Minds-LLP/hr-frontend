@@ -67,6 +67,7 @@
           <th>Manager</th>
           <th>Self-Appraisal</th>
           <th>Manager Review</th>
+          <th>Mgmt. Review</th>
           <th>Mgr. Score</th>
           <th>Decision</th>
           <th>Status</th>
@@ -92,6 +93,7 @@
             <td><p-skeleton width="6rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
+            <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="4rem"></p-skeleton></td>
@@ -147,6 +149,15 @@
               </span>
               <span *ngIf="['AUTO_DRAFT','Draft'].includes(appraisal.status)" style="color:#888">-</span>
             </td>
+            <td>
+              <span *ngIf="appraisal.managementAppraisalSubmittedAt" pTooltip="Submitted">
+                <i class="pi pi-check-circle" style="color: #4CAF50; font-size: 18px"></i>
+              </span>
+              <span *ngIf="!appraisal.managementAppraisalSubmittedAt && !['AUTO_DRAFT','Draft'].includes(appraisal.status)" pTooltip="Pending">
+                <i class="pi pi-clock" style="color: #FF9800; font-size: 18px"></i>
+              </span>
+              <span *ngIf="['AUTO_DRAFT','Draft'].includes(appraisal.status)" style="color:#888">-</span>
+            </td>
             <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
             <td>{{ appraisal.finalDecision || '-' }}</td>
             <td>
@@ -156,12 +167,18 @@
             </td>
             <td>
               <div class="flex gap-2">
-                <button class="btn" (click)="onEditClick(appraisal)">See Details</button>
-              <button class="btn view-btn" *ngIf="isHRManager" (click)="viewFullDetail(appraisal)" pTooltip="View Self & Manager Appraisal">View All</button>
-              <button class="btn verify-btn" *ngIf="canHRVerify(appraisal)" (click)="openVerifyDialog(appraisal)" pTooltip="Verify & Send to Employee">Verify & Send</button>
-              <button class="btn review-btn" *ngIf="canHRReview(appraisal)" (click)="openHRReviewDialog(appraisal)" pTooltip="HR Review & Approve">Review</button>
-              <button class="btn edit-respond-btn" *ngIf="canHRRespondEdit(appraisal)" (click)="openEditResponseDialog(appraisal)" pTooltip="Respond to Edit Request">Edit Req</button>
-              <button class="btn edit-req-btn" *ngIf="canManagerRequestEdit(appraisal)" (click)="openManagerEditRequest(appraisal)" pTooltip="Request to Edit">Request Edit</button>
+                <!-- Reporting Manager fills form only for direct reports, not own appraisal -->
+                <button class="btn" *ngIf="loggedRoleId === 3 && appraisal.employeeId !== loggedEmployeeId" (click)="onEditClick(appraisal)">See Details</button>
+                <!-- HR -->
+                <button class="btn view-btn" *ngIf="isHRManager || isManagement" (click)="viewFullDetail(appraisal)" pTooltip="View All Appraisal Sections">View All</button>
+                <button class="btn verify-btn" *ngIf="canHRVerify(appraisal)" (click)="openVerifyDialog(appraisal)" pTooltip="Verify & Send to Employee">Verify & Send</button>
+                <button class="btn review-btn" *ngIf="canHRReview(appraisal)" (click)="openHRReviewDialog(appraisal)" pTooltip="HR Review & Approve">Review</button>
+                <button class="btn edit-respond-btn" *ngIf="canHRRespondEdit(appraisal)" (click)="openEditResponseDialog(appraisal)" pTooltip="Respond to Edit Request">Edit Req</button>
+                <!-- Reporting Manager -->
+                <button class="btn edit-req-btn" *ngIf="canManagerRequestEdit(appraisal)" (click)="openManagerEditRequest(appraisal)" pTooltip="Request to Edit Manager Review">Request Edit</button>
+                <!-- Management -->
+                <button class="btn mgmt-btn" *ngIf="canManagementFill(appraisal)" (click)="onManagementEditClick(appraisal)" pTooltip="Fill Management Review">Fill Review</button>
+                <button class="btn edit-req-btn" *ngIf="canManagementRequestEdit(appraisal)" (click)="openManagementEditRequest(appraisal)" pTooltip="Request to Edit Management Review">Request Edit</button>
               </div>
             </td>
           </tr>
@@ -466,10 +483,10 @@
           <div class="fd-rating-item" *ngFor="let a of fullDetailAppraisal.selfAnswers; let i = index">
             <span class="fd-rating-q">{{ a.question?.text }}</span>
             <div class="fd-bar-wrap">
-              <div class="fd-bar" [style.width.%]="a.rating * 10"
-                [ngClass]="{'fd-bar-high': a.rating >= 8, 'fd-bar-mid': a.rating >= 5 && a.rating < 8, 'fd-bar-low': a.rating < 5}"></div>
+              <div class="fd-bar" [style.width.%]="a.rating * 20"
+                [ngClass]="{'fd-bar-high': a.rating >= 4, 'fd-bar-mid': a.rating === 3, 'fd-bar-low': a.rating <= 2}"></div>
             </div>
-            <span class="fd-rating-val">{{ a.rating }}</span>
+            <span class="fd-rating-val">{{ a.rating }}/5</span>
           </div>
         </div>
       </div>
@@ -555,6 +572,81 @@
       <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.managerReview">Not yet submitted</div>
     </div>
 
+    <!-- ── Management Review ─────────────────────────────────────── -->
+    <div class="fd-section">
+      <div class="fd-section-head fd-orange">
+        <i class="pi pi-building"></i> Management Review
+        <span class="fd-tag" *ngIf="fullDetailAppraisal.managementAppraisalSubmittedAt">
+          <i class="pi pi-check" style="font-size:10px"></i> {{ fmtDate(fullDetailAppraisal.managementAppraisalSubmittedAt) }}
+        </span>
+        <span class="fd-tag fd-tag-pending" *ngIf="!fullDetailAppraisal.managementAppraisalSubmittedAt">Pending</span>
+      </div>
+      <div class="fd-section-body" *ngIf="fullDetailAppraisal.managementReview">
+        <div class="fd-mgr-score">
+          <span class="fd-mgr-num">{{ fullDetailAppraisal.managementReview.overallScore }}</span>
+          <span class="fd-mgr-max">/10</span>
+        </div>
+        <div class="fd-criteria-grid">
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.qualityOfWorkRating != null">
+            <span class="fd-criteria-name">Quality of Work</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.qualityOfWorkRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.qualityOfWorkRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.qualityOfWorkRating >= 5 && fullDetailAppraisal.managementReview.qualityOfWorkRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.qualityOfWorkRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.qualityOfWorkRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.knowledgeOfJobRating != null">
+            <span class="fd-criteria-name">Knowledge</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.knowledgeOfJobRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.knowledgeOfJobRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.knowledgeOfJobRating >= 5 && fullDetailAppraisal.managementReview.knowledgeOfJobRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.knowledgeOfJobRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.knowledgeOfJobRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.teamworkRating != null">
+            <span class="fd-criteria-name">Teamwork</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.teamworkRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.teamworkRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.teamworkRating >= 5 && fullDetailAppraisal.managementReview.teamworkRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.teamworkRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.teamworkRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.independenceRating != null">
+            <span class="fd-criteria-name">Independence</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.independenceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.independenceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.independenceRating >= 5 && fullDetailAppraisal.managementReview.independenceRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.independenceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.independenceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.recordsRating != null">
+            <span class="fd-criteria-name">Records</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.recordsRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.recordsRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.recordsRating >= 5 && fullDetailAppraisal.managementReview.recordsRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.recordsRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.recordsRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.guestServiceRating != null">
+            <span class="fd-criteria-name">Guest Service</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.guestServiceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.guestServiceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.guestServiceRating >= 5 && fullDetailAppraisal.managementReview.guestServiceRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.guestServiceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.guestServiceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.safetyRating != null">
+            <span class="fd-criteria-name">Safety</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.safetyRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.safetyRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.safetyRating >= 5 && fullDetailAppraisal.managementReview.safetyRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.safetyRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.safetyRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.attendanceRating != null">
+            <span class="fd-criteria-name">Attendance</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.attendanceRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.attendanceRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.attendanceRating >= 5 && fullDetailAppraisal.managementReview.attendanceRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.attendanceRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.attendanceRating }}</span>
+          </div>
+          <div class="fd-criteria" *ngIf="fullDetailAppraisal.managementReview.leadershipRating != null">
+            <span class="fd-criteria-name">Leadership</span>
+            <div class="fd-bar-wrap"><div class="fd-bar" [style.width.%]="fullDetailAppraisal.managementReview.leadershipRating * 10" [ngClass]="{'fd-bar-high': fullDetailAppraisal.managementReview.leadershipRating >= 8, 'fd-bar-mid': fullDetailAppraisal.managementReview.leadershipRating >= 5 && fullDetailAppraisal.managementReview.leadershipRating < 8, 'fd-bar-low': fullDetailAppraisal.managementReview.leadershipRating < 5}"></div></div>
+            <span class="fd-criteria-val">{{ fullDetailAppraisal.managementReview.leadershipRating }}</span>
+          </div>
+        </div>
+        <div class="fd-text-grid" *ngIf="fullDetailAppraisal.managementReview.comments || fullDetailAppraisal.managementReview.recommendations">
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.managementReview.comments">
+            <div class="fd-text-title">Comments</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.managementReview.comments }}</div>
+          </div>
+          <div class="fd-text-item" *ngIf="fullDetailAppraisal.managementReview.recommendations">
+            <div class="fd-text-title">Recommendations</div>
+            <div class="fd-text-body">{{ fullDetailAppraisal.managementReview.recommendations }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.managementReview">Not yet submitted</div>
+    </div>
+
     <!-- ── HR Review ──────────────────────────────────────────────── -->
     <div class="fd-section" *ngIf="fullDetailAppraisal.hrReviewComments">
       <div class="fd-section-head fd-purple">
@@ -583,4 +675,20 @@
     </div>
 
   </div>
+</p-dialog>
+
+<!-- ── Management Edit Request Dialog ───────────────────────── -->
+<p-dialog header="Request Edit — Management Review" [(visible)]="managementEditRequestDialogVisible" [modal]="true" [style]="{ width: '420px' }">
+  <div style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0">
+    <div>
+      <label style="font-weight:600;color:#fff;font-size:14px;margin-bottom:6px;display:block">Reason for Edit <span style="color:red">*</span></label>
+      <textarea pTextarea [(ngModel)]="managementEditRequestReason" rows="3" style="width:100%"
+        placeholder="Why do you need to edit your management review?"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="managementEditRequestDialogVisible = false"></button>
+    <button pButton label="Submit Request" class="p-button-warning" (click)="submitManagementEditRequest()"
+      [disabled]="!managementEditRequestReason.trim()" [loading]="managementEditLoading"></button>
+  </ng-template>
 </p-dialog>

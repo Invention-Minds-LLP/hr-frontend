@@ -42,6 +42,10 @@ export class Appraisal {
     return this.http.post(`${this.apiUrl}/${id}/manager-appraisal`, data);
   }
 
+  submitManagementAppraisal(id: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/management-appraisal`, data);
+  }
+
   hrReviewAppraisal(id: number, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/hr-review`, data);
   }
@@ -59,12 +63,13 @@ export class Appraisal {
   }
 
   // Self-appraisal questions
-  getSelfQuestions(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/self-questions`);
+  getSelfQuestions(appraisalId?: number): Observable<any[]> {
+    const params = appraisalId ? `?appraisalId=${appraisalId}` : '';
+    return this.http.get<any[]>(`${this.apiUrl}/self-questions${params}`);
   }
 
-  createSelfQuestion(text: string, category?: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/self-questions`, { text, category });
+  createSelfQuestion(text: string, category?: string, section?: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/self-questions`, { text, category, section });
   }
 
   toggleSelfQuestion(id: number, isActive: boolean): Observable<any> {

@@ -14,15 +14,18 @@ import { WeeklyRatingOverview } from "../../weekly-rating/weekly-rating-overview
   styleUrl: './appraisal-overview.css'
 })
 export class AppraisalOverview {
-  active:string = 'list';
+  active: string = 'list';
   selectedAppraisal: any = null;
-  
-  show(value: string){
+  formType: 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
+
+  show(value: string) {
     this.active = value;
   }
+
   onEditAppraisal(appraisal: any) {
+    this.formType = appraisal.formType === 'MANAGEMENT' ? 'MANAGEMENT' : 'MANAGER';
     this.selectedAppraisal = appraisal;
-    this.active = 'form'; // Switch to form view
+    this.active = 'form';
   }
 
   // After form is saved/submitted

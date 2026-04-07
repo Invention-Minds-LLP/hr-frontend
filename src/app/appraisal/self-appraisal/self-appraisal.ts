@@ -34,12 +34,14 @@ export class SelfAppraisalComponent implements OnInit {
   formDialogVisible = false;
   selectedAppraisal: any = null;
   questions: any[] = [];
+  groupedQuestions: { section: string; questions: any[] }[] = [];
   answers: { questionId: number; text: string; rating: number | null; comments: string }[] = [];
   achievements = '';
   goalsObjective = '';
   challenges = '';
   trainingNeeds = '';
   saving = false;
+  ratingScale = [1, 2, 3, 4, 5];
 
   // Detail view
   detailDialogVisible = false;
@@ -62,7 +64,6 @@ export class SelfAppraisalComponent implements OnInit {
   ngOnInit() {
     this.isHRManager = this.loggedRoleId === 1;
     this.loadMyAppraisals();
-    this.loadQuestions();
   }
 
   // HR verify dialog
@@ -102,12 +103,50 @@ export class SelfAppraisalComponent implements OnInit {
     });
   }
 
-  loadQuestions() {
-    this.appraisalService.getSelfQuestions().subscribe({
+  loadQuestions(appraisalId: number, existingAnswers: any[]) {
+    this.appraisalService.getSelfQuestions(appraisalId).subscribe({
       next: (data) => {
-        this.questions = data.filter((q: any) => q.isActive);
+        this.questions = data;
+        // Group by section
+        const sectionMap = new Map<string, any[]>();
+        for (const q of data) {
+          const sec = q.section || 'General';
+          if (!sectionMap.has(sec)) sectionMap.set(sec, []);
+          sectionMap.get(sec)!.push(q);
+        }
+        this.groupedQuestions = Array.from(sectionMap.entries()).map(([section, questions]) => ({ section, questions }));
+
+        // Build answers array
+        this.answers = data.map((q: any) => {
+          const existing = existingAnswers.find((a: any) => a.questionId === q.id);
+          return {
+            questionId: q.id,
+            text: q.text,
+            rating: existing?.rating ?? null,
+            comments: existing?.comments ?? '',
+          };
+        });
       }
     });
+  }
+
+  getAnswer(questionId: number) {
+    return this.answers.find(a => a.questionId === questionId);
+  }
+
+  setRating(questionId: number, rating: number) {
+    const answer = this.getAnswer(questionId);
+    if (answer) answer.rating = rating;
+  }
+
+  groupAnswersBySection(answers: any[]): { section: string; answers: any[] }[] {
+    const map = new Map<string, any[]>();
+    for (const a of answers) {
+      const sec = a.question?.section || 'General';
+      if (!map.has(sec)) map.set(sec, []);
+      map.get(sec)!.push(a);
+    }
+    return Array.from(map.entries()).map(([section, answers]) => ({ section, answers }));
   }
 
   fmtDate(d: any): string {
@@ -167,16 +206,7 @@ export class SelfAppraisalComponent implements OnInit {
           this.trainingNeeds = detail.selfAppraisal.trainingNeeds || '';
         }
 
-        this.answers = this.questions.map(q => {
-          const existing = (detail.selfAnswers || []).find((a: any) => a.questionId === q.id);
-          return {
-            questionId: q.id,
-            text: q.text,
-            rating: existing?.rating ?? null,
-            comments: existing?.comments ?? '',
-          };
-        });
-
+        this.loadQuestions(appraisal.id, detail.selfAnswers || []);
         this.formDialogVisible = true;
       }
     });
