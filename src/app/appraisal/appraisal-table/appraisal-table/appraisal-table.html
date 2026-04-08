@@ -460,7 +460,7 @@
         <span class="fd-tag fd-tag-pending" *ngIf="!fullDetailAppraisal.selfAppraisalSubmittedAt">Pending</span>
       </div>
       <div class="fd-section-body" *ngIf="fullDetailAppraisal.selfAppraisal">
-        <div class="fd-text-grid">
+        <!-- <div class="fd-text-grid">
           <div class="fd-text-item" *ngIf="fullDetailAppraisal.selfAppraisal.achievements">
             <div class="fd-text-title">Achievements</div>
             <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.achievements }}</div>
@@ -477,7 +477,7 @@
             <div class="fd-text-title">Training Needs</div>
             <div class="fd-text-body">{{ fullDetailAppraisal.selfAppraisal.trainingNeeds }}</div>
           </div>
-        </div>
+        </div> -->
         <!-- Self ratings -->
         <div *ngIf="fullDetailAppraisal.selfAnswers?.length" class="fd-ratings">
           <div class="fd-rating-item" *ngFor="let a of fullDetailAppraisal.selfAnswers; let i = index">
@@ -490,7 +490,7 @@
           </div>
         </div>
       </div>
-      <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.selfAppraisal && !fullDetailAppraisal.selfAnswers?.length">
+      <div class="fd-section-body fd-empty" *ngIf="!fullDetailAppraisal.selfAnswers?.length">
         Not yet submitted
       </div>
     </div>
