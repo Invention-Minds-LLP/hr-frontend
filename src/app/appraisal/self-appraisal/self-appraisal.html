@@ -80,7 +80,7 @@
     </div>
 
     <!-- Free-text sections -->
-    <div class="form-section">
+    <!-- <div class="form-section">
       <h4>Key Achievements</h4>
       <textarea pTextarea [(ngModel)]="achievements" rows="3" style="width: 100%"
         placeholder="List your key achievements during this period..."></textarea>
@@ -102,7 +102,7 @@
       <h4>Training Needs</h4>
       <textarea pTextarea [(ngModel)]="trainingNeeds" rows="2" style="width: 100%"
         placeholder="Any training or skill development needs?"></textarea>
-    </div>
+    </div> -->
 
     <!-- Question-based ratings grouped by section -->
     <div *ngIf="groupedQuestions.length">
@@ -181,7 +181,7 @@
     </div>
 
     <!-- Self-Appraisal Card -->
-    <div *ngIf="detailAppraisal.selfAppraisal" class="detail-card self-card">
+    <!-- <div *ngIf="detailAppraisal.selfAppraisal" class="detail-card self-card">
       <div class="detail-card-header self-header">
         <i class="pi pi-pencil"></i> My Self-Appraisal
         <span class="submitted-tag" *ngIf="detailAppraisal.selfAppraisalSubmittedAt">
@@ -206,7 +206,7 @@
           <div class="text-content">{{ detailAppraisal.selfAppraisal.trainingNeeds }}</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Self-Rating Answers Card (grouped by section) -->
     <div *ngIf="detailAppraisal.selfAnswers?.length" class="detail-card rating-card">
