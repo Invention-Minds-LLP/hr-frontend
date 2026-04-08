@@ -41,7 +41,8 @@
           <td>{{ fmtDate(a.dueDate) || '-' }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(a.status)">
-              {{ a.status?.split('_').join(' ') }}
+              <!-- {{ a.status?.split('_').join(' ') }} -->
+                 {{ getStatusLabel(a) }}
             </span>
           </td>
           <td>{{ a.selfAppraisal?.overallScore || '-' }}</td>

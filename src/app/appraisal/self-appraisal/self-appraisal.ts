@@ -59,7 +59,7 @@ export class SelfAppraisalComponent implements OnInit {
   constructor(
     private appraisalService: Appraisal,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.isHRManager = this.loggedRoleId === 1;
@@ -154,17 +154,78 @@ export class SelfAppraisalComponent implements OnInit {
     return formatDate(d, 'dd-MM-yyyy', 'en');
   }
 
+  // getStatusClass(a: any): string {
+  //   switch (a.status) {
+  //     case 'AUTO_DRAFT': return 'status-draft';
+  //     case 'SELF_APPRAISAL_PENDING': return 'status-pending';
+  //     case 'SELF_APPRAISAL_SUBMITTED': return 'status-submitted';
+  //     case 'MANAGER_APPRAISAL_PENDING': return 'status-pending';
+  //     case 'MANAGER_APPRAISAL_SUBMITTED': return 'status-submitted';
+  //     case 'HR_REVIEW': return 'status-review';
+  //     case 'EDIT_REQUESTED': return 'status-edit';
+  //     case 'COMPLETED': return 'status-completed';
+  //     default: return '';
+  //   }
+  // }
   getStatusClass(s: string): string {
     switch (s) {
-      case 'AUTO_DRAFT': return 'status-draft';
-      case 'SELF_APPRAISAL_PENDING': return 'status-pending';
-      case 'SELF_APPRAISAL_SUBMITTED': return 'status-submitted';
-      case 'MANAGER_APPRAISAL_PENDING': return 'status-pending';
-      case 'MANAGER_APPRAISAL_SUBMITTED': return 'status-submitted';
-      case 'HR_REVIEW': return 'status-review';
-      case 'EDIT_REQUESTED': return 'status-edit';
-      case 'COMPLETED': return 'status-completed';
-      default: return '';
+      case 'AUTO_DRAFT':
+        return 'status-draft';
+      case 'SELF_APPRAISAL_PENDING':
+      case 'MANAGER_APPRAISAL_PENDING':
+      case 'PENDING_FILL':
+        return 'status-pending';
+      case 'SELF_APPRAISAL_SUBMITTED':
+      case 'MANAGER_APPRAISAL_SUBMITTED':
+        return 'status-submitted';
+      case 'HR_REVIEW':
+        return 'status-review';
+      case 'EDIT_REQUESTED':
+        return 'status-edit';
+      case 'COMPLETED':
+        return 'status-completed';
+      default:
+        return '';
+    }
+  }
+  getStatusLabel(a: any): string {
+    switch (a.status) {
+      case 'AUTO_DRAFT':
+        return 'Draft';
+
+      case 'SELF_APPRAISAL_PENDING':
+        return 'Self Appraisal Pending';
+
+      case 'SELF_APPRAISAL_SUBMITTED':
+        return 'Self Appraisal Submitted';
+
+      case 'MANAGER_APPRAISAL_PENDING':
+        return 'Manager Appraisal Pending';
+
+      case 'MANAGER_APPRAISAL_SUBMITTED':
+        return 'Manager Appraisal Submitted';
+
+      case 'HR_REVIEW':
+        return 'HR Review';
+
+      case 'EDIT_REQUESTED':
+        return 'Edit Requested';
+
+      case 'COMPLETED':
+        return 'Completed';
+
+      case 'PENDING_FILL': {
+        const selfDone = !!a.selfAppraisalSubmittedAt;
+        const mgrDone = !!a.managerAppraisalSubmittedAt;
+        if (selfDone && mgrDone) return 'Both Submitted';
+        if (a.employee?.id === Number(localStorage.getItem('empId'))) {
+          return selfDone ? 'Submitted' : 'Pending Fill';
+        }
+        return 'Pending Fill';
+      }
+
+      default:
+        return a.status || '';
     }
   }
 
