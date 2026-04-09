@@ -1,0 +1,110 @@
+<div class="mwr-section">
+  <h3 class="section-heading">My Weekly Ratings</h3>
+
+  <!-- Skeleton -->
+  <div class="mwr-cards" *ngIf="loading">
+    <div class="mwr-card skeleton-card" *ngFor="let i of [1,2,3]">
+      <p-skeleton width="7rem" height="0.75rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton width="4rem" height="2rem" styleClass="mb-3"></p-skeleton>
+      <p-skeleton width="100%" height="0.5rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton width="80%"  height="0.5rem"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="mwr-empty" *ngIf="!loading && ratings.length === 0">
+    No weekly ratings yet. Keep up the great work!
+  </div>
+
+  <!-- Cards -->
+  <div class="mwr-cards" *ngIf="!loading && ratings.length > 0">
+    <div class="mwr-card" *ngFor="let r of visibleRatings" (click)="view(r)">
+
+      <!-- Top row: week label + score ring -->
+      <div class="mwr-card-top">
+        <div class="mwr-week">
+          <span class="mwr-week-label">{{ fmtDate(r.weekStartDate) }} – {{ fmtDate(r.weekEndDate) }}</span>
+          <span class="mwr-rated-by">by {{ r.ratedByName || '—' }}</span>
+        </div>
+        <div class="mwr-ring" [ngClass]="getScoreClass(r.overallScore)">
+          <svg viewBox="0 0 36 36" class="mwr-ring-svg">
+            <circle class="ring-bg" cx="18" cy="18" r="15.9"/>
+            <circle class="ring-fill" cx="18" cy="18" r="15.9"
+              [attr.stroke-dasharray]="(r.overallScore || 0) + ' 100'"
+              [attr.stroke]="getScoreColor(r.overallScore)"/>
+          </svg>
+          <span class="mwr-ring-num">{{ r.overallScore ?? '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Question score bars -->
+      <div class="mwr-bars" *ngIf="r.answers?.length">
+        <div class="mwr-bar-row" *ngFor="let a of r.answers.slice(0, 4)">
+          <span class="mwr-bar-label" [title]="a.question?.text">{{ a.question?.text | slice:0:22 }}{{ (a.question?.text?.length > 22) ? '…' : '' }}</span>
+          <div class="mwr-bar-track">
+            <div class="mwr-bar-fill" [style.width.%]="(a.score / 10) * 100" [style.background]="getScoreColor(a.score * 10)"></div>
+          </div>
+          <span class="mwr-bar-score">{{ a.score }}/10</span>
+        </div>
+        <div class="mwr-more" *ngIf="r.answers.length > 4">+{{ r.answers.length - 4 }} more — tap to view</div>
+      </div>
+
+      <!-- Remarks -->
+      <div class="mwr-remarks" *ngIf="r.managerRemarks">
+        <i class="pi pi-comment"></i> {{ r.managerRemarks }}
+      </div>
+
+      <div class="mwr-tap-hint">Tap for full detail</div>
+    </div>
+  </div>
+
+  <!-- Show more / less -->
+  <div class="mwr-toggle" *ngIf="!loading && hasMore">
+    <button class="mwr-toggle-btn" (click)="expanded = !expanded">
+      {{ expanded ? 'Show less' : 'Show all ' + ratings.length + ' weeks' }}
+      <i class="pi" [ngClass]="expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Detail Dialog -->
+<p-dialog header="Weekly Rating Detail" [(visible)]="dialogVisible" [modal]="true"
+  [style]="{ width: '560px', maxHeight: '82vh' }" [closable]="true">
+  <div *ngIf="selected" class="mwr-dialog">
+
+    <div class="mwr-dialog-meta">
+      <div class="mwr-dialog-meta-item">
+        <span class="mwr-dialog-label">Week</span>
+        <span>{{ fmtDate(selected.weekStartDate) }} – {{ fmtDate(selected.weekEndDate) }}</span>
+      </div>
+      <div class="mwr-dialog-meta-item">
+        <span class="mwr-dialog-label">Rated By</span>
+        <span>{{ selected.ratedByName }}</span>
+      </div>
+      <div class="mwr-dialog-meta-item">
+        <span class="mwr-dialog-label">Overall Score</span>
+        <span [ngClass]="getScoreClass(selected.overallScore)" style="font-weight:700;font-size:1.1rem">
+          {{ selected.overallScore ?? '—' }}/100
+        </span>
+      </div>
+    </div>
+
+    <div class="mwr-dialog-bars">
+      <div class="mwr-dialog-bar-row" *ngFor="let a of selected.answers">
+        <div class="mwr-dialog-q">{{ a.question?.text }}</div>
+        <div class="mwr-dialog-bar-wrap">
+          <div class="mwr-bar-track">
+            <div class="mwr-bar-fill" [style.width.%]="(a.score / 10) * 100" [style.background]="getScoreColor(a.score * 10)"></div>
+          </div>
+          <span class="mwr-bar-score">{{ a.score }}/10</span>
+        </div>
+        <div class="mwr-dialog-remarks" *ngIf="a.remarks">{{ a.remarks }}</div>
+      </div>
+    </div>
+
+    <div class="mwr-dialog-overall-remarks" *ngIf="selected.managerRemarks">
+      <span class="mwr-dialog-label">Overall Remarks</span>
+      <p>{{ selected.managerRemarks }}</p>
+    </div>
+  </div>
+</p-dialog>

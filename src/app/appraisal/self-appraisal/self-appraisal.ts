@@ -56,6 +56,7 @@ export class SelfAppraisalComponent implements OnInit {
   pendingEditRequests: any[] = [];
   isHRManager = false;
 
+
   constructor(
     private appraisalService: Appraisal,
     private messageService: MessageService

@@ -868,9 +868,7 @@
 
     <app-self-appraisal></app-self-appraisal>
 
-    <div class="test-list">
-        <app-training-list [viewMode]="'individual'"></app-training-list>
-    </div>
+    <app-my-weekly-ratings></app-my-weekly-ratings>
 
     <!-- ── PIP SECTION ──────────────────────────────────────────────────── -->
     <div class="pip-section" (click)="loadMyPIPs()">
@@ -1029,6 +1027,10 @@
         </button>
       </ng-template>
     </p-dialog>
+
+    <div class="test-list">
+        <app-training-list [viewMode]="'individual'"></app-training-list>
+    </div>
 
     <div class="my-test">
         <app-my-tests></app-my-tests>

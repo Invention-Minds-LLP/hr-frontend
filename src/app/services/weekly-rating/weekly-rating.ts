@@ -31,6 +31,9 @@ export class WeeklyRatingService {
   }
 
   // Ratings
+  getMyRatings(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/my`);
+  }
   getTeam(managerId: number, weekStartDate?: string): Observable<any[]> {
     let params = new HttpParams().set('managerId', managerId);
     if (weekStartDate) params = params.set('weekStartDate', weekStartDate);

@@ -18,6 +18,10 @@ export class AppraisalOverview {
   selectedAppraisal: any = null;
   formType: 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
 
+  readonly isHRExecutive =
+    Number(localStorage.getItem('deptId')) === 1 &&
+    Number(localStorage.getItem('roleId')) === 2;
+
   show(value: string) {
     this.active = value;
   }
