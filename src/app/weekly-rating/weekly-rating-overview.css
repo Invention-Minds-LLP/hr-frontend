@@ -115,3 +115,11 @@
 ::ng-deep .weekly-rating-overview .p-paginator .p-paginator-page.p-highlight { background: #FB9C2A !important; color: white !important; }
 ::ng-deep .p-textarea{ background-color: transparent !important;color: #FFF !important}
 ::ng-deep .p-datepicker .p-inputtext{ width: 100% !important;color:#FFF !important}
+::ng-deep .p-inputtext, ::ng-deep .p-inputtextarea {
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-weight: 700;
+  background-color: transparent !important;
+  padding: 0.6rem;
+}
