@@ -203,7 +203,7 @@
         
   
         <!-- ================= Buttons ================= -->
-        <div class="btns" *ngIf="(loggedRoleId === 3 || loggedRoleId === 4) && !['COMPLETED','HR_REVIEW'].includes(selectedAppraisal?.status) && !(formType === 'MANAGEMENT' ? selectedAppraisal?.managementAppraisalSubmittedAt : selectedAppraisal?.managerAppraisalSubmittedAt)">
+        <div class="btns" *ngIf="(formType === 'MANAGEMENT' ? loggedRoleId === 4 : selectedAppraisal?.managerId === loggedEmployeeId) && !['COMPLETED','HR_REVIEW'].includes(selectedAppraisal?.status) && !(formType === 'MANAGEMENT' ? selectedAppraisal?.managementAppraisalSubmittedAt : selectedAppraisal?.managerAppraisalSubmittedAt)">
             <p-button label="Submit" severity="success" class="submit-btn" [label]="isLoading ? 'Submitting': 'Submit'" [loading]="isLoading" type="submit" (click)="onSubmit()" />
             <p-button label="Cancel" severity="danger" class="submit-btn" (click)="onCancel()" />
         </div>

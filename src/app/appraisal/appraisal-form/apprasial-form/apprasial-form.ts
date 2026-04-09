@@ -36,6 +36,7 @@ export class ApprasialForm {
   appraisalForm!: FormGroup;
   role: string = '';
   loggedRoleId: number = 0;
+  loggedEmployeeId: number = 0;
 
   // Employee insights
   employeeInsights: any = null;
@@ -48,6 +49,7 @@ export class ApprasialForm {
   ngOnInit() {
     this.role = localStorage.getItem('role') || '';
     this.loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
+    this.loggedEmployeeId = Number(localStorage.getItem('empId')) || 0;
     this.initForm();
     this.setupAutoCalculation();
   }

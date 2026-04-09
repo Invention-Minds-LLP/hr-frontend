@@ -67,8 +67,10 @@ export class AppraisalTable {
   role: string = '';
   loggedEmployeeId: number = 0;
   loggedRoleId: number = 0;
+  loggedDeptId: number = 0;
   isHRManager = false;
   isManagement = false;
+  isHRExecutive = false; // dept 1, role 2 — manages other dept appraisals
   loading = true;
 
   // Full detail dialog (HR sees both self + manager)
@@ -126,8 +128,10 @@ export class AppraisalTable {
     this.role = localStorage.getItem('role') || '';
     this.loggedEmployeeId = Number(localStorage.getItem('empId'));
     this.loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
+    this.loggedDeptId = Number(localStorage.getItem('deptId')) || 0;
     this.isHRManager = this.loggedRoleId === 1;
     this.isManagement = this.loggedRoleId === 4;
+    this.isHRExecutive = this.loggedDeptId === 1 && this.loggedRoleId === 2;
 
     this.loadDropdownData();
     this.getAppraisals();
@@ -155,8 +159,13 @@ export class AppraisalTable {
         let filtered = data || [];
 
         if (this.isHRManager || this.isManagement) {
-          // HR and Management see all
+          // HR Manager and Management see all
           filtered = data;
+        } else if (this.isHRExecutive) {
+          // HR dept role-2 executives: see all non-HR-dept appraisals (not dept 1)
+          filtered = data.filter(a =>
+            a.employee?.departmentId !== 1
+          );
         } else if (this.role === 'Reporting Manager' || this.loggedRoleId === 3) {
           // Reporting Manager: their direct reports + their own appraisal
           filtered = data.filter(a =>
@@ -394,7 +403,7 @@ export class AppraisalTable {
       const selfDone = !!a.selfAppraisalSubmittedAt;
       const mgrDone = !!a.managerAppraisalSubmittedAt;
       if (selfDone && mgrDone) return 'Both Submitted';
-      if (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId) {
+      if (a.managerId === this.loggedEmployeeId || (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId)) {
         return mgrDone ? 'Submitted' : 'Pending Fill';
       }
       return 'Pending Fill';
@@ -411,7 +420,7 @@ export class AppraisalTable {
       const selfDone = !!a.selfAppraisalSubmittedAt;
       const mgrDone = !!a.managerAppraisalSubmittedAt;
       if (selfDone && mgrDone) return '#4CAF50';
-      if (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId && mgrDone) return '#4CAF50';
+      if ((a.managerId === this.loggedEmployeeId || (!this.isHRManager && a.employee?.reportingManager === this.loggedEmployeeId)) && mgrDone) return '#4CAF50';
       return '#FF9800';
     }
     return '#ccc';
@@ -423,8 +432,10 @@ export class AppraisalTable {
   managerEditRequestReason = '';
 
   canManagerRequestEdit(a: any): boolean {
-    return this.loggedRoleId === 3 &&
-      a.employee?.reportingManager === this.loggedEmployeeId &&
+    const isAssignedManager =
+      (this.loggedRoleId === 3 && a.employee?.reportingManager === this.loggedEmployeeId)
+      || a.managerId === this.loggedEmployeeId;
+    return isAssignedManager &&
       a.employeeId !== this.loggedEmployeeId &&
       !!a.managerAppraisalSubmittedAt &&
       !['COMPLETED', 'HR_APPROVED'].includes(a.status);
@@ -500,16 +511,20 @@ export class AppraisalTable {
   }
 
   // ── HR Actions ──────────────────────────────────────────────────────
+  get canSeeScores(): boolean {
+    return this.isHRManager || this.isManagement || this.isHRExecutive || this.loggedRoleId === 3;
+  }
+
   canHRVerify(a: any): boolean {
-    return this.isHRManager && ['AUTO_DRAFT', 'Draft'].includes(a.status);
+    return (this.isHRManager || this.isHRExecutive) && ['AUTO_DRAFT', 'Draft'].includes(a.status);
   }
 
   canHRReview(a: any): boolean {
-    return this.isHRManager && ['HR_REVIEW', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status);
+    return (this.isHRManager || this.isHRExecutive) && ['HR_REVIEW', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status);
   }
 
   canHRRespondEdit(a: any): boolean {
-    return this.isHRManager && a.editRequests?.length > 0;
+    return (this.isHRManager || this.isHRExecutive) && a.editRequests?.length > 0;
   }
 
   openVerifyDialog(a: any) {

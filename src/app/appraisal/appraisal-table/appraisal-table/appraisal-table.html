@@ -68,8 +68,8 @@
           <th>Self-Appraisal</th>
           <th>Manager Review</th>
           <th>Mgmt. Review</th>
-          <th>Mgr. Score</th>
-          <th>Decision</th>
+          <th *ngIf="canSeeScores">Mgr. Score</th>
+          <th *ngIf="canSeeScores">Decision</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -96,8 +96,8 @@
             <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="3rem"></p-skeleton></td>
             <td><p-skeleton width="3rem"></p-skeleton></td>
-            <td><p-skeleton width="4rem"></p-skeleton></td>
-            <td><p-skeleton width="4rem"></p-skeleton></td>
+            <td *ngIf="canSeeScores"><p-skeleton width="4rem"></p-skeleton></td>
+            <td *ngIf="canSeeScores"><p-skeleton width="4rem"></p-skeleton></td>
             <td><p-skeleton width="5rem"></p-skeleton></td>
             <td><p-skeleton width="4rem"></p-skeleton></td>
           </tr>
@@ -158,8 +158,8 @@
               </span>
               <span *ngIf="['AUTO_DRAFT','Draft'].includes(appraisal.status)" style="color:#888">-</span>
             </td>
-            <td>{{ appraisal.managerReview?.overallScore || '-' }}</td>
-            <td>{{ appraisal.finalDecision || '-' }}</td>
+            <td *ngIf="canSeeScores">{{ appraisal.managerReview?.overallScore || '-' }}</td>
+            <td *ngIf="canSeeScores">{{ appraisal.finalDecision || '-' }}</td>
             <td>
               <span [ngStyle]="{'color': getStatusColor(appraisal)}">
                 {{ getStatusLabel(appraisal) }}
@@ -167,10 +167,10 @@
             </td>
             <td>
               <div class="flex gap-2">
-                <!-- Reporting Manager fills form only for direct reports, not own appraisal -->
-                <button class="btn" *ngIf="loggedRoleId === 3 && appraisal.employeeId !== loggedEmployeeId" (click)="onEditClick(appraisal)">See Details</button>
+                <!-- Assigned manager (Reporting Manager or HR Manager for HR dept employees) fills form for their direct reports -->
+                <button class="btn" *ngIf="(loggedRoleId === 3 || appraisal.managerId === loggedEmployeeId) && appraisal.employeeId !== loggedEmployeeId && !['AUTO_DRAFT', 'Draft'].includes(appraisal.status)" (click)="onEditClick(appraisal)">See Details</button>
                 <!-- HR -->
-                <button class="btn view-btn" *ngIf="isHRManager || isManagement" (click)="viewFullDetail(appraisal)" pTooltip="View All Appraisal Sections">View All</button>
+                <button class="btn view-btn" *ngIf="isHRManager || isManagement || isHRExecutive" (click)="viewFullDetail(appraisal)" pTooltip="View All Appraisal Sections">View All</button>
                 <button class="btn verify-btn" *ngIf="canHRVerify(appraisal)" (click)="openVerifyDialog(appraisal)" pTooltip="Verify & Send to Employee">Verify & Send</button>
                 <button class="btn review-btn" *ngIf="canHRReview(appraisal)" (click)="openHRReviewDialog(appraisal)" pTooltip="HR Review & Approve">Review</button>
                 <button class="btn edit-respond-btn" *ngIf="canHRRespondEdit(appraisal)" (click)="openEditResponseDialog(appraisal)" pTooltip="Respond to Edit Request">Edit Req</button>
