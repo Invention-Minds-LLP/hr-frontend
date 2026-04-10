@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { forkJoin } from 'rxjs';
 import { Dashboard } from '../../services/dashboard/dashboard';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
@@ -33,6 +34,8 @@ export class OtApprovals implements OnInit {
   loading = true;
   actionLoading: { [id: number]: boolean } = {};
 
+  isHRManager = Number(localStorage.getItem('roleId')) === 1;
+
   constructor(private api: Dashboard, private messageService: MessageService) {}
 
   ngOnInit() {
@@ -41,40 +44,58 @@ export class OtApprovals implements OnInit {
 
   load() {
     this.loading = true;
-    this.api.getManagerOtPending().subscribe({
-      next: (data) => {
-        this.records = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+
+    if (this.isHRManager) {
+      forkJoin({
+        hr: this.api.getHROtPending(),
+        manager: this.api.getManagerOtPending()
+      }).subscribe({
+        next: ({ hr, manager }) => {
+          const hrItems = (hr || []).map((r: any) => ({ ...r, _source: 'HR' }));
+          const managerItems = (manager || []).map((r: any) => ({ ...r, _source: 'MANAGER' }));
+          this.records = [...managerItems, ...hrItems];
+          this.loading = false;
+        },
+        error: () => { this.loading = false; }
+      });
+    } else {
+      this.api.getManagerOtPending().subscribe({
+        next: (data) => {
+          this.records = (data || []).map((r: any) => ({ ...r, _source: 'MANAGER' }));
+          this.loading = false;
+        },
+        error: () => { this.loading = false; }
+      });
+    }
   }
 
   approve(row: any) {
     this.actionLoading[row.id] = true;
-    this.api.approveOrRejectOTManager([row.id], 'APPROVE').subscribe({
+    const call = row._source === 'HR'
+      ? this.api.approveOrRejectOT([row.id], 'APPROVE')
+      : this.api.approveOrRejectOTManager([row.id], 'APPROVE');
+
+    call.subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'OT approved and sent to HR' });
+        this.messageService.add({ severity: 'success', summary: 'Approved', detail: row._source === 'HR' ? 'OT approved by HR' : 'OT approved and sent to HR' });
         this.load();
       },
-      error: () => {
-        this.actionLoading[row.id] = false;
-      },
+      error: () => { this.actionLoading[row.id] = false; }
     });
   }
 
   reject(row: any) {
     this.actionLoading[row.id] = true;
-    this.api.approveOrRejectOTManager([row.id], 'REJECT').subscribe({
+    const call = row._source === 'HR'
+      ? this.api.approveOrRejectOT([row.id], 'REJECT')
+      : this.api.approveOrRejectOTManager([row.id], 'REJECT');
+
+    call.subscribe({
       next: () => {
         this.messageService.add({ severity: 'info', summary: 'Rejected', detail: 'OT rejected' });
         this.load();
       },
-      error: () => {
-        this.actionLoading[row.id] = false;
-      },
+      error: () => { this.actionLoading[row.id] = false; }
     });
   }
 

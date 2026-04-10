@@ -147,6 +147,10 @@ downloadMissingDocs() {
     return this.http.get<any[]>(`${this.baseUrl}/ot/manager-pending`);
   }
 
+  getHROtPending() {
+    return this.http.get<any[]>(`${this.baseUrl}/ot/hr-pending`);
+  }
+
   approveOrRejectOTManager(ids: number[], action: 'APPROVE' | 'REJECT') {
     return this.http.post<{ ok: boolean; updated: number }>(
       `${this.baseUrl}/ot/manager-approve-reject`,

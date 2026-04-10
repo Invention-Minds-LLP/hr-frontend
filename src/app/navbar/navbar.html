@@ -323,7 +323,7 @@
                 <span>Shifts</span>
               </a>
             </li>
-            <li class="nav-items" *ngIf="isReportingManager">
+            <li class="nav-items" *ngIf="isReportingManager || isHRManager">
               <a [routerLink]="'admin/ot-approvals'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

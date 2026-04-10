@@ -15,7 +15,7 @@
 
 <p-card class="ot-approvals">
   <div class="table-header">
-    <h3>OT Approvals – My Team</h3>
+    <h3>OT Approvals</h3>
   </div>
 
   <p-table [value]="records" [loading]="loading" [paginator]="true" [rows]="10">
@@ -29,6 +29,7 @@
         <th>Sched. End</th>
         <th>Checked Out</th>
         <th>OT Duration</th>
+        @if (isHRManager) { <th>Level</th> }
         <th>Action</th>
       </tr>
     </ng-template>
@@ -48,7 +49,15 @@
         <td>{{ formatTime(row.checkOut) }}</td>
         <td>{{ formatDuration(row.minutes) }}</td>
 
-        <td >
+        @if (isHRManager) {
+          <td>
+            <span class="level-badge" [class.level-hr]="row._source === 'HR'" [class.level-mgr]="row._source === 'MANAGER'">
+              {{ row._source === 'HR' ? 'HR Approval' : 'Mgr Approval' }}
+            </span>
+          </td>
+        }
+
+        <td>
           <div class="action-btns">
             <button class="btn-approve" (click)="approve(row)" [disabled]="actionLoading[row.id]">
               Approve
@@ -63,7 +72,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="no-data">No OT records pending your approval.</td>
+        <td [attr.colspan]="isHRManager ? 9 : 8" class="no-data">No OT records pending your approval.</td>
       </tr>
     </ng-template>
 
