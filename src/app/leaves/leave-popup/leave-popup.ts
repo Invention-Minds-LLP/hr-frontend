@@ -1081,12 +1081,12 @@ export class LeavePopup {
     }
 
     // Reporting Manager & HOD → Management approves
-    if (leave.roleId === 3 || leave.roleId === 5 /* if HOD role exists */) {
+    if (leave.roleId === 3  /* if HOD role exists */) {
       return this.isManagement && leave.hodDecision === 'PENDING';
     }
 
     // Normal Employee → Reporting Manager approves
-    if (leave.roleId === 2) {
+    if (leave.roleId === 2 || leave.roleId === 5) {
       return this.isReportingManager && leave.hodDecision === 'PENDING';
     }
 
@@ -1107,12 +1107,12 @@ export class LeavePopup {
     }
 
     // Reporting Manager & HOD → HR Manager at Level 2
-    if (leave.roleId === 3 || leave.roleId === 5) {
+    if (leave.roleId === 3 ) {
       return this.isHRManager && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
     }
 
     // Normal Employee → HR Manager at Level 2
-    if (leave.roleId === 2) {
+    if (leave.roleId === 2 || leave.roleId === 5) {
       console.log('role')
       return this.isHR && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
     }
