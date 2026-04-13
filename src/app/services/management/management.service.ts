@@ -73,4 +73,7 @@ export class ManagementService {
   getMobileLoginActivity(days = 14): Observable<any> {
     return this.http.get(`${this.base}/mobile-login-activity?days=${days}`);
   }
+  getQualifications(): Observable<any> {
+    return this.http.get(`${this.base}/qualifications`);
+  }
 }

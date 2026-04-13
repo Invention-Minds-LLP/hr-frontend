@@ -59,6 +59,8 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   mobileLogin: any       = null;
   loadingMobileLogin     = true;
   mobileLoginDays        = 14;
+  qualifications: any    = null;
+  loadingQualifications  = true;
 
   // ── OT month navigation ───────────────────────────────────
   otMonth = new Date();
@@ -151,6 +153,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private tenureChart?: Chart;
   private joiningTrendChart?: Chart;
   private mobileLoginChart?: Chart;
+  private qualDegreeChart?: Chart;
   private chartsReady = false;
 
   // ── KPI card config ───────────────────────────────────────
@@ -189,6 +192,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       if (this.otAnalysis)       this.drawOtDeptChart();
       if (this.lateArrivals)     this.drawLateHeatChart();
       if (this.mobileLogin)      this.drawMobileLoginChart();
+      if (this.qualifications)   this.drawQualDegreeChart();
     }, 0);
   }
 
@@ -289,6 +293,14 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     });
 
     this.loadMobileLogin(this.mobileLoginDays);
+
+    this.svc.getQualifications().subscribe({
+      next: (d) => {
+        this.qualifications = d; this.loadingQualifications = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawQualDegreeChart(), 0); }
+      },
+      error: () => { this.loadingQualifications = false; }
+    });
   }
 
   loadMobileLogin(days: number) {
@@ -678,7 +690,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         break;
 
       case 'tenure':
-        title = 'Tenure Distribution';
+        title = 'Years of Service Breakdown';
         cols  = [{ key: 'label', label: 'Tenure Band' }, { key: 'count', label: 'Employees' }];
         rows  = this.wfInsights?.tenureBuckets ?? [];
         break;
@@ -699,6 +711,24 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         title = 'Daily Mobile vs Desktop Logins';
         cols  = [{ key: 'date', label: 'Date' }, { key: 'mobile', label: 'Mobile' }, { key: 'desktop', label: 'Desktop' }, { key: 'total', label: 'Total' }, { key: 'uniqueUsers', label: 'Unique Users' }];
         rows  = this.mobileLogin?.daily ?? [];
+        break;
+
+      case 'qual-degree':
+        title = 'Qualification — Degree Distribution';
+        cols  = [{ key: 'degree', label: 'Degree / Qualification' }, { key: 'count', label: 'Count' }];
+        rows  = this.qualifications?.degreeDistribution ?? [];
+        break;
+
+      case 'qual-inst':
+        title = 'Qualification — Top Institutions';
+        cols  = [{ key: 'institution', label: 'Institution' }, { key: 'count', label: 'Employees' }];
+        rows  = this.qualifications?.topInstitutions ?? [];
+        break;
+
+      case 'qual-dept':
+        title = 'Qualifications by Department';
+        cols  = [{ key: 'dept', label: 'Department' }, { key: 'qualifiedCount', label: 'Qualified Staff' }, { key: 'topDegree', label: 'Most Common Degree' }, { key: 'totalQuals', label: 'Total Records' }];
+        rows  = this.qualifications?.deptBreakdown ?? [];
         break;
 
       default:
@@ -937,17 +967,50 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     const ctx = document.getElementById('attendanceChart') as HTMLCanvasElement;
     if (!ctx || !this.attendanceDays.length) return;
     if (this.attendanceChart) this.attendanceChart.destroy();
+
+    // Append "(WO)" or holiday name to x-axis labels for non-working days
+    const labels = this.attendanceDays.map((d: any) =>
+      d.isNonWorking ? `${d.date}\n(${d.nonWorkingLabel === 'Week Off' ? 'WO' : 'H'})` : d.date
+    );
+
     this.attendanceChart = new Chart(ctx, {
       type: 'bar',
-      data: { labels: this.attendanceDays.map(d => d.date), datasets: [
-        { label: 'Present',    data: this.attendanceDays.map(d => d.present),    backgroundColor: '#22c55e', borderRadius: 4 },
-        { label: 'On Leave',   data: this.attendanceDays.map(d => d.leave),      backgroundColor: '#60a5fa', borderRadius: 4 },
-        { label: 'Permission', data: this.attendanceDays.map(d => d.permission), backgroundColor: '#f59e0b', borderRadius: 4 },
-        { label: 'Absent',     data: this.attendanceDays.map(d => d.absent),     backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 4 },
-      ]},
-      options: { responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 14 } } },
-        scales: { x: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } } } },
+      data: {
+        labels,
+        datasets: [
+          { label: 'Present',    data: this.attendanceDays.map((d: any) => d.present),    backgroundColor: '#22c55e', borderRadius: 4, stack: 'att' },
+          { label: 'On Leave',   data: this.attendanceDays.map((d: any) => d.leave),      backgroundColor: '#60a5fa', borderRadius: 4, stack: 'att' },
+          { label: 'Permission', data: this.attendanceDays.map((d: any) => d.permission), backgroundColor: '#f59e0b', borderRadius: 4, stack: 'att' },
+          { label: 'Absent',     data: this.attendanceDays.map((d: any) => d.absent),     backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 4, stack: 'att' },
+          { label: 'Week Off / Holiday', data: this.attendanceDays.map((d: any) => d.weekoff ?? 0), backgroundColor: 'rgba(100,116,139,0.35)', borderRadius: 4, stack: 'att' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 14 } },
+          tooltip: {
+            callbacks: {
+              title: (items: any[]) => {
+                const idx = items[0]?.dataIndex;
+                const day = this.attendanceDays[idx];
+                if (day?.isNonWorking) return `${day.date} — ${day.nonWorkingLabel}`;
+                return items[0]?.label ?? '';
+              },
+              afterBody: (items: any[]) => {
+                const idx = items[0]?.dataIndex;
+                const day = this.attendanceDays[idx];
+                if (day?.isNonWorking) return [`Week off / holiday — absences not counted`, `${day.present} attended`];
+                return [];
+              }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
+      },
     });
   }
 
@@ -1064,11 +1127,32 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   }
 
   private drawWfInsightCharts() {
-    // 1. Age-Gender grouped bar
+    // 1. Age-Gender grouped bar (Male + Female only, always-on data labels)
     const ageCtx = document.getElementById('ageGenderChart') as HTMLCanvasElement;
     if (ageCtx && this.wfInsights?.ageSplitChart?.length) {
       if (this.ageGenderChart) this.ageGenderChart.destroy();
       const d = this.wfInsights.ageSplitChart;
+      const barLabelPlugin = {
+        id: 'barLabels',
+        afterDatasetsDraw(chart: any) {
+          const ctx2 = chart.ctx;
+          chart.data.datasets.forEach((_ds: any, i: number) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar: any, j: number) => {
+              const val = chart.data.datasets[i].data[j];
+              if (val > 0) {
+                ctx2.save();
+                ctx2.fillStyle = '#fff';
+                ctx2.font = 'bold 12px sans-serif';
+                ctx2.textAlign = 'center';
+                ctx2.textBaseline = 'bottom';
+                ctx2.fillText(val, bar.x, bar.y - 3);
+                ctx2.restore();
+              }
+            });
+          });
+        }
+      };
       this.ageGenderChart = new Chart(ageCtx, {
         type: 'bar',
         data: {
@@ -1076,7 +1160,6 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           datasets: [
             { label: 'Male',   data: d.map((r: any) => r.male),   backgroundColor: '#60a5fa', borderRadius: 5 },
             { label: 'Female', data: d.map((r: any) => r.female), backgroundColor: '#f472b6', borderRadius: 5 },
-            { label: 'Other',  data: d.map((r: any) => r.other),  backgroundColor: '#a78bfa', borderRadius: 5 },
           ],
         },
         options: {
@@ -1087,6 +1170,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
             y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
           },
         },
+        plugins: [barLabelPlugin],
       });
     }
 
@@ -1138,6 +1222,35 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         },
       });
     }
+  }
+
+  private drawQualDegreeChart() {
+    const ctx = document.getElementById('qualDegreeChart') as HTMLCanvasElement;
+    if (!ctx || !this.qualifications?.degreeDistribution?.length) return;
+    if (this.qualDegreeChart) this.qualDegreeChart.destroy();
+    const top = this.qualifications.degreeDistribution.slice(0, 10);
+    const palette = ['#60a5fa','#34d399','#f472b6','#fbbf24','#a78bfa','#38bdf8','#4ade80','#fb923c','#e879f9','#facc15'];
+    this.qualDegreeChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: top.map((d: any) => d.degree),
+        datasets: [{
+          label: 'Employees',
+          data: top.map((d: any) => d.count),
+          backgroundColor: top.map((_: any, i: number) => palette[i % palette.length]),
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+        },
+      },
+    });
   }
 
   private drawMobileLoginChart() {

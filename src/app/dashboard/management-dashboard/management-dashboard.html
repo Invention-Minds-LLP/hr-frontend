@@ -44,6 +44,7 @@
     Pulse
     <span class="info-icon" pTooltip="Real-time key performance indicators. Click a card to drill into the detail list." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">A live snapshot of the most critical numbers — attendance, leave, appraisals, training, and headcount — all in one place. Click any card to expand the detail list below.</p>
 
   <div class="pulse-grid" *ngIf="loadingPulse">
     <div class="pulse-card skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]">
@@ -98,6 +99,7 @@
     Workforce Snapshot
     <span class="info-icon" pTooltip="Headcount by department and employment type. The donut shows employment status breakdown." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Total headcount distributed across every department alongside a status breakdown (Active, Notice Period, Probation, etc.). Use this to spot imbalances between teams or high notice-period concentrations.</p>
   <div class="row-2col">
     <div class="card col-8">
       <div class="card-head">
@@ -129,8 +131,9 @@
   <!-- ══ WORKFORCE INSIGHTS (Age / Tenure / Joining / Gender) ══ -->
   <div class="section-label">
     Workforce Insights
-    <span class="info-icon" pTooltip="Age-gender split (≤45 vs >45 years), tenure distribution, year-wise joining trend and department gender breakdown." tooltipPosition="right">ⓘ</span>
+    <span class="info-icon" pTooltip="Age-gender split (≤45 vs >45 years), years of service, year-wise joining trend and department gender breakdown." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Demographic and diversity breakdown of the workforce — age group vs gender split, how long employees have been with the organisation, hiring trend by year, and gender distribution per department.</p>
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">
@@ -142,7 +145,7 @@
     </div>
     <div class="card col-6">
       <div class="card-head">
-        <span class="card-title">Tenure Distribution</span>
+        <span class="card-title">Years of Service</span>
         <button class="view-details-btn" *ngIf="wfInsights?.tenureBuckets" (click)="openChartModal('tenure')">View Details</button>
       </div>
       <div class="chart-area" style="height:220px;" [hidden]="loadingWfInsights"><canvas id="tenureChart"></canvas></div>
@@ -195,6 +198,7 @@
     Department Health
     <span class="info-icon" pTooltip="Per-department view: headcount, today's attendance rate, average appraisal score, and active PIPs. Quickly spot which teams need attention." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Side-by-side health check for every department today — headcount, how many are present, attendance percentage, average appraisal score and the number of employees currently on a Performance Improvement Plan (PIP).</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Department Snapshot — Today</span>
@@ -248,6 +252,7 @@
     Department Risk Analysis
     <span class="info-icon" pTooltip="Risk score per department based on resignation rate (last 3 months), leave volume this month, appraisal performance, and active PIPs. High = needs management attention." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">A composite risk score (0–100) per department built from four weighted signals: resignation rate (×3 weight), leave volume (×1), low appraisal scores (×2), and active PIPs (×2). Each row shows exactly how the score breaks down. HIGH ≥ 60 · MEDIUM ≥ 30.</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Resignation · Leave · Performance Risk by Department</span>
@@ -273,6 +278,9 @@
               <th>Avg Score</th>
               <th>PIPs</th>
               <th class="rt-pills">Leave Types</th>
+              <th style="min-width:180px;"
+                pTooltip="R = Resignations ×3 · L = Leaves ×1 · A = Appraisal risk ×2 · P = PIPs ×2. Each value is the contribution to the final score."
+                tooltipPosition="top">Score Breakdown</th>
             </tr>
           </thead>
           <tbody>
@@ -303,6 +311,19 @@
                   <span class="risk-leave-pill" *ngFor="let t of d.topLeaveTypes">{{ t }}</span>
                 </div>
               </td>
+              <td *ngIf="d.breakdown">
+                <div class="risk-breakdown">
+                  <span class="rb-item rb-resign" pTooltip="Resignations contribution (weight ×3)" tooltipPosition="top">R {{ d.breakdown.resign }}</span>
+                  <span class="rb-sep">+</span>
+                  <span class="rb-item rb-leave" pTooltip="Leave volume contribution (weight ×1)" tooltipPosition="top">L {{ d.breakdown.leave }}</span>
+                  <span class="rb-sep">+</span>
+                  <span class="rb-item rb-score" pTooltip="Low appraisal score contribution (weight ×2)" tooltipPosition="top">A {{ d.breakdown.score }}</span>
+                  <span class="rb-sep">+</span>
+                  <span class="rb-item rb-pip" pTooltip="Active PIPs contribution (weight ×2)" tooltipPosition="top">P {{ d.breakdown.pip }}</span>
+                  <span class="rb-sep">=</span>
+                  <span class="rb-total">{{ d.riskScore }}</span>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -323,6 +344,7 @@
     Attendance & Leave
     <span class="info-icon" pTooltip="Last 7 days attendance trend and current month leave density calendar. Amber cells = more employees on leave." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Day-by-day attendance trend for the selected period and a monthly leave density calendar. Darker calendar cells indicate more employees on leave that day — hover to see who.</p>
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">
@@ -378,6 +400,7 @@
     Performance & PIP
     <span class="info-icon" pTooltip="Average manager appraisal ratings by dimension (scale 0–10). Right panel shows employees currently on PIPs." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Average manager ratings across key performance dimensions (e.g. Quality, Productivity, Teamwork). The right panel lists every employee currently on a Performance Improvement Plan with their trend — improving, stable, or declining.</p>
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">
@@ -446,6 +469,7 @@
     Performance Analytics
     <span class="info-icon" pTooltip="Score distribution shows how many employees fall in each performance band. Weekly trend tracks organisation-wide weekly rating momentum." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Appraisal score distribution shows how many employees fall in each band (Excellent / Good / Average / Below Avg). The weekly trend chart tracks the organisation's average performance score across the last 8 weeks to spot momentum shifts early.</p>
   <div class="row-2col">
     <!-- Performance Distribution -->
     <div class="card col-6">
@@ -505,6 +529,7 @@
     Attrition & Recruitment
     <span class="info-icon" pTooltip="12-month resignation trend (submitted vs actually exited). Recruitment funnel shows candidate pipeline conversion." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">12-month view of resignations submitted vs employees who have actually exited, helping distinguish intent from actual loss. The funnel tracks recruitment pipeline conversion from applications through to joining.</p>
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">
@@ -535,6 +560,7 @@
     Training Completion
     <span class="info-icon" pTooltip="% of training assignments completed per department. Low completion = skill gap or engagement risk." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Percentage of assigned training modules completed per department. Low completion rates may signal time constraints, engagement issues, or skill gaps that need management follow-up.</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Training Completion by Department</span>
@@ -569,6 +595,7 @@
     Action Required
     <span class="info-icon" pTooltip="Items needing immediate attention: PIPs at termination, unresolved grievances, POSH cases, probation endings, expiring documents, pending clearances." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Consolidated list of items that need immediate management action — PIPs nearing termination stage, open grievances, POSH cases, probation end dates, expiring documents, and pending exit clearances.</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Items Needing Attention</span>
@@ -606,6 +633,7 @@
     Overtime Analysis
     <span class="info-icon" pTooltip="Department-wise and employee-wise overtime hours for the selected month. Only approved OT is counted." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Approved overtime hours broken down by department and individual employees for the selected month. Consistently high OT in a department may indicate understaffing or workload imbalance.</p>
   <div class="month-nav">
     <button class="month-nav-btn" (click)="prevOtMonth()">‹</button>
     <span class="month-nav-label">{{ otMonthLabel || (otMonth | date:'MMMM yyyy') }}</span>
@@ -660,6 +688,7 @@
     Late Arrival Analysis
     <span class="info-icon" pTooltip="Employees and departments with most late check-ins. Based on LateLoginLog records." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Identifies employees and departments with the most late check-ins within the selected period. Chronic late-comers (repeated pattern) are listed separately from the department heatmap to focus both team-level and individual-level action.</p>
   <div class="period-tabs">
     <button class="period-tab" *ngFor="let p of periodOptions"
       [class.active]="lateDays === p.days"
@@ -714,6 +743,7 @@
     Leave Balance Utilization
     <span class="info-icon" pTooltip="How much of the annual leave allowance has been used per department. High utilization (>80%) may indicate burnout risk." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Shows how much of each department's total annual leave entitlement has been consumed so far this year. High utilisation early in the year can indicate burnout risk; very low utilisation may mean employees are not taking adequate rest.</p>
   <div class="row-2col">
     <!-- Dept utilization bars -->
     <div class="card col-6">
@@ -783,6 +813,7 @@
     Absenteeism Tracking
     <span class="info-icon" pTooltip="Employees with 3 or more unexplained absences (ABSENT status) and department-wise absence rates." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Tracks unexplained absences (ABSENT status, not approved leave) per department and flags individuals with 3 or more absent days in the selected period. High absence rates may point to engagement, health, or team-culture concerns.</p>
   <div class="period-tabs">
     <button class="period-tab" *ngFor="let p of periodOptions"
       [class.active]="absentDays === p.days"
@@ -851,11 +882,96 @@
     </div>
   </div>
 
+  <!-- ══ SECTION 18 — QUALIFICATIONS ══ -->
+  <div class="section-label">
+    Qualifications Overview
+    <span class="info-icon" pTooltip="Degree type distribution, top institutions, and department-wise qualification breakdown across all active employees." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Academic qualification breakdown of active employees — which degrees are most common, which institutions they graduated from, how each department's workforce is qualified, and what decade they completed their education.</p>
+
+  <div class="row-2col">
+    <!-- Degree distribution chart -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Degree Distribution (Top 10)</span>
+        <div class="card-head-right">
+          <span class="card-badge" *ngIf="qualifications">
+            {{ qualifications.withQualification }}/{{ qualifications.totalActive }} staff ({{ qualifications.coveragePct }}% covered)
+          </span>
+          <button class="view-details-btn" *ngIf="qualifications?.degreeDistribution?.length" (click)="openChartModal('qual-degree')">View All</button>
+        </div>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="260px"></p-skeleton></div>
+      <div class="chart-area" style="height:260px;" [hidden]="loadingQualifications"><canvas id="qualDegreeChart"></canvas></div>
+      <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.degreeDistribution?.length">No qualification records found.</div>
+    </div>
+
+    <!-- Top institutions + graduation decades -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Institutions</span>
+        <button class="view-details-btn" *ngIf="qualifications?.topInstitutions?.length" (click)="openChartModal('qual-inst')">View All</button>
+      </div>
+      <ng-container *ngIf="!loadingQualifications && qualifications?.topInstitutions?.length">
+        <div class="util-row" *ngFor="let inst of visibleRows('qualInst', qualifications.topInstitutions)">
+          <div class="util-label-row">
+            <span class="util-dept">{{ inst.institution }}</span>
+            <span class="util-pct" style="color:#60a5fa;">{{ inst.count }}</span>
+          </div>
+          <div class="util-bar-wrap">
+            <div class="util-bar-fill" style="background:#60a5fa;"
+              [style.width.%]="(inst.count / qualifications.topInstitutions[0].count) * 100"></div>
+          </div>
+        </div>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('qualInst', qualifications.topInstitutions)" (click)="showMore('qualInst', qualifications.topInstitutions)">
+            View More ({{ qualifications.topInstitutions.length - (expandCount['qualInst'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('qualInst')" (click)="showLess('qualInst')">Show Less</button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.topInstitutions?.length">No institution data.</div>
+      <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="260px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- Dept breakdown table -->
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Department-wise Qualification Breakdown</span>
+      <button class="view-details-btn" *ngIf="qualifications?.deptBreakdown?.length" (click)="openChartModal('qual-dept')">View Details</button>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="5rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingQualifications && qualifications?.deptBreakdown?.length">
+      <table class="dept-table">
+        <thead>
+          <tr><th>Department</th><th>Qualified Staff</th><th>Most Common Degree</th><th>Total Records</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of visibleRows('qualDept', qualifications.deptBreakdown)">
+            <td class="dept-name">{{ d.dept }}</td>
+            <td><span class="dept-badge badge-good">{{ d.qualifiedCount }}</span></td>
+            <td>{{ d.topDegree || '—' }}</td>
+            <td>{{ d.totalQuals }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row">
+        <button class="expand-btn" *ngIf="canShowMore('qualDept', qualifications.deptBreakdown)" (click)="showMore('qualDept', qualifications.deptBreakdown)">
+          View More ({{ qualifications.deptBreakdown.length - (expandCount['qualDept'] ?? 5) }} more)
+        </button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('qualDept')" (click)="showLess('qualDept')">Show Less</button>
+      </div>
+    </ng-container>
+    <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.deptBreakdown?.length">No data available.</div>
+  </div>
+
   <!-- ══ SECTION 17 — MOBILE LOGIN ACTIVITY ══ -->
   <div class="section-label">
     Mobile Login Activity
     <span class="info-icon" pTooltip="Daily login count from mobile vs desktop devices, detected from browser user-agent. Helps track app adoption and remote access patterns." tooltipPosition="right">ⓘ</span>
   </div>
+  <p class="section-desc">Daily breakdown of successful logins from mobile devices (phones/tablets) vs desktop/laptop, detected from the browser user-agent. Tracks app adoption rates and helps identify whether remote or field staff are actively using the system.</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Login Activity — Mobile vs Desktop</span>
