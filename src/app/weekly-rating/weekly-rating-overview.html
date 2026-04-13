@@ -17,7 +17,7 @@
   <div class="controls">
     <div class="tab-bar">
       <button class="tab-btn" [class.active]="activeTab === 'team'" (click)="activeTab = 'team'; loadTeam()"
-        *ngIf="isManager || isHRManager">
+        *ngIf="isManager || isHRManager || isManagement">
         My Team
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'allRatings'" (click)="activeTab = 'allRatings'; loadAllRatings()"

@@ -32,6 +32,7 @@ export class WeeklyRatingOverview implements OnInit {
   loggedRoleId = Number(localStorage.getItem('roleId')) || 0;
   isHRManager = false;
   isManager = false;
+  isManagement = false;
 
   activeTab: 'team' | 'allRatings' | 'questions' = 'team';
 
@@ -71,7 +72,8 @@ export class WeeklyRatingOverview implements OnInit {
 
   ngOnInit() {
     this.isHRManager = this.loggedRoleId === 1;
-    this.isManager = this.loggedRoleId === 3 || this.loggedRoleId === 5;
+    this.isManager = this.loggedRoleId === 3;
+    this.isManagement = this.loggedRoleId === 4 ;
     this.setCurrentWeek();
     this.loadQuestions();
     this.loadDesignations();
@@ -132,7 +134,7 @@ export class WeeklyRatingOverview implements OnInit {
   }
 
   loadTeam() {
-    if (!this.isManager && !this.isHRManager) return;
+    if (!this.isManager && !this.isHRManager && !this.isManagement) return;
     this.loading = true;
     this.ratingService.getTeam(this.loggedEmpId, this.toISODate(this.weekStartDate)).subscribe({
       next: (data) => { this.team = data; this.loading = false; },
