@@ -67,4 +67,10 @@ export class ManagementService {
   getAbsenteeism(days = 30): Observable<any> {
     return this.http.get(`${this.base}/absenteeism?days=${days}`);
   }
+  getWorkforceInsights(): Observable<any> {
+    return this.http.get(`${this.base}/workforce-insights`);
+  }
+  getMobileLoginActivity(days = 14): Observable<any> {
+    return this.http.get(`${this.base}/mobile-login-activity?days=${days}`);
+  }
 }

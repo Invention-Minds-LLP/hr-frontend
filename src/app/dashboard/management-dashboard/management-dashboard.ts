@@ -33,6 +33,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   loadingLateArrivals = true;
   loadingLeaveUtil   = true;
   loadingAbsenteeism = true;
+  loadingWfInsights  = true;
 
   // ── Data ─────────────────────────────────────────────────
   pulse: any           = null;
@@ -54,6 +55,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   lateArrivals: any      = null;
   leaveUtil: any         = null;
   absenteeism: any       = null;
+  wfInsights: any        = null;
+  mobileLogin: any       = null;
+  loadingMobileLogin     = true;
+  mobileLoginDays        = 14;
 
   // ── OT month navigation ───────────────────────────────────
   otMonth = new Date();
@@ -69,6 +74,33 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     { label: '60 Days', days: 60 },
     { label: '90 Days', days: 90 },
   ];
+
+  // ── Expandable list state ─────────────────────────────────
+  // Each key maps to how many rows are currently visible (default 5)
+  private readonly EXPAND_STEP = 5;
+  expandCount: Record<string, number> = {};
+
+  visibleRows(key: string, arr: any[]): any[] {
+    const count = this.expandCount[key] ?? this.EXPAND_STEP;
+    return arr.slice(0, count);
+  }
+
+  canShowMore(key: string, arr: any[]): boolean {
+    return (this.expandCount[key] ?? this.EXPAND_STEP) < arr.length;
+  }
+
+  showMore(key: string, arr: any[]) {
+    const cur = this.expandCount[key] ?? this.EXPAND_STEP;
+    this.expandCount[key] = Math.min(cur + this.EXPAND_STEP, arr.length);
+  }
+
+  showLess(key: string) {
+    this.expandCount[key] = this.EXPAND_STEP;
+  }
+
+  isExpanded(key: string): boolean {
+    return (this.expandCount[key] ?? this.EXPAND_STEP) > this.EXPAND_STEP;
+  }
 
   // Leave type → colour palette (cycles for unknown types)
   private leaveTypeColors: Record<string, string> = {};
@@ -115,6 +147,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private perfDistChart?: Chart;
   private otDeptChart?: Chart;
   private lateHeatChart?: Chart;
+  private ageGenderChart?: Chart;
+  private tenureChart?: Chart;
+  private joiningTrendChart?: Chart;
+  private mobileLoginChart?: Chart;
   private chartsReady = false;
 
   // ── KPI card config ───────────────────────────────────────
@@ -140,7 +176,21 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   constructor(private svc: ManagementService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit()       { this.loadAll(); }
-  ngAfterViewInit(){ this.chartsReady = true; }
+  ngAfterViewInit(){
+    this.chartsReady = true;
+    // If API responded before view was ready, draw now
+    setTimeout(() => {
+      if (this.workforce)        this.drawWorkforceCharts();
+      if (this.attritionTrend)   this.drawAttritionChart();
+      if (this.recruitmentFunnel) this.drawFunnelChart();
+      if (this.weeklyTrend)      this.drawWeeklyChart();
+      if (this.perfDist)         this.drawPerfDistChart();
+      if (this.wfInsights)       this.drawWfInsightCharts();
+      if (this.otAnalysis)       this.drawOtDeptChart();
+      if (this.lateArrivals)     this.drawLateHeatChart();
+      if (this.mobileLogin)      this.drawMobileLoginChart();
+    }, 0);
+  }
 
   // ── Data loading ──────────────────────────────────────────
   private loadAll() {
@@ -209,7 +259,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     this.svc.getWeeklyTrend().subscribe({
       next: (d) => {
         this.weeklyTrend = d; this.loadingWeekly = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawWeeklyChart(); }
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyChart(), 0); }
       },
       error: () => { this.loadingWeekly = false; }
     });
@@ -217,7 +267,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     this.svc.getPerformanceDistribution().subscribe({
       next: (d) => {
         this.perfDist = d; this.loadingPerfDist = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawPerfDistChart(); }
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawPerfDistChart(), 0); }
       },
       error: () => { this.loadingPerfDist = false; }
     });
@@ -229,6 +279,32 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       error: () => { this.loadingLeaveUtil = false; }
     });
     this.loadAbsenteeism(this.absentDays);
+
+    this.svc.getWorkforceInsights().subscribe({
+      next: (d) => {
+        this.wfInsights = d; this.loadingWfInsights = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWfInsightCharts(), 0); }
+      },
+      error: () => { this.loadingWfInsights = false; }
+    });
+
+    this.loadMobileLogin(this.mobileLoginDays);
+  }
+
+  loadMobileLogin(days: number) {
+    this.loadingMobileLogin = true;
+    this.svc.getMobileLoginActivity(days).subscribe({
+      next: (d) => {
+        this.mobileLogin = d; this.loadingMobileLogin = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawMobileLoginChart(), 0); }
+      },
+      error: () => { this.loadingMobileLogin = false; }
+    });
+  }
+
+  selectMobileLoginPeriod(days: number) {
+    this.mobileLoginDays = days;
+    this.loadMobileLogin(days);
   }
 
   // ── OT Analysis navigation ────────────────────────────────
@@ -242,7 +318,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         this.otAnalysis = d;
         this.otMonthLabel = d.monthLabel;
         this.loadingOtAnalysis = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawOtDeptChart(); }
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawOtDeptChart(), 0); }
       },
       error: () => { this.loadingOtAnalysis = false; }
     });
@@ -279,7 +355,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       next: (d) => {
         this.lateArrivals = d;
         this.loadingLateArrivals = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawLateHeatChart(); }
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawLateHeatChart(), 0); }
       },
       error: () => { this.loadingLateArrivals = false; }
     });
@@ -593,6 +669,36 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           { key: 'absentRate', label: 'Absence Rate %' },
         ];
         rows = this.absenteeism?.chronicAbsentees ?? [];
+        break;
+
+      case 'age-gender':
+        title = 'Age-Gender Split (≤ 45 vs > 45)';
+        cols  = [{ key: 'label', label: 'Age Group' }, { key: 'male', label: 'Male' }, { key: 'female', label: 'Female' }, { key: 'other', label: 'Other' }];
+        rows  = this.wfInsights?.ageSplitChart ?? [];
+        break;
+
+      case 'tenure':
+        title = 'Tenure Distribution';
+        cols  = [{ key: 'label', label: 'Tenure Band' }, { key: 'count', label: 'Employees' }];
+        rows  = this.wfInsights?.tenureBuckets ?? [];
+        break;
+
+      case 'joining-trend':
+        title = 'Joinings by Year';
+        cols  = [{ key: 'year', label: 'Year' }, { key: 'count', label: 'Employees Joined' }];
+        rows  = this.wfInsights?.joiningTrend ?? [];
+        break;
+
+      case 'dept-gender':
+        title = 'Department-wise Gender Breakdown';
+        cols  = [{ key: 'dept', label: 'Department' }, { key: 'male', label: 'Male' }, { key: 'female', label: 'Female' }, { key: 'other', label: 'Other' }, { key: 'total', label: 'Total' }];
+        rows  = this.wfInsights?.deptGender ?? [];
+        break;
+
+      case 'mobile-login':
+        title = 'Daily Mobile vs Desktop Logins';
+        cols  = [{ key: 'date', label: 'Date' }, { key: 'mobile', label: 'Mobile' }, { key: 'desktop', label: 'Desktop' }, { key: 'total', label: 'Total' }, { key: 'uniqueUsers', label: 'Unique Users' }];
+        rows  = this.mobileLogin?.daily ?? [];
         break;
 
       default:
@@ -950,6 +1056,118 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           x: { ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
           y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } }
         }
+      },
+    });
+  }
+
+  private drawWfInsightCharts() {
+    // 1. Age-Gender grouped bar
+    const ageCtx = document.getElementById('ageGenderChart') as HTMLCanvasElement;
+    if (ageCtx && this.wfInsights?.ageSplitChart?.length) {
+      if (this.ageGenderChart) this.ageGenderChart.destroy();
+      const d = this.wfInsights.ageSplitChart;
+      this.ageGenderChart = new Chart(ageCtx, {
+        type: 'bar',
+        data: {
+          labels: d.map((r: any) => r.label),
+          datasets: [
+            { label: 'Male',   data: d.map((r: any) => r.male),   backgroundColor: '#60a5fa', borderRadius: 5 },
+            { label: 'Female', data: d.map((r: any) => r.female), backgroundColor: '#f472b6', borderRadius: 5 },
+            { label: 'Other',  data: d.map((r: any) => r.other),  backgroundColor: '#a78bfa', borderRadius: 5 },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#d1d5db', font: { size: 12 }, padding: 16 } } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          },
+        },
+      });
+    }
+
+    // 2. Tenure distribution horizontal bar
+    const tenureCtx = document.getElementById('tenureChart') as HTMLCanvasElement;
+    if (tenureCtx && this.wfInsights?.tenureBuckets?.length) {
+      if (this.tenureChart) this.tenureChart.destroy();
+      const t = this.wfInsights.tenureBuckets;
+      this.tenureChart = new Chart(tenureCtx, {
+        type: 'bar',
+        data: {
+          labels: t.map((b: any) => b.label),
+          datasets: [{ label: 'Employees', data: t.map((b: any) => b.count), backgroundColor: '#34d399', borderRadius: 5 }],
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#e5e7eb', font: { size: 12 } }, grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    // 3. Joining year trend line
+    const joinCtx = document.getElementById('joiningTrendChart') as HTMLCanvasElement;
+    if (joinCtx && this.wfInsights?.joiningTrend?.length) {
+      if (this.joiningTrendChart) this.joiningTrendChart.destroy();
+      const j = this.wfInsights.joiningTrend;
+      this.joiningTrendChart = new Chart(joinCtx, {
+        type: 'line',
+        data: {
+          labels: j.map((r: any) => r.year),
+          datasets: [{
+            label: 'Joinings',
+            data: j.map((r: any) => r.count),
+            borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)',
+            fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fbbf24', borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#d1d5db', font: { size: 12 } } } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          },
+        },
+      });
+    }
+  }
+
+  private drawMobileLoginChart() {
+    const ctx = document.getElementById('mobileLoginChart') as HTMLCanvasElement;
+    if (!ctx || !this.mobileLogin?.daily?.length) return;
+    if (this.mobileLoginChart) this.mobileLoginChart.destroy();
+    const days = this.mobileLogin.daily;
+    this.mobileLoginChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: days.map((d: any) => d.label),
+        datasets: [
+          { label: 'Mobile',  data: days.map((d: any) => d.mobile),  backgroundColor: '#a78bfa', borderRadius: 4, stack: 'login' },
+          { label: 'Desktop', data: days.map((d: any) => d.desktop), backgroundColor: '#38bdf8', borderRadius: 4, stack: 'login' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#d1d5db', font: { size: 12 }, padding: 16 } },
+          tooltip: {
+            callbacks: {
+              footer: (items: any[]) => {
+                const total = items.reduce((s: number, i: any) => s + i.raw, 0);
+                return `Total: ${total}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 11 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
       },
     });
   }

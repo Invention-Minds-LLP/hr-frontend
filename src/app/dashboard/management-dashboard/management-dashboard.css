@@ -972,6 +972,105 @@
 .heat-mid  { background: rgba(245,158,11,0.15); color: #fbbf24; }
 .heat-high { background: rgba(239,68,68,0.15);  color: #f87171; }
 
+/* ── Expand / collapse rows ──────────────────────────────────── */
+.expand-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0 2px;
+}
+.expand-btn {
+  background: rgba(96,165,250,0.10);
+  border: 1px solid rgba(96,165,250,0.25);
+  color: #60a5fa;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 0.91rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.expand-btn:hover {
+  background: rgba(96,165,250,0.18);
+  border-color: rgba(96,165,250,0.45);
+}
+.expand-btn-less {
+  background: rgba(148,163,184,0.08);
+  border-color: rgba(148,163,184,0.2);
+  color: #94a3b8;
+}
+.expand-btn-less:hover {
+  background: rgba(148,163,184,0.14);
+  border-color: rgba(148,163,184,0.35);
+}
+
+/* ── Dept Risk table layout ──────────────────────────────────── */
+.risk-table-wrap { overflow-x: auto; }
+.risk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+.risk-table thead th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.risk-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.12s;
+}
+.risk-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+.risk-table tbody td {
+  padding: 9px 10px;
+  color: white;
+  vertical-align: middle;
+}
+.rt-row-high   td:first-child { border-left: 3px solid #ef4444; }
+.rt-row-medium td:first-child { border-left: 3px solid #f59e0b; }
+.rt-row-low    td:first-child { border-left: 3px solid #22c55e; }
+.rt-dept-cell {
+  font-weight: 700;
+  min-width: 160px;
+  color: #f8fafc;
+}
+.rt-bar-cell {
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+}
+.rt-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+.rt-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.rt-score-num {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  min-width: 22px;
+}
+.rt-pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .pulse-grid { grid-template-columns: repeat(2, 1fr); }
