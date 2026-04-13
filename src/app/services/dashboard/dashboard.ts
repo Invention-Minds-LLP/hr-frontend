@@ -157,6 +157,11 @@ downloadMissingDocs() {
       { ids, action }
     );
   }
+
+  getMyApprovedOT(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/ot/my-approved`);
+  }
+
   // 1. Unmarked attendance
   messageUnmarked(employeeIds: number[], message: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/unmarked/message`, { employeeIds, message });

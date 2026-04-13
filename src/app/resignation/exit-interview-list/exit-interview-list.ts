@@ -49,11 +49,15 @@ export class ExitInterviewList {
   ngOnInit() {
     this.loading = true;
     this.exitService.listExitInterview().subscribe((data: any[]) => {
-      this.exitInterviews = (data || []).map(e => ({
+      const all = (data || []).map(e => ({
         ...e,
         gender: e.employee?.gender,
         photoUrl: e.employee?.photoUrl
       }));
+
+      this.exitInterviews = this.employeeId
+        ? all.filter(e => e.employee?.id === this.employeeId || e.employeeId === this.employeeId)
+        : all;
 
       this.filteredInterviews = [...this.exitInterviews];
       this.loading = false;

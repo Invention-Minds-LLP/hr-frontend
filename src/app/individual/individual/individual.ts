@@ -10,7 +10,7 @@ import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 import { Holiday, Holidays } from '../../services/holidays/holidays';
 import { CarouselModule } from 'primeng/carousel';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
@@ -18,7 +18,6 @@ import { Tooltip } from 'primeng/tooltip';
 import { MyTests } from "../../evaluation/my-tests/my-tests";
 import { TrainingList } from "../../training/training-list/training-list";
 import { SurveyList } from "../../survey/survey-list/survey-list";
-import { ExitInterviewList } from "../../resignation/exit-interview-list/exit-interview-list";
 import { SkeletonModule, Skeleton } from 'primeng/skeleton';
 import { AttendanceCalendar } from '../../services/attendance-calendar/attendance-calendar';
 import { SurveryService } from '../../services/surveyService/survery-service';
@@ -32,6 +31,8 @@ import { MyWeeklyRatings } from '../../weekly-rating/my-weekly-ratings/my-weekly
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { PipService } from '../../services/pip/pip.service';
+import { Dashboard } from '../../services/dashboard/dashboard';
+import { Resignation } from '../../services/resignation/resignation';
 
 interface individual {
   date: string;
@@ -55,7 +56,7 @@ type LeaveTypeCount = { label: string; count: number; total: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList, ExitInterviewList,
+    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList,
     SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent,
     MyWeeklyRatings, DialogModule, TextareaModule],
   templateUrl: './individual.html',
@@ -147,9 +148,18 @@ currentWeeklyShiftIndex = 0;
   myResponseSubmitted = false;
   logResponseVisible = false;
 
+  // OT
+  myOtRecords: any[] = [];
+  otLoading = false;
+
+  // Exit Interview
+  myExitInterviews: any[] = [];
+  exitInterviewLoading = false;
+
   constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar,
     private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts,
-    private holidaysService: Holidays, private pipService: PipService) { }
+    private holidaysService: Holidays, private pipService: PipService,
+    private dashboardService: Dashboard, private resignationService: Resignation) { }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -205,6 +215,8 @@ currentWeeklyShiftIndex = 0;
     // this.startAnniversaryAutoSlide();
     this.loadWeeklyShiftTemplates();
     this.loadMyPIPs();
+    this.loadMyOtRecords();
+    this.loadMyExitInterviews();
 
     this.setWeek(new Date());
     this.loadHolidays(this.year);
@@ -1212,6 +1224,52 @@ formatShiftDisplayTime(value: string | Date): string {
   fmtDate(d: string | Date | null): string {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  loadMyOtRecords() {
+    this.otLoading = true;
+    this.dashboardService.getMyApprovedOT()
+      .pipe(catchError(() => of([])))
+      .subscribe((data: any[]) => {
+        this.myOtRecords = data || [];
+        this.otLoading = false;
+      });
+  }
+
+  formatOtDuration(minutes: number): string {
+    if (!minutes) return '0 hrs 0 mins';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h} hrs ${m} mins`;
+  }
+
+  loadMyExitInterviews() {
+    const employeeId = Number(this.currentUserId);
+    if (!employeeId) return;
+    this.exitInterviewLoading = true;
+    this.resignationService.listExitInterview()
+      .pipe(catchError(() => of([])))
+      .subscribe((data: any[]) => {
+        this.myExitInterviews = (data || []).filter(
+          (e: any) => e.employee?.id === employeeId || e.employeeId === employeeId
+        );
+        this.exitInterviewLoading = false;
+      });
+  }
+
+  getExitInterviewStatus(interview: any): string {
+    if (interview.completedAt) return 'COMPLETED';
+    if (interview.status === 'SCHEDULED') return 'SCHEDULED';
+    if (interview.status === 'CANCELLED') return 'CANCELLED';
+    return 'PENDING';
+  }
+
+  getExitInterviewStatusClass(interview: any): string {
+    const s = this.getExitInterviewStatus(interview);
+    if (s === 'COMPLETED') return 'approved';
+    if (s === 'SCHEDULED') return 'pending';
+    if (s === 'CANCELLED') return 'rejected';
+    return 'pending';
   }
 
 }

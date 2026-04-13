@@ -53,6 +53,7 @@ export class Navbar {
   announcements: any[] = [];
   isIncharge = false;
   isHRManager = false;
+  isManagement = false;
   roleId = localStorage.getItem('roleId') || '';
   deptId = Number(localStorage.getItem('deptId')) || 0;
   executiveRoleId = Number(localStorage.getItem('roleId')) || 0;
@@ -78,6 +79,7 @@ export class Navbar {
     console.log('Role after normalization:', norm, rawRole);
     this.isIncharge = Number(this.roleId) === 5;
     this.isHRManager = Number(this.roleId) === 1;
+    this.isManagement = Number(this.roleId) === 4;
     console.log('isIncharge:', this.isIncharge);
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);

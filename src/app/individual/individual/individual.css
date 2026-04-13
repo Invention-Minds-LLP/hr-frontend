@@ -2086,3 +2086,105 @@ hr {
 .pip-detail-row:last-child { border-bottom: none; }
 .pdl { min-width: 140px; font-weight: 600; color: #888; font-size: 13px; }
 .pdv { color: white; flex: 1; }
+
+/* ── OT Records Section ─────────────────────────────────────────────────── */
+.ot-section {
+  width: 100%;
+}
+
+.ot-loading,
+.ot-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #888;
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+.ot-empty i {
+  font-size: 22px;
+  color: #555;
+}
+
+.ot-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.ot-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid #2a2a4a;
+  border-left: 4px solid #FB9C2A;
+  border-radius: 14px;
+  padding: 16px 20px;
+  flex: 1 1 260px;
+  max-width: 340px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ot-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(251, 156, 42, 0.15);
+}
+
+.ot-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(251, 156, 42, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ot-card-icon i {
+  font-size: 20px;
+  color: #FB9C2A;
+}
+
+.ot-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ot-date {
+  font-size: 13px;
+  color: #aaa;
+  font-family: "Sofia Sans";
+  letter-spacing: 0.2px;
+}
+
+.ot-duration {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  font-family: "Sofia Sans";
+}
+
+.ot-card-badge {
+  flex-shrink: 0;
+}
+
+.ot-approved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(13, 225, 33, 0.12);
+  border: 1px solid rgba(13, 225, 33, 0.35);
+  color: #0de121;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "Sofia Sans";
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}

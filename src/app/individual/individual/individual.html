@@ -864,6 +864,44 @@
 
 
 
+    <!-- OT Records -->
+    <div class="ot-section">
+        <div class="header-part">
+            <div class="main-heading">
+                My Overtime (OT) Records
+                <i class="pi pi-info-circle info-icon"
+                    pTooltip="Your approved overtime records. OT is calculated based on hours worked beyond your scheduled shift end."
+                    tooltipPosition="right"></i>
+            </div>
+        </div>
+
+        <div *ngIf="otLoading" class="ot-loading">
+            <i class="pi pi-spin pi-spinner"></i> Loading OT records...
+        </div>
+
+        <div *ngIf="!otLoading && myOtRecords.length === 0" class="ot-empty">
+            <i class="pi pi-clock"></i>
+            <span>No approved OT records found.</span>
+        </div>
+
+        <div class="ot-cards" *ngIf="!otLoading && myOtRecords.length > 0">
+            <div class="ot-card" *ngFor="let ot of myOtRecords">
+                <div class="ot-card-icon">
+                    <i class="pi pi-clock"></i>
+                </div>
+                <div class="ot-card-body">
+                    <div class="ot-date">{{ ot.date | date: 'EEE, dd MMM yyyy' }}</div>
+                    <div class="ot-duration">{{ formatOtDuration(ot.minutes) }}</div>
+                </div>
+                <div class="ot-card-badge">
+                    <span class="ot-approved-badge">
+                        <i class="pi pi-check-circle"></i> Approved
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- <app-my-weekly-tracker></app-my-weekly-tracker> -->
 
     <app-self-appraisal></app-self-appraisal>
@@ -872,7 +910,7 @@
 
     <!-- ── PIP SECTION ──────────────────────────────────────────────────── -->
     <div class="pip-section" (click)="loadMyPIPs()">
-      <h3 class="section-heading">My Performance Improvement Plans (PIP)</h3>
+      <h3 class="main-heading">My Performance Improvement Plans (PIP)</h3>
 
       <div *ngIf="pipLoading" style="padding:1rem;color:#888;text-align:center">
         <i class="pi pi-spinner pi-spin"></i> Loading...
@@ -1050,17 +1088,52 @@
     </div>
 
 
-    <!-- <div class="">
-        <div class="survey">
-            <h1>Survey</h1>
-            <app-survey-list></app-survey-list>
+    <!-- Exit Interview — only shown when data exists -->
+    <div class="leave-table" *ngIf="!exitInterviewLoading && myExitInterviews.length > 0">
+        <div class="header-part">
+            <div class="main-heading">
+                Exit Interview
+                <i class="pi pi-info-circle info-icon"
+                    pTooltip="Exit interviews are scheduled when your resignation is approved by HR."
+                    tooltipPosition="right"></i>
+            </div>
         </div>
 
-        <div class="exit">
-            <h1>Exit Interview</h1>
-            <app-exit-interview-list></app-exit-interview-list>
+        <div class="leave-table-container">
+            <table class="leave-normal-table">
+                <thead>
+                    <tr>
+                        <th>Scheduled Date</th>
+                        <th>Interviewer</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ei of myExitInterviews">
+                        <td>
+                            <div class="dropdown-container-in-table">
+                                <div class="date-range-box">
+                                    {{ ei.scheduledAt ? (ei.scheduledAt | date: 'dd-MM-yyyy') : '—' }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dropdown-container-in-table">
+                                {{ ei.interviewerName || '—' }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dropdown-container-in-table">
+                                <button class="status-pill" [ngClass]="getExitInterviewStatusClass(ei)">
+                                    {{ getExitInterviewStatus(ei) }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </div> -->
+    </div>
 
 
 </div>
