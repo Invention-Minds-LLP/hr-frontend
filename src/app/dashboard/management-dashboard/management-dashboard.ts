@@ -992,13 +992,14 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       data: { labels: weeks.map((w: any) => w.label), datasets: [
         { label: 'Avg Weekly Score', data: weeks.map((w: any) => w.avgScore),
           borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.12)',
-          fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#a78bfa', borderWidth: 2 },
+          fill: true, tension: 0.4, pointRadius: 6, pointHoverRadius: 9,
+          pointBackgroundColor: '#a78bfa', pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2 },
       ]},
       options: { responsive: true, maintainAspectRatio: false,
         plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 } } } },
         scales: {
           x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
-          y: { min: 0, max: 10, ticks: { color: '#d1d5db', stepSize: 2 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 0, max: 100, ticks: { color: '#d1d5db', stepSize: 10 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         } },
     });
   }
@@ -1006,6 +1007,8 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private drawPerfDistChart() {
     const ctx = document.getElementById('perfDistChart') as HTMLCanvasElement;
     if (!ctx || !this.perfDist?.distribution) return;
+    // Skip drawing if no appraisals exist (all counts are 0)
+    if (this.perfDist.withAppraisal === 0) return;
     if (this.perfDistChart) this.perfDistChart.destroy();
     const dist = this.perfDist.distribution;
     this.perfDistChart = new Chart(ctx, {

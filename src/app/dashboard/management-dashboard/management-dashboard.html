@@ -458,20 +458,27 @@
         </div>
       </div>
       <div class="chart-area skel" *ngIf="loadingPerfDist"><p-skeleton width="100%" height="100%"></p-skeleton></div>
-      <div class="row-2col-inner" [hidden]="loadingPerfDist">
-        <div class="perf-donut-wrap">
-          <canvas id="perfDistChart"></canvas>
+      <ng-container *ngIf="!loadingPerfDist && perfDist">
+        <!-- No appraisals yet -->
+        <div class="action-empty" *ngIf="perfDist.withAppraisal === 0">
+          <i class="pi pi-chart-pie"></i> No completed appraisals yet — distribution will appear once scores are submitted.
         </div>
-        <div class="dept-avg-list" *ngIf="perfDist">
-          <div class="dept-avg-row" *ngFor="let d of perfDist.deptAvg">
-            <span class="dept-avg-name">{{ d.dept }}</span>
-            <div class="dept-avg-bar-wrap">
-              <div class="dept-avg-bar" [style.width.%]="d.avg" [style.background]="getScoreColor(d.avg/10)"></div>
+        <!-- Has data -->
+        <div class="row-2col-inner" *ngIf="perfDist.withAppraisal > 0">
+          <div class="perf-donut-wrap">
+            <canvas id="perfDistChart"></canvas>
+          </div>
+          <div class="dept-avg-list" *ngIf="perfDist.deptAvg?.length">
+            <div class="dept-avg-row" *ngFor="let d of perfDist.deptAvg">
+              <span class="dept-avg-name">{{ d.dept }}</span>
+              <div class="dept-avg-bar-wrap">
+                <div class="dept-avg-bar" [style.width.%]="d.avg" [style.background]="getScoreColor(d.avg/10)"></div>
+              </div>
+              <span class="dept-avg-val" [style.color]="getScoreColor(d.avg/10)">{{ d.avg }}</span>
             </div>
-            <span class="dept-avg-val" [style.color]="getScoreColor(d.avg/10)">{{ d.avg }}</span>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
 
     <!-- Weekly Rating Trend -->
@@ -480,7 +487,7 @@
         <span class="card-title">Weekly Performance Trend (8 Weeks)</span>
         <div class="card-head-right">
           <span class="card-badge" *ngIf="weeklyTrend" [ngClass]="getTrendClass()">
-            {{ getTrendIcon() }} {{ weeklyTrend.trend }} · {{ weeklyTrend.avgLast }}/10
+            {{ getTrendIcon() }} {{ weeklyTrend.trend }} · {{ weeklyTrend.avgLast }}/100
           </span>
           <button class="view-details-btn" *ngIf="weeklyTrend?.weeks?.length" (click)="openChartModal('weekly')">View Details</button>
         </div>
