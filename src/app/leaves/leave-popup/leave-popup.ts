@@ -826,6 +826,20 @@ export class LeavePopup {
       }
     }
 
+    // Check overlap with existing leave requests first (applies to all leave types)
+    if (this.hasOverlapWithExistingLeave(this.fromDate, this.toDate)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Leave Conflict',
+        detail: 'Your selected dates overlap with an existing leave request.'
+      });
+      this.toDate = this.fromDate;
+      this.calculateDays();
+      this.generateCalendar();
+      this.syncDropdownsFromDates();
+      return;
+    }
+
 
     // 🔴 EL validation
     if (!this.validateEarnedLeave()) {
@@ -1107,7 +1121,7 @@ export class LeavePopup {
     }
 
     // Reporting Manager & HOD → HR Manager at Level 2
-    if (leave.roleId === 3 ) {
+    if (leave.roleId === 3) {
       return this.isHRManager && leave.hodDecision === 'APPROVED' && leave.hrDecision === 'PENDING';
     }
 
@@ -1291,8 +1305,20 @@ export class LeavePopup {
   }
 
 
+  // Returns true if any date in [from, to] falls within an already-applied leave range.
+  hasOverlapWithExistingLeave(from: Date, to: Date): boolean {
+    for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+      const current = this.stripTime(new Date(d));
+      if (this.blockedRanges.some(range => current >= range.startDate && current <= range.endDate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   validateSandwichOrReset(): boolean {
     if (!this.fromDate || !this.toDate) return true;
+
 
     // RH is applied ON a holiday — skip sandwich check
     // SL is unplanned (illness) — employee cannot control dates around holidays
