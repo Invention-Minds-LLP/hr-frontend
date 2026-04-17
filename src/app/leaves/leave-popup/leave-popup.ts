@@ -1322,7 +1322,7 @@ export class LeavePopup {
 
     // RH is applied ON a holiday — skip sandwich check
     // SL is unplanned (illness) — employee cannot control dates around holidays
-    if (this.leaveType === 'RH' || this.leaveType === 'SL') return true;
+    if (this.leaveType === 'RH' || this.leaveType === 'SL'|| this.leaveType === 'EL') return true;
 
     if (this.isSandwichLeave(this.fromDate, this.toDate)) {
       this.messageService.add({
