@@ -28,6 +28,7 @@ import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { MyWeeklyTracker } from '../../weekly-tracker/my-weekly-tracker/my-weekly-tracker';
 import { SelfAppraisalComponent } from '../../appraisal/self-appraisal/self-appraisal';
 import { MyWeeklyRatings } from '../../weekly-rating/my-weekly-ratings/my-weekly-ratings';
+import { SelfWeeklyRating } from '../../weekly-rating/self-weekly-rating/self-weekly-rating';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { PipService } from '../../services/pip/pip.service';
@@ -58,7 +59,7 @@ type LeaveTypeCount = { label: string; count: number; total: number };
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
     GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList,
     SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent,
-    MyWeeklyRatings, DialogModule, TextareaModule],
+    MyWeeklyRatings, SelfWeeklyRating, DialogModule, TextareaModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
 })

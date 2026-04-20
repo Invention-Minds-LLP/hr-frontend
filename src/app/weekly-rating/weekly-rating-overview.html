@@ -28,6 +28,11 @@
         *ngIf="isHRManager || isManager">
         Manage Questions
       </button>
+      <button class="tab-btn" [class.active]="activeTab === 'comparison'"
+        (click)="activeTab = 'comparison'; loadComparisonEmployees()"
+        *ngIf="isManagement">
+        Self vs Manager
+      </button>
     </div>
 
     <div class="week-selector">
@@ -173,6 +178,115 @@
         style="flex: 1" />
       <button pButton label="Add" icon="pi pi-plus" class="p-button-sm p-button-success"
         (click)="addQuestion()" [disabled]="!selectedDesignationId"></button>
+    </div>
+  </div>
+
+  <!-- ── COMPARISON TAB (MANAGEMENT ONLY): Self vs Manager ───────────── -->
+  <div *ngIf="activeTab === 'comparison'" class="comparison-section">
+    <div class="comparison-controls">
+      <label>Employee:</label>
+      <p-select [options]="comparisonEmployees" [(ngModel)]="comparisonEmployeeId"
+        optionLabel="label" optionValue="id" placeholder="Select an employee"
+        [filter]="true" filterBy="label"
+        (onChange)="loadComparison()" [style]="{'min-width':'260px'}"></p-select>
+      <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-sm"
+        (click)="loadComparison()" [disabled]="!comparisonEmployeeId"></button>
+    </div>
+
+    <div *ngIf="loadingComparison" class="cmp-loading">Loading comparison...</div>
+
+    <div *ngIf="!loadingComparison && comparisonEmployeeId && comparisonData.length === 0"
+      class="cmp-empty">
+      No ratings yet for this employee.
+    </div>
+
+    <div class="comparison-week" *ngFor="let wk of comparisonData">
+
+      <!-- Header with overall score comparison -->
+      <div class="cmp-week-header">
+        <div class="cmp-week-title">
+          <i class="pi pi-calendar"></i>
+          <strong>{{ fmtDate(wk.weekStartDate) }} – {{ fmtDate(wk.weekEndDate) }}</strong>
+          <span *ngIf="wk.weekLabel" class="cmp-week-label">{{ wk.weekLabel }}</span>
+        </div>
+      </div>
+
+      <!-- Overall score dual progress -->
+      <div class="cmp-overall-row">
+        <div class="cmp-overall-item cmp-self">
+          <div class="cmp-overall-label">
+            <i class="pi pi-user"></i>
+            <span>SELF</span>
+            <span class="cmp-overall-score">{{ wk.selfOverallScore ?? '—' }}/100</span>
+          </div>
+          <div class="cmp-bar-track">
+            <div class="cmp-bar-fill cmp-bar-self" [style.width.%]="wk.selfOverallScore || 0"></div>
+          </div>
+        </div>
+        <div class="cmp-overall-item cmp-mgr">
+          <div class="cmp-overall-label">
+            <i class="pi pi-briefcase"></i>
+            <span>MANAGER</span>
+            <span class="cmp-overall-score">{{ wk.managerOverallScore ?? '—' }}/100</span>
+          </div>
+          <div class="cmp-bar-track">
+            <div class="cmp-bar-fill cmp-bar-mgr" [style.width.%]="wk.managerOverallScore || 0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-question comparison rows -->
+      <div class="cmp-questions">
+        <div class="cmp-q-row" *ngFor="let row of wk.comparison">
+          <div class="cmp-q-text">{{ row.questionText }}</div>
+
+          <div class="cmp-q-bars">
+            <!-- Self -->
+            <div class="cmp-q-bar">
+              <span class="cmp-q-bar-label">Self</span>
+              <div class="cmp-bar-track">
+                <div class="cmp-bar-fill cmp-bar-self"
+                  [style.width.%]="row.selfScore != null ? (row.selfScore * 10) : 0"></div>
+              </div>
+              <span class="cmp-q-bar-score">{{ row.selfScore != null ? (row.selfScore + '/10') : '—' }}</span>
+            </div>
+
+            <!-- Manager -->
+            <div class="cmp-q-bar">
+              <span class="cmp-q-bar-label">Mgr</span>
+              <div class="cmp-bar-track">
+                <div class="cmp-bar-fill cmp-bar-mgr"
+                  [style.width.%]="row.managerScore != null ? (row.managerScore * 10) : 0"></div>
+              </div>
+              <span class="cmp-q-bar-score">{{ row.managerScore != null ? (row.managerScore + '/10') : '—' }}</span>
+            </div>
+          </div>
+
+          <!-- Delta badge -->
+          <div class="cmp-delta" *ngIf="row.delta != null"
+            [ngClass]="{
+              'cmp-delta-up': row.delta > 0,
+              'cmp-delta-down': row.delta < 0,
+              'cmp-delta-same': row.delta === 0
+            }">
+            <i class="pi" [ngClass]="row.delta > 0 ? 'pi-arrow-up' : (row.delta < 0 ? 'pi-arrow-down' : 'pi-minus')"></i>
+            {{ row.delta > 0 ? '+' : '' }}{{ row.delta }}
+          </div>
+          <div class="cmp-delta cmp-delta-none" *ngIf="row.delta == null">—</div>
+
+          <!-- Remarks (stacked on small screens) -->
+          <div class="cmp-q-remarks" *ngIf="row.selfRemarks || row.managerRemarks">
+            <div *ngIf="row.selfRemarks"><span class="cmp-rem-label">Self:</span> {{ row.selfRemarks }}</div>
+            <div *ngIf="row.managerRemarks"><span class="cmp-rem-label">Mgr:</span> {{ row.managerRemarks }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall remarks -->
+      <div *ngIf="wk.selfRemarks || wk.managerRemarks" class="cmp-overall-remarks">
+        <div *ngIf="wk.selfRemarks"><span class="cmp-rem-label">Self overall:</span> {{ wk.selfRemarks }}</div>
+        <div *ngIf="wk.managerRemarks"><span class="cmp-rem-label">Manager overall:</span> {{ wk.managerRemarks }}</div>
+      </div>
     </div>
   </div>
 </div>

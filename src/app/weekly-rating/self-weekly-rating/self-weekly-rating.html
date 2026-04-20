@@ -1,0 +1,168 @@
+<p-toast></p-toast>
+
+<div class="swr-section">
+  <div class="swr-header">
+    <h3 class="section-heading">My Self Rating</h3>
+    <div class="swr-header-right">
+      <span class="swr-week">Week: {{ fmtDate(weekStartDate) }} – {{ fmtDate(weekEndDate) }}</span>
+      <button pButton type="button"
+        [label]="isSubmitted ? 'Edit This Week' : 'Fill Self Rating'"
+        [icon]="isSubmitted ? 'pi pi-pencil' : 'pi pi-plus'"
+        class="swr-open-btn"
+        (click)="formDialogVisible = true"
+        [disabled]="loading || answers.length === 0"></button>
+    </div>
+  </div>
+
+  <p class="swr-hint">
+    Rate yourself on each question for this week. Your scores are private — only Management can compare them with your manager's rating.
+  </p>
+
+  <!-- Inline skeleton while loading -->
+  <div class="swr-skeleton" *ngIf="loading">
+    <p-skeleton width="100%" height="2rem" styleClass="mb-2"></p-skeleton>
+    <p-skeleton width="100%" height="2rem" styleClass="mb-2"></p-skeleton>
+  </div>
+
+  <!-- No questions -->
+  <div class="swr-empty" *ngIf="!loading && answers.length === 0">
+    No questions are configured for your designation yet. Please contact your manager.
+  </div>
+
+  <!-- Status banner shown inline when submitted -->
+  <div class="swr-status" *ngIf="!loading && isSubmitted">
+    <i class="pi pi-check-circle"></i>
+    You have submitted your self-rating for this week. Click "Edit This Week" to modify.
+  </div>
+
+  <!-- History — card style matching my-weekly-ratings -->
+  <div class="swr-history" *ngIf="history.length > 0">
+    <h4 class="section-heading">Past Self Ratings</h4>
+    <div class="swr-cards">
+      <div class="swr-card" *ngFor="let h of history" (click)="viewHistory(h)">
+
+        <div class="swr-card-top">
+          <div class="swr-week-block">
+            <span class="swr-week-label">{{ fmtDate(h.weekStartDate) }} – {{ fmtDate(h.weekEndDate) }}</span>
+            <span class="swr-rated-by">Self Rating</span>
+          </div>
+          <div class="swr-ring" [ngClass]="getScoreClass(h.overallScore)">
+            <svg viewBox="0 0 36 36" class="swr-ring-svg">
+              <circle class="ring-bg" cx="18" cy="18" r="15.9" />
+              <circle class="ring-fill" cx="18" cy="18" r="15.9"
+                [attr.stroke-dasharray]="(h.overallScore || 0) + ' 100'"
+                [attr.stroke]="getScoreColor(h.overallScore)" />
+            </svg>
+            <span class="swr-ring-num">{{ h.overallScore ?? '—' }}</span>
+          </div>
+        </div>
+
+        <div class="swr-bars" *ngIf="h.answers?.length">
+          <div class="swr-bar-row" *ngFor="let a of h.answers.slice(0, 4)">
+            <span class="swr-bar-label" [title]="a.question?.text">
+              {{ a.question?.text | slice:0:22 }}{{ (a.question?.text?.length > 22) ? '…' : '' }}
+            </span>
+            <div class="swr-bar-track">
+              <div class="swr-bar-fill" [style.width.%]="(a.score / 10) * 100"
+                [style.background]="getScoreColor(a.score * 10)"></div>
+            </div>
+            <span class="swr-bar-score">{{ a.score }}/10</span>
+          </div>
+          <div class="swr-more" *ngIf="h.answers.length > 4">
+            +{{ h.answers.length - 4 }} more — tap to view
+          </div>
+        </div>
+
+        <div class="swr-remarks-preview" *ngIf="h.managerRemarks">
+          <i class="pi pi-comment"></i> {{ h.managerRemarks }}
+        </div>
+
+        <div class="swr-tap-hint">Tap for full detail</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FORM POPUP ──────────────────────────────────────────────── -->
+<p-dialog header="My Self Rating" [(visible)]="formDialogVisible" [modal]="true"
+  [style]="{ width: '760px', maxHeight: '88vh' }" [closable]="true" [dismissableMask]="false"
+  styleClass="swr-form-dialog">
+
+  <div class="swr-form" *ngIf="answers.length > 0">
+    <div class="swr-form-meta">
+      <span><strong>Week:</strong> {{ fmtDate(weekStartDate) }} – {{ fmtDate(weekEndDate) }}</span>
+    </div>
+
+    <div class="swr-grid">
+      <div class="swr-q-card" *ngFor="let a of answers; let i = index">
+        <div class="swr-q">
+          <span class="swr-q-num">{{ i + 1 }}.</span>
+          <span class="swr-q-text">{{ a.questionText }}</span>
+        </div>
+        <div class="swr-score-row">
+          <label>Score (1–10)</label>
+          <p-inputNumber [(ngModel)]="a.score" [min]="1" [max]="10" [showButtons]="true"
+            buttonLayout="horizontal" inputId="score-{{i}}" [style]="{ width: '8rem' }"></p-inputNumber>
+          <span class="swr-score-display" [style.color]="a.score ? getScoreColor((a.score || 0) * 10) : '#666'">
+            {{ a.score ? (a.score + '/10') : '—' }}
+          </span>
+        </div>
+        <textarea pTextarea [(ngModel)]="a.remarks" rows="2" placeholder="Optional remarks…"
+          class="swr-remarks-input"></textarea>
+      </div>
+    </div>
+
+    <div class="swr-overall">
+      <label>Overall Remarks</label>
+      <textarea pTextarea [(ngModel)]="overallRemarks" rows="3"
+        placeholder="Anything you'd like to say about your week…"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" icon="pi pi-times"
+      class="p-button-text" (click)="formDialogVisible = false"></button>
+    <button pButton type="button" label="Save Draft" icon="pi pi-save" class="p-button-secondary"
+      (click)="submit(true)" [disabled]="saving"></button>
+    <button pButton type="button" label="Submit" icon="pi pi-send"
+      (click)="submit(false)" [disabled]="saving || !canSubmit()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── HISTORY DETAIL DIALOG ───────────────────────────────────── -->
+<p-dialog header="Self Rating Detail" [(visible)]="detailDialogVisible" [modal]="true"
+  [style]="{ width: '560px', maxHeight: '82vh' }">
+  <div *ngIf="selectedHistory" class="swr-dialog">
+    <div class="swr-dialog-meta">
+      <div class="swr-dialog-meta-item">
+        <span class="swr-dialog-label">Week</span>
+        <span>{{ fmtDate(selectedHistory.weekStartDate) }} – {{ fmtDate(selectedHistory.weekEndDate) }}</span>
+      </div>
+      <div class="swr-dialog-meta-item">
+        <span class="swr-dialog-label">Overall Score</span>
+        <span [ngClass]="getScoreClass(selectedHistory.overallScore)" style="font-weight:700;font-size:1.1rem">
+          {{ selectedHistory.overallScore ?? '—' }}/100
+        </span>
+      </div>
+    </div>
+
+    <div class="swr-dialog-bars">
+      <div class="swr-dialog-bar-row" *ngFor="let a of selectedHistory.answers">
+        <div class="swr-dialog-q">{{ a.question?.text }}</div>
+        <div class="swr-dialog-bar-wrap">
+          <div class="swr-bar-track">
+            <div class="swr-bar-fill" [style.width.%]="(a.score / 10) * 100"
+              [style.background]="getScoreColor(a.score * 10)"></div>
+          </div>
+          <span class="swr-bar-score">{{ a.score }}/10</span>
+        </div>
+        <div class="swr-dialog-remarks" *ngIf="a.remarks">{{ a.remarks }}</div>
+      </div>
+    </div>
+
+    <div class="swr-dialog-overall-remarks" *ngIf="selectedHistory.managerRemarks">
+      <span class="swr-dialog-label">Overall Remarks</span>
+      <p>{{ selectedHistory.managerRemarks }}</p>
+    </div>
+  </div>
+</p-dialog>

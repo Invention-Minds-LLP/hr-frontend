@@ -53,4 +53,20 @@ export class WeeklyRatingService {
   deleteRating(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // Self-rating (employee fills own)
+  getMySelfRatingForWeek(weekStartDate: string): Observable<any> {
+    const params = new HttpParams().set('weekStartDate', weekStartDate);
+    return this.http.get(`${this.apiUrl}/self/week`, { params });
+  }
+  getMySelfRatings(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/self`);
+  }
+
+  // Management comparison view
+  getComparison(employeeId: number, weekStartDate?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (weekStartDate) params = params.set('weekStartDate', weekStartDate);
+    return this.http.get<any[]>(`${this.apiUrl}/comparison/${employeeId}`, { params });
+  }
 }

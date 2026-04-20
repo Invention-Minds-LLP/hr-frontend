@@ -1,0 +1,503 @@
+/* ── Section wrapper ─────────────────────────────────────────── */
+.swr-section {
+  margin-bottom: 2rem;
+}
+
+.swr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.swr-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+:host ::ng-deep .swr-open-btn {
+  background: #1f1f1f !important;
+  border: 1px solid #333 !important;
+  color: #fff !important;
+  font-size: 0.85rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+:host ::ng-deep .swr-open-btn:hover {
+  background: #2a2a2a !important;
+  border-color: #555 !important;
+}
+
+.swr-form-meta {
+  color: #ccc;
+  font-size: 0.88rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.section-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 1rem 0;
+}
+
+.swr-week {
+  font-size: 0.82rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.swr-hint {
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+/* ── Skeleton + empty ────────────────────────────────────────── */
+.swr-skeleton {
+  padding: 0.5rem 0;
+}
+
+.swr-empty {
+  background: #111;
+  border: 1px dashed #2a2a2a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.92rem;
+  font-style: italic;
+}
+
+/* ── Form wrapper (outer card) ───────────────────────────────── */
+.swr-form {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  color: #fff;
+}
+
+.swr-status {
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: #81c784;
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.swr-status .pi {
+  color: #4CAF50;
+}
+
+/* ── Question grid — 2 columns ───────────────────────────────── */
+.swr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .swr-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.swr-q-card {
+  background: #0d0d0d;
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  padding: 0.95rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.swr-q {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.swr-q-num {
+  color: #888;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.swr-q-text {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.swr-score-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.swr-score-row label {
+  font-size: 0.72rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 5rem;
+}
+
+.swr-score-display {
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 2.8rem;
+}
+
+/* ── Inputs (dark theme overrides for PrimeNG) ───────────────── */
+:host ::ng-deep .p-inputnumber-input,
+:host ::ng-deep .p-inputnumber-button,
+:host ::ng-deep textarea.p-inputtext,
+:host ::ng-deep .p-dropdown,
+:host ::ng-deep .p-inputtext {
+  background: #0b0b0b !important;
+  color: #fff !important;
+  border: 1px solid #222 !important;
+}
+
+:host ::ng-deep .p-inputnumber-button:hover {
+  background: #1a1a1a !important;
+}
+
+:host ::ng-deep textarea.p-inputtext::placeholder,
+:host ::ng-deep .p-inputtext::placeholder {
+  color: #666 !important;
+}
+
+.swr-remarks-input {
+  width: 100%;
+  background: #0b0b0b !important;
+  border: 1px solid #222 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  padding: 0.45rem 0.6rem !important;
+  resize: vertical;
+}
+
+.swr-remarks-input:focus {
+  outline: none !important;
+  border-color: #444 !important;
+}
+
+.swr-remarks-input::placeholder {
+  color: #666;
+}
+
+/* ── Overall remarks block ───────────────────────────────────── */
+.swr-overall {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #1e1e1e;
+}
+
+.swr-overall label {
+  display: block;
+  font-size: 0.75rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.swr-overall textarea {
+  width: 100%;
+  background: #0b0b0b !important;
+  border: 1px solid #222 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
+  padding: 0.55rem 0.7rem !important;
+}
+
+.swr-overall textarea:focus {
+  outline: none !important;
+  border-color: #444 !important;
+}
+
+.swr-overall textarea::placeholder {
+  color: #666;
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+.swr-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+}
+
+/* ── Past self ratings (card grid matching .mwr style) ───────── */
+.swr-history {
+  margin-top: 1.75rem;
+}
+
+.swr-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.9rem;
+}
+
+.swr-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.18s, transform 0.15s;
+}
+
+.swr-card:hover {
+  border-color: #444;
+  transform: translateY(-2px);
+}
+
+/* ── Top row: week label + score ring ───────────────────────── */
+.swr-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.swr-week-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swr-week-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.swr-rated-by {
+  font-size: 0.82rem;
+  color: #aaa;
+}
+
+/* ── SVG score ring ─────────────────────────────────────────── */
+.swr-ring {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+.swr-ring-svg {
+  width: 58px;
+  height: 58px;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: #2a2a2a;
+  stroke-width: 3.5;
+}
+
+.ring-fill {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  transition: stroke-dasharray 0.4s ease;
+}
+
+.swr-ring-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.swr-ring.score-high .swr-ring-num { color: #4CAF50; }
+.swr-ring.score-mid  .swr-ring-num { color: #FF9800; }
+.swr-ring.score-low  .swr-ring-num { color: #f44336; }
+
+/* ── Question score bars ─────────────────────────────────────── */
+.swr-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.8rem;
+}
+
+.swr-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.swr-bar-label {
+  font-size: 0.82rem;
+  color: #fff;
+  width: 7.5rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.swr-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #222;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.swr-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.swr-bar-score {
+  font-size: 0.8rem;
+  color: #fff;
+  width: 2.6rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.swr-more {
+  font-size: 0.78rem;
+  color: #aaa;
+  text-align: right;
+  margin-top: 0.15rem;
+}
+
+/* ── Remarks preview strip ───────────────────────────────────── */
+.swr-remarks-preview {
+  font-size: 0.85rem;
+  color: #fff;
+  border-top: 1px solid #1e1e1e;
+  padding-top: 0.55rem;
+  margin-top: 0.4rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.swr-remarks-preview .pi {
+  margin-right: 0.3rem;
+  color: #aaa;
+}
+
+/* ── Tap hint ────────────────────────────────────────────────── */
+.swr-tap-hint {
+  font-size: 0.75rem;
+  color: #aaa;
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+/* ── Score colour classes (shared with dialog) ───────────────── */
+.score-high { color: #4CAF50; }
+.score-mid  { color: #FF9800; }
+.score-low  { color: #f44336; }
+
+/* ── Detail dialog body ──────────────────────────────────────── */
+.swr-dialog {
+  padding: 0.25rem 0 0.5rem;
+}
+
+.swr-dialog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.swr-dialog-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swr-dialog-label {
+  font-size: 0.78rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.swr-dialog-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.swr-dialog-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.swr-dialog-q {
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.swr-dialog-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.swr-dialog-bar-wrap .swr-bar-track {
+  flex: 1;
+  height: 7px;
+}
+
+.swr-dialog-remarks {
+  font-size: 0.85rem;
+  color: #fff;
+  padding-left: 0.2rem;
+}
+
+.swr-dialog-overall-remarks {
+  border-top: 1px solid #222;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.swr-dialog-overall-remarks p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+  line-height: 1.5;
+}

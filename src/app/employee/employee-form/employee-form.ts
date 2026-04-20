@@ -273,6 +273,7 @@ export class EmployeeForm {
 
       sameAsPermanent: [false],
       geoTrackingEnabled: [false],
+      overtimeEnabled: [false],
 
       permanentAddress: this.fb.group({
         line1: ['', Validators.required],
@@ -322,7 +323,8 @@ export class EmployeeForm {
         'shiftMode',
         'rotationPatternId',
         'rotationStartDate',
-        'shiftDate'
+        'shiftDate',
+        'overtimeEnabled'
       ];
 
       employmentControls.forEach(control => {
@@ -1446,7 +1448,8 @@ export class EmployeeForm {
       disabilityDescription: data.disabilityDescription,
       disabilityProofFileName: data.disabilityProofFileName,
       disabilityProofUrl: data.disabilityProofUrl,
-      inchargeId: data.inchargeId ?? null
+      inchargeId: data.inchargeId ?? null,
+      overtimeEnabled: data.overtimeEnabled ?? false
 
     });
 

@@ -34,7 +34,13 @@ export class WeeklyRatingOverview implements OnInit {
   isManager = false;
   isManagement = false;
 
-  activeTab: 'team' | 'allRatings' | 'questions' = 'team';
+  activeTab: 'team' | 'allRatings' | 'questions' | 'comparison' = 'team';
+
+  // Comparison (management view: self vs manager)
+  comparisonEmployees: any[] = [];
+  comparisonEmployeeId: number | null = null;
+  comparisonData: any[] = [];
+  loadingComparison = false;
 
   // Week selector
   weekStartDate: Date | null = null;
@@ -80,6 +86,9 @@ export class WeeklyRatingOverview implements OnInit {
 
     if (this.isHRManager) {
       this.activeTab = 'allRatings';
+    }
+    if (this.isManagement) {
+      this.loadComparisonEmployees();
     }
   }
 
@@ -145,6 +154,47 @@ export class WeeklyRatingOverview implements OnInit {
   loadAllRatings() {
     this.ratingService.getAllRatings({ weekStartDate: this.toISODate(this.weekStartDate) }).subscribe({
       next: (data) => { this.allRatings = data; },
+    });
+  }
+
+  // ── Management Comparison View ─────────────────────────────────────
+  // Build the dropdown from everyone who has any rating (self or manager)
+  loadComparisonEmployees() {
+    this.ratingService.getAllRatings({}).subscribe({
+      next: (data) => {
+        console.log('[Comparison] all ratings:', data?.length, data);
+        const seen = new Map<number, any>();
+        for (const r of data || []) {
+          if (!seen.has(r.employeeId)) {
+            seen.set(r.employeeId, {
+              id: r.employeeId,
+              label: `${r.employee?.firstName ?? ''} ${r.employee?.lastName ?? ''} (${r.employee?.employeeCode ?? r.employeeId})`,
+            });
+          }
+        }
+        this.comparisonEmployees = Array.from(seen.values());
+      },
+      error: (e) => console.error('[Comparison] loadComparisonEmployees failed:', e),
+    });
+  }
+
+  loadComparison() {
+    if (!this.comparisonEmployeeId) {
+      this.comparisonData = [];
+      return;
+    }
+    this.loadingComparison = true;
+    // Don't filter by weekStartDate — show ALL weeks of comparison history for the employee.
+    this.ratingService.getComparison(this.comparisonEmployeeId).subscribe({
+      next: (data) => {
+        console.log('[Comparison] getComparison result:', data);
+        this.comparisonData = data;
+        this.loadingComparison = false;
+      },
+      error: (e) => {
+        console.error('[Comparison] getComparison failed:', e);
+        this.loadingComparison = false;
+      },
     });
   }
 
