@@ -239,5 +239,22 @@ startSabbatical(employeeId: number, data: {
   return this.http.get<any[]>(`${this.apiUrl}/by-manager/${managerId}`);
 }
 
+  // ── Probation ──────────────────────────────────────────────────────────
+  getProbationHistory(employeeId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}/${employeeId}/probation/history`);
+  }
+
+  extendProbation(employeeId: number, body: { newEndDate: string; remarks?: string }) {
+    return this.http.post<any>(`${this.apiUrl}/${employeeId}/probation/extend`, body);
+  }
+
+  confirmProbation(employeeId: number, body: { confirmedOn?: string; remarks?: string } = {}) {
+    return this.http.post<any>(`${this.apiUrl}/${employeeId}/probation/confirm`, body);
+  }
+
+  terminateProbation(employeeId: number, body: { remarks?: string } = {}) {
+    return this.http.post<any>(`${this.apiUrl}/${employeeId}/probation/terminate`, body);
+  }
+
 }
 

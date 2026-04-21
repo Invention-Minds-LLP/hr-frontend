@@ -151,7 +151,24 @@ export class EmployeeForm {
   ];
 
   today: any = new Date();
+  probationMinDate: Date = new Date();
   designations: any[] = [];
+
+  probationStatusOptions = [
+    { label: 'In Progress', value: 'IN_PROGRESS' },
+    { label: 'Confirmed', value: 'CONFIRMED' },
+    { label: 'Extended', value: 'EXTENDED' },
+    { label: 'Terminated', value: 'TERMINATED' },
+    { label: 'Waived', value: 'WAIVED' },
+  ];
+  probationRecords: any[] = [];
+  probationLoading = false;
+  showExtendDialog = false;
+  showConfirmDialog = false;
+  showTerminateDialog = false;
+  extendNewEndDate: Date | null = null;
+  probationActionRemarks = '';
+  probationActionLoading = false;
 
   leaveAllocationForm!: FormGroup;
   incharges: any[] = [];
@@ -249,7 +266,11 @@ export class EmployeeForm {
       dateOfJoining: ['', Validators.required],
       employmentType: ['PERMANENT', Validators.required],
       employeeType: ['CLINICAL', Validators.required],
-      probationEndDate: [{ value: null, disabled: true }],
+      probationStartDate: [null],
+      probationEndDate: [null],
+      probationStatus: [null],
+      probationConfirmedOn: [null],
+      probationRemarks: [''],
       employmentStatus: ['ACTIVE', Validators.required],
       reportingManager: ['', Validators.required],
       fixedShiftId: [''],
@@ -398,16 +419,32 @@ export class EmployeeForm {
       }
     });
     this.employeeForm.get('employmentType')!.valueChanges.subscribe((val) => {
-      const ctrl = this.employeeForm.get('probationEndDate')!;
+      const endCtrl = this.employeeForm.get('probationEndDate')!;
+      const startCtrl = this.employeeForm.get('probationStartDate')!;
+      const statusCtrl = this.employeeForm.get('probationStatus')!;
       if (val === 'PROBATION') {
-        ctrl.enable();
-        ctrl.addValidators([Validators.required]);
+        endCtrl.addValidators([Validators.required]);
+        startCtrl.addValidators([Validators.required]);
+        if (!statusCtrl.value) statusCtrl.setValue('IN_PROGRESS', { emitEvent: false });
       } else {
-        ctrl.reset(null);
-        ctrl.clearValidators();
-        ctrl.disable();
+        endCtrl.clearValidators();
+        startCtrl.clearValidators();
       }
-      ctrl.updateValueAndValidity({ emitEvent: false });
+      endCtrl.updateValueAndValidity({ emitEvent: false });
+      startCtrl.updateValueAndValidity({ emitEvent: false });
+    });
+
+    this.employeeForm.get('dateOfJoining')!.valueChanges.subscribe((doj) => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const dojDate = doj ? new Date(doj) : null;
+      if (dojDate) dojDate.setHours(0, 0, 0, 0);
+      this.probationMinDate = dojDate && dojDate > today ? dojDate : today;
+
+      const probCtrl = this.employeeForm.get('probationEndDate')!;
+      const probVal = probCtrl.value ? new Date(probCtrl.value) : null;
+      if (probVal && probVal < this.probationMinDate) {
+        probCtrl.setValue(null);
+      }
     });
 
     this.employeeForm.get('employeeType')?.valueChanges.subscribe(() => {
@@ -1397,7 +1434,11 @@ export class EmployeeForm {
       roleId: data.roleId,
       dateOfJoining: data.dateOfJoining ? new Date(data.dateOfJoining) : null,
       employmentType: data.employmentType,
+      probationStartDate: data.probationStartDate ? new Date(data.probationStartDate) : null,
       probationEndDate: data.probationEndDate ? new Date(data.probationEndDate) : null,
+      probationStatus: data.probationStatus ?? null,
+      probationConfirmedOn: data.probationConfirmedOn ? new Date(data.probationConfirmedOn) : null,
+      probationRemarks: data.probationRemarks ?? '',
       employmentStatus: data.employmentStatus,
       // shiftDate: data.latestShiftAssignment.date ? new Date(data.latestShiftAssignment.date) : null,
       sameAsPermanent: data.sameAsPermanent,
@@ -1452,6 +1493,8 @@ export class EmployeeForm {
       overtimeEnabled: data.overtimeEnabled ?? false
 
     });
+
+    this.probationRecords = data.probationRecords || [];
 
     if (data.sabbaticals && data.sabbaticals.length > 0) {
       const active = data.sabbaticals.find((s: any) => s.status === 'ACTIVE');
@@ -2219,6 +2262,126 @@ export class EmployeeForm {
     };
 
     return labels[path] || path;
+  }
+
+  // ── Probation actions ───────────────────────────────────────────────
+  get currentEmployeeId(): number | null {
+    const id = Number(this.employeeData?.id);
+    return Number.isFinite(id) && id > 0 ? id : null;
+  }
+
+  get hasActiveProbation(): boolean {
+    return this.probationRecords?.some((r: any) => r.status === 'IN_PROGRESS');
+  }
+
+  getProbationStatusClass(status: string): string {
+    const m: Record<string, string> = {
+      IN_PROGRESS: 'prob-status prob-in-progress',
+      CONFIRMED: 'prob-status prob-confirmed',
+      EXTENDED: 'prob-status prob-extended',
+      TERMINATED: 'prob-status prob-terminated',
+      WAIVED: 'prob-status prob-waived',
+    };
+    return m[status] ?? 'prob-status';
+  }
+
+  getProbationStatusLabel(status: string): string {
+    const m: Record<string, string> = {
+      IN_PROGRESS: 'In Progress',
+      CONFIRMED: 'Confirmed',
+      EXTENDED: 'Extended',
+      TERMINATED: 'Terminated',
+      WAIVED: 'Waived',
+    };
+    return m[status] ?? status;
+  }
+
+  openExtendDialog() {
+    this.extendNewEndDate = null;
+    this.probationActionRemarks = '';
+    this.showExtendDialog = true;
+  }
+
+  openConfirmDialog() {
+    this.probationActionRemarks = '';
+    this.showConfirmDialog = true;
+  }
+
+  openTerminateDialog() {
+    this.probationActionRemarks = '';
+    this.showTerminateDialog = true;
+  }
+
+  submitExtend() {
+    const empId = this.currentEmployeeId;
+    if (!empId || !this.extendNewEndDate) return;
+    this.probationActionLoading = true;
+    this.employeeService.extendProbation(empId, {
+      newEndDate: (this.extendNewEndDate as Date).toISOString(),
+      remarks: this.probationActionRemarks || undefined,
+    }).subscribe({
+      next: () => {
+        this.probationActionLoading = false;
+        this.showExtendDialog = false;
+        this.reloadEmployee();
+      },
+      error: () => { this.probationActionLoading = false; },
+    });
+  }
+
+  submitConfirm() {
+    const empId = this.currentEmployeeId;
+    if (!empId) return;
+    this.probationActionLoading = true;
+    this.employeeService.confirmProbation(empId, {
+      remarks: this.probationActionRemarks || undefined,
+    }).subscribe({
+      next: () => {
+        this.probationActionLoading = false;
+        this.showConfirmDialog = false;
+        this.reloadEmployee();
+      },
+      error: () => { this.probationActionLoading = false; },
+    });
+  }
+
+  submitTerminate() {
+    const empId = this.currentEmployeeId;
+    if (!empId) return;
+    this.probationActionLoading = true;
+    this.employeeService.terminateProbation(empId, {
+      remarks: this.probationActionRemarks || undefined,
+    }).subscribe({
+      next: () => {
+        this.probationActionLoading = false;
+        this.showTerminateDialog = false;
+        this.reloadEmployee();
+      },
+      error: () => { this.probationActionLoading = false; },
+    });
+  }
+
+  private reloadEmployee() {
+    const empId = this.currentEmployeeId;
+    if (!empId) return;
+    this.employeeService.getEmployeeById(empId).subscribe({
+      next: (d: any) => this.patchFormWithData(d),
+    });
+  }
+
+  private patchFormWithData(data: any) {
+    // Minimal re-sync for probation fields + history after an action
+    this.employeeForm.patchValue({
+      employmentType: data.employmentType,
+      probationStartDate: data.probationStartDate ? new Date(data.probationStartDate) : null,
+      probationEndDate: data.probationEndDate ? new Date(data.probationEndDate) : null,
+      probationStatus: data.probationStatus ?? null,
+      probationConfirmedOn: data.probationConfirmedOn ? new Date(data.probationConfirmedOn) : null,
+      probationRemarks: data.probationRemarks ?? '',
+      employmentStatus: data.employmentStatus,
+    });
+    this.probationRecords = data.probationRecords || [];
+    console.log(this.probationRecords)
   }
 }
 
