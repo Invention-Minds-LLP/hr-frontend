@@ -16,16 +16,54 @@
         <thead>
           <tr>
             <th *ngFor="let col of modalColumns">{{ col.label }}</th>
+            <th *ngIf="modalDrill" class="modal-view-col">View</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let row of modalRows; let i = index" [class.modal-row-alt]="i % 2 === 1">
             <td *ngFor="let col of modalColumns">{{ row[col.key] ?? '—' }}</td>
+            <td *ngIf="modalDrill" class="modal-view-col">
+              <button class="modal-view-btn" (click)="openSubModal(row)"
+                pTooltip="View employee list" tooltipPosition="top">
+                👁 View
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="modal-foot">{{ modalRows.length }} record(s)</div>
+  </div>
+</div>
+
+<!-- ══ SUB-MODAL (drill-down employee list) ══ -->
+<div class="modal-backdrop sub-modal-backdrop" *ngIf="subModalVisible" (click)="closeSubModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-title">{{ subModalTitle }}</span>
+      <div class="modal-actions">
+        <button class="modal-export-btn" (click)="exportSubModalCsv()" pTooltip="Download as CSV" tooltipPosition="top">
+          ↓ Export CSV
+        </button>
+        <button class="modal-close-btn" (click)="closeSubModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-empty" *ngIf="!subModalRows.length">No employees to show for this row.</div>
+      <table class="modal-table" *ngIf="subModalRows.length">
+        <thead>
+          <tr>
+            <th *ngFor="let col of subModalColumns">{{ col.label }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of subModalRows; let i = index" [class.modal-row-alt]="i % 2 === 1">
+            <td *ngFor="let col of subModalColumns">{{ row[col.key] ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">{{ subModalRows.length }} record(s)</div>
   </div>
 </div>
 
@@ -122,7 +160,7 @@
         <canvas id="workforceDonutChart"></canvas>
         <div class="donut-center" *ngIf="workforce">
           <span class="donut-num">{{ workforce.total }}</span>
-          <span class="donut-lbl">Active</span>
+          <span class="donut-lbl">Total</span>
         </div>
       </div>
     </div>
@@ -155,7 +193,7 @@
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">
-        <span class="card-title">Year-wise Joining Trend</span>
+        <span class="card-title">Joinings vs Resignations (by Year)</span>
         <button class="view-details-btn" *ngIf="wfInsights?.joiningTrend" (click)="openChartModal('joining-trend')">View Details</button>
       </div>
       <div class="chart-area" style="height:220px;" [hidden]="loadingWfInsights"><canvas id="joiningTrendChart"></canvas></div>
@@ -313,15 +351,26 @@
               </td>
               <td *ngIf="d.breakdown">
                 <div class="risk-breakdown">
-                  <span class="rb-item rb-resign" pTooltip="Resignations contribution (weight ×3)" tooltipPosition="top">R {{ d.breakdown.resign }}</span>
+                  <span class="rb-item rb-resign"
+                    [pTooltip]="'Resignations × weight 3 = ' + d.breakdown.resign"
+                    tooltipPosition="top">R {{ d.breakdown.resign }}</span>
                   <span class="rb-sep">+</span>
-                  <span class="rb-item rb-leave" pTooltip="Leave volume contribution (weight ×1)" tooltipPosition="top">L {{ d.breakdown.leave }}</span>
+                  <span class="rb-item rb-leave"
+                    [pTooltip]="'Leave volume × weight 1 = ' + d.breakdown.leave"
+                    tooltipPosition="top">L {{ d.breakdown.leave }}</span>
                   <span class="rb-sep">+</span>
-                  <span class="rb-item rb-score" pTooltip="Low appraisal score contribution (weight ×2)" tooltipPosition="top">A {{ d.breakdown.score }}</span>
+                  <span class="rb-item rb-score"
+                    [pTooltip]="'Low appraisal score × weight 2 = ' + d.breakdown.score"
+                    tooltipPosition="top">A {{ d.breakdown.score }}</span>
                   <span class="rb-sep">+</span>
-                  <span class="rb-item rb-pip" pTooltip="Active PIPs contribution (weight ×2)" tooltipPosition="top">P {{ d.breakdown.pip }}</span>
+                  <span class="rb-item rb-pip"
+                    [pTooltip]="'Active PIPs × weight 2 = ' + d.breakdown.pip"
+                    tooltipPosition="top">P {{ d.breakdown.pip }}</span>
                   <span class="rb-sep">=</span>
-                  <span class="rb-total">{{ d.riskScore }}</span>
+                  <span class="rb-total"
+                    [pTooltip]="buildRiskTotalTooltip(d)"
+                    tooltipPosition="top"
+                    tooltipStyleClass="risk-total-tooltip">{{ d.riskScore }}</span>
                 </div>
               </td>
             </tr>

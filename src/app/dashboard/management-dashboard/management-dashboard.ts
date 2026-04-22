@@ -15,6 +15,102 @@ Chart.register(...registerables);
 })
 export class ManagementDashboard implements OnInit, AfterViewInit {
 
+  // ── Chart.js plugins: always-on value labels ───────────────
+  // Applied to every chart via the `plugins: [...]` array.
+  // Draws values on bars (top or inside if stacked), near line points, and
+  // absolute counts on doughnut slices.
+  private readonly valueLabelsPlugin = {
+    id: 'valueLabels',
+    afterDatasetsDraw(chart: any) {
+      const ctx = chart.ctx;
+      const type = chart.config.type;
+      const indexAxis = chart.options?.indexAxis ?? 'x';
+      const isHorizontal = indexAxis === 'y';
+      const isStacked = !!(chart.options?.scales?.y?.stacked || chart.options?.scales?.x?.stacked);
+
+      chart.data.datasets.forEach((_ds: any, i: number) => {
+        const meta = chart.getDatasetMeta(i);
+        if (meta.hidden) return;
+
+        meta.data.forEach((el: any, j: number) => {
+          const val = chart.data.datasets[i].data[j];
+          if (val == null || val === 0) return;
+
+          ctx.save();
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 11px sans-serif';
+
+          if (type === 'doughnut' || type === 'pie') {
+            const pos = el.tooltipPosition();
+            ctx.fillStyle = '#0b0e13';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(val), pos.x, pos.y);
+          } else if (type === 'line') {
+            // Draw label above the point, but flip below if the point is too
+            // close to the top of the chart area (to avoid overlapping the legend)
+            const chartTop = chart.chartArea?.top ?? 4;
+            ctx.textAlign = 'center';
+            if (el.y - 12 < chartTop) {
+              ctx.textBaseline = 'top';
+              ctx.fillText(String(val), el.x, el.y + 8);
+            } else {
+              ctx.textBaseline = 'bottom';
+              ctx.fillText(String(val), el.x, el.y - 6);
+            }
+          } else if (isHorizontal) {
+            // Horizontal bar — draw to the right of the bar end (or inside if no room)
+            if (isStacked) {
+              const w = Math.abs(el.x - el.base);
+              if (w < 20) return;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(String(val), el.x + (el.base - el.x) / 2, el.y);
+            } else {
+              const label = String(val);
+              const textWidth = ctx.measureText(label).width;
+              const chartRight = chart.chartArea?.right ?? (chart.width - 4);
+              // If outside label would exceed chart area, draw inside the bar
+              if (el.x + 6 + textWidth > chartRight - 4) {
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#0b0e13'; // dark text on colored bar
+                ctx.fillText(label, el.x - 6, el.y);
+              } else {
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, el.x + 6, el.y);
+              }
+            }
+          } else {
+            // Vertical bar — similar outside/inside fallback near top
+            if (isStacked) {
+              const h = Math.abs(el.base - el.y);
+              if (h < 14) return;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(String(val), el.x, el.y + (el.base - el.y) / 2);
+            } else {
+              const chartTop = chart.chartArea?.top ?? 4;
+              if (el.y - 4 < chartTop + 10) {
+                // Not enough room above — draw inside the top of the bar
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = '#0b0e13';
+                ctx.fillText(String(val), el.x, el.y + 4);
+              } else {
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(String(val), el.x, el.y - 4);
+              }
+            }
+          }
+          ctx.restore();
+        });
+      });
+    },
+  };
+
   // ── Loading flags ─────────────────────────────────────────
   loadingPulse       = true;
   loadingWorkforce   = true;
@@ -138,6 +234,21 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   modalTitle    = '';
   modalColumns: { key: string; label: string }[] = [];
   modalRows: any[] = [];
+  // Drill-down config for the modal: which row field to filter by, plus
+  // the source employee list and sub-modal columns. When set, a "View"
+  // column is shown per row.
+  modalDrill: {
+    rowKey: string;        // field on modal row to match (e.g., 'dept')
+    sourceKey: string;     // field on source row to match (usually same)
+    source: any[];         // employee-level rows
+    cols: { key: string; label: string }[];  // columns for sub-modal
+  } | null = null;
+
+  // ── Sub-modal (drill-down from a row) ─────────────────────
+  subModalVisible  = false;
+  subModalTitle    = '';
+  subModalColumns: { key: string; label: string }[] = [];
+  subModalRows: any[] = [];
 
   // ── Chart instances ───────────────────────────────────────
   private workforceBarChart?: Chart;
@@ -443,11 +554,41 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     }
   }
 
+  // Build a detailed tooltip for the risk total so users understand the math.
+  // Each factor is a RATE × weight × 33, not the raw count. This clarifies
+  // why e.g. 5 leaves on 3 HC = 55 (5/3 × 1 × 33 ≈ 55).
+  buildRiskTotalTooltip(d: any): string {
+    const b = d.breakdown ?? {};
+    const hc = Math.max(d.headcount ?? 1, 1);
+    const resignRaw = d.resignations ?? 0;
+    const leaveRaw  = d.leaveCount   ?? 0;
+    const pipRaw    = d.pips         ?? 0;
+    const avgScore  = d.avgScore;
+
+    const avgScoreDesc = avgScore != null
+      ? `max(0, (60 − ${avgScore})/60) × 2 × 33`
+      : `(no appraisal)`;
+
+    return (
+      `Risk formula: each factor = (count/HC) × weight × 33\n` +
+      `HC (head-count) = ${hc}\n\n` +
+      `• R  →  ${resignRaw}/${hc} × 3 × 33  =  ${b.resign ?? 0}\n` +
+      `• L  →  ${leaveRaw}/${hc} × 1 × 33  =  ${b.leave ?? 0}\n` +
+      `• A  →  ${avgScoreDesc}  =  ${b.score ?? 0}\n` +
+      `• P  →  ${pipRaw}/${hc} × 2 × 33  =  ${b.pip ?? 0}\n\n` +
+      `Total = ${b.resign ?? 0} + ${b.leave ?? 0} + ${b.score ?? 0} + ${b.pip ?? 0} = ${d.riskScore ?? 0}`
+    );
+  }
+
   getKpiSub(key: string): string {
     if (!this.pulse) return '';
     switch (key) {
       case 'presentToday':       return `${this.pulse.attendancePct ?? 0}% attendance rate`;
-      case 'pendingApprovals':   return 'Leave + Permission';
+      case 'pendingApprovals':   {
+        const l = this.pulse.pendingLeaves ?? 0;
+        const p = this.pulse.pendingPermissions ?? 0;
+        return `Leave: ${l} · Permission: ${p}`;
+      }
       case 'otPending':          return '>60 min awaiting HR';
       case 'attritionMTD':       return 'Resignations this month';
       default: return '';
@@ -696,8 +837,13 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         break;
 
       case 'joining-trend':
-        title = 'Joinings by Year';
-        cols  = [{ key: 'year', label: 'Year' }, { key: 'count', label: 'Employees Joined' }];
+        title = 'Joinings vs Resignations by Year';
+        cols  = [
+          { key: 'year',         label: 'Year' },
+          { key: 'joinings',     label: 'Joinings' },
+          { key: 'resignations', label: 'Resignations' },
+          { key: 'net',          label: 'Net (+in / −out)' },
+        ];
         rows  = this.wfInsights?.joiningTrend ?? [];
         break;
 
@@ -738,15 +884,243 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     this.modalTitle   = title;
     this.modalColumns = cols;
     this.modalRows    = rows;
+    this.modalDrill   = this.buildModalDrill(chartId);
     this.modalVisible = true;
   }
 
-  closeModal() { this.modalVisible = false; }
+  // Return a drill-down config when the modal shows aggregate rows and
+  // we have an employee-level list available for a secondary popup.
+  private buildModalDrill(chartId: string): ManagementDashboard['modalDrill'] {
+    const empCols = [
+      { key: 'name',        label: 'Employee Name' },
+      { key: 'designation', label: 'Designation' },
+      { key: 'dept',        label: 'Department' },
+    ];
+    switch (chartId) {
+      case 'workforce-status':
+        return {
+          rowKey: 'status', sourceKey: 'status',
+          source: this.workforce?.employeeList ?? [],
+          cols: [
+            { key: 'name', label: 'Name' }, { key: 'dept', label: 'Department' },
+            { key: 'designation', label: 'Designation' }, { key: 'status', label: 'Status' },
+          ],
+        };
+      case 'perf-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.perfDist?.employeeList ?? this.workforce?.employeeList ?? [],
+          cols: empCols,
+        };
+      case 'training':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.workforce?.employeeList ?? [],
+          cols: empCols,
+        };
+      case 'ot-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.otAnalysis?.allEmployees ?? [],
+          cols: [
+            { key: 'name', label: 'Employee' }, { key: 'designation', label: 'Designation' },
+            { key: 'hours', label: 'OT Hours' }, { key: 'minutes', label: 'OT Minutes' },
+          ],
+        };
+      case 'late-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.lateArrivals?.allEmployees ?? [],
+          cols: [
+            { key: 'name', label: 'Employee' },
+            { key: 'count', label: 'Late Days' },
+            { key: 'totalMinutes', label: 'Total Delay (min)' },
+            { key: 'avgMinutes',   label: 'Avg Delay (min)' },
+          ],
+        };
+      case 'leave-util-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.leaveUtil?.allEmployees ?? [],
+          cols: [
+            { key: 'name', label: 'Employee' },
+            { key: 'allowed', label: 'Allowed' }, { key: 'used', label: 'Used' },
+            { key: 'remaining', label: 'Remaining' }, { key: 'utilizationPct', label: 'Utilization %' },
+          ],
+        };
+      case 'absent-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.absenteeism?.allAbsentEmployees ?? [],
+          cols: [
+            { key: 'name', label: 'Employee' },
+            { key: 'absentDays', label: 'Absent Days' }, { key: 'absentRate', label: 'Absence Rate %' },
+          ],
+        };
+      case 'qual-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.qualifications?.employeeList ?? [],
+          cols: [
+            { key: 'name',        label: 'Employee' },
+            { key: 'employeeCode', label: 'Code' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'degree',      label: 'Highest Degree' },
+            { key: 'institution', label: 'Institution' },
+            { key: 'year',        label: 'Year' },
+          ],
+        };
+      case 'tenure':
+        return {
+          rowKey: 'label', sourceKey: 'tenureBand',
+          source: this.wfInsights?.employeeList ?? [],
+          cols: [
+            { key: 'name',        label: 'Employee Name' },
+            { key: 'employeeCode', label: 'Code' },
+            { key: 'dept',        label: 'Department' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'tenureBand',  label: 'Tenure' },
+          ],
+        };
+      case 'age-gender':
+        return {
+          rowKey: 'label', sourceKey: 'ageBand',
+          source: this.wfInsights?.employeeList ?? [],
+          cols: [
+            { key: 'name',         label: 'Employee Name' },
+            { key: 'employeeCode', label: 'Code' },
+            { key: 'gender',       label: 'Gender' },
+            { key: 'age',          label: 'Age' },
+            { key: 'ageBand',      label: 'Age Band' },
+            { key: 'dept',         label: 'Department' },
+          ],
+        };
+      case 'joining-trend':
+        return {
+          rowKey: 'year', sourceKey: 'joiningYear',
+          source: this.wfInsights?.employeeList ?? [],
+          cols: [
+            { key: 'name',           label: 'Employee Name' },
+            { key: 'employeeCode',   label: 'Code' },
+            { key: 'dept',           label: 'Department' },
+            { key: 'designation',    label: 'Designation' },
+            { key: 'dateOfJoining',  label: 'Date of Joining' },
+            { key: 'joiningYear',    label: 'Year' },
+          ],
+        };
+      case 'dept-gender':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.wfInsights?.employeeList ?? [],
+          cols: [
+            { key: 'name',        label: 'Employee Name' },
+            { key: 'gender',      label: 'Gender' },
+            { key: 'designation', label: 'Designation' },
+          ],
+        };
+      case 'qual-degree':
+        return {
+          rowKey: 'degree', sourceKey: 'degree',
+          source: this.qualifications?.employeeList ?? [],
+          cols: [
+            { key: 'name',   label: 'Employee Name' },
+            { key: 'dept',   label: 'Department' },
+            { key: 'degree', label: 'Degree' },
+          ],
+        };
+      case 'perf-dist':
+        return {
+          rowKey: 'label', sourceKey: 'band',
+          source: this.perfDist?.employeeList ?? [],
+          cols: [
+            { key: 'name',        label: 'Employee' },
+            { key: 'dept',        label: 'Department' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'score',       label: 'Score' },
+            { key: 'band',        label: 'Band' },
+          ],
+        };
+      case 'attendance':
+        // Each row is a day. Drill = employees who were absent on that day.
+        // Backend must return `attendanceDays[].absentEmployees`; fall back to
+        // empty array if not present so the button still renders gracefully.
+        return {
+          rowKey: 'date', sourceKey: 'date',
+          source: (this.attendanceDays ?? []).flatMap((d: any) =>
+            (d.absentEmployees ?? []).map((e: any) => ({ ...e, date: d.date })),
+          ),
+          cols: [
+            { key: 'name',        label: 'Employee Name' },
+            { key: 'dept',        label: 'Department' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'date',        label: 'Absent On' },
+          ],
+        };
+      case 'attrition':
+        return {
+          rowKey: 'month', sourceKey: 'month',
+          source: (this.attritionTrend?.months ?? []).flatMap((m: any) =>
+            (m.resignations ?? []).map((e: any) => ({ ...e, month: m.month })),
+          ),
+          cols: [
+            { key: 'name',        label: 'Employee Name' },
+            { key: 'dept',        label: 'Department' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'lastDate',    label: 'Last Working Date' },
+            { key: 'status',      label: 'Status' },
+          ],
+        };
+      case 'weekly':
+        return {
+          rowKey: 'label', sourceKey: 'weekLabel',
+          source: (this.weeklyTrend?.weeks ?? []).flatMap((w: any) =>
+            (w.submissions ?? []).map((r: any) => ({ ...r, weekLabel: w.label })),
+          ),
+          cols: [
+            { key: 'name',   label: 'Employee' },
+            { key: 'dept',   label: 'Department' },
+            { key: 'score',  label: 'Score' },
+            { key: 'ratedBy', label: 'Rated By' },
+          ],
+        };
+      default:
+        return null;
+    }
+  }
+
+  closeModal() {
+    this.modalVisible = false;
+    this.modalDrill = null;
+  }
 
   exportModalCsv() {
-    const header = this.modalColumns.map(c => c.label).join(',');
-    const body   = this.modalRows.map(r =>
-      this.modalColumns.map(c => {
+    this.downloadCsv(this.modalTitle, this.modalColumns, this.modalRows);
+  }
+
+  // ── Sub-modal (drill-down from row) ──────────────────────
+  openSubModal(row: any) {
+    if (!this.modalDrill) return;
+    const keyVal = row[this.modalDrill.rowKey];
+    if (keyVal == null) return;
+    const filtered = this.modalDrill.source.filter(
+      (s: any) => s[this.modalDrill!.sourceKey] === keyVal,
+    );
+    this.subModalTitle   = `${this.modalDrill.rowKey === 'dept' ? 'Employees' : 'Details'} for ${keyVal} (${filtered.length})`;
+    this.subModalColumns = this.modalDrill.cols;
+    this.subModalRows    = filtered;
+    this.subModalVisible = true;
+  }
+
+  closeSubModal() { this.subModalVisible = false; }
+
+  exportSubModalCsv() {
+    this.downloadCsv(this.subModalTitle, this.subModalColumns, this.subModalRows);
+  }
+
+  private downloadCsv(title: string, cols: { key: string; label: string }[], rows: any[]) {
+    const header = cols.map(c => c.label).join(',');
+    const body   = rows.map(r =>
+      cols.map(c => {
         const v = r[c.key] ?? '';
         return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
       }).join(',')
@@ -755,7 +1129,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = this.modalTitle.replace(/[^a-z0-9]/gi, '_') + '.csv';
+    a.download = title.replace(/[^a-z0-9]/gi, '_') + '.csv';
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -948,6 +1322,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         options: { responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 16 } } },
           scales: { x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } } } },
+        plugins: [this.valueLabelsPlugin],
       });
     }
     const donutCtx = document.getElementById('workforceDonutChart') as HTMLCanvasElement;
@@ -959,6 +1334,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         type: 'doughnut',
         data: { labels: statuses.map((s: any) => s.status), datasets: [{ data: statuses.map((s: any) => s.count), backgroundColor: statuses.map((s: any) => sc[s.status]||'#6b7280'), borderWidth: 0 }] },
         options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 12 } } } },
+        plugins: [this.valueLabelsPlugin],
       });
     }
   }
@@ -1011,6 +1387,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
         },
       },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1028,6 +1405,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       options: { responsive: true, maintainAspectRatio: false,
         plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 } } } },
         scales: { x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } } } },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1042,6 +1420,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: (c) => { const d = funnel[c.dataIndex]?.dropPct; return d ? `Drop-off: ${d}%` : ''; } } } },
         scales: { x: { ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { ticks: { color: '#e5e7eb', font: { size: 12 } }, grid: { display: false } } } },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1064,6 +1443,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
           y: { min: 0, max: 100, ticks: { color: '#d1d5db', stepSize: 10 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         } },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1074,11 +1454,40 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     if (this.perfDist.withAppraisal === 0) return;
     if (this.perfDistChart) this.perfDistChart.destroy();
     const dist = this.perfDist.distribution;
+    // Shorten legend labels so they don't get clipped in the narrow slot.
+    // Full label like "Excellent (80–100)" becomes just "Excellent" in the legend;
+    // tooltip / modal still show the full band name.
+    const shortLabels = dist.map((d: any) => (d.label || '').split(' (')[0] || d.label);
     this.perfDistChart = new Chart(ctx, {
       type: 'doughnut',
-      data: { labels: dist.map((d: any) => d.label), datasets: [{ data: dist.map((d: any) => d.count), backgroundColor: dist.map((d: any) => d.color), borderWidth: 0, hoverOffset: 6 }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '60%',
-        plugins: { legend: { position: 'right', labels: { color: '#d1d5db', font: { size: 11 }, padding: 14 } } } },
+      data: {
+        labels: shortLabels,
+        datasets: [{
+          data: dist.map((d: any) => d.count),
+          backgroundColor: dist.map((d: any) => d.color),
+          borderWidth: 0, hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '60%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#d1d5db', font: { size: 11 },
+              padding: 10, boxWidth: 12, boxHeight: 12,
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              // Show the full band label (with score range) on hover
+              title: (items: any[]) => dist[items[0]?.dataIndex]?.label ?? '',
+            },
+          },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1101,6 +1510,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } }
         }
       },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1123,6 +1533,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } }
         }
       },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1132,27 +1543,6 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     if (ageCtx && this.wfInsights?.ageSplitChart?.length) {
       if (this.ageGenderChart) this.ageGenderChart.destroy();
       const d = this.wfInsights.ageSplitChart;
-      const barLabelPlugin = {
-        id: 'barLabels',
-        afterDatasetsDraw(chart: any) {
-          const ctx2 = chart.ctx;
-          chart.data.datasets.forEach((_ds: any, i: number) => {
-            const meta = chart.getDatasetMeta(i);
-            meta.data.forEach((bar: any, j: number) => {
-              const val = chart.data.datasets[i].data[j];
-              if (val > 0) {
-                ctx2.save();
-                ctx2.fillStyle = '#fff';
-                ctx2.font = 'bold 12px sans-serif';
-                ctx2.textAlign = 'center';
-                ctx2.textBaseline = 'bottom';
-                ctx2.fillText(val, bar.x, bar.y - 3);
-                ctx2.restore();
-              }
-            });
-          });
-        }
-      };
       this.ageGenderChart = new Chart(ageCtx, {
         type: 'bar',
         data: {
@@ -1170,7 +1560,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
             y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
           },
         },
-        plugins: [barLabelPlugin],
+        plugins: [this.valueLabelsPlugin],
       });
     }
 
@@ -1179,11 +1569,24 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     if (tenureCtx && this.wfInsights?.tenureBuckets?.length) {
       if (this.tenureChart) this.tenureChart.destroy();
       const t = this.wfInsights.tenureBuckets;
+      // Distinct colour per tenure bucket so each band stands out
+      const tenureColors = [
+        '#f87171', // < 1 year — fresh joiners (red-ish)
+        '#fbbf24', // 1 – 3 yrs (amber)
+        '#34d399', // 3 – 5 yrs (green)
+        '#60a5fa', // 5 – 10 yrs (blue)
+        '#a78bfa', // > 10 yrs — veterans (purple)
+      ];
       this.tenureChart = new Chart(tenureCtx, {
         type: 'bar',
         data: {
           labels: t.map((b: any) => b.label),
-          datasets: [{ label: 'Employees', data: t.map((b: any) => b.count), backgroundColor: '#34d399', borderRadius: 5 }],
+          datasets: [{
+            label: 'Employees',
+            data: t.map((b: any) => b.count),
+            backgroundColor: t.map((_: any, i: number) => tenureColors[i % tenureColors.length]),
+            borderRadius: 5,
+          }],
         },
         options: {
           indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -1193,10 +1596,11 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
             y: { ticks: { color: '#e5e7eb', font: { size: 12 } }, grid: { display: false } },
           },
         },
+        plugins: [this.valueLabelsPlugin],
       });
     }
 
-    // 3. Joining year trend line
+    // 3. Joining vs Resignation year trend
     const joinCtx = document.getElementById('joiningTrendChart') as HTMLCanvasElement;
     if (joinCtx && this.wfInsights?.joiningTrend?.length) {
       if (this.joiningTrendChart) this.joiningTrendChart.destroy();
@@ -1205,21 +1609,43 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         type: 'line',
         data: {
           labels: j.map((r: any) => r.year),
-          datasets: [{
-            label: 'Joinings',
-            data: j.map((r: any) => r.count),
-            borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)',
-            fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fbbf24', borderWidth: 2,
-          }],
+          datasets: [
+            {
+              label: 'Joinings',
+              data: j.map((r: any) => r.joinings ?? r.count ?? 0),
+              borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.12)',
+              fill: true, tension: 0.4, pointRadius: 4,
+              pointBackgroundColor: '#22c55e', borderWidth: 2,
+            },
+            {
+              label: 'Resignations',
+              data: j.map((r: any) => r.resignations ?? 0),
+              borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.12)',
+              fill: true, tension: 0.4, pointRadius: 4,
+              pointBackgroundColor: '#ef4444', borderWidth: 2,
+            },
+          ],
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#d1d5db', font: { size: 12 } } } },
+          plugins: {
+            legend: { labels: { color: '#d1d5db', font: { size: 12 } } },
+            tooltip: {
+              callbacks: {
+                afterLabel: (c) => {
+                  const row = j[c.dataIndex];
+                  if (!row) return '';
+                  return `Net: ${row.net >= 0 ? '+' : ''}${row.net}`;
+                },
+              },
+            },
+          },
           scales: {
             x: { ticks: { color: '#d1d5db', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
             y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
           },
         },
+        plugins: [this.valueLabelsPlugin],
       });
     }
   }
@@ -1250,6 +1676,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
         },
       },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 
@@ -1285,6 +1712,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
           y: { stacked: true, ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         },
       },
+      plugins: [this.valueLabelsPlugin],
     });
   }
 }
