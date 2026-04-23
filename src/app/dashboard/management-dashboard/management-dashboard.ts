@@ -157,6 +157,8 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   mobileLoginDays        = 14;
   qualifications: any    = null;
   loadingQualifications  = true;
+  elInsights: any        = null;
+  loadingElInsights      = true;
 
   // ── OT month navigation ───────────────────────────────────
   otMonth = new Date();
@@ -265,6 +267,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private joiningTrendChart?: Chart;
   private mobileLoginChart?: Chart;
   private qualDegreeChart?: Chart;
+  private elDistChart?: Chart;
   private chartsReady = false;
 
   // ── KPI card config ───────────────────────────────────────
@@ -304,6 +307,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       if (this.lateArrivals)     this.drawLateHeatChart();
       if (this.mobileLogin)      this.drawMobileLoginChart();
       if (this.qualifications)   this.drawQualDegreeChart();
+      if (this.elInsights)       this.drawElDistChart();
     }, 0);
   }
 
@@ -411,6 +415,21 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawQualDegreeChart(), 0); }
       },
       error: () => { this.loadingQualifications = false; }
+    });
+
+    this.svc.getElInsights().subscribe({
+      next: (d) => {
+        this.elInsights = d;
+        this.loadingElInsights = false;
+        // Force Angular to re-render (releases [hidden] on the canvas wrapper)
+        this.cdr.detectChanges();
+        // Double-RAF guarantees the canvas is laid out before we measure it
+        requestAnimationFrame(() => requestAnimationFrame(() => this.drawElDistChart()));
+      },
+      error: (err) => {
+        console.error('[el-insights] failed:', err);
+        this.loadingElInsights = false;
+      },
     });
   }
 
@@ -877,6 +896,53 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         rows  = this.qualifications?.deptBreakdown ?? [];
         break;
 
+      case 'el-dist':
+        title = 'EL Balance Distribution';
+        cols  = [
+          { key: 'label', label: 'Balance Range' },
+          { key: 'count', label: 'Employees' },
+        ];
+        rows  = this.elInsights?.distribution ?? [];
+        break;
+
+      case 'el-top':
+        title = 'Highest EL Balances (Top 10)';
+        cols  = [
+          { key: 'employeeName', label: 'Employee' },
+          { key: 'employeeCode', label: 'Code' },
+          { key: 'dept',         label: 'Department' },
+          { key: 'balance',      label: 'EL Balance' },
+          { key: 'daysOver55',   label: 'Days Over 55' },
+          { key: 'lastLeaveDate', label: 'Last EL Taken' },
+        ];
+        rows  = this.elInsights?.topOffenders ?? [];
+        break;
+
+      case 'el-dept':
+        title = 'EL Average by Department';
+        cols  = [
+          { key: 'dept',          label: 'Department' },
+          { key: 'headcount',     label: 'Headcount' },
+          { key: 'avgBalance',    label: 'Avg Balance' },
+          { key: 'overThreshold', label: 'Employees over 55' },
+        ];
+        rows  = this.elInsights?.deptAvg ?? [];
+        break;
+
+      case 'el-all':
+        title = 'All Employees — EL Balance';
+        cols  = [
+          { key: 'employeeName', label: 'Employee' },
+          { key: 'employeeCode', label: 'Code' },
+          { key: 'dept',         label: 'Department' },
+          { key: 'designation',  label: 'Designation' },
+          { key: 'balance',      label: 'Balance' },
+          { key: 'bucket',       label: 'Bucket' },
+          { key: 'lastLeaveDate', label: 'Last EL Taken' },
+        ];
+        rows  = this.elInsights?.employeeList ?? [];
+        break;
+
       default:
         return;
     }
@@ -1026,6 +1092,31 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
             { key: 'name',   label: 'Employee Name' },
             { key: 'dept',   label: 'Department' },
             { key: 'degree', label: 'Degree' },
+          ],
+        };
+      case 'el-dist':
+        return {
+          rowKey: 'label', sourceKey: 'bucket',
+          source: this.elInsights?.employeeList ?? [],
+          cols: [
+            { key: 'employeeName', label: 'Employee' },
+            { key: 'employeeCode', label: 'Code' },
+            { key: 'dept',         label: 'Department' },
+            { key: 'designation',  label: 'Designation' },
+            { key: 'balance',      label: 'EL Balance' },
+            { key: 'lastLeaveDate', label: 'Last EL Taken' },
+          ],
+        };
+      case 'el-dept':
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.elInsights?.employeeList ?? [],
+          cols: [
+            { key: 'employeeName', label: 'Employee' },
+            { key: 'employeeCode', label: 'Code' },
+            { key: 'designation',  label: 'Designation' },
+            { key: 'balance',      label: 'EL Balance' },
+            { key: 'bucket',       label: 'Bucket' },
           ],
         };
       case 'perf-dist':
@@ -1674,6 +1765,62 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         scales: {
           x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
           y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // EL balance distribution (horizontal bar, one colour per bucket)
+  private drawElDistChart(retries = 3) {
+    const ctx = document.getElementById('elDistChart') as HTMLCanvasElement;
+    if (!ctx) {
+      if (retries > 0) {
+        // Canvas not in DOM yet — likely still waiting for Angular's *ngIf/[hidden] swap.
+        // Retry on the next animation frame (handles late view init) up to 3 times.
+        console.warn('[drawElDistChart] canvas not ready, retries left:', retries);
+        requestAnimationFrame(() => this.drawElDistChart(retries - 1));
+      } else {
+        console.error('[drawElDistChart] canvas never appeared — giving up');
+      }
+      return;
+    }
+    if (!this.elInsights?.distribution?.length) {
+      console.warn('[drawElDistChart] no distribution data', this.elInsights);
+      return;
+    }
+    if (this.elDistChart) this.elDistChart.destroy();
+    const dist = this.elInsights.distribution;
+    // Green → yellow → orange → red: healthy to breaching
+    const colors = ['#22c55e', '#84cc16', '#fbbf24', '#fb923c', '#ef4444'];
+    this.elDistChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: dist.map((d: any) => d.label),
+        datasets: [{
+          label: 'Employees',
+          data: dist.map((d: any) => d.count),
+          backgroundColor: dist.map((_: any, i: number) => colors[i % colors.length]),
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (c) => {
+                const b = dist[c.dataIndex];
+                return b ? `Range: ${b.min}${b.max === Infinity ? '+' : ` – ${b.max}`} days EL` : '';
+              },
+            },
+          },
+        },
+        scales: {
+          x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: '#e5e7eb', font: { size: 12 } }, grid: { display: false } },
         },
       },
       plugins: [this.valueLabelsPlugin],

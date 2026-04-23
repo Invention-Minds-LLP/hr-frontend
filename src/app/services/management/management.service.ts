@@ -76,4 +76,7 @@ export class ManagementService {
   getQualifications(): Observable<any> {
     return this.http.get(`${this.base}/qualifications`);
   }
+  getElInsights(): Observable<any> {
+    return this.http.get(`${this.base}/el-insights`);
+  }
 }

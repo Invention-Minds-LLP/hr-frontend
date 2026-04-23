@@ -61,7 +61,7 @@
             <div class="popup-actions">
                 <!-- <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()">Apply</button> -->
                 <button class="btn btn-green" *ngIf="!isViewOnly" (click)="submit()" [disabled]="isLoading">
-                    <span *ngIf="!isLoading">Apply</span>
+                    <span *ngIf="!isLoading">{{ permissionData?.id ? 'Update' : 'Apply' }}</span>
                     <span *ngIf="isLoading" class="spinner"></span>
                 </button>
 

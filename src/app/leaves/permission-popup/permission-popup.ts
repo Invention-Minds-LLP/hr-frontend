@@ -122,26 +122,29 @@ export class PermissionPopup {
 
     this.isLoading = true;
 
-    // Call API
-    this.permissionService.createPermission(payload).subscribe({
+    // If permissionData already has an id AND we're not view-only → update instead of create
+    const isEditMode = !!this.permissionData?.id && !this.isViewOnly;
+    const request$ = isEditMode
+      ? this.permissionService.updatePermissionRequest(this.permissionData.id, payload)
+      : this.permissionService.createPermission(payload);
+
+    request$.subscribe({
       next: () => {
-        // alert('Permission request submitted successfully!');
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Permission request submitted successfully!'
+          detail: isEditMode ? 'Permission updated successfully!' : 'Permission request submitted successfully!'
         });
         this.isLoading = false;
         this.closePopup();
       },
       error: (err) => {
-        console.error('Error creating permission request:', err);
+        console.error('Error saving permission request:', err);
         this.isLoading = false;
-        // alert('Failed to submit permission request.');
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to submit permission request.'
+          detail: err?.error?.error || 'Failed to submit permission request.'
         });
       }
     });

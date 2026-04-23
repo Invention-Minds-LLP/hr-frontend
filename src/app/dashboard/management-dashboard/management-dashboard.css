@@ -1166,3 +1166,11 @@
   .pulse-grid { grid-template-columns: 1fr 1fr; }
   .col-8, .col-6, .col-4 { flex: 0 0 100%; }
 }
+
+/* EL insights KPI tiles — 4 compact cards */
+.el-kpi-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 900px) {
+  .el-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}

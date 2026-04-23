@@ -983,6 +983,80 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Inline action buttons in leave & permission tables */
+.row-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.row-act {
+  padding: 8px 14px;
+  min-width: 78px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+  cursor: pointer;
+  font-family: "Sofia Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+              box-shadow 0.15s ease, transform 0.1s ease;
+}
+.row-act .pi {
+  font-size: 13px;
+  line-height: 1;
+}
+.row-act:hover {
+  transform: translateY(-1px);
+}
+.row-act:active {
+  transform: translateY(0);
+}
+
+/* View — neutral with subtle hover lift */
+.row-act-view {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #e5e7eb;
+}
+.row-act-view:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Edit — blue accent */
+.row-act-edit {
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+}
+.row-act-edit:hover {
+  background: rgba(96, 165, 250, 0.22);
+  border-color: #60a5fa;
+  color: #93c5fd;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.25);
+}
+
+/* Cancel — red accent */
+.row-act-cancel {
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.08);
+}
+.row-act-cancel:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
 /* Table Wrapper */
 .permission-table {
   /* max-height: 300px; */
@@ -2187,4 +2261,133 @@ hr {
   padding: 6px 12px;
   border-radius: 20px;
   white-space: nowrap;
+}
+
+/* ── Cancel-with-reason dialog ──────────────────────────────── */
+.cancel-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.cancel-dialog {
+  width: 100%;
+  max-width: 440px;
+  background: #1a1d27;
+  border: 1px solid rgba(251, 156, 42, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(251, 156, 42, 0.15);
+  font-family: "Sofia Sans", sans-serif;
+  color: #e5e7eb;
+  animation: cancelDialogIn 0.15s ease;
+}
+@keyframes cancelDialogIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cancel-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cancel-dialog-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+.cancel-dialog-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.cancel-dialog-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.cancel-dialog-body {
+  padding: 16px 20px;
+}
+.cancel-dialog-hint {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+.cancel-dialog-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cancel-dialog-label .req {
+  color: #ef4444;
+}
+.cancel-dialog-input {
+  width: 100%;
+  background: #0f1117;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #fff;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  line-height: 1.4;
+}
+.cancel-dialog-input:focus {
+  outline: none;
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+}
+.cancel-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cancel-dialog-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cancel-dialog-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cancel-dialog-btn-neutral {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #e5e7eb;
+}
+.cancel-dialog-btn-neutral:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+.cancel-dialog-btn-danger {
+  background: #ef4444;
+  border: 1px solid #ef4444;
+  color: #fff;
+}
+.cancel-dialog-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
 }

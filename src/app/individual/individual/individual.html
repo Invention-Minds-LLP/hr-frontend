@@ -636,9 +636,17 @@
 
                             <!-- ACTION -->
                             <td>
-                                <div class="dropdown-container-in-table">
-                                    <button class="details-btn" (click)="viewLeaveDetails(leave)">
-                                        See details
+                                <div class="row-actions">
+                                    <button class="row-act row-act-view" (click)="viewLeaveDetails(leave)">
+                                        <i class="pi pi-eye"></i><span>View</span>
+                                    </button>
+                                    <button class="row-act row-act-edit" *ngIf="canEditOrCancel(leave)"
+                                        (click)="editLeave(leave, $event)">
+                                        <i class="pi pi-pencil"></i><span>Edit</span>
+                                    </button>
+                                    <button class="row-act row-act-cancel" *ngIf="canEditOrCancel(leave)"
+                                        (click)="cancelLeave(leave, $event)">
+                                        <i class="pi pi-times"></i><span>Cancel</span>
                                     </button>
                                 </div>
                             </td>
@@ -701,9 +709,17 @@
                             </td>
 
                             <td>
-                                <div class="dropdown-container-in-table">
-                                    <button class="details-btn" (click)="viewPermissionDetails(p)">
-                                        See details
+                                <div class="row-actions">
+                                    <button class="row-act row-act-view" (click)="viewPermissionDetails(p)">
+                                        <i class="pi pi-eye"></i><span>View</span>
+                                    </button>
+                                    <button class="row-act row-act-edit" *ngIf="canEditOrCancel(p)"
+                                        (click)="editPermission(p, $event)">
+                                        <i class="pi pi-pencil"></i><span>Edit</span>
+                                    </button>
+                                    <button class="row-act row-act-cancel" *ngIf="canEditOrCancel(p)"
+                                        (click)="cancelPermission(p, $event)">
+                                        <i class="pi pi-times"></i><span>Cancel</span>
                                     </button>
                                 </div>
                             </td>
@@ -1148,6 +1164,35 @@
 <app-permission-popup *ngIf="showPermissionPopup" [showPopup]="true" [permissionData]="selectedPermission"
     [isViewOnly]="permissionViewMode" (close)="closePopup()">
 </app-permission-popup>
+
+<!-- Cancel-with-reason dialog -->
+<div class="cancel-dialog-backdrop" *ngIf="cancelDialogVisible" (click)="closeCancelDialog()">
+    <div class="cancel-dialog" (click)="$event.stopPropagation()">
+        <div class="cancel-dialog-head">
+            <h3>Cancel {{ cancelTargetType === 'leave' ? 'Leave' : 'Permission' }} Request</h3>
+            <button class="cancel-dialog-close" (click)="closeCancelDialog()">✕</button>
+        </div>
+        <div class="cancel-dialog-body">
+            <p class="cancel-dialog-hint">
+                Please provide a reason for cancelling this {{ cancelTargetType }} request.
+            </p>
+            <label class="cancel-dialog-label">Reason <span class="req">*</span></label>
+            <textarea class="cancel-dialog-input" [(ngModel)]="cancelReason" rows="3"
+                placeholder="e.g. Plans changed, not required anymore..."></textarea>
+        </div>
+        <div class="cancel-dialog-foot">
+            <button class="cancel-dialog-btn cancel-dialog-btn-neutral"
+                (click)="closeCancelDialog()" [disabled]="cancelSubmitting">
+                Keep Request
+            </button>
+            <button class="cancel-dialog-btn cancel-dialog-btn-danger"
+                (click)="confirmCancel()"
+                [disabled]="cancelSubmitting || !cancelReason.trim()">
+                {{ cancelSubmitting ? 'Cancelling...' : 'Confirm Cancel' }}
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- <app-wfh-popup *ngIf="showWFHPopup" [showPopup]="true" [wfhData]="selectedWFH" [isViewOnly]="wfhViewMode"
     [hasBackDrop]="true" (close)="closePopup()">

@@ -104,4 +104,14 @@ getCompOffCredits(employeeId: number) {
 uploadPrescription(leaveId: number, data: FormData) {
   return this.http.post(`${this.apiUrl}/${leaveId}/prescription`, data);
 }
+
+// Edit a pending leave request (only allowed when no approver has acted)
+updateLeaveRequest(id: number, data: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/${id}`, data);
+}
+
+// Cancel a pending leave request
+cancelLeaveRequest(id: number, reason?: string): Observable<any> {
+  return this.http.patch(`${this.apiUrl}/${id}/cancel`, { reason });
+}
 }

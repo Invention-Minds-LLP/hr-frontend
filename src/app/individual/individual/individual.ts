@@ -23,6 +23,7 @@ import { AttendanceCalendar } from '../../services/attendance-calendar/attendanc
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { SurveyForm } from '../../survey/survey-form/survey-form';
 import { Leaves } from '../../services/leaves/leaves';
+import { Permission } from '../../services/permission/permission';
 import { Shifts } from '../../services/shifts/shifts';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { MyWeeklyTracker } from '../../weekly-tracker/my-weekly-tracker/my-weekly-tracker';
@@ -160,7 +161,99 @@ currentWeeklyShiftIndex = 0;
   constructor(private employeeService: Employees, private attendanceService: AttendanceCalendar,
     private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts,
     private holidaysService: Holidays, private pipService: PipService,
-    private dashboardService: Dashboard, private resignationService: Resignation) { }
+    private dashboardService: Dashboard, private resignationService: Resignation,
+    private permissionService: Permission) { }
+
+  // Edit/cancel allowed only while the request is fully PENDING
+  // (no incharge / RM / HR action yet).
+  canEditOrCancel(req: any): boolean {
+    if (!req) return false;
+    const status = (req.status || '').toUpperCase();
+    if (status !== 'PENDING') return false;
+    const ic  = (req.inChargeDecision || 'PENDING').toUpperCase();
+    const hod = (req.hodDecision      || 'PENDING').toUpperCase();
+    const hr  = (req.hrDecision       || 'PENDING').toUpperCase();
+    return ic === 'PENDING' && hod === 'PENDING' && hr === 'PENDING';
+  }
+
+  // ── Cancel-with-reason dialog ───────────────────────────────
+  cancelDialogVisible = false;
+  cancelTargetType: 'leave' | 'permission' | null = null;
+  cancelTargetId: number | null = null;
+  cancelReason = '';
+  cancelSubmitting = false;
+
+  cancelLeave(leave: any, evt?: Event) {
+    evt?.stopPropagation();
+    this.openCancelDialog('leave', leave.id);
+  }
+
+  cancelPermission(perm: any, evt?: Event) {
+    evt?.stopPropagation();
+    this.openCancelDialog('permission', perm.id);
+  }
+
+  private openCancelDialog(type: 'leave' | 'permission', id: number) {
+    this.cancelTargetType = type;
+    this.cancelTargetId = id;
+    this.cancelReason = '';
+    this.cancelDialogVisible = true;
+  }
+
+  closeCancelDialog() {
+    this.cancelDialogVisible = false;
+    this.cancelTargetType = null;
+    this.cancelTargetId = null;
+    this.cancelReason = '';
+  }
+
+  confirmCancel() {
+    if (!this.cancelTargetId || !this.cancelTargetType) return;
+    if (!this.cancelReason.trim()) {
+      alert('Please provide a reason for cancelling.');
+      return;
+    }
+    this.cancelSubmitting = true;
+    const id = this.cancelTargetId;
+    const reason = this.cancelReason.trim();
+
+    const request$ = this.cancelTargetType === 'leave'
+      ? this.leaveService.cancelLeaveRequest(id, reason)
+      : this.permissionService.cancelPermissionRequest(id, reason);
+
+    request$.subscribe({
+      next: () => {
+        // Update local list optimistically so the UI reflects the change
+        if (this.cancelTargetType === 'leave') {
+          const row = this.leave.find((l: any) => l.id === id);
+          if (row) { row.status = 'CANCELLED'; row.cancellationReason = reason; }
+        } else {
+          const row = this.permission.find((p: any) => p.id === id);
+          if (row) { row.status = 'CANCELLED'; row.cancellationReason = reason; }
+        }
+        this.cancelSubmitting = false;
+        this.closeCancelDialog();
+      },
+      error: (err: any) => {
+        this.cancelSubmitting = false;
+        alert(err?.error?.error || 'Failed to cancel request');
+      },
+    });
+  }
+
+  editLeave(leave: any, evt?: Event) {
+    evt?.stopPropagation();
+    this.leaveViewMode = false;   // open popup in editable mode
+    this.selectedLeaveForView = leave;
+    this.showLeaveDetailsPopup = true;
+  }
+
+  editPermission(perm: any, evt?: Event) {
+    evt?.stopPropagation();
+    this.permissionViewMode = false;
+    this.selectedPermission = perm;
+    this.showPermissionPopup = true;
+  }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {

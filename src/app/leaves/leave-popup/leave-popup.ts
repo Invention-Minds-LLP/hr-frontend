@@ -385,14 +385,19 @@ export class LeavePopup {
     this.currentMonthIndex = this.fromDate.getMonth();
     this.currentYear = this.fromDate.getFullYear();
     this.syncDropdownsFromDates();
-    this.leaveType = data.leaveType;
+    // leaveType from the API can be either a string like "SL"
+    // or an object like { id: 1, name: "SL" }. Normalize to the string name
+    // because the rest of this component expects a string.
+    this.leaveType =
+      typeof data.leaveType === 'object' && data.leaveType !== null
+        ? (data.leaveType.name ?? '')
+        : (data.leaveType ?? '');
     this.reason = data.reason;
     this.declineReason = data.declineReason;
     this.isHalfDay = data.isHalfDay;
     this.selectedPrescription = null;
     this.prescriptionUrl = data.prescriptionUrl || null;
 
-    this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.calculateDays();
 
@@ -892,23 +897,28 @@ export class LeavePopup {
       isHalfDay: this.isHalfDay,
       halfDaySession: this.isHalfDay ? this.halfDaySession : null
     };
-    this.leaveService.createLeave(payload).subscribe({
+
+    // If an existing leave was passed in AND not view-only, update instead of create
+    const isEditMode = !!this.leaveData?.id && !this.isViewOnly;
+    const request$ = isEditMode
+      ? this.leaveService.updateLeaveRequest(this.leaveData.id, payload)
+      : this.leaveService.createLeave(payload);
+
+    request$.subscribe({
       next: (res) => {
-        // alert('Leave applied successfully!');
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Leave applied successfully!'
+          detail: isEditMode ? 'Leave updated successfully!' : 'Leave applied successfully!',
         });
         console.log('API response:', res);
         this.isLoading = false;
-        if (this.leaveType === 'SL' && this.selectedPrescription) {
+        if (!isEditMode && this.leaveType === 'SL' && this.selectedPrescription) {
           const fileData = new FormData();
           fileData.append('prescription', this.selectedPrescription);
 
           this.leaveService.uploadPrescription(res.id, fileData)
             .subscribe(() => {
-              // this.showSuccess();
               this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
@@ -918,7 +928,6 @@ export class LeavePopup {
         }
         this.closePopup();
         this.resetForm();
-
       },
       error: (err) => {
         console.error('Error applying leave:', err);

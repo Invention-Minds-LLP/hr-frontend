@@ -49,4 +49,14 @@ export class Permission {
   }>(`${this.apiUrl}/monthly-usage/${employeeId}`);
 }
 
+  // Edit a pending permission (only allowed when no approver has acted)
+  updatePermissionRequest(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
+  // Cancel a pending permission
+  cancelPermissionRequest(id: number, reason?: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/cancel`, { reason });
+  }
+
 }

@@ -177,7 +177,7 @@
 }
 
 .encash-info {
-  background: #f8f9fa;
+  background: transparent;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
@@ -190,9 +190,9 @@
   font-size: 14px;
 }
 
-.info-label {
+.info-label, label {
   font-weight: 600;
-  color: #555;
+  color: #fff;
   min-width: 130px;
 }
 
@@ -204,7 +204,7 @@
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
-  color: #333;
+  color: #fff;
   font-size: 14px;
 }
 
@@ -243,4 +243,9 @@
 ::ng-deep .encashment-overview .p-paginator .p-paginator-page.p-highlight {
   background: #FB9C2A !important;
   color: white !important;
+}
+
+::ng-deep  .p-inputtext {
+  width: 100%; padding: 8px 12px; border: 1px solid #555; border-radius: 6px; font-family: "Sofia Sans"; font-size: 14px;
+  color: white !important; background: #1a1a1a; outline: none;
 }

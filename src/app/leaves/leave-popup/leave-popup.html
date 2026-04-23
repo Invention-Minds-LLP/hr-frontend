@@ -233,11 +233,11 @@
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
                     <!-- <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading"> -->
                     <button class="apply" (click)="applyLeave()" [disabled]="
-          (leaveType !== 'CO' && leaveType !== 'RH' && days > remainingLeave) ||
+          (leaveType !== 'CO' && leaveType !== 'RH' && !leaveData?.id && days > remainingLeave) ||
           isLoading
         ">
 
-                        <span *ngIf="!isLoading">Apply Leave</span>
+                        <span *ngIf="!isLoading">{{ leaveData?.id ? 'Update Leave' : 'Apply Leave' }}</span>
                         <span *ngIf="isLoading" class="spinner"></span>
                     </button>
 
