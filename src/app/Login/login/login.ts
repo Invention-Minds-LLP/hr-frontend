@@ -30,20 +30,20 @@ export class Login {
   constructor(private router: Router, private userService: User, private messageService: MessageService) { }
 
   ngOnInit() {
-    // Check if user is already logged in
+    // If already logged in, bounce the user to the right landing page.
+    // Same decision tree as landingRedirectGuard — kept in sync manually.
     const token = localStorage.getItem('token');
-    const candidateId = localStorage.getItem('candidateId');
-    const empId = localStorage.getItem('empId')
-    console.log('Token:', token);
-    if (token && empId ) {
-      this.router.navigate(['/individual']); // Redirect to employee page if logged in
+    if (token) {
+      const candidateId = localStorage.getItem('candidateId');
+      if (candidateId) {
+        this.router.navigate(['/candidate-tests']);
+      } else {
+        const roleId = Number(localStorage.getItem('roleId') || 0);
+        this.router.navigate([roleId === 4 ? '/management-dashboard' : '/individual']);
+      }
     }
-    else if(token && candidateId){
-      this.router.navigate(['/candidate-tests'])
-    }
-    else{
-      this.router.navigate(['/login'])
-    }
+    // no token → stay on /login (don't re-navigate to /login, would churn the router)
+
     const logoutReason = localStorage.getItem('logoutReason');
     if (logoutReason === 'inactivity') {
       console.log('Logged out due to inactivity');
@@ -112,7 +112,8 @@ export class Login {
               localStorage.setItem('designation', response.designation || '');
               localStorage.setItem('roleId', response.roleId || '');
               localStorage.setItem('gender', response.gender || '');
-              this.router.navigate(['/individual']);
+              const landing = Number(response.roleId) === 4 ? '/management-dashboard' : '/individual';
+              this.router.navigate([landing]);
             } else {
 
               console.error('Login failed:', (response as any)?.message);

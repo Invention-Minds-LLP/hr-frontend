@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './Login/login/login';
-import { authGuard } from './auth-guard';
+import { authGuard, landingRedirectGuard } from './auth-guard';
 
 import { PermissionRequest } from './leaves/permission-request/permission-request/permission-request';
 import { WorkFromHome } from './leaves/work-from-home/work-from-home';
@@ -188,7 +188,8 @@ export const routes: Routes = [
   { path: 'candidate-tests', component: CandidateTests, canActivate: [authGuard]},
 
 
-  // Default / catch-all
-  { path: '', pathMatch: 'full', redirectTo: 'individual' },
-  { path: '**', redirectTo: 'individual' },
+  // Default / catch-all — landingRedirectGuard sends management users (roleId=4) to the
+  // management dashboard, everyone else to /individual (and to /login if not authenticated).
+  { path: '', pathMatch: 'full', component: Individual, canActivate: [landingRedirectGuard] },
+  { path: '**', component: Individual, canActivate: [landingRedirectGuard] },
 ];
