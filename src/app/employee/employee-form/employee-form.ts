@@ -345,7 +345,12 @@ export class EmployeeForm {
         'rotationPatternId',
         'rotationStartDate',
         'shiftDate',
-        'overtimeEnabled'
+        'overtimeEnabled',
+        'probationStartDate',
+        'probationEndDate',
+        'probationStatus',
+        'probationConfirmedOn',
+        'probationRemarks'
       ];
 
       employmentControls.forEach(control => {

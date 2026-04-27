@@ -583,9 +583,9 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <!-- Probation action buttons (edit mode, while probation is active) -->
+                                <!-- Probation action buttons (edit mode, while probation is active, HR only) -->
                                 <div class="field col-12 probation-actions"
-                                    *ngIf="currentEmployeeId && hasActiveProbation">
+                                    *ngIf="!isProfileView && currentEmployeeId && hasActiveProbation">
                                     <button pButton type="button" class="p-button-sm prob-btn prob-btn-extend"
                                         icon="pi pi-forward" label="Extend Probation"
                                         (click)="openExtendDialog()"></button>
