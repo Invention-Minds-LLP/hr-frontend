@@ -47,6 +47,8 @@ export class Navbar {
 
   isRestricted = false;
   isReportingManager = false;
+  canManageTraining = false;
+  isNurseEducator = false;
   username = '';
   // apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
@@ -81,6 +83,19 @@ export class Navbar {
     this.isHRManager = Number(this.roleId) === 1;
     this.isManagement = Number(this.roleId) === 4;
     console.log('isIncharge:', this.isIncharge);
+
+    // Training authorization (mirrors backend rule):
+    //   HR Manager · Reporting Manager · Nursing-dept Incharge · Nursing Educator
+    const departmentName = (localStorage.getItem('departmentName') || '').trim().toLowerCase();
+    const designation = (localStorage.getItem('designation') || '').trim().toLowerCase();
+    const inNursing = departmentName === 'nursing';
+    this.isNurseEducator =
+      inNursing && ['nurse educator', 'nursing educator'].includes(designation);
+    this.canManageTraining =
+      this.isHRManager ||
+      this.isReportingManager ||
+      (this.isIncharge && inNursing) ||
+      this.isNurseEducator;
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
     console.log(this.executiveRoleId, 'Executive Role id')

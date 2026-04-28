@@ -65,6 +65,34 @@ export class TrainingList {
   trainings: any[] = [];
   userRole: 'HR' | 'EMPLOYEE' = 'EMPLOYEE';
   loading = true;
+
+  /**
+   * True only for HR Manager — the role with full visibility across all departments.
+   * Used to gate the Department multi-select in the Assign dialog (everyone else
+   * has a bounded scope, so picking a department is meaningless for them).
+   */
+  get isHRManagerScope(): boolean {
+    const roleId = Number(localStorage.getItem('roleId') || 0);
+    const role = (localStorage.getItem('role') || '').trim();
+    return roleId === 1 || role === 'HR' || role === 'HR Manager';
+  }
+
+  /**
+   * Mirrors backend rule for who can create/assign trainings.
+   * HR Manager · Reporting Manager · Nursing-dept Incharge · Nursing Educator.
+   */
+  get canManageTraining(): boolean {
+    const roleId = Number(localStorage.getItem('roleId') || 0);
+    const role = (localStorage.getItem('role') || '').trim();
+    const dept = (localStorage.getItem('departmentName') || '').trim().toLowerCase();
+    const designation = (localStorage.getItem('designation') || '').trim().toLowerCase();
+    const isHR = roleId === 1 || role === 'HR' || role === 'HR Manager';
+    const isRM = role === 'Reporting Manager' || roleId === 3;
+    const isNursingIncharge = roleId === 5 && dept === 'nursing';
+    const isNurseEducator = ['nurse educator', 'nursing educator'].includes(designation);
+    const isNursingEducator = dept === 'nursing' && isNurseEducator;
+    return isHR || isRM || isNursingIncharge || isNursingEducator;
+  }
   @Input() visible: boolean = false;
   @Input() trainingId!: number;
   @Input() viewMode: 'admin' | 'individual' = 'admin';
@@ -102,6 +130,18 @@ export class TrainingList {
     { label: "Absent", value: "ABSENT" }
   ];
 
+  // Training-status change dialog
+  showStatusDialog = false;
+  statusTarget: any = null;
+  selectedStatus: string | null = null;
+  statusUpdating = false;
+  trainingStatusOptions = [
+    { label: 'Draft',     value: 'DRAFT' },
+    { label: 'Active',    value: 'ACTIVE' },
+    { label: 'Completed', value: 'COMPLETED' },
+    { label: 'Cancelled', value: 'CANCELLED' },
+  ];
+
   selectedTrainingId!: number;
   today = new Date();
   minDate = this.today;
@@ -122,7 +162,11 @@ export class TrainingList {
     const role = localStorage.getItem('role') || 'EMPLOYEE';
     const roleId = Number(localStorage.getItem('roleId'));
     this.currentPath = this.router.url;
-    this.userRole = role === 'HR' || role === 'HR Manager' || role === 'Reporting Manager' || role === 'InCharge' ? 'HR' : 'EMPLOYEE';
+    // Anyone allowed to manage trainings (incl. Nursing Incharge / Nursing Educator,
+    // who don't carry a role NAME of 'HR' / 'InCharge') is treated as the HR-level UI.
+    const isAdminLevelByRoleName =
+      role === 'HR' || role === 'HR Manager' || role === 'Reporting Manager' || role === 'InCharge';
+    this.userRole = isAdminLevelByRoleName || this.canManageTraining ? 'HR' : 'EMPLOYEE';
       this.isReportingManager = roleId === 3;
     this.fetchTrainings();
     this.loadEmployees();
@@ -175,46 +219,34 @@ export class TrainingList {
   //   // });
   // }
   loadEmployees() {
-    const roleId = Number(localStorage.getItem('roleId'));
-    const empId = Number(localStorage.getItem('empId'));
+    // Skip the request entirely for users who aren't allowed to manage trainings —
+    // they will never see the assign UI, so there's no reason to hit the endpoint.
+    if (!this.canManageTraining) {
+      this.employeeOptions = [];
+      this.employees = [];
+      this.loading = false;
+      return;
+    }
 
     this.loading = true;
-
-    // If roleId = 3 → show only their employees
-    if (roleId === 3) {
-      this.employeeService.getByManager(empId).subscribe({
-        next: (res) => {
-          this.employeeOptions = res.map((emp: any) => ({
-            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
-            value: emp.id
-          }));
-          this.employees = res;
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('❌ Failed to fetch manager employees', err);
-          this.loading = false;
-        }
-      });
-    }
-
-    // HR or others → show all employees
-    else {
-      this.employeeService.getActiveEmployees().subscribe({
-        next: (res) => {
-          this.employeeOptions = res.map((emp: any) => ({
-            label: `${emp.firstName} ${emp.lastName} ${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
-            value: emp.id
-          }));
-          this.employees = res;
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('❌ Failed to fetch employees', err);
-          this.loading = false;
-        }
-      });
-    }
+    this.trainingService.getAssignableEmployees().subscribe({
+      next: (res: any[]) => {
+        this.employeeOptions = (res || []).map((emp: any) => ({
+          label: `${emp.firstName} ${emp.lastName}${emp.employeeCode ? ' (' + emp.employeeCode + ')' : ''}`,
+          value: emp.id,
+        }));
+        this.employees = res || [];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch assignable employees', err);
+        this.employeeOptions = [];
+        this.employees = [];
+        this.loading = false;
+        const msg = err?.error?.error || 'Could not load employees for assignment.';
+        this.messageService.add({ severity: 'warn', summary: 'Heads up', detail: msg });
+      },
+    });
   }
 
 
@@ -395,9 +427,10 @@ export class TrainingList {
 
       },
       error: (err) => {
-        console.error('❌ Failed to assign employees', err)
+        console.error('Failed to assign employees', err)
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign employees. Please try again.' });
+        const detail = err?.error?.error || 'Failed to assign employees. Please try again.';
+        this.messageService.add({ severity: 'error', summary: 'Cannot assign', detail });
       },
     });
   }
@@ -751,6 +784,38 @@ loadEmployeesByDepartments(departmentIds: number[]) {
       employeeIds: []
     });
 
+  }
+
+  openStatusDialog(t: any) {
+    this.statusTarget = t;
+    this.selectedStatus = t?.status || null;
+    this.showStatusDialog = true;
+  }
+
+  saveTrainingStatus() {
+    if (!this.statusTarget || !this.selectedStatus) return;
+    if (this.selectedStatus === this.statusTarget.status) {
+      this.showStatusDialog = false;
+      return;
+    }
+    this.statusUpdating = true;
+    this.trainingService.updateTrainingStatus(this.statusTarget.id, this.selectedStatus).subscribe({
+      next: () => {
+        this.statusUpdating = false;
+        this.showStatusDialog = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Status updated',
+          detail: `Training is now ${this.selectedStatus}`,
+        });
+        this.fetchTrainings();
+      },
+      error: (err) => {
+        this.statusUpdating = false;
+        const detail = err?.error?.error || 'Failed to update status. Please try again.';
+        this.messageService.add({ severity: 'error', summary: 'Cannot update status', detail });
+      },
+    });
   }
 
   selectedform: any | null = null;

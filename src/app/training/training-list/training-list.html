@@ -33,7 +33,7 @@
           </h2>
         </div>
         <div class="flex">
-          <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual'"
+          <div *ngIf="canManageTraining && currentPath !== '/individual'"
             class="p-mb-3 button">
             <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
               class="p-button-sm p-button-success" (click)="toggleForm()"></button>
@@ -167,7 +167,7 @@
           </h2>
         </div>
         <div class="flex">
-          <div *ngIf="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual'"
+          <div *ngIf="canManageTraining && currentPath !== '/individual'"
             class="p-mb-3 button">
             <button pButton label="{{ showForm ? 'Back to List' : 'New Training' }}" icon="pi pi-plus"
               class="p-button-sm p-button-success" (click)="toggleForm()"></button>
@@ -294,18 +294,18 @@
                   (click)="editTraining(t); showForm = true"></button>
                 <button pButton icon="pi pi-users" class="p-button-text p-button-sm assign text"
                   label="Assign Employees" (click)="openAssignEmployees(t)"></button>
+                <!-- <button pButton icon="pi pi-file-edit" class="p-button-text p-button-sm assign text"
+                  label="Assign Tests" (click)="openAssignTests(t)"></button> -->
+                <button pButton icon="pi pi-check-square" class="p-button-text p-button-sm attendance text"
+                  label="Mark Attendance" (click)="openAttendanceDialog(t)"></button>
                 <button pButton icon="pi pi-eye" class="p-button-text p-button-sm review text" label="Review Feedback"
                   (click)="openFeedbackDialog(t)"></button>
+                <button pButton icon="pi pi-flag" class="p-button-text p-button-sm change-status text"
+                  label="Change Status" (click)="openStatusDialog(t)"></button>
               </ng-container>
               <ng-container *ngIf="userRole === 'EMPLOYEE' || (userRole === 'HR' && viewMode === 'individual')">
                 <button pButton label="Give Feedback" icon="pi pi-comment" class="p-button-sm p-button-info"
                   (click)="openFeedback(t)"></button>
-              </ng-container>
-              <ng-container *ngIf="role === 'Reporting Manager'">
-                <button pButton icon="pi pi-check-square" class="p-button-text p-button-sm attendance text"
-                  label="Mark Attendance" (click)="openAttendanceDialog(t)">
-                </button>
-
               </ng-container>
             </td>
           </tr>
@@ -325,6 +325,18 @@
             </tr>
           </ng-template>
 
+        </ng-template>
+
+        <!-- Empty state -->
+        <ng-template pTemplate="emptymessage">
+          <tr class="training-empty-row">
+            <td [attr.colspan]="(userRole === 'HR' || role === 'Reporting Manager') && currentPath !== '/individual' ? 9 : 8">
+              <div class="training-empty">
+                <i class="pi pi-info-circle"></i>
+                <span>No training records found.</span>
+              </div>
+            </td>
+          </tr>
         </ng-template>
       </p-table>
     </ng-template>
@@ -349,8 +361,10 @@
   </ng-template>
   <form [formGroup]="form" class="p-fluid grid formgrid">
 
-    <!-- Departments (Multi-Select) -->
-    <div class="field col-12"  *ngIf="!isReportingManager">
+    <!-- Departments (Multi-Select) — only HR sees this filter.
+         RM / Nursing Incharge / Nursing Educator have a bounded scope, so picking
+         departments doesn't make sense for them. -->
+    <div class="field col-12"  *ngIf="isHRManagerScope">
       <p-floatLabel variant="on">
         <p-multiSelect [options]="departments" formControlName="departmentIds" optionLabel="label" optionValue="value"
           appendTo="body"  class="w-full"></p-multiSelect>
@@ -659,6 +673,38 @@
       [loading]="isLoading" (click)="saveAttendance()"></button>
   </div>
 
+</p-dialog>
+
+<!-- ===================== -->
+<!-- CHANGE TRAINING STATUS DIALOG -->
+<!-- ===================== -->
+<p-dialog header="Change Training Status" [(visible)]="showStatusDialog" [modal]="true"
+  [closable]="true" [style]="{ width: '420px' }">
+  <div class="status-dialog-body">
+    <div class="status-current" *ngIf="statusTarget">
+      <span class="label">Training:</span>
+      <strong>{{ statusTarget?.title }}</strong>
+    </div>
+    <div class="status-current" *ngIf="statusTarget">
+      <span class="label">Current status:</span>
+      <span class="dept-badge"
+        [ngStyle]="{ backgroundColor: getDepartmentColors(statusTarget?.departmentId).badgeColor }">
+        {{ statusTarget?.status }}
+      </span>
+    </div>
+    <div class="status-field">
+      <label>New status</label>
+      <p-select [options]="trainingStatusOptions" [(ngModel)]="selectedStatus"
+        optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="showStatusDialog = false"></button>
+    <button pButton [label]="statusUpdating ? 'Saving…' : 'Save'" icon="pi pi-check"
+      [loading]="statusUpdating"
+      [disabled]="!selectedStatus || statusUpdating"
+      (click)="saveTrainingStatus()"></button>
+  </ng-template>
 </p-dialog>
 
 <p-toast></p-toast>

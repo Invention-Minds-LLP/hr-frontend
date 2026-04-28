@@ -1134,6 +1134,231 @@
     </div>
   </div>
 
+  <!-- ══ SECTION 19 — TRAINING INSIGHTS ══ -->
+  <div class="section-label">
+    Training Insights
+    <span class="info-icon"
+      pTooltip="Training calendar, department-wise participation, test performance distribution, top/low performers, and training feedback ratings. Helps management track L&D investment and outcomes."
+      tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">
+    L&amp;D snapshot — what's scheduled, who's attending, how people are scoring on assessments, and which trainings are landing well with employees.
+  </p>
+
+  <!-- KPI tiles -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card full-card">
+      <div class="pulse-grid el-kpi-grid">
+        <div class="pulse-card">
+          <span class="pulse-label">Trainings This Month</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.trainingsThisMonth }}</span>
+          <span class="pulse-sub">Scheduled / running</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Total Assigned</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.totalAssigned }}</span>
+          <span class="pulse-sub">Across all trainings</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Avg Completion</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.avgCompletionPct }}%</span>
+          <span class="pulse-sub">Of all assignments</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Avg Test Score</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.avgTestScore }}/100</span>
+          <span class="pulse-sub">{{ trainingInsights.kpis.pendingAssignedTests }} tests pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training Calendar (month view) -->
+  <div class="card full-card" *ngIf="trainingCalendar">
+    <div class="card-head">
+      <div class="cal-month-nav">
+        <button class="cal-nav-btn" (click)="shiftTrainingCalMonth(-1)">‹</button>
+        <span class="card-title">Training Calendar — {{ trainingCalendar.monthLabel }}</span>
+        <button class="cal-nav-btn" (click)="shiftTrainingCalMonth(1)">›</button>
+      </div>
+      <span class="card-badge">{{ trainingCalendar.totalTrainings }} trainings this month</span>
+    </div>
+
+    <div class="train-cal">
+      <div class="train-cal-header">
+        <div class="train-cal-dow" *ngFor="let d of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ d }}</div>
+      </div>
+      <div class="train-cal-grid">
+        <!-- leading blanks before day 1 -->
+        <div class="train-cal-cell empty-cell" *ngFor="let _ of trainingCalLeadingBlanks"></div>
+
+        <div class="train-cal-cell" *ngFor="let day of trainingCalendar.days"
+          [class.has-training]="day.total > 0"
+          [class.is-selected]="selectedCalDay?.date === day.date"
+          (click)="selectTrainingCalDay(day)">
+          <div class="cal-day-num">{{ day.dayOfMonth }}</div>
+          <div class="cal-day-pills" *ngIf="day.total > 0">
+            <span class="cal-pill cal-pill-count">{{ day.total }}T</span>
+            <span class="cal-pill cal-pill-att" *ngIf="day.totalAttended > 0">{{ day.totalAttended }}P</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected day details -->
+    <div class="train-cal-detail" *ngIf="selectedCalDay && selectedCalDay.trainings.length">
+      <h4 class="cal-detail-head">Trainings on {{ selectedCalDay.date }}</h4>
+      <table class="dept-table">
+        <thead>
+          <tr>
+            <th>Title</th><th>Department</th><th>Mode</th><th>Assigned</th><th>Attended</th><th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of selectedCalDay.trainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.dept }}</td>
+            <td>{{ t.mode }}</td>
+            <td>{{ t.assignedCount }}</td>
+            <td>{{ t.attendedCount }}</td>
+            <td><span class="dept-badge"
+              [ngClass]="t.attendancePct >= 80 ? 'badge-good' : t.attendancePct >= 50 ? 'badge-warn' : 'badge-danger'">
+              {{ t.attendancePct }}%
+            </span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="train-cal-detail empty-detail" *ngIf="!selectedCalDay">
+      <i class="pi pi-info-circle"></i>
+      Click a day with trainings to see who attended and which dept was trained.
+    </div>
+  </div>
+
+  <!-- Dept Participation + Score Distribution -->
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Department Participation</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights?.deptParticipation?.length"
+          (click)="openChartModal('training-dept')">View Details</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingTrainingInsights"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <div class="chart-area" style="height:280px;" [hidden]="loadingTrainingInsights"><canvas id="trainingDeptChart"></canvas></div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Test Score Distribution</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights?.scoreDistribution?.length"
+          (click)="openChartModal('training-score')">View Details</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingTrainingInsights"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <div class="chart-area" style="height:280px;" [hidden]="loadingTrainingInsights"><canvas id="trainingScoreChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top/Low performers + Top/Low rated trainings -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Performers</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.topPerformers?.length"
+          (click)="openChartModal('training-top')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.topPerformers?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Avg Score</th><th>Attempts</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of trainingInsights.topPerformers.slice(0, 5)">
+            <td class="dept-name">{{ p.name }}</td>
+            <td>{{ p.dept }}</td>
+            <td><span class="dept-badge badge-good">{{ p.avgScore }}/100</span></td>
+            <td>{{ p.attemptsCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.topPerformers?.length">No completed test attempts yet.</div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Needs Attention (Low Scorers)</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.lowPerformers?.length"
+          (click)="openChartModal('training-low')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.lowPerformers?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Avg Score</th><th>Attempts</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of trainingInsights.lowPerformers.slice(0, 5)">
+            <td class="dept-name">{{ p.name }}</td>
+            <td>{{ p.dept }}</td>
+            <td><span class="dept-badge badge-danger">{{ p.avgScore }}/100</span></td>
+            <td>{{ p.attemptsCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.lowPerformers?.length">No employees scoring below 60.</div>
+    </div>
+  </div>
+
+  <!-- Training feedback (top + low rated) -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Rated Trainings</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.topRatedTrainings?.length"
+          (click)="openChartModal('training-rated')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.topRatedTrainings?.length">
+        <thead>
+          <tr><th>Training</th><th>Trainer</th><th>Content</th><th>Rating</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of trainingInsights.topRatedTrainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.avgTrainer }}/5</td>
+            <td>{{ t.avgContent }}/5</td>
+            <td><span class="dept-badge badge-good">{{ t.avgRating }}/5</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.topRatedTrainings?.length">No training feedback collected yet.</div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Trainings Needing Improvement</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.lowRatedTrainings?.length"
+          (click)="openChartModal('training-low-rated')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.lowRatedTrainings?.length">
+        <thead>
+          <tr><th>Training</th><th>Trainer</th><th>Content</th><th>Rating</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of trainingInsights.lowRatedTrainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.avgTrainer }}/5</td>
+            <td>{{ t.avgContent }}/5</td>
+            <td><span class="dept-badge"
+              [ngClass]="t.avgRating >= 3.5 ? 'badge-warn' : 'badge-danger'">{{ t.avgRating }}/5</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.lowRatedTrainings?.length">No low-rated trainings.</div>
+    </div>
+  </div>
+
   <!-- ══ SECTION 17 — MOBILE LOGIN ACTIVITY ══ -->
   <div class="section-label">
     Mobile Login Activity

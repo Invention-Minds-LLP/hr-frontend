@@ -159,6 +159,12 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   loadingQualifications  = true;
   elInsights: any        = null;
   loadingElInsights      = true;
+  trainingInsights: any  = null;
+  loadingTrainingInsights = true;
+  trainingCalendar: any  = null;
+  loadingTrainingCalendar = true;
+  trainingCalMonth: string = ''; // YYYY-MM
+  selectedCalDay: any | null = null;
 
   // ── OT month navigation ───────────────────────────────────
   otMonth = new Date();
@@ -268,6 +274,8 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private mobileLoginChart?: Chart;
   private qualDegreeChart?: Chart;
   private elDistChart?: Chart;
+  private trainingDeptChart?: Chart;
+  private trainingScoreChart?: Chart;
   private chartsReady = false;
 
   // ── KPI card config ───────────────────────────────────────
@@ -308,6 +316,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       if (this.mobileLogin)      this.drawMobileLoginChart();
       if (this.qualifications)   this.drawQualDegreeChart();
       if (this.elInsights)       this.drawElDistChart();
+      if (this.trainingInsights) { this.drawTrainingDeptChart(); this.drawTrainingScoreChart(); }
     }, 0);
   }
 
@@ -431,6 +440,61 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         this.loadingElInsights = false;
       },
     });
+
+    this.svc.getTrainingInsights().subscribe({
+      next: (d) => {
+        this.trainingInsights = d;
+        this.loadingTrainingInsights = false;
+        this.cdr.detectChanges();
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          this.drawTrainingDeptChart();
+          this.drawTrainingScoreChart();
+        }));
+      },
+      error: (err) => {
+        console.error('[training-insights] failed:', err);
+        this.loadingTrainingInsights = false;
+      },
+    });
+
+    // Training calendar — current month
+    const now = new Date();
+    this.trainingCalMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    this.loadTrainingCalendar(this.trainingCalMonth);
+  }
+
+  loadTrainingCalendar(month: string) {
+    this.loadingTrainingCalendar = true;
+    this.svc.getTrainingCalendar(month).subscribe({
+      next: (d) => {
+        this.trainingCalendar = d;
+        this.trainingCalMonth = month;
+        this.loadingTrainingCalendar = false;
+      },
+      error: (err) => {
+        console.error('[training-calendar] failed:', err);
+        this.loadingTrainingCalendar = false;
+      },
+    });
+  }
+
+  shiftTrainingCalMonth(delta: number) {
+    const [y, m] = this.trainingCalMonth.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    const next = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    this.loadTrainingCalendar(next);
+  }
+
+  selectTrainingCalDay(day: any) {
+    this.selectedCalDay = day && day.total > 0 ? day : null;
+  }
+
+  // Map day-of-week of 1st of month to grid offset (0=Sun..6=Sat)
+  get trainingCalLeadingBlanks(): number[] {
+    if (!this.trainingCalMonth) return [];
+    const [y, m] = this.trainingCalMonth.split('-').map(Number);
+    const first = new Date(y, m - 1, 1);
+    return new Array(first.getDay()).fill(0);
   }
 
   loadMobileLogin(days: number) {
@@ -929,6 +993,82 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         rows  = this.elInsights?.deptAvg ?? [];
         break;
 
+      case 'training-dept':
+        title = 'Training Participation by Department';
+        cols  = [
+          { key: 'dept',              label: 'Department' },
+          { key: 'assignedEmployees', label: 'Assigned' },
+          { key: 'completed',         label: 'Completed' },
+          { key: 'pending',           label: 'Pending' },
+          { key: 'completionPct',     label: 'Completion %' },
+          { key: 'trainingsCovered',  label: 'Trainings' },
+        ];
+        rows = this.trainingInsights?.deptParticipation ?? [];
+        break;
+
+      case 'training-score':
+        title = 'Test Score Distribution';
+        cols  = [
+          { key: 'label', label: 'Score Band' },
+          { key: 'count', label: 'Attempts' },
+        ];
+        rows = this.trainingInsights?.scoreDistribution ?? [];
+        break;
+
+      case 'training-top':
+        title = 'Top Performers (Avg Test Score)';
+        cols  = [
+          { key: 'name',          label: 'Employee' },
+          { key: 'employeeCode',  label: 'Code' },
+          { key: 'dept',          label: 'Department' },
+          { key: 'designation',   label: 'Designation' },
+          { key: 'avgScore',      label: 'Avg Score' },
+          { key: 'attemptsCount', label: 'Attempts' },
+        ];
+        rows = this.trainingInsights?.topPerformers ?? [];
+        break;
+
+      case 'training-low':
+        title = 'Needs Attention — Low Scoring (< 60)';
+        cols  = [
+          { key: 'name',          label: 'Employee' },
+          { key: 'employeeCode',  label: 'Code' },
+          { key: 'dept',          label: 'Department' },
+          { key: 'designation',   label: 'Designation' },
+          { key: 'avgScore',      label: 'Avg Score' },
+          { key: 'attemptsCount', label: 'Attempts' },
+        ];
+        rows = this.trainingInsights?.lowPerformers ?? [];
+        break;
+
+      case 'training-rated':
+        title = 'Top Rated Trainings';
+        cols  = [
+          { key: 'title',         label: 'Training' },
+          { key: 'startDate',     label: 'Start' },
+          { key: 'avgRating',     label: 'Overall' },
+          { key: 'avgTrainer',    label: 'Trainer' },
+          { key: 'avgContent',    label: 'Content' },
+          { key: 'avgRelevance',  label: 'Relevance' },
+          { key: 'feedbackCount', label: 'Feedbacks' },
+        ];
+        rows = this.trainingInsights?.topRatedTrainings ?? [];
+        break;
+
+      case 'training-low-rated':
+        title = 'Lowest Rated Trainings';
+        cols  = [
+          { key: 'title',         label: 'Training' },
+          { key: 'startDate',     label: 'Start' },
+          { key: 'avgRating',     label: 'Overall' },
+          { key: 'avgTrainer',    label: 'Trainer' },
+          { key: 'avgContent',    label: 'Content' },
+          { key: 'avgRelevance',  label: 'Relevance' },
+          { key: 'feedbackCount', label: 'Feedbacks' },
+        ];
+        rows = this.trainingInsights?.lowRatedTrainings ?? [];
+        break;
+
       case 'el-all':
         title = 'All Employees — EL Balance';
         cols  = [
@@ -1117,6 +1257,38 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
             { key: 'designation',  label: 'Designation' },
             { key: 'balance',      label: 'EL Balance' },
             { key: 'bucket',       label: 'Bucket' },
+          ],
+        };
+      case 'training-dept':
+        // Use the granular per-attempt list so each row shows
+        // employee × training × test, not just employee aggregates.
+        return {
+          rowKey: 'dept', sourceKey: 'dept',
+          source: this.trainingInsights?.attemptDetails ?? [],
+          cols: [
+            { key: 'name',           label: 'Employee' },
+            { key: 'employeeCode',   label: 'Code' },
+            { key: 'designation',    label: 'Designation' },
+            { key: 'trainingTitle',  label: 'Training' },
+            { key: 'testName',       label: 'Test' },
+            { key: 'score',          label: 'Score' },
+            { key: 'passingPercent', label: 'Pass %' },
+            { key: 'attemptDate',    label: 'Date' },
+          ],
+        };
+      case 'training-score':
+        // Drill by score band — show employees whose avg score is in that band
+        return {
+          rowKey: 'label', sourceKey: 'band',
+          source: this.trainingInsights?.employeeList ?? [],
+          cols: [
+            { key: 'name',          label: 'Employee' },
+            { key: 'employeeCode',  label: 'Code' },
+            { key: 'dept',          label: 'Department' },
+            { key: 'designation',   label: 'Designation' },
+            { key: 'avgScore',      label: 'Avg Score' },
+            { key: 'attemptsCount', label: 'Attempts' },
+            { key: 'band',          label: 'Band' },
           ],
         };
       case 'perf-dist':
@@ -1821,6 +1993,78 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         scales: {
           x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
           y: { ticks: { color: '#e5e7eb', font: { size: 12 } }, grid: { display: false } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // Training department-participation horizontal bar (assigned vs completed)
+  private drawTrainingDeptChart(retries = 3) {
+    const ctx = document.getElementById('trainingDeptChart') as HTMLCanvasElement;
+    if (!ctx) {
+      if (retries > 0) { requestAnimationFrame(() => this.drawTrainingDeptChart(retries - 1)); return; }
+      return;
+    }
+    if (!this.trainingInsights?.deptParticipation?.length) return;
+    if (this.trainingDeptChart) this.trainingDeptChart.destroy();
+    const data = this.trainingInsights.deptParticipation.slice(0, 10);
+    this.trainingDeptChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.dept),
+        datasets: [
+          { label: 'Assigned',  data: data.map((d: any) => d.assignedEmployees), backgroundColor: '#60a5fa', borderRadius: 4, stack: 't' },
+          { label: 'Completed', data: data.map((d: any) => d.completed),         backgroundColor: '#22c55e', borderRadius: 4, stack: 't' },
+        ],
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 14 } } },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // Test score distribution doughnut (Excellent/Good/Average/Below)
+  private drawTrainingScoreChart(retries = 3) {
+    const ctx = document.getElementById('trainingScoreChart') as HTMLCanvasElement;
+    if (!ctx) {
+      if (retries > 0) { requestAnimationFrame(() => this.drawTrainingScoreChart(retries - 1)); return; }
+      return;
+    }
+    if (!this.trainingInsights?.scoreDistribution?.length) return;
+    const total = this.trainingInsights.scoreDistribution.reduce((s: number, d: any) => s + d.count, 0);
+    if (total === 0) return;
+    if (this.trainingScoreChart) this.trainingScoreChart.destroy();
+    const dist = this.trainingInsights.scoreDistribution;
+    const shortLabels = dist.map((d: any) => (d.label || '').split(' (')[0] || d.label);
+    this.trainingScoreChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: shortLabels,
+        datasets: [{
+          data: dist.map((d: any) => d.count),
+          backgroundColor: dist.map((d: any) => d.color),
+          borderWidth: 0, hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '60%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, boxWidth: 12, boxHeight: 12, usePointStyle: true },
+          },
+          tooltip: {
+            callbacks: {
+              title: (items: any[]) => dist[items[0]?.dataIndex]?.label ?? '',
+            },
+          },
         },
       },
       plugins: [this.valueLabelsPlugin],

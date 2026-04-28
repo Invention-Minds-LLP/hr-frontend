@@ -289,8 +289,9 @@ export class TrainingForm {
           // this.formSubmit.emit(); // optional event for parent
         },
         error: (err) => {
-          console.error('❌ Failed to create training:', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create training.' });
+          console.error('Failed to create training:', err);
+          const detail = err?.error?.error || 'Failed to create training.';
+          this.messageService.add({ severity: 'error', summary: 'Cannot create training', detail });
           this.submitting = false;
         },
       });

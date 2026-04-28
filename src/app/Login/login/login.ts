@@ -108,6 +108,7 @@ export class Login {
               localStorage.setItem('userId', response.id);
               localStorage.setItem('empId', response.empId);
               localStorage.setItem('deptId', response.deptId);
+              localStorage.setItem('departmentName', response.departmentName || '');
               localStorage.setItem('photoUrl', response.photoUrl || '');
               localStorage.setItem('designation', response.designation || '');
               localStorage.setItem('roleId', response.roleId || '');

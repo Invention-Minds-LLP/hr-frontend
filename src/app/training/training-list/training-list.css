@@ -878,6 +878,61 @@ border-bottom: none !important;
   color: black !important;
 }
 
+/* Change-status dialog */
+.status-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 0;
+}
+.status-dialog-body .status-current {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  color: #ddd;
+}
+.status-dialog-body .status-current .label {
+  color: #999;
+  min-width: 110px;
+}
+.status-dialog-body .status-current strong {
+  color: #fff;
+}
+.status-dialog-body .status-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.status-dialog-body .status-field label {
+  font-family: "Sofia Sans";
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.2px;
+}
+
+/* Empty state for the trainings table — center across all columns */
+.training-empty-row > td {
+  padding: 24px 0 !important;
+  text-align: center !important;
+}
+.training-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  color: #aaa;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+}
+.training-empty i {
+  color: #FB9C2A;
+  font-size: 16px;
+}
+
 .field label{
   color: white !important;
 }

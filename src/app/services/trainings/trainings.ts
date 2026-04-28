@@ -29,6 +29,15 @@ export class Trainings {
   assignEmployees(data: any) {
     return this.http.post( `${this.baseUrl}/assign`, data);
   }
+
+  /**
+   * Returns the list of employees the logged-in user is allowed to assign training to.
+   * Backend enforces scope: HR=all, Reporting Manager=own reports,
+   * Nursing Incharge / Nursing Educator=Nursing dept only. 403 if not allowed at all.
+   */
+  getAssignableEmployees(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/assignable-employees`);
+  }
   
 
   /** Assign tests to a training */
@@ -67,6 +76,11 @@ export class Trainings {
   }
   updateTraining(id: number, data: any) {
     return this.http.put(`${this.baseUrl}/${id}`, data);
+  }
+
+  /** Manually change training status: DRAFT | ACTIVE | COMPLETED | CANCELLED */
+  updateTrainingStatus(id: number, status: string) {
+    return this.http.patch(`${this.baseUrl}/${id}/status`, { status });
   }
 
   getTrainingAttendance(trainingId: number) {

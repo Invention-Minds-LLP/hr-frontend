@@ -79,4 +79,11 @@ export class ManagementService {
   getElInsights(): Observable<any> {
     return this.http.get(`${this.base}/el-insights`);
   }
+  getTrainingInsights(): Observable<any> {
+    return this.http.get(`${this.base}/training-insights`);
+  }
+  getTrainingCalendar(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/training-calendar${q}`);
+  }
 }
