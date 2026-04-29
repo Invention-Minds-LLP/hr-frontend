@@ -130,6 +130,40 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   loadingLeaveUtil   = true;
   loadingAbsenteeism = true;
   loadingWfInsights  = true;
+  loadingAttention   = true;
+
+  // ── Attention Needed (auto-flagged alerts) ───────────────
+  attention: { items: any[]; counts: any; generatedAt?: string } | null = null;
+  /** Whether the user collapsed the panel — persisted to localStorage so a
+   *  click on a chip → drill into a section doesn't re-expand the alerts. */
+  attentionCollapsed = false;
+
+  // ── Section TOC for the sticky side nav ──────────────────
+  // `id` matches the [id]="..." attribute on the corresponding section in
+  // the template. Adding a new section? Add an entry here and tag the
+  // section with the matching id.
+  readonly tocSections: { id: string; label: string; icon: string }[] = [
+    { id: 'sec-attention',   label: 'Attention',     icon: '🚨' },
+    { id: 'sec-pulse',       label: 'Pulse',         icon: '💓' },
+    { id: 'sec-workforce',   label: 'Workforce',     icon: '👥' },
+    { id: 'sec-dept-snap',   label: 'Departments',   icon: '🏢' },
+    { id: 'sec-dept-risk',   label: 'Risk',          icon: '⚠️' },
+    { id: 'sec-attendance',  label: 'Attendance',    icon: '🕒' },
+    { id: 'sec-pip',         label: 'Performance',   icon: '📊' },
+    { id: 'sec-perf-dist',   label: 'Perf. Trend',   icon: '📈' },
+    { id: 'sec-attrition',   label: 'Attrition',     icon: '📤' },
+    { id: 'sec-training',    label: 'Training',      icon: '🎓' },
+    { id: 'sec-actions',     label: 'Actions',       icon: '✅' },
+    { id: 'sec-ot',          label: 'Overtime',      icon: '⏱️' },
+    { id: 'sec-late',        label: 'Late Arrivals', icon: '🚦' },
+    { id: 'sec-leave-util',  label: 'Leave Util.',   icon: '🗓️' },
+    { id: 'sec-absent',      label: 'Absenteeism',   icon: '📉' },
+    { id: 'sec-quals',       label: 'Qualifications',icon: '🎓' },
+    { id: 'sec-el',          label: 'EL Insights',   icon: '💰' },
+    { id: 'sec-train-ins',   label: 'Train. Insights', icon: '📚' },
+    { id: 'sec-mobile',      label: 'Mobile',        icon: '📱' },
+  ];
+  activeTocId = 'sec-attention';
 
   // ── Data ─────────────────────────────────────────────────
   pulse: any           = null;
@@ -300,7 +334,12 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
 
   constructor(private svc: ManagementService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit()       { this.loadAll(); }
+  ngOnInit() {
+    this.attentionCollapsed = localStorage.getItem('mgmt-dash-attn-collapsed') === '1';
+    this.loadAll();
+    // Scroll-spy: highlight the TOC chip whose section is currently visible.
+    this.installTocScrollSpy();
+  }
   ngAfterViewInit(){
     this.chartsReady = true;
     // If API responded before view was ready, draw now
@@ -320,8 +359,117 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     }, 0);
   }
 
+  // ─────────────────────────────────────────────────────────
+  // TOC / scroll-spy / utility helpers (added with the dashboard
+  // upgrade — Attention panel, sticky nav, print export).
+  // ─────────────────────────────────────────────────────────
+
+  /** Smooth-scroll to a section. Called from TOC chips and from clicking
+   *  an Attention-Needed alert that has a sectionId. */
+  scrollToSection(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.activeTocId = id;
+  }
+
+  /** Track which section is most visible and update activeTocId so the
+   *  side-nav chip highlights. Uses IntersectionObserver — cheap, no scroll
+   *  listener or repeated layout reads. */
+  private installTocScrollSpy() {
+    // Defer to next tick so the sections actually exist in the DOM.
+    setTimeout(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          // Pick the entry with the highest intersectionRatio that's visible.
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible?.target?.id) {
+            this.activeTocId = visible.target.id;
+          }
+        },
+        { rootMargin: '-30% 0px -60% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
+      );
+      for (const s of this.tocSections) {
+        const el = document.getElementById(s.id);
+        if (el) observer.observe(el);
+      }
+    }, 500);
+  }
+
+  toggleAttentionPanel() {
+    this.attentionCollapsed = !this.attentionCollapsed;
+    localStorage.setItem('mgmt-dash-attn-collapsed', this.attentionCollapsed ? '1' : '0');
+  }
+
+  /** Click handler for an Attention chip — navigates to the related section
+   *  if one was provided by the backend. */
+  openAttentionItem(item: { sectionId?: string }) {
+    if (item.sectionId) this.scrollToSection(item.sectionId);
+  }
+
+  /** Map a KPI key onto its delta in `pulse.comparisons`. Returns:
+   *   { dir: 'up'|'down'|'flat', value: number, label: string, isGood: boolean }
+   *  or null if no comparable prior data. The component template uses this
+   *  to render the small ↑/↓ chip on each KPI card.
+   *
+   *  isGood lets us colour the chip green/red contextually — e.g. attrition
+   *  going UP is bad, attendance going UP is good. Defined per-key. */
+  getKpiDelta(key: string): { dir: 'up'|'down'|'flat'; value: number; label: string; isGood: boolean } | null {
+    const c = this.pulse?.comparisons;
+    if (!c) return null;
+
+    // Map: KPI key → comparison entry + whether "going up" is desirable
+    const map: Record<string, { entry: any; upIsGood: boolean }> = {
+      headcount:             { entry: c.headcount,             upIsGood: true  },
+      attendancePct:         { entry: c.attendancePct,         upIsGood: true  },
+      attritionMTD:          { entry: c.attritionMTD,          upIsGood: false }, // up = more leaving = bad
+      trainingCompletionPct: { entry: c.trainingCompletionPct, upIsGood: true  },
+    };
+
+    const m = map[key];
+    if (!m || !m.entry) return null;
+
+    // Some metrics use absolute-points delta (already-percentage values),
+    // others use relative %. Pick whichever the backend supplied.
+    const d = m.entry.deltaPoints ?? m.entry.deltaPct;
+    if (d === null || d === undefined) return null;
+
+    const dir: 'up'|'down'|'flat' = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
+    const isGood = dir === 'flat' ? true : (m.upIsGood ? dir === 'up' : dir === 'down');
+
+    // Display: "↑ 3.2%" or "↑ 4 pts" depending on which delta the backend used.
+    const suffix = m.entry.deltaPoints !== undefined && m.entry.deltaPoints !== null ? ' pts' : '%';
+    return {
+      dir,
+      value: Math.abs(d),
+      label: `${dir === 'up' ? '↑' : dir === 'down' ? '↓' : '→'} ${Math.abs(d)}${suffix} vs last month`,
+      isGood,
+    };
+  }
+
+  /** Trigger the browser's print dialog — combined with the print stylesheet
+   *  this generates a tidy PDF / paper export of the entire dashboard.
+   *  We expand any collapsed UI before printing so nothing is missing. */
+  exportDashboardPdf() {
+    const wasCollapsed = this.attentionCollapsed;
+    this.attentionCollapsed = false;
+    // Give Angular one tick to repaint the expanded panel before print
+    setTimeout(() => {
+      window.print();
+      // Restore the user's previous collapse state after the print dialog.
+      this.attentionCollapsed = wasCollapsed;
+    }, 50);
+  }
+
   // ── Data loading ──────────────────────────────────────────
   private loadAll() {
+    this.svc.getAttention().subscribe({
+      next: (d) => { this.attention = d; this.loadingAttention = false; },
+      error: () => { this.loadingAttention = false; },
+    });
+
     this.svc.getPulse().subscribe({
       next: (d) => { this.pulse = d; this.loadingPulse = false; },
       error: () => { this.loadingPulse = false; }
@@ -369,98 +517,108 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       error: () => { this.loadingTraining = false; }
     });
 
-    this.svc.getActionItems().subscribe({
-      next: (d) => { this.actionItems = d; this.loadingActions = false; },
-      error: () => { this.loadingActions = false; }
-    });
+    // ── PHASE 2 (mid-fold sections) ────────────────────────────
+    // Slight delay (200ms) so the eager phase's connections finish
+    // first. These appear in the second viewport-height of the page.
+    setTimeout(() => {
+      this.svc.getActionItems().subscribe({
+        next: (d) => { this.actionItems = d; this.loadingActions = false; },
+        error: () => { this.loadingActions = false; }
+      });
 
-    this.svc.getDeptSnapshot().subscribe({
-      next: (d) => { this.deptSnapshot = d; this.loadingDeptSnap = false; },
-      error: () => { this.loadingDeptSnap = false; }
-    });
+      this.svc.getDeptSnapshot().subscribe({
+        next: (d) => { this.deptSnapshot = d; this.loadingDeptSnap = false; },
+        error: () => { this.loadingDeptSnap = false; }
+      });
 
-    this.svc.getDeptRisk().subscribe({
-      next: (d) => { this.deptRisk = d; this.loadingDeptRisk = false; },
-      error: () => { this.loadingDeptRisk = false; }
-    });
+      this.svc.getDeptRisk().subscribe({
+        next: (d) => { this.deptRisk = d; this.loadingDeptRisk = false; },
+        error: () => { this.loadingDeptRisk = false; }
+      });
 
-    this.svc.getWeeklyTrend().subscribe({
-      next: (d) => {
-        this.weeklyTrend = d; this.loadingWeekly = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyChart(), 0); }
-      },
-      error: () => { this.loadingWeekly = false; }
-    });
+      this.svc.getWeeklyTrend().subscribe({
+        next: (d) => {
+          this.weeklyTrend = d; this.loadingWeekly = false;
+          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyChart(), 0); }
+        },
+        error: () => { this.loadingWeekly = false; }
+      });
 
-    this.svc.getPerformanceDistribution().subscribe({
-      next: (d) => {
-        this.perfDist = d; this.loadingPerfDist = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawPerfDistChart(), 0); }
-      },
-      error: () => { this.loadingPerfDist = false; }
-    });
+      this.svc.getPerformanceDistribution().subscribe({
+        next: (d) => {
+          this.perfDist = d; this.loadingPerfDist = false;
+          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawPerfDistChart(), 0); }
+        },
+        error: () => { this.loadingPerfDist = false; }
+      });
+    }, 200);
 
-    this.loadOtAnalysis();
-    this.loadLateArrivals(this.lateDays);
-    this.svc.getLeaveUtilization().subscribe({
-      next: (d) => { this.leaveUtil = d; this.loadingLeaveUtil = false; },
-      error: () => { this.loadingLeaveUtil = false; }
-    });
-    this.loadAbsenteeism(this.absentDays);
+    // ── PHASE 3 (lazy / bottom-of-page sections) ──────────────
+    // Deferred so initial paint isn't fighting 25 parallel requests.
+    // 700ms gives the eager + mid-fold sections a clean shot at backend
+    // CPU + network. User can already see and interact with the top of
+    // the dashboard while these load in the background.
+    setTimeout(() => {
+      this.loadOtAnalysis();
+      this.loadLateArrivals(this.lateDays);
+      this.svc.getLeaveUtilization().subscribe({
+        next: (d) => { this.leaveUtil = d; this.loadingLeaveUtil = false; },
+        error: () => { this.loadingLeaveUtil = false; }
+      });
+      this.loadAbsenteeism(this.absentDays);
 
-    this.svc.getWorkforceInsights().subscribe({
-      next: (d) => {
-        this.wfInsights = d; this.loadingWfInsights = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWfInsightCharts(), 0); }
-      },
-      error: () => { this.loadingWfInsights = false; }
-    });
+      this.svc.getWorkforceInsights().subscribe({
+        next: (d) => {
+          this.wfInsights = d; this.loadingWfInsights = false;
+          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWfInsightCharts(), 0); }
+        },
+        error: () => { this.loadingWfInsights = false; }
+      });
 
-    this.loadMobileLogin(this.mobileLoginDays);
+      this.loadMobileLogin(this.mobileLoginDays);
 
-    this.svc.getQualifications().subscribe({
-      next: (d) => {
-        this.qualifications = d; this.loadingQualifications = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawQualDegreeChart(), 0); }
-      },
-      error: () => { this.loadingQualifications = false; }
-    });
+      this.svc.getQualifications().subscribe({
+        next: (d) => {
+          this.qualifications = d; this.loadingQualifications = false;
+          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawQualDegreeChart(), 0); }
+        },
+        error: () => { this.loadingQualifications = false; }
+      });
 
-    this.svc.getElInsights().subscribe({
-      next: (d) => {
-        this.elInsights = d;
-        this.loadingElInsights = false;
-        // Force Angular to re-render (releases [hidden] on the canvas wrapper)
-        this.cdr.detectChanges();
-        // Double-RAF guarantees the canvas is laid out before we measure it
-        requestAnimationFrame(() => requestAnimationFrame(() => this.drawElDistChart()));
-      },
-      error: (err) => {
-        console.error('[el-insights] failed:', err);
-        this.loadingElInsights = false;
-      },
-    });
+      this.svc.getElInsights().subscribe({
+        next: (d) => {
+          this.elInsights = d;
+          this.loadingElInsights = false;
+          this.cdr.detectChanges();
+          requestAnimationFrame(() => requestAnimationFrame(() => this.drawElDistChart()));
+        },
+        error: (err) => {
+          console.error('[el-insights] failed:', err);
+          this.loadingElInsights = false;
+        },
+      });
 
-    this.svc.getTrainingInsights().subscribe({
-      next: (d) => {
-        this.trainingInsights = d;
-        this.loadingTrainingInsights = false;
-        this.cdr.detectChanges();
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          this.drawTrainingDeptChart();
-          this.drawTrainingScoreChart();
-        }));
-      },
-      error: (err) => {
-        console.error('[training-insights] failed:', err);
-        this.loadingTrainingInsights = false;
-      },
-    });
+      this.svc.getTrainingInsights().subscribe({
+        next: (d) => {
+          this.trainingInsights = d;
+          this.loadingTrainingInsights = false;
+          this.cdr.detectChanges();
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            this.drawTrainingDeptChart();
+            this.drawTrainingScoreChart();
+          }));
+        },
+        error: (err) => {
+          console.error('[training-insights] failed:', err);
+          this.loadingTrainingInsights = false;
+        },
+      });
 
-    // Training calendar — current month
-    const now = new Date();
-    this.trainingCalMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    this.loadTrainingCalendar(this.trainingCalMonth);
+      // Training calendar — current month
+      const now = new Date();
+      this.trainingCalMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      this.loadTrainingCalendar(this.trainingCalMonth);
+    }, 700);
   }
 
   loadTrainingCalendar(month: string) {

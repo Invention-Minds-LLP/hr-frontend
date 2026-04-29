@@ -67,6 +67,23 @@
   </div>
 </div>
 
+<div class="mgmt-shell">
+
+  <!-- ══ STICKY SIDE NAV (Table of Contents) ══ -->
+  <!-- Vertical chip list pinned to the left edge while user scrolls.
+       Tap a chip → smooth scroll to that section. Active chip highlights
+       based on what's currently visible (IntersectionObserver in TS). -->
+  <!-- <aside class="mgmt-toc no-print" aria-label="Dashboard sections">
+    <div class="mgmt-toc-title">Sections</div>
+    <button *ngFor="let s of tocSections"
+            class="mgmt-toc-chip"
+            [class.active]="activeTocId === s.id"
+            (click)="scrollToSection(s.id)">
+      <span class="mgmt-toc-icon">{{ s.icon }}</span>
+      <span class="mgmt-toc-label">{{ s.label }}</span>
+    </button>
+  </aside> -->
+
 <div class="mgmt-wrap">
 
   <!-- ══ HEADER ══ -->
@@ -74,11 +91,71 @@
     <div>
       <h1 class="mgmt-title">Management Overview</h1>
       <p class="mgmt-sub">Live institute snapshot · {{ calendarMonth | date:'MMMM yyyy' }}</p>
+      <!-- Data-baseline notice — system went live in March 2026, so anything before
+           that date is intentionally absent (not a bug). Setting this expectation
+           up-front prevents "why is January empty?" questions from leadership. -->
+      <p class="mgmt-baseline" pTooltip="The HRMS was rolled out in March 2026. Records prior to that date are not available in the system."
+         tooltipPosition="bottom">
+        ⓘ Showing data from <b>March 2026</b> onwards · system launch date
+      </p>
+    </div>
+    <!-- Print/PDF export — uses the browser's native print pipeline + a print
+         stylesheet so the result is a clean board-pack-style PDF. -->
+    <div class="mgmt-header-actions no-print">
+      <button class="mgmt-print-btn" (click)="exportDashboardPdf()"
+              pTooltip="Export this dashboard as a PDF (uses your browser's print dialog)"
+              tooltipPosition="bottom">
+        🖨 Export PDF
+      </button>
     </div>
   </div>
 
+  <!-- ══ ATTENTION NEEDED ══ -->
+  <!-- Auto-flagged items that crossed configured thresholds. Sits at the
+       very top so leadership sees what needs review before scrolling. -->
+  <section id="sec-attention" class="attention-section no-print-empty">
+    <div class="section-label">
+      🚨 Attention Needed
+      <span class="info-icon" pTooltip="Auto-detected issues based on attendance, attrition, OT, and training thresholds. Click any item to jump to the related section." tooltipPosition="right">ⓘ</span>
+      <span class="attn-counts" *ngIf="attention?.counts as c">
+        <span class="attn-pill attn-pill-red"    *ngIf="c.red">{{ c.red }} critical</span>
+        <span class="attn-pill attn-pill-yellow" *ngIf="c.yellow">{{ c.yellow }} warnings</span>
+      </span>
+      <button class="attn-toggle" *ngIf="attention?.items?.length"
+              (click)="toggleAttentionPanel()">
+        {{ attentionCollapsed ? '▼ Show' : '▲ Hide' }}
+      </button>
+    </div>
+
+    <div class="attn-loading" *ngIf="loadingAttention">
+      <p-skeleton width="40%" height="0.9rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton width="70%" height="2rem"></p-skeleton>
+    </div>
+
+    <ng-container *ngIf="!loadingAttention && attention">
+      <div class="attn-empty" *ngIf="!attention.items.length">
+        ✅ All clear — no metrics currently outside of healthy thresholds.
+      </div>
+
+      <div class="attn-grid" *ngIf="attention.items.length && !attentionCollapsed">
+        <div class="attn-card"
+             *ngFor="let item of attention.items"
+             [ngClass]="'attn-' + item.severity"
+             [class.clickable]="!!item.sectionId"
+             (click)="openAttentionItem(item)">
+          <span class="attn-icon">{{ item.icon }}</span>
+          <div class="attn-body">
+            <div class="attn-title">{{ item.title }}</div>
+            <div class="attn-msg">{{ item.message }}</div>
+          </div>
+          <span class="attn-arrow" *ngIf="item.sectionId">→</span>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
   <!-- ══ SECTION 1 — PULSE KPIs ══ -->
-  <div class="section-label">
+  <div id="sec-pulse" class="section-label">
     Pulse
     <span class="info-icon" pTooltip="Real-time key performance indicators. Click a card to drill into the detail list." tooltipPosition="right">ⓘ</span>
   </div>
@@ -102,6 +179,14 @@
       <span class="pulse-label">{{ card.label }}</span>
       <span class="pulse-value">{{ getKpiValue(card.key) }}<ng-container *ngIf="card.key === 'trainingCompletionPct'">%</ng-container></span>
       <span class="pulse-sub" *ngIf="getKpiSub(card.key)">{{ getKpiSub(card.key) }}</span>
+      <!-- Period-comparison chip — only renders for keys with comparable
+           prior-month data (headcount / attendance / attrition / training). -->
+      <span class="pulse-delta"
+            *ngIf="getKpiDelta(card.key) as delta"
+            [ngClass]="{ 'delta-good': delta.isGood, 'delta-bad': !delta.isGood, 'delta-flat': delta.dir === 'flat' }"
+            [pTooltip]="delta.label" tooltipPosition="top">
+        {{ delta.dir === 'up' ? '↑' : delta.dir === 'down' ? '↓' : '→' }} {{ delta.value }}%
+      </span>
       <span class="pulse-icon">{{ card.icon }}</span>
       <span class="pulse-info" [pTooltip]="card.info" tooltipPosition="top" (click)="$event.stopPropagation()">ⓘ</span>
       <span class="pulse-click-hint" *ngIf="!!card.detailType">{{ detailType === card.detailType ? '▲ hide' : '▼ details' }}</span>
@@ -133,7 +218,7 @@
   </div>
 
   <!-- ══ SECTION 2 — WORKFORCE ══ -->
-  <div class="section-label">
+  <div id="sec-workforce" class="section-label">
     Workforce Snapshot
     <span class="info-icon" pTooltip="Headcount by department and employment type. The donut shows employment status breakdown." tooltipPosition="right">ⓘ</span>
   </div>
@@ -232,7 +317,7 @@
   </div>
 
   <!-- ══ SECTION 3 — DEPARTMENT SNAPSHOT (NEW) ══ -->
-  <div class="section-label">
+  <div id="sec-dept-snap" class="section-label">
     Department Health
     <span class="info-icon" pTooltip="Per-department view: headcount, today's attendance rate, average appraisal score, and active PIPs. Quickly spot which teams need attention." tooltipPosition="right">ⓘ</span>
   </div>
@@ -286,7 +371,7 @@
   </div>
 
   <!-- ══ SECTION 3b — DEPARTMENT RISK ══ -->
-  <div class="section-label">
+  <div id="sec-dept-risk" class="section-label">
     Department Risk Analysis
     <span class="info-icon" pTooltip="Risk score per department based on resignation rate (last 3 months), leave volume this month, appraisal performance, and active PIPs. High = needs management attention." tooltipPosition="right">ⓘ</span>
   </div>
@@ -389,7 +474,7 @@
   </div>
 
   <!-- ══ SECTION 4 — ATTENDANCE & LEAVE ══ -->
-  <div class="section-label">
+  <div id="sec-attendance" class="section-label">
     Attendance & Leave
     <span class="info-icon" pTooltip="Last 7 days attendance trend and current month leave density calendar. Amber cells = more employees on leave." tooltipPosition="right">ⓘ</span>
   </div>
@@ -445,7 +530,7 @@
   </div>
 
   <!-- ══ SECTION 5 — PERFORMANCE & PIP ══ -->
-  <div class="section-label">
+  <div id="sec-pip" class="section-label">
     Performance & PIP
     <span class="info-icon" pTooltip="Average manager appraisal ratings by dimension (scale 0–10). Right panel shows employees currently on PIPs." tooltipPosition="right">ⓘ</span>
   </div>
@@ -514,7 +599,7 @@
   </div>
 
   <!-- ══ SECTION 6 — PERFORMANCE DISTRIBUTION + WEEKLY TREND (NEW) ══ -->
-  <div class="section-label">
+  <div id="sec-perf-dist" class="section-label">
     Performance Analytics
     <span class="info-icon" pTooltip="Score distribution shows how many employees fall in each performance band. Weekly trend tracks organisation-wide weekly rating momentum." tooltipPosition="right">ⓘ</span>
   </div>
@@ -574,7 +659,7 @@
   </div>
 
   <!-- ══ SECTION 7 — ATTRITION & RECRUITMENT ══ -->
-  <div class="section-label">
+  <div id="sec-attrition" class="section-label">
     Attrition & Recruitment
     <span class="info-icon" pTooltip="12-month resignation trend (submitted vs actually exited). Recruitment funnel shows candidate pipeline conversion." tooltipPosition="right">ⓘ</span>
   </div>
@@ -605,7 +690,7 @@
   </div>
 
   <!-- ══ SECTION 8 — TRAINING ══ -->
-  <div class="section-label">
+  <div id="sec-training" class="section-label">
     Training Completion
     <span class="info-icon" pTooltip="% of training assignments completed per department. Low completion = skill gap or engagement risk." tooltipPosition="right">ⓘ</span>
   </div>
@@ -640,7 +725,7 @@
   </div>
 
   <!-- ══ SECTION 9 — ACTION ITEMS ══ -->
-  <div class="section-label">
+  <div id="sec-actions" class="section-label">
     Action Required
     <span class="info-icon" pTooltip="Items needing immediate attention: PIPs at termination, unresolved grievances, POSH cases, probation endings, expiring documents, pending clearances." tooltipPosition="right">ⓘ</span>
   </div>
@@ -678,7 +763,7 @@
   </div>
 
   <!-- ══ SECTION 12 — OT ANALYSIS ══ -->
-  <div class="section-label">
+  <div id="sec-ot" class="section-label">
     Overtime Analysis
     <span class="info-icon" pTooltip="Department-wise and employee-wise overtime hours for the selected month. Only approved OT is counted." tooltipPosition="right">ⓘ</span>
   </div>
@@ -733,7 +818,7 @@
   </div>
 
   <!-- ══ SECTION 13 — LATE ARRIVALS ══ -->
-  <div class="section-label">
+  <div id="sec-late" class="section-label">
     Late Arrival Analysis
     <span class="info-icon" pTooltip="Employees and departments with most late check-ins. Based on LateLoginLog records." tooltipPosition="right">ⓘ</span>
   </div>
@@ -788,7 +873,7 @@
   </div>
 
   <!-- ══ SECTION 14 — LEAVE BALANCE UTILIZATION ══ -->
-  <div class="section-label">
+  <div id="sec-leave-util" class="section-label">
     Leave Balance Utilization
     <span class="info-icon" pTooltip="How much of the annual leave allowance has been used per department. High utilization (>80%) may indicate burnout risk." tooltipPosition="right">ⓘ</span>
   </div>
@@ -858,7 +943,7 @@
   </div>
 
   <!-- ══ SECTION 15 — ABSENTEEISM TRACKING ══ -->
-  <div class="section-label">
+  <div id="sec-absent" class="section-label">
     Absenteeism Tracking
     <span class="info-icon" pTooltip="Employees with 3 or more unexplained absences (ABSENT status) and department-wise absence rates." tooltipPosition="right">ⓘ</span>
   </div>
@@ -932,7 +1017,7 @@
   </div>
 
   <!-- ══ SECTION 18 — QUALIFICATIONS ══ -->
-  <div class="section-label">
+  <div id="sec-quals" class="section-label">
     Qualifications Overview
     <span class="info-icon" pTooltip="Degree type distribution, top institutions, and department-wise qualification breakdown across all active employees." tooltipPosition="right">ⓘ</span>
   </div>
@@ -1016,7 +1101,7 @@
   </div>
 
   <!-- ══ SECTION 18 — LEAVE ENCASHMENT & EL BALANCE INSIGHTS ══ -->
-  <div class="section-label">
+  <div id="sec-el" class="section-label">
     Leave Encashment & EL Balance Insights
     <span class="info-icon"
       pTooltip="Earned-leave (EL) balances across the workforce. Actual encashment eligibility kicks in at the policy cap (60 days). The 55-day 'approaching' list is a proactive heads-up so management can plan pay-out before people hit the hard cap."
@@ -1135,7 +1220,7 @@
   </div>
 
   <!-- ══ SECTION 19 — TRAINING INSIGHTS ══ -->
-  <div class="section-label">
+  <div id="sec-train-ins" class="section-label">
     Training Insights
     <span class="info-icon"
       pTooltip="Training calendar, department-wise participation, test performance distribution, top/low performers, and training feedback ratings. Helps management track L&D investment and outcomes."
@@ -1360,7 +1445,7 @@
   </div>
 
   <!-- ══ SECTION 17 — MOBILE LOGIN ACTIVITY ══ -->
-  <div class="section-label">
+  <div id="sec-mobile" class="section-label">
     Mobile Login Activity
     <span class="info-icon" pTooltip="Daily login count from mobile vs desktop devices, detected from browser user-agent. Helps track app adoption and remote access patterns." tooltipPosition="right">ⓘ</span>
   </div>
@@ -1387,3 +1472,4 @@
   </div>
 
 </div>
+</div><!-- /mgmt-shell -->

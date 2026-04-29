@@ -11,6 +11,9 @@ export class ManagementService {
   getPulse(): Observable<any> {
     return this.http.get(`${this.base}/pulse`);
   }
+  getAttention(): Observable<any> {
+    return this.http.get(`${this.base}/attention`);
+  }
   getWorkforce(): Observable<any> {
     return this.http.get(`${this.base}/workforce`);
   }
