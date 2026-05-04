@@ -35,24 +35,25 @@ export class PoshList {
   constructor(private poshService: Posh, private router: Router) {}
 
   ngOnInit() {
-    this.loadCases();
-    this.currentPath = this.router.url;
     this.empId = localStorage.getItem('empId') || '';
+    this.currentPath = this.router.url;
+    this.loadCases();
   }
 
   loadCases() {
     this.loading = true
     this.poshService.getAll().subscribe(data => {
-      if (this.role === 'HR' || this.role === 'HR Manager') {
-        // ✅ HR & HR Manager see all cases
+      const isHR = this.role === 'HR' || this.role === 'HR Manager';
+      const onIndividualPage = this.currentPath === '/individual';
+
+      if (isHR && !onIndividualPage) {
+        // HR/HR Manager on the admin page → see every case
         this.cases = data;
-        setTimeout(()=>{
-          this.loading = false
-        },2000)
+        setTimeout(() => { this.loading = false; }, 2000);
       } else {
-        // ✅ Regular employees see only cases they filed
+        // Anyone on /individual (incl. HR), or non-HR anywhere → only cases they filed
         this.cases = data.filter((c: any) => c.complainantId === Number(this.empId));
-        this.loading = false
+        this.loading = false;
       }
     });
   }

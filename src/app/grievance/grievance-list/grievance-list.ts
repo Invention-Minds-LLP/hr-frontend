@@ -45,23 +45,24 @@ export class GrievanceList {
   ngOnInit() {
     this.role = localStorage.getItem('role') || '';
     this.empId = localStorage.getItem('empId') || '';
-    this.loadGrievances();
     this.currentPath = this.router.url;
+    this.loadGrievances();
   }
 
   loadGrievances() {
     this.loading = true
     this.grievanceService.getAll().subscribe(data => {
-      if (this.role === 'HR' || this.role === 'HR Manager') {
-        // ✅ HR & HR Manager see all grievances
+      const isHR = this.role === 'HR' || this.role === 'HR Manager';
+      const onIndividualPage = this.currentPath === '/individual';
+
+      if (isHR && !onIndividualPage) {
+        // HR/HR Manager on the admin page → see every grievance
         this.grievances = data;
-        setTimeout(()=>{
-          this.loading = false
-        },2000)
+        setTimeout(() => { this.loading = false; }, 2000);
       } else {
-        // ✅ Regular employee sees only their grievances
+        // Anyone on /individual (incl. HR), or non-HR anywhere → only their own
         this.grievances = data.filter((g: any) => g.employeeId === Number(this.empId));
-        this.loading = false
+        this.loading = false;
       }
     });
 
