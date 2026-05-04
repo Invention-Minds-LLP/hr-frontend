@@ -312,7 +312,13 @@ export class RequisitionForm {
     if (this.requisitionForm.valid) {
       this.isLoading = true;
       this.saveSignature('raisedBy');
-      this.requisitionService.createRequisition(this.requisitionForm.value).subscribe({
+      // Send the logged-in employee ID so the backend can:
+      //  1. Save the strong FK on raisedByEmployeeId
+      //  2. Detect role and auto-approve HOD / SMO steps when applicable
+      //  3. Notify the right next-level approver (HOD / Management / HR)
+      const createdBy = Number(localStorage.getItem('empId')) || null;
+      const payload = { ...this.requisitionForm.value, createdBy };
+      this.requisitionService.createRequisition(payload).subscribe({
         next: () => {
           this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Requisition submitted successfully.' });
@@ -462,7 +468,10 @@ export class RequisitionForm {
       approverName: this.getApproverName(step),
       signature: this.getSignatureBase64(step),
       comments: this.getComments(step),
-      reject: false
+      reject: false,
+      // Employee ID of the approver — backend uses this to stamp the matching
+      // FK column (approvedByHoDEmpId / approvedBySMOEmpId / receivedByHREmpId).
+      approverEmpId: Number(localStorage.getItem('empId')) || null,
     };
 
     this.requisitionService.updateStatus(this.requisitionId!, payload).subscribe({
@@ -520,7 +529,10 @@ export class RequisitionForm {
       signature: '',
       comments: this.rejectionComments,
       reject: true,
-      rejectedDate: now
+      rejectedDate: now,
+      // Even on reject, send the actor's employee ID so HR can audit
+      // who blocked the requisition by looking at logs / DB.
+      approverEmpId: Number(localStorage.getItem('empId')) || null,
     };
 
     this.requisitionService.updateStatus(this.requisitionId!, payload).subscribe({

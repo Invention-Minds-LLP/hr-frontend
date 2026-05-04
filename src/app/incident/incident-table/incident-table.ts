@@ -1,125 +1,185 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Incident } from '../../services/incident/incident';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { InputIconModule } from 'primeng/inputicon';
-import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+
+import { Incident } from '../../services/incident/incident';
 
 @Component({
   selector: 'app-incident-table',
-  imports: [CommonModule, TableModule, CardModule, TooltipModule, InputIconModule, IconFieldModule, InputTextModule],
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule, CardModule, TableModule, TooltipModule,
+    InputTextModule, SelectModule, ButtonModule,
+  ],
   templateUrl: './incident-table.html',
   styleUrl: './incident-table.css',
 })
-export class IncidentTable {
-  @Input() employeeId?: number;   // If listing incidents FOR an employee
-  @Input() reporterId?: number;   // If listing incidents BY a manager
+export class IncidentTable implements OnInit, OnChanges {
+  /** Optional scope — when set, only that employee's / reporter's rows shown. */
+  @Input() employeeId?: number;
+  @Input() reporterId?: number;
+  /** Auto-refresh trigger from parent (e.g. after a new submission). */
+  @Input() refreshTick = 0;
+  /** Emit incident-id when a row is clicked so parent can open the detail page. */
+  @Output() open = new EventEmitter<number>();
 
-  filterOptions = [
-    { label: 'Title', value: 'title' },
-    { label: 'Employee', value: 'employeeName' },
+  /* ── Filters ──────────────────────────────────────── */
+  filters: {
+    status: string | null;
+    severity: string | null;
+    categoryId: number | null;
+    q: string;
+  } = { status: null, severity: null, categoryId: null, q: '' };
+
+  statusOptions = [
+    { label: 'All statuses',        value: null },
+    { label: 'Open',                value: 'OPEN' },
+    { label: 'Acknowledged',        value: 'ACKNOWLEDGED' },
+    { label: 'Investigating',       value: 'INVESTIGATING' },
+    { label: 'Escalated',           value: 'ESCALATED' },
+    { label: 'Resolved',            value: 'RESOLVED' },
+    { label: 'Closed',              value: 'CLOSED' },
+    { label: 'Rejected',            value: 'REJECTED' },
+    { label: 'Duplicate',           value: 'DUPLICATE' },
+    { label: 'Withdrawn',           value: 'WITHDRAWN' },
   ];
+  severityOptions = [
+    { label: 'All severities', value: null },
+    { label: 'Critical',  value: 'CRITICAL' },
+    { label: 'High',      value: 'HIGH' },
+    { label: 'Medium',    value: 'MEDIUM' },
+    { label: 'Low',       value: 'LOW' },
+  ];
+  categoryOptions: any[] = [{ label: 'All categories', value: null }];
 
-  selectedFilter: any = this.filterOptions[0];
-  showFilterDropdown: boolean = false;
-  filteredIncidents: any[] = [];
+  /* ── Pagination ───────────────────────────────────── */
+  page = 1;
+  pageSize = 25;
+  total = 0;
+  rows: any[] = [];
+  loading = false;
 
-
-
-  incidents: any[] = [];
-
-  constructor(private incidentService: Incident) { }
+  constructor(private api: Incident) {}
 
   ngOnInit() {
-
-    console.log(this.employeeId, this.reporterId);
-
-    if (!this.employeeId && !this.reporterId) {
-      this.incidentService.getAllIncidents().subscribe(res => {
-        this.incidents = res;
-        this.filteredIncidents = [...this.incidents];
-      });
-    }
-    if (this.employeeId) {
-      this.incidentService.getIncidentsByEmployee(this.employeeId).subscribe(res => {
-        this.incidents = res;
-        this.filteredIncidents = [...this.incidents];
-      });
-    }
-
-    if (this.reporterId) {
-      this.incidentService.getIncidentsByReporter(this.reporterId).subscribe(res => {
-        this.incidents = res;
-        this.filteredIncidents = [...this.incidents];
-      });
-    }
-    document.addEventListener('click', this.closeDropdownOnClickOutside);
+    this.loadCategories();
+    this.load();
   }
 
-
-  closeDropdownOnClickOutside = (event: any) => {
-    const dropdown = document.getElementById('filterDropdown');
-    const button = document.getElementById('filterButton');
-
-    if (!dropdown || !button) return;
-
-    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-      this.showFilterDropdown = false;
+  ngOnChanges(changes: SimpleChanges) {
+    // Parent-triggered refresh (e.g. after creating an incident)
+    if (changes['refreshTick'] && !changes['refreshTick'].firstChange) {
+      this.load();
     }
-  };
+  }
 
-
-
-  onSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const searchText = input.value.trim().toLowerCase();
-
-    if (!searchText) {
-      this.filteredIncidents = [...this.incidents];
-      return;
-    }
-
-    const filterKey = this.selectedFilter?.value;
-
-    this.filteredIncidents = this.incidents.filter((row: any) => {
-      let value = '';
-
-      switch (filterKey) {
-        case 'employeeName':
-          value = `${row.employee?.firstName} ${row.employee?.lastName}` || '';
-          break;
-        case 'reporterName':
-          value = `${row.reporter?.firstName} ${row.reporter?.lastName}` || '';
-          break;
-        default:
-          value = row[filterKey] ?? '';
-      }
-
-      return value.toString().toLowerCase().includes(searchText);
+  private loadCategories() {
+    this.api.listCategories().subscribe({
+      next: (cats) => {
+        this.categoryOptions = [
+          { label: 'All categories', value: null },
+          ...(cats ?? []).map((c) => ({ label: c.name, value: c.id })),
+        ];
+      },
+      error: () => { /* silent — filter is optional */ },
     });
   }
 
-  onFilterChange() {
-    this.filteredIncidents = [...this.incidents];
+  load() {
+    this.loading = true;
+    this.api.listIncidents({
+      ...this.filters,
+      employeeId: this.employeeId ?? undefined,
+      assignedTo: undefined,
+      page: this.page,
+      pageSize: this.pageSize,
+    } as any).subscribe({
+      next: (res) => {
+        // The new endpoint returns {total, rows}; legacy returned a plain array.
+        // Handle both so older callers keep working.
+        if (Array.isArray(res)) {
+          this.rows = res; this.total = res.length;
+        } else {
+          this.rows = res?.rows ?? []; this.total = res?.total ?? 0;
+        }
+        this.loading = false;
+      },
+      error: () => { this.loading = false; },
+    });
   }
 
-  toggleFilterDropdown(): void {
-    this.showFilterDropdown = !this.showFilterDropdown;
+  /* ── Filter handlers ─────────────────────────────── */
+  onFilterChange() { this.page = 1; this.load(); }
+  onPageChange(e: any) {
+    this.page     = (e.first / e.rows) + 1;
+    this.pageSize = e.rows;
+    this.load();
+  }
+  resetFilters() {
+    this.filters = { status: null, severity: null, categoryId: null, q: '' };
+    this.page = 1;
+    this.load();
   }
 
-  selectFilter(option: any) {
-    this.selectedFilter = option;
-
-    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
-    if (searchBox) searchBox.value = '';
-
-    this.filteredIncidents = [...this.incidents];
-
-    this.showFilterDropdown = false;
+  /* ── Row click → tell parent which incident to open ── */
+  openRow(row: any) {
+    if (row?.id) this.open.emit(row.id);
   }
 
+  /* ── Workflow: what's the next step from each status? ── */
+  nextStepFor(status: string): { label: string; nextStatus: string } | null {
+    switch (status) {
+      case 'OPEN':           return { label: 'Acknowledge', nextStatus: 'ACKNOWLEDGED' };
+      case 'ACKNOWLEDGED':   return { label: 'Investigate', nextStatus: 'INVESTIGATING' };
+      case 'INVESTIGATING':
+      case 'ESCALATED':      return { label: 'Resolve',     nextStatus: 'RESOLVED' };
+      case 'RESOLVED':       return { label: 'Close',       nextStatus: 'CLOSED' };
+      default:               return null;
+    }
+  }
 
+  /** Permission gate — only HR / managers / assignees can advance state. */
+  get canAct(): boolean {
+    const role = (localStorage.getItem('role') || '').trim();
+    return ['HR', 'HR Manager', 'Manager', 'Management', 'Admin'].includes(role);
+  }
+
+  quickAdvance(row: any, ev: MouseEvent) {
+    ev.stopPropagation();
+    const next = this.nextStepFor(row.status);
+    if (!next) return;
+    const prev = row.status;
+    row.status = next.nextStatus;          // optimistic
+    this.api.updateIncident(row.id, { status: next.nextStatus }).subscribe({
+      error: () => { row.status = prev; }, // revert on failure
+    });
+  }
+
+  /* ── UI helpers ──────────────────────────────────── */
+  severityClass(s: string): string {
+    switch (s) {
+      case 'CRITICAL': return 'sev-critical';
+      case 'HIGH':     return 'sev-high';
+      case 'MEDIUM':   return 'sev-medium';
+      case 'LOW':      return 'sev-low';
+      default:         return 'sev-medium';
+    }
+  }
+  statusClass(s: string): string {
+    switch (s) {
+      case 'CLOSED':   case 'RESOLVED':   return 'st-good';
+      case 'ESCALATED':                   return 'st-danger';
+      case 'INVESTIGATING':               return 'st-info';
+      case 'ACKNOWLEDGED':                return 'st-info';
+      case 'REJECTED':  case 'DUPLICATE':
+      case 'WITHDRAWN':                   return 'st-neutral';
+      default:                            return 'st-warn';
+    }
+  }
 }

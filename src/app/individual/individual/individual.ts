@@ -14,6 +14,7 @@ import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
+import { MyIncidents } from "../../incident/my-incidents/my-incidents";
 import { Tooltip } from 'primeng/tooltip';
 import { MyTests } from "../../evaluation/my-tests/my-tests";
 import { TrainingList } from "../../training/training-list/training-list";
@@ -58,7 +59,7 @@ type LeaveTypeCount = { label: string; count: number; total: number };
   selector: 'app-individual',
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
-    GrievanceList, PoshList, Tooltip, MyTests, TrainingList, SurveyList,
+    GrievanceList, PoshList, MyIncidents, Tooltip, MyTests, TrainingList, SurveyList,
     SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent,
     MyWeeklyRatings, SelfWeeklyRating, DialogModule, TextareaModule],
   templateUrl: './individual.html',

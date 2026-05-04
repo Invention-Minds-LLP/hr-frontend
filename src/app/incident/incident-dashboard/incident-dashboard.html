@@ -1,0 +1,246 @@
+<div class="id-shell">
+
+  <!-- ── Header ───────────────────────────────────── -->
+  <header class="id-head">
+    <div>
+      <h2 class="id-title">📊 Incident Dashboard</h2>
+      <p class="id-sub">Live view of open work, SLA breaches, trends and patterns.</p>
+    </div>
+    <button class="id-refresh" type="button" (click)="load()" [disabled]="loading">
+      <i class="pi pi-refresh"></i> Refresh
+    </button>
+  </header>
+
+  <div class="id-loading" *ngIf="loading && !data">Loading…</div>
+
+  <ng-container *ngIf="data">
+
+    <!-- ── KPI tiles ────────────────────────────── -->
+    <section class="id-kpi-row">
+      <div class="id-kpi" data-tone="info">
+        <span class="id-kpi-icon">📂</span>
+        <span class="id-kpi-num">{{ data.kpis.openCount }}</span>
+        <span class="id-kpi-label">Open</span>
+      </div>
+      <div class="id-kpi" data-tone="danger">
+        <span class="id-kpi-icon">🚨</span>
+        <span class="id-kpi-num">{{ data.kpis.criticalOpenCount }}</span>
+        <span class="id-kpi-label">Critical / High open</span>
+      </div>
+      <div class="id-kpi" data-tone="warn">
+        <span class="id-kpi-icon">⏰</span>
+        <span class="id-kpi-num">{{ data.kpis.slaBreachCount }}</span>
+        <span class="id-kpi-label">SLA breaching</span>
+      </div>
+      <div class="id-kpi" data-tone="info">
+        <span class="id-kpi-icon">⏱</span>
+        <span class="id-kpi-num">{{ data.kpis.avgResolutionDays }}</span>
+        <span class="id-kpi-label">Avg resolution (days)</span>
+      </div>
+      <div class="id-kpi" data-tone="warn">
+        <span class="id-kpi-icon">🛠</span>
+        <span class="id-kpi-num">{{ data.kpis.capaOverdueCount }}</span>
+        <span class="id-kpi-label">CAPA overdue</span>
+      </div>
+      <div class="id-kpi" data-tone="info">
+        <span class="id-kpi-icon">📜</span>
+        <span class="id-kpi-num">{{ data.kpis.mandatoryReportingDue }}</span>
+        <span class="id-kpi-label">Mandatory reporting due</span>
+      </div>
+    </section>
+
+    <!-- ── Breakdowns row 1 ─────────────────────── -->
+    <section class="id-grid two">
+      <!-- Severity -->
+      <div class="id-card">
+        <header class="id-card-head">
+          <h3>By Severity</h3>
+        </header>
+        <div class="id-bar" *ngFor="let r of data.bySeverity">
+          <div class="id-bar-label">
+            <span class="ic-sev-pill" [ngClass]="severityClass(r.severity)">{{ r.severity }}</span>
+          </div>
+          <div class="id-bar-track">
+            <div class="id-bar-fill"
+                 [class.sev-critical]="r.severity === 'CRITICAL'"
+                 [class.sev-high]="r.severity === 'HIGH'"
+                 [class.sev-medium]="r.severity === 'MEDIUM'"
+                 [class.sev-low]="r.severity === 'LOW'"
+                 [style.width.%]="pct(r.count, maxOf(data.bySeverity))"></div>
+          </div>
+          <div class="id-bar-value">{{ r.count }}</div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="id-card">
+        <header class="id-card-head"><h3>By Status</h3></header>
+        <div class="id-bar" *ngFor="let r of data.byStatus">
+          <div class="id-bar-label">
+            <span class="ic-status-pill" [ngClass]="statusClass(r.status)">{{ r.status }}</span>
+          </div>
+          <div class="id-bar-track">
+            <div class="id-bar-fill st-info" [style.width.%]="pct(r.count, maxOf(data.byStatus))"></div>
+          </div>
+          <div class="id-bar-value">{{ r.count }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Breakdowns row 2 ─────────────────────── -->
+    <section class="id-grid two">
+      <!-- Category -->
+      <div class="id-card">
+        <header class="id-card-head">
+          <h3>By Category</h3>
+          <span class="id-meta">{{ data.byCategory.length }} active</span>
+        </header>
+        <div class="id-empty" *ngIf="!data.byCategory.length">No incidents yet.</div>
+        <div class="id-bar" *ngFor="let r of data.byCategory">
+          <div class="id-bar-label"><span class="id-cat-name">{{ r.categoryName }}</span></div>
+          <div class="id-bar-track">
+            <div class="id-bar-fill st-info" [style.width.%]="pct(r.count, maxOf(data.byCategory))"></div>
+          </div>
+          <div class="id-bar-value">{{ r.count }}</div>
+        </div>
+      </div>
+
+      <!-- Outcome (closed cases only) -->
+      <div class="id-card">
+        <header class="id-card-head"><h3>Investigation Outcomes</h3></header>
+        <div class="id-empty" *ngIf="!data.byOutcome.length">No closed cases yet.</div>
+        <div class="id-bar" *ngFor="let r of data.byOutcome">
+          <div class="id-bar-label">{{ r.outcome }}</div>
+          <div class="id-bar-track">
+            <div class="id-bar-fill"
+                 [class.st-good]="r.outcome === 'SUBSTANTIATED' || r.outcome === 'PARTIALLY_SUBSTANTIATED'"
+                 [class.st-info]="r.outcome === 'NOT_A_VIOLATION'"
+                 [class.st-warn]="r.outcome === 'UNSUBSTANTIATED' || r.outcome === 'WITHDRAWN' || r.outcome === 'DUPLICATE'"
+                 [class.st-danger]="r.outcome === 'FALSE_REPORT'"
+                 [style.width.%]="pct(r.count, maxOf(data.byOutcome))"></div>
+          </div>
+          <div class="id-bar-value">{{ r.count }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Trend (6 months) ───────────────────── -->
+    <section class="id-card">
+      <header class="id-card-head">
+        <h3>📈 6-Month Trend</h3>
+        <span class="id-meta">New incidents per month</span>
+      </header>
+      <div class="id-trend-row">
+        <div class="id-trend-col" *ngFor="let m of data.trendByMonth">
+          <div class="id-trend-stack">
+            <div class="id-trend-bar" [style.height.%]="pct(m.count, maxOf(data.trendByMonth))"></div>
+          </div>
+          <div class="id-trend-num">{{ m.count }}</div>
+          <div class="id-trend-month">{{ fmtMonth(m.month) }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Hotspots / leaderboards ───────────── -->
+    <section class="id-grid three">
+      <div class="id-card">
+        <header class="id-card-head"><h3>🔥 Hotspot Locations</h3></header>
+        <div class="id-empty" *ngIf="!data.hotSpotLocations.length">No location data.</div>
+        <div class="id-row" *ngFor="let r of data.hotSpotLocations">
+          <div class="id-row-name">{{ r.location }}</div>
+          <div class="id-row-count">{{ r.count }}</div>
+        </div>
+      </div>
+
+      <div class="id-card">
+        <header class="id-card-head"><h3>👥 Top Investigators</h3></header>
+        <div class="id-empty" *ngIf="!data.topAssignees.length">No assignees yet.</div>
+        <div class="id-row" *ngFor="let r of data.topAssignees">
+          <div class="id-row-name">
+            {{ r.name }} <span class="id-muted">({{ r.employeeCode }})</span>
+            <div class="id-row-sub">{{ r.dept }}</div>
+          </div>
+          <div class="id-row-count">{{ r.openCount }}</div>
+        </div>
+      </div>
+
+      <div class="id-card">
+        <header class="id-card-head"><h3>♻️ Repeat Employees</h3></header>
+        <div class="id-empty" *ngIf="!data.repeatEmployees.length">None this quarter.</div>
+        <div class="id-row" *ngFor="let r of data.repeatEmployees">
+          <div class="id-row-name">
+            {{ r.name }} <span class="id-muted">({{ r.employeeCode }})</span>
+          </div>
+          <div class="id-row-count">{{ r.incidentCount }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Actionable lists ─────────────────── -->
+    <section class="id-grid two">
+      <div class="id-card id-action-card">
+        <header class="id-card-head">
+          <h3>⏰ SLA Breaching</h3>
+          <span class="id-meta">Past dueDate, still open</span>
+        </header>
+        <div class="id-empty" *ngIf="!data.slaBreaching.length">✅ No breaches.</div>
+        <div class="id-action-row" *ngFor="let r of data.slaBreaching" (click)="open.emit(r.id)">
+          <div class="id-action-body">
+            <div class="id-action-title">
+              <strong>#{{ r.id }}</strong> — {{ r.title }}
+            </div>
+            <div class="id-action-meta">
+              <span class="ic-sev-pill" [ngClass]="severityClass(r.severity)">{{ r.severity }}</span>
+              <span class="ic-status-pill" [ngClass]="statusClass(r.status)">{{ r.status }}</span>
+              <span>· {{ r.categoryName }}</span>
+              <span>· {{ r.assigneeName }}</span>
+            </div>
+          </div>
+          <div class="id-action-badge id-bad">{{ r.daysOverdue }}d late</div>
+        </div>
+      </div>
+
+      <div class="id-card id-action-card">
+        <header class="id-card-head">
+          <h3>🛠 CAPA Overdue</h3>
+          <span class="id-meta">Action items past their due date</span>
+        </header>
+        <div class="id-empty" *ngIf="!data.capaOverdue.length">✅ All on track.</div>
+        <div class="id-action-row" *ngFor="let r of data.capaOverdue" (click)="open.emit(r.incidentId)">
+          <div class="id-action-body">
+            <div class="id-action-title">
+              <span class="ic-cat-pill">{{ r.type }}</span>
+              {{ r.description }}
+            </div>
+            <div class="id-action-meta">
+              <span>Owner: <strong>{{ r.ownerName }}</strong></span>
+              <span>· Incident #{{ r.incidentId }} ({{ r.incidentTitle }})</span>
+            </div>
+          </div>
+          <div class="id-action-badge id-bad">{{ r.daysOverdue }}d late</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Recent activity feed ─────────────── -->
+    <section class="id-card">
+      <header class="id-card-head">
+        <h3>📜 Recent Activity</h3>
+        <span class="id-meta">Last 15 events across all incidents</span>
+      </header>
+      <div class="id-empty" *ngIf="!data.recentActivity.length">No activity yet.</div>
+      <div class="id-activity-row" *ngFor="let a of data.recentActivity" (click)="open.emit(a.incidentId)">
+        <div class="id-activity-time">{{ a.at | date:'MMM d, h:mm a' }}</div>
+        <div class="id-activity-body">
+          <span class="id-activity-action">{{ fmtAction(a.action) }}</span>
+          <span class="id-activity-trans" *ngIf="a.fromValue && a.toValue">
+            {{ a.fromValue }} → <strong>{{ a.toValue }}</strong>
+          </span>
+          <span class="id-activity-incident">on #{{ a.incidentId }} — {{ a.incidentTitle }}</span>
+          <div class="id-activity-actor" *ngIf="a.actorName">by {{ a.actorName }}</div>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+</div>

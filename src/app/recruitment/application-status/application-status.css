@@ -1,5 +1,19 @@
+/* Dark-theme tokens local to this component — match the rest of the app. */
 .card {
-  border-radius: 12px;
+  --as-card:    #0f1419;
+  --as-soft:    #161c24;
+  --as-border:  rgba(148, 163, 184, 0.18);
+  --as-text:    #e2e8f0;
+  --as-muted:   #94a3b8;
+  --as-strong:  #ffffff;
+  --as-accent:  #60a5fa;
+
+  background: var(--as-card);
+  border: 1px solid var(--as-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  color: var(--as-text);
+  font-family: 'Sofia Sans', sans-serif;
 }
 .filters {
   display: flex;
@@ -36,27 +50,30 @@ label {
 
 .card select,
 .card input {
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
-  border: 2px solid #c4c4c4;
-  background: white;
-  color: black;
+  border: 1px solid var(--as-border);
+  background: rgba(255,255,255,0.04);
+  color: var(--as-text);
+  font-size: 0.88rem;
 }
+.card input::placeholder { color: rgba(148,163,184,0.6); }
+.card select option { background: var(--as-card); color: var(--as-text); }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: #3465b0;
+  border-color: var(--as-accent);
+  background: rgba(255,255,255,0.06);
 }
 
 h2 {
-  color: #fff;
+  color: var(--as-strong);
   font-family: "Sofia Sans";
-  font-size: 26px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.26px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  margin: 0 0 14px;
 }
 /* Container */
 .select-box {
@@ -67,19 +84,23 @@ h2 {
 /* Select styling */
 .select-box select {
   width: 100%;
-  padding: 0.55rem 1rem;
+  padding: 0.5rem 1.8rem 0.5rem 0.85rem;
   border-radius: 8px;
-  border: 1px solid #C4C4C4;
-  background: #fff;
-  font-size: 14px;
+  border: 1px solid var(--as-border);
+  background: rgba(255,255,255,0.04);
+  font-size: 0.85rem;
   font-family: "Sofia Sans";
   font-weight: 500;
-  color: #444;
+  color: var(--as-text);
   appearance: none;
   outline: none;
   height: 34px;
   cursor: pointer;
-  letter-spacing: 0.14px;
+  letter-spacing: 0.02em;
+}
+.select-box select:focus {
+  border-color: var(--as-accent);
+  background: rgba(255,255,255,0.06);
 }
 
 .select-box select:invalid {
@@ -107,7 +128,7 @@ h2 {
 .select-box::after {
   content: "▼";
   font-size: 0.6rem;
-  color: #666;
+  color: var(--as-muted);
   position: absolute;
   right: 14px;
   top: 50%;
@@ -192,9 +213,8 @@ button.ghost {
 }
 /* Outer wrapper: nice border + scroll on small screens */
 .table-wrap {
-  /* border: 1px solid var(--border, #e5e7eb); */
+  border: 1px solid var(--as-border);
   border-radius: 10px;
-  /* background: transparent; */
   overflow: auto;
   max-height: 600px;
   max-width: 100%;
@@ -206,49 +226,39 @@ table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 14px;
-  border-radius: 16px;
+  font-size: 0.88rem;
   text-wrap: nowrap;
   border: none;
+  background: transparent;
 }
 
 table thead {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(96deg, #FED6AC 0%, #FFA090 100%);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(4px);
 }
 
-/* Apply background directly to th */
+/* Header cells — uppercase muted-grey labels (was: bright orange-red gradient + 20px black). */
 table thead th {
   text-align: left;
-  padding: 12px 14px;
-  color: #000;
+  padding: 10px 14px;
+  color: var(--as-muted);
   font-family: "Sofia Sans";
-  font-size: 20px;
+  font-size: 0.74rem;
   font-weight: 700;
-  letter-spacing: 0.2px;
-  border-bottom: 1px solid #727272;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--as-border);
 
-
-  /* keep sticky inside th */
   position: sticky;
   top: 0;
   z-index: 11;
 }
 
-/* Remove border-radius from thead; apply only once */
-table thead tr:first-child th:first-child {
-  border-top-left-radius: 16px;
-}
-
-table thead tr:first-child th:last-child {
-  border-top-right-radius: 16px;
-}
-
-
 table tbody tr:last-child td {
-border-bottom: none;
+  border-bottom: none;
 }
 /* 
 .table-wrap {
@@ -259,20 +269,39 @@ border-bottom: none;
   width: 100%;
 } */
 
-/* Body cells */
+/* Body cells — readable size, dark theme */
 table td {
-  padding: 12px 14px;
-  color: #fff;
+  padding: 10px 14px;
+  color: var(--as-text);
   font-family: "Sofia Sans";
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.18px;
-  background: rgba(85, 85, 85, 0.4);
-  border-bottom: 1px solid #727272;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.4;
+  background: transparent;
+  border-bottom: 1px solid var(--as-border);
   text-wrap: nowrap;
+  vertical-align: middle;
 }
+/* Alternating row stripes — adds rhythm without overwhelming the dark theme */
+table tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.015); }
+table tbody tr { transition: background 0.12s; }
+table tbody tr:hover td { background: rgba(96, 165, 250, 0.08); }
+
+/* Coloured row-number cell (first column) — adds a splash without changing data */
+table td:first-child {
+  font-weight: 800;
+  color: var(--as-accent);
+  width: 50px;
+  text-align: center;
+}
+/* Resume column → make icon blue + lift on hover */
+.resume-link {
+  color: var(--as-accent);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.15s, color 0.15s;
+}
+.resume-link:hover { color: #93c5fd; transform: translateY(-1px); }
 
 /* Hover row
 table.apps tbody tr:hover {
@@ -289,39 +318,42 @@ td.candidate .name {
   white-space: nowrap;
 }
 td.candidate .email {
-  color: #64748b;
-  font-size: 12px;
+  color: var(--as-muted);
+  font-size: 0.74rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+td.candidate .name { color: var(--as-strong); font-size: 0.9rem; }
 
-/* Status pill */
+/* Status pill — translucent tinted backgrounds with light text on dark theme */
 .pill {
   display: inline-block;
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--border, #e5e7eb);
-  background: #eef2ff;
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+  border: 1px solid rgba(96, 165, 250, 0.35);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 0.72rem;
   white-space: nowrap;
-  color: black;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .pill.good {
-  background: #ecfdf5;
-  color: #065f46;
-  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.35);
 }
 .pill.warn {
-  background: #fff7ed;
-  color: #92400e;
-  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.16);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.35);
 }
 .pill.danger {
-  background: #fef2f2;
-  color: #991b1b;
-  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 /* Actions column: compact chips, wrap nicely, right aligned */
@@ -335,16 +367,24 @@ td.actions {
   gap: 6px;
 }
 
-/* Chip buttons */
+/* Chip buttons — small action buttons inside the actions column */
 .chip {
-  border: 1px solid var(--border, #e5e7eb);
-  /* background: #fff; */
-  padding: 6px 10px;
+  border: 1px solid var(--as-border);
+  background: rgba(255,255,255,0.04);
+  color: var(--as-text);
+  padding: 6px 12px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 0.74rem;
+  font-weight: 600;
   line-height: 1;
   cursor: pointer;
   white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.chip:hover {
+  background: rgba(96,165,250,0.14);
+  border-color: rgba(96,165,250,0.45);
+  color: #93c5fd;
 }
 .chip:hover {
   background: #f3f4f6;

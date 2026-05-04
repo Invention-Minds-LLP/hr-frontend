@@ -1,32 +1,72 @@
-<!-- Submenu -->
-<div class="guide">
+<div class="ic-shell">
+
+  <!-- ── Module guide ─────────────────────────── -->
+  <div class="ic-guide">
     <app-module-guide
-  title="Incidents"
-  subtitle="Record, track, and resolve workplace incidents for documentation and compliance."
-  [points]="[
-    { label: 'Log Incidents', desc: 'Report workplace incidents — safety issues, disciplinary events, or policy violations.' },
-    { label: 'Track Status', desc: 'Follow up on each incident through Open → Under Review → Resolved stages.' },
-    { label: 'Incident History', desc: 'Browse all past incidents filtered by employee, department, date, or category.' },
-    { label: 'HR Review', desc: 'HR can add remarks, assign responsibility, and close incidents with documented outcomes.' }
-  ]">
-</app-module-guide>
-</div>
-<nav class="sub-nav">
-    <!-- <h2>{{tableHeading}}</h2> -->
-    <!-- <ul>
-                
-        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'form' }" (click)="show('form')">New Incident</li></button>
-         <div class="br"></div>
-        <button><li class="sub-item" [ngClass]="{ 'active': active === 'list' }" (click)="show('list')">Incident List</li></button>
-    </ul> -->
-</nav>
-<!-- <div>
-    <hr>
-</div> -->
+      title="Incidents"
+      subtitle="Record, track, and resolve workplace incidents for documentation and compliance."
+      [points]="[
+        { label: 'Log Incidents', desc: 'Report workplace incidents — safety, security, IT, conduct, customer complaints, and more.' },
+        { label: 'Track Workflow', desc: 'Move cases Open → Acknowledged → Investigating → Resolved → Closed with full audit trail.' },
+        { label: 'Investigate', desc: 'Capture comments, witnesses, attachments, RCA (5-Why or Fishbone), and CAPA actions.' },
+        { label: 'Outcome & Compliance', desc: 'Record verdicts (Substantiated / Unsubstantiated / False) and external-authority reporting.' },
+        { label: 'Dashboard', desc: 'KPIs, severity breakdowns, hot-spots, repeat employees, SLA-breach + CAPA-overdue lists.' }
+      ]">
+    </app-module-guide>
+  </div>
 
+  <!-- ── Detail overlay (shown when a row is clicked) ── -->
+  <ng-container *ngIf="selectedIncidentId; else tabsView">
+    <app-incident-detail
+      [incidentId]="selectedIncidentId"
+      (back)="backFromDetail()">
+    </app-incident-detail>
+  </ng-container>
 
-<div class="table">
-    <app-incident-form  ></app-incident-form>
-    <app-incident-table *ngIf="isHR"></app-incident-table>
-    <app-incident-table *ngIf="!isHR" [reporterId]="reporterId"></app-incident-table>
+  <!-- ── Tabs view (Dashboard / List / Form) ────────── -->
+  <ng-template #tabsView>
+    <nav class="ic-tabs-nav">
+      <!-- Dashboard — HR / Management only (org-wide KPIs). -->
+      <button *ngIf="canSeeDashboard"
+              class="ic-tab" [class.active]="active === 'dashboard'" (click)="show('dashboard')">
+        📊 Dashboard
+      </button>
+      <button class="ic-tab" [class.active]="active === 'list'" (click)="show('list')">
+        📋 Incident List
+      </button>
+      <button class="ic-tab" [class.active]="active === 'form'" (click)="show('form')">
+        ➕ New Incident
+      </button>
+      <!-- Category management — HR-only. -->
+      <button *ngIf="isHR" class="ic-tab" [class.active]="active === 'categories'" (click)="show('categories')">
+        ⚙️ Categories
+      </button>
+    </nav>
+
+    <div class="ic-content">
+      <ng-container [ngSwitch]="active">
+        <app-incident-dashboard
+          *ngSwitchCase="'dashboard'"
+          (open)="openIncident($event)">
+        </app-incident-dashboard>
+
+        <app-incident-table
+          *ngSwitchCase="'list'"
+          [reporterId]="isHR ? undefined : reporterId"
+          [refreshTick]="refreshTick"
+          (open)="openIncident($event)">
+        </app-incident-table>
+
+        <app-incident-form
+          *ngSwitchCase="'form'"
+          (created)="onCreated()">
+        </app-incident-form>
+
+        <!-- Categories — HR-only admin (gated by the tab visibility above). -->
+        <app-incident-category-admin
+          *ngSwitchCase="'categories'">
+        </app-incident-category-admin>
+      </ng-container>
+    </div>
+  </ng-template>
 </div>

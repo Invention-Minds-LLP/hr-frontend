@@ -87,4 +87,391 @@
     </p-tag>
   </p-card>
 
+  <!-- ════════════════════════════════════════════════════════════════
+       PRE-HIRE COMPLIANCE — clear 3-step workflow
+       ════════════════════════════════════════════════════════════════ -->
+  <div class="compliance-section mt-3">
+
+    <!-- Header + progress strip -->
+    <div class="cs-header">
+      <div class="cs-header-text">
+        <h3 class="cs-title">Pre-Hire Compliance</h3>
+        <p class="cs-subtitle">Capture consent, verify references, then run background verification before hire.</p>
+      </div>
+      <div class="cs-progress-strip">
+        <div class="cs-step" [class.done]="summary.referencesConsentAt && summary.bgvConsentAt"
+             [class.partial]="summary.referencesConsentAt || summary.bgvConsentAt">
+          <span class="cs-step-num">1</span>
+          <span class="cs-step-label">Consent</span>
+        </div>
+        <div class="cs-step-arrow">›</div>
+        <div class="cs-step" [class.done]="references.length >= 2 && allRefsChecked()"
+             [class.partial]="references.length > 0">
+          <span class="cs-step-num">2</span>
+          <span class="cs-step-label">References ({{ references.length }})</span>
+        </div>
+        <div class="cs-step-arrow">›</div>
+        <div class="cs-step" [class.done]="bgv?.status === 'CLEAR'"
+             [class.partial]="bgv && bgv.status !== 'CLEAR'"
+             [class.failed]="bgv?.status === 'FAILED'">
+          <span class="cs-step-num">3</span>
+          <span class="cs-step-label">BGV: {{ bgv?.status || 'Not started' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ STEP 1 — CONSENT ════════ -->
+    <section class="cs-card">
+      <header class="cs-card-head">
+        <span class="cs-step-badge">Step 1</span>
+        <h4>Confirm Candidate's Consent <span class="cs-req">(DPDP Act)</span></h4>
+      </header>
+      <p class="cs-help">
+        India's Digital Personal Data Protection Act requires explicit consent before HR can
+        contact a candidate's referees or run background verification. Once you have the
+        candidate's signed consent form (in writing or via the candidate portal),
+        click the matching button below to log it. The system then unlocks the next steps.
+      </p>
+
+      <div class="consent-grid">
+        <!-- Reference checks consent tile -->
+        <div class="consent-tile" [class.done]="!!summary.referencesConsentAt">
+          <div class="consent-tile-head">
+            <span class="consent-icon">📞</span>
+            <div class="consent-tile-body">
+              <div class="consent-tile-title">Consent to Contact References</div>
+              <div class="consent-tile-desc">Allows HR to call/email the referees the candidate has provided.</div>
+              <div class="consent-tile-meta" *ngIf="summary.referencesConsentAt">
+                Recorded {{ summary.referencesConsentAt | date:'medium' }}
+              </div>
+              <div class="consent-tile-meta missing" *ngIf="!summary.referencesConsentAt">
+                Not yet confirmed
+              </div>
+            </div>
+          </div>
+          <!-- Show a button OR a confirmed badge — never a disabled grey button. -->
+          <button *ngIf="!summary.referencesConsentAt"
+                  pButton type="button" label="I have the consent — confirm"
+                  icon="pi pi-check" size="small" severity="success"
+                  (click)="recordConsent('REFERENCES')"></button>
+          <div *ngIf="summary.referencesConsentAt" class="confirmed-badge">
+            <i class="pi pi-check-circle"></i> Consent confirmed
+          </div>
+        </div>
+
+        <!-- BGV consent tile -->
+        <div class="consent-tile" [class.done]="!!summary.bgvConsentAt">
+          <div class="consent-tile-head">
+            <span class="consent-icon">🛡️</span>
+            <div class="consent-tile-body">
+              <div class="consent-tile-title">Consent to Run Background Verification</div>
+              <div class="consent-tile-desc">Allows HR to verify identity, education, employment, address & criminal records.</div>
+              <div class="consent-tile-meta" *ngIf="summary.bgvConsentAt">
+                Recorded {{ summary.bgvConsentAt | date:'medium' }}
+              </div>
+              <div class="consent-tile-meta missing" *ngIf="!summary.bgvConsentAt">
+                Not yet confirmed
+              </div>
+            </div>
+          </div>
+          <button *ngIf="!summary.bgvConsentAt"
+                  pButton type="button" label="I have the consent — confirm"
+                  icon="pi pi-check" size="small" severity="success"
+                  (click)="recordConsent('BGV')"></button>
+          <div *ngIf="summary.bgvConsentAt" class="confirmed-badge">
+            <i class="pi pi-check-circle"></i> Consent confirmed
+          </div>
+        </div>
+      </div>
+
+      <button *ngIf="!summary.referencesConsentAt && !summary.bgvConsentAt"
+              pButton type="button" label="Confirm Both at Once" severity="success"
+              icon="pi pi-check-circle" class="cs-record-both-btn"
+              (click)="recordConsent('BOTH')"></button>
+    </section>
+
+    <!-- ════════ STEP 2 — REFERENCES ════════ -->
+    <section class="cs-card" [class.disabled-section]="!summary.referencesConsentAt">
+      <header class="cs-card-head">
+        <span class="cs-step-badge">Step 2</span>
+        <h4>Reference Checks</h4>
+        <span class="cs-card-meta">{{ references.length }} captured · need at least 2</span>
+        <button pButton type="button" label="Add Reference" icon="pi pi-plus"
+                size="small" class="cs-head-action"
+                (click)="showAddRef = !showAddRef"
+                [disabled]="!summary.referencesConsentAt"
+                [pTooltip]="!summary.referencesConsentAt ? 'Record consent (Step 1) first' : ''"
+                tooltipPosition="top"></button>
+      </header>
+
+      <div class="locked-banner" *ngIf="!summary.referencesConsentAt">
+        🔒 Locked — record reference-check consent in Step 1 to unlock this section.
+      </div>
+
+      <!-- Add reference form -->
+      <div class="form-card" *ngIf="showAddRef && summary.referencesConsentAt">
+        <h5 class="form-card-title">New Reference</h5>
+        <div class="labelled-grid">
+          <label>
+            <span class="lbl">Referee Name <em>*</em></span>
+            <input pInputText [(ngModel)]="newRef.refereeName" placeholder="Full name" />
+          </label>
+          <label>
+            <span class="lbl">Relation <em>*</em></span>
+            <input pInputText [(ngModel)]="newRef.refereeRelation" placeholder="e.g. Reporting Manager" />
+          </label>
+          <label>
+            <span class="lbl">Company</span>
+            <input pInputText [(ngModel)]="newRef.refereeCompany" placeholder="Where they worked together" />
+          </label>
+          <label>
+            <span class="lbl">Email</span>
+            <input pInputText type="email" [(ngModel)]="newRef.refereeEmail" placeholder="referee@example.com" />
+          </label>
+          <label>
+            <span class="lbl">Phone</span>
+            <input pInputText [(ngModel)]="newRef.refereePhone" placeholder="10-digit number" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button pButton type="button" label="Cancel" severity="secondary" size="small"
+                  (click)="showAddRef = false"></button>
+          <button pButton type="button" label="Save Reference" icon="pi pi-save" size="small"
+                  (click)="addReference()"></button>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!references.length && !loadingRefs && summary.referencesConsentAt">
+        <span class="empty-icon">📞</span>
+        <div class="empty-title">No references yet</div>
+        <div class="empty-sub">Add at least 2 references before extending the offer.</div>
+      </div>
+
+      <!-- Reference items -->
+      <div class="item-card" *ngFor="let r of references">
+        <div class="item-head">
+          <div class="item-identity">
+            <div class="item-avatar">{{ r.refereeName?.charAt(0) || '?' }}</div>
+            <div>
+              <div class="item-name">{{ r.refereeName }}</div>
+              <div class="item-sub">{{ r.refereeRelation }}<span *ngIf="r.refereeCompany"> · {{ r.refereeCompany }}</span></div>
+            </div>
+          </div>
+          <div class="item-actions">
+            <span class="status-pill" [ngClass]="'sev-' + refTagSeverity(r.checkStatus)">{{ r.checkStatus }}</span>
+            <button pButton type="button" icon="pi pi-trash" severity="danger" size="small" text
+                    (click)="deleteReference(r)" *ngIf="r.checkStatus === 'PENDING'"
+                    pTooltip="Delete this reference" tooltipPosition="top"></button>
+          </div>
+        </div>
+
+        <div class="item-contact" *ngIf="r.refereeEmail || r.refereePhone">
+          <span *ngIf="r.refereeEmail"><i class="pi pi-envelope"></i> {{ r.refereeEmail }}</span>
+          <span *ngIf="r.refereePhone"><i class="pi pi-phone"></i> {{ r.refereePhone }}</span>
+        </div>
+
+        <!-- Check editor -->
+        <div class="item-editor">
+          <div class="editor-title">Record Reference Call</div>
+          <div class="labelled-grid two-col">
+            <label>
+              <span class="lbl">Status</span>
+              <p-select [options]="refStatusOptions" [(ngModel)]="refCheckEdit[r.id].status"
+                        placeholder="Select status" appendTo="body" styleClass="full-w"></p-select>
+            </label>
+            <label>
+              <span class="lbl">Rating (1–5)</span>
+              <input pInputText type="number" min="1" max="5"
+                     [(ngModel)]="refCheckEdit[r.id].rating" placeholder="Optional" />
+            </label>
+          </div>
+          <label class="full-row">
+            <span class="lbl">Feedback from call</span>
+            <textarea pTextarea rows="2" [(ngModel)]="refCheckEdit[r.id].feedback"
+                      placeholder="Key takeaways from the conversation..."></textarea>
+          </label>
+          <div class="form-actions">
+            <button pButton type="button" label="Save Check" icon="pi pi-save" size="small"
+                    (click)="saveCheck(r)"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ STEP 3 — BGV ════════ -->
+    <section class="cs-card" [class.disabled-section]="!summary.bgvConsentAt">
+      <header class="cs-card-head">
+        <span class="cs-step-badge">Step 3</span>
+        <h4>Background Verification</h4>
+        <span *ngIf="bgv" class="status-pill" [ngClass]="'sev-' + bgvBannerSeverity()">{{ bgv.status }}</span>
+        <button *ngIf="!bgv" pButton type="button" label="Initiate BGV"
+                icon="pi pi-shield" size="small" class="cs-head-action"
+                (click)="initiateBgv()"
+                [disabled]="!summary.bgvConsentAt"
+                [pTooltip]="!summary.bgvConsentAt ? 'Record BGV consent (Step 1) first' : ''"
+                tooltipPosition="top"></button>
+      </header>
+
+      <div class="locked-banner" *ngIf="!summary.bgvConsentAt">
+        🔒 Locked — record BGV consent in Step 1 to unlock this section.
+      </div>
+
+      <div class="empty-state" *ngIf="!bgv && !loadingBgv && summary.bgvConsentAt">
+        <span class="empty-icon">🛡️</span>
+        <div class="empty-title">BGV not initiated</div>
+        <div class="empty-sub">Click "Initiate BGV" above to create the default 5 checks: Identity, Education, Employment, Address, Criminal.</div>
+      </div>
+
+      <ng-container *ngIf="bgv">
+        <div class="bgv-meta-bar">
+          <span><strong>Vendor:</strong> {{ bgv.vendor || '—' }}</span>
+          <span *ngIf="bgv.initiatedAt"><strong>Started:</strong> {{ bgv.initiatedAt | date:'medium' }}</span>
+          <span *ngIf="bgv.completedAt"><strong>Completed:</strong> {{ bgv.completedAt | date:'medium' }}</span>
+        </div>
+
+        <!-- Check items -->
+        <div class="check-grid">
+          <div class="item-card check-card" *ngFor="let c of bgv.checks">
+            <div class="item-head">
+              <div class="item-identity">
+                <div class="check-icon-tile" [ngClass]="'sev-' + bgvCheckTagSeverity(c.status)">{{ c.type.charAt(0) }}</div>
+                <div class="check-title-block">
+                  <div class="item-name">{{ c.type }}</div>
+                  <span class="status-pill" [ngClass]="'sev-' + bgvCheckTagSeverity(c.status)">{{ c.status }}</span>
+                </div>
+              </div>
+              <button *ngIf="c.status === 'DISCREPANCY'"
+                      pButton type="button" label="Resolve" icon="pi pi-wrench"
+                      severity="warn" size="small" (click)="openResolveDialog(c)"></button>
+            </div>
+
+            <div class="resolution-banner" *ngIf="c.resolutionNote">
+              <strong>🔧 Resolution:</strong> {{ c.resolutionNote }}
+              <em *ngIf="c.resolvedAt"> · {{ c.resolvedAt | date:'short' }}</em>
+            </div>
+
+            <div class="item-editor">
+              <div class="labelled-grid two-col">
+                <label>
+                  <span class="lbl">Status</span>
+                  <p-select [options]="bgvCheckStatusOptions" [(ngModel)]="bgvEdit[c.id].status"
+                            placeholder="Select status" appendTo="body" styleClass="full-w"></p-select>
+                </label>
+                <label>
+                  <span class="lbl">Evidence URL</span>
+                  <input pInputText [(ngModel)]="bgvEdit[c.id].evidenceUrl" placeholder="Optional link to proof" />
+                </label>
+              </div>
+              <label class="full-row">
+                <span class="lbl">Notes</span>
+                <textarea pTextarea rows="2" [(ngModel)]="bgvEdit[c.id].note"
+                          placeholder="Any details about this check..."></textarea>
+              </label>
+              <div class="form-actions">
+                <button pButton type="button" label="Save" icon="pi pi-save" size="small"
+                        (click)="saveBgvCheck(c)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="bgv-sub-section">
+          <header class="cs-card-head sub-head">
+            <h5>📄 Supporting Documents <span class="muted-count">({{ bgvDocs.length }})</span></h5>
+            <button pButton type="button" label="Add Document" icon="pi pi-plus" size="small"
+                    (click)="showAddDoc = !showAddDoc"></button>
+          </header>
+
+          <div class="form-card" *ngIf="showAddDoc">
+            <h5 class="form-card-title">Attach Document</h5>
+            <div class="labelled-grid">
+              <label>
+                <span class="lbl">Document Type</span>
+                <input pInputText [(ngModel)]="newDoc.docType"
+                       placeholder="AADHAAR / PAN / MARKSHEET_10 / RELIEVING_LETTER" />
+              </label>
+              <label>
+                <span class="lbl">File Name</span>
+                <input pInputText [(ngModel)]="newDoc.fileName" placeholder="aadhaar_front.pdf" />
+              </label>
+              <label class="full-row">
+                <span class="lbl">File URL</span>
+                <input pInputText [(ngModel)]="newDoc.fileUrl" placeholder="https://hrproindia.in/docs/..." />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button pButton type="button" label="Cancel" severity="secondary" size="small"
+                      (click)="showAddDoc = false"></button>
+              <button pButton type="button" label="Attach" icon="pi pi-paperclip" size="small"
+                      (click)="addBgvDocument()"></button>
+            </div>
+          </div>
+
+          <div class="empty-state small" *ngIf="!bgvDocs.length">
+            <div class="empty-sub">No documents attached yet.</div>
+          </div>
+
+          <table class="doc-table" *ngIf="bgvDocs.length">
+            <thead>
+              <tr><th>Type</th><th>File</th><th>Received</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of bgvDocs">
+                <td><span class="doc-type-pill">{{ d.docType }}</span></td>
+                <td><a [href]="d.fileUrl" target="_blank"><i class="pi pi-file"></i> {{ d.fileName }}</a></td>
+                <td>{{ d.receivedAt | date:'short' }}</td>
+                <td>
+                  <button pButton type="button" icon="pi pi-trash" severity="danger" size="small" text
+                          (click)="deleteBgvDocument(d)"></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Complete BGV -->
+        <div class="bgv-sub-section finalise" *ngIf="bgv.status === 'IN_PROGRESS'">
+          <header class="cs-card-head sub-head">
+            <h5>✅ Finalise BGV</h5>
+          </header>
+          <p class="cs-help">Once all checks are set, finalise to compute the overall status (CLEAR / FLAGGED / FAILED).</p>
+          <div class="labelled-grid">
+            <label class="full-row">
+              <span class="lbl">Report URL (optional)</span>
+              <input pInputText [(ngModel)]="completeReportUrl" placeholder="https://..." />
+            </label>
+            <label class="full-row">
+              <span class="lbl">Overall Note (optional)</span>
+              <textarea pTextarea rows="2" [(ngModel)]="completeNote"
+                        placeholder="Any summary remarks..."></textarea>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button pButton type="button" label="Complete BGV" icon="pi pi-check-circle"
+                    severity="success" (click)="completeBgv()"></button>
+          </div>
+        </div>
+      </ng-container>
+    </section>
+
+  </div>
 </div>
+
+<!-- Discrepancy resolution dialog -->
+<p-dialog header="Resolve Discrepancy" [(visible)]="resolveDialogOpen" [modal]="true"
+          [style]="{ width: '480px' }" [closable]="true">
+  <p class="muted" *ngIf="resolveTargetCheck">Check: <strong>{{ resolveTargetCheck.type }}</strong></p>
+  <p>Explain how the discrepancy was resolved (e.g. candidate provided clarification, vendor confirmed corrected data, etc.):</p>
+  <textarea pTextarea rows="4" [(ngModel)]="resolveNote" style="width: 100%;"
+            placeholder="Resolution note (required)..."></textarea>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" severity="secondary"
+            (click)="resolveDialogOpen = false"></button>
+    <button pButton type="button" label="Mark Resolved" icon="pi pi-check"
+            (click)="submitResolveDiscrepancy()" [disabled]="!resolveNote.trim()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

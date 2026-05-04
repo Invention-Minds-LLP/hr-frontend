@@ -75,6 +75,31 @@ export class Interview {
     this.load();
   }
 
+  /** Map a status string to one of the colour classes used by the Status pill
+   *  in the table (.iv-good / .iv-warn / .iv-info / .iv-danger / .iv-neutral). */
+  statusClass(status: string | null | undefined): string {
+    if (!status) return 'iv-neutral';
+    const s = String(status).toLowerCase();
+    if (/(pass|completed|approved|cleared|hired|done|present)/i.test(s)) return 'iv-good';
+    if (/(shortlist|in[ _-]?progress|scheduled)/i.test(s))               return 'iv-info';
+    if (/(pending|not[ _-]?started|review)/i.test(s))                    return 'iv-warn';
+    if (/(fail|reject|cancel|absent|no[ _-]?show|declined)/i.test(s))    return 'iv-danger';
+    return 'iv-neutral';
+  }
+
+  /** Map a numeric score to a colour band — green (strong), amber (mid),
+   *  red (weak). Score scale here is 0–10 (panel) or 0–100 (test); we
+   *  normalise tests to /10 so thresholds stay simple. */
+  scoreClass(score: number | string | null | undefined): string {
+    if (score === null || score === undefined || score === '' || score === '—') return 'iv-neutral';
+    let n = Number(score);
+    if (Number.isNaN(n)) return 'iv-neutral';
+    if (n > 10) n = n / 10;            // assume /100 → normalise
+    if (n >= 7) return 'iv-good';
+    if (n >= 4) return 'iv-warn';
+    return 'iv-danger';
+  }
+
   onEvaluate(row: any) {
     console.log(row)
     if (row.candidateAssignedTestId && row.candidateAssignedTest) {

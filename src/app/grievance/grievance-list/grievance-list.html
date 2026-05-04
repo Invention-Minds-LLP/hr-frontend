@@ -62,6 +62,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>No.</th>
+        <th *ngIf="role === 'HR' || role === 'HR Manager'">Employee</th>
         <th>Title</th>
         <th>Status</th>
         <th style="text-align: center;" *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" >Actions</th>
@@ -72,6 +73,10 @@
     <ng-template pTemplate="body" let-g let-rowIndex="rowIndex">
       <tr *ngIf="!loading; else skeletonRow">
         <td>{{ rowIndex + 1 }}</td>
+        <td *ngIf="role === 'HR' || role === 'HR Manager'">
+          <strong>{{ g.employee?.firstName }} {{ g.employee?.lastName }}</strong>
+          <span class="muted" *ngIf="g.employee?.employeeCode"> ({{ g.employee.employeeCode }})</span>
+        </td>
         <td>{{ g.title }}</td>
         <td>
           <p-tag [severity]="g.status === 'OPEN' ? 'info' : g.status === 'RESOLVED' ? 'success' : 'danger'">
@@ -91,9 +96,10 @@
       <ng-template #skeletonRow>
         <tr>
           <td><p-skeleton width="1.5rem"></p-skeleton></td>
+          <td *ngIf="role === 'HR' || role === 'HR Manager'"><p-skeleton width="160px"></p-skeleton></td>
           <td><p-skeleton width="120px"></p-skeleton></td>
           <td><p-skeleton width="80px"></p-skeleton></td>
-          <td *ngIf="role === 'HR' || role === 'HR Manager'"><p-skeleton width="150px"></p-skeleton></td>
+          <td *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'"><p-skeleton width="150px"></p-skeleton></td>
         </tr>
       </ng-template>
 

@@ -110,21 +110,30 @@
             <!-- Status -->
             <td>
               <ng-container *ngIf="r.candidateAssignedTest; else panelStatus">
-                {{ r.candidateAssignedTest.status }}
+                <span class="iv-pill" [ngClass]="statusClass(r.candidateAssignedTest.status)">
+                  {{ r.candidateAssignedTest.status }}
+                </span>
               </ng-container>
               <ng-template #panelStatus>
-                {{ r.result || 'Pending' }}
+                <span class="iv-pill" [ngClass]="statusClass(r.result || 'Pending')">
+                  {{ r.result || 'Pending' }}
+                </span>
               </ng-template>
             </td>
 
-            <!-- Score -->
+            <!-- Score — colour-coded badge (green ≥7, amber 4–6.9, red <4) -->
             <td>
               <ng-container *ngIf="r.candidateAssignedTest">
-                {{ r.candidateAssignedTest.score || '—' }}
+                <span class="iv-score" [ngClass]="scoreClass(r.candidateAssignedTest.score)">
+                  {{ r.candidateAssignedTest.score || '—' }}
+                </span>
               </ng-container>
               <ng-container *ngIf="!r.candidateAssignedTest && r.InterviewFeedback?.length">
-                {{ r.InterviewFeedback[0]?.average || '—' }}
+                <span class="iv-score" [ngClass]="scoreClass(r.InterviewFeedback[0]?.average)">
+                  {{ r.InterviewFeedback[0]?.average || '—' }}
+                </span>
               </ng-container>
+              <span *ngIf="!r.candidateAssignedTest && !r.InterviewFeedback?.length" class="iv-score">—</span>
             </td>
 
             <td>

@@ -59,6 +59,63 @@
       </div>
     </fieldset>
 
+    <fieldset formGroupName="referral">
+      <legend>Referral (optional)</legend>
+      <div class="grid">
+        <div class="div wide">
+          <label>
+            <span>How did you hear about this role?</span>
+            <select formControlName="type">
+              <option *ngFor="let t of referralTypes" [ngValue]="t.value">{{ t.label }}</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- INTERNAL: candidate enters the employee code of the person who referred them -->
+        <div class="div" *ngIf="referralType === 'INTERNAL'">
+          <label>
+            <span>Employee Code *</span>
+            <input formControlName="referrerEmployeeCode" placeholder="e.g. EMP015" />
+          </label>
+          <small class="error" *ngIf="isInvalid('referral.referrerEmployeeCode')">Employee code is required</small>
+        </div>
+
+        <!-- EXTERNAL / AGENCY both need a name; AGENCY also needs a company -->
+        <div class="div" *ngIf="referralType === 'EXTERNAL' || referralType === 'AGENCY'">
+          <label>
+            <span>Referrer Name *</span>
+            <input formControlName="referrerName" placeholder="Full name of the referrer" />
+          </label>
+          <small class="error" *ngIf="isInvalid('referral.referrerName')">Referrer name is required</small>
+        </div>
+
+        <div class="div" *ngIf="referralType === 'AGENCY'">
+          <label>
+            <span>Agency / Company *</span>
+            <input formControlName="referrerCompany" placeholder="Agency or consultancy name" />
+          </label>
+          <small class="error" *ngIf="isInvalid('referral.referrerCompany')">Agency name is required</small>
+        </div>
+
+        <!-- Optional contact fields — collected only when a person is named -->
+        <div class="div" *ngIf="referralType === 'EXTERNAL' || referralType === 'AGENCY' || referralType === 'INTERNAL'">
+          <label>
+            <span>Referrer Email</span>
+            <input formControlName="referrerEmail" type="email" placeholder="referrer@example.com" />
+          </label>
+          <small class="error" *ngIf="isInvalid('referral.referrerEmail')">Enter a valid email</small>
+        </div>
+
+        <div class="div" *ngIf="referralType === 'EXTERNAL' || referralType === 'AGENCY' || referralType === 'INTERNAL'">
+          <label>
+            <span>Referrer Phone</span>
+            <input formControlName="referrerPhone" type="tel" placeholder="10-digit phone" />
+          </label>
+          <small class="error" *ngIf="isInvalid('referral.referrerPhone')">Enter a 10-digit phone number</small>
+        </div>
+      </div>
+    </fieldset>
+
     <div class="actions">
       <button type="submit" [disabled]="saving">Create</button>
       <span class="error" *ngIf="error">{{ error }}</span>

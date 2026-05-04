@@ -1,53 +1,71 @@
-.table {
-    display: grid;
-    grid-template-columns: 30% 70%;
-    padding: 30px 60px;
-    gap: 30px;
+/* ═══════════════════════════════════════════════════════════
+   Incident Module shell — hosts Dashboard / List / Form tabs
+   plus a full-bleed Detail overlay.
+   ═══════════════════════════════════════════════════════════ */
+
+.ic-shell {
+  background: #000;
+  min-height: 100vh;
+  color: #e2e8f0;
+  font-family: 'Sofia Sans', sans-serif;
+  padding-bottom: 40px;
 }
-  .guide{
-    padding: 0px 60px;
-    padding-top: 30px;
+
+/* Module guide banner stays full-width at the top */
+.ic-guide {
+  padding: 30px 60px 0;
+}
+
+/* ── Tab strip ───────────────────────────────── */
+.ic-tabs-nav {
+  display: flex;
+  gap: 4px;
+  padding: 18px 60px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  margin-bottom: 18px;
+}
+.ic-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 10px 18px;
+  border-radius: 8px 8px 0 0;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.ic-tab:hover {
+  color: #e2e8f0;
+  background: rgba(96, 165, 250, 0.06);
+}
+.ic-tab.active {
+  color: #ffffff;
+  border-bottom-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+}
+
+/* ── Content area ────────────────────────────── */
+.ic-content {
+  padding: 0 60px;
+}
+
+/* When the detail overlay is active, give it some breathing room
+   so the back button isn't flush against the screen edge. */
+app-incident-detail {
+  display: block;
+  padding: 22px 60px;
+}
+
+/* Responsive padding shrink on narrow viewports */
+@media (max-width: 900px) {
+  .ic-guide,
+  .ic-tabs-nav,
+  .ic-content,
+  app-incident-detail {
+    padding-left: 18px;
+    padding-right: 18px;
   }
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th {
-    background: #fff !important;
-    color: black !important;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 20px;
-    border: none !important;
-    border-bottom: none;
-    height: 60px;
-    text-align: left;
-    text-wrap: nowrap;
-    /* border-radius: 12px; */
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
-    border-top-left-radius: 10px;
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
-    border-top-right-radius: 10px;
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:first-child {
-    border-bottom-left-radius: 10px;
-}
-
-::ng-deep .p-datatable .p-datatable-thead>tr>th:last-child {
-    border-bottom-right-radius: 10px;
-}
-
-/* Body Rows */
-::ng-deep .p-datatable .p-datatable-tbody>tr>td {
-    background: #000 !important;
-    padding: 20px;
-    font-size: 16px;
-    font-weight: 500;
-    color: white;
-    text-align: left;
-    border: none !important;
-    border-bottom: 2px solid #d9d9d9 !important;
-    text-wrap: nowrap;
 }

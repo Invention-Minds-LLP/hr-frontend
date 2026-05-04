@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -135,6 +136,21 @@ export class ResignationList {
         photoUrl: r.employee?.photoUrl
       }));
 
+    // De-dup helper for the manager case where we union "team" + "own" rows.
+    // The same row can never appear twice in practice (an employee can't be
+    // their own reporting manager), but the dedup is cheap insurance.
+    const mergeUnique = (...lists: any[][]) => {
+      const seen = new Map<number, any>();
+      for (const list of lists) {
+        for (const row of list || []) {
+          if (!seen.has(row.id)) seen.set(row.id, row);
+        }
+      }
+      return Array.from(seen.values()).sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    };
+
     if (this.role === 'HR' || this.role === 'HR Manager' || this.role === 'Management') {
       this.api.list({ scope: 'all' }).subscribe(r => {
         this.rows = mapRows(r);
@@ -142,8 +158,16 @@ export class ResignationList {
       });
     }
     else if (this.role === 'Reporting Manager' || this.role === 'Manager') {
-      this.api.list({ scope: 'manager', managerId: this.managerId }).subscribe(r => {
-        this.rows = mapRows(r);
+      // Reporting managers / HODs see TWO things in one list:
+      //   1. Their team's resignations (scope=manager)
+      //   2. Their OWN resignation if they raised one (scope=mine)
+      // Previously only #1 was fetched, so an HOD who resigned themselves
+      // saw an empty list and assumed it failed.
+      forkJoin({
+        team: this.api.list({ scope: 'manager', managerId: this.managerId }),
+        mine: this.api.list({ scope: 'mine',    employeeId: this.employeeId }),
+      }).subscribe(({ team, mine }) => {
+        this.rows = mapRows(mergeUnique(team, mine));
         this.filteredRows = [...this.rows];
       });
     }

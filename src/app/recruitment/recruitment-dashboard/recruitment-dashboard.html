@@ -12,240 +12,697 @@
     ]">
   </app-module-guide>
 </div>
-  <h2 class="heading">Recruiting</h2>
-  <!-- Top pipeline stats -->
-  <div class="stats" *ngIf="!selectedInterview()">
-    <div class="stat flex" data-kind="vacancies" (click)="openList('vacancies')">
-      <strong class="flex">{{ stats()['vacancies'] || 0 }} <div>Vacancies</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('vacancies')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
+  <!-- ── Page header ─────────────────────────────────────────── -->
+  <header class="rd-header" *ngIf="!selectedInterview()">
+    <div>
+      <h1 class="rd-title">Recruitment Pipeline</h1>
+      <p class="rd-subtitle">Live view of vacancies, candidates moving through stages, and hiring outcomes.</p>
+    </div>
+    <!-- Primary action sits in the header. Replaces the bulky "Add a New
+         Application" card that was wasting vertical space next to the Jobs
+         table. Same dialog opens, same form. -->
+    <button pButton type="button" class="rd-primary-btn"
+            label="New Application" icon="pi pi-plus"
+            (click)="openNewAppDialog()"></button>
+  </header>
 
+  <!-- ── Pending Actions strip — quick-glance counters that need attention ── -->
+  <section class="rd-pending" *ngIf="!selectedInterview() && recruiterDash?.pendingActions">
+    <div class="pending-tile" *ngIf="recruiterDash.pendingActions.testReviews"
+         [pTooltip]="'Candidate tests submitted but not yet reviewed by HR'" tooltipPosition="top">
+      <span class="pt-icon">📝</span>
+      <span class="pt-num">{{ recruiterDash.pendingActions.testReviews }}</span>
+      <span class="pt-label">Test reviews pending</span>
     </div>
-    <div class="stat flex" data-kind="applicationsReceived" (click)="openList('applicationsReceived')">
-      <strong class="flex">{{ stats()['applicationsReceived'] || 0 }} <div>Applications Received</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applicationsReceived')"
-          tooltipPosition="top" tooltipEvent="hover">
-        </i>
-      </div>
+    <div class="pending-tile" *ngIf="recruiterDash.pendingActions.offerResponses"
+         [pTooltip]="'Offers sent but candidate has not yet accepted/declined'" tooltipPosition="top">
+      <span class="pt-icon">📨</span>
+      <span class="pt-num">{{ recruiterDash.pendingActions.offerResponses }}</span>
+      <span class="pt-label">Offers awaiting response</span>
     </div>
-    <div class="stat flex" data-kind="applied" (click)="openList('applied')">
-      <strong class="flex">{{ stats()['applied'] || 0 }} <div>Applied</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('applied')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
+    <div class="pending-tile" *ngIf="recruiterDash.pendingActions.upcomingInterviews"
+         [pTooltip]="'Interviews scheduled with no result recorded yet'" tooltipPosition="top">
+      <span class="pt-icon">🎤</span>
+      <span class="pt-num">{{ recruiterDash.pendingActions.upcomingInterviews }}</span>
+      <span class="pt-label">Upcoming interviews</span>
     </div>
-    <div class="stat flex" data-kind="shortlisted" (click)="openList('shortlisted')">
-      <strong class="flex">{{ stats()['shortlisted'] || 0 }} <div>Shortlisted</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('shortlisted')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
+    <div class="pending-empty"
+         *ngIf="!recruiterDash.pendingActions.testReviews &&
+                !recruiterDash.pendingActions.offerResponses &&
+                !recruiterDash.pendingActions.upcomingInterviews">
+      ✅ Nothing pending — you're all caught up.
     </div>
-    <div class="stat flex" data-kind="interviewing" (click)="openList('interviewing')">
-      <strong class="flex">{{ stats()['interviewing'] || 0 }} <div>In Interview Stage</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('interviewing')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-    <div class="stat flex" data-kind="offered" (click)="openList('offered')">
-      <strong class="flex">{{ stats()['offered'] || 0 }} <div>Offered</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offered')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-    <div class="stat flex" data-kind="accepted" (click)="openList('accepted')">
-      <strong class="flex">{{ stats()['accepted'] || 0 }} <div>Accepted</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('accepted')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-    <div class="stat flex" data-kind="offerDeclined" (click)="openList('offerDeclined')">
-      <strong class="flex">{{ stats()['offerDeclined'] || 0 }} <div>Declined</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('offerDeclined')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-    <div class="stat flex" data-kind="hired" (click)="openList('hired')">
-      <strong class="flex">{{ stats()['hired'] || 0 }} <div>Hired</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('hired')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-    <div class="stat flex" data-kind="rejected" (click)="openList('rejected')">
-      <strong class="flex">{{ stats()['rejected'] || 0 }} <div>App. Rejected</div></strong>
-      <div class="info">
-        <i class="pi pi-info-circle info-icon" [pTooltip]="getTooltipMessage('rejected')" tooltipPosition="top"
-          tooltipEvent="hover">
-        </i>
-      </div>
-    </div>
-  </div>
+  </section>
 
+  <!-- ── OUTCOMES — high-impact KPI cards ──────────────────── -->
+  <!-- Five cards: 4 outcomes + time-to-hire (a key recruiting metric).
+       Pipeline-stage breakdowns live in the funnel below. -->
+  <section class="rd-outcomes" *ngIf="!selectedInterview()">
+    <button type="button" class="kpi-card kpi-vacancies" (click)="openList('vacancies')">
+      <span class="kpi-icon">💼</span>
+      <span class="kpi-num">{{ stats()['vacancies'] || 0 }}</span>
+      <span class="kpi-label">Open Vacancies</span>
+      <i class="pi pi-info-circle kpi-info" [pTooltip]="getTooltipMessage('vacancies')"
+         tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+    </button>
 
-  <div *ngIf="!selectedInterview()" class="columns">
-    <!-- Jobs -->
+    <button type="button" class="kpi-card kpi-applications" (click)="openList('applicationsReceived')">
+      <span class="kpi-icon">📥</span>
+      <span class="kpi-num">{{ stats()['applicationsReceived'] || 0 }}</span>
+      <span class="kpi-label">Applications Received</span>
+      <i class="pi pi-info-circle kpi-info" [pTooltip]="getTooltipMessage('applicationsReceived')"
+         tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+    </button>
 
-    <div class="col">
-      <app-application-create>
-
-      </app-application-create>
+    <!-- Time-to-Hire — sourced from /recruiter-dashboard. Median is more
+         representative than mean for skewed hiring durations, but we show
+         the mean prominently and reveal the median in the tooltip. -->
+    <div class="kpi-card kpi-tth" [pTooltip]="(recruiterDash?.kpis?.medianTimeToHireDays ?? 0) + ' days median · last 90 days'"
+         tooltipPosition="top">
+      <span class="kpi-icon">⏱️</span>
+      <span class="kpi-num">{{ recruiterDash?.kpis?.avgTimeToHireDays ?? '—' }}</span>
+      <span class="kpi-label">Avg. Time to Hire (days)</span>
     </div>
 
+    <button type="button" class="kpi-card kpi-hired" (click)="openList('hired')">
+      <span class="kpi-icon">✅</span>
+      <span class="kpi-num">{{ stats()['hired'] || 0 }}</span>
+      <span class="kpi-label">Hired</span>
+      <i class="pi pi-info-circle kpi-info" [pTooltip]="getTooltipMessage('hired')"
+         tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+    </button>
 
-    <!-- Applications -->
-    <!-- <div class="col" *ngIf="selectedJob">
-        <h3>Applications — {{ selectedJob.title }}</h3>
-        <table class="grid">
-          <thead>
-            <tr>
-              <th>Candidate</th><th>Status</th><th>Stage</th><th>Offer</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let a of apps">
-              <td>{{ a.candidate?.name }}<br><small>{{ a.candidate?.email }}</small></td>
-              <td><span class="pill" [ngClass]="statusClass(a.status)">{{ a.status }}</span></td>
-              <td>{{ a.currentStage || '—' }}</td>
-              <td>{{ a.offer?.status || '—' }}</td>
-              <td class="actions">
-                <ng-container *ngFor="let next of allowedMoves(a.status)">
-                  <button (click)="moveApp(a, next)">{{ next }}</button>
+    <button type="button" class="kpi-card kpi-rejected" (click)="openList('rejected')">
+      <span class="kpi-icon">❌</span>
+      <span class="kpi-num">{{ stats()['rejected'] || 0 }}</span>
+      <span class="kpi-label">Rejected</span>
+      <i class="pi pi-info-circle kpi-info" [pTooltip]="getTooltipMessage('rejected')"
+         tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+    </button>
+  </section>
+
+  <!-- ── PIPELINE FUNNEL — flow through hiring stages ──────── -->
+  <section class="rd-funnel" *ngIf="!selectedInterview()">
+    <div class="funnel-head">
+      <span class="funnel-title">Pipeline Stages</span>
+      <span class="funnel-help">Click any stage to view candidates currently in that step.</span>
+    </div>
+    <!-- Each consecutive pair of stages shows the conversion rate
+         between them (e.g. Applied → Shortlisted = 50%). Helps spot
+         where in the pipeline candidates drop off the most. -->
+    <div class="funnel-row">
+      <button type="button" class="stage-chip" data-stage="applied" (click)="openList('applied')">
+        <span class="stage-num">{{ stats()['applied'] || 0 }}</span>
+        <span class="stage-label">Applied</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('applied')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+
+      <span class="funnel-conv" *ngIf="conversionPct('applied','shortlisted') as p"
+            [pTooltip]="p + '% of Applied move to Shortlisted'" tooltipPosition="top">
+        <span class="conv-pct">{{ p }}%</span>
+        <span class="conv-arrow">›</span>
+      </span>
+      <span class="funnel-arrow" *ngIf="!conversionPct('applied','shortlisted')">›</span>
+
+      <button type="button" class="stage-chip" data-stage="shortlisted" (click)="openList('shortlisted')">
+        <span class="stage-num">{{ stats()['shortlisted'] || 0 }}</span>
+        <span class="stage-label">Shortlisted</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('shortlisted')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+
+      <span class="funnel-conv" *ngIf="conversionPct('shortlisted','interviewing') as p"
+            [pTooltip]="p + '% of Shortlisted move to Interview'" tooltipPosition="top">
+        <span class="conv-pct">{{ p }}%</span>
+        <span class="conv-arrow">›</span>
+      </span>
+      <span class="funnel-arrow" *ngIf="!conversionPct('shortlisted','interviewing')">›</span>
+
+      <button type="button" class="stage-chip" data-stage="interviewing" (click)="openList('interviewing')">
+        <span class="stage-num">{{ stats()['interviewing'] || 0 }}</span>
+        <span class="stage-label">Interview</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('interviewing')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+
+      <span class="funnel-conv" *ngIf="conversionPct('interviewing','offered') as p"
+            [pTooltip]="p + '% of Interviewed got an Offer'" tooltipPosition="top">
+        <span class="conv-pct">{{ p }}%</span>
+        <span class="conv-arrow">›</span>
+      </span>
+      <span class="funnel-arrow" *ngIf="!conversionPct('interviewing','offered')">›</span>
+
+      <button type="button" class="stage-chip" data-stage="offered" (click)="openList('offered')">
+        <span class="stage-num">{{ stats()['offered'] || 0 }}</span>
+        <span class="stage-label">Offered</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('offered')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+
+      <span class="funnel-conv" *ngIf="conversionPct('offered','accepted') as p"
+            [pTooltip]="p + '% of Offers were Accepted'" tooltipPosition="top">
+        <span class="conv-pct">{{ p }}%</span>
+        <span class="conv-arrow">›</span>
+      </span>
+      <span class="funnel-arrow" *ngIf="!conversionPct('offered','accepted')">›</span>
+
+      <button type="button" class="stage-chip" data-stage="accepted" (click)="openList('accepted')">
+        <span class="stage-num">{{ stats()['accepted'] || 0 }}</span>
+        <span class="stage-label">Accepted</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('accepted')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+
+      <span class="funnel-divider"></span>
+
+      <button type="button" class="stage-chip stage-negative" data-stage="offerDeclined" (click)="openList('offerDeclined')">
+        <span class="stage-num">{{ stats()['offerDeclined'] || 0 }}</span>
+        <span class="stage-label">Declined</span>
+        <i class="pi pi-info-circle stage-info" [pTooltip]="getTooltipMessage('offerDeclined')"
+           tooltipPosition="top" (click)="$event.stopPropagation()"></i>
+      </button>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       OPERATIONAL TABLES — what the recruiter uses every day
+       (Moved here from the bottom: Jobs / Application Status /
+       Interview. Analytics live further below.)
+       ════════════════════════════════════════════════════════════ -->
+  <section class="rd-section" *ngIf="!selectedInterview()">
+    <div class="rd-section-head">
+      <h2 class="rd-section-title">🛠️ Daily Operations</h2>
+      <span class="rd-section-sub">Jobs · candidate pipeline · interviews</span>
+    </div>
+
+    <!-- ── Jobs (full width) ────────────────────────────────── -->
+    <div class="rd-jobs-wrap">
+      <div class="col">
+        <div class="card">
+          <h3>Jobs</h3>
+          <div class="table-wrap">
+            <table class="jobs">
+              <colgroup>
+                <col style="width:5%">
+                <col style="width:20%">
+                <col style="width:29%">
+                <col style="width:14%">
+              </colgroup>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Title</th>
+                  <th>Dept</th>
+                  <th>Headcount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <!-- Skeleton rows while loading -->
+                <ng-container *ngIf="loading; else showJobs">
+                  <tr *ngFor="let _ of skeletonRows">
+                    <td><p-skeleton width="1rem"></p-skeleton></td>
+                    <td><p-skeleton width="8rem"></p-skeleton></td>
+                    <td><p-skeleton width="6rem"></p-skeleton></td>
+                    <td><p-skeleton width="4rem"></p-skeleton></td>
+                    <td><p-skeleton width="5rem"></p-skeleton></td>
+                    <td><p-skeleton width="6rem"></p-skeleton></td>
+                  </tr>
                 </ng-container>
 
-                <button *ngIf="a.status==='SHORTLISTED' || a.status==='SCREENING'" (click)="scheduleInterview(a)">
-                  Schedule Interview
-                </button>
+                <!-- Actual rows -->
+                <ng-template #showJobs>
+                  <tr *ngFor="let j of jobs; let i = index" (click)="openJob(j)"
+                    [class.active]="selectedJob?.id === j.id">
+                    <td class="title">{{ i + 1 }}</td>
+                    <td class="title">
+                      <span class="text" pTooltip="{{ j.title }}" tooltipPosition="top">
+                        {{ j.title && j.title.length > 10 ? (j.title | slice:0:10) + '…' : j.title }}
+                      </span>
+                    </td>
 
-                <button *ngIf="a.status==='INTERVIEWED' || a.status==='OFFERED' || a.status==='OFFER_ACCEPTED'" (click)="sendOffer(a)">
-                  Send Offer
-                </button>
-                <button *ngIf="a.offer?.status==='SENT' || a.offer?.status==='VIEWED'" (click)="signOffer(a)">
-                  Mark Signed
-                </button>
-                <button *ngIf="a.offer?.status && a.offer?.status!=='DECLINED' && a.offer?.status!=='SIGNED'" (click)="declineOffer(a)">
-                  Decline
-                </button>
-                <button *ngIf="a.status==='OFFER_ACCEPTED'" (click)="markJoined(a)">Mark Joined</button>
-                <button *ngIf="a.status==='OFFER_ACCEPTED' || a.status==='OFFERED'" (click)="markNoShow(a)">No-show</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div> -->
-    <div class="col" *ngIf="!selectedInterview()">
-      <div class="card">
-        <h3>Jobs</h3>
-        <div class="table-wrap">
-          <table class="jobs">
-            <colgroup>
-              <col style="width:5%">
-              <col style="width:20%">
-              <col style="width:29%">
-              <col style="width:14%">
-            </colgroup>
-
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Title</th>
-                <th>Dept</th>
-                <th>Headcount</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <!-- Skeleton rows while loading -->
-              <ng-container *ngIf="loading; else showJobs">
-                <tr *ngFor="let _ of skeletonRows">
-                  <td><p-skeleton width="1rem"></p-skeleton></td>
-                  <td><p-skeleton width="8rem"></p-skeleton></td>
-                  <td><p-skeleton width="6rem"></p-skeleton></td>
-                  <td><p-skeleton width="4rem"></p-skeleton></td>
-                  <td><p-skeleton width="5rem"></p-skeleton></td>
-                  <td><p-skeleton width="6rem"></p-skeleton></td>
-                </tr>
-              </ng-container>
-
-              <!-- Actual rows -->
-              <ng-template #showJobs>
-                <tr *ngFor="let j of jobs; let i = index" (click)="openJob(j)"
-                  [class.active]="selectedJob?.id === j.id">
-                  <td class="title">{{ i + 1 }}</td>
-                  <td class="title">
-                    <span class="text" pTooltip="{{ j.title }}" tooltipPosition="top">
-                      {{ j.title && j.title.length > 10 ? (j.title | slice:0:10) + '…' : j.title }}
-                    </span>
-                  </td>
-
-                  <td class="left">
-                    <span class="dept-badge"
-                      [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).badgeColor }">
-                      <span class="dot"
-                        [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).dotColor }"></span>
-                      {{ j.departmentName }}
-                    </span>
-                  </td>
-                  <td class="left">{{ j.headcount }}</td>
-                  <td class="left">
-                    <span class="pill"
-                      [ngStyle]="{ backgroundColor: getJobStatusColors(j.status).badgeColor, color: getJobStatusColors(j.status).dotColor }">
-                      {{ j.status }}
-                    </span>
-                  </td>
-                  <td class="left">
-                    <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
-                      (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '7rem' }"
-                      [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
-                      optionLabel="label" optionValue="value" [placeholder]="j.status">
-                      <ng-template pTemplate="selectedItem">
-                        <span style="color: white;" [class.warn]="j.status !== 'OPEN'">Select Action</span>
-                      </ng-template>
-                      <ng-template let-opt pTemplate="item">
-                        <span>{{ opt.label }}</span>
-                      </ng-template>
-                    </p-select>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="6" class="no-data center-right" *ngIf="jobs.length === 0">
-                    No jobs available.
-                  </td>
-                </tr>
-              </ng-template>
-            </tbody>
-          </table>
+                    <td class="left">
+                      <span class="dept-badge"
+                        [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).badgeColor }">
+                        <span class="dot"
+                          [ngStyle]="{ backgroundColor: getDepartmentColors(j.departmentId).dotColor }"></span>
+                        {{ j.departmentName }}
+                      </span>
+                    </td>
+                    <td class="left">{{ j.headcount }}</td>
+                    <td class="left">
+                      <span class="pill"
+                        [ngStyle]="{ backgroundColor: getJobStatusColors(j.status).badgeColor, color: getJobStatusColors(j.status).dotColor }">
+                        {{ j.status }}
+                      </span>
+                    </td>
+                    <td class="left">
+                      <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
+                        (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '7rem' }"
+                        [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
+                        optionLabel="label" optionValue="value" [placeholder]="j.status">
+                        <ng-template pTemplate="selectedItem">
+                          <span style="color: white;" [class.warn]="j.status !== 'OPEN'">Select Action</span>
+                        </ng-template>
+                        <ng-template let-opt pTemplate="item">
+                          <span>{{ opt.label }}</span>
+                        </ng-template>
+                      </p-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="6" class="no-data center-right" *ngIf="jobs.length === 0">
+                      No jobs available.
+                    </td>
+                  </tr>
+                </ng-template>
+              </tbody>
+            </table>
+          </div>
         </div>
-
-
       </div>
     </div>
-  </div>
-  <div *ngIf="!selectedInterview()" class="" style="margin-top: 2rem;">
-    <app-application-status></app-application-status>
-  </div>
-  <div class="" *ngIf="!selectedInterview() && ((deptId === 1 && roleId === 1) || (roleId === 4))"
-    style="margin-top: 2rem;">
-    <app-interview (evaluate)="onEvaluate($event)"></app-interview>
-  </div>
+
+    <!-- ── Application Status (kanban / list) ──────────────── -->
+    <div style="margin-top: 1.5rem;">
+      <app-application-status></app-application-status>
+    </div>
+
+    <!-- ── Interview list (HR / Mgmt only) ─────────────────── -->
+    <div *ngIf="(deptId === 1 && roleId === 1) || (roleId === 4)" style="margin-top: 1.5rem;">
+      <app-interview (evaluate)="onEvaluate($event)"></app-interview>
+    </div>
+  </section>
+
+  <!-- ── INSIGHTS — Today's interviews · Ageing jobs · Source effectiveness ── -->
+  <section class="rd-insights" *ngIf="!selectedInterview()">
+
+    <!-- Today's interviews -->
+    <div class="insight-card">
+      <header class="insight-head">
+        <h3>📅 Today's Interviews</h3>
+        <span class="insight-meta">{{ todaysInterviews.length }} scheduled</span>
+      </header>
+      <div class="insight-body">
+        <div class="empty-state-mini" *ngIf="!loadingTodays && !todaysInterviews.length">
+          No interviews scheduled today.
+        </div>
+        <div class="interview-row" *ngFor="let i of todaysInterviews">
+          <div class="iv-time">{{ i.startTime | date:'shortTime' }}</div>
+          <div class="iv-body">
+            <div class="iv-name">{{ i.application?.candidate?.name || 'Candidate' }}</div>
+            <div class="iv-sub">{{ i.stage || 'Interview' }}<span *ngIf="i.application?.job?.title"> · {{ i.application?.job?.title }}</span></div>
+          </div>
+          <div class="iv-mode">{{ i.mode || '' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ageing open positions -->
+    <div class="insight-card">
+      <header class="insight-head">
+        <h3>⏳ Open Positions Ageing</h3>
+        <span class="insight-meta">Top {{ ageingJobs().length }} oldest open</span>
+      </header>
+      <div class="insight-body">
+        <div class="empty-state-mini" *ngIf="!ageingJobs().length">
+          No open positions yet.
+        </div>
+        <div class="ageing-row" *ngFor="let j of ageingJobs()">
+          <div class="ageing-title">{{ j.title }}</div>
+          <div class="ageing-meta">
+            <span class="ageing-dept">{{ j.departmentName || '—' }}</span>
+            <span class="ageing-days" [class.ageing-warn]="j.daysOpen >= 30"
+                  [class.ageing-danger]="j.daysOpen >= 60">
+              {{ j.daysOpen }}d open
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source effectiveness -->
+    <div class="insight-card">
+      <header class="insight-head">
+        <h3>🎯 Source Effectiveness</h3>
+        <span class="insight-meta">{{ recruiterDash?.sourceEffectiveness?.length || 0 }} sources</span>
+      </header>
+      <div class="insight-body">
+        <div class="empty-state-mini"
+             *ngIf="!loadingDash && !(recruiterDash?.sourceEffectiveness?.length)">
+          No source data yet.
+        </div>
+        <div class="source-row" *ngFor="let s of recruiterDash?.sourceEffectiveness?.slice(0, 6) || []">
+          <div class="source-head">
+            <span class="source-name">{{ s.source }}</span>
+            <span class="source-stats">
+              <span class="source-hired">{{ s.hired }}</span>
+              <span class="source-divider">/</span>
+              <span class="source-total">{{ s.total }}</span>
+            </span>
+          </div>
+          <!-- Conversion bar — width = conversion %, capped at 100. -->
+          <div class="source-bar-track">
+            <div class="source-bar-fill" [style.width.%]="s.conversionPct"></div>
+          </div>
+          <div class="source-bar-label">{{ s.conversionPct }}% hired</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       DAILY OPS — what a recruiter needs to act on TODAY
+       ════════════════════════════════════════════════════════════ -->
+  <section class="rd-section" *ngIf="!selectedInterview()">
+    <div class="rd-section-head">
+      <h2 class="rd-section-title">🎯 Daily Ops</h2>
+      <span class="rd-section-sub">Action this list before the day ends</span>
+    </div>
+
+    <div class="rd-grid rd-grid-2">
+      <!-- 🥶 Stale candidates -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>🥶 Stale Candidates</h3>
+          <span class="insight-meta">{{ insights?.staleCandidates?.length || 0 }} idle &gt; {{ insights?.thresholds?.staleDays || 7 }} days</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.staleCandidates?.length)">
+            ✅ Nothing stale — every active candidate has been touched recently.
+          </div>
+          <div class="row-card" *ngFor="let c of insights?.staleCandidates?.slice(0, 6) || []">
+            <div class="rc-body">
+              <div class="rc-name">{{ c.candidateName }}</div>
+              <div class="rc-sub">{{ c.jobTitle }} · <span class="iv-pill iv-info">{{ c.status }}</span></div>
+            </div>
+            <span class="rc-badge rc-warn">{{ c.daysIdle }}d idle</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔥 Hot candidates -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>🔥 Hot Candidates</h3>
+          <span class="insight-meta">High scores · not yet hired</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.hotCandidates?.length)">
+            No standout candidates yet.
+          </div>
+          <div class="row-card" *ngFor="let h of insights?.hotCandidates?.slice(0, 6) || []">
+            <div class="rc-body">
+              <div class="rc-name">{{ h.candidateName }}</div>
+              <div class="rc-sub">{{ h.jobTitle }} · <span class="signal-pill" [class.test]="h.signal === 'TEST'" [class.iv]="h.signal === 'INTERVIEW'">{{ h.signal }}</span></div>
+            </div>
+            <span class="rc-badge rc-good">{{ h.score }}<span class="rc-out">/{{ h.scoreOutOf }}</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-grid rd-grid-2">
+      <!-- 📜 Activity feed -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>📜 Activity Feed</h3>
+          <span class="insight-meta">Recent moves across the pipeline</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.activityFeed?.length)">
+            No activity recorded yet.
+          </div>
+          <div class="activity-row" *ngFor="let a of insights?.activityFeed?.slice(0, 10) || []">
+            <div class="activity-time">{{ a.at | date:'MMM d, h:mm a' }}</div>
+            <div class="activity-body">
+              <span class="activity-name">{{ a.candidateName }}</span>
+              <span class="activity-action">{{ formatAction(a.action) }}</span>
+              <span *ngIf="a.fromStatus && a.toStatus" class="activity-trans">
+                {{ a.fromStatus }} → <strong>{{ a.toStatus }}</strong>
+              </span>
+              <div class="activity-job" *ngIf="a.jobTitle">{{ a.jobTitle }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🕒 Stage duration -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>🕒 Stage Duration</h3>
+          <span class="insight-meta">Avg days at each stage · last 90d</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.stageDurationDays?.length)">
+            Not enough audit history yet.
+          </div>
+          <!-- Each row = one stage. Bar width = avg days, capped at the longest. -->
+          <div class="bar-row" *ngFor="let s of insights?.stageDurationDays?.slice(0, 8) || []">
+            <div class="bar-label">{{ s.stage }}</div>
+            <div class="bar-track">
+              <div class="bar-fill stage-fill" [style.width.%]="(s.avgDays / (insights.stageDurationDays[0]?.avgDays || 1)) * 100"></div>
+            </div>
+            <div class="bar-value">{{ s.avgDays }}d <span class="bar-meta">({{ s.sampleSize }})</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       COMPLIANCE & RISK — preventable mistakes
+       ════════════════════════════════════════════════════════════ -->
+  <section class="rd-section" *ngIf="!selectedInterview()">
+    <div class="rd-section-head">
+      <h2 class="rd-section-title">⚠️ Compliance &amp; Risk</h2>
+      <span class="rd-section-sub">Catch gaps before they become problems</span>
+    </div>
+
+    <div class="rd-grid rd-grid-2">
+      <!-- ⚠️ Compliance gaps -->
+      <div class="insight-card insight-warn">
+        <header class="insight-head">
+          <h3>⚠️ Pre-Hire Compliance Gaps</h3>
+          <span class="insight-meta">{{ insights?.complianceGaps?.length || 0 }} apps with missing items</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.complianceGaps?.length)">
+            ✅ All offered candidates are compliance-clean.
+          </div>
+          <div class="row-card" *ngFor="let g of insights?.complianceGaps?.slice(0, 8) || []">
+            <div class="rc-body">
+              <div class="rc-name">{{ g.candidateName }}</div>
+              <div class="rc-sub">{{ g.jobTitle }} · <span class="iv-pill iv-info">{{ g.status }}</span></div>
+              <ul class="compliance-issues">
+                <li *ngFor="let i of g.issues">{{ i }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🛑 Offer expiring soon -->
+      <div class="insight-card insight-danger">
+        <header class="insight-head">
+          <h3>🛑 Offers Expiring in 7 Days</h3>
+          <span class="insight-meta">{{ insights?.offerExpiringSoon?.length || 0 }} unsigned</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.offerExpiringSoon?.length)">
+            No offers approaching their join date.
+          </div>
+          <div class="row-card" *ngFor="let o of insights?.offerExpiringSoon || []">
+            <div class="rc-body">
+              <div class="rc-name">{{ o.candidateName }}</div>
+              <div class="rc-sub">{{ o.jobTitle }} · Joins {{ o.proposedJoinAt | date:'MMM d' }}</div>
+            </div>
+            <span class="rc-badge rc-danger">{{ o.daysUntilJoin }}d left</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⚖️ Panel load — sourced from /recruiter-dashboard (not /recruiter-insights) -->
+    <div class="insight-card" *ngIf="recruiterDash?.panelUtilization?.length">
+      <header class="insight-head">
+        <h3>⚖️ Panel Load Balance</h3>
+        <span class="insight-meta">Top interviewers · last 30 days</span>
+      </header>
+      <div class="insight-body panel-grid">
+        <div class="panel-row" *ngFor="let p of recruiterDash.panelUtilization">
+          <div class="panel-avatar">{{ p.name?.charAt(0) }}</div>
+          <div class="panel-body">
+            <div class="panel-name">{{ p.name }}</div>
+            <div class="panel-sub">{{ p.dept }} · {{ p.employeeCode }}</div>
+          </div>
+          <div class="panel-count" [class.heavy]="p.interviewCount >= 8">
+            {{ p.interviewCount }} <span class="panel-count-label">interviews</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       STRATEGY — broader hiring health
+       ════════════════════════════════════════════════════════════ -->
+  <section class="rd-section" *ngIf="!selectedInterview()">
+    <div class="rd-section-head">
+      <h2 class="rd-section-title">🚀 Strategy</h2>
+      <span class="rd-section-sub">Where the hiring engine is winning or stalling</span>
+    </div>
+
+    <div class="rd-grid rd-grid-2">
+      <!-- 🎁 Top referrers -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>🎁 Top Internal Referrers</h3>
+          <span class="insight-meta">Hires originating from employee referrals</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.topReferrers?.length)">
+            No internal referrals have hired yet.
+          </div>
+          <div class="leaderboard-row" *ngFor="let r of insights?.topReferrers || []; let i = index">
+            <div class="lb-rank" [class.top]="i < 3">{{ i + 1 }}</div>
+            <div class="lb-body">
+              <div class="lb-name">{{ r.name }}</div>
+              <div class="lb-sub">{{ r.dept }} · {{ r.employeeCode }}</div>
+            </div>
+            <div class="lb-count">{{ r.hiredCount }} <span class="lb-count-label">hires</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 💼 Demand vs Supply by dept -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>💼 Demand vs Supply</h3>
+          <span class="insight-meta">Open seats &amp; apps received (30d)</span>
+        </header>
+        <div class="insight-body">
+          <div class="empty-state-mini" *ngIf="!loadingInsights && !(insights?.demandVsSupply?.length)">
+            No open positions across departments.
+          </div>
+          <div class="bar-row" *ngFor="let d of insights?.demandVsSupply?.slice(0, 8) || []">
+            <div class="bar-label">{{ d.departmentName }}</div>
+            <div class="ds-numbers">
+              <span class="ds-seats">{{ d.openSeats }} seats</span>
+              <span class="ds-apps">{{ d.applicationsLast30d }} apps</span>
+            </div>
+            <span class="rc-badge" [ngClass]="'rc-' + demandStatus(d)">
+              {{ d.openSeats === 0 ? '—' : (d.applicationsLast30d / d.openSeats | number:'1.1-1') + 'x' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-grid rd-grid-2">
+      <!-- 📈 Offer accept trend (mini bar chart, no chart lib) -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>📈 Offer Acceptance Trend</h3>
+          <span class="insight-meta">Last 6 months · % signed of total</span>
+        </header>
+        <div class="insight-body">
+          <div class="trend-row">
+            <div class="trend-bar-col" *ngFor="let m of insights?.offerAcceptTrend || []">
+              <div class="trend-bar-stack" [pTooltip]="m.signed + ' signed · ' + m.declined + ' declined'" tooltipPosition="top">
+                <div class="trend-bar-signed" [style.height.%]="m.acceptPct"></div>
+              </div>
+              <div class="trend-bar-pct">{{ m.acceptPct }}%</div>
+              <div class="trend-bar-month">{{ fmtMonth(m.month) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎯 Test score distribution -->
+      <div class="insight-card">
+        <header class="insight-head">
+          <h3>🎯 Test Score Distribution</h3>
+          <span class="insight-meta">All candidate test attempts</span>
+        </header>
+        <div class="insight-body">
+          <div class="trend-row">
+            <div class="trend-bar-col" *ngFor="let b of insights?.testScoreDistribution || []">
+              <div class="trend-bar-stack">
+                <div class="trend-bar-score"
+                     [style.height.%]="(b.count / (insights.testScoreDistribution[insights.testScoreDistribution.length - 1].count || 1)) * 100">
+                </div>
+              </div>
+              <div class="trend-bar-pct">{{ b.count }}</div>
+              <div class="trend-bar-month">{{ b.label }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       REPORTING — context for planning
+       ════════════════════════════════════════════════════════════ -->
+  <section class="rd-section" *ngIf="!selectedInterview()">
+    <div class="rd-section-head">
+      <h2 class="rd-section-title">📊 Reporting</h2>
+      <span class="rd-section-sub">Patterns over time</span>
+    </div>
+
+    <!-- 📅 Interview heatmap — weekday × hour matrix -->
+    <div class="insight-card">
+      <header class="insight-head">
+        <h3>📅 Interview Calendar Heatmap</h3>
+        <span class="insight-meta">Last 60 days · density by weekday × hour</span>
+      </header>
+      <div class="insight-body">
+        <!-- Empty state: no interviews recorded at all in the last 60 days -->
+        <div class="empty-state-mini" *ngIf="!loadingInsights && heatMax() === 0">
+          📭 No interviews recorded in the last 60 days. The heatmap will populate as panel rounds happen.
+        </div>
+
+        <!-- Show heatmap only when we have at least one data point -->
+        <div class="heatmap-wrap" *ngIf="heatMax() > 0">
+          <table class="heatmap">
+            <thead>
+              <tr>
+                <th></th>
+                <th *ngFor="let h of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]">{{ h }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of insights?.interviewHeatmap?.counts || []; let dow = index">
+                <th class="heat-row-label">{{ dayLabel(dow) }}</th>
+                <td *ngFor="let count of row" [ngClass]="'heat-l' + heatLevel(count, heatMax())"
+                    [pTooltip]="count + ' interview(s)'" tooltipPosition="top">
+                  <span *ngIf="count">{{ count }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="heatmap-legend">
+            <span>less</span>
+            <span class="heat-l0"></span>
+            <span class="heat-l1"></span>
+            <span class="heat-l2"></span>
+            <span class="heat-l3"></span>
+            <span>more</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- (operational tables — Jobs / Application Status / Interview —
+       were here previously but have been moved up to right after the
+       Pipeline Funnel since they are the most-used tools day-to-day.) -->
   <div class="" style="margin-top: 2rem;">
     <app-candidate-eval-form id="eval-form" *ngIf="selectedInterview()" [interviewId]="selectedInterview()?.id"
       [interview]="selectedInterview()" (closeForm)="onBack()">
@@ -335,5 +792,16 @@
 </p-dialog>
 
 
+
+<!-- New Application dialog — replaces the inline form so the dashboard
+     real-estate is free for analytics. Same component, same outputs. -->
+<p-dialog header="New Application"
+          [(visible)]="newAppDialogOpen"
+          [modal]="true"
+          [style]="{ width: '720px', maxWidth: '95vw' }"
+          [draggable]="false"
+          (onHide)="closeNewAppDialog()">
+  <app-application-create *ngIf="newAppDialogOpen"></app-application-create>
+</p-dialog>
 
 <p-toast></p-toast>

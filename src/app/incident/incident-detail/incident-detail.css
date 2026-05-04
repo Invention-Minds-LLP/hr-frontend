@@ -1,0 +1,529 @@
+/* ═══════════════════════════════════════════════════════════
+   Incident Detail — full investigation workspace.
+   Reuses the same dark-theme tokens as the form / table / dashboard.
+   ═══════════════════════════════════════════════════════════ */
+
+.ic-detail-shell {
+  --ic-card:    #0f1419;
+  --ic-soft:    #161c24;
+  --ic-border:  rgba(148, 163, 184, 0.18);
+  --ic-text:    #e2e8f0;
+  --ic-muted:   #94a3b8;
+  --ic-strong:  #ffffff;
+  --ic-accent:  #60a5fa;
+  --ic-success: #22c55e;
+  --ic-warn:    #f59e0b;
+  --ic-danger:  #ef4444;
+
+  background: var(--ic-card);
+  border: 1px solid var(--ic-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  color: var(--ic-text);
+  font-family: 'Sofia Sans', sans-serif;
+}
+
+.ic-detail-loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--ic-muted);
+  font-style: italic;
+}
+
+/* ── Header ──────────────────────────────────── */
+.ic-detail-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 14px; margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ic-border);
+}
+.ic-head-left { display: flex; gap: 14px; align-items: flex-start; flex: 1 1 auto; }
+.ic-head-titles { flex: 1 1 auto; min-width: 0; }
+.ic-head-line {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.ic-id {
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em;
+  color: var(--ic-muted);
+}
+.ic-head-title {
+  margin: 0;
+  font-size: 1.35rem; font-weight: 800;
+  color: var(--ic-strong);
+  line-height: 1.2;
+}
+.ic-head-meta {
+  font-size: 0.82rem; color: var(--ic-muted);
+  margin-top: 6px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.ic-head-meta strong { color: var(--ic-text); font-weight: 600; }
+
+/* ── Pills (re-used from table) ──────────────── */
+.ic-sev-pill, .ic-status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.ic-sev-pill.sev-critical { background: rgba(239,68,68,0.22);  color: #fca5a5; border-color: rgba(239,68,68,0.5); }
+.ic-sev-pill.sev-high     { background: rgba(245,101,101,0.18); color: #fda4af; border-color: rgba(245,101,101,0.4); }
+.ic-sev-pill.sev-medium   { background: rgba(245,158,11,0.16); color: #fcd34d; border-color: rgba(245,158,11,0.4); }
+.ic-sev-pill.sev-low      { background: rgba(96,165,250,0.16); color: #93c5fd; border-color: rgba(96,165,250,0.4); }
+
+.ic-status-pill.st-good    { background: rgba(34,197,94,0.16);  color: #86efac; border-color: rgba(34,197,94,0.4); }
+.ic-status-pill.st-warn    { background: rgba(245,158,11,0.16); color: #fcd34d; border-color: rgba(245,158,11,0.4); }
+.ic-status-pill.st-info    { background: rgba(96,165,250,0.16); color: #93c5fd; border-color: rgba(96,165,250,0.4); }
+.ic-status-pill.st-danger  { background: rgba(239,68,68,0.16);  color: #fca5a5; border-color: rgba(239,68,68,0.4); }
+.ic-status-pill.st-neutral { background: rgba(148,163,184,0.14); color: var(--ic-muted); border-color: var(--ic-border); }
+
+.ic-anon-badge {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
+  padding: 2px 6px; border-radius: 4px;
+  background: rgba(148, 163, 184, 0.18);
+  color: var(--ic-muted);
+}
+.ic-cat-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(96,165,250,0.12);
+  color: #bfdbfe;
+  border: 1px solid rgba(96,165,250,0.3);
+  border-radius: 999px;
+  font-size: 0.72rem; font-weight: 600;
+}
+
+/* ── Custom tab strip (replaces PrimeNG p-tabView) ───── */
+.ic-detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 1px solid var(--ic-border);
+  margin-bottom: 14px;
+}
+.ic-detail-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ic-muted);
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.ic-detail-tab:hover {
+  color: var(--ic-text);
+  background: rgba(96, 165, 250, 0.06);
+}
+.ic-detail-tab.active {
+  color: var(--ic-strong);
+  border-bottom-color: var(--ic-accent);
+  background: rgba(96, 165, 250, 0.08);
+}
+
+.ic-detail-panels { padding-top: 4px; }
+.ic-tab-panel { padding-top: 8px; }
+
+/* ── Cards / fields ─────────────────────────── */
+.ic-card-grid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.ic-card-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) { .ic-card-grid.two { grid-template-columns: 1fr; } }
+
+.ic-info-card {
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.ic-info-card h4 {
+  margin: 0 0 10px;
+  font-size: 0.85rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ic-muted);
+}
+.ic-info-card h5.ic-rca-h {
+  margin: 12px 0 8px;
+  font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ic-muted);
+}
+
+.ic-pre {
+  white-space: pre-wrap;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ic-text);
+}
+
+/* Key-value list */
+.ic-kv {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ic-kv li {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--ic-border);
+  font-size: 0.85rem;
+}
+.ic-kv li:last-child { border-bottom: none; }
+.ic-kv li > span:first-child { color: var(--ic-muted); }
+.ic-kv li > strong { color: var(--ic-text); font-weight: 600; }
+.ic-flag-on   { color: #fcd34d !important; }
+.ic-flag-warn { color: #fcd34d !important; }
+.ic-flag-good { color: #86efac !important; }
+
+/* Form grids re-used inside cards */
+.ic-grid {
+  display: grid; gap: 10px 12px; margin-bottom: 8px;
+}
+.ic-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ic-grid.attach-grid { grid-template-columns: 1fr 1.4fr auto; align-items: end; }
+@media (max-width: 700px) {
+  .ic-grid.two { grid-template-columns: 1fr; }
+  .ic-grid.attach-grid { grid-template-columns: 1fr; }
+}
+label {
+  display: flex; flex-direction: column; gap: 4px;
+  margin: 0; color: var(--ic-text);
+}
+.ic-full-row { grid-column: 1 / -1; }
+.ic-lbl {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--ic-muted);
+}
+
+.ic-detail-shell input.p-inputtext,
+.ic-detail-shell textarea.p-inputtextarea,
+.ic-detail-shell textarea.p-textarea,
+.ic-detail-shell textarea[pTextarea],
+.ic-detail-shell .p-select {
+  width: 100%;
+  background: #161c24 !important;
+  color: var(--ic-text) !important;
+  border: 1px solid var(--ic-border) !important;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ic-detail-shell input.p-inputtext:hover,
+.ic-detail-shell textarea.p-inputtextarea:hover,
+.ic-detail-shell textarea.p-textarea:hover,
+.ic-detail-shell textarea[pTextarea]:hover,
+.ic-detail-shell .p-select:hover {
+  border-color: rgba(96, 165, 250, 0.45) !important;
+}
+.ic-detail-shell input.p-inputtext:focus,
+.ic-detail-shell textarea.p-inputtextarea:focus,
+.ic-detail-shell textarea.p-textarea:focus,
+.ic-detail-shell textarea[pTextarea]:focus,
+.ic-detail-shell .p-select.p-focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+.ic-detail-shell textarea.p-inputtextarea,
+.ic-detail-shell textarea.p-textarea,
+.ic-detail-shell textarea[pTextarea] {
+  padding: 10px 12px !important;
+  font-family: inherit;
+  resize: vertical;
+}
+.ic-detail-shell input::placeholder,
+.ic-detail-shell textarea::placeholder {
+  color: rgba(148, 163, 184, 0.6);
+}
+.ic-detail-shell .p-select { padding: 0 !important; }
+.ic-detail-shell ::ng-deep .p-select .p-select-label {
+  color: #e2e8f0 !important;
+  padding: 10px 12px !important;
+  font-size: 0.88rem !important;
+}
+.ic-detail-shell ::ng-deep .p-select .p-select-label.p-placeholder {
+  color: rgba(148, 163, 184, 0.65) !important;
+}
+.ic-detail-shell ::ng-deep .p-select .p-select-dropdown {
+  color: #60a5fa !important;
+}
+.ic-detail-shell .ic-full { width: 100%; }
+.ic-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-top: 8px;
+}
+
+/* ── Comments ────────────────────────────────── */
+.ic-comment-composer {
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.ic-comment-composer textarea { width: 100%; }
+.ic-row-end {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.ic-checkbox-lbl {
+  font-size: 0.82rem; color: var(--ic-muted); margin-right: auto;
+}
+.ic-comment {
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.ic-comment-meta {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  font-size: 0.78rem; color: var(--ic-muted);
+  margin-bottom: 6px;
+}
+.ic-internal-tag {
+  background: rgba(245,158,11,0.18); color: #fcd34d;
+  padding: 1px 6px; border-radius: 4px;
+  font-weight: 800; font-size: 0.65rem; letter-spacing: 0.06em;
+}
+
+/* ── Generic list (witnesses / attachments / links) ── */
+.ic-list {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ic-list li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.ic-list a {
+  color: var(--ic-accent); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.ic-list a:hover { text-decoration: underline; }
+
+.ic-empty-state {
+  padding: 18px; text-align: center;
+  color: var(--ic-muted); font-style: italic;
+  background: var(--ic-soft);
+  border: 1px dashed var(--ic-border);
+  border-radius: 8px;
+}
+
+/* ── CAPA rows ───────────────────────────────── */
+.ic-capa-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 14px;
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.ic-capa-body { flex: 1 1 auto; min-width: 0; }
+.ic-capa-line {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.ic-capa-actions {
+  display: flex; gap: 6px; align-items: center;
+  flex: 0 0 auto;
+}
+.ic-capa-actions .p-select { min-width: 150px; }
+
+/* ── Linked incidents ───────────────────────── */
+.ic-link-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px;
+  background: var(--ic-card);
+  border: 1px solid var(--ic-border);
+  border-radius: 8px;
+}
+.ic-link-add {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.ic-link-add input { width: 180px; }
+
+/* ── Audit log ──────────────────────────────── */
+.ic-audit-list {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ic-audit-list li {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+  padding: 8px 12px;
+  background: var(--ic-soft);
+  border-left: 3px solid var(--ic-accent);
+  border-radius: 6px;
+  font-size: 0.82rem;
+}
+.ic-audit-time { color: var(--ic-muted); flex: 0 0 160px; }
+.ic-audit-action {
+  font-weight: 700; color: var(--ic-strong);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 0.76rem;
+}
+.ic-audit-trans { color: var(--ic-muted); }
+.ic-audit-trans strong { color: #86efac; }
+.ic-audit-note { color: var(--ic-text); flex: 1 1 100%; padding-left: 160px; font-style: italic; }
+
+.ic-muted  { color: var(--ic-muted); }
+.ic-italic { font-style: italic; }
+
+/* ── Dropdown / datepicker overlays ──────────────────────────────
+   appendTo="body" puts these at <body>, OUTSIDE .ic-detail-shell —
+   so component-scoped CSS variables don't resolve. Use literal hex.
+   Only target the *panel* (popup), not <p-datepicker> itself, or every
+   closed datepicker input gets the popup z-index/shadow and floats over
+   other open overlays. */
+::ng-deep .p-select-overlay,
+::ng-deep .p-datepicker-panel {
+  background: #0f1419 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(96, 165, 250, 0.05) !important;
+  z-index: 12000 !important;
+}
+
+/* Closed datepicker (the inline input + calendar icon) — match other inputs */
+.ic-detail-shell ::ng-deep .p-datepicker {
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.ic-detail-shell ::ng-deep .p-datepicker .p-datepicker-input,
+.ic-detail-shell ::ng-deep .p-datepicker input {
+  width: 100% !important;
+  background: #161c24 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  font-size: 0.88rem !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ic-detail-shell ::ng-deep .p-datepicker .p-datepicker-input:hover {
+  border-color: rgba(96, 165, 250, 0.45) !important;
+}
+.ic-detail-shell ::ng-deep .p-datepicker .p-datepicker-input:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+.ic-detail-shell ::ng-deep .p-datepicker .p-datepicker-input-icon-container,
+.ic-detail-shell ::ng-deep .p-datepicker .p-datepicker-trigger {
+  color: #60a5fa !important;
+  background: transparent !important;
+}
+
+/* Select dropdown — option list */
+::ng-deep .p-select-list,
+::ng-deep .p-select-list-container {
+  background: #0f1419 !important;
+  padding: 6px !important;
+}
+::ng-deep .p-select-option {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  padding: 9px 12px !important;
+  border-radius: 6px !important;
+  font-size: 0.88rem !important;
+  margin: 2px 0 !important;
+}
+::ng-deep .p-select-option:not(.p-disabled):hover {
+  background: rgba(96, 165, 250, 0.14) !important;
+  color: #ffffff !important;
+}
+::ng-deep .p-select-option:not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected {
+  background: linear-gradient(135deg, rgba(96,165,250,0.28), rgba(37,99,235,0.18)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+::ng-deep .p-select-empty-message {
+  color: #94a3b8 !important;
+  padding: 10px 12px !important;
+}
+
+/* Datepicker overlay — calendar header, weekdays, day grid */
+::ng-deep .p-datepicker-panel { padding: 10px !important; }
+::ng-deep .p-datepicker-panel .p-datepicker-header {
+  background: linear-gradient(135deg, rgba(96,165,250,0.10), rgba(37,99,235,0.04)) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.18) !important;
+  padding: 8px 6px !important;
+  border-radius: 6px !important;
+  margin-bottom: 6px !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-title,
+::ng-deep .p-datepicker-panel .p-datepicker-month,
+::ng-deep .p-datepicker-panel .p-datepicker-year,
+::ng-deep .p-datepicker-panel .p-datepicker-decade {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-prev-button,
+::ng-deep .p-datepicker-panel .p-datepicker-next-button {
+  background: transparent !important;
+  color: #93c5fd !important;
+  border: none !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-prev-button:hover,
+::ng-deep .p-datepicker-panel .p-datepicker-next-button:hover {
+  color: #ffffff !important;
+  background: rgba(96, 165, 250, 0.18) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-calendar-container,
+::ng-deep .p-datepicker-panel .p-datepicker-day-view {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-weekday,
+::ng-deep .p-datepicker-panel .p-datepicker-weekday-cell {
+  color: #93c5fd !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day {
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-other-month {
+  color: rgba(148, 163, 184, 0.4) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day:not(.p-disabled):hover {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #ffffff !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected,
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected > span {
+  background: linear-gradient(135deg, #60a5fa, #2563eb) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day-today > span {
+  background: rgba(96, 165, 250, 0.20) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(96, 165, 250, 0.55) !important;
+}

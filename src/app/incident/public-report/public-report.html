@@ -1,0 +1,174 @@
+<div class="pr-page">
+  <p-toast></p-toast>
+
+  <header class="pr-head">
+    <div class="pr-brand">🛡️ Confidential Incident Reporting</div>
+    <button class="pr-login-link" type="button" (click)="goLogin()">
+      Employee Login →
+    </button>
+  </header>
+
+  <main class="pr-main">
+    <div class="pr-card">
+
+      <!-- Mode switch -->
+      <nav class="pr-tabs">
+        <button class="pr-tab" [class.active]="mode === 'form'"  (click)="switchMode('form')">
+          ➕ Submit a Report
+        </button>
+        <button class="pr-tab" [class.active]="mode === 'track'" (click)="switchMode('track')">
+          🔍 Check Report Status
+        </button>
+      </nav>
+
+      <!-- ═════════════════════════════════════════════════════
+           FORM MODE — submit a new anonymous report
+           ═════════════════════════════════════════════════════ -->
+      <section *ngIf="mode === 'form' && !submitted" class="pr-section">
+        <h1>Report an Incident</h1>
+        <p class="pr-sub">
+          Use this form to report safety, conduct, harassment, fraud, or any other workplace
+          issue without revealing your identity. Reports go directly to HR and are reviewed
+          confidentially.
+        </p>
+
+        <div class="pr-grid">
+          <label class="pr-full">
+            <span class="pr-lbl">Category <em>*</em></span>
+            <p-select [options]="categories" [(ngModel)]="form.categoryId"
+                      placeholder="Choose a category" appendTo="body"
+                      styleClass="pr-full"></p-select>
+          </label>
+
+          <label class="pr-full">
+            <span class="pr-lbl">Title <em>*</em></span>
+            <input pInputText [(ngModel)]="form.title"
+                   maxlength="200"
+                   placeholder="Short summary (e.g. 'Unsafe machine on Floor 2')" />
+          </label>
+
+          <label class="pr-full">
+            <span class="pr-lbl">What happened <em>*</em></span>
+            <textarea pTextarea rows="6" [(ngModel)]="form.description" maxlength="5000"
+                      placeholder="Describe what happened — when, where, who was involved (do not name yourself), and what you saw."></textarea>
+          </label>
+
+          <label>
+            <span class="pr-lbl">Location (optional)</span>
+            <input pInputText [(ngModel)]="form.location" placeholder="e.g. Floor 2 — Production" />
+          </label>
+
+          <label>
+            <span class="pr-lbl">Contact info (optional)</span>
+            <input pInputText [(ngModel)]="form.contactInfo"
+                   placeholder="Anonymous email / phone if HR may follow up" />
+          </label>
+        </div>
+
+        <p class="pr-privacy">
+          🔒 Your IP address and browser are logged for fraud-prevention only — never linked
+          to the report shown to HR. Leaving Contact Info blank keeps you fully anonymous.
+        </p>
+
+        <div class="pr-actions">
+          <button pButton type="button" label="Submit Report" icon="pi pi-send"
+                  (click)="submit()" [loading]="loading"
+                  styleClass="pr-primary"></button>
+        </div>
+      </section>
+
+      <!-- ─── Confirmation panel ────────────────────────────── -->
+      <section *ngIf="mode === 'form' && submitted && result" class="pr-section pr-confirmed">
+        <div class="pr-success-icon">✅</div>
+        <h1>Report Received</h1>
+        <p class="pr-sub">
+          Your report has been recorded confidentially. HR will review it and act based on
+          the category's standard process. Save the code below — you will need it to check
+          on the report later.
+        </p>
+
+        <div class="pr-token-box">
+          <div class="pr-token-row">
+            <span class="pr-token-label">Case Reference</span>
+            <span class="pr-token-value">{{ result.caseReference }}</span>
+          </div>
+          <div class="pr-token-row">
+            <span class="pr-token-label">Tracking Code</span>
+            <span class="pr-token-value pr-mono">{{ result.trackingToken }}</span>
+            <button class="pr-copy" type="button" (click)="copyToken()">
+              <i class="pi pi-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+
+        <p class="pr-warn">
+          ⚠️ This code will not be shown again. Without it you cannot check the status of
+          your report. Store it somewhere safe (a private note, password manager, etc.).
+        </p>
+
+        <div class="pr-actions pr-actions-split">
+          <button pButton type="button" label="Submit another report" icon="pi pi-plus"
+                  severity="secondary" (click)="startNew()"></button>
+          <button pButton type="button" label="Check status" icon="pi pi-search"
+                  (click)="trackToken = result.trackingToken; switchMode('track'); runTrack()"
+                  styleClass="pr-primary"></button>
+        </div>
+      </section>
+
+      <!-- ═════════════════════════════════════════════════════
+           TRACK MODE — look up an existing report by token
+           ═════════════════════════════════════════════════════ -->
+      <section *ngIf="mode === 'track'" class="pr-section">
+        <h1>Check Report Status</h1>
+        <p class="pr-sub">
+          Enter the tracking code you received when you submitted your report. We do not
+          ask for any other identifying information.
+        </p>
+
+        <div class="pr-track-row">
+          <input pInputText [(ngModel)]="trackToken"
+                 placeholder="Paste your tracking code here"
+                 (keyup.enter)="runTrack()" />
+          <button pButton type="button" label="Look up" icon="pi pi-search"
+                  (click)="runTrack()" [loading]="loading"
+                  styleClass="pr-primary"></button>
+        </div>
+
+        <p class="pr-track-error" *ngIf="trackError">⚠️ {{ trackError }}</p>
+
+        <!-- Result -->
+        <div class="pr-track-result" *ngIf="trackingResult">
+          <div class="pr-track-head">
+            <h2>{{ trackingResult.title }}</h2>
+            <span class="pr-status" [attr.data-status]="trackingResult.status">
+              {{ trackingResult.status }}
+            </span>
+          </div>
+
+          <ul class="pr-meta">
+            <li><span>Case Reference</span><strong>{{ trackingResult.caseReference || '—' }}</strong></li>
+            <li><span>Category</span><strong>{{ trackingResult.category?.name || '—' }}</strong></li>
+            <li><span>Severity</span><strong>{{ trackingResult.severity }}</strong></li>
+            <li><span>Reported</span><strong>{{ trackingResult.reportedAt | date:'dd MMM yyyy, HH:mm' }}</strong></li>
+            <li *ngIf="trackingResult.acknowledgedAt"><span>Acknowledged</span><strong>{{ trackingResult.acknowledgedAt | date:'dd MMM yyyy' }}</strong></li>
+            <li *ngIf="trackingResult.resolvedAt"><span>Resolved</span><strong>{{ trackingResult.resolvedAt | date:'dd MMM yyyy' }}</strong></li>
+            <li *ngIf="trackingResult.closedAt"><span>Closed</span><strong>{{ trackingResult.closedAt | date:'dd MMM yyyy' }}</strong></li>
+          </ul>
+
+          <div class="pr-progress">
+            <div class="pr-step" [class.active]="trackingResult.status !== null">📥 Submitted</div>
+            <div class="pr-step" [class.active]="!!trackingResult.acknowledgedAt">👁️ Acknowledged</div>
+            <div class="pr-step" [class.active]="['INVESTIGATING','ESCALATED','RESOLVED','CLOSED'].includes(trackingResult.status)">🔍 Investigating</div>
+            <div class="pr-step" [class.active]="!!trackingResult.resolvedAt">✅ Resolved</div>
+            <div class="pr-step" [class.active]="!!trackingResult.closedAt">🔒 Closed</div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="pr-foot">
+        🔐 All public reports are rate-limited to prevent abuse. By submitting you agree
+        that knowingly false reports may be subject to disciplinary action.
+      </footer>
+    </div>
+  </main>
+</div>

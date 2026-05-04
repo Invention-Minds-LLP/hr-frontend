@@ -1,59 +1,114 @@
-<p-card class="Incident">
-  <div class="flex">
-    <div class="header">Incident Records</div>
+<div class="ic-table-shell">
 
-    <!-- Filter -->
-   <div class="filter-part">
-     <div class="filter" id="filterButton" (click)="toggleFilterDropdown(); $event.stopPropagation()">
-      <i class="pi pi-filter"></i>
-
-      <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
-        <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
-          [ngClass]="{ active: selectedFilter?.value === option.value }">
-          {{ option.label }}
-        </li>
-      </ul>
+  <!-- ── Header + filters ────────────────────────── -->
+  <header class="ic-table-head">
+    <div>
+      <h2>Incident Records</h2>
+      <p class="ic-sub">{{ total }} record{{ total === 1 ? '' : 's' }}</p>
     </div>
+    <div class="ic-filter-row">
+      <input pInputText type="text" placeholder="Search title or description"
+             [(ngModel)]="filters.q"
+             (keyup.enter)="onFilterChange()"
+             class="ic-search" />
+      <p-select [options]="statusOptions"   [(ngModel)]="filters.status"
+                (onChange)="onFilterChange()" appendTo="body" placeholder="Status"
+                styleClass="ic-filter"></p-select>
+      <p-select [options]="severityOptions" [(ngModel)]="filters.severity"
+                (onChange)="onFilterChange()" appendTo="body" placeholder="Severity"
+                styleClass="ic-filter"></p-select>
+      <p-select [options]="categoryOptions" [(ngModel)]="filters.categoryId"
+                (onChange)="onFilterChange()" appendTo="body" placeholder="Category"
+                styleClass="ic-filter"></p-select>
+      <button pButton type="button" icon="pi pi-filter-slash" size="small"
+              severity="secondary" (click)="resetFilters()"
+              pTooltip="Clear filters" tooltipPosition="top"></button>
+    </div>
+  </header>
 
-    <!-- Search -->
-    <p-iconfield>
-      <p-inputicon class="pi pi-search"></p-inputicon>
-      <input id="searchBox" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
-    </p-iconfield>
-
-   </div>
-  </div>
-
-  <p-table [value]="filteredIncidents" [paginator]="true" [rows]="10">
+  <!-- ── Table ───────────────────────────────────── -->
+  <p-table [value]="rows" [loading]="loading"
+           [paginator]="true"
+           [lazy]="true"
+           [first]="(page - 1) * pageSize"
+           [rows]="pageSize"
+           [totalRecords]="total"
+           [rowsPerPageOptions]="[10, 25, 50, 100]"
+           (onPage)="onPageChange($event)"
+           styleClass="ic-table">
 
     <ng-template pTemplate="header">
       <tr>
-        <th>No</th>
+        <th style="width:60px;">#</th>
         <th>Title</th>
-        <th>Description</th>
-        <th>Employee</th>
+        <th style="width:150px;">Category</th>
+        <th style="width:120px;">Severity</th>
+        <th style="width:140px;">Status</th>
+        <th>Subject</th>
         <th>Reporter</th>
-        <th>Status</th>
-        <th style="text-align: center;">Date</th>
+        <th style="width:130px; text-align:center;">Reported</th>
+        <th style="width:240px; text-align:center;">Actions</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-row let-i="rowIndex">
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ row.title }}</td>
-        <td style="cursor: pointer;">
-          <span pTooltip="{{row.description}}" tooltipPosition="top">
-            {{row.description}}
+    <ng-template pTemplate="body" let-row>
+      <tr (click)="openRow(row)" class="ic-row-clickable">
+        <td><strong>{{ row.id }}</strong></td>
+        <td>
+          <div class="ic-title-cell">
+            <span class="ic-title">{{ row.title }}</span>
+            <span class="ic-anon-badge" *ngIf="row.isAnonymous">ANON</span>
+          </div>
+        </td>
+        <td>
+          <span class="ic-cat-pill">{{ row.category?.name || '—' }}</span>
+        </td>
+        <td>
+          <span class="ic-sev-pill" [ngClass]="severityClass(row.severity)">
+            {{ row.severity }}
           </span>
         </td>
-        <td>{{ row.employee?.firstName }} {{ row.employee?.lastName }}</td>
-        <td>{{ row.reporter?.firstName }} {{ row.reporter?.lastName }}</td>
-        <td>{{ row.status }}</td>
-        <td>{{ row.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
+        <td>
+          <span class="ic-status-pill" [ngClass]="statusClass(row.status)">
+            {{ row.status }}
+          </span>
+        </td>
+        <td>
+          <ng-container *ngIf="row.employee; else noEmp">
+            {{ row.employee.firstName }} {{ row.employee.lastName }}
+          </ng-container>
+          <ng-template #noEmp><span class="ic-muted">—</span></ng-template>
+        </td>
+        <td>
+          <ng-container *ngIf="!row.isAnonymous && row.reporter; else anon">
+            {{ row.reporter.firstName }} {{ row.reporter.lastName }}
+          </ng-container>
+          <ng-template #anon><span class="ic-muted ic-italic">Anonymous</span></ng-template>
+        </td>
+        <td style="text-align:center;" class="ic-date-cell">
+          {{ row.reportedAt | date:'dd MMM, HH:mm' }}
+        </td>
+        <td class="ic-action-cell" (click)="$event.stopPropagation()">
+          <button class="ic-view-btn" type="button" (click)="openRow(row)"
+                  pTooltip="Open full details" tooltipPosition="top">
+            <i class="pi pi-eye"></i> View
+          </button>
+          <ng-container *ngIf="canAct && nextStepFor(row.status) as ns">
+            <button class="ic-next-btn" type="button" (click)="quickAdvance(row, $event)"
+                    [pTooltip]="'Move this incident to ' + ns.nextStatus" tooltipPosition="top">
+              {{ ns.label }} <i class="pi pi-arrow-right"></i>
+            </button>
+          </ng-container>
+        </td>
       </tr>
     </ng-template>
 
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="ic-empty">
+          No incidents match the current filters.
+        </td>
+      </tr>
+    </ng-template>
   </p-table>
-
-</p-card>
+</div>

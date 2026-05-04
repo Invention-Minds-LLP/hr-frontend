@@ -1,0 +1,371 @@
+/* ═══════════════════════════════════════════════════════════
+   Incident Category Admin — same blue-accent palette as the
+   incident form / table.
+   ═══════════════════════════════════════════════════════════ */
+
+.ica-shell {
+  --ica-card:      #0f1419;
+  --ica-soft:      #161c24;
+  --ica-border:    rgba(148, 163, 184, 0.18);
+  --ica-border-hi: rgba(96, 165, 250, 0.45);
+  --ica-text:      #e2e8f0;
+  --ica-muted:     #94a3b8;
+  --ica-strong:    #ffffff;
+  --ica-accent:    #60a5fa;
+  --ica-accent-2:  #2563eb;
+  --ica-tint:      rgba(96, 165, 250, 0.12);
+  --ica-success:   #22c55e;
+  --ica-warn:      #f59e0b;
+  --ica-danger:    #ef4444;
+
+  background:
+    radial-gradient(1200px 320px at -10% -40%, rgba(96,165,250,0.08), transparent 60%),
+    var(--ica-card);
+  border: 1px solid var(--ica-border);
+  border-left: 4px solid var(--ica-accent);
+  border-radius: 14px;
+  padding: 20px 22px;
+  color: var(--ica-text);
+  font-family: 'Sofia Sans', sans-serif;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Head ───────────────────────────────────────── */
+.ica-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.ica-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--ica-strong);
+}
+.ica-sub {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  color: var(--ica-muted);
+  max-width: 580px;
+  line-height: 1.5;
+}
+.ica-new-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--ica-accent), var(--ica-accent-2));
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.ica-new-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* ── Table ──────────────────────────────────────── */
+::ng-deep .ica-table .p-datatable-table { background: transparent; }
+::ng-deep .ica-table .p-datatable-thead > tr > th {
+  background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02));
+  color: #93c5fd;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: none;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.22);
+  padding: 12px 14px;
+}
+::ng-deep .ica-table .p-datatable-tbody > tr > td {
+  background: transparent;
+  color: var(--ica-text);
+  border: none;
+  border-bottom: 1px solid var(--ica-border);
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+::ng-deep .ica-table .p-datatable-tbody > tr:nth-child(even) > td {
+  background: rgba(255, 255, 255, 0.018);
+}
+::ng-deep .ica-table .p-datatable-tbody > tr:hover > td {
+  background: rgba(96, 165, 250, 0.10);
+}
+.ica-row-archived td { opacity: 0.55; }
+
+.ica-cat strong { color: var(--ica-strong); display: block; }
+.ica-cat-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ica-muted);
+  margin-top: 2px;
+  max-width: 380px;
+}
+
+/* Severity chip */
+.ica-sev {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.ica-sev.sev-critical { background: rgba(239,68,68,0.22);  color: #fca5a5; border-color: rgba(239,68,68,0.5); }
+.ica-sev.sev-high     { background: rgba(245,101,101,0.18); color: #fda4af; border-color: rgba(245,101,101,0.4); }
+.ica-sev.sev-medium   { background: rgba(245,158,11,0.16); color: #fcd34d; border-color: rgba(245,158,11,0.4); }
+.ica-sev.sev-low      { background: rgba(96,165,250,0.16); color: #93c5fd; border-color: rgba(96,165,250,0.4); }
+.ica-sev.sev-none     { background: rgba(148,163,184,0.12); color: var(--ica-muted); border-color: var(--ica-border); }
+
+/* Yes/No flag pill */
+.ica-flag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--ica-muted);
+  border: 1px solid var(--ica-border);
+}
+.ica-flag.ica-yes {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+/* Active/Archived */
+.ica-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--ica-muted);
+  border: 1px solid var(--ica-border);
+}
+.ica-status.ica-active {
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.42);
+}
+
+/* Action buttons */
+.ica-actions { display: inline-flex; gap: 6px; justify-content: center; }
+.ica-edit-btn,
+.ica-archive-btn {
+  background: var(--ica-soft);
+  border: 1px solid var(--ica-border);
+  color: var(--ica-text);
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.ica-edit-btn:hover {
+  border-color: var(--ica-border-hi);
+  background: var(--ica-tint);
+  color: var(--ica-accent);
+}
+.ica-archive-btn:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fcd34d;
+}
+
+.ica-empty {
+  padding: 36px;
+  text-align: center;
+  color: var(--ica-muted);
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────
+   Dialog (edit / create modal)
+   ───────────────────────────────────────────────── */
+::ng-deep .p-dialog {
+  background: var(--ica-card) !important;
+  border: 1px solid var(--ica-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6) !important;
+  color: var(--ica-text) !important;
+}
+::ng-deep .p-dialog .p-dialog-header,
+::ng-deep .p-dialog .p-dialog-content,
+::ng-deep .p-dialog .p-dialog-footer {
+  background: transparent !important;
+  color: var(--ica-text) !important;
+  border: none !important;
+}
+::ng-deep .p-dialog .p-dialog-header { padding: 0 !important; }
+::ng-deep .p-dialog .p-dialog-content { padding: 0 24px 18px !important; }
+::ng-deep .p-dialog .p-dialog-footer  {
+  padding: 14px 24px 18px !important;
+  border-top: 1px solid var(--ica-border) !important;
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+.ica-dialog-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--ica-border);
+}
+.ica-dialog-head > span {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ica-strong);
+}
+.ica-dialog-close {
+  background: transparent;
+  border: none;
+  color: var(--ica-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.ica-dialog-close:hover { background: var(--ica-soft); color: var(--ica-strong); }
+
+.ica-form { padding-top: 18px; }
+
+.ica-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin-bottom: 18px;
+}
+.ica-full-row { grid-column: 1 / -1; }
+.ica-grid label { display: flex; flex-direction: column; gap: 6px; }
+.ica-lbl {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+.ica-lbl em { color: var(--ica-danger); font-style: normal; }
+.ica-hint { color: var(--ica-muted); font-size: 0.78rem; line-height: 1.4; }
+.ica-full { width: 100%; }
+
+/* Inputs in the dialog */
+::ng-deep .p-dialog input.p-inputtext,
+::ng-deep .p-dialog textarea.p-textarea,
+::ng-deep .p-dialog textarea[pTextarea],
+::ng-deep .p-dialog .p-select {
+  width: 100%;
+  background: var(--ica-soft) !important;
+  color: var(--ica-text) !important;
+  border: 1px solid var(--ica-border) !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+::ng-deep .p-dialog input.p-inputtext:hover,
+::ng-deep .p-dialog textarea:hover,
+::ng-deep .p-dialog .p-select:hover {
+  border-color: var(--ica-border-hi) !important;
+}
+::ng-deep .p-dialog input.p-inputtext:focus,
+::ng-deep .p-dialog textarea:focus,
+::ng-deep .p-dialog .p-select.p-focus {
+  border-color: var(--ica-accent) !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+::ng-deep .p-dialog textarea {
+  padding: 10px 12px !important;
+  font-family: inherit;
+  resize: vertical;
+}
+::ng-deep .p-dialog .p-select { padding: 0 !important; }
+::ng-deep .p-dialog .p-select .p-select-label {
+  color: var(--ica-text) !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+}
+::ng-deep .p-dialog .p-select .p-select-label.p-placeholder { color: rgba(148, 163, 184, 0.65) !important; }
+::ng-deep .p-dialog .p-select .p-select-dropdown { color: var(--ica-accent) !important; }
+
+/* Toggles */
+.ica-toggles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  padding: 14px;
+  background: var(--ica-soft);
+  border: 1px solid var(--ica-border);
+  border-radius: 10px;
+}
+.ica-toggle {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--ica-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ica-toggle:hover { border-color: var(--ica-border-hi); }
+.ica-toggle > div { display: flex; flex-direction: column; gap: 2px; }
+.ica-toggle strong { color: var(--ica-strong); font-size: 0.88rem; font-weight: 700; }
+.ica-toggle small  { color: var(--ica-muted); font-size: 0.78rem; line-height: 1.4; }
+
+/* Footer buttons */
+.ica-cancel-btn,
+.ica-save-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s, background 0.15s;
+}
+.ica-cancel-btn {
+  background: transparent;
+  border: 1px solid var(--ica-border);
+  color: var(--ica-text);
+}
+.ica-cancel-btn:hover { border-color: var(--ica-border-hi); }
+.ica-save-btn {
+  background: linear-gradient(135deg, var(--ica-accent), var(--ica-accent-2));
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+.ica-save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
+.ica-save-btn:disabled { opacity: 0.7; cursor: progress; transform: none; }
+
+/* Confirm dialog dark — matches main dialog */
+::ng-deep .p-confirmdialog { background: var(--ica-card) !important; color: var(--ica-text) !important; }
+::ng-deep .p-confirmdialog .p-button {
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+}
+
+/* Body-appended select overlay */
+::ng-deep body > .p-select-overlay {
+  background: #0f1419 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6) !important;
+  z-index: 12000 !important;
+}
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 720px) {
+  .ica-grid     { grid-template-columns: 1fr; }
+  .ica-toggles  { grid-template-columns: 1fr; }
+}

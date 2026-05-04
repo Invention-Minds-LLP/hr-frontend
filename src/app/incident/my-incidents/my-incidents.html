@@ -1,0 +1,257 @@
+<div class="mi-shell">
+  <p-toast></p-toast>
+
+  <!-- ═════════════════════════════════════════════════════
+       LIST VIEW
+       ═════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="!selected && !loadingDetail">
+    <header class="mi-head">
+      <div>
+        <h2>Incidents Involving Me</h2>
+        <p class="mi-sub">
+          Cases where you are named as the person involved. Only cases that
+          HR has formally acknowledged are shown here. Reporter identity is
+          never disclosed.
+        </p>
+      </div>
+      <span class="mi-count" *ngIf="rows.length">
+        {{ rows.length }} {{ rows.length === 1 ? 'case' : 'cases' }}
+      </span>
+    </header>
+
+    <p-table [value]="rows" [loading]="loadingList" styleClass="mi-table"
+             [paginator]="rows.length > 10" [rows]="10" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:60px;">#</th>
+          <th>Title</th>
+          <th style="width:160px;">Category</th>
+          <th style="width:120px;">Severity</th>
+          <th style="width:140px;">Status</th>
+          <th style="width:150px;text-align:center;">Reported</th>
+          <th style="width:130px;text-align:center;">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td><strong>{{ row.id }}</strong></td>
+          <td>
+            <strong class="mi-title">{{ row.title }}</strong>
+            <span class="mi-anon" *ngIf="row.isAnonymous"
+                  pTooltip="Reported via the anonymous channel" tooltipPosition="top">ANON</span>
+          </td>
+          <td>
+            <span class="mi-cat-pill">{{ row.category?.name || '—' }}</span>
+          </td>
+          <td>
+            <span class="mi-sev-pill" [ngClass]="severityClass(row.severity)">
+              {{ row.severity }}
+            </span>
+          </td>
+          <td>
+            <span class="mi-status-pill" [ngClass]="statusClass(row.status)">
+              {{ row.status }}
+            </span>
+          </td>
+          <td style="text-align:center;" class="mi-date">
+            {{ row.reportedAt | date:'dd MMM, HH:mm' }}
+          </td>
+          <td style="text-align:center;">
+            <button class="mi-view-btn" type="button" (click)="open(row)"
+                    pTooltip="See details and your statement options" tooltipPosition="top">
+              <i class="pi pi-eye"></i> View
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="mi-empty">
+            🎉 No incidents involving you. Cases that HR has not yet acknowledged are not shown.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <!-- ═════════════════════════════════════════════════════
+       DETAIL VIEW
+       ═════════════════════════════════════════════════════ -->
+  <div class="mi-loading" *ngIf="loadingDetail">
+    <i class="pi pi-spin pi-spinner"></i> Loading…
+  </div>
+
+  <ng-container *ngIf="selected && !loadingDetail">
+    <button class="mi-back" type="button" (click)="back()">
+      <i class="pi pi-arrow-left"></i> Back to my incidents
+    </button>
+
+    <article class="mi-detail">
+      <!-- Title row -->
+      <header class="mi-detail-head">
+        <div>
+          <h2>{{ selected.title }}</h2>
+          <div class="mi-detail-meta">
+            <span class="mi-cat-pill">{{ selected.category?.name }}</span>
+            <span class="mi-sev-pill" [ngClass]="severityClass(selected.severity)">{{ selected.severity }}</span>
+            <span class="mi-status-pill" [ngClass]="statusClass(selected.status)">{{ selected.status }}</span>
+            <span class="mi-anon" *ngIf="selected.isAnonymous"
+                  pTooltip="Reported via the anonymous channel" tooltipPosition="top">ANON</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Description + key dates -->
+      <section class="mi-section">
+        <div class="mi-grid two">
+          <div class="mi-card">
+            <h3>What was reported</h3>
+            <p class="mi-pre">{{ selected.description }}</p>
+            <div class="mi-kv" *ngIf="selected.location || selected.subcategory">
+              <div *ngIf="selected.subcategory"><span>Sub-category</span><strong>{{ selected.subcategory }}</strong></div>
+              <div *ngIf="selected.location"><span>Location</span><strong>{{ selected.location }}</strong></div>
+            </div>
+          </div>
+
+          <div class="mi-card">
+            <h3>Timeline</h3>
+            <ul class="mi-timeline">
+              <li class="active">
+                <span class="mi-dot"></span>
+                <div>
+                  <strong>Reported</strong>
+                  <small>{{ selected.reportedAt | date:'dd MMM yyyy, HH:mm' }}</small>
+                </div>
+              </li>
+              <li [class.active]="selected.acknowledgedAt">
+                <span class="mi-dot"></span>
+                <div>
+                  <strong>Acknowledged by HR</strong>
+                  <small>{{ selected.acknowledgedAt ? (selected.acknowledgedAt | date:'dd MMM yyyy') : '—' }}</small>
+                </div>
+              </li>
+              <li [class.active]="['INVESTIGATING','ESCALATED','RESOLVED','CLOSED'].includes(selected.status)">
+                <span class="mi-dot"></span>
+                <div>
+                  <strong>Investigation</strong>
+                  <small *ngIf="selected.status === 'INVESTIGATING'">In progress</small>
+                  <small *ngIf="selected.status === 'ESCALATED'">Escalated to higher review</small>
+                  <small *ngIf="['RESOLVED','CLOSED'].includes(selected.status)">Completed</small>
+                  <small *ngIf="!['INVESTIGATING','ESCALATED','RESOLVED','CLOSED'].includes(selected.status)">—</small>
+                </div>
+              </li>
+              <li [class.active]="selected.resolvedAt">
+                <span class="mi-dot"></span>
+                <div>
+                  <strong>Resolved</strong>
+                  <small>{{ selected.resolvedAt ? (selected.resolvedAt | date:'dd MMM yyyy') : '—' }}</small>
+                </div>
+              </li>
+              <li [class.active]="selected.closedAt">
+                <span class="mi-dot"></span>
+                <div>
+                  <strong>Closed</strong>
+                  <small>{{ selected.closedAt ? (selected.closedAt | date:'dd MMM yyyy') : '—' }}</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Verdict — only visible after RESOLVED -->
+      <section class="mi-section" *ngIf="hasVerdict">
+        <div class="mi-card mi-verdict">
+          <h3>📋 HR's Decision</h3>
+          <ul class="mi-kv mi-kv-stacked">
+            <li *ngIf="selected.outcome">
+              <span>Outcome</span>
+              <strong>{{ outcomeLabel(selected.outcome) }}</strong>
+            </li>
+            <li *ngIf="selected.rootCause">
+              <span>Root cause</span>
+              <p class="mi-pre">{{ selected.rootCause }}</p>
+            </li>
+            <li *ngIf="selected.actionTaken">
+              <span>Action taken</span>
+              <p class="mi-pre">{{ selected.actionTaken }}</p>
+            </li>
+            <li *ngIf="selected.preventiveAction">
+              <span>Preventive action</span>
+              <p class="mi-pre">{{ selected.preventiveAction }}</p>
+            </li>
+            <li *ngIf="selected.rejectionReason">
+              <span>Reason for rejection</span>
+              <p class="mi-pre">{{ selected.rejectionReason }}</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- My CAPA tasks (where I'm the owner) -->
+      <section class="mi-section" *ngIf="selected.capa?.length">
+        <div class="mi-card">
+          <h3>📝 Action items assigned to me</h3>
+          <ul class="mi-capa-list">
+            <li *ngFor="let c of selected.capa">
+              <div class="mi-capa-head">
+                <span class="mi-capa-type" [class.preventive]="c.type === 'PREVENTIVE'">
+                  {{ c.type === 'CORRECTIVE' ? 'CORRECTIVE' : 'PREVENTIVE' }}
+                </span>
+                <span class="mi-status-pill" [ngClass]="statusClass(c.status === 'DONE' ? 'CLOSED' : c.status)">
+                  {{ c.status }}
+                </span>
+                <span class="mi-muted" *ngIf="c.dueDate">due {{ c.dueDate | date:'dd MMM yyyy' }}</span>
+              </div>
+              <p class="mi-pre">{{ c.description }}</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Conversation -->
+      <section class="mi-section">
+        <div class="mi-card">
+          <h3>💬 Discussion with HR</h3>
+          <p class="mi-muted-sub" *ngIf="!selected.comments?.length">
+            No public comments yet. Use the box below to add your statement when ready.
+          </p>
+          <ul class="mi-comments" *ngIf="selected.comments?.length">
+            <li *ngFor="let c of selected.comments" [class.mine]="c.authorId === myEmpId()">
+              <div class="mi-comment-head">
+                <strong>{{ c.authorId === myEmpId() ? 'You' : 'HR' }}</strong>
+                <small>{{ c.createdAt | date:'dd MMM yyyy, HH:mm' }}</small>
+              </div>
+              <p class="mi-pre">{{ c.body }}</p>
+            </li>
+          </ul>
+
+          <!-- Statement composer -->
+          <div class="mi-composer" *ngIf="canPostStatement">
+            <h4>Add your statement</h4>
+            <textarea pTextarea rows="4" [(ngModel)]="newStatement" maxlength="3000"
+                      placeholder="Share your side of the story. HR will see this immediately."></textarea>
+            <div class="mi-composer-actions">
+              <button class="mi-post-btn" type="button" (click)="postStatement()"
+                      [disabled]="posting || !newStatement.trim()">
+                <i [class]="posting ? 'pi pi-spin pi-spinner' : 'pi pi-send'"></i>
+                {{ posting ? 'Posting…' : 'Post Statement' }}
+              </button>
+            </div>
+          </div>
+          <div class="mi-composer-locked" *ngIf="!canPostStatement">
+            🔒 This case is closed. No further statements can be added.
+          </div>
+        </div>
+      </section>
+
+      <footer class="mi-foot">
+        🔐 You are seeing a redacted view. Reporter identity, internal HR notes,
+        witness statements, and case attachments are never shared with the
+        person under investigation.
+      </footer>
+    </article>
+  </ng-container>
+</div>

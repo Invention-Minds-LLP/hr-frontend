@@ -1,109 +1,383 @@
-.incident-form {
-    /* padding: 70px 60px; */
-    padding: 20px;
+/* ═══════════════════════════════════════════════════════════
+   Incident Form — uses the same dark + blue-accent palette as
+   the Recruitment Dashboard / Management Dashboard / KPI cards.
+   ═══════════════════════════════════════════════════════════ */
+
+.ic-form-shell {
+  --ic-bg:        #0b0e13;
+  --ic-card:      #0f1419;
+  --ic-soft:      #161c24;
+  --ic-border:    rgba(148, 163, 184, 0.18);
+  --ic-border-hi: rgba(96, 165, 250, 0.45);
+  --ic-text:      #e2e8f0;
+  --ic-muted:     #94a3b8;
+  --ic-strong:    #ffffff;
+  --ic-accent:    #60a5fa;
+  --ic-accent-2:  #2563eb;
+  --ic-accent-tint: rgba(96, 165, 250, 0.12);
+  --ic-success:   #22c55e;
+  --ic-warn:      #f59e0b;
+  --ic-danger:    #ef4444;
+  --ic-violet:    #a78bfa;
+
+  background:
+    radial-gradient(1200px 320px at -10% -40%, rgba(96,165,250,0.10), transparent 60%),
+    var(--ic-card);
+  border: 1px solid var(--ic-border);
+  border-left: 4px solid var(--ic-accent);
+  border-radius: 14px;
+  padding: 24px 26px;
+  color: var(--ic-text);
+  font-family: 'Sofia Sans', sans-serif;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-.header {
-    color: white;
-    font-family: "Sofia Sans";
-    font-size: 26px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
+/* ── Heading ─────────────────────────────────── */
+.ic-form-head h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--ic-strong);
+  letter-spacing: 0.01em;
+}
+.ic-form-head .ic-sub {
+  margin: 6px 0 18px;
+  font-size: 0.88rem;
+  color: var(--ic-muted);
+}
+.ic-form-head em { color: var(--ic-danger); font-style: normal; margin-left: 2px; }
+
+/* ── Sections (visual grouping) ──────────────── */
+.ic-section {
+  border-top: 1px solid var(--ic-border);
+  padding: 16px 0 10px;
+}
+.ic-section:first-of-type { border-top: none; padding-top: 0; }
+.ic-section-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.ic-section-head h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ic-strong);
+}
+.ic-section-head .ic-meta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ic-accent);
+  background: var(--ic-accent-tint);
+  padding: 3px 10px;
+  border-radius: 999px;
 }
 
-.flex {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* ── Field grids ─────────────────────────────── */
+.ic-grid {
+  display: grid;
+  gap: 14px 16px;
+  margin-bottom: 10px;
+}
+.ic-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ic-grid.attach-grid {
+  grid-template-columns: 1fr 1.4fr auto;
+  align-items: end;
+}
+@media (max-width: 720px) {
+  .ic-grid.two       { grid-template-columns: 1fr; }
+  .ic-grid.attach-grid { grid-template-columns: 1fr; }
 }
 
-.form{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  color: var(--ic-text);
+}
+.ic-full-row { grid-column: 1 / -1; }
+.ic-lbl {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* Brighter than slate-400 — uses a soft blue accent so labels actually pop */
+  color: #93c5fd;
+}
+.ic-lbl em { color: var(--ic-danger); font-style: normal; }
+
+/* Anonymous toggle row — checkbox sits alongside label, not above */
+.ic-anonymous-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-end;
+  padding-bottom: 6px;
+}
+.ic-anonymous-row .ic-anon-hint {
+  font-size: 0.82rem;
+  color: var(--ic-text);
 }
 
-label{
-    color: white;
+/* ── Unified dark inputs / selects / textareas ── */
+.ic-form-shell input.p-inputtext,
+.ic-form-shell textarea.p-inputtextarea,
+.ic-form-shell textarea.p-textarea,
+.ic-form-shell textarea[pTextarea],
+.ic-form-shell .p-select {
+  width: 100%;
+  background: var(--ic-soft) !important;
+  color: var(--ic-text) !important;
+  border: 1px solid var(--ic-border) !important;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.ic-form-shell input.p-inputtext:hover,
+.ic-form-shell textarea.p-inputtextarea:hover,
+.ic-form-shell textarea.p-textarea:hover,
+.ic-form-shell textarea[pTextarea]:hover,
+.ic-form-shell .p-select:hover {
+  border-color: var(--ic-border-hi) !important;
+}
+.ic-form-shell input.p-inputtext:focus,
+.ic-form-shell textarea.p-inputtextarea:focus,
+.ic-form-shell textarea.p-textarea:focus,
+.ic-form-shell textarea[pTextarea]:focus,
+.ic-form-shell .p-select.p-focus {
+  border-color: var(--ic-accent) !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+.ic-form-shell textarea.p-inputtextarea,
+.ic-form-shell textarea.p-textarea,
+.ic-form-shell textarea[pTextarea] {
+  padding: 10px 12px !important;
+  font-family: inherit;
+  resize: vertical;
+}
+.ic-form-shell input::placeholder,
+.ic-form-shell textarea::placeholder {
+  color: rgba(148,163,184,0.6);
+}
+.ic-form-shell .p-select { padding: 0; }
+.ic-form-shell .ic-full { width: 100%; }
+
+/* Date picker input matches the rest */
+.ic-form-shell .p-datepicker-input { width: 100%; }
+.ic-form-shell ::ng-deep .p-datepicker { width: 100%; }
+.ic-form-shell ::ng-deep .p-datepicker .p-datepicker-input {
+  background: var(--ic-soft) !important;
+  color: var(--ic-text) !important;
+  border: 1px solid var(--ic-border) !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ic-form-shell ::ng-deep .p-datepicker .p-datepicker-input:hover {
+  border-color: var(--ic-border-hi) !important;
+}
+.ic-form-shell ::ng-deep .p-datepicker .p-datepicker-input:focus {
+  border-color: var(--ic-accent) !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+.ic-form-shell ::ng-deep .p-datepicker .p-datepicker-input-icon-container,
+.ic-form-shell ::ng-deep .p-datepicker .p-datepicker-trigger {
+  color: var(--ic-accent) !important;
 }
 
-input,
-textarea{
-    background:transparent !important;
-    color: white;
+/* ── Lists (added attachments / witnesses) ───── */
+.ic-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex; flex-direction: column;
+  gap: 6px;
+}
+.ic-list li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ic-soft);
+  border: 1px solid var(--ic-border);
+  border-left: 3px solid var(--ic-accent);
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+.ic-list a {
+  color: var(--ic-accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.ic-list a:hover { text-decoration: underline; }
+.ic-muted { color: var(--ic-muted); }
+
+.ic-form-actions {
+  display: flex; justify-content: flex-end;
+  margin-top: 6px;
 }
 
-::ng-deep .p-select{
-    background:transparent;
+/* ── Bottom actions ──────────────────────────── */
+.ic-submit-row {
+  display: flex; justify-content: flex-end; gap: 10px;
+  border-top: 1px solid var(--ic-border);
+  padding-top: 16px;
+  margin-top: 18px;
+}
+/* Primary submit button — same blue gradient as the rest of the app */
+.ic-submit-row ::ng-deep .p-button:not(.p-button-secondary) {
+  background: linear-gradient(135deg, var(--ic-accent), var(--ic-accent-2)) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.ic-submit-row ::ng-deep .p-button:not(.p-button-secondary):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+.ic-submit-row ::ng-deep .p-button.p-button-secondary {
+  background: var(--ic-soft) !important;
+  border: 1px solid var(--ic-border) !important;
+  color: var(--ic-text) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
+.ic-submit-row ::ng-deep .p-button.p-button-secondary:hover {
+  border-color: var(--ic-border-hi) !important;
+  color: var(--ic-strong) !important;
 }
 
-input::placeholder{
-    color: white;
+/* ── PrimeNG select / datepicker overlays ──────────────────────────
+   These overlays are rendered at <body> (appendTo="body"), so they are
+   OUTSIDE the .ic-form-shell scope and CSS variables won't resolve here.
+   Use literal colors and a high z-index so the panel is opaque & on top. */
+::ng-deep .p-select-overlay,
+::ng-deep .p-datepicker-panel {
+  background: #0f1419 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(96, 165, 250, 0.05) !important;
+  z-index: 12000 !important;
 }
 
-.p-button{
-    background: #0062A1;
-    border-color: #0062A1;
-
+/* Datepicker overlay — rich dark calendar with blue accent highlights */
+::ng-deep .p-datepicker-panel {
+  padding: 10px !important;
 }
-.p-button:hover{
-    background: #0062A1;
-    border-color: #0062A1;
+::ng-deep .p-datepicker-panel .p-datepicker-header {
+  background: linear-gradient(135deg, rgba(96,165,250,0.10), rgba(37,99,235,0.04)) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.18) !important;
+  padding: 8px 6px !important;
+  border-radius: 6px !important;
+  margin-bottom: 6px !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-title,
+::ng-deep .p-datepicker-panel .p-datepicker-month,
+::ng-deep .p-datepicker-panel .p-datepicker-year,
+::ng-deep .p-datepicker-panel .p-datepicker-decade {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-prev-button,
+::ng-deep .p-datepicker-panel .p-datepicker-next-button {
+  background: transparent !important;
+  color: #93c5fd !important;
+  border: none !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-prev-button:hover,
+::ng-deep .p-datepicker-panel .p-datepicker-next-button:hover {
+  color: #ffffff !important;
+  background: rgba(96, 165, 250, 0.18) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-calendar-container,
+::ng-deep .p-datepicker-panel .p-datepicker-day-view {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-weekday,
+::ng-deep .p-datepicker-panel .p-datepicker-weekday-cell {
+  color: #93c5fd !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day {
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-other-month {
+  color: rgba(148, 163, 184, 0.4) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day:not(.p-disabled):hover {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #ffffff !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected,
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected > span {
+  background: linear-gradient(135deg, #60a5fa, #2563eb) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-today > span,
+::ng-deep .p-datepicker-panel .p-datepicker-day-today > span {
+  background: rgba(96, 165, 250, 0.20) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(96, 165, 250, 0.55) !important;
 }
 
-::ng-deep .p-select{
-    background:transparent !important;
+/* Select dropdown overlay options */
+::ng-deep .p-select-list,
+::ng-deep .p-select-list-container {
+  background: #0f1419 !important;
+  padding: 6px !important;
+}
+::ng-deep .p-select-option {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  padding: 9px 12px !important;
+  border-radius: 6px !important;
+  font-size: 0.88rem !important;
+  margin: 2px 0 !important;
+}
+::ng-deep .p-select-option:not(.p-disabled):hover {
+  background: rgba(96, 165, 250, 0.14) !important;
+  color: #ffffff !important;
+}
+::ng-deep .p-select-option:not(.p-disabled).p-focus,
+::ng-deep .p-select-option.p-select-option-selected {
+  background: linear-gradient(135deg, rgba(96,165,250,0.28), rgba(37,99,235,0.18)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+::ng-deep .p-select-empty-message {
+  color: #94a3b8 !important;
+  padding: 10px 12px !important;
 }
 
-::ng-deep .p-select-label.p-placeholder,
-::ng-deep .p-select-label ,
-::ng-deep .p-select-dropdown{
-    color: white !important;
+/* Trigger (closed dropdown) — make sure the placeholder & value are readable */
+.ic-form-shell ::ng-deep .p-select .p-select-label {
+  color: var(--ic-text) !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
 }
-
-::ng-deep .p-card-body{
-    padding: 0;
+.ic-form-shell ::ng-deep .p-select .p-select-label.p-placeholder {
+  color: rgba(148, 163, 184, 0.65) !important;
 }
-
-::ng-deep .p-select-list{
-    background: #020403 !important;
-    color: white !important;
+.ic-form-shell ::ng-deep .p-select .p-select-dropdown {
+  color: var(--ic-accent) !important;
 }
-
-::ng-deep .p-select-empty-message{
-    color: white;
-}
-
-::ng-deep .p-button,
-::ng-deep .p-select-option{
-  color: white !important;
-}
-
-
-::ng-deep .p-iconfield .p-inputtext:not(:last-child),
-::ng-deep .p-iconfield .p-inputicon:last-child,
-::ng-deep .p-icon{
-  color: white !important;
-}
-
-::ng-deep .p-select-label{
-  color: white !important;
-}
-
-::ng-deep .p-select-header
-{
-  background: #020403 !important;
-  color: white !important;
-}
-
-::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
-::ng-deep .p-select-option.p-select-option-selected{
-  color: black !important;
-}
-
-::ng-deep .p-iconfield .p-inputtext:not(:last-child){
-    background: #020403 !important;
-}
-

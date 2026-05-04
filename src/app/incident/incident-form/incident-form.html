@@ -1,44 +1,141 @@
-<p-card class="incident-form">
-  <div class="header">File an Incident Report</div>
-    <div class="form">
-  
-        <div class="col-12 flex">
-            <label>Employee</label>
-            <p-select 
-              [options]="employees" 
-              [(ngModel)]="incident.employeeId"
-              placeholder="Select Employee"
-              optionLabel="label"
-              optionValue="value"
-              filter="true"
-              [showClear]="true">
-            </p-select>
-          </div>
-          
-  
-      <div class="col-12 flex">
-        <label>Title</label>
-        <input pInputText [(ngModel)]="incident.title" placeholder="Incident title" />
-      </div>
-  
-      <div class="col-12 flex">
-        <label>Description</label>
-        <textarea pInputTextarea rows="5" [(ngModel)]="incident.description"></textarea>
-      </div>
-  
-      <!-- <div class="col-12">
-        <label>Attachment</label>
-        <input type="file" (change)="onFileSelected($event)" />
-      </div> -->
-      
-  
-      <div class="col-12 text-right">
-        <button pButton label="Submit Incident" class="p-button-primary" (click)="submitIncident()"></button>
-      </div>
-  
+<div class="ic-form-shell">
+  <header class="ic-form-head">
+    <h2>Report an Incident</h2>
+    <p class="ic-sub">All fields with <em>*</em> are required. Submitted reports are immediately routed to the assignee for that category.</p>
+  </header>
+
+  <!-- ── Core fields ────────────────────────────── -->
+  <section class="ic-section">
+    <div class="ic-grid two">
+      <label>
+        <span class="ic-lbl">Title <em>*</em></span>
+        <input pInputText [(ngModel)]="form.title" placeholder="Short summary of what happened" maxlength="200" />
+      </label>
+      <label>
+        <span class="ic-lbl">Category <em>*</em></span>
+        <p-select [options]="categories" [(ngModel)]="form.categoryId"
+                  optionLabel="name" optionValue="id"
+                  placeholder="Choose a category" appendTo="body"
+                  (onChange)="onCategoryChange()" styleClass="ic-full"></p-select>
+      </label>
+      <label>
+        <span class="ic-lbl">Severity</span>
+        <p-select [options]="severityOptions" [(ngModel)]="form.severity"
+                  placeholder="Defaults to category's standard"
+                  appendTo="body" styleClass="ic-full"></p-select>
+      </label>
+      <label>
+        <span class="ic-lbl">Confidentiality</span>
+        <p-select [options]="confidentialityOptions" [(ngModel)]="form.confidentiality"
+                  appendTo="body" styleClass="ic-full"></p-select>
+      </label>
+      <label>
+        <span class="ic-lbl">Incident Date</span>
+        <p-datepicker [(ngModel)]="form.incidentDate" appendTo="body"
+                      [showIcon]="true" styleClass="ic-full"></p-datepicker>
+      </label>
+      <label>
+        <span class="ic-lbl">Location</span>
+        <input pInputText [(ngModel)]="form.location" placeholder="e.g. Floor 2 – Production" />
+      </label>
+      <label>
+        <span class="ic-lbl">Person Involved</span>
+        <p-select [options]="employees" [(ngModel)]="form.employeeId"
+                  placeholder="(Optional) Pick an employee"
+                  [filter]="true" filterBy="label" appendTo="body" styleClass="ic-full"></p-select>
+      </label>
+      <label class="ic-anonymous-row">
+        <span class="ic-lbl">Anonymous</span>
+        <p-checkbox [(ngModel)]="form.isAnonymous" [binary]="true"
+                    [disabled]="anonymousBlocked"
+                    [pTooltip]="anonymousBlocked ? 'This category does not allow anonymous reporting' : ''"
+                    tooltipPosition="top"></p-checkbox>
+        <span class="ic-anon-hint">Hide my identity from the assignee</span>
+      </label>
     </div>
-  
-  </p-card>
-  
+
+    <label class="ic-full-row">
+      <span class="ic-lbl">Description <em>*</em></span>
+      <textarea pTextarea [(ngModel)]="form.description" rows="5"
+                placeholder="Describe what happened — when, where, who was involved, what you saw or experienced."
+                maxlength="5000"></textarea>
+    </label>
+  </section>
+
+  <!-- ── Attachments ───────────────────────────── -->
+  <section class="ic-section">
+    <div class="ic-section-head">
+      <h3>📎 Attachments</h3>
+      <span class="ic-meta">{{ attachments.length }} added</span>
+    </div>
+    <div class="ic-grid attach-grid">
+      <input pInputText [(ngModel)]="newAtt.fileName" placeholder="File name (e.g. cctv.png)" />
+      <input pInputText [(ngModel)]="newAtt.fileUrl"  placeholder="File URL" />
+      <button pButton type="button" label="Add" icon="pi pi-plus" size="small"
+              (click)="addAttachmentRow()"
+              [disabled]="!newAtt.fileName || !newAtt.fileUrl"></button>
+    </div>
+
+    <ul class="ic-list" *ngIf="attachments.length">
+      <li *ngFor="let a of attachments; let i = index">
+        <a [href]="a.fileUrl" target="_blank"><i class="pi pi-file"></i> {{ a.fileName }}</a>
+        <button pButton type="button" icon="pi pi-trash" size="small" severity="danger" text
+                (click)="removeAttachmentRow(i)"></button>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ── Witnesses ─────────────────────────────── -->
+  <section class="ic-section">
+    <div class="ic-section-head">
+      <h3>👥 Witnesses (optional)</h3>
+      <span class="ic-meta">{{ witnesses.length }} added</span>
+    </div>
+    <div class="ic-grid two">
+      <label>
+        <span class="ic-lbl">Witness (employee)</span>
+        <p-select [options]="employees" [(ngModel)]="newWit.witnessEmpId"
+                  placeholder="Pick an employee" [filter]="true" filterBy="label"
+                  [showClear]="true" appendTo="body" styleClass="ic-full"></p-select>
+      </label>
+      <label>
+        <span class="ic-lbl">…or external name</span>
+        <input pInputText [(ngModel)]="newWit.witnessName" placeholder="External witness name" />
+      </label>
+      <label>
+        <span class="ic-lbl">Contact</span>
+        <input pInputText [(ngModel)]="newWit.contactInfo" placeholder="Phone or email" />
+      </label>
+      <label class="ic-full-row">
+        <span class="ic-lbl">Statement</span>
+        <textarea pTextarea [(ngModel)]="newWit.statement" rows="2"
+                  placeholder="What this witness saw / heard"></textarea>
+      </label>
+    </div>
+    <div class="ic-form-actions">
+      <button pButton type="button" label="Add witness" icon="pi pi-plus" size="small"
+              severity="secondary" (click)="addWitnessRow()"
+              [disabled]="!newWit.witnessEmpId && !newWit.witnessName"></button>
+    </div>
+
+    <ul class="ic-list" *ngIf="witnesses.length">
+      <li *ngFor="let w of witnesses; let i = index">
+        <span><strong>{{ w.witnessName || ('Employee #' + w.witnessEmpId) }}</strong>
+          <span class="ic-muted" *ngIf="w.contactInfo"> · {{ w.contactInfo }}</span>
+        </span>
+        <button pButton type="button" icon="pi pi-trash" size="small" severity="danger" text
+                (click)="removeWitnessRow(i)"></button>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ── Submit ───────────────────────────────── -->
+  <div class="ic-submit-row">
+    <button pButton type="button" label="Reset" severity="secondary" size="small"
+            (click)="resetForm()" [disabled]="isLoading"></button>
+    <button pButton type="button" label="Submit Incident" icon="pi pi-send"
+            (click)="submit()" [loading]="isLoading"></button>
+  </div>
+
   <p-toast></p-toast>
-  
+</div>

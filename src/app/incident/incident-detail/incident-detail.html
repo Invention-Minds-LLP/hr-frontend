@@ -1,0 +1,395 @@
+<div class="ic-detail-shell" *ngIf="incident">
+
+  <!-- ── Header bar ────────────────────────────── -->
+  <header class="ic-detail-head">
+    <div class="ic-head-left">
+      <button pButton icon="pi pi-arrow-left" size="small" severity="secondary" text
+              (click)="goBack()" pTooltip="Back to list"></button>
+      <div class="ic-head-titles">
+        <div class="ic-head-line">
+          <span class="ic-id">#{{ incident.id }}</span>
+          <span class="ic-sev-pill" [ngClass]="severityClass(incident.severity)">{{ incident.severity }}</span>
+          <span class="ic-status-pill" [ngClass]="statusClass(incident.status)">{{ incident.status }}</span>
+          <span class="ic-anon-badge" *ngIf="incident.isAnonymous">ANON</span>
+        </div>
+        <h2 class="ic-head-title">{{ incident.title }}</h2>
+        <div class="ic-head-meta">
+          <span><strong>{{ incident.category?.name || 'Uncategorised' }}</strong></span>
+          <span *ngIf="incident.location">· 📍 {{ incident.location }}</span>
+          <span>· Reported {{ incident.reportedAt | date:'medium' }}</span>
+          <span *ngIf="incident.outcome"> · Outcome: <strong>{{ outcomeLabel(incident.outcome) }}</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Tabs ────────────────────────────────────── -->
+  <!-- Custom tab strip — replaces p-tabView (renamed in PrimeNG 20).
+       activeTab is a 0..7 index; each panel below uses *ngIf to show/hide. -->
+  <nav class="ic-detail-tabs">
+    <button class="ic-detail-tab" [class.active]="activeTab === 0" (click)="activeTab = 0">Overview</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 1" (click)="activeTab = 1">Comments ({{ incident.comments?.length || 0 }})</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 2" (click)="activeTab = 2">Witnesses ({{ incident.witnesses?.length || 0 }})</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 3" (click)="activeTab = 3">Attachments ({{ incident.attachments?.length || 0 }})</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 4" (click)="activeTab = 4">CAPA ({{ capaList.length }})</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 5" (click)="activeTab = 5">RCA{{ rca ? ' ✓' : '' }}</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 6" (click)="activeTab = 6">Links</button>
+    <button class="ic-detail-tab" [class.active]="activeTab === 7" (click)="activeTab = 7">Audit Log ({{ incident.auditLogs?.length || 0 }})</button>
+  </nav>
+
+  <div class="ic-detail-panels">
+
+    <!-- ───────── OVERVIEW ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 0">
+      <div class="ic-card-grid two">
+        <div class="ic-info-card">
+          <h4>Description</h4>
+          <p class="ic-pre">{{ incident.description }}</p>
+        </div>
+        <div class="ic-info-card">
+          <h4>People</h4>
+          <ul class="ic-kv">
+            <li><span>Assigned to</span><strong>{{ incident.assignedTo ?? '—' }}</strong></li>
+            <li><span>Reporter</span>
+              <strong *ngIf="!incident.isAnonymous && incident.reporter">
+                {{ incident.reporter.firstName }} {{ incident.reporter.lastName }}
+              </strong>
+              <strong *ngIf="incident.isAnonymous" class="ic-muted ic-italic">Anonymous</strong>
+            </li>
+            <li><span>Subject</span>
+              <strong *ngIf="incident.employee">
+                {{ incident.employee.firstName }} {{ incident.employee.lastName }} ({{ incident.employee.employeeCode }})
+              </strong>
+              <strong *ngIf="!incident.employee" class="ic-muted">—</strong>
+            </li>
+            <li><span>Reviewer</span><strong>{{ incident.reviewerEmpId ?? '—' }}</strong></li>
+            <li><span>Confidentiality</span><strong>{{ incident.confidentiality }}</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ic-card-grid two">
+        <!-- Workflow controls -->
+        <div class="ic-info-card">
+          <h4>Workflow</h4>
+          <div class="ic-grid two">
+            <label>
+              <span class="ic-lbl">Status</span>
+              <p-select [options]="statusOptions" [(ngModel)]="newStatus" appendTo="body" styleClass="ic-full"></p-select>
+            </label>
+            <label>
+              <span class="ic-lbl">Outcome</span>
+              <p-select [options]="outcomeOptions" [(ngModel)]="newOutcome" appendTo="body" styleClass="ic-full"></p-select>
+            </label>
+            <label>
+              <span class="ic-lbl">Assignee</span>
+              <p-select [options]="employees" [(ngModel)]="newAssigneeId"
+                        placeholder="Pick an employee"
+                        [filter]="true" filterBy="label"
+                        [showClear]="true" appendTo="body"
+                        styleClass="ic-full"></p-select>
+            </label>
+          </div>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Root cause</span>
+            <textarea pTextarea rows="2" [(ngModel)]="rootCause" placeholder="The underlying cause once known"></textarea>
+          </label>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Action taken (corrective)</span>
+            <textarea pTextarea rows="2" [(ngModel)]="actionTaken" placeholder="What was done in response"></textarea>
+          </label>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Preventive action</span>
+            <textarea pTextarea rows="2" [(ngModel)]="preventiveAction" placeholder="What prevents recurrence"></textarea>
+          </label>
+          <div class="ic-actions">
+            <button pButton label="Save Workflow" icon="pi pi-save" (click)="saveCoreUpdate()"></button>
+          </div>
+        </div>
+
+        <!-- Compliance flags -->
+        <div class="ic-info-card">
+          <h4>Compliance flags</h4>
+          <ul class="ic-kv">
+            <li><span>Requires RCA</span>
+              <strong [ngClass]="incident.requiresRCA ? 'ic-flag-on' : ''">
+                {{ incident.requiresRCA ? 'Yes' : 'No' }}
+              </strong>
+            </li>
+            <li><span>Requires External Report</span>
+              <strong [ngClass]="incident.requiresExternalReport ? 'ic-flag-on' : ''">
+                {{ incident.requiresExternalReport ? 'Yes' : 'No' }}
+              </strong>
+            </li>
+            <li><span>Reported to Authority</span>
+              <strong [ngClass]="incident.reportedToAuthority ? 'ic-flag-good' : 'ic-flag-warn'">
+                {{ incident.reportedToAuthority ? 'Yes' : 'No' }}
+              </strong>
+            </li>
+            <li *ngIf="incident.authorityName"><span>Authority</span><strong>{{ incident.authorityName }}</strong></li>
+            <li *ngIf="incident.authorityReportedAt"><span>Reported on</span>
+              <strong>{{ incident.authorityReportedAt | date:'medium' }}</strong>
+            </li>
+          </ul>
+
+          <ul class="ic-kv" *ngIf="incident.outcome === 'FALSE_REPORT'">
+            <li><span>False-report consequence taken?</span>
+              <strong>{{ incident.falseReportConsequenceTaken ? 'Yes' : 'No' }}</strong>
+            </li>
+            <li *ngIf="incident.falseReportConsequenceNote"><span>Note</span>
+              <strong>{{ incident.falseReportConsequenceNote }}</strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────── COMMENTS ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 1">
+      <div class="ic-comment-composer">
+        <textarea pTextarea rows="3" [(ngModel)]="newComment" placeholder="Add a comment / investigation note..."></textarea>
+        <div class="ic-row-end">
+          <p-checkbox [(ngModel)]="newCommentInternal" [binary]="true" inputId="cmtInt"></p-checkbox>
+          <label for="cmtInt" class="ic-checkbox-lbl">Internal (HR / investigators only)</label>
+          <button pButton label="Post" icon="pi pi-send" size="small"
+                  (click)="postComment()"
+                  [disabled]="!newComment.trim()"></button>
+        </div>
+      </div>
+      <div class="ic-empty-state" *ngIf="!incident.comments?.length">No comments yet.</div>
+      <div class="ic-comment" *ngFor="let c of incident.comments">
+        <div class="ic-comment-meta">
+          <span>👤 Author #{{ c.authorId }}</span>
+          <span>· {{ c.createdAt | date:'medium' }}</span>
+          <span class="ic-internal-tag" *ngIf="c.isInternal">INTERNAL</span>
+        </div>
+        <p class="ic-pre">{{ c.body }}</p>
+      </div>
+    </div>
+
+    <!-- ───────── WITNESSES ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 2">
+      <div class="ic-info-card">
+        <h4>Add witness</h4>
+        <div class="ic-grid two">
+          <label>
+            <span class="ic-lbl">Witness employee</span>
+            <p-select [options]="employees" [(ngModel)]="newWitness.witnessEmpId"
+                      placeholder="(Optional) Pick an employee"
+                      [filter]="true" filterBy="label"
+                      [showClear]="true" appendTo="body"
+                      styleClass="ic-full"></p-select>
+          </label>
+          <label>
+            <span class="ic-lbl">Or external name</span>
+            <input pInputText [(ngModel)]="newWitness.witnessName" placeholder="Name" />
+          </label>
+          <label>
+            <span class="ic-lbl">Contact</span>
+            <input pInputText [(ngModel)]="newWitness.contactInfo" placeholder="Phone / email" />
+          </label>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Statement</span>
+            <textarea pTextarea rows="2" [(ngModel)]="newWitness.statement" placeholder="What this witness saw"></textarea>
+          </label>
+        </div>
+        <div class="ic-actions">
+          <button pButton label="Add witness" icon="pi pi-plus" size="small"
+                  (click)="postWitness()"></button>
+        </div>
+      </div>
+
+      <div class="ic-empty-state" *ngIf="!incident.witnesses?.length">No witnesses recorded.</div>
+      <ul class="ic-list" *ngIf="incident.witnesses?.length">
+        <li *ngFor="let w of incident.witnesses">
+          <div>
+            <strong>{{ w.witnessName || employeeLabel(w.witnessEmpId) || 'Unknown witness' }}</strong>
+            <span class="ic-muted" *ngIf="w.contactInfo"> · {{ w.contactInfo }}</span>
+            <p class="ic-pre" *ngIf="w.statement">{{ w.statement }}</p>
+          </div>
+          <span class="ic-muted">{{ w.recordedAt | date:'short' }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ───────── ATTACHMENTS ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 3">
+      <div class="ic-info-card">
+        <h4>Add file</h4>
+        <div class="ic-grid attach-grid">
+          <input pInputText [(ngModel)]="newAttachment.fileName" placeholder="File name" />
+          <input pInputText [(ngModel)]="newAttachment.fileUrl"  placeholder="File URL" />
+          <button pButton label="Add" icon="pi pi-plus" size="small"
+                  (click)="postAttachment()"
+                  [disabled]="!newAttachment.fileName || !newAttachment.fileUrl"></button>
+        </div>
+      </div>
+
+      <div class="ic-empty-state" *ngIf="!incident.attachments?.length">No attachments.</div>
+      <ul class="ic-list" *ngIf="incident.attachments?.length">
+        <li *ngFor="let a of incident.attachments">
+          <a [href]="a.fileUrl" target="_blank"><i class="pi pi-file"></i> {{ a.fileName }}</a>
+          <span class="ic-muted">{{ a.uploadedAt | date:'short' }}</span>
+          <button pButton type="button" icon="pi pi-trash" size="small" severity="danger" text
+                  (click)="deleteAttachment(a.id)"></button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ───────── CAPA ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 4">
+      <div class="ic-info-card">
+        <h4>Add corrective / preventive action</h4>
+        <div class="ic-grid two">
+          <label>
+            <span class="ic-lbl">Type</span>
+            <p-select [options]="capaTypeOptions" [(ngModel)]="newCAPA.type" appendTo="body" styleClass="ic-full"></p-select>
+          </label>
+          <label>
+            <span class="ic-lbl">Owner</span>
+            <p-select [options]="employees" [(ngModel)]="newCAPA.ownerId"
+                      placeholder="(Optional) Pick an employee"
+                      [filter]="true" filterBy="label"
+                      [showClear]="true" appendTo="body"
+                      styleClass="ic-full"></p-select>
+          </label>
+          <label>
+            <span class="ic-lbl">Due date</span>
+            <p-datepicker [(ngModel)]="newCAPA.dueDate" appendTo="body" [showIcon]="true" styleClass="ic-full"></p-datepicker>
+          </label>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Description</span>
+            <textarea pTextarea rows="2" [(ngModel)]="newCAPA.description" placeholder="What's the action?"></textarea>
+          </label>
+        </div>
+        <div class="ic-actions">
+          <button pButton label="Add CAPA" icon="pi pi-plus" size="small" (click)="createCAPA()"></button>
+        </div>
+      </div>
+
+      <div class="ic-empty-state" *ngIf="!capaList.length">No CAPA actions yet.</div>
+      <div class="ic-capa-row" *ngFor="let c of capaList">
+        <div class="ic-capa-body">
+          <div class="ic-capa-line">
+            <span class="ic-cat-pill">{{ c.type }}</span>
+            <span class="ic-status-pill" [ngClass]="{
+              'st-good':   c.status === 'DONE',
+              'st-info':   c.status === 'IN_PROGRESS',
+              'st-warn':   c.status === 'PENDING',
+              'st-neutral': c.status === 'CANCELLED'
+            }">{{ c.status }}</span>
+            <span class="ic-muted" *ngIf="c.dueDate">due {{ c.dueDate | date:'shortDate' }}</span>
+            <span class="ic-muted" *ngIf="c.ownerId">· owner {{ employeeLabel(c.ownerId) }}</span>
+          </div>
+          <p class="ic-pre">{{ c.description }}</p>
+        </div>
+        <div class="ic-capa-actions">
+          <p-select [options]="capaStatusOptions" [(ngModel)]="c.status"
+                    (onChange)="updateCAPAStatus(c, c.status)" appendTo="body"></p-select>
+          <button pButton icon="pi pi-trash" size="small" severity="danger" text
+                  (click)="removeCAPA(c)"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────── RCA ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 5">
+      <div class="ic-info-card">
+        <div class="ic-grid two">
+          <label>
+            <span class="ic-lbl">Method</span>
+            <p-select [options]="rcaMethodOptions" [(ngModel)]="rcaMethod" appendTo="body" styleClass="ic-full"></p-select>
+          </label>
+          <label class="ic-full-row">
+            <span class="ic-lbl">Problem statement</span>
+            <textarea pTextarea rows="2" [(ngModel)]="rcaForm.problemStatement"
+                      placeholder="One-line statement of the issue"></textarea>
+          </label>
+        </div>
+
+        <ng-container *ngIf="rcaMethod === 'FIVE_WHY'">
+          <h5 class="ic-rca-h">5-Why Drilldown</h5>
+          <label class="ic-full-row" *ngFor="let n of [1,2,3,4,5]">
+            <span class="ic-lbl">Why #{{ n }}</span>
+            <input pInputText [(ngModel)]="rcaForm['why' + n]" [placeholder]="'Why level ' + n" />
+          </label>
+        </ng-container>
+
+        <ng-container *ngIf="rcaMethod === 'FISHBONE'">
+          <h5 class="ic-rca-h">Fishbone (6Ms)</h5>
+          <div class="ic-grid two">
+            <label><span class="ic-lbl">People</span>      <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesPeople"></textarea></label>
+            <label><span class="ic-lbl">Process</span>     <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesProcess"></textarea></label>
+            <label><span class="ic-lbl">Equipment</span>   <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesEquipment"></textarea></label>
+            <label><span class="ic-lbl">Environment</span> <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesEnvironment"></textarea></label>
+            <label><span class="ic-lbl">Material</span>    <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesMaterial"></textarea></label>
+            <label><span class="ic-lbl">Method</span>      <textarea pTextarea rows="2" [(ngModel)]="rcaForm.causesMethod"></textarea></label>
+          </div>
+        </ng-container>
+
+        <label class="ic-full-row">
+          <span class="ic-lbl">Root cause summary</span>
+          <textarea pTextarea rows="2" [(ngModel)]="rcaForm.rootCauseSummary"
+                    placeholder="One-paragraph distillation of the root cause"></textarea>
+        </label>
+        <div class="ic-actions">
+          <button pButton label="Save RCA" icon="pi pi-save" (click)="saveRCA()"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────── LINKS ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 6">
+      <div class="ic-info-card">
+        <h4>Parent incident</h4>
+        <div *ngIf="links.parent" class="ic-link-row">
+          <span>
+            <strong>#{{ links.parent.id }}</strong> — {{ links.parent.title }}
+            <span class="ic-muted"> · {{ links.parent.severity }} · {{ links.parent.status }}</span>
+          </span>
+          <button pButton icon="pi pi-times" size="small" severity="warn" text label="Unlink"
+                  (click)="unlinkParent()"></button>
+        </div>
+        <div *ngIf="!links.parent" class="ic-link-add">
+          <span class="ic-muted">No parent linked.</span>
+          <input pInputText type="number" [(ngModel)]="newLinkParentId" placeholder="Parent incident id" />
+          <button pButton label="Link" icon="pi pi-link" size="small" (click)="linkParent()"
+                  [disabled]="!newLinkParentId"></button>
+        </div>
+      </div>
+
+      <div class="ic-info-card">
+        <h4>Child incidents ({{ links.children.length }})</h4>
+        <div class="ic-empty-state" *ngIf="!links.children.length">None.</div>
+        <ul class="ic-list" *ngFor="let c of links.children">
+          <li>
+            <strong>#{{ c.id }}</strong> — {{ c.title }}
+            <span class="ic-muted"> · {{ c.severity }} · {{ c.status }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ───────── AUDIT ───────── -->
+    <div class="ic-tab-panel" *ngIf="activeTab === 7">
+      <div class="ic-empty-state" *ngIf="!incident.auditLogs?.length">No audit entries.</div>
+      <ul class="ic-audit-list">
+        <li *ngFor="let a of incident.auditLogs">
+          <span class="ic-audit-time">{{ a.performedAt | date:'medium' }}</span>
+          <span class="ic-audit-action">{{ a.action }}</span>
+          <span *ngIf="a.fromValue || a.toValue" class="ic-audit-trans">
+            {{ a.fromValue ?? '—' }} → <strong>{{ a.toValue ?? '—' }}</strong>
+          </span>
+          <span *ngIf="a.note" class="ic-audit-note">{{ a.note }}</span>
+          <span class="ic-muted"> · by emp #{{ a.performedBy ?? 'system' }}</span>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /ic-detail-panels -->
+
+  <p-confirmDialog></p-confirmDialog>
+  <p-toast></p-toast>
+</div>
+
+<div class="ic-detail-loading" *ngIf="!incident && loading">Loading incident…</div>

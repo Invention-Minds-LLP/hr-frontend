@@ -57,6 +57,7 @@ import { TrainingForm } from './training/training-form/training-form';
 import { TrainingOverview } from './training/training-overview/training-overview';
 import { AttendanceCalendars } from './attendance/attendance-calendars/attendance-calendars';
 import { IncidentOverview } from './incident/incident-overview/incident-overview';
+import { PublicReport } from './incident/public-report/public-report';
 import { EmployeeShiftList } from './shifts/employee-shift-list/employee-shift-list';
 import { ManagerShift } from './shifts/manager-shift/manager-shift';
 import { ShiftOverview } from './shifts/shift-overview/shift-overview';
@@ -81,6 +82,10 @@ import { PipResponseForm } from './pip/pip-response-form/pip-response-form';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'pip-respond/:token', component: PipResponseForm }, // public — no authGuard
+
+  // Public anonymous incident reporting + status tracking — no authGuard.
+  { path: 'report-incident',              component: PublicReport },
+  { path: 'report-incident/track/:token', component: PublicReport },
 
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
   { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard]},

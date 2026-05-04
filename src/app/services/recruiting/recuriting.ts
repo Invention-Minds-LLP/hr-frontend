@@ -178,6 +178,17 @@ export class Recuriting {
   pipelineStats() {
     return this.http.get<PipelineStats>(`${baseUrl}/pipeline-stats`);
   }
+  /** Recruiter analytics dashboard — funnel drop-offs, time-to-hire,
+   *  source effectiveness, panel utilization, pending actions. */
+  recruiterDashboard(): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/recruiter-dashboard`);
+  }
+  /** Recruiter insights — actionable widgets: stale, hot, activity feed,
+   *  stage duration, compliance gaps, offer expiry, top referrers,
+   *  demand vs supply, accept trend, score histogram, calendar heatmap. */
+  recruiterInsights(): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/recruiter-insights`);
+  }
   // catalog
   listPublishedTests() {
     return this.http.get<EvalTestLite[]>(`${baseUrl}/tests`);
@@ -266,5 +277,65 @@ export class Recuriting {
   }
   getPanelInterview(employeeId: any): Observable<any>{
     return this.http.get<any>(`${baseUrl}/panel/${employeeId}`);
+  }
+
+  /* ─────────────── DPDP Consent ─────────────── */
+  /** type: 'REFERENCES' | 'BGV' | 'BOTH' */
+  recordConsent(applicationId: number, type: 'REFERENCES' | 'BGV' | 'BOTH'): Observable<any> {
+    return this.http.post(`${baseUrl}/applications/${applicationId}/consent`, { type });
+  }
+
+  /* ─────────────── Reference checks ─────────────── */
+  listReferences(applicationId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${baseUrl}/applications/${applicationId}/references`);
+  }
+  addReference(applicationId: number, body: {
+    refereeName: string; refereeRelation: string;
+    refereeCompany?: string; refereeEmail?: string; refereePhone?: string;
+  }): Observable<any> {
+    return this.http.post(`${baseUrl}/applications/${applicationId}/references`, body);
+  }
+  updateReference(referenceId: number, body: any): Observable<any> {
+    return this.http.patch(`${baseUrl}/references/${referenceId}`, body);
+  }
+  deleteReference(referenceId: number): Observable<any> {
+    return this.http.delete(`${baseUrl}/references/${referenceId}`);
+  }
+  /** status: 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'UNREACHABLE' | 'FLAGGED' */
+  recordReferenceCheck(referenceId: number, body: {
+    status: string; feedback?: string; rating?: number;
+  }): Observable<any> {
+    return this.http.post(`${baseUrl}/references/${referenceId}/check`, body);
+  }
+
+  /* ─────────────── Background Verification ─────────────── */
+  initiateBgv(applicationId: number, body?: {
+    vendor?: string; vendorRef?: string; checkTypes?: string[];
+  }): Observable<any> {
+    return this.http.post(`${baseUrl}/applications/${applicationId}/bgv`, body ?? {});
+  }
+  getBgv(applicationId: number): Observable<any> {
+    return this.http.get(`${baseUrl}/applications/${applicationId}/bgv`);
+  }
+  /** check status: 'PENDING' | 'CLEAR' | 'DISCREPANCY' | 'DISCREPANCY_RESOLVED' | 'FAILED' | 'SKIPPED' */
+  updateBgvCheck(bgvId: number, checkId: number, body: {
+    status?: string; evidenceUrl?: string; note?: string;
+  }): Observable<any> {
+    return this.http.patch(`${baseUrl}/bgv/${bgvId}/checks/${checkId}`, body);
+  }
+  resolveBgvDiscrepancy(bgvId: number, checkId: number, resolutionNote: string): Observable<any> {
+    return this.http.post(`${baseUrl}/bgv/${bgvId}/checks/${checkId}/resolve`, { resolutionNote });
+  }
+  completeBgv(bgvId: number, body?: { reportUrl?: string; overallNote?: string }): Observable<any> {
+    return this.http.post(`${baseUrl}/bgv/${bgvId}/complete`, body ?? {});
+  }
+  listBgvDocuments(bgvId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${baseUrl}/bgv/${bgvId}/documents`);
+  }
+  addBgvDocument(bgvId: number, body: { docType: string; fileName: string; fileUrl: string }): Observable<any> {
+    return this.http.post(`${baseUrl}/bgv/${bgvId}/documents`, body);
+  }
+  deleteBgvDocument(docId: number): Observable<any> {
+    return this.http.delete(`${baseUrl}/bgv/documents/${docId}`);
   }
 }

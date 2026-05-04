@@ -22,6 +22,7 @@ import { saveAs } from 'file-saver';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
+import { ButtonModule } from 'primeng/button';
 
 
 
@@ -29,7 +30,7 @@ import { ModuleGuide } from '../../shared/module-guide/module-guide';
   selector: 'app-recruitment-dashboard',
   imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus,
     ToastModule, SelectModule, Interview, CandidateEvalForm, DialogModule,
-    RequisitionList, TooltipModule, SkeletonModule, TableModule, ModuleGuide],
+    RequisitionList, TooltipModule, SkeletonModule, TableModule, ModuleGuide, ButtonModule],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers: [MessageService]
@@ -78,6 +79,21 @@ export class RecruitmentDashboard implements OnInit {
   selectedList: any = null;
   selectedListKey: string = '';
   selectedRows: any[] = [];
+
+  // ── Insights data (recruiter-dashboard endpoint) ─────────
+  recruiterDash: any = null;
+  loadingDash = false;
+
+  // ── Recruiter insights (separate endpoint, more action-driven data) ──
+  insights: any = null;
+  loadingInsights = false;
+
+  // ── Today's interviews ───────────────────────────────────
+  todaysInterviews: any[] = [];
+  loadingTodays = false;
+
+  // ── New-application dialog state ─────────────────────────
+  newAppDialogOpen = false;
 
 
   // Allowed transitions (tweak if you want to disallow reopening CLOSED, etc.)
@@ -147,10 +163,131 @@ export class RecruitmentDashboard implements OnInit {
   ngOnInit() {
     this.loadStats();
     this.loadJobs();
+    this.loadRecruiterDashboard();
+    this.loadTodaysInterviews();
+    this.loadInsights();
+  }
+
+  /** Big consolidated analytics endpoint — feeds Daily Ops / Compliance /
+   *  Strategy / Reporting sections in one shot. */
+  loadInsights() {
+    this.loadingInsights = true;
+    this.api.recruiterInsights().subscribe({
+      next: (d) => { this.insights = d; this.loadingInsights = false; },
+      error: () => { this.loadingInsights = false; },
+    });
+  }
+
+  /** Format month key (YYYY-MM) into a friendly label like "Apr 26". */
+  fmtMonth(monthKey: string): string {
+    if (!monthKey) return '';
+    const [y, m] = monthKey.split('-').map(Number);
+    if (!y || !m) return monthKey;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[m - 1]} ${String(y).slice(2)}`;
+  }
+
+  /** Day-of-week label for the heatmap. */
+  dayLabel(idx: number): string {
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][idx] ?? '';
+  }
+
+  /** Friendly label for an audit-log action (kept lower-case → Title Case). */
+  formatAction(action: string | null | undefined): string {
+    if (!action) return 'Updated';
+    return action.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  /** Demand vs supply: ratio class so the bar coloring reads at a glance. */
+  demandStatus(d: { openSeats: number; applicationsLast30d: number }): 'good' | 'warn' | 'danger' {
+    if (d.openSeats === 0) return 'good';
+    const ratio = d.applicationsLast30d / d.openSeats;
+    if (ratio >= 5) return 'good';
+    if (ratio >= 2) return 'warn';
+    return 'danger';
+  }
+
+  /** Heatmap cell intensity 0..3 — used to pick a CSS class for the cell. */
+  heatLevel(count: number, max: number): number {
+    if (!count || !max) return 0;
+    const ratio = count / max;
+    if (ratio >= 0.66) return 3;
+    if (ratio >= 0.33) return 2;
+    return 1;
+  }
+  heatMax(): number {
+    const heatmap: number[][] = this.insights?.interviewHeatmap?.counts ?? [];
+    let m = 0;
+    for (const row of heatmap) for (const v of row) if (v > m) m = v;
+    return m;
   }
 
   loadStats() {
     this.api.pipelineStats().subscribe(s => this.stats.set(s as any));
+  }
+
+  /** Funnel drop-off %, time-to-hire, source effectiveness, etc. */
+  loadRecruiterDashboard() {
+    this.loadingDash = true;
+    this.api.recruiterDashboard().subscribe({
+      next: (d) => { this.recruiterDash = d; this.loadingDash = false; },
+      error: () => { this.loadingDash = false; },
+    });
+  }
+
+  /** Pulls all upcoming interviews then filters down to today client-side.
+   *  Avoids adding a new backend endpoint just for this widget. */
+  loadTodaysInterviews() {
+    this.loadingTodays = true;
+    this.api.getAllInterview(1, 100).subscribe({
+      next: (res: any) => {
+        const rows = (res?.rows ?? res ?? []) as any[];
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        const todayEnd   = new Date(); todayEnd.setHours(23,59,59,999);
+        this.todaysInterviews = rows
+          .filter((i) => {
+            if (!i.startTime) return false;
+            const t = new Date(i.startTime).getTime();
+            return t >= todayStart.getTime() && t <= todayEnd.getTime();
+          })
+          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+        this.loadingTodays = false;
+      },
+      error: () => { this.loadingTodays = false; },
+    });
+  }
+
+  /** Convert percentage between two pipeline stages (e.g. Applied → Shortlisted). */
+  conversionPct(fromKey: string, toKey: string): number | null {
+    const from = this.stats()[fromKey] || 0;
+    const to   = this.stats()[toKey] || 0;
+    if (!from) return null;
+    return Math.round((to / from) * 100);
+  }
+
+  /** Days since the job was created — for the "ageing" insight. */
+  daysOpen(j: Job): number {
+    if (!(j as any).createdAt) return 0;
+    const created = new Date((j as any).createdAt).getTime();
+    return Math.max(0, Math.floor((Date.now() - created) / 86400000));
+  }
+
+  /** Returns up to N OPEN jobs sorted oldest-first — the ones most likely
+   *  needing recruiter attention. */
+  ageingJobs(limit = 5) {
+    return (this.jobs || [])
+      .filter((j) => j.status === 'OPEN' && (j as any).createdAt)
+      .map((j) => ({ ...j, daysOpen: this.daysOpen(j) }))
+      .sort((a, b) => b.daysOpen - a.daysOpen)
+      .slice(0, limit);
+  }
+
+  /** New-application dialog open / close. */
+  openNewAppDialog()  { this.newAppDialogOpen = true; }
+  closeNewAppDialog() {
+    this.newAppDialogOpen = false;
+    // Refresh stats after creating an application so the funnel updates.
+    this.loadStats();
   }
 
   loadJobs() {

@@ -1,93 +1,262 @@
-.Incident {
-    /* padding: 80px 60px; */
-    padding: 20px;
+/* ═══════════════════════════════════════════════════════════
+   Incident Table — uses the same blue-accent palette as the
+   Recruitment Dashboard, KPI cards, and the Incident Form.
+   ═══════════════════════════════════════════════════════════ */
+
+.ic-table-shell {
+  --ic-bg:        #0b0e13;
+  --ic-card:      #0f1419;
+  --ic-soft:      #161c24;
+  --ic-border:    rgba(148, 163, 184, 0.18);
+  --ic-border-hi: rgba(96, 165, 250, 0.45);
+  --ic-text:      #e2e8f0;
+  --ic-muted:     #94a3b8;
+  --ic-strong:    #ffffff;
+  --ic-accent:    #60a5fa;
+  --ic-accent-2:  #2563eb;
+  --ic-accent-tint: rgba(96, 165, 250, 0.12);
+  --ic-success:   #22c55e;
+  --ic-warn:      #f59e0b;
+  --ic-danger:    #ef4444;
+
+  background:
+    radial-gradient(1200px 320px at -10% -40%, rgba(96,165,250,0.08), transparent 60%),
+    var(--ic-card);
+  border: 1px solid var(--ic-border);
+  border-left: 4px solid var(--ic-accent);
+  border-radius: 14px;
+  padding: 20px 22px;
+  color: var(--ic-text);
+  font-family: 'Sofia Sans', sans-serif;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-.header {
-    color: white;
-    font-family: "Sofia Sans";
-    font-size: 26px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    padding-bottom: 20px;
+/* ── Header + filters ─────────────────────────── */
+.ic-table-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 14px;
+  margin-bottom: 16px;
+}
+.ic-table-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ic-strong);
+  letter-spacing: 0.01em;
+}
+.ic-table-head .ic-sub {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ic-accent);
+  background: var(--ic-accent-tint);
+  padding: 2px 10px;
+  border-radius: 999px;
+  display: inline-block;
 }
 
+.ic-filter-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.ic-filter-row .ic-search { width: 240px; }
+.ic-filter-row .p-select { min-width: 160px; }
 
-.filter {
-    color: #9b9b9b;
-    font-size: 18px;
-    font-family: "Sofia Sans";
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.18px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 6px 14px;
-    background-color: white !important;
-    cursor: pointer;
-    width: 50px;
-    height: 44px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+.ic-table-shell input.p-inputtext,
+.ic-table-shell .p-select {
+  background: var(--ic-soft) !important;
+  color: var(--ic-text) !important;
+  border: 1px solid var(--ic-border) !important;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ic-table-shell input.p-inputtext:hover,
+.ic-table-shell .p-select:hover {
+  border-color: var(--ic-border-hi) !important;
+}
+.ic-table-shell input.p-inputtext:focus {
+  border-color: var(--ic-accent) !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18) !important;
+  outline: none !important;
+}
+.ic-table-shell input.p-inputtext::placeholder {
+  color: rgba(148, 163, 184, 0.6);
 }
 
-.menu-list {
-    position: absolute;
-    top: 45%;
-    right: 199px;
-    min-width: 150px;
-    background: var(--surface-ground);
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    padding: 0.3rem 0.5rem;
-    list-style: none;
-    margin: 0;
-    background: white;
+/* ── Table cells ──────────────────────────────── */
+::ng-deep .ic-table .p-datatable-table {
+  background: transparent;
+}
+::ng-deep .ic-table .p-datatable-thead > tr > th {
+  background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02));
+  color: #93c5fd;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: none;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.22);
+  padding: 12px 14px;
+}
+::ng-deep .ic-table .p-datatable-tbody > tr > td {
+  background: transparent;
+  color: var(--ic-text);
+  border: none;
+  border-bottom: 1px solid var(--ic-border);
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+::ng-deep .ic-table .p-datatable-tbody > tr:nth-child(even) > td {
+  background: rgba(255, 255, 255, 0.018);
+}
+::ng-deep .ic-table .p-datatable-tbody > tr:hover > td {
+  background: rgba(96, 165, 250, 0.10);
+}
+::ng-deep .ic-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none;
 }
 
-.menu-list li {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-size: 14px;
-    color: black;
+.ic-row-clickable { cursor: pointer; }
+.ic-date-cell { color: var(--ic-muted); font-size: 0.82rem; white-space: nowrap; }
+
+/* ── Title cell ──────────────────────────────── */
+.ic-title-cell {
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.ic-title { font-weight: 600; color: var(--ic-strong); }
+.ic-anon-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(167, 139, 250, 0.18);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.35);
 }
 
-.menu-list .list:hover {
-    background-color: #eee;
-    border-radius: 20px;
+/* ── Pills ──────────────────────────────────── */
+.ic-cat-pill {
+  display: inline-block;
+  padding: 4px 11px;
+  background: var(--ic-accent-tint);
+  color: #bfdbfe;
+  border: 1px solid rgba(96, 165, 250, 0.32);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
-.menu-list .list.active {
-    background-color: #d0ebff;
-    font-weight: bold;
-    color: black;
-    border-radius: 20px;
+.ic-sev-pill,
+.ic-status-pill {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
 }
+.ic-sev-pill.sev-critical { background: rgba(239, 68, 68, 0.22);  color: #fca5a5; border-color: rgba(239, 68, 68, 0.5); }
+.ic-sev-pill.sev-high     { background: rgba(245, 101, 101, 0.18); color: #fda4af; border-color: rgba(245, 101, 101, 0.42); }
+.ic-sev-pill.sev-medium   { background: rgba(245, 158, 11, 0.16);  color: #fcd34d; border-color: rgba(245, 158, 11, 0.42); }
+.ic-sev-pill.sev-low      { background: rgba(96, 165, 250, 0.16);  color: #93c5fd; border-color: rgba(96, 165, 250, 0.42); }
 
-.flex {
-    display: flex;
-    justify-content: space-between;
+.ic-status-pill.st-good    { background: rgba(34, 197, 94, 0.16);   color: #86efac; border-color: rgba(34, 197, 94, 0.42); }
+.ic-status-pill.st-warn    { background: rgba(245, 158, 11, 0.16);  color: #fcd34d; border-color: rgba(245, 158, 11, 0.42); }
+.ic-status-pill.st-info    { background: rgba(96, 165, 250, 0.16);  color: #93c5fd; border-color: rgba(96, 165, 250, 0.42); }
+.ic-status-pill.st-danger  { background: rgba(239, 68, 68, 0.16);   color: #fca5a5; border-color: rgba(239, 68, 68, 0.42); }
+.ic-status-pill.st-neutral { background: rgba(148, 163, 184, 0.14); color: var(--ic-muted); border-color: var(--ic-border); }
+
+.ic-muted   { color: var(--ic-muted); }
+.ic-italic  { font-style: italic; }
+.ic-empty   { padding: 36px; text-align: center; color: var(--ic-muted); font-style: italic; }
+
+/* ── Action column ─────────────────────────────── */
+.ic-action-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
 }
-
-.filter-part {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    padding-bottom: 20px;
+.ic-view-btn,
+.ic-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: 7px;
+  border: 1px solid var(--ic-border);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
-
-::ng-deep .p-inputtext {
-  background: white !important;
-  font-family: "Sofia Sans";
-
+.ic-view-btn {
+  background: var(--ic-soft);
+  color: var(--ic-text);
 }
+.ic-view-btn:hover {
+  border-color: var(--ic-border-hi);
+  color: var(--ic-strong);
+  background: rgba(96, 165, 250, 0.10);
+}
+.ic-next-btn {
+  background: linear-gradient(135deg, var(--ic-accent), var(--ic-accent-2));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
+}
+.ic-next-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.4);
+}
+.ic-view-btn .pi,
+.ic-next-btn .pi { font-size: 0.78rem; }
 
-::ng-deep .p-card-body{
-    padding: 0;
+/* ── PrimeNG paginator ─────────────────────────── */
+::ng-deep .ic-table .p-paginator {
+  background: transparent;
+  color: var(--ic-text);
+  border: none;
+  padding-top: 14px;
+}
+::ng-deep .ic-table .p-paginator .p-paginator-page,
+::ng-deep .ic-table .p-paginator .p-paginator-first,
+::ng-deep .ic-table .p-paginator .p-paginator-prev,
+::ng-deep .ic-table .p-paginator .p-paginator-next,
+::ng-deep .ic-table .p-paginator .p-paginator-last {
+  background: transparent !important;
+  color: var(--ic-muted) !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  min-width: 32px;
+  height: 32px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+::ng-deep .ic-table .p-paginator .p-paginator-page:hover,
+::ng-deep .ic-table .p-paginator .p-paginator-first:hover,
+::ng-deep .ic-table .p-paginator .p-paginator-prev:hover,
+::ng-deep .ic-table .p-paginator .p-paginator-next:hover,
+::ng-deep .ic-table .p-paginator .p-paginator-last:hover {
+  background: var(--ic-accent-tint) !important;
+  color: #ffffff !important;
+}
+::ng-deep .ic-table .p-paginator .p-paginator-page-selected {
+  background: linear-gradient(135deg, var(--ic-accent), var(--ic-accent-2)) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
+}
+::ng-deep .ic-table .p-paginator .p-paginator-rpp-dropdown {
+  background: var(--ic-soft) !important;
+  color: var(--ic-text) !important;
+  border: 1px solid var(--ic-border) !important;
+  border-radius: 7px !important;
 }
