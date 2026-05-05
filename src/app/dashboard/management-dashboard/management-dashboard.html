@@ -539,7 +539,7 @@
           </svg>
         </div>
 
-        <button class="shift-view-btn" (click)="openShiftDrilldown(s)" *ngIf="s.shiftId !== null">
+        <button class="shift-view-btn" (click)="openShiftDrilldown(s)">
           View →
         </button>
       </div>
@@ -559,15 +559,22 @@
     <div class="modal-box modal-box--wide" (click)="$event.stopPropagation()">
       <div class="modal-head">
         <div class="shift-modal-title">
-          <span class="shift-modal-icon">🕒</span>
+          <span class="shift-modal-icon">{{ shiftDrilldown.shift.shiftId === null ? '⚠️' : '🕒' }}</span>
           <div>
             <span class="modal-title">{{ shiftDrilldown.shift.name }}</span>
             <div class="shift-modal-sub">
-              <span class="shift-modal-time">{{ shiftDrilldown.shift.startTime }} – {{ shiftDrilldown.shift.endTime }}</span>
+              <span class="shift-modal-time" *ngIf="shiftDrilldown.shift.startTime">
+                {{ shiftDrilldown.shift.startTime }} – {{ shiftDrilldown.shift.endTime }}
+              </span>
+              <span class="shift-modal-time shift-modal-time-warn" *ngIf="!shiftDrilldown.shift.startTime">
+                No shift mapped — data quality issue
+              </span>
               <span class="shift-modal-dot">·</span>
-              <span>{{ shiftDrilldown.shift.assigned }} assigned</span>
-              <span class="shift-modal-dot">·</span>
-              <span class="shift-modal-pct" [class.bad]="shiftDrilldown.shift.attendancePct < 70" [class.warn]="shiftDrilldown.shift.attendancePct >= 70 && shiftDrilldown.shift.attendancePct < 85">
+              <span>{{ shiftDrilldown.shift.assigned }} {{ shiftDrilldown.shift.assigned === 1 ? 'employee' : 'employees' }}</span>
+              <span class="shift-modal-dot" *ngIf="shiftDrilldown.shift.shiftId !== null">·</span>
+              <span class="shift-modal-pct" *ngIf="shiftDrilldown.shift.shiftId !== null"
+                    [class.bad]="shiftDrilldown.shift.attendancePct < 70"
+                    [class.warn]="shiftDrilldown.shift.attendancePct >= 70 && shiftDrilldown.shift.attendancePct < 85">
                 {{ shiftDrilldown.shift.attendancePct }}% attendance
               </span>
             </div>
@@ -580,9 +587,14 @@
 
       <div class="shift-modal-tabs">
         <button [class.active]="shiftDrilldownFilter === 'all'"           (click)="shiftDrilldownFilter = 'all'">All ({{ shiftDrilldown.shift.assigned }})</button>
-        <button [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">On time ({{ shiftDrilldown.shift.present - shiftDrilldown.shift.late }})</button>
-        <button [class.active]="shiftDrilldownFilter === 'late'"          (click)="shiftDrilldownFilter = 'late'">Late ({{ shiftDrilldown.shift.late }})</button>
-        <button [class.active]="shiftDrilldownFilter === 'earlyCheckout'" (click)="shiftDrilldownFilter = 'earlyCheckout'">Left early ({{ shiftDrilldown.shift.earlyCheckout }})</button>
+        <!-- Late / Left-early are only meaningful for real shifts (have start/end). -->
+        <ng-container *ngIf="shiftDrilldown.shift.shiftId !== null">
+          <button [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">On time ({{ shiftDrilldown.shift.present - shiftDrilldown.shift.late }})</button>
+          <button [class.active]="shiftDrilldownFilter === 'late'"          (click)="shiftDrilldownFilter = 'late'">Late ({{ shiftDrilldown.shift.late }})</button>
+          <button [class.active]="shiftDrilldownFilter === 'earlyCheckout'" (click)="shiftDrilldownFilter = 'earlyCheckout'">Left early ({{ shiftDrilldown.shift.earlyCheckout }})</button>
+        </ng-container>
+        <button *ngIf="shiftDrilldown.shift.shiftId === null"
+                [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">Checked in ({{ shiftDrilldown.shift.present }})</button>
         <button [class.active]="shiftDrilldownFilter === 'onLeave'"       (click)="shiftDrilldownFilter = 'onLeave'">On leave ({{ shiftDrilldown.shift.onLeave }})</button>
         <button [class.active]="shiftDrilldownFilter === 'absent'"        (click)="shiftDrilldownFilter = 'absent'">Absent ({{ shiftDrilldown.shift.absent }})</button>
       </div>

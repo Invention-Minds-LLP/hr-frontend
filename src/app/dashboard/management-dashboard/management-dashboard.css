@@ -1740,6 +1740,7 @@
   color: #fbbf24;
   letter-spacing: 0.02em;
 }
+.shift-modal-time-warn { color: #fcd34d; font-weight: 600; }
 .shift-modal-dot { color: rgba(148, 163, 184, 0.45); }
 .shift-modal-pct {
   font-weight: 700;
