@@ -1,6 +1,7 @@
 import { CanActivateFn } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { canAccessManagementDashboard } from './shared/access-rules';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
@@ -19,10 +20,10 @@ export const authGuard: CanActivateFn = (route, state) => {
 
 /**
  * Resolves the default landing page based on what's in localStorage.
- *   No token                           → /login
- *   candidateId present (candidate)    → /candidate-tests
- *   roleId === 4 (management)          → /management-dashboard
- *   everything else (employees/HR/etc) → /individual
+ *   No token                                          → /login
+ *   candidateId present (candidate)                   → /candidate-tests
+ *   roleId === 4 OR empId in mgmt allowlist           → /management-dashboard
+ *   everything else (employees/HR/etc)                → /individual
  */
 export const landingRedirectGuard: CanActivateFn = () => {
   const router = inject(Router);
@@ -33,8 +34,7 @@ export const landingRedirectGuard: CanActivateFn = () => {
     if (localStorage.getItem('candidateId')) {
       return router.createUrlTree(['/candidate-tests']);
     }
-    const roleId = Number(localStorage.getItem('roleId') || 0);
-    return router.createUrlTree([roleId === 4 ? '/management-dashboard' : '/individual']);
+    return router.createUrlTree([canAccessManagementDashboard() ? '/management-dashboard' : '/individual']);
   }
   return router.createUrlTree(['/individual']);
 };

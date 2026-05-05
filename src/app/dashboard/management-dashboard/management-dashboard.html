@@ -476,9 +476,163 @@
   <!-- ══ SECTION 4 — ATTENDANCE & LEAVE ══ -->
   <div id="sec-attendance" class="section-label">
     Attendance & Leave
-    <span class="info-icon" pTooltip="Last 7 days attendance trend and current month leave density calendar. Amber cells = more employees on leave." tooltipPosition="right">ⓘ</span>
+    <span class="info-icon" pTooltip="Today's shift-wise attendance breakdown, last 7 days trend, and current month leave density calendar. Amber cells = more employees on leave." tooltipPosition="right">ⓘ</span>
   </div>
-  <p class="section-desc">Day-by-day attendance trend for the selected period and a monthly leave density calendar. Darker calendar cells indicate more employees on leave that day — hover to see who.</p>
+  <p class="section-desc">Today's per-shift attendance, day-by-day attendance trend for the selected period, and a monthly leave density calendar. Darker calendar cells indicate more employees on leave that day — hover to see who.</p>
+
+  <!-- ── Shift-wise attendance (today) ── -->
+  <div class="card shift-att-card">
+    <div class="card-head">
+      <span class="card-title">
+        Shift-wise Attendance — {{ shiftAttendance?.isToday ? 'Today' : (shiftAttendance?.date | date:'dd MMM yyyy') }}
+      </span>
+      <span class="card-badge" *ngIf="shiftAttendance?.totalActive">
+        {{ shiftAttendance.totalActive }} active employees
+      </span>
+    </div>
+
+    <div class="shift-att-skel" *ngIf="loadingShiftAtt">
+      <p-skeleton width="100%" height="60px" *ngFor="let _ of [1,2,3]"></p-skeleton>
+    </div>
+
+    <div class="shift-att-body" *ngIf="!loadingShiftAtt && shiftAttendance">
+      <div class="shift-att-row" *ngFor="let s of shiftAttendance.shifts" [class.shift-unassigned]="s.shiftId === null">
+        <div class="shift-att-meta">
+          <div class="shift-name">
+            {{ s.name }}
+            <span class="shift-time" *ngIf="s.startTime">{{ s.startTime }} – {{ s.endTime }}</span>
+          </div>
+          <div class="shift-counts">
+            <strong>{{ s.assigned }}</strong> assigned ·
+            <span class="ok">{{ s.present }} ✓</span>
+            <span *ngIf="s.late > 0" class="warn"> · {{ s.late }} late</span>
+            <span *ngIf="s.earlyCheckout > 0" class="info"> · {{ s.earlyCheckout }} left early</span>
+            <span *ngIf="s.onLeave > 0" class="leave"> · {{ s.onLeave }} on leave</span>
+            <span *ngIf="s.absent > 0" class="bad"> · {{ s.absent }} absent</span>
+          </div>
+        </div>
+
+        <div class="shift-att-bar-wrap">
+          <div class="shift-att-bar" *ngIf="s.assigned > 0">
+            <div class="seg seg-present" [style.width.%]="(s.present - s.late) / s.assigned * 100"
+                 [pTooltip]="(s.present - s.late) + ' on time'" tooltipPosition="top"></div>
+            <div class="seg seg-late" [style.width.%]="s.late / s.assigned * 100"
+                 [pTooltip]="s.late + ' late (>15 min)'" tooltipPosition="top"></div>
+            <div class="seg seg-leave" [style.width.%]="s.onLeave / s.assigned * 100"
+                 [pTooltip]="s.onLeave + ' on leave / WFH / permission'" tooltipPosition="top"></div>
+            <div class="seg seg-absent" [style.width.%]="s.absent / s.assigned * 100"
+                 [pTooltip]="s.absent + ' absent'" tooltipPosition="top"></div>
+          </div>
+
+          <div class="shift-att-pct" [class.bad]="s.attendancePct < 70" [class.warn]="s.attendancePct >= 70 && s.attendancePct < 85">
+            {{ s.attendancePct }}%
+            <span class="pct-delta" *ngIf="priorPctForShift(s.shiftId) !== null">
+              <span class="up"   *ngIf="s.attendancePct > priorPctForShift(s.shiftId)!">▲ {{ s.attendancePct - priorPctForShift(s.shiftId)! }}</span>
+              <span class="down" *ngIf="s.attendancePct < priorPctForShift(s.shiftId)!">▼ {{ priorPctForShift(s.shiftId)! - s.attendancePct }}</span>
+              <span class="flat" *ngIf="s.attendancePct === priorPctForShift(s.shiftId)!">·</span>
+            </span>
+          </div>
+
+          <svg class="shift-spark" *ngIf="trendForShift(s.shiftId).length" viewBox="0 0 80 22" preserveAspectRatio="none"
+               pTooltip="7-day attendance trend" tooltipPosition="top">
+            <path [attr.d]="sparkPath(trendForShift(s.shiftId))" fill="none" stroke="#60a5fa" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <button class="shift-view-btn" (click)="openShiftDrilldown(s)" *ngIf="s.shiftId !== null">
+          View →
+        </button>
+      </div>
+
+      <div class="shift-legend">
+        <span><i class="dot dot-present"></i> On time</span>
+        <span><i class="dot dot-late"></i> Late (>15 min)</span>
+        <span><i class="dot dot-leave"></i> On leave / WFH / permission</span>
+        <span><i class="dot dot-absent"></i> Absent</span>
+        <span class="muted">· Early checkout shown separately</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drill-down modal — reuses the global modal-backdrop / modal-box / modal-table look -->
+  <div class="modal-backdrop" *ngIf="shiftDrilldown" (click)="closeShiftDrilldown()">
+    <div class="modal-box modal-box--wide" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="shift-modal-title">
+          <span class="shift-modal-icon">🕒</span>
+          <div>
+            <span class="modal-title">{{ shiftDrilldown.shift.name }}</span>
+            <div class="shift-modal-sub">
+              <span class="shift-modal-time">{{ shiftDrilldown.shift.startTime }} – {{ shiftDrilldown.shift.endTime }}</span>
+              <span class="shift-modal-dot">·</span>
+              <span>{{ shiftDrilldown.shift.assigned }} assigned</span>
+              <span class="shift-modal-dot">·</span>
+              <span class="shift-modal-pct" [class.bad]="shiftDrilldown.shift.attendancePct < 70" [class.warn]="shiftDrilldown.shift.attendancePct >= 70 && shiftDrilldown.shift.attendancePct < 85">
+                {{ shiftDrilldown.shift.attendancePct }}% attendance
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-close-btn" (click)="closeShiftDrilldown()">✕</button>
+        </div>
+      </div>
+
+      <div class="shift-modal-tabs">
+        <button [class.active]="shiftDrilldownFilter === 'all'"           (click)="shiftDrilldownFilter = 'all'">All ({{ shiftDrilldown.shift.assigned }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">On time ({{ shiftDrilldown.shift.present - shiftDrilldown.shift.late }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'late'"          (click)="shiftDrilldownFilter = 'late'">Late ({{ shiftDrilldown.shift.late }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'earlyCheckout'" (click)="shiftDrilldownFilter = 'earlyCheckout'">Left early ({{ shiftDrilldown.shift.earlyCheckout }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'onLeave'"       (click)="shiftDrilldownFilter = 'onLeave'">On leave ({{ shiftDrilldown.shift.onLeave }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'absent'"        (click)="shiftDrilldownFilter = 'absent'">Absent ({{ shiftDrilldown.shift.absent }})</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-empty" *ngIf="shiftDrilldownLoading">Loading…</div>
+
+        <table class="modal-table" *ngIf="!shiftDrilldownLoading">
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of filteredDrilldownEmployees; let i = index"
+                [class.modal-row-alt]="i % 2 === 1"
+                [attr.data-cat]="e.category">
+              <td>{{ e.employeeCode }}</td>
+              <td>{{ e.name }}</td>
+              <td>{{ e.departmentName || '—' }}</td>
+              <td>{{ formatTime(e.checkIn) }}</td>
+              <td>
+                {{ formatTime(e.checkOut) }}
+                <span class="early-tag" *ngIf="e.leftEarlyMinutes > 0"
+                      [pTooltip]="'Left ' + e.leftEarlyMinutes + ' min before shift end'" tooltipPosition="top">↩ early</span>
+              </td>
+              <td>
+                <span class="status-pill" [attr.data-status]="e.category">
+                  {{ e.category === 'present' ? 'On time'
+                     : e.category === 'late' ? ('Late · ' + e.lateByMinutes + 'm')
+                     : e.category === 'onLeave' ? 'On leave'
+                     : 'Absent' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredDrilldownEmployees.length && !shiftDrilldownLoading">
+              <td colspan="6" class="modal-empty">No employees in this category.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-foot">{{ filteredDrilldownEmployees.length }} record(s)</div>
+    </div>
+  </div>
+
   <div class="row-2col">
     <div class="card col-6">
       <div class="card-head">

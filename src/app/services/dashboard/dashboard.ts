@@ -125,6 +125,18 @@ downloadMissingDocs() {
     }
     return this.http.get<List>(`${this.baseUrl}/list`, { params });
   }
+  /** Shift-wise attendance breakdown for the management dashboard.
+   *  Returns { date, isToday, totalActive, shifts:[...], comparison:[...] }.
+   *  Pass `drilldown=true` to get the per-employee lists for the modal. */
+  getAttendanceByShift(opts: { date?: string; compareDays?: number; drilldown?: boolean } = {})
+    : Observable<any> {
+    let params = new HttpParams();
+    if (opts.date)        params = params.set('date',        opts.date);
+    if (opts.compareDays) params = params.set('compareDays', String(opts.compareDays));
+    if (opts.drilldown)   params = params.set('drilldown',   '1');
+    return this.http.get<any>(`${this.baseUrl}/attendance/by-shift`, { params });
+  }
+
   getRecruiting(): Observable<RecruitingExtras> {
     return this.http.get<RecruitingExtras>(`${this.baseUrl}/recruiting`);
   }

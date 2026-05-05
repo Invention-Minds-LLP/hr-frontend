@@ -20,6 +20,19 @@ export class ManagementService {
   getAttendanceSummary(days = 7): Observable<any> {
     return this.http.get(`${this.base}/attendance-summary?days=${days}`);
   }
+  /** Shift-wise attendance breakdown for the management dashboard.
+   *  Lives on the /dashboard route, not /management — kept here so the
+   *  dashboard component imports a single service for all its tiles. */
+  getAttendanceByShift(opts: { date?: string; compareDays?: number; drilldown?: boolean } = {})
+    : Observable<any> {
+    const dashboardBase = environment.apiUrl + '/dashboard';
+    const qp: string[] = [];
+    if (opts.date)        qp.push(`date=${encodeURIComponent(opts.date)}`);
+    if (opts.compareDays) qp.push(`compareDays=${opts.compareDays}`);
+    if (opts.drilldown)   qp.push(`drilldown=1`);
+    const qs = qp.length ? `?${qp.join('&')}` : '';
+    return this.http.get(`${dashboardBase}/attendance/by-shift${qs}`);
+  }
   getLeaveCalendar(month?: string): Observable<any> {
     const q = month ? `?month=${month}` : '';
     return this.http.get(`${this.base}/leave-calendar${q}`);

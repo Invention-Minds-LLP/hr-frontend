@@ -8,6 +8,7 @@ import { ResignationForm } from "../resignation/resignation-form/resignation-for
 // import { environment } from '../../../environment/environment';
 import { Notifications } from '../services/notifications/notifications';
 import { Announcements, } from '../services/announcement/announcements';
+import { canAccessManagementDashboard } from '../shared/access-rules';
 
 
 
@@ -81,7 +82,10 @@ export class Navbar {
     console.log('Role after normalization:', norm, rawRole);
     this.isIncharge = Number(this.roleId) === 5;
     this.isHRManager = Number(this.roleId) === 1;
-    this.isManagement = Number(this.roleId) === 4;
+    // `isManagement` controls visibility of the Management Dashboard nav link.
+    // Includes the empId allowlist from access-rules.ts so non-management users
+    // who are explicitly granted access also see it.
+    this.isManagement = canAccessManagementDashboard();
     console.log('isIncharge:', this.isIncharge);
 
     // Training authorization (mirrors backend rule):

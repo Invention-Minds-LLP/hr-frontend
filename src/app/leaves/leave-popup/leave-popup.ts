@@ -1108,9 +1108,15 @@ export class LeavePopup {
       return this.isManagement && leave.hodDecision === 'PENDING';
     }
 
-    // Normal Employee → Reporting Manager approves
+    // Normal Employee → assigned reporting manager approves.
+    // Identity check, not role check: the assigned reportingManager may be
+    // roleId 3 (Reporting Manager) or roleId 4 (Management). Allow either,
+    // as long as the logged-in user is the actual reporting manager.
     if (leave.roleId === 2 || leave.roleId === 5) {
-      return this.isReportingManager && leave.hodDecision === 'PENDING';
+      const isAssignedRM = leave.reportingManagerId === this.currentUserId;
+      return isAssignedRM &&
+        (this.isReportingManager || this.isManagement) &&
+        leave.hodDecision === 'PENDING';
     }
 
     return false;

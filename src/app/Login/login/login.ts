@@ -10,6 +10,7 @@ import { User } from '../../services/user/user';
 import { from } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { canAccessManagementDashboard, canAccessManagementDashboardFor } from '../../shared/access-rules';
 
 @Component({
   selector: 'app-login',
@@ -38,8 +39,7 @@ export class Login {
       if (candidateId) {
         this.router.navigate(['/candidate-tests']);
       } else {
-        const roleId = Number(localStorage.getItem('roleId') || 0);
-        this.router.navigate([roleId === 4 ? '/management-dashboard' : '/individual']);
+        this.router.navigate([canAccessManagementDashboard() ? '/management-dashboard' : '/individual']);
       }
     }
     // no token → stay on /login (don't re-navigate to /login, would churn the router)
@@ -113,7 +113,9 @@ export class Login {
               localStorage.setItem('designation', response.designation || '');
               localStorage.setItem('roleId', response.roleId || '');
               localStorage.setItem('gender', response.gender || '');
-              const landing = Number(response.roleId) === 4 ? '/management-dashboard' : '/individual';
+              const landing = canAccessManagementDashboardFor(response.roleId, response.empId)
+                ? '/management-dashboard'
+                : '/individual';
               this.router.navigate([landing]);
             } else {
 

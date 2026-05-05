@@ -1576,3 +1576,266 @@
   align-items: center;
   gap: 8px;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Shift-wise Attendance card + drill-down modal
+   ════════════════════════════════════════════════════════════ */
+.shift-att-card { margin-bottom: 16px; }
+
+.shift-att-skel { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+
+.shift-att-body { display: flex; flex-direction: column; gap: 10px; }
+
+.shift-att-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.1fr) 2fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-left: 3px solid #60a5fa;
+  border-radius: 8px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.shift-att-row.shift-unassigned {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.shift-name {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 0.92rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.shift-time {
+  font-weight: 500;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+.shift-counts {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+.shift-counts strong { color: #ffffff; }
+.shift-counts .ok    { color: #86efac; }
+.shift-counts .warn  { color: #fcd34d; }
+.shift-counts .info  { color: #93c5fd; }
+.shift-counts .leave { color: #93c5fd; }
+.shift-counts .bad   { color: #fca5a5; }
+
+.shift-att-bar-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+.shift-att-bar {
+  height: 14px;
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+.shift-att-bar .seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+.shift-att-bar .seg-present { background: #22c55e; }
+.shift-att-bar .seg-late    { background: #f59e0b; }
+.shift-att-bar .seg-leave   { background: #60a5fa; }
+.shift-att-bar .seg-absent  { background: #ef4444; }
+
+.shift-att-pct {
+  font-weight: 800;
+  color: #86efac;
+  font-size: 0.95rem;
+  min-width: 56px;
+  text-align: right;
+}
+.shift-att-pct.warn { color: #fcd34d; }
+.shift-att-pct.bad  { color: #fca5a5; }
+.pct-delta { font-size: 0.7rem; font-weight: 600; margin-left: 4px; }
+.pct-delta .up   { color: #86efac; }
+.pct-delta .down { color: #fca5a5; }
+.pct-delta .flat { color: #94a3b8; }
+
+.shift-spark {
+  width: 80px; height: 22px;
+  display: block;
+}
+
+.shift-view-btn {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #93c5fd;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.shift-view-btn:hover {
+  background: rgba(96, 165, 250, 0.22);
+  color: #ffffff;
+  border-color: #60a5fa;
+}
+
+.shift-legend {
+  display: flex; flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.18);
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+.shift-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.shift-legend .muted { color: #94a3b8; }
+.shift-legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.dot-present { background: #22c55e; }
+.dot-late    { background: #f59e0b; }
+.dot-leave   { background: #60a5fa; }
+.dot-absent  { background: #ef4444; }
+
+/* ── Drill-down modal ─────────────────────────────────────
+   Reuses the global .modal-backdrop / .modal-box / .modal-head /
+   .modal-table classes (defined further up) for visual parity with
+   the existing dashboard popups (gender breakdown etc).
+   Below are only the shift-specific additions: a wider modal box,
+   the icon-+-pill title block, the pill-style filter tabs, and the
+   per-category status pill / early-tag chip. */
+
+/* Wider variant for tables that need 6+ columns (this drill-down). */
+.modal-box.modal-box--wide { max-width: 1180px; }
+
+/* Title block: icon tile + name + sub-line with time / count / % pill */
+.shift-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.shift-modal-icon {
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(251, 156, 42, 0.12);
+  border: 1px solid rgba(251, 156, 42, 0.42);
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
+.shift-modal-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+}
+.shift-modal-time {
+  font-weight: 600;
+  color: #fbbf24;
+  letter-spacing: 0.02em;
+}
+.shift-modal-dot { color: rgba(148, 163, 184, 0.45); }
+.shift-modal-pct {
+  font-weight: 700;
+  color: #86efac;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.32);
+  font-size: 0.76rem;
+}
+.shift-modal-pct.warn {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.32);
+}
+.shift-modal-pct.bad {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+/* Filter tabs — pill-shaped, sit inside the modal box between head and body */
+.shift-modal-tabs {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 12px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.015);
+}
+.shift-modal-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-family: 'Sofia Sans', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.shift-modal-tabs button:hover {
+  color: #ffffff;
+  background: rgba(251, 156, 42, 0.10);
+  border-color: rgba(251, 156, 42, 0.32);
+}
+.shift-modal-tabs button.active {
+  background: linear-gradient(135deg, rgba(251, 156, 42, 0.32), rgba(217, 119, 6, 0.20));
+  border-color: rgba(251, 156, 42, 0.55);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(251, 156, 42, 0.20);
+}
+
+/* Per-category row hint colour on the Employee ID column */
+.modal-table tbody tr[data-cat="absent"]  td:first-child { color: #fca5a5; font-weight: 700; }
+.modal-table tbody tr[data-cat="late"]    td:first-child { color: #fcd34d; font-weight: 700; }
+.modal-table tbody tr[data-cat="onLeave"] td:first-child { color: #93c5fd; font-weight: 700; }
+.modal-table tbody tr[data-cat="present"] td:first-child { color: #86efac; font-weight: 700; }
+
+/* "↩ early" tag shown next to checkout time when employee left early */
+.early-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+  border: 1px solid rgba(96, 165, 250, 0.32);
+  white-space: nowrap;
+}
+
+/* Status pill in the last column */
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.status-pill[data-status="present"] { background: rgba(34,197,94,0.16);  color: #86efac; border-color: rgba(34,197,94,0.42); }
+.status-pill[data-status="late"]    { background: rgba(245,158,11,0.16); color: #fcd34d; border-color: rgba(245,158,11,0.42); }
+.status-pill[data-status="onLeave"] { background: rgba(96,165,250,0.16); color: #93c5fd; border-color: rgba(96,165,250,0.42); }
+.status-pill[data-status="absent"]  { background: rgba(239,68,68,0.16);  color: #fca5a5; border-color: rgba(239,68,68,0.42); }
+
+@media (max-width: 900px) {
+  .shift-att-row { grid-template-columns: 1fr; }
+  .shift-att-bar-wrap { grid-template-columns: 1fr auto; }
+  .shift-spark { display: none; }
+  .shift-view-btn { width: 100%; padding: 8px; }
+  .modal-box.modal-box--wide { max-width: 100%; }
+}

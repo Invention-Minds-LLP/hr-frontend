@@ -115,6 +115,14 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   loadingPulse       = true;
   loadingWorkforce   = true;
   loadingAttendance  = true;
+  loadingShiftAtt    = true;
+  /** Shift-wise attendance (today). Each shift: assigned, present, late,
+   *  earlyCheckout, onLeave, absent, attendancePct.  */
+  shiftAttendance: any = null;
+  /** Drill-down state for the modal. */
+  shiftDrilldown: any = null;
+  shiftDrilldownLoading = false;
+  shiftDrilldownFilter: 'all' | 'present' | 'late' | 'earlyCheckout' | 'onLeave' | 'absent' = 'all';
   loadingPerformance = true;
   loadingPIPs        = true;
   loadingAttrition   = true;
@@ -484,6 +492,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     });
 
     this.loadAttendance(7);
+    this.loadShiftAttendance();
     this.loadLeaveCalendar();
 
     this.svc.getPerformanceRadar().subscribe({
@@ -1630,6 +1639,86 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       },
       error: () => { this.loadingAttendance = false; }
     });
+  }
+
+  // ── Shift-wise attendance ─────────────────────────────────
+  /** Load today's per-shift breakdown plus 7-day comparison. The
+   *  drill-down lists are NOT pulled here — we fetch them lazily
+   *  when the user clicks "View" on a specific shift, so the dashboard
+   *  load stays light. */
+  loadShiftAttendance() {
+    this.loadingShiftAtt = true;
+    this.svc.getAttendanceByShift({ compareDays: 7 }).subscribe({
+      next: (d) => {
+        this.shiftAttendance = d;
+        this.loadingShiftAtt = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.loadingShiftAtt = false; },
+    });
+  }
+
+  /** Open the drill-down modal for a specific shift. Re-fetches the day
+   *  with drilldown=1 so we get every employee's check-in/checkout. */
+  openShiftDrilldown(shift: any) {
+    this.shiftDrilldownLoading = true;
+    this.shiftDrilldown = { shift, employees: [] };
+    this.shiftDrilldownFilter = 'all';
+    this.svc.getAttendanceByShift({ drilldown: true, date: this.shiftAttendance?.date }).subscribe({
+      next: (d) => {
+        const found = (d?.shifts ?? []).find((s: any) => s.shiftId === shift.shiftId);
+        this.shiftDrilldown = {
+          shift: found ?? shift,
+          employees: found?.employees ?? [],
+        };
+        this.shiftDrilldownLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.shiftDrilldownLoading = false; },
+    });
+  }
+  closeShiftDrilldown() { this.shiftDrilldown = null; }
+
+  /** Filter the drill-down list by category. */
+  get filteredDrilldownEmployees(): any[] {
+    if (!this.shiftDrilldown?.employees) return [];
+    if (this.shiftDrilldownFilter === 'all') return this.shiftDrilldown.employees;
+    if (this.shiftDrilldownFilter === 'earlyCheckout') {
+      return this.shiftDrilldown.employees.filter((e: any) => (e.leftEarlyMinutes ?? 0) > 0);
+    }
+    return this.shiftDrilldown.employees.filter((e: any) => e.category === this.shiftDrilldownFilter);
+  }
+
+  /** Format a check-in / check-out timestamp as HH:MM (IST). */
+  formatTime(ts: string | Date | null): string {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  }
+
+  /** Compute the prior-day attendance % for a shift, for the trend arrow. */
+  priorPctForShift(shiftId: number | null): number | null {
+    if (shiftId === null) return null;
+    const series = this.shiftAttendance?.comparison ?? [];
+    if (!series.length) return null;
+    const last = series[series.length - 1];
+    return last?.perShift?.[shiftId] ?? null;
+  }
+  /** Mini-sparkline data: 7 numbers, one per prior day. */
+  trendForShift(shiftId: number | null): number[] {
+    if (shiftId === null) return [];
+    const series = this.shiftAttendance?.comparison ?? [];
+    return series.map((d: any) => d?.perShift?.[shiftId] ?? 0);
+  }
+  /** Build an inline SVG polyline for the sparkline (no chart lib needed). */
+  sparkPath(points: number[], w = 80, h = 22): string {
+    if (!points.length) return '';
+    const max = 100;
+    const stepX = points.length > 1 ? w / (points.length - 1) : 0;
+    return points.map((v, i) =>
+      `${i === 0 ? 'M' : 'L'} ${(i * stepX).toFixed(1)} ${(h - (v / max) * h).toFixed(1)}`
+    ).join(' ');
   }
 
   // ── Leave calendar navigation ─────────────────────────────
