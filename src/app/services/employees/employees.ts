@@ -66,6 +66,30 @@ export class Employees {
     return this.http.get<Employee>(`${this.apiUrl}/${id}`);
   }
 
+  /** Per-employee audit log (every change to that employee's record). */
+  getEmployeeAuditLog(id: number, opts: {
+    field?: string; source?: string; changedBy?: number;
+    from?: string; to?: string; page?: number; pageSize?: number;
+  } = {}): Observable<{ total: number; rows: any[] }> {
+    const params: any = {};
+    for (const [k, v] of Object.entries(opts)) {
+      if (v !== undefined && v !== null && v !== '') params[k] = String(v);
+    }
+    return this.http.get<{ total: number; rows: any[] }>(`${this.apiUrl}/${id}/audit-log`, { params });
+  }
+
+  /** Org-wide audit query (e.g. "every salary change last month"). */
+  queryAuditLog(opts: {
+    field?: string; source?: string; changedBy?: number;
+    from?: string; to?: string; page?: number; pageSize?: number;
+  } = {}): Observable<{ total: number; rows: any[] }> {
+    const params: any = {};
+    for (const [k, v] of Object.entries(opts)) {
+      if (v !== undefined && v !== null && v !== '') params[k] = String(v);
+    }
+    return this.http.get<{ total: number; rows: any[] }>(`${this.apiUrl}/audit/query`, { params });
+  }
+
   createEmployee(employee: Employee): Observable<Employee> {
     return this.http.post<Employee>(this.apiUrl, employee);
   }

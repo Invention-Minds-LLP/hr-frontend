@@ -162,17 +162,29 @@
                 </span>
 
               </button> -->
-              <button class="btn" [disabled]="isEditDisabled(employeeData) || loadingRows[employeeData.id]"
-                (click)="!isEditDisabled(employeeData) && openEdit(employeeData)">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <button class="btn" [disabled]="isEditDisabled(employeeData) || loadingRows[employeeData.id]"
+                  (click)="!isEditDisabled(employeeData) && openEdit(employeeData)">
 
-                <span *ngIf="!loadingRows[employeeData.id]">See Details</span>
+                  <span *ngIf="!loadingRows[employeeData.id]">See Details</span>
 
-                <span *ngIf="loadingRows[employeeData.id]" class="spinner-wrapper">
-                  <i class="pi pi-spin pi-spinner"></i>
-                  Loading...
-                </span>
+                  <span *ngIf="loadingRows[employeeData.id]" class="spinner-wrapper">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    Loading...
+                  </span>
 
-              </button>
+                </button>
+
+                <!-- HR-only quick-access: see this employee's full edit history.
+                     Opens the EmployeeAuditLog component in a modal. -->
+                <button *ngIf="canViewAuditLog"
+                        class="audit-icon-btn"
+                        type="button"
+                        title="View edit history"
+                        (click)="openAuditLog(employeeData, $event)">
+                  <i class="pi pi-history"></i>
+                </button>
+              </div>
 
 
               <button class="btn btn-attendance ml-2" (click)="openAttendanceCalendar(employeeData)">
@@ -279,4 +291,28 @@
     </div>
 
   </div>
+</p-dialog>
+
+<!-- ── Audit-log quick-view modal (HR/Mgmt) ──────────────────── -->
+<p-dialog
+  [(visible)]="auditDialogVisible"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '900px', maxWidth: '95vw' }"
+  styleClass="audit-dialog"
+  (onHide)="closeAuditLog()">
+  <ng-template pTemplate="header">
+    <div style="display: flex; align-items: center; gap: 10px; font-weight: 700;">
+      <i class="pi pi-history" style="color: #60a5fa;"></i>
+      <span>Edit History — {{ auditEmployee?.firstName }} {{ auditEmployee?.lastName }}</span>
+      <span style="color: #94a3b8; font-weight: 500; font-size: 0.85rem;">
+        · {{ auditEmployee?.employeeCode }}
+      </span>
+    </div>
+  </ng-template>
+
+  <app-employee-audit-log *ngIf="auditEmployee"
+                          [employeeId]="auditEmployee.id"></app-employee-audit-log>
 </p-dialog>

@@ -1,0 +1,118 @@
+<div class="eal-shell">
+  <header class="eal-head">
+    <div>
+      <h2>Edit History</h2>
+      <p class="eal-sub">
+        Every change ever made to this employee's record. Useful to spot mistaken edits, verify
+        promotions went through proper approval, or trace who changed what and when.
+      </p>
+    </div>
+    <span class="eal-count" *ngIf="total">{{ total }} {{ total === 1 ? 'change' : 'changes' }}</span>
+  </header>
+
+  <div class="eal-filters">
+    <input type="text" class="eal-input" placeholder="Filter by field (e.g. designation)"
+           [(ngModel)]="filters.field" (keyup.enter)="applyFilters()" />
+    <select class="eal-input" [(ngModel)]="filters.source" (change)="applyFilters()">
+      <option *ngFor="let opt of sourceOptions" [ngValue]="opt.value">{{ opt.label }}</option>
+    </select>
+    <button class="eal-reset" type="button" (click)="reset()">Reset</button>
+  </div>
+
+  <div class="eal-loading" *ngIf="loading">Loading…</div>
+
+  <ul class="eal-list" *ngIf="!loading && rows.length">
+    <li *ngFor="let r of rows" class="eal-row" [attr.data-action]="r.action">
+      <div class="eal-row-head">
+        <span class="eal-action" [ngClass]="actionClass(r.action)">{{ r.action }}</span>
+        <span class="eal-source" [ngClass]="sourceClass(r.source)">{{ sourceLabel(r.source) }}</span>
+        <span class="eal-when">{{ r.changedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+        <span class="eal-author">by <strong>{{ authorName(r) }}</strong></span>
+      </div>
+
+      <ul class="eal-changes" *ngIf="r.action === 'UPDATE'">
+        <ng-container *ngFor="let c of parseChanges(r)">
+
+          <!-- ── Scalar field: simple from → to row ── -->
+          <li *ngIf="c.kind === 'scalar'" class="eal-change eal-change-scalar">
+            <span class="eal-field">{{ c.label }}</span>
+            <span class="eal-from">{{ c.fromText }}</span>
+            <span class="eal-arrow">→</span>
+            <span class="eal-to">{{ c.toText }}</span>
+          </li>
+
+          <!-- ── Relation field: card with add / remove / changed ── -->
+          <li *ngIf="c.kind === 'relation'" class="eal-change eal-change-relation">
+            <div class="eal-rel-head">
+              <span class="eal-field">{{ c.label }}</span>
+              <span class="eal-rel-summary">
+                <span *ngIf="c.added?.length"   class="rel-added">+{{ c.added!.length }} added</span>
+                <span *ngIf="c.removed?.length" class="rel-removed">−{{ c.removed!.length }} removed</span>
+                <span *ngIf="c.changed?.length" class="rel-changed">~{{ c.changed!.length }} edited</span>
+              </span>
+            </div>
+
+            <div class="eal-rel-body">
+              <!-- Added -->
+              <div class="eal-rel-section" *ngIf="c.added?.length">
+                <div class="eal-rel-label rel-label-added">Added</div>
+                <ul>
+                  <li *ngFor="let a of c.added">{{ describeEntry(a, c.relationKind) }}</li>
+                </ul>
+              </div>
+              <!-- Removed -->
+              <div class="eal-rel-section" *ngIf="c.removed?.length">
+                <div class="eal-rel-label rel-label-removed">Removed</div>
+                <ul>
+                  <li *ngFor="let a of c.removed">{{ describeEntry(a, c.relationKind) }}</li>
+                </ul>
+              </div>
+              <!-- Edited -->
+              <div class="eal-rel-section" *ngIf="c.changed?.length">
+                <div class="eal-rel-label rel-label-changed">Edited</div>
+                <ul class="eal-rel-edited">
+                  <li *ngFor="let pair of c.changed">
+                    <div class="eal-rel-entry-title">
+                      {{ describeEntry(pair.before, c.relationKind) }}
+                    </div>
+                    <ul class="eal-rel-fielddiffs">
+                      <li *ngFor="let d of pair.diffs">
+                        <span class="eal-subfield">{{ subFieldLabel(d.field) }}</span>
+                        <span class="eal-from">{{ subValue(d.from) }}</span>
+                        <span class="eal-arrow">→</span>
+                        <span class="eal-to">{{ subValue(d.to) }}</span>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+        </ng-container>
+      </ul>
+
+      <div class="eal-summary" *ngIf="r.action === 'CREATE'">
+        Employee record created.
+      </div>
+      <div class="eal-summary" *ngIf="r.action === 'DELETE'">
+        Employee record deleted.
+      </div>
+
+      <div class="eal-reason" *ngIf="r.reason">
+        <i class="pi pi-comment"></i> {{ r.reason }}
+      </div>
+
+      <div class="eal-link" *ngIf="r.causedByPromotionId">
+        🔗 Linked to Promotion #{{ r.causedByPromotionId }}
+      </div>
+      <div class="eal-link" *ngIf="r.causedByResignationId">
+        🔗 Linked to Resignation #{{ r.causedByResignationId }}
+      </div>
+    </li>
+  </ul>
+
+  <div class="eal-empty" *ngIf="!loading && !rows.length">
+    No changes recorded yet for this employee.
+  </div>
+</div>

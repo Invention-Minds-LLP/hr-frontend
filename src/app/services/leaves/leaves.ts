@@ -62,9 +62,13 @@ export class Leaves {
     return this.http.get<any>(`${this.apiUrl}/${employeeId}/dashboard?date=${d}`);
   }
 
-  getWhoIsOnLeaveToday(date = new Date()) {
+  getWhoIsOnLeaveToday(date = new Date(), departmentId?: number | null) {
     const d = date.toISOString().slice(0, 10);
-    return this.http.get<{today: any[]; thisWeek: any[]; nextMonth: any[]}>(`${this.apiUrl}/leave-today?date=${d}`);
+    const deptParam =
+      departmentId !== undefined && departmentId !== null && !Number.isNaN(Number(departmentId))
+        ? `&departmentId=${departmentId}`
+        : '';
+    return this.http.get<{today: any[]; thisWeek: any[]; nextMonth: any[]}>(`${this.apiUrl}/leave-today?date=${d}${deptParam}`);
   }
   
   getBlockedDates(employeeId: number): Observable<string[]> {

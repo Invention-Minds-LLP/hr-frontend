@@ -26,4 +26,12 @@ export class RequisitionService {
   updateStatus(id: number, payload: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/status`, payload);
   }
+
+  /** Raiser pulls back their own requisition. Distinct from REJECTED.
+   *  Allowed only at status = RAISED (or HOD_APPROVED if it was auto-approved
+   *  because the raiser is themselves a HOD/Mgmt). HR/Admin can force-withdraw
+   *  any pre-COO_APPROVED row. */
+  withdraw(id: number, reason?: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/withdraw`, { reason });
+  }
 }

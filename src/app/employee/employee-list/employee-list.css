@@ -505,5 +505,32 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* ── HR-only "View edit history" icon button (next to See Details) ── */
+.audit-icon-btn {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(96, 165, 250, 0.10);
+  border: 1px solid rgba(96, 165, 250, 0.32);
+  color: #60a5fa;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.12s;
+}
+.audit-icon-btn:hover {
+  background: rgba(96, 165, 250, 0.22);
+  color: #ffffff;
+  border-color: #60a5fa;
+  transform: scale(1.05);
+}
+.audit-icon-btn .pi { font-size: 1rem; }
 
+/* Audit dialog content area — let the embedded component breathe. */
+::ng-deep .audit-dialog .p-dialog-content { padding: 0 !important; }
+::ng-deep .audit-dialog app-employee-audit-log .eal-shell {
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  border-left: none;
+  box-shadow: none;
+}
 

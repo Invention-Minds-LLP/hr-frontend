@@ -485,7 +485,9 @@ export class LeaveRequest {
     };
     this.leaveService.getDashboard(leave.empID).subscribe(d => this.dashboard = d);
 
-    this.leaveService.getWhoIsOnLeaveToday().subscribe(b => this.buckets = b);
+    // Scope "who's on leave" to the applicant's department only.
+    this.leaveService.getWhoIsOnLeaveToday(new Date(), leave.department)
+      .subscribe(b => this.buckets = b);
     this.showLeaveDetailsPopup = true;
   }
   visible(list: any[], key: BucketKey) {

@@ -86,12 +86,24 @@
             </td>
             <td>{{ row.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
             <td>
-              <p-tag [value]="row.status" [severity]="row.status === 'REJECTED' ? 'danger' :
-                                     row.status.includes('APPROVED') ? 'success' :
-                                     'warn'"></p-tag>
+              <p-tag [value]="row.status" [severity]="
+                row.status === 'REJECTED' ? 'danger' :
+                row.status === 'WITHDRAWN' ? 'secondary' :
+                row.status.includes('APPROVED') ? 'success' :
+                'warn'"></p-tag>
+              <div *ngIf="row.status === 'WITHDRAWN' && row.withdrawnReason"
+                   style="font-size:0.72rem; color:#94a3b8; margin-top:4px;">
+                {{ row.withdrawnReason }}
+              </div>
             </td>
             <td>
-              <button pButton type="button" icon="pi pi-eye" label="Open" (click)="onSelect(row)"></button>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button pButton type="button" icon="pi pi-eye" label="Open" (click)="onSelect(row)"></button>
+                <button *ngIf="canWithdraw(row)"
+                        pButton type="button" icon="pi pi-undo" label="Withdraw"
+                        (click)="withdraw(row, $event)"
+                        title="Pull this requisition back. Distinct from rejection."></button>
+              </div>
             </td>
 
           </tr>
@@ -106,3 +118,53 @@
   <app-requisition-form [requisition]="selectedRequisition" (closeForm)="closeRequisition()">
   </app-requisition-form>
 </div>
+
+<!-- ── Withdraw confirmation dialog ──────────────────────────── -->
+<p-dialog
+  [(visible)]="withdrawDialogVisible"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '480px' }"
+  styleClass="rq-withdraw-dialog">
+  <ng-template pTemplate="header">
+    <div class="rq-dlg-head">
+      <i class="pi pi-undo" style="margin-right: 8px; color: #f59e0b;"></i>
+      <span>Withdraw Requisition</span>
+    </div>
+  </ng-template>
+
+  <div class="rq-dlg-body" *ngIf="withdrawTarget">
+    <p style="margin: 0 0 8px;">
+      Are you sure you want to withdraw the requisition for
+      <strong>{{ withdrawTarget.title || withdrawTarget.designation || ('#' + withdrawTarget.id) }}</strong>?
+    </p>
+    <p style="margin: 0 0 14px; font-size: 0.85rem; color: #64748b;">
+      Withdrawing pulls this request back. It is different from a rejection — no judgment is recorded against any approver.
+    </p>
+
+    <label style="display: flex; flex-direction: column; gap: 6px;">
+      <span style="font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748b;">
+        Reason (optional)
+      </span>
+      <textarea pTextarea rows="3" maxlength="500" [(ngModel)]="withdrawReason"
+                placeholder="e.g. Role no longer needed; will re-raise next quarter"></textarea>
+    </label>
+
+    <div *ngIf="withdrawError"
+         style="margin-top: 10px; padding: 8px 12px; background: rgba(239,68,68,0.10);
+                border: 1px solid rgba(239,68,68,0.32); border-radius: 6px;
+                color: #dc2626; font-size: 0.85rem;">
+      {{ withdrawError }}
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" severity="secondary"
+            [disabled]="withdrawSubmitting" (click)="cancelWithdraw()"></button>
+    <button pButton type="button" icon="pi pi-undo" label="Withdraw"
+            severity="warn"
+            [loading]="withdrawSubmitting" (click)="confirmWithdraw()"></button>
+  </ng-template>
+</p-dialog>

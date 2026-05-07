@@ -21,13 +21,15 @@ import { debounceTime, Subject } from 'rxjs';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { EmployeeAuditLog } from '../employee-audit-log/employee-audit-log';
 
 
 
 @Component({
   selector: 'app-employee-list',
   imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule,
-    SkeletonModule, AttendanceCalendars, DialogModule, SelectModule, DatePickerModule],
+    SkeletonModule, AttendanceCalendars, DialogModule, SelectModule, DatePickerModule,
+    EmployeeAuditLog],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })
@@ -199,6 +201,30 @@ export class EmployeeList {
   getShiftName(id: number): string {
     return this.shifts.find(shifts => shifts.id === id)?.name || 'N/A'
   }
+  /* ── Audit-log modal state ─────────────────────────────────
+   * Quick-access "View History" button per row opens this dialog
+   * with the EmployeeAuditLog component. HR/Mgmt/Admin only. */
+  auditDialogVisible = false;
+  auditEmployee: any = null;
+  /** roleId 1 = HR, 4 = Management. Used to gate the History button. */
+  private loginRoleId = Number(localStorage.getItem('roleId') || 0);
+  get canViewAuditLog(): boolean {
+    const role = this.loginRole;
+    return ['HR', 'HR_MANAGER', 'ADMIN', 'MANAGEMENT'].includes(role)
+        || this.loginRoleId === 1
+        || this.loginRoleId === 4;
+  }
+  openAuditLog(employee: any, ev?: Event) {
+    if (ev) ev.stopPropagation();
+    if (!this.canViewAuditLog) return;
+    this.auditEmployee = employee;
+    this.auditDialogVisible = true;
+  }
+  closeAuditLog() {
+    this.auditDialogVisible = false;
+    this.auditEmployee = null;
+  }
+
   openEdit(employee: any) {
     this.loadingRows[employee.id] = true;
     this.employeeService.getEmployeeById(employee.id).subscribe({
