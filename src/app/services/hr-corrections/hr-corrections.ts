@@ -161,6 +161,27 @@ export class HrCorrectionsService {
     return this.http.get<any>(`${this.base}/appraisals/override`, { params });
   }
 
+  // ── Apply Leave on behalf of an employee (HR override) ───────────────────
+
+  applyLeaveOnBehalf(payload: {
+    employeeId: number;
+    leaveTypeId: number;
+    startDate: string;
+    endDate: string;
+    reason: string;
+    isHalfDay?: boolean;
+    halfDaySession?: 'FIRST_HALF' | 'SECOND_HALF';
+    force?: boolean;
+  }): Observable<any> {
+    return this.http.post(`${this.base}/leave-apply`, payload);
+  }
+
+  getHrAppliedLeaveList(page = 1, pageSize = 25, employeeId?: number): Observable<any> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (employeeId) params = params.set('employeeId', employeeId);
+    return this.http.get<any>(`${this.base}/leave-apply`, { params });
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   getLeaveTypes(): Observable<{ id: number; name: string }[]> {

@@ -63,13 +63,18 @@ export class CompOffOverview implements OnInit {
   }
 
   loadEmployees() {
-    this.employeeService.getEmployees(1, 50).subscribe({
-      next: (res: any) => {
-        this.allEmployees = (res.data || res).map((e: any) => ({
+    // Load ALL active employees (no pagination cap) so the autocomplete can
+    // find anyone — not just the first page. getEmployees(1, 50) was capping
+    // the list at 50 and the client-side filter only saw those.
+    this.employeeService.getActiveEmployees().subscribe({
+      next: (rows: any) => {
+        const list = Array.isArray(rows) ? rows : (rows?.data ?? rows ?? []);
+        this.allEmployees = list.map((e: any) => ({
           ...e,
           displayName: `${e.employeeCode} - ${e.firstName} ${e.lastName}`
         }));
-      }
+      },
+      error: () => { this.allEmployees = []; },
     });
   }
 

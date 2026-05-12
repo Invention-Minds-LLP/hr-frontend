@@ -104,6 +104,9 @@ export class LeavePopup {
   employeeId: string = '';
   // declineReason: string = '';
   blockedRanges: { startDate: Date, endDate: Date }[] = [];
+  /** This employee's PENDING/APPROVED leaves (with type) — used for the
+   *  "one leave type per ISO week" rule (Rule A). */
+  myActiveLeaves: { startDate: Date; endDate: Date; typeName: string }[] = [];
   today = new Date();
   approvedWeekOffDates = new Set<string>(); // yyyy-mm-dd
   weekOffSource: 'MONTHLY_SHIFT' | 'SUNDAY_DEFAULT' = 'SUNDAY_DEFAULT';
@@ -295,15 +298,22 @@ export class LeavePopup {
       );
     });
 
-    // Load RH usage count for current FY
+    // Load RH usage count for current FY + this employee's active leaves
     this.leaveService.getLeaves().subscribe((leaves: any[]) => {
       const empId = Number(this.employeeId);
-      this.rhUsedCount = leaves.filter((l: any) =>
+      const mine = (leaves ?? []).filter((l: any) =>
         l.employee?.id === empId &&
-        l.leaveType?.name === 'RH' &&
-        (l.status === 'PENDING' || l.status === 'APPROVED')
-      ).length;
-      console.log("RH used count for employee", empId, "is", this.rhUsedCount)
+        (l.status === 'PENDING' || l.status === 'APPROVED') &&
+        // When editing an existing request, don't let it conflict with itself.
+        (!this.leaveData?.id || l.id !== this.leaveData.id)
+      );
+      this.rhUsedCount = mine.filter((l: any) => l.leaveType?.name === 'RH').length;
+      this.myActiveLeaves = mine.map((l: any) => ({
+        startDate: new Date(l.startDate),
+        endDate:   new Date(l.endDate),
+        typeName:  l.leaveType?.name ?? '',
+      }));
+      console.log("RH used count for employee", empId, "is", this.rhUsedCount, "active leaves:", this.myActiveLeaves.length);
     });
 
 
@@ -579,15 +589,28 @@ export class LeavePopup {
       return;
     }
 
-    let total = 0;
+    // Earned Leave "sandwich rule": week-offs that fall inside the EL range
+    // ARE counted as leave days (matches the backend's countWorkingDays with
+    // includeWeekOffs). Mandatory national holidays and days already covered
+    // by another leave request are never counted, regardless of type.
+    const isEL = this.leaveType === 'EL';
 
+    let total = 0;
     for (
       let d = new Date(this.fromDate);
       d <= this.toDate;
       d.setDate(d.getDate() + 1)
     ) {
       const current = new Date(d);
-      if (this.isDayBlocked(current)) continue;
+      const key = this.stripTime(current).toISOString().slice(0, 10);
+      const isHoliday    = this.mandatoryHolidayDates.has(key);
+      const isPriorLeave = this.blockedRanges.some(r => current >= r.startDate && current <= r.endDate);
+      const isWeekOff    = this.isApprovedWeekOff(current);
+
+      // Always exclude mandatory holidays + days already on another leave.
+      if (isHoliday || isPriorLeave) continue;
+      // Week-offs: excluded for normal leave, INCLUDED for EL.
+      if (isWeekOff && !isEL) continue;
       total++;
     }
 
@@ -845,6 +868,19 @@ export class LeavePopup {
       return;
     }
 
+
+    // 🔴 Rule A: one leave TYPE per ISO week
+    const weeklyClashType = this.weeklyTypeConflictName();
+    if (weeklyClashType) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'One leave type per week',
+        detail: `You already have a ${weeklyClashType} leave in this week. `
+              + `Use ${weeklyClashType} for these dates, or pick dates in a different week.`,
+        life: 6000,
+      });
+      return;
+    }
 
     // 🔴 EL validation
     if (!this.validateEarnedLeave()) {
@@ -1196,6 +1232,59 @@ export class LeavePopup {
     return this.holidays.some(h =>
       h.getTime() === date.getTime()
     );
+  }
+
+  /* ── Rule A: one leave TYPE per ISO week ─────────────────────── */
+
+  /** Monday 00:00 of the ISO week containing `d`. */
+  private startOfISOWeek(d: Date): Date {
+    const x = this.stripTime(d);
+    const day = x.getDay();                    // 0 Sun .. 6 Sat
+    const diff = (day === 0 ? -6 : 1 - day);   // shift to Monday
+    x.setDate(x.getDate() + diff);
+    return x;
+  }
+  /** Sunday 23:59:59.999 of that ISO week. */
+  private endOfISOWeek(d: Date): Date {
+    const s = this.startOfISOWeek(d);
+    const e = new Date(s);
+    e.setDate(s.getDate() + 6);
+    e.setHours(23, 59, 59, 999);
+    return e;
+  }
+  /** Every ISO week (Mon..Sun) the range [start, end] overlaps. */
+  private isoWeeksTouched(start: Date, end: Date): { ws: Date; we: Date }[] {
+    const out: { ws: Date; we: Date }[] = [];
+    let cur = this.startOfISOWeek(start);
+    const last = this.startOfISOWeek(end);
+    while (cur.getTime() <= last.getTime()) {
+      out.push({ ws: new Date(cur), we: this.endOfISOWeek(cur) });
+      cur = new Date(cur);
+      cur.setDate(cur.getDate() + 7);
+    }
+    return out;
+  }
+
+  /** If the selected dates clash with an existing different-type leave in
+   *  the same ISO week, return that leave's type name; else null.
+   *  RH and CO are exempt — they neither block nor are blocked. */
+  private weeklyTypeConflictName(): string | null {
+    const EXEMPT = ['RH', 'CO'];
+    if (EXEMPT.includes(this.leaveType)) return null;
+    if (!this.fromDate || !this.toDate) return null;
+
+    const weeks = this.isoWeeksTouched(this.fromDate, this.toDate);
+    for (const l of this.myActiveLeaves) {
+      if (EXEMPT.includes(l.typeName)) continue;        // an existing RH/CO doesn't block
+      if (l.typeName === this.leaveType) continue;       // same type is allowed (Rule A)
+      // Does this existing leave overlap any of the new request's ISO weeks?
+      for (const w of weeks) {
+        if (l.startDate <= w.we && l.endDate >= w.ws) {
+          return l.typeName;
+        }
+      }
+    }
+    return null;
   }
   stripTime(date: Date): Date {
     const d = new Date(date);

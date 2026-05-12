@@ -228,6 +228,7 @@ export class HrCorrections implements OnInit {
     this.loadOtList();
     this.loadWoList();
     this.loadApList();
+    this.loadApplyLeaveList();
   }
 
   // ── Employee autocomplete (shared) ──────────────────────────────────────
@@ -782,4 +783,101 @@ export class HrCorrections implements OnInit {
   isExpired(row: any): boolean {
   return row.used || new Date(row.expiryDate) < this.today;
 }
+
+  // ════════════════════════════════════════════════════════════════
+  //  APPLY LEAVE ON BEHALF OF AN EMPLOYEE (HR override)
+  // ════════════════════════════════════════════════════════════════
+  alEmployee: any = null;
+  alLeaveTypeId: number | null = null;
+  alFromDate: Date | null = null;
+  alToDate: Date | null = null;
+  alIsHalfDay = false;
+  alHalfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
+  alReason = '';
+  alForce = false;                 // allow negative balance
+  alSubmitting = false;
+
+  alHalfSessionOptions = [
+    { label: 'First Half', value: 'FIRST_HALF' },
+    { label: 'Second Half', value: 'SECOND_HALF' },
+  ];
+
+  alRecords: any[] = [];
+  alTotal = 0;
+  alPage = 1;
+  alLimit = 25;
+  alLoading = false;
+
+  submitApplyLeave() {
+    if (!this.alEmployee?.id || !this.alLeaveTypeId || !this.alFromDate || !this.alToDate || !this.alReason.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Employee, leave type, dates and reason are required.' });
+      return;
+    }
+    if (this.alToDate < this.alFromDate) {
+      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'To date cannot be before From date.' });
+      return;
+    }
+    if (this.alIsHalfDay && this.formatDateISO(this.alFromDate) !== this.formatDateISO(this.alToDate)) {
+      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'A half-day must be a single date.' });
+      return;
+    }
+
+    this.alSubmitting = true;
+    this.svc.applyLeaveOnBehalf({
+      employeeId: this.alEmployee.id,
+      leaveTypeId: this.alLeaveTypeId,
+      startDate: this.formatDateISO(this.alFromDate),
+      endDate: this.formatDateISO(this.alToDate),
+      reason: this.alReason.trim(),
+      isHalfDay: this.alIsHalfDay,
+      halfDaySession: this.alIsHalfDay ? this.alHalfDaySession : undefined,
+      force: this.alForce,
+    }).subscribe({
+      next: (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Leave applied',
+          detail: `${res?.requestedUnits ?? ''} day(s) leave approved and deducted for ${this.alEmployee.firstName} ${this.alEmployee.lastName}.`,
+          life: 5000,
+        });
+        this.resetApplyLeave();
+        this.loadApplyLeaveList();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not apply leave',
+          detail: err?.error?.error ?? 'Failed to apply leave on behalf.',
+          life: 6000,
+        });
+        this.alSubmitting = false;
+      },
+    });
+  }
+
+  resetApplyLeave() {
+    this.alEmployee = null;
+    this.alLeaveTypeId = null;
+    this.alFromDate = null;
+    this.alToDate = null;
+    this.alIsHalfDay = false;
+    this.alHalfDaySession = 'FIRST_HALF';
+    this.alReason = '';
+    this.alForce = false;
+    this.alSubmitting = false;
+  }
+
+  loadApplyLeaveList() {
+    this.alLoading = true;
+    this.svc.getHrAppliedLeaveList(this.alPage, this.alLimit).subscribe({
+      next: (res) => { this.alRecords = res.rows ?? res.records ?? []; this.alTotal = res.total ?? 0; this.alLoading = false; },
+      error: () => (this.alLoading = false),
+    });
+  }
+
+  onApplyLeavePageChange(event: any) {
+    this.alPage = Math.floor(event.first / event.rows) + 1;
+    this.alLimit = event.rows;
+    this.loadApplyLeaveList();
+  }
 }

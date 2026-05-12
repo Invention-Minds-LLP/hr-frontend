@@ -35,6 +35,7 @@
       <p-tab [value]="5">OT Manual Entry</p-tab>
       <p-tab [value]="6">Week-Off / Holiday</p-tab>
       <p-tab [value]="7">Appraisal Override</p-tab>
+      <p-tab [value]="8">Apply Leave (on behalf)</p-tab>
     </p-tablist>
 
     <p-tabpanels>
@@ -1074,6 +1075,139 @@
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr><td colspan="11" class="no-data">No appraisal overrides recorded yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+    </p-tabpanel>
+
+    <!-- ════════ TAB 8 — APPLY LEAVE ON BEHALF ════════ -->
+    <p-tabpanel [value]="8">
+
+      <p-card>
+        <div class="tab-desc">
+          Raise a leave request for an employee and approve it immediately. The balance is deducted
+          and a ledger entry is written — same end state as a normally-approved leave. Use this when
+          an employee was on leave but never filed it. The per-application caps, the one-leave-type-per-week
+          rule and the sandwich-leave block do <strong>not</strong> apply here (it's an override tool).
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Employee</label>
+            <p-autoComplete
+              [(ngModel)]="alEmployee"
+              [suggestions]="employeeSuggestions"
+              (completeMethod)="searchEmployees($event)"
+              field="label"
+              placeholder="Search employee..."
+              [dropdown]="true"
+              class="w-full">
+            </p-autoComplete>
+          </div>
+
+          <div class="form-field">
+            <label>Leave Type</label>
+            <p-select
+              [(ngModel)]="alLeaveTypeId"
+              [options]="leaveTypeOptions"
+              placeholder="Select leave type"
+              class="w-full">
+            </p-select>
+          </div>
+
+          <div class="form-field">
+            <label>From Date</label>
+            <p-datePicker [(ngModel)]="alFromDate" dateFormat="dd-mm-yy" [showIcon]="true" class="w-full"></p-datePicker>
+          </div>
+
+          <div class="form-field">
+            <label>To Date</label>
+            <p-datePicker [(ngModel)]="alToDate" dateFormat="dd-mm-yy" [showIcon]="true" class="w-full"></p-datePicker>
+          </div>
+
+          <div class="form-field">
+            <label>&nbsp;</label>
+            <div style="display:flex; align-items:center; gap:8px; padding-top:6px;">
+              <p-checkbox [(ngModel)]="alIsHalfDay" [binary]="true" inputId="alHalf"></p-checkbox>
+              <label for="alHalf" style="margin:0; cursor:pointer;">Half day</label>
+            </div>
+          </div>
+
+          @if (alIsHalfDay) {
+            <div class="form-field">
+              <label>Half-Day Session</label>
+              <p-select [(ngModel)]="alHalfDaySession" [options]="alHalfSessionOptions" class="w-full"></p-select>
+            </div>
+          }
+
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <label>Reason</label>
+            <input pInputText [(ngModel)]="alReason" placeholder="Why is HR applying this leave?" class="w-full" />
+          </div>
+
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <p-checkbox [(ngModel)]="alForce" [binary]="true" inputId="alForce"></p-checkbox>
+              <label for="alForce" style="margin:0; cursor:pointer;">
+                Allow negative balance (apply even if the employee doesn't have enough days)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box debit">
+          <strong>Heads up:</strong> this creates an <em>APPROVED</em> leave request, deducts the balance,
+          and writes a ledger debit. EL ranges that cross a weekend will also deduct the weekend (sandwich rule).
+          RH / CO are recorded without touching a balance row.
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Apply &amp; Approve Leave" icon="pi pi-calendar-plus" [disabled]="alSubmitting" [loading]="alSubmitting" (click)="submitApplyLeave()"></button>
+          <button pButton label="Reset" icon="pi pi-times" class="p-button-secondary" (click)="resetApplyLeave()"></button>
+        </div>
+      </p-card>
+
+      <p-divider></p-divider>
+
+      <p-card>
+        <div class="section-title-sm">HR-Applied Leave History</div>
+        <p-table
+          [value]="alRecords"
+          [loading]="alLoading"
+          [paginator]="true"
+          [rows]="alLimit"
+          [totalRecords]="alTotal"
+          [lazy]="true"
+          (onLazyLoad)="onApplyLeavePageChange($event)">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>No.</th>
+              <th>Employee</th>
+              <th>Leave Type</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Half?</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Applied On</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr>
+              <td>{{ (alPage - 1) * alLimit + i + 1 }}</td>
+              <td>{{ row.employee?.firstName }} {{ row.employee?.lastName }} <span style="color:#94a3b8;">({{ row.employee?.employeeCode }})</span></td>
+              <td>{{ row.leaveType?.name }}</td>
+              <td>{{ row.startDate | date:'dd-MM-yyyy' }}</td>
+              <td>{{ row.endDate | date:'dd-MM-yyyy' }}</td>
+              <td>{{ row.isHalfDay ? (row.halfDaySession === 'FIRST_HALF' ? '1st half' : '2nd half') : '—' }}</td>
+              <td><p-tag [value]="row.status" severity="success"></p-tag></td>
+              <td>{{ row.reason }}</td>
+              <td>{{ row.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="9" style="text-align:center; color:#94a3b8; padding:20px;">No HR-applied leaves yet.</td></tr>
           </ng-template>
         </p-table>
       </p-card>

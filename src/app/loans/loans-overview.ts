@@ -104,13 +104,16 @@ export class LoansOverview implements OnInit {
   }
 
   loadEmployees() {
-    this.employeeService.getEmployees(1, 50).subscribe({
-      next: (res: any) => {
-        this.allEmployees = (res.data || res).map((e: any) => ({
+    // All active employees (no pagination cap) so the picker can find anyone.
+    this.employeeService.getActiveEmployees().subscribe({
+      next: (rows: any) => {
+        const list = Array.isArray(rows) ? rows : (rows?.data ?? rows ?? []);
+        this.allEmployees = list.map((e: any) => ({
           ...e,
           displayName: `${e.employeeCode} - ${e.firstName} ${e.lastName}`
         }));
-      }
+      },
+      error: () => { this.allEmployees = []; },
     });
   }
 
