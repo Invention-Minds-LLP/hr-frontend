@@ -64,3 +64,65 @@
     gap: 20px;
   }
 }
+
+/* ── Resignation panel ──────────────────────────────────────────────── */
+.resignation-panel {
+  margin: 30px 40px;
+  padding: 24px 28px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(251, 156, 42, 0.2);
+  border-left: 3px solid #FB9C2A;
+  border-radius: 12px;
+  max-width: 720px;
+}
+
+.resignation-header h3 {
+  margin: 0 0 8px;
+  color: #FB9C2A;
+  font-family: "Sofia Sans";
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.resignation-note {
+  margin: 0 0 20px;
+  color: #c0c0c0;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 560px;
+}
+
+.apply-resignation-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #FB9C2A;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.apply-resignation-btn:hover {
+  background: #e08b20;
+  transform: translateY(-1px);
+}
+
+.apply-resignation-btn i {
+  font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .resignation-panel {
+    margin: 20px;
+    padding: 18px 20px;
+  }
+}

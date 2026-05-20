@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Profile } from "../profile/profile";
 import { ResetPassword } from "../reset-password/reset-password";
 import { Table } from "../table/table";
 import { LoginCreation } from "../login-creation/login-creation";
 import { Export } from "../export/export";
+import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 
 @Component({
   selector: 'app-settings-overview',
-  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation, Export],
+  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation, Export, ResignationForm],
   templateUrl: './settings-overview.html',
   styleUrl: './settings-overview.css'
 })
@@ -19,8 +20,14 @@ export class SettingsOverview {
   isRestricted = true;
   isHr = false;
 
+  @ViewChild('resignationForm') resignationForm!: ResignationForm;
+
   show(value: string){
     this.active = value;
+  }
+
+  openResignationForm() {
+    if (this.resignationForm) this.resignationForm.open();
   }
   ngOnInit(): void {
     const raw =

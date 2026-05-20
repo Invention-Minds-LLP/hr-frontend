@@ -26,6 +26,14 @@
                 <path fill="currentColor"
                     d="M10.3 7.7a.984.984 0 0 0 0 1.4l1.9 1.9H3c-.55 0-1 .45-1 1s.45 1 1 1h9.2l-1.9 1.9a.984.984 0 0 0 0 1.4c.39.39 1.01.39 1.4 0l3.59-3.59a.996.996 0 0 0 0-1.41L11.7 7.7a.984.984 0 0 0-1.4 0M20 19h-7c-.55 0-1 .45-1 1s.45 1 1 1h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-7c-.55 0-1 .45-1 1s.45 1 1 1h7z" />
             </svg>Login Activities</li>
+        <span class="br"></span>
+        <li class="sub-item" [ngClass]="{ 'active': active === 'resignation' }" (click)="show('resignation')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline points="14 2 14 8 20 8"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>Resignation</li>
             <!-- <span class="br" *ngIf="!isRestricted"></span>
         <li class="sub-item" [ngClass]="{ 'active': active === 'export' }" (click)="show('export')" *ngIf="!isRestricted">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -44,4 +52,23 @@
     <app-login-creation *ngIf="active === 'create'"></app-login-creation>
     <app-table *ngIf="active === 'list'"></app-table>
     <app-export *ngIf="active === 'export'"></app-export>
+
+    <!-- Resignation panel — intentionally lives here (not in the avatar dropdown)
+         so users don't see it next to the Log Out button. -->
+    <div *ngIf="active === 'resignation'" class="resignation-panel">
+        <div class="resignation-header">
+            <h3>Resignation</h3>
+            <p class="resignation-note">
+                Apply for resignation, track existing requests, or withdraw a pending
+                request. Once submitted, your reporting manager and HR will review it
+                per the company policy.
+            </p>
+        </div>
+        <button class="apply-resignation-btn" (click)="openResignationForm()">
+            <i class="pi pi-file-edit"></i>
+            <span>Apply / Manage Resignation</span>
+        </button>
+    </div>
 </div>
+
+<app-resignation-form #resignationForm></app-resignation-form>
