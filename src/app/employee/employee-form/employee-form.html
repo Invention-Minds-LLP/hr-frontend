@@ -583,39 +583,45 @@
                                     </p-floatLabel>
                                 </div>
 
-                                <!-- Probation action buttons (edit mode, while probation is active, HR only) -->
-                                <div class="field col-12 probation-actions"
-                                    *ngIf="!isProfileView && currentEmployeeId && hasActiveProbation">
-                                    <button pButton type="button" class="p-button-sm prob-btn prob-btn-extend"
-                                        icon="pi pi-forward" label="Extend Probation"
-                                        (click)="openExtendDialog()"></button>
-                                    <button pButton type="button" class="p-button-sm prob-btn prob-btn-confirm"
-                                        icon="pi pi-check" label="Confirm as Permanent"
-                                        (click)="openConfirmDialog()"></button>
-                                    <button pButton type="button" class="p-button-sm prob-btn prob-btn-terminate"
-                                        icon="pi pi-times" label="Terminate"
-                                        (click)="openTerminateDialog()"></button>
-                                </div>
+                                <!-- Probation management panel: actions + history grouped into one
+                                     contained block so it doesn't disrupt the form-field grid. -->
+                                <div class="field col-12 probation-panel"
+                                    *ngIf="currentEmployeeId && (hasActiveProbation || probationRecords.length > 0)">
 
-                                <!-- Probation history -->
-                                <div class="field col-12 probation-history"
-                                    *ngIf="currentEmployeeId && probationRecords.length > 0">
-                                    <div class="prob-history-title">Probation History</div>
-                                    <div class="prob-history-list">
-                                        <div class="prob-history-row" *ngFor="let r of probationRecords">
-                                            <div class="prob-dates">
-                                                <i class="pi pi-calendar"></i>
-                                                {{ r.startDate | date: 'dd-MM-yyyy' }}
-                                                <span class="dash">–</span>
-                                                {{ r.endDate | date: 'dd-MM-yyyy' }}
+                                    <!-- Action buttons (edit mode, while active, HR only) -->
+                                    <div class="probation-actions"
+                                        *ngIf="!isProfileView && hasActiveProbation">
+                                        <span class="prob-actions-label">Probation actions</span>
+                                        <button pButton type="button" class="prob-btn prob-btn-extend"
+                                            icon="pi pi-forward" label="Extend"
+                                            (click)="openExtendDialog()"></button>
+                                        <button pButton type="button" class="prob-btn prob-btn-confirm"
+                                            icon="pi pi-check" label="Confirm as Permanent"
+                                            (click)="openConfirmDialog()"></button>
+                                        <button pButton type="button" class="prob-btn prob-btn-terminate"
+                                            icon="pi pi-times" label="Terminate"
+                                            (click)="openTerminateDialog()"></button>
+                                    </div>
+
+                                    <!-- History -->
+                                    <div class="probation-history" *ngIf="probationRecords.length > 0">
+                                        <div class="prob-history-title">Probation History</div>
+                                        <div class="prob-history-list">
+                                            <div class="prob-history-row" *ngFor="let r of probationRecords">
+                                                <div class="prob-dates">
+                                                    <i class="pi pi-calendar"></i>
+                                                    {{ r.startDate | date: 'dd-MM-yyyy' }}
+                                                    <span class="dash">–</span>
+                                                    {{ r.endDate | date: 'dd-MM-yyyy' }}
+                                                </div>
+                                                <div [ngClass]="getProbationStatusClass(r.status)">
+                                                    {{ getProbationStatusLabel(r.status) }}
+                                                </div>
+                                                <div class="prob-decided" *ngIf="r.decidedOn">
+                                                    Decided {{ r.decidedOn | date: 'dd-MM-yyyy' }}
+                                                </div>
+                                                <div class="prob-remarks" *ngIf="r.remarks">{{ r.remarks }}</div>
                                             </div>
-                                            <div [ngClass]="getProbationStatusClass(r.status)">
-                                                {{ getProbationStatusLabel(r.status) }}
-                                            </div>
-                                            <div class="prob-decided" *ngIf="r.decidedOn">
-                                                Decided on {{ r.decidedOn | date: 'dd-MM-yyyy' }}
-                                            </div>
-                                            <div class="prob-remarks" *ngIf="r.remarks">{{ r.remarks }}</div>
                                         </div>
                                     </div>
                                 </div>

@@ -59,7 +59,9 @@ export class ResetPassword {
 
     const restrictedRoles = ['executives', 'intern', 'junior executive', 'reporting manager'];
     console.log(this.role)
-    if (restrictedRoles.includes(this.role)) {
+    // Incharge (roleId 5) is also self-service: no dropdown is shown for them
+    // (it only renders for admin roleId 1), so they must reset their own account.
+    if (restrictedRoles.includes(this.role) || this.roleId === 5) {
       // Just show their own employee
       this.disableSelect = true;
       if (storedEmpId && storedName) {

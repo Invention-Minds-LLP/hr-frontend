@@ -763,57 +763,80 @@ a{
 }
 
 /* ── Probation Tracking ──────────────────────────────────────────────── */
-.probation-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 6px;
+
+/* Contained panel grouping actions + history so it reads as one unit
+   and doesn't break the form-field grid flow. */
+.probation-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(251, 156, 42, 0.22);
+  border-left: 3px solid #FB9C2A;
+  border-radius: 12px;
+  padding: 18px 18px 22px;
 }
 
-.prob-btn {
+.probation-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.prob-actions-label {
+  color: #999;
+  font-family: "Sofia Sans";
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Compact, auto-width buttons — override PrimeNG p-fluid (which forces
+   every button to width:100% and makes them look like full-width bars). */
+:host ::ng-deep .probation-actions .p-button {
+  width: auto !important;
+  padding: 8px 16px !important;
   border-radius: 8px !important;
-  font-weight: 600 !important;
   font-family: "Sofia Sans" !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   letter-spacing: 0.2px;
 }
 
-.prob-btn-extend {
+:host ::ng-deep .probation-actions .prob-btn-extend,
+:host ::ng-deep .probation-actions .prob-btn-extend:enabled:hover {
   background: #FB9C2A !important;
   border-color: #FB9C2A !important;
   color: #fff !important;
 }
-.prob-btn-extend:hover {
+:host ::ng-deep .probation-actions .prob-btn-extend:enabled:hover {
   background: #e08b20 !important;
   border-color: #e08b20 !important;
 }
 
-.prob-btn-confirm {
+:host ::ng-deep .probation-actions .prob-btn-confirm {
   background: #1eb578 !important;
   border-color: #1eb578 !important;
   color: #fff !important;
 }
-.prob-btn-confirm:hover {
+:host ::ng-deep .probation-actions .prob-btn-confirm:enabled:hover {
   background: #179865 !important;
   border-color: #179865 !important;
 }
 
-.prob-btn-terminate {
+:host ::ng-deep .probation-actions .prob-btn-terminate {
   background: #b7242b !important;
   border-color: #b7242b !important;
   color: #fff !important;
 }
-.prob-btn-terminate:hover {
+:host ::ng-deep .probation-actions .prob-btn-terminate:enabled:hover {
   background: #9c1d23 !important;
   border-color: #9c1d23 !important;
 }
 
-/* History block */
+/* History block — sits below actions inside the same panel */
 .probation-history {
-  margin-top: 8px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(251, 156, 42, 0.25);
-  border-radius: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .prob-history-title {
