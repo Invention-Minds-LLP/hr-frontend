@@ -6,10 +6,22 @@
                 <i class="pi pi-filter"></i>
 
                 <ul class="menu-list" id="filterDropdown" *ngIf="showFilterDropdown">
+                    <!-- Search by field -->
+                    <li class="menu-heading">Search by</li>
                     <li class="list" *ngFor="let option of filterOptions"
                         (click)="selectFilter(option); $event.stopPropagation()"
                         [ngClass]="{ active: selectedFilter?.value === option.value }">
                         {{ option.label }}
+                    </li>
+
+                    <li class="menu-divider"></li>
+
+                    <!-- Filter by status -->
+                    <li class="menu-heading">Status</li>
+                    <li class="list" *ngFor="let status of statusOptions"
+                        (click)="selectStatus(status); $event.stopPropagation()"
+                        [ngClass]="{ active: selectedStatus === status }">
+                        {{ status }}
                     </li>
                 </ul>
             </div>

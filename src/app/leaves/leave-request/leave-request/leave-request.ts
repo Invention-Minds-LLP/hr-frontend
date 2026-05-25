@@ -41,6 +41,11 @@ export class LeaveRequest {
     { label: 'Department', value: 'deptName' },
     { label: 'Leave Type', value: 'leaveType' },
   ];
+
+  // Status filter (lives inside the funnel dropdown, alongside field search)
+  searchText: string = '';
+  selectedStatus: string = 'All';
+  statusOptions: string[] = ['All', 'Pending', 'Approved', 'Rejected', 'Cancelled'];
   private isHRRole(role: string): boolean {
     const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
@@ -191,7 +196,7 @@ export class LeaveRequest {
             (this.isManagement && r.reportingManagerId === this.loggedEmployeeId)
           );
 
-        this.filteredLeaveData = [...this.leaveData];
+        this.applyFilters();
       },
       error: (err) => {
         console.error('Error fetching leaves:', err);
@@ -203,24 +208,13 @@ export class LeaveRequest {
 
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
-    const searchText = input.value.trim().toLowerCase();
-
-    if (!searchText) {
-      this.filteredLeaveData = [...this.leaveData];
-      return;
-    }
-
-    const filterKey = this.selectedFilter?.value;
-
-    this.filteredLeaveData = this.leaveData.filter((leave: any) => {
-      return leave[filterKey]?.toString().toLowerCase().includes(searchText);
-    });
-    console.log('Filtered Data:', this.filteredLeaveData);
+    this.searchText = input.value;
+    this.applyFilters();
   }
 
 
   onFilterChange() {
-    this.filteredLeaveData = [...this.leaveData];
+    this.applyFilters();
   }
 
   toggleFilterDropdown(): void {
@@ -233,12 +227,54 @@ export class LeaveRequest {
     // Clear the search input
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
     if (searchBox) searchBox.value = '';
+    this.searchText = '';
 
-    // Reset table
-    this.filteredLeaveData = [...this.leaveData];
+    // Reapply (keeps any active status filter)
+    this.applyFilters();
 
     // Close dropdown
     this.showFilterDropdown = false;
+  }
+
+  selectStatus(status: string) {
+    this.selectedStatus = status;
+    this.showFilterDropdown = false;
+    this.applyFilters();
+  }
+
+  /**
+   * Collapse the granular status labels (from getStatusLabel) into the four
+   * buckets shown in the filter: Pending / Approved / Rejected / Cancelled.
+   * Intermediate "Approved (Waiting …)" states count as Pending since the
+   * request isn't finalised yet.
+   */
+  getStatusCategory(leave: any): string {
+    const label = this.getStatusLabel(leave);
+    if (label === 'Cancelled') return 'Cancelled';
+    if (label.includes('Rejected')) return 'Rejected';
+    if (label === 'HR Approved') return 'Approved';
+    return 'Pending';
+  }
+
+  /** Apply the status filter and field search together. */
+  applyFilters() {
+    let data = [...this.leaveData];
+
+    // Status filter
+    if (this.selectedStatus && this.selectedStatus !== 'All') {
+      data = data.filter(leave => this.getStatusCategory(leave) === this.selectedStatus);
+    }
+
+    // Field search (only when a field is selected and text is entered)
+    const filterKey = this.selectedFilter?.value;
+    const text = this.searchText.trim().toLowerCase();
+    if (text && filterKey) {
+      data = data.filter(leave =>
+        leave[filterKey]?.toString().toLowerCase().includes(text)
+      );
+    }
+
+    this.filteredLeaveData = data;
   }
 
 

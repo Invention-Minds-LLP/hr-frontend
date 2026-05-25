@@ -445,6 +445,33 @@ hr {
   border-radius: 20px;
 }
 
+/* Section heading + divider inside the filter dropdown */
+.menu-list .menu-heading {
+  padding: 0.35rem 1rem 0.2rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #9b9b9b;
+  cursor: default;
+}
+
+.menu-list .menu-heading:hover {
+  background: transparent;
+}
+
+.menu-list .menu-divider {
+  height: 1px;
+  margin: 0.3rem 0.5rem;
+  padding: 0;
+  background: #eee;
+  cursor: default;
+}
+
+.menu-list .menu-divider:hover {
+  background: #eee;
+}
+
 /* modal shell stays the same */
 .leave-dashboard-popup {
   position: fixed;
