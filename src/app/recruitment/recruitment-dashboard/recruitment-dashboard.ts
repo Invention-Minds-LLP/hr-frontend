@@ -241,7 +241,13 @@ export class RecruitmentDashboard implements OnInit {
     this.loadingTodays = true;
     this.api.getAllInterview(1, 100).subscribe({
       next: (res: any) => {
-        const rows = (res?.rows ?? res ?? []) as any[];
+        // Defensive: the endpoint may return an array, a { rows } envelope, or
+        // (on some error/permission responses) a plain object — only ever filter an array.
+        const rows: any[] = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.rows)
+            ? res.rows
+            : [];
         const todayStart = new Date(); todayStart.setHours(0,0,0,0);
         const todayEnd   = new Date(); todayEnd.setHours(23,59,59,999);
         this.todaysInterviews = rows
@@ -293,8 +299,9 @@ export class RecruitmentDashboard implements OnInit {
   loadJobs() {
     this.loading = true;
     this.api.listJobs({ page: this.page, pageSize: this.pageSize }).subscribe({
-      next: (res) => {
-        this.jobs = res.rows; this.totalJobs = res.total;
+      next: (res: any) => {
+        this.jobs = Array.isArray(res?.rows) ? res.rows : Array.isArray(res) ? res : [];
+        this.totalJobs = res?.total ?? this.jobs.length;
         setTimeout(() => {
           this.loading = false
         }, 2000)
