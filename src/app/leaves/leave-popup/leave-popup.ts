@@ -59,6 +59,12 @@ export class LeavePopup {
   filteredLeaveTypes: any[] = [];
   isHalfDay = false;
   halfDaySession: 'FIRST_HALF' | 'SECOND_HALF' = 'FIRST_HALF';
+
+  // Half-day shift timing (derived from the employee's shift for the selected day)
+  firstHalfRange = '';        // e.g. "9:00 AM – 1:00 PM"
+  secondHalfRange = '';       // e.g. "1:00 PM – 5:00 PM"
+  shiftTimingLoading = false;
+  noShiftForDay = false;
   compOffDates = new Set<string>();
   selectedPrescription: File | null = null;
   optionalHolidays: any[] = [];
@@ -141,6 +147,7 @@ export class LeavePopup {
     if (!this.validateSandwichOrReset()) return;
     this.calculateDays();
     this.generateCalendar();
+    if (this.isHalfDay) this.loadShiftTimingForSelectedDay();
   }
 
   getAvailableDays(monthStr: string, year: number): number[] {
@@ -410,6 +417,7 @@ export class LeavePopup {
 
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.calculateDays();
+    if (this.isHalfDay) this.loadShiftTimingForSelectedDay();
 
     // Disable dragging in calendar for view-only
     this.isDragging = false;
@@ -731,6 +739,7 @@ export class LeavePopup {
     this.calculateDays();
     this.generateCalendar();
     this.syncDropdownsFromDates();
+    if (this.isHalfDay) this.loadShiftTimingForSelectedDay();
   }
 
   // Drag handling
@@ -742,6 +751,7 @@ export class LeavePopup {
       this.calculateDays();
       this.generateCalendar();
       this.syncDropdownsFromDates();
+      this.loadShiftTimingForSelectedDay();
       return;
     }
 
@@ -793,6 +803,7 @@ export class LeavePopup {
     if (!this.validateSandwichOrReset()) return;
     this.calculateDays();
     this.generateCalendar();
+    if (this.isHalfDay) this.loadShiftTimingForSelectedDay();
   }
 
   fromDay!: number;
@@ -1461,7 +1472,90 @@ export class LeavePopup {
       this.calculateDays();
       this.generateCalendar();
       this.syncDropdownsFromDates();
+      this.loadShiftTimingForSelectedDay();
+    } else {
+      this.firstHalfRange = '';
+      this.secondHalfRange = '';
+      this.noShiftForDay = false;
     }
+  }
+
+  /** Timing of the currently-selected half, e.g. "1:00 PM – 5:00 PM". */
+  get selectedHalfRange(): string {
+    return this.halfDaySession === 'FIRST_HALF' ? this.firstHalfRange : this.secondHalfRange;
+  }
+
+  /**
+   * Fetch the employee's shift for the selected day and split it at its
+   * midpoint into a first-half and second-half time range, so the popup can
+   * show exactly which hours the chosen half covers.
+   */
+  loadShiftTimingForSelectedDay() {
+    if (!this.isHalfDay || !this.fromDate) return;
+
+    const empId = this.shiftEmployeeId();
+    if (!empId) return;
+
+    const dateStr = this.toYmd(this.fromDate);
+    this.shiftTimingLoading = true;
+    this.noShiftForDay = false;
+    this.firstHalfRange = '';
+    this.secondHalfRange = '';
+
+    this.shiftService
+      .getDailyShiftsForRange({ employeeId: empId, from: dateStr, to: dateStr })
+      .subscribe({
+        next: (rows: any[]) => {
+          this.shiftTimingLoading = false;
+          const row = (rows || []).find((r: any) => r?.shift);
+          if (!row?.shift) {
+            this.noShiftForDay = true;
+            return;
+          }
+          this.computeHalfRanges(row.shift.startTime, row.shift.endTime);
+        },
+        error: () => {
+          this.shiftTimingLoading = false;
+          this.noShiftForDay = true;
+        }
+      });
+  }
+
+  /** Employee whose shift we should read: the leave's owner when viewing,
+   *  otherwise the logged-in applicant. */
+  private shiftEmployeeId(): number {
+    return Number(this.leaveData?.empID ?? this.leaveData?.employeeId ?? this.employeeId) || 0;
+  }
+
+  /** Shift times are stored as UTC instants; read them in local (IST) time —
+   *  same as the "Shift Plan" widget's toLocaleTimeString — and split at the
+   *  midpoint (8h shift → 4h + 4h). */
+  private computeHalfRanges(startISO: string, endISO: string) {
+    const s = new Date(startISO);
+    const e = new Date(endISO);
+    const startMin = s.getHours() * 60 + s.getMinutes();
+    let endMin = e.getHours() * 60 + e.getMinutes();
+    if (endMin <= startMin) endMin += 1440; // overnight shift
+    const midMin = Math.round((startMin + endMin) / 2);
+
+    this.firstHalfRange = `${this.fmtMinutes(startMin)} – ${this.fmtMinutes(midMin)}`;
+    this.secondHalfRange = `${this.fmtMinutes(midMin)} – ${this.fmtMinutes(endMin)}`;
+  }
+
+  /** Minutes-since-midnight → "h:mm AM/PM". */
+  private fmtMinutes(total: number): string {
+    const t = ((total % 1440) + 1440) % 1440;
+    const h = Math.floor(t / 60);
+    const m = t % 60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+  }
+
+  /** Local YYYY-MM-DD (avoids UTC date-shift from toISOString). */
+  private toYmd(d: Date): string {
+    const x = new Date(d);
+    return `${x.getFullYear()}-${(x.getMonth() + 1).toString().padStart(2, '0')}-${x.getDate().toString().padStart(2, '0')}`;
   }
   validateEarnedLeave(): boolean {
     if (this.leaveType !== 'EL') return true;

@@ -139,9 +139,21 @@
                 <div class="form-row" *ngIf="isHalfDay">
                     <label>Session</label>
                     <select [(ngModel)]="halfDaySession" [ngModelOptions]="{standalone: true}">
-                        <option class="drop-down" value="FIRST_HALF">First Half</option>
-                        <option class="drop-down" value="SECOND_HALF">Second Half</option>
+                        <option class="drop-down" value="FIRST_HALF">First Half{{ firstHalfRange ? ' (' + firstHalfRange + ')' : '' }}</option>
+                        <option class="drop-down" value="SECOND_HALF">Second Half{{ secondHalfRange ? ' (' + secondHalfRange + ')' : '' }}</option>
                     </select>
+                </div>
+
+                <!-- Selected half timing (based on the day's shift) -->
+                <div class="form-row half-timing" *ngIf="isHalfDay">
+                    <small *ngIf="shiftTimingLoading">Loading shift timing…</small>
+                    <small *ngIf="!shiftTimingLoading && noShiftForDay" class="half-timing-warn">
+                        No shift assigned for this day — timing unavailable.
+                    </small>
+                    <small *ngIf="!shiftTimingLoading && !noShiftForDay && selectedHalfRange">
+                        {{ halfDaySession === 'FIRST_HALF' ? 'First Half' : 'Second Half' }} timing:
+                        <strong>{{ selectedHalfRange }}</strong>
+                    </small>
                 </div>
 
                 <!-- Prescription Upload -->
@@ -367,9 +379,21 @@
                 <div class="form-row" *ngIf="isHalfDay">
                     <label>Session</label>
                     <select [(ngModel)]="halfDaySession" [ngModelOptions]="{standalone: true}">
-                        <option value="FIRST_HALF">First Half</option>
-                        <option value="SECOND_HALF">Second Half</option>
+                        <option value="FIRST_HALF">First Half{{ firstHalfRange ? ' (' + firstHalfRange + ')' : '' }}</option>
+                        <option value="SECOND_HALF">Second Half{{ secondHalfRange ? ' (' + secondHalfRange + ')' : '' }}</option>
                     </select>
+                </div>
+
+                <!-- Selected half timing (based on the day's shift) -->
+                <div class="form-row half-timing" *ngIf="isHalfDay">
+                    <small *ngIf="shiftTimingLoading">Loading shift timing…</small>
+                    <small *ngIf="!shiftTimingLoading && noShiftForDay" class="half-timing-warn">
+                        No shift assigned for this day — timing unavailable.
+                    </small>
+                    <small *ngIf="!shiftTimingLoading && !noShiftForDay && selectedHalfRange">
+                        {{ halfDaySession === 'FIRST_HALF' ? 'First Half' : 'Second Half' }} timing:
+                        <strong>{{ selectedHalfRange }}</strong>
+                    </small>
                 </div>
 
                 <div *ngIf="leaveType === 'SL'">
