@@ -25,7 +25,7 @@ import { EmployeeDetails } from './leaves/employee-details/employee-details';
 
 import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { ManagementDashboard } from './dashboard/management-dashboard/management-dashboard';
-import { HrManagerDashboard } from './dashboard/hr-manager-dashboard/hr-manager-dashboard';
+// import { HrManagerDashboard } from './dashboard/hr-manager-dashboard/hr-manager-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 import { Internship } from './internship/internship/internship';
 import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
@@ -91,7 +91,7 @@ export const routes: Routes = [
 
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
   { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard]},
-  { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard]},
+  // { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
   { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
 
