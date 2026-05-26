@@ -50,4 +50,9 @@ export class Grievance {
   getUnacknowledged(employeeId: number): Observable<{ grievances: any[]; poshCases: any[] }> {
     return this.http.get<{ grievances: any[]; poshCases: any[] }>(`${this.baseUrl}/get-unacknowledged/${employeeId}`);
   }
+
+  // Committee-member acknowledgement progress for a grievance (Phase 6).
+  getCommitteeAcks(grievanceId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${grievanceId}/committee-acks`);
+  }
 }

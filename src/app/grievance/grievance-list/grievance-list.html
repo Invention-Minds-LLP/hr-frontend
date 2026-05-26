@@ -142,6 +142,74 @@
     <h3>{{ selected.title }}</h3>
     <p>{{ selected.description }}</p>
 
+    <!-- Handled by Committee + Acknowledgement progress (Phase 2 + 6) -->
+    <div class="committee-panel" *ngIf="loadingCommittee || committeeInfo">
+      <div class="committee-header">
+        <div class="committee-title">
+          <i class="pi pi-users"></i>
+          <span>Handled by</span>
+        </div>
+        <div class="ack-progress" *ngIf="committeeInfo">
+          <span class="ack-count">{{ committeeInfo.acknowledgedCount }}/{{ committeeInfo.totalMembers }}</span>
+          <span class="ack-label">acknowledged</span>
+        </div>
+      </div>
+
+      <div class="committee-loading" *ngIf="loadingCommittee">Loading committee details...</div>
+
+      <ng-container *ngIf="!loadingCommittee && committeeInfo">
+        <div class="committee-empty" *ngIf="!committeeInfo.committee">
+          No grievance committee is currently configured. HR is handling this case directly.
+        </div>
+
+        <ng-container *ngIf="committeeInfo.committee">
+          <div class="committee-name-row">
+            <span class="committee-name">{{ committeeInfo.committee.name }}</span>
+            <span class="committee-meta" *ngIf="committeeInfo.committee.scope">{{ committeeInfo.committee.scope }}</span>
+          </div>
+
+          <div class="ack-bar-wrap" *ngIf="committeeInfo.totalMembers > 0">
+            <div class="ack-bar">
+              <div class="ack-bar-fill"
+                   [style.width.%]="(committeeInfo.acknowledgedCount / committeeInfo.totalMembers) * 100"></div>
+            </div>
+          </div>
+
+          <ul class="committee-member-list">
+            <li *ngFor="let m of committeeInfo.members" class="committee-member">
+              <span class="member-dot" [class.acked]="m.acknowledged"></span>
+              <span class="member-name">
+                {{ m.name || ('Employee #' + m.employeeId) }}
+                <small class="member-meta" *ngIf="m.employeeCode">({{ m.employeeCode }})</small>
+                <small class="member-meta" *ngIf="m.role">· {{ m.role | titlecase }}</small>
+              </span>
+              <span class="ack-pill" [class.acked]="m.acknowledged">
+                {{ m.acknowledged ? 'Acknowledged' : 'Pending' }}
+              </span>
+            </li>
+          </ul>
+
+          <div class="ack-self-row"
+               *ngIf="committeeInfo.members?.length > 0 || committeeInfo.externalMemberCount > 0">
+            <ng-container *ngIf="iAmACommitteeMember(); else notMemberTpl">
+              <button type="button"
+                      class="ack-btn"
+                      [disabled]="iHaveAcknowledged || ackingCase"
+                      (click)="acknowledgeCase()">
+                <i class="pi" [ngClass]="iHaveAcknowledged ? 'pi-check-circle' : 'pi-check'"></i>
+                {{ iHaveAcknowledged ? 'You have acknowledged' : (ackingCase ? 'Acknowledging...' : 'I acknowledge') }}
+              </button>
+            </ng-container>
+            <ng-template #notMemberTpl>
+              <small class="ack-self-note" *ngIf="committeeInfo.externalMemberCount > 0">
+                {{ committeeInfo.externalMemberCount }} external member(s) acknowledge offline.
+              </small>
+            </ng-template>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+
     <h4>Comments</h4>
     <ul>
       <li *ngFor="let c of selected.comments">

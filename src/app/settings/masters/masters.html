@@ -46,6 +46,9 @@
       <tr>
         <th style="width: 60px">#</th>
         <th>Department Name</th>
+        <th style="width: 130px">OT Budget (hrs/mo)</th>
+        <th style="width: 130px">Min Daily Strength</th>
+        <th style="width: 200px">Appraisal Cycle</th>
         <th style="width: 120px">Actions</th>
       </tr>
     </ng-template>
@@ -53,6 +56,9 @@
       <tr>
         <td>{{ i + 1 }}</td>
         <td>{{ item.name }}</td>
+        <td>{{ item.otBudgetHoursPerMonth || 0 }}</td>
+        <td>{{ item.minDailyStrength || 0 }}</td>
+        <td>{{ apprSummary(item) }}</td>
         <td class="action-cell">
           <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
           <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete"><i class="pi pi-trash"></i></button>
@@ -60,7 +66,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="3" class="empty-msg">No departments found</td></tr>
+      <tr><td colspan="6" class="empty-msg">No departments found</td></tr>
     </ng-template>
   </p-table>
 
@@ -318,6 +324,33 @@
       <label>Name <span class="req">*</span></label>
       <input type="text" pInputText [(ngModel)]="formName" style="width: 100%" placeholder="Enter name..." />
     </div>
+
+    <!-- Department planning + appraisal-cycle master (drives the HR dashboard) -->
+    <ng-container *ngIf="activeTab === 'departments'">
+      <div class="field">
+        <label>OT Budget (hrs / month)</label>
+        <p-inputNumber [(ngModel)]="formOtBudget" [min]="0" [showButtons]="true" [style]="{ width: '100%' }" inputStyleClass="w-full"></p-inputNumber>
+      </div>
+      <div class="field">
+        <label>Minimum Daily Strength</label>
+        <p-inputNumber [(ngModel)]="formMinStrength" [min]="0" [showButtons]="true" [style]="{ width: '100%' }" inputStyleClass="w-full"></p-inputNumber>
+      </div>
+      <div class="field">
+        <label>Appraisal Cycle Basis</label>
+        <p-select [options]="apprBasisOptions" [(ngModel)]="formApprBasis" optionLabel="label" optionValue="value" [style]="{ width: '100%' }" appendTo="body"></p-select>
+      </div>
+      <div class="field">
+        <label>Appraisal Period</label>
+        <p-select [options]="apprPeriodOptions" [(ngModel)]="formApprPeriod" optionLabel="label" optionValue="value" [style]="{ width: '100%' }" appendTo="body"></p-select>
+      </div>
+      <div class="field" *ngIf="formApprBasis === 'CALENDAR'">
+        <label>{{ formApprPeriod === 6 ? 'Appraisal Month (first cycle)' : 'Appraisal Month' }}</label>
+        <p-select [options]="monthOptions" [(ngModel)]="formApprCalMonth" optionLabel="n" optionValue="v" placeholder="— select month —" [showClear]="true" [style]="{ width: '100%' }" appendTo="body"></p-select>
+        <small class="appr-hint" *ngIf="formApprPeriod === 6 && formApprCalMonth">
+          Half-yearly → appraisals in <strong>{{ monthName(formApprCalMonth) }}</strong> &amp; <strong>{{ monthName(secondMonth(formApprCalMonth)) }}</strong>.
+        </small>
+      </div>
+    </ng-container>
 
     <div class="field" *ngIf="activeTab === 'branches'">
       <label>Location</label>

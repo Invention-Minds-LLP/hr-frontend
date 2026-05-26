@@ -3,12 +3,14 @@
    <h3>Hearings for Case #{{ caseId }}</h3>
    <div class="date"><b>{{ form.get('createdAt')?.value | date:'dd-MM-yyyy HH:mm' }}</b></div>
  </div>
+
   <p-table class="posh-hearing" [value]="hearings">
     <ng-template pTemplate="header">
       <tr>
         <th>Date</th>
         <th>Notes</th>
         <th>Outcome</th>
+        <th style="text-align:center;">Attendance</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-h>
@@ -16,6 +18,67 @@
         <td>{{ h.date | date:'dd-MM-yyyy' }}</td>
         <td>{{ h.notes }}</td>
         <td>{{ h.outcome }}</td>
+        <td style="text-align:center;">
+          <button type="button"
+                  class="attendance-toggle"
+                  [class.expanded]="expandedHearingId === h.id"
+                  (click)="toggleAttendance(h.id)">
+            <i class="pi pi-users"></i>
+            <span>{{ attendedCount(h.id) }}/{{ committeeMembers.length }}</span>
+            <i class="pi" [ngClass]="expandedHearingId === h.id ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="expandedHearingId === h.id">
+        <td colspan="4" class="attendees-cell">
+          <div class="attendees-panel">
+            <div class="attendees-header">
+              <div class="attendees-title">
+                <i class="pi pi-clipboard"></i>
+                <span>Attendance — {{ committeeName || 'ICC' }}</span>
+              </div>
+              <div class="attendees-meta">
+                {{ attendedCount(h.id) }} present of {{ committeeMembers.length }}
+              </div>
+            </div>
+
+            <div class="attendees-empty" *ngIf="committeeMembers.length === 0">
+              No active ICC members on record for this case.
+            </div>
+
+            <ul class="attendees-list" *ngIf="committeeMembers.length > 0">
+              <li *ngFor="let m of committeeMembers" class="attendee-row">
+                <div class="attendee-info">
+                  <p-checkbox [(ngModel)]="attendanceByHearing[h.id][m.committeeMemberId].attended"
+                              [binary]="true"
+                              [disabled]="!isHR()"></p-checkbox>
+                  <div class="attendee-name-block">
+                    <span class="attendee-name">{{ m.name }}</span>
+                    <small class="attendee-meta">
+                      <span *ngIf="m.role">{{ m.role | titlecase }}</span>
+                      <span *ngIf="m.isExternal"> · External</span>
+                    </small>
+                  </div>
+                </div>
+                <input pInputText type="text"
+                       class="attendee-remarks"
+                       placeholder="Remarks (optional)"
+                       [disabled]="!isHR()"
+                       [(ngModel)]="attendanceByHearing[h.id][m.committeeMemberId].remarks" />
+              </li>
+            </ul>
+
+            <div class="attendees-actions" *ngIf="isHR() && committeeMembers.length > 0">
+              <button type="button"
+                      class="ack-btn"
+                      [disabled]="!!savingAttendance[h.id]"
+                      (click)="saveAttendance(h.id)">
+                <i class="pi pi-save"></i>
+                {{ savingAttendance[h.id] ? 'Saving...' : 'Save Attendance' }}
+              </button>
+            </div>
+          </div>
+        </td>
       </tr>
     </ng-template>
   </p-table>

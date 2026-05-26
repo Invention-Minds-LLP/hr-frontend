@@ -1,0 +1,245 @@
+<div class="ca-shell">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <header class="ca-head">
+    <div>
+      <h2>Committees</h2>
+      <p class="ca-sub">
+        Manage the POSH Internal Complaints Committee (ICC) and the Grievance Redressal Committee.
+        Cases are routed to the active committee of their type — members get the notifications, not all of HR.
+      </p>
+    </div>
+    <button class="ca-primary" (click)="openCreate()">
+      <i class="pi pi-plus"></i> New {{ activeTab === 'POSH' ? 'ICC' : 'Grievance Committee' }}
+    </button>
+  </header>
+
+  <!-- Type tabs -->
+  <nav class="ca-tabs">
+    <button class="ca-tab" [class.active]="activeTab === 'POSH'"      (click)="switchTab('POSH')">🛡️ POSH (ICC)</button>
+    <button class="ca-tab" [class.active]="activeTab === 'GRIEVANCE'" (click)="switchTab('GRIEVANCE')">📣 Grievance Redressal</button>
+  </nav>
+
+  <!-- List of committees -->
+  <p-table [value]="rows" [loading]="loading" styleClass="ca-table" *ngIf="!selected">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:60px;">#</th>
+        <th>Name</th>
+        <th>Scope</th>
+        <th style="width:130px;">Term Start</th>
+        <th style="width:130px;">Term End</th>
+        <th style="width:120px;">Status</th>
+        <th style="width:120px;text-align:center;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-c>
+      <tr>
+        <td><strong>{{ c.id }}</strong></td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.scope || 'Org-wide' }}</td>
+        <td>{{ c.termStart | date:'dd MMM yyyy' }}</td>
+        <td>{{ c.termEnd | date:'dd MMM yyyy' }}</td>
+        <td>
+          <p-tag *ngIf="termActive(c)"  value="Active"   severity="success"></p-tag>
+          <p-tag *ngIf="!termActive(c)" value="Inactive" severity="secondary"></p-tag>
+        </td>
+        <td style="text-align:center;">
+          <button class="ca-view-btn" (click)="open(c)">View →</button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="ca-empty">
+          No {{ activeTab === 'POSH' ? 'POSH ICC' : 'Grievance' }} committees yet — click "New" above.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ═══ Detail view ═══ -->
+  <ng-container *ngIf="selected">
+    <button class="ca-back" (click)="closeDetail()">← Back to list</button>
+
+    <div class="ca-detail">
+      <div class="ca-detail-head">
+        <div>
+          <h3>{{ selected.name }}</h3>
+          <small>
+            {{ selected.type === 'POSH' ? 'POSH ICC' : 'Grievance Redressal' }} ·
+            {{ selected.scope || 'Org-wide' }} ·
+            term {{ selected.termStart | date:'dd MMM yyyy' }} – {{ selected.termEnd | date:'dd MMM yyyy' }}
+          </small>
+        </div>
+        <p-tag *ngIf="termActive(selected)"  value="Active"   severity="success"></p-tag>
+        <p-tag *ngIf="!termActive(selected)" value="Inactive" severity="secondary"></p-tag>
+      </div>
+
+      <!-- POSH compliance banner -->
+      <div *ngIf="selected.type === 'POSH' && compliance" class="ca-compliance"
+           [class.ok]="compliance.compliant"
+           [class.bad]="!compliance.compliant && compliance.errors?.length">
+        <div class="ca-comp-head">
+          <strong>
+            {{ compliance.compliant ? '✅ POSH Act 2013 — Compliant' : '⚠️ POSH Act 2013 — Not Compliant' }}
+          </strong>
+          <span class="ca-comp-stats">
+            {{ compliance.stats.memberCount }} members ·
+            {{ compliance.stats.womenCount }} women ·
+            {{ compliance.stats.externalCount }} external ·
+            term ends in {{ compliance.stats.termEndsInDays }}d
+          </span>
+        </div>
+        <ul class="ca-comp-list" *ngIf="compliance.errors?.length">
+          <li *ngFor="let e of compliance.errors" class="err">❌ {{ e.message }}</li>
+        </ul>
+        <ul class="ca-comp-list" *ngIf="compliance.warnings?.length">
+          <li *ngFor="let w of compliance.warnings" class="warn">⚠️ {{ w.message }}</li>
+        </ul>
+      </div>
+
+      <!-- Members -->
+      <div class="ca-section">
+        <div class="ca-section-head">
+          <h4>Members ({{ selected.members?.length || 0 }})</h4>
+          <button class="ca-secondary" (click)="openAddMember()">
+            <i class="pi pi-user-plus"></i> Add Member
+          </button>
+        </div>
+
+        <table class="ca-member-table" *ngIf="selected.members?.length">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Gender</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>Added</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of selected.members" [class.inactive]="!m.isActive">
+              <td>
+                {{ memberLabel(m) }}
+                <span *ngIf="!m.employee" class="ca-ext-tag">EXTERNAL</span>
+              </td>
+              <td><p-tag [value]="roleLabel(m.role)" [severity]="roleSeverity(m.role)"></p-tag></td>
+              <td>{{ m.employee?.gender || '—' }}</td>
+              <td>{{ m.employee?.email || m.externalEmail || '—' }}</td>
+              <td>{{ m.employee?.phone || m.externalPhone || '—' }}</td>
+              <td>{{ m.addedOn | date:'dd MMM yyyy' }}</td>
+              <td style="text-align:right;">
+                <button *ngIf="m.isActive" class="ca-remove-btn" (click)="removeMember(m)" pTooltip="Remove">
+                  <i class="pi pi-trash"></i>
+                </button>
+                <span *ngIf="!m.isActive" class="ca-removed-tag">Removed</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!selected.members?.length" class="ca-empty">No members yet — add some.</p>
+      </div>
+
+      <div class="ca-notes" *ngIf="selected.notes">
+        <strong>Notes:</strong> {{ selected.notes }}
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ═══ Create-committee dialog ═══ -->
+  <p-dialog [(visible)]="showCreate" [modal]="true" [closable]="!creating"
+            [style]="{ width: '520px', maxWidth: '95vw' }">
+    <ng-template pTemplate="header">
+      <strong>New {{ newC.type === 'POSH' ? 'POSH ICC' : 'Grievance Committee' }}</strong>
+    </ng-template>
+    <div class="ca-form">
+      <label>
+        <span>Name</span>
+        <input pInputText [(ngModel)]="newC.name" placeholder="e.g. ICC 2026" />
+      </label>
+      <label>
+        <span>Scope</span>
+        <input pInputText [(ngModel)]="newC.scope" placeholder="ORG_WIDE / branch name / dept name" />
+      </label>
+      <div class="ca-row">
+        <label>
+          <span>Term start</span>
+          <p-datepicker [(ngModel)]="newC.termStart" dateFormat="dd M yy" [showIcon]="true" appendTo="body"></p-datepicker>
+        </label>
+        <label>
+          <span>Term end</span>
+          <p-datepicker [(ngModel)]="newC.termEnd" dateFormat="dd M yy" [showIcon]="true" appendTo="body"></p-datepicker>
+        </label>
+      </div>
+      <label>
+        <span>Notes (optional)</span>
+        <textarea pTextarea rows="2" [(ngModel)]="newC.notes" placeholder="Background / constitution order ref…"></textarea>
+      </label>
+    </div>
+    <ng-template pTemplate="footer">
+      <button class="ca-secondary" (click)="showCreate = false" [disabled]="creating">Cancel</button>
+      <button class="ca-primary" (click)="submitCreate()" [disabled]="creating">
+        {{ creating ? 'Creating…' : 'Create' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ═══ Add-member dialog ═══ -->
+  <p-dialog [(visible)]="showAddMember" [modal]="true" [closable]="!addingMember"
+            [style]="{ width: '520px', maxWidth: '95vw' }">
+    <ng-template pTemplate="header"><strong>Add Member</strong></ng-template>
+    <div class="ca-form">
+      <label>
+        <span>Member type</span>
+        <p-select [options]="kindOptions" [(ngModel)]="newM.kind" appendTo="body"></p-select>
+      </label>
+
+      <ng-container *ngIf="newM.kind === 'INTERNAL'">
+        <label>
+          <span>Employee</span>
+          <p-autoComplete [(ngModel)]="newM.employee"
+                          [suggestions]="empSuggestions"
+                          (completeMethod)="searchEmployees($event)"
+                          field="label" placeholder="Search employee…"
+                          [dropdown]="true" appendTo="body"></p-autoComplete>
+        </label>
+      </ng-container>
+
+      <ng-container *ngIf="newM.kind === 'EXTERNAL'">
+        <label>
+          <span>External name</span>
+          <input pInputText [(ngModel)]="newM.externalName" placeholder="e.g. Ms. Asha Rao" />
+        </label>
+        <label>
+          <span>Organisation (optional)</span>
+          <input pInputText [(ngModel)]="newM.externalOrg" placeholder="e.g. WomenLead NGO" />
+        </label>
+        <div class="ca-row">
+          <label>
+            <span>Email</span>
+            <input pInputText [(ngModel)]="newM.externalEmail" placeholder="external@example.com" />
+          </label>
+          <label>
+            <span>Mobile (WhatsApp / SMS)</span>
+            <input pInputText [(ngModel)]="newM.externalPhone" placeholder="+91 98xxxxxxxx" />
+          </label>
+        </div>
+      </ng-container>
+
+      <label>
+        <span>Role</span>
+        <p-select [options]="roleOptions" [(ngModel)]="newM.role" appendTo="body"></p-select>
+      </label>
+    </div>
+    <ng-template pTemplate="footer">
+      <button class="ca-secondary" (click)="showAddMember = false" [disabled]="addingMember">Cancel</button>
+      <button class="ca-primary" (click)="submitAddMember()" [disabled]="addingMember">
+        {{ addingMember ? 'Adding…' : 'Add Member' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>

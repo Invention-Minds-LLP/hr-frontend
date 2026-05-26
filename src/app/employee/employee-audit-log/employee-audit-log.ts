@@ -130,6 +130,7 @@ export class EmployeeAuditLog implements OnInit, OnChanges {
     emergencyNotes:    'Emergency Notes',
     geoTrackingEnabled: 'Geo Tracking',
     overtimeEnabled:   'Overtime Enabled',
+    attendanceMode:    'Attendance Mode',
     sameAsPermanent:   'Same as Permanent Address',
     hasDisability:     'Has Disability',
     disabilityType:    'Disability Type',

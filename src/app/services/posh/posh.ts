@@ -33,4 +33,21 @@ export class Posh {
       committeeNote
     });
   }
+
+  // Committee-member acknowledgement progress for a POSH case (Phase 6).
+  getCommitteeAcks(caseId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${caseId}/committee-acks`);
+  }
+
+  // Hearing attendees (quorum audit trail) — Phase 3.
+  getHearingAttendees(hearingId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/hearings/${hearingId}/attendees`);
+  }
+
+  setHearingAttendees(
+    hearingId: number,
+    attendees: { committeeMemberId: number; attended: boolean; remarks?: string | null }[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/hearings/${hearingId}/attendees`, { attendees });
+  }
 }

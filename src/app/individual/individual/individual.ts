@@ -1327,6 +1327,7 @@ formatShiftDisplayTime(value: string | Date): string {
       .pipe(catchError(() => of([])))
       .subscribe((data: any[]) => {
         this.myOtRecords = data || [];
+        this.buildOtWeeks();
         this.otLoading = false;
       });
   }
@@ -1336,6 +1337,63 @@ formatShiftDisplayTime(value: string | Date): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h} hrs ${m} mins`;
+  }
+
+  // ── OT week-wise carousel ─────────────────────────────────────
+  otWeeks: { weekStart: Date; weekEnd: Date; label: string; records: any[]; totalMinutes: number }[] = [];
+  currentOtWeekIndex = 0;
+
+  /** Monday 00:00 of the ISO week containing `d`. */
+  private mondayOf(d: Date): Date {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    const day = x.getDay();              // 0 Sun .. 6 Sat
+    x.setDate(x.getDate() + (day === 0 ? -6 : 1 - day));
+    return x;
+  }
+
+  /** Bucket OT records into Mon–Sun weeks, newest week first. */
+  private buildOtWeeks() {
+    const byWeek = new Map<number, { weekStart: Date; records: any[] }>();
+    for (const ot of this.myOtRecords) {
+      const ws = this.mondayOf(new Date(ot.date));
+      const key = ws.getTime();
+      if (!byWeek.has(key)) byWeek.set(key, { weekStart: ws, records: [] });
+      byWeek.get(key)!.records.push(ot);
+    }
+
+    this.otWeeks = [...byWeek.values()]
+      .sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime())
+      .map((w) => {
+        const weekEnd = new Date(w.weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const records = w.records.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        const totalMinutes = records.reduce((sum, r) => sum + (r.minutes || 0), 0);
+        return {
+          weekStart: w.weekStart,
+          weekEnd,
+          label: this.formatWeekRange(w.weekStart, weekEnd),
+          records,
+          totalMinutes,
+        };
+      });
+    this.currentOtWeekIndex = 0;
+  }
+
+  private formatWeekRange(start: Date, end: Date): string {
+    const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+    const left = sameMonth ? `${start.getDate()}` : `${start.getDate()} ${m[start.getMonth()]}`;
+    return `${left} – ${end.getDate()} ${m[end.getMonth()]} ${end.getFullYear()}`;
+  }
+
+  prevOtWeek() {
+    if (this.currentOtWeekIndex > 0) this.currentOtWeekIndex--;
+  }
+  nextOtWeek() {
+    if (this.currentOtWeekIndex < this.otWeeks.length - 1) this.currentOtWeekIndex++;
   }
 
   loadMyExitInterviews() {

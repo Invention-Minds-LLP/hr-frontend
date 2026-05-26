@@ -514,3 +514,207 @@ table tbody tr:last-child {
     font-size: 16px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Handled by Committee + Acknowledgement progress (Phase 2 + 6)
+   ───────────────────────────────────────────────────────────────── */
+.committee-panel {
+  margin: 18px 0 20px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(25, 75, 155, 0.10) 0%, rgba(2, 4, 3, 0.6) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.20);
+  color: #e2e8f0;
+  font-family: "Sofia Sans";
+}
+
+.committee-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.committee-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #93c5fd;
+}
+
+.committee-title .pi {
+  font-size: 16px;
+}
+
+.ack-progress {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(25, 75, 155, 0.30);
+  border: 1px solid rgba(96, 165, 250, 0.30);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.ack-count {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.ack-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.committee-loading,
+.committee-empty {
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 6px 2px;
+}
+
+.committee-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.committee-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 15px;
+}
+
+.committee-meta {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.ack-bar-wrap {
+  margin: 6px 0 12px;
+}
+
+.ack-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ack-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa, #2563eb);
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+.committee-member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.committee-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.member-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+  flex-shrink: 0;
+}
+
+.member-dot.acked {
+  background: #16c784;
+  box-shadow: 0 0 0 3px rgba(22, 199, 132, 0.20);
+}
+
+.member-name {
+  flex: 1;
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.member-meta {
+  color: #94a3b8;
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+.ack-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 184, 0, 0.15);
+  color: #ffb800;
+  border: 1px solid rgba(255, 184, 0, 0.30);
+  letter-spacing: 0.3px;
+}
+
+.ack-pill.acked {
+  background: rgba(22, 199, 132, 0.15);
+  color: #16c784;
+  border-color: rgba(22, 199, 132, 0.30);
+}
+
+.ack-pill.external {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.30);
+}
+
+.ack-self-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.ack-self-note {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.ack-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #2563eb, #194B9B);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.ack-btn:hover:not(:disabled) {
+  filter: brightness(1.10);
+}
+
+.ack-btn:disabled {
+  background: rgba(22, 199, 132, 0.20);
+  color: #16c784;
+  border: 1px solid rgba(22, 199, 132, 0.30);
+  cursor: not-allowed;
+}

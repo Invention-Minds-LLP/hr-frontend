@@ -25,6 +25,7 @@ import { EmployeeDetails } from './leaves/employee-details/employee-details';
 
 import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { ManagementDashboard } from './dashboard/management-dashboard/management-dashboard';
+import { HrManagerDashboard } from './dashboard/hr-manager-dashboard/hr-manager-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 import { Internship } from './internship/internship/internship';
 import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
@@ -49,6 +50,7 @@ import { DeptPerformance } from './appraisal/dept-performance/dept-performance';
 import { GrievanceList } from './grievance/grievance-list/grievance-list';
 import { Posh } from './services/posh/posh';
 import { PoshList } from './posh/posh-list/posh-list';
+import { CommitteeAdmin } from './committee/committee-admin/committee-admin';
 import { HrEvaluate } from './evaluation/hr-evaluate/hr-evaluate';
 import { Complaints } from './complaints/complaints';
 import { MyInterview } from './recruitment/my-interview/my-interview';
@@ -89,6 +91,7 @@ export const routes: Routes = [
 
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
   { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard]},
+  { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
   { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
 
@@ -110,6 +113,7 @@ export const routes: Routes = [
       { path: 'exit', component: ExitInterviewList, canActivate: [authGuard] },
       { path: 'grievance', component: GrievanceList, canActivate: [authGuard] },
       { path: 'posh', component: PoshList, canActivate: [authGuard] },
+      { path: 'committees', component: CommitteeAdmin, canActivate: [authGuard] },
       { path: 'complaints', component: Complaints, canActivate: [authGuard] },
       { path: 'clearance', component: Clearances, canActivate: [authGuard] },
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },

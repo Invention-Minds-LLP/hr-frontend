@@ -724,6 +724,18 @@
                                     </small>
                                 </div>
 
+                                <!-- Attendance Mode -->
+                                <div class="field col-4">
+                                    <p-floatLabel variant="on">
+                                        <p-select [options]="attendanceModeOptions" formControlName="attendanceMode"
+                                            optionLabel="label" optionValue="value" [showClear]="false"></p-select>
+                                        <label>Attendance Mode</label>
+                                    </p-floatLabel>
+                                    <small class="text-muted">
+                                        How this employee marks attendance. "Inherit branch" uses the branch's default.
+                                    </small>
+                                </div>
+
                                 <!-- Geo Tracking Toggle -->
                                 <!-- <div class="field col-4">
                                     <div class="flex align-items-center gap-2 mt-3">

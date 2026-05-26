@@ -86,6 +86,7 @@
             
           </td>
           <td *ngIf="(role === 'HR' || role === 'HR Manager') && currentPath !== '/individual'" class="flex align-items-center justify-content-center gap-2">
+            <p-button icon="pi pi-eye" label="View" (onClick)="viewCase(c)"></p-button>
             <p-button icon="pi pi-calendar" label="Hearings" (onClick)="openHearings(c)"></p-button>
             <p-select [options]="statusOptions" [(ngModel)]="c.status" (onChange)="changeStatus(c)" optionLabel="label"
               optionValue="value" appendTo="body">
@@ -136,4 +137,111 @@
     </div>
   </ng-template>
   <app-posh-hearing [caseId]="selectedCase?.id"></app-posh-hearing>
+</p-dialog>
+
+<!-- POSH Case Details — Handled by Committee + Acknowledgement progress (Phase 2 + 6) -->
+<p-dialog [(visible)]="showDetails" [modal]="true" [style]="{width: '52vw'}" [closable]="false">
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>
+        <span>POSH Case Details</span>
+        <span class="created-date" *ngIf="selectedCase?.createdAt">
+          Filed: {{ selectedCase?.createdAt | date:'dd-MM-yyyy HH:mm' }}
+        </span>
+      </span>
+      <button class="dialog-close-btn" (click)="showDetails = false">✕</button>
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="selectedCase">
+    <div class="posh-detail-section">
+      <div class="posh-detail-row">
+        <span class="posh-detail-label">Complainant</span>
+        <span class="posh-detail-value">
+          {{ selectedCase.complainant?.firstName }} {{ selectedCase.complainant?.lastName }}
+        </span>
+      </div>
+      <div class="posh-detail-row">
+        <span class="posh-detail-label">Accused</span>
+        <span class="posh-detail-value">
+          {{ selectedCase.accused?.firstName }} {{ selectedCase.accused?.lastName }}
+        </span>
+      </div>
+      <div class="posh-detail-row">
+        <span class="posh-detail-label">Status</span>
+        <p-tag [styleClass]="statusClass(selectedCase.status)">{{ selectedCase.status }}</p-tag>
+      </div>
+      <div class="posh-detail-row stacked" *ngIf="selectedCase.description">
+        <span class="posh-detail-label">Description</span>
+        <p class="posh-detail-desc">{{ selectedCase.description }}</p>
+      </div>
+    </div>
+
+    <!-- Committee + acknowledgement progress -->
+    <div class="committee-panel" *ngIf="loadingCommittee || committeeInfo">
+      <div class="committee-header">
+        <div class="committee-title">
+          <i class="pi pi-users"></i>
+          <span>Handled by ICC</span>
+        </div>
+        <div class="ack-progress" *ngIf="committeeInfo">
+          <span class="ack-count">{{ committeeInfo.acknowledgedCount }}/{{ committeeInfo.totalMembers }}</span>
+          <span class="ack-label">acknowledged</span>
+        </div>
+      </div>
+
+      <div class="committee-loading" *ngIf="loadingCommittee">Loading committee details...</div>
+
+      <ng-container *ngIf="!loadingCommittee && committeeInfo">
+        <div class="committee-empty" *ngIf="!committeeInfo.committee">
+          No Internal Complaints Committee is currently configured. HR is handling this case directly.
+        </div>
+
+        <ng-container *ngIf="committeeInfo.committee">
+          <div class="committee-name-row">
+            <span class="committee-name">{{ committeeInfo.committee.name }}</span>
+            <span class="committee-meta" *ngIf="committeeInfo.committee.scope">{{ committeeInfo.committee.scope }}</span>
+          </div>
+
+          <div class="ack-bar-wrap" *ngIf="committeeInfo.totalMembers > 0">
+            <div class="ack-bar">
+              <div class="ack-bar-fill"
+                   [style.width.%]="(committeeInfo.acknowledgedCount / committeeInfo.totalMembers) * 100"></div>
+            </div>
+          </div>
+
+          <ul class="committee-member-list">
+            <li *ngFor="let m of committeeInfo.members" class="committee-member">
+              <span class="member-dot" [class.acked]="m.acknowledged"></span>
+              <span class="member-name">
+                {{ m.name || ('Employee #' + m.employeeId) }}
+                <small class="member-meta" *ngIf="m.employeeCode">({{ m.employeeCode }})</small>
+                <small class="member-meta" *ngIf="m.role">· {{ m.role | titlecase }}</small>
+              </span>
+              <span class="ack-pill" [class.acked]="m.acknowledged">
+                {{ m.acknowledged ? 'Acknowledged' : 'Pending' }}
+              </span>
+            </li>
+          </ul>
+
+          <div class="ack-self-row">
+            <ng-container *ngIf="iAmACommitteeMember(); else notMemberTpl">
+              <button type="button"
+                      class="ack-btn"
+                      [disabled]="iHaveAcknowledged || ackingCase"
+                      (click)="acknowledgeCase()">
+                <i class="pi" [ngClass]="iHaveAcknowledged ? 'pi-check-circle' : 'pi-check'"></i>
+                {{ iHaveAcknowledged ? 'You have acknowledged' : (ackingCase ? 'Acknowledging...' : 'I acknowledge') }}
+              </button>
+            </ng-container>
+            <ng-template #notMemberTpl>
+              <small class="ack-self-note" *ngIf="committeeInfo.externalMemberCount > 0">
+                {{ committeeInfo.externalMemberCount }} external member(s) acknowledge offline.
+              </small>
+            </ng-template>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
 </p-dialog>

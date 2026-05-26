@@ -37,6 +37,12 @@ export class GrievanceList {
   currentPath: string  = '';
   isLoading = false;
 
+  // Committee + acknowledgement progress for the case currently in view.
+  committeeInfo: any = null;
+  loadingCommittee = false;
+  ackingCase = false;
+  iHaveAcknowledged = false;
+
   statuses = ['OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'];
   statusOptions = this.statuses.map(s => ({ label: s, value: s }));
 
@@ -76,6 +82,40 @@ export class GrievanceList {
     this.selected = g;
     this.showDetails = true;
     this.newComment = '';
+    this.loadCommitteeAcks(g.id);
+  }
+
+  loadCommitteeAcks(grievanceId: number) {
+    this.committeeInfo = null;
+    this.iHaveAcknowledged = false;
+    this.loadingCommittee = true;
+    this.grievanceService.getCommitteeAcks(grievanceId).subscribe({
+      next: (info) => {
+        this.committeeInfo = info;
+        const me = Number(this.empId);
+        this.iHaveAcknowledged = (info?.members || []).some(
+          (m: any) => m.employeeId === me && m.acknowledged
+        );
+        this.loadingCommittee = false;
+      },
+      error: () => { this.loadingCommittee = false; }
+    });
+  }
+
+  acknowledgeCase() {
+    if (!this.selected || this.ackingCase || this.iHaveAcknowledged) return;
+    this.ackingCase = true;
+    this.grievanceService.createAcknowledgement({
+      employeeId: Number(this.empId),
+      grievanceId: this.selected.id
+    }).subscribe({
+      next: () => {
+        this.ackingCase = false;
+        this.iHaveAcknowledged = true;
+        this.loadCommitteeAcks(this.selected.id);
+      },
+      error: () => { this.ackingCase = false; }
+    });
   }
 
   addComment() {
@@ -97,5 +137,12 @@ export class GrievanceList {
         g.status = updated.status; // sync with backend
       });
   }
-  
+
+  // Used by template — true if the logged-in user is an internal member
+  // of the committee handling the currently-viewed case.
+  iAmACommitteeMember(): boolean {
+    if (!this.committeeInfo?.members?.length) return false;
+    const me = Number(this.empId);
+    return this.committeeInfo.members.some((m: any) => m.employeeId === me);
+  }
 }

@@ -130,6 +130,15 @@ export class EmployeeForm {
   departments: any[] = [];
   branches: any[] = [];
   roles: any[] = [];
+
+  // Attendance channel options. null = inherit the branch's attendanceMode.
+  attendanceModeOptions = [
+    { label: 'Inherit branch', value: null },
+    { label: 'Biometric', value: 'BIOMETRIC' },
+    { label: 'Mobile app', value: 'MOBILE' },
+    { label: 'Both', value: 'BOTH' },
+  ];
+
   shifts: any[] = [];
   filteredTypes: any[][] = []; // store filtered options per row
   patterns: any[] = []; // rotation patterns
@@ -295,6 +304,9 @@ export class EmployeeForm {
       sameAsPermanent: [false],
       geoTrackingEnabled: [false],
       overtimeEnabled: [false],
+      attendanceMode: [null], // null = inherit branch
+
+
 
       permanentAddress: this.fb.group({
         line1: ['', Validators.required],
@@ -1495,7 +1507,8 @@ export class EmployeeForm {
       disabilityProofFileName: data.disabilityProofFileName,
       disabilityProofUrl: data.disabilityProofUrl,
       inchargeId: data.inchargeId ?? null,
-      overtimeEnabled: data.overtimeEnabled ?? false
+      overtimeEnabled: data.overtimeEnabled ?? false,
+      attendanceMode: data.attendanceMode ?? null
 
     });
 

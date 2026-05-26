@@ -403,7 +403,8 @@
   border-radius: 3px;
 }
 :host ::ng-deep .p-inputtext,
-:host ::ng-deep .p-inputtextarea {
+:host ::ng-deep .p-inputtextarea
+ {
   color: #FFF !important;
   font-family: "Sofia Sans";
   font-size: 16px;
@@ -415,7 +416,17 @@
   background-color: transparent !important;
 }
 
-
+:host ::ng-deep .p-select-label,
+:host ::ng-deep .p-select {
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  background-color: transparent !important;
+}
 
 ::ng-deep .p-textarea{
   background-color: transparent !important;
@@ -439,3 +450,5 @@ label{
   letter-spacing: 0.18px;
 }
 
+
+.appr-hint { display:block; margin-top:6px; font-size:0.78rem; color:#64748b; }

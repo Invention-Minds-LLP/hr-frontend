@@ -6,6 +6,12 @@ import { environment } from '../../../environment/environment.prod';
 export interface Department {
   id?: number;
   name: string;
+  // HR-ops planning + appraisal-cycle master fields (management dashboard #18/#19/#20)
+  otBudgetHoursPerMonth?: number;
+  minDailyStrength?: number;
+  appraisalCycleBasis?: string;      // 'DOJ' | 'CALENDAR'
+  appraisalPeriodMonths?: number;    // 6 | 12
+  appraisalCalendarMonth?: number | null; // 1-12 when basis = CALENDAR
 }
 
 @Injectable({

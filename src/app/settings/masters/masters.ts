@@ -21,6 +21,8 @@ import { Shifts } from '../../services/shifts/shifts';
 import { Holidays } from '../../services/holidays/holidays';
 import { WeeklyRatingService } from '../../services/weekly-rating/weekly-rating';
 import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates' | 'holidays' | 'ratingQuestions';
 
@@ -28,7 +30,7 @@ type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveT
   selector: 'app-masters',
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, ToastModule,
-    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, ModuleGuide, RouterModule
+    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, SelectModule, InputNumberModule, ModuleGuide, RouterModule
   ],
   templateUrl: './masters.html',
   styleUrl: './masters.css',
@@ -64,6 +66,45 @@ export class Masters implements OnInit {
   formLocation = '';
   formDescription = '';
   formIsActive = true;
+  // Department planning + appraisal-cycle master fields
+  formOtBudget = 0;
+  formMinStrength = 0;
+  formApprBasis = 'DOJ';
+  formApprPeriod = 12;
+  formApprCalMonth: number | null = null;
+  readonly monthOptions = [
+    { v: 1, n: 'January' }, { v: 2, n: 'February' }, { v: 3, n: 'March' }, { v: 4, n: 'April' },
+    { v: 5, n: 'May' }, { v: 6, n: 'June' }, { v: 7, n: 'July' }, { v: 8, n: 'August' },
+    { v: 9, n: 'September' }, { v: 10, n: 'October' }, { v: 11, n: 'November' }, { v: 12, n: 'December' },
+  ];
+  readonly apprBasisOptions = [
+    { label: 'DOJ anniversary (from joining date)', value: 'DOJ' },
+    { label: 'Calendar month (fixed month)', value: 'CALENDAR' },
+  ];
+  readonly apprPeriodOptions = [
+    { label: 'Annual (12 months)', value: 12 },
+    { label: 'Half-yearly (6 months)', value: 6 },
+  ];
+
+  /** Short month name for a 1-12 value. */
+  monthName(v: number | null | undefined): string {
+    return v ? (this.monthOptions[v - 1]?.n.slice(0, 3) ?? '—') : '—';
+  }
+  /** The second appraisal month for a half-yearly calendar cycle (anchor + 6). */
+  secondMonth(v: number | null | undefined): number | null {
+    return v ? ((v - 1 + 6) % 12) + 1 : null;
+  }
+  /** One-line appraisal-cycle summary for the departments table. */
+  apprSummary(d: any): string {
+    if ((d.appraisalCycleBasis || 'DOJ') === 'DOJ') {
+      return `DOJ · ${d.appraisalPeriodMonths || 12}mo`;
+    }
+    const m1 = this.monthName(d.appraisalCalendarMonth);
+    if (d.appraisalPeriodMonths === 6) {
+      return `Calendar · ${m1} & ${this.monthName(this.secondMonth(d.appraisalCalendarMonth))}`;
+    }
+    return `Calendar · ${m1}`;
+  }
   formShiftType = 'MORNING';
   formStartTime = '';
   formEndTime = '';
@@ -227,6 +268,11 @@ export class Masters implements OnInit {
     this.formLocation = '';
     this.formDescription = '';
     this.formIsActive = true;
+    this.formOtBudget = 0;
+    this.formMinStrength = 0;
+    this.formApprBasis = 'DOJ';
+    this.formApprPeriod = 12;
+    this.formApprCalMonth = null;
     this.formShiftType = 'MORNING';
     this.formStartTime = '';
     this.formEndTime = '';
@@ -244,6 +290,11 @@ export class Masters implements OnInit {
     this.formLocation = item.location || '';
     this.formDescription = item.description || '';
     this.formIsActive = item.isActive !== undefined ? item.isActive : true;
+    this.formOtBudget = item.otBudgetHoursPerMonth ?? 0;
+    this.formMinStrength = item.minDailyStrength ?? 0;
+    this.formApprBasis = item.appraisalCycleBasis || 'DOJ';
+    this.formApprPeriod = item.appraisalPeriodMonths || 12;
+    this.formApprCalMonth = item.appraisalCalendarMonth ?? null;
     this.formShiftType = item.shiftType || 'MORNING';
     this.formStartTime = item.startTime ? this.toTimeString(item.startTime) : '';
     this.formEndTime = item.endTime ? this.toTimeString(item.endTime) : '';
@@ -304,19 +355,28 @@ export class Masters implements OnInit {
     }
 
     switch (this.activeTab) {
-      case 'departments':
+      case 'departments': {
+        const deptData = {
+          name: this.formName,
+          otBudgetHoursPerMonth: Number(this.formOtBudget) || 0,
+          minDailyStrength: Number(this.formMinStrength) || 0,
+          appraisalCycleBasis: this.formApprBasis === 'CALENDAR' ? 'CALENDAR' : 'DOJ',
+          appraisalPeriodMonths: Number(this.formApprPeriod) || 12,
+          appraisalCalendarMonth: this.formApprBasis === 'CALENDAR' ? (this.formApprCalMonth ?? null) : null,
+        };
         if (this.isEditing) {
-          this.departmentService.updateDepartment(this.editingId!, { name: this.formName }).subscribe({
+          this.departmentService.updateDepartment(this.editingId!, deptData).subscribe({
             next: () => { this.onSaveSuccess('Department updated'); },
             error: (e) => this.onSaveError(e)
           });
         } else {
-          this.departmentService.createDepartment({ name: this.formName }).subscribe({
+          this.departmentService.createDepartment(deptData).subscribe({
             next: () => { this.onSaveSuccess('Department created'); },
             error: (e) => this.onSaveError(e)
           });
         }
         break;
+      }
 
       case 'branches':
         const branchData: Branch = { name: this.formName, location: this.formLocation || undefined };

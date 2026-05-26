@@ -2188,6 +2188,63 @@ hr {
   margin-top: 4px;
 }
 
+/* ── OT week-wise carousel ───────────────────────────────── */
+.ot-carousel { margin-top: 6px; }
+
+.ot-week-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.ot-week-info { text-align: center; flex: 1; }
+
+.ot-week-range {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.ot-week-total {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.ot-arrow {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 50%;
+  border: 1px solid #2a2a4a;
+  background: #16213e;
+  color: #FB9C2A;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.ot-arrow:hover:not(:disabled) { background: #1f2b50; }
+.ot-arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.ot-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.ot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.ot-dot.active { background: #FB9C2A; transform: scale(1.25); }
+
 .ot-card {
   display: flex;
   align-items: center;

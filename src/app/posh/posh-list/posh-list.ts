@@ -14,6 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Router } from '@angular/router';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
+import { Grievance } from '../../services/grievance/grievance';
 
 @Component({
   selector: 'app-posh-list',
@@ -26,13 +27,24 @@ export class PoshList {
   cases: any[] = [];
   showForm = false;
   showHearings = false;
+  showDetails = false;
   selectedCase: any;
   role = localStorage.getItem('role') || '';
   empId = '';
   loading = true
   currentPath: string = ''
 
-  constructor(private poshService: Posh, private router: Router) {}
+  // Committee + acknowledgement progress for the case currently in view.
+  committeeInfo: any = null;
+  loadingCommittee = false;
+  ackingCase = false;
+  iHaveAcknowledged = false;
+
+  constructor(
+    private poshService: Posh,
+    private router: Router,
+    private grievanceService: Grievance,
+  ) {}
 
   ngOnInit() {
     this.empId = localStorage.getItem('empId') || '';
@@ -66,6 +78,53 @@ export class PoshList {
     console.log(caseData);
     this.selectedCase = caseData;
     this.showHearings = true;
+  }
+
+  viewCase(caseData: any) {
+    this.selectedCase = caseData;
+    this.showDetails = true;
+    this.loadCommitteeAcks(caseData.id);
+  }
+
+  loadCommitteeAcks(caseId: number) {
+    this.committeeInfo = null;
+    this.iHaveAcknowledged = false;
+    this.loadingCommittee = true;
+    this.poshService.getCommitteeAcks(caseId).subscribe({
+      next: (info) => {
+        this.committeeInfo = info;
+        const me = Number(this.empId);
+        this.iHaveAcknowledged = (info?.members || []).some(
+          (m: any) => m.employeeId === me && m.acknowledged
+        );
+        this.loadingCommittee = false;
+      },
+      error: () => { this.loadingCommittee = false; }
+    });
+  }
+
+  acknowledgeCase() {
+    if (!this.selectedCase || this.ackingCase || this.iHaveAcknowledged) return;
+    this.ackingCase = true;
+    // POSH acknowledgements reuse the grievance acknowledgement endpoint
+    // with poshCaseId instead of grievanceId.
+    this.grievanceService.createAcknowledgement({
+      employeeId: Number(this.empId),
+      poshCaseId: this.selectedCase.id
+    }).subscribe({
+      next: () => {
+        this.ackingCase = false;
+        this.iHaveAcknowledged = true;
+        this.loadCommitteeAcks(this.selectedCase.id);
+      },
+      error: () => { this.ackingCase = false; }
+    });
+  }
+
+  iAmACommitteeMember(): boolean {
+    if (!this.committeeInfo?.members?.length) return false;
+    const me = Number(this.empId);
+    return this.committeeInfo.members.some((m: any) => m.employeeId === me);
   }
 
 //   statusColor(status: string):

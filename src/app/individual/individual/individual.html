@@ -900,20 +900,43 @@
             <span>No approved OT records found.</span>
         </div>
 
-        <div class="ot-cards" *ngIf="!otLoading && myOtRecords.length > 0">
-            <div class="ot-card" *ngFor="let ot of myOtRecords">
-                <div class="ot-card-icon">
-                    <i class="pi pi-clock"></i>
+        <div class="ot-carousel" *ngIf="!otLoading && otWeeks.length > 0">
+            <!-- Week header: range + total OT for the week -->
+            <div class="ot-week-head">
+                <button class="ot-arrow" (click)="prevOtWeek()" [disabled]="currentOtWeekIndex === 0"
+                        aria-label="Previous week">‹</button>
+                <div class="ot-week-info">
+                    <div class="ot-week-range">{{ otWeeks[currentOtWeekIndex].label }}</div>
+                    <div class="ot-week-total">
+                        {{ otWeeks[currentOtWeekIndex].records.length }} record(s) ·
+                        {{ formatOtDuration(otWeeks[currentOtWeekIndex].totalMinutes) }} total
+                    </div>
                 </div>
-                <div class="ot-card-body">
-                    <div class="ot-date">{{ ot.date | date: 'EEE, dd MMM yyyy' }}</div>
-                    <div class="ot-duration">{{ formatOtDuration(ot.minutes) }}</div>
+                <button class="ot-arrow" (click)="nextOtWeek()"
+                        [disabled]="currentOtWeekIndex === otWeeks.length - 1" aria-label="Next week">›</button>
+            </div>
+
+            <div class="ot-cards">
+                <div class="ot-card" *ngFor="let ot of otWeeks[currentOtWeekIndex].records">
+                    <div class="ot-card-icon">
+                        <i class="pi pi-clock"></i>
+                    </div>
+                    <div class="ot-card-body">
+                        <div class="ot-date">{{ ot.date | date: 'EEE, dd MMM yyyy' }}</div>
+                        <div class="ot-duration">{{ formatOtDuration(ot.minutes) }}</div>
+                    </div>
+                    <div class="ot-card-badge">
+                        <span class="ot-approved-badge">
+                            <i class="pi pi-check-circle"></i> Approved
+                        </span>
+                    </div>
                 </div>
-                <div class="ot-card-badge">
-                    <span class="ot-approved-badge">
-                        <i class="pi pi-check-circle"></i> Approved
-                    </span>
-                </div>
+            </div>
+
+            <!-- Dots -->
+            <div class="ot-dots" *ngIf="otWeeks.length > 1">
+                <span class="ot-dot" *ngFor="let w of otWeeks; let i = index"
+                      [class.active]="i === currentOtWeekIndex" (click)="currentOtWeekIndex = i"></span>
             </div>
         </div>
     </div>
