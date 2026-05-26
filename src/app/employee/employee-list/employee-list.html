@@ -70,6 +70,7 @@
           <th>Job Title</th>
           <th>Employment Type</th>
           <th style="width: 160px;">Shift Type</th>
+          <th>Attendance</th>
           <th>Status</th>
           <th style="text-align: center;">Action</th>
         </tr>
@@ -100,6 +101,7 @@
             <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
             <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
             <td><p-skeleton width="7rem" height="1rem"></p-skeleton></td>
+            <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
             <td><p-skeleton width="5rem" height="1rem"></p-skeleton></td>
             <td><p-skeleton width="6rem" height="1rem"></p-skeleton></td>
           </tr>
@@ -148,6 +150,13 @@
               </span>
             </td>
 
+
+            <td class="t-data al">
+              <span class="att-chip" [ngClass]="getAttendanceModeClass(employeeData)">
+                {{ getAttendanceModeLabel(employeeData) }}
+              </span>
+              <span *ngIf="!employeeData.attendanceMode" class="att-inherit">(branch)</span>
+            </td>
 
             <td>{{ employeeData.employmentStatus }}</td>
 

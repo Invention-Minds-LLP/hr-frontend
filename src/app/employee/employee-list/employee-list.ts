@@ -195,6 +195,24 @@ export class EmployeeList {
     return this.branches.find(branch => branch.id === id)?.name || 'N/A';
   }
 
+  /** Effective attendance mode: employee override, else branch default, else MOBILE. */
+  private effectiveAttendanceMode(emp: any): 'BIOMETRIC' | 'MOBILE' | 'BOTH' {
+    return emp?.attendanceMode
+      ?? emp?.Branch?.attendanceMode
+      ?? this.branches.find(b => b.id === emp?.branchId)?.attendanceMode
+      ?? 'MOBILE';
+  }
+
+  getAttendanceModeLabel(emp: any): string {
+    const map: Record<string, string> = { BIOMETRIC: 'Biometric', MOBILE: 'Mobile', BOTH: 'Both' };
+    return map[this.effectiveAttendanceMode(emp)] ?? 'Mobile';
+  }
+
+  getAttendanceModeClass(emp: any): string {
+    const mode = this.effectiveAttendanceMode(emp);
+    return mode === 'BIOMETRIC' ? 'att-bio' : mode === 'BOTH' ? 'att-both' : 'att-mobile';
+  }
+
   getRoleName(id: number): string {
     return this.roles.find(role => role.id === id)?.name || 'N/A';
   }

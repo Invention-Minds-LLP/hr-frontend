@@ -334,6 +334,24 @@ input {
   width: 100%;
 }
 
+/* Attendance mode chip */
+.att-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.att-chip.att-bio    { background: #fdeee0; color: #c2670a; }
+.att-chip.att-mobile { background: #eef3ff; color: #2a54d6; }
+.att-chip.att-both   { background: #eefbf1; color: #1f7a3a; }
+.att-inherit {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
 ::ng-deep .add-btn .p-button {
   background-color: #0062A1;
   border: 1px solid #0062A1;
