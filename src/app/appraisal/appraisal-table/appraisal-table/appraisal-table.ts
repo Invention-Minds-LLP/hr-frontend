@@ -58,6 +58,7 @@ export class AppraisalTable {
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
     { label: 'Department', value: 'departmentId' },
+    { label: 'Status', value: 'status' }
 
   ];
 
@@ -301,6 +302,10 @@ export class AppraisalTable {
       if (filterKey === 'departmentId') {
         const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
         return deptName.includes(searchText);
+      }
+       if (filterKey === 'status') {
+        const status = this.getStatusLabel(emp).toLowerCase();
+        return status.includes(searchText);
       }
 
 
