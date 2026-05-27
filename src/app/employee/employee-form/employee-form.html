@@ -726,13 +726,13 @@
 
                                 <!-- Attendance Mode -->
                                 <div class="field col-4">
-                                    <p-floatLabel variant="on">
-                                        <p-select [options]="attendanceModeOptions" formControlName="attendanceMode"
-                                            optionLabel="label" optionValue="value" [showClear]="false"></p-select>
-                                        <label>Attendance Mode</label>
-                                    </p-floatLabel>
+                                    <div class="flex align-items-center gap-2 mt-3">
+                                        <p-toggleSwitch formControlName="mobileAttendanceEnabled" />
+                                        <label class="m-0">Allow mobile attendance</label>
+                                    </div>
                                     <small class="text-muted">
-                                        How this employee marks attendance. "Inherit branch" uses the branch's default.
+                                        Biometric is the default. Turn this on to also let the employee mark
+                                        attendance from the mobile app (biometric still applies).
                                     </small>
                                 </div>
 

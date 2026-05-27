@@ -131,14 +131,6 @@ export class EmployeeForm {
   branches: any[] = [];
   roles: any[] = [];
 
-  // Attendance channel options. null = inherit the branch's attendanceMode.
-  attendanceModeOptions = [
-    { label: 'Inherit branch', value: null },
-    { label: 'Biometric', value: 'BIOMETRIC' },
-    { label: 'Mobile app', value: 'MOBILE' },
-    { label: 'Both', value: 'BOTH' },
-  ];
-
   shifts: any[] = [];
   filteredTypes: any[][] = []; // store filtered options per row
   patterns: any[] = []; // rotation patterns
@@ -304,7 +296,8 @@ export class EmployeeForm {
       sameAsPermanent: [false],
       geoTrackingEnabled: [false],
       overtimeEnabled: [false],
-      attendanceMode: [null], // null = inherit branch
+      // OFF = BIOMETRIC (default), ON = BOTH (biometric + mobile)
+      mobileAttendanceEnabled: [false],
 
 
 
@@ -913,6 +906,7 @@ export class EmployeeForm {
         photoUrl,
         preEmploymentCheckDate,
         inchargeId,
+        mobileAttendanceEnabled,
         ...rest
       } = this.employeeForm.getRawValue();
 
@@ -920,6 +914,8 @@ export class EmployeeForm {
 
       const payload = {
         ...rest,
+        // Toggle ON → BOTH (biometric + mobile); OFF → BIOMETRIC (default)
+        attendanceMode: mobileAttendanceEnabled ? 'BOTH' : 'BIOMETRIC',
         preEmploymentCheckDate,   // ✅ ADD
         inchargeId: inchargeId ? Number(inchargeId) : null, // ✅ FIX
         healthIssues: this.healthIssues.value.map((i: any) => ({
@@ -1508,7 +1504,7 @@ export class EmployeeForm {
       disabilityProofUrl: data.disabilityProofUrl,
       inchargeId: data.inchargeId ?? null,
       overtimeEnabled: data.overtimeEnabled ?? false,
-      attendanceMode: data.attendanceMode ?? null
+      mobileAttendanceEnabled: data.attendanceMode === 'BOTH'
 
     });
 
