@@ -355,6 +355,8 @@ form{
 .edit-req-btn:hover { background: #f44336; color: white; }
 .mgmt-btn { border-color: #FB9C2A; color: #FB9C2A; font-size: 14px; padding: 8px 16px; }
 .mgmt-btn:hover { background: #FB9C2A; color: white; }
+.reassign-btn { border-color: #9333ea; color: #9333ea; font-size: 14px; padding: 8px 16px; }
+.reassign-btn:hover { background: #9333ea; color: white; }
 
 .btn-green {
   background-color: #3465b0;

@@ -212,7 +212,8 @@ export class AppraisalTable {
         label: `${e.firstName} ${e.lastName}`,
         value: e.id,
         deptId: e.departmentId,
-        branchId: e.branchId
+        branchId: e.branchId,
+        roleId: e.roleId,
       }));
       this.employees = [...this.allEmployees];
     });
@@ -525,6 +526,84 @@ export class AppraisalTable {
 
   canHRRespondEdit(a: any): boolean {
     return (this.isHRManager || this.isHRExecutive) && a.editRequests?.length > 0;
+  }
+
+  // ── HR override: reassign appraisal manager ─────────────────────
+  reassignDialogVisible = false;
+  reassignTarget: any = null;
+  reassignNewManagerId: number | null = null;
+  reassignReason = '';
+  reassignLoading = false;
+  reassignManagerOptions: { label: string; value: number }[] = [];
+
+  /** Allow reassign for HR roles while the manager hasn't submitted yet. */
+  canReassignManager(a: any): boolean {
+    return (this.isHRManager || this.isHRExecutive || this.isManagement)
+      && !a.managerAppraisalSubmittedAt;
+  }
+
+  /** Look up a manager's display name from the loaded employees list. */
+  getManagerName(id: number | null | undefined): string {
+    if (!id) return '';
+    return this.allEmployees.find((e: any) => e.value === id)?.label ?? '';
+  }
+
+  openReassignDialog(a: any) {
+    this.reassignTarget = a;
+    this.reassignNewManagerId = null;
+    this.reassignReason = '';
+    this.reassignManagerOptions = [];
+    this.reassignDialogVisible = true;
+
+    // loadEmployees() is async, so building options synchronously after it would
+    // run against an empty array on the first open. Fetch (or reuse) and then
+    // build the filtered options when the list is ready.
+    if (this.allEmployees.length) {
+      this.buildReassignOptions(a);
+    } else {
+      this.employeeService.getActiveEmployees().subscribe(res => {
+        this.allEmployees = res.map(e => ({
+          label: `${e.firstName} ${e.lastName}`,
+          value: e.id,
+          deptId: e.departmentId,
+          branchId: e.branchId,
+          roleId: e.roleId,
+        }));
+        this.employees = [...this.allEmployees];
+        this.buildReassignOptions(a);
+      });
+    }
+  }
+
+  /** Reporting Managers (roleId 3) and Management (roleId 4) only — exclude
+   *  the current manager and the employee themselves. Active filter is already
+   *  applied upstream by getActiveEmployees(). */
+  private buildReassignOptions(a: any) {
+    this.reassignManagerOptions = this.allEmployees.filter((e: any) =>
+      (e.roleId === 3 || e.roleId === 4)
+      && e.value !== a.managerId
+      && e.value !== a.employeeId,
+    );
+  }
+
+  submitReassign() {
+    if (!this.reassignTarget || !this.reassignNewManagerId) return;
+    this.reassignLoading = true;
+    this.appraisalService.reassignManager(this.reassignTarget.id, {
+      newManagerId: this.reassignNewManagerId,
+      reason: this.reassignReason.trim() || undefined,
+    }).subscribe({
+      next: () => {
+        this.reassignLoading = false;
+        this.reassignDialogVisible = false;
+        this.messageService.add({ severity: 'success', summary: 'Reassigned', detail: 'Appraisal manager updated.' });
+        this.loadAppraisals();
+      },
+      error: (e: any) => {
+        this.reassignLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed to reassign' });
+      },
+    });
   }
 
   openVerifyDialog(a: any) {

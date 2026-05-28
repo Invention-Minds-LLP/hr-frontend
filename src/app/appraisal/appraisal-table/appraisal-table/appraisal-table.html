@@ -172,6 +172,7 @@
                 <!-- HR -->
                 <button class="btn view-btn" *ngIf="isHRManager || isManagement || isHRExecutive" (click)="viewFullDetail(appraisal)" pTooltip="View All Appraisal Sections">View All</button>
                 <button class="btn verify-btn" *ngIf="canHRVerify(appraisal)" (click)="openVerifyDialog(appraisal)" pTooltip="Verify & Send to Employee">Verify & Send</button>
+                <button class="btn reassign-btn" *ngIf="canReassignManager(appraisal)" (click)="openReassignDialog(appraisal)" pTooltip="Reassign Manager">Reassign Mgr</button>
                 <button class="btn review-btn" *ngIf="canHRReview(appraisal)" (click)="openHRReviewDialog(appraisal)" pTooltip="HR Review & Approve">Review</button>
                 <button class="btn edit-respond-btn" *ngIf="canHRRespondEdit(appraisal)" (click)="openEditResponseDialog(appraisal)" pTooltip="Respond to Edit Request">Edit Req</button>
                 <!-- Reporting Manager -->
@@ -333,6 +334,36 @@
     <button pButton label="Cancel" class="p-button-text" (click)="managerEditRequestDialogVisible = false"></button>
     <button pButton label="Submit Request" class="p-button-warning" (click)="submitManagerEditRequest()"
       [disabled]="!managerEditRequestReason.trim()" [loading]="managerEditLoading"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- HR: REASSIGN MANAGER DIALOG -->
+<p-dialog header="Reassign Appraisal Manager" [(visible)]="reassignDialogVisible" [modal]="true" [style]="{ width: '480px' }">
+  <div style="display:flex;flex-direction:column;gap:14px;padding:0.5rem 0" *ngIf="reassignTarget">
+    <div>
+      <label style="display:block;font-size:12px;color:#888;margin-bottom:4px">Employee</label>
+      <div style="font-weight:600">{{ reassignTarget.employee?.firstName }} {{ reassignTarget.employee?.lastName }}<span *ngIf="reassignTarget.cycle"> · {{ reassignTarget.cycle }}</span></div>
+    </div>
+    <div>
+      <label style="display:block;font-size:12px;color:#888;margin-bottom:4px">Current Manager</label>
+      <div>{{ getManagerName(reassignTarget.managerId) || '—' }}</div>
+    </div>
+    <div>
+      <label>New Manager <span style="color:red">*</span></label>
+      <p-select [options]="reassignManagerOptions" [(ngModel)]="reassignNewManagerId"
+        optionLabel="label" optionValue="value" [filter]="true" filterBy="label"
+        placeholder="Select a new manager" appendTo="body" [style]="{ width: '100%' }"></p-select>
+    </div>
+    <div>
+      <label>Reason (optional)</label>
+      <textarea pTextarea [(ngModel)]="reassignReason" rows="3" style="width:100%"
+        placeholder="e.g. Reporting manager changed on 2026-05-20"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="reassignDialogVisible = false"></button>
+    <button pButton label="Reassign" class="p-button-warning" (click)="submitReassign()"
+      [disabled]="!reassignNewManagerId" [loading]="reassignLoading"></button>
   </ng-template>
 </p-dialog>
 

@@ -34,6 +34,10 @@ export class Appraisal {
     return this.http.patch(`${this.apiUrl}/${id}/hr-verify`, data);
   }
 
+  reassignManager(id: number, body: { newManagerId: number; reason?: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/reassign-manager`, body);
+  }
+
   submitSelfAppraisal(id: number, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/self-appraisal`, data);
   }
