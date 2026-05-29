@@ -2288,6 +2288,25 @@ export class EmployeeForm {
     return this.probationRecords?.some((r: any) => r.status === 'IN_PROGRESS');
   }
 
+  get isProbationNearEnd(): boolean {
+    const probationEndDateVal = this.employeeForm.get('probationEndDate')?.value;
+    if (!probationEndDateVal) return false;
+
+    const endDate = new Date(probationEndDateVal);
+    const today = new Date();
+
+    // Set hours to 0 to compare dates accurately
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+
+    const diffTime = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Near end if remaining days is 10 days or less (including today or already past, if active)
+    return diffDays <= 10;
+  }
+
   getProbationStatusClass(status: string): string {
     const m: Record<string, string> = {
       IN_PROGRESS: 'prob-status prob-in-progress',

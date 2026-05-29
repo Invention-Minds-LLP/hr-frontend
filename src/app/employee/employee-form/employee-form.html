@@ -592,7 +592,7 @@
                                     <div class="probation-actions"
                                         *ngIf="!isProfileView && hasActiveProbation">
                                         <span class="prob-actions-label">Probation actions</span>
-                                        <button pButton type="button" class="prob-btn prob-btn-extend"
+                                        <button *ngIf="isProbationNearEnd" pButton type="button" class="prob-btn prob-btn-extend"
                                             icon="pi pi-forward" label="Extend"
                                             (click)="openExtendDialog()"></button>
                                         <button pButton type="button" class="prob-btn prob-btn-confirm"
