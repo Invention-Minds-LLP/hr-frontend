@@ -64,6 +64,10 @@ export class ApprasialForm {
       // Load employee insights
       this.loadInsights();
     }
+    // Manager ↔ Management swap: re-apply the right required-field set.
+    if (changes['formType'] && this.appraisalForm) {
+      this.applyFormTypeValidators();
+    }
   }
 
   sections = [
@@ -225,13 +229,53 @@ export class ApprasialForm {
       leadershipRating: ['', [Validators.min(0), Validators.max(10)]],
       leadershipComments: [''],
 
-      // Overall score also limited to 10
+      // Defaults are the Manager rules. applyFormTypeValidators() strips them
+      // for MANAGEMENT (no required, no min/max anywhere).
       overallScore: ['', [Validators.required, Validators.min(0), Validators.max(10)]],
       comments: [''],
       recommendations: [''],
       finalDecision: ['', Validators.required],
       finalComments: ['']
     });
+
+    // Apply validators appropriate for the current formType.
+    this.applyFormTypeValidators();
+  }
+
+  /** Re-apply validators based on `formType`. Manager keeps the standard
+   *  required + 0-10 rules; Management has none. */
+  private applyFormTypeValidators() {
+    if (!this.appraisalForm) return;
+
+    const ratingFields = [
+      'qualityOfWorkRating', 'knowledgeOfJobRating', 'teamworkRating',
+      'independenceRating', 'recordsRating', 'guestServiceRating',
+      'safetyRating', 'attendanceRating', 'leadershipRating',
+    ];
+    const overall = this.appraisalForm.get('overallScore');
+    const finalDec = this.appraisalForm.get('finalDecision');
+
+    if (this.formType === 'MANAGEMENT') {
+      // No mandatory and no range checks for Management.
+      for (const f of ratingFields) {
+        const c = this.appraisalForm.get(f);
+        c?.clearValidators();
+        c?.updateValueAndValidity({ emitEvent: false });
+      }
+      overall?.clearValidators();
+      finalDec?.clearValidators();
+    } else {
+      // Manager defaults.
+      for (const f of ratingFields) {
+        const c = this.appraisalForm.get(f);
+        c?.setValidators([Validators.min(0), Validators.max(10)]);
+        c?.updateValueAndValidity({ emitEvent: false });
+      }
+      overall?.setValidators([Validators.required, Validators.min(0), Validators.max(10)]);
+      finalDec?.setValidators(Validators.required);
+    }
+    overall?.updateValueAndValidity({ emitEvent: false });
+    finalDec?.updateValueAndValidity({ emitEvent: false });
   }
 
   patchEmployeeData() {
@@ -331,8 +375,14 @@ export class ApprasialForm {
         'overallScore'
       ];
       numericFields.forEach(field => {
-        if (rawValues[field] !== '' && rawValues[field] !== null) {
-          rawValues[field] = parseFloat(rawValues[field]);
+        const v = rawValues[field];
+        // Coerce empty / null / NaN to null so Prisma's Float? accepts it.
+        // (Management can submit without filling these now that they're optional.)
+        if (v === '' || v === null || v === undefined) {
+          rawValues[field] = null;
+        } else {
+          const n = parseFloat(v);
+          rawValues[field] = isNaN(n) ? null : n;
         }
       });
 
