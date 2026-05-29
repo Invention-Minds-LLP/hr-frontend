@@ -6,10 +6,12 @@ import { CommonModule } from '@angular/common';
 import { DeptPerformance } from "../dept-performance/dept-performance";
 import { SelfAppraisalComponent } from "../self-appraisal/self-appraisal";
 import { WeeklyRatingOverview } from "../../weekly-rating/weekly-rating-overview";
+import { ReviewQuestionsMaster } from "../review-questions-master/review-questions-master";
+import { AppraisalReviewForm } from "../appraisal-review-form/appraisal-review-form";
 
 @Component({
   selector: 'app-appraisal-overview',
-  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, SelfAppraisalComponent, WeeklyRatingOverview, ModuleGuide],
+  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, SelfAppraisalComponent, WeeklyRatingOverview, ModuleGuide, ReviewQuestionsMaster, AppraisalReviewForm],
   templateUrl: './appraisal-overview.html',
   styleUrl: './appraisal-overview.css'
 })
@@ -17,19 +19,41 @@ export class AppraisalOverview {
   active: string = 'list';
   selectedAppraisal: any = null;
   formType: 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
+  /** Level passed to the new dynamic review form. */
+  reviewLevel: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
+  /** When true, the review form opens read-only (post-submit view). */
+  reviewReadOnly = false;
 
   readonly isHRExecutive =
     Number(localStorage.getItem('deptId')) === 1 &&
     Number(localStorage.getItem('roleId')) === 2;
+
+  // HR Manager (roleId 1) or HR Executive (dept 1 + role 2) can manage the
+  // master review-question pool.
+  readonly canManageQuestions =
+    Number(localStorage.getItem('roleId')) === 1 || this.isHRExecutive;
 
   show(value: string) {
     this.active = value;
   }
 
   onEditAppraisal(appraisal: any) {
-    this.formType = appraisal.formType === 'MANAGEMENT' ? 'MANAGEMENT' : 'MANAGER';
+    const ft = appraisal.formType;
     this.selectedAppraisal = appraisal;
-    this.active = 'form';
+    // Caller (table) sets readOnly:true on the emitted object for "View My
+    // Review" paths so the form opens disabled with no submit buttons.
+    this.reviewReadOnly = !!appraisal.readOnly;
+
+    if (ft === 'INCHARGE' || ft === 'MANAGER' || ft === 'MANAGEMENT') {
+      // All three reviewer levels use the new dynamic review form
+      // (DB-driven questions from AppraisalReviewQuestion).
+      this.reviewLevel = ft;
+      this.active = 'review';
+    } else {
+      // Fallback: legacy "See Details" form for any unspecified formType.
+      this.formType = 'MANAGER';
+      this.active = 'form';
+    }
   }
 
   // After form is saved/submitted

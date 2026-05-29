@@ -49,6 +49,9 @@ export class ManagementService {
   getRecruitmentFunnel(): Observable<any> {
     return this.http.get(`${this.base}/recruitment-funnel`);
   }
+  getRecruitmentOps(): Observable<any> {
+    return this.http.get(`${this.base}/recruitment-ops`);
+  }
   getTrainingByDept(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/training-by-dept`);
   }
@@ -60,6 +63,9 @@ export class ManagementService {
   }
   getDeptSnapshot(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/dept-snapshot`);
+  }
+  getDeptAttendanceToday(): Observable<any> {
+    return this.http.get(`${this.base}/dept-attendance-today`);
   }
   getWeeklyTrend(): Observable<any> {
     return this.http.get(`${this.base}/weekly-trend`);
@@ -74,8 +80,32 @@ export class ManagementService {
     const q = month ? `?month=${month}` : '';
     return this.http.get(`${this.base}/ot-analysis${q}`);
   }
+  getOtEligibility(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/ot-eligibility${q}`);
+  }
+  getLeaveByTypeWeekly(weeks = 8): Observable<any> {
+    return this.http.get(`${this.base}/leave-by-type-weekly?weeks=${weeks}`);
+  }
+  getLeaveAbuse(month?: string, min = 5): Observable<any> {
+    const q = month ? `?month=${month}&min=${min}` : `?min=${min}`;
+    return this.http.get(`${this.base}/leave-abuse${q}`);
+  }
+  getWeeklyPerfStatus(weeks = 6): Observable<any> {
+    return this.http.get(`${this.base}/weekly-perf-status?weeks=${weeks}`);
+  }
+  getIncidentsAnalytics(months = 6): Observable<any> {
+    return this.http.get(`${this.base}/incidents-analytics?months=${months}`);
+  }
   getLateArrivals(days = 30): Observable<any> {
     return this.http.get(`${this.base}/late-arrivals?days=${days}`);
+  }
+  getPunctuality(weeks = 4): Observable<any> {
+    return this.http.get(`${this.base}/punctuality?weeks=${weeks}`);
+  }
+  getWorkedHours(week?: string): Observable<any> {
+    const q = week ? `?week=${week}` : '';
+    return this.http.get(`${this.base}/worked-hours${q}`);
   }
   getLeaveUtilization(): Observable<any> {
     return this.http.get(`${this.base}/leave-utilization`);
@@ -101,5 +131,54 @@ export class ManagementService {
   getTrainingCalendar(month?: string): Observable<any> {
     const q = month ? `?month=${month}` : '';
     return this.http.get(`${this.base}/training-calendar${q}`);
+  }
+  getPayrollOverview(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/payroll-overview${q}`);
+  }
+  getPayrollTrend(): Observable<any> {
+    return this.http.get(`${this.base}/payroll-trend`);
+  }
+  getLoanOverview(): Observable<any> {
+    return this.http.get(`${this.base}/loan-overview`);
+  }
+  getIncentiveOverview(): Observable<any> {
+    return this.http.get(`${this.base}/incentive-overview`);
+  }
+  getPayrollReadiness(): Observable<any> {
+    return this.http.get(`${this.base}/payroll-readiness`);
+  }
+  getDeptPlanning(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/dept-planning${q}`);
+  }
+  setDeptPlanning(payload: {
+    deptId: number; otBudgetHoursPerMonth: number; minDailyStrength: number;
+    appraisalCycleBasis?: string; appraisalPeriodMonths?: number; appraisalCalendarMonth?: number | null;
+  }): Observable<any> {
+    return this.http.put(`${this.base}/dept-planning`, payload);
+  }
+  getAppraisalScores(): Observable<any> {
+    return this.http.get(`${this.base}/appraisal-scores`);
+  }
+  getReliabilityScores(months = 6): Observable<any> {
+    return this.http.get(`${this.base}/reliability-scores?months=${months}`);
+  }
+  getPipMonitor(): Observable<any> {
+    return this.http.get(`${this.base}/pip-monitor`);
+  }
+  getOtVsHire(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/ot-vs-hire${q}`);
+  }
+  getSalaryIncrements(months = 12): Observable<any> {
+    return this.http.get(`${this.base}/salary-increments?months=${months}`);
+  }
+  getAppraisalEligibility(month?: string): Observable<any> {
+    const q = month ? `?month=${month}` : '';
+    return this.http.get(`${this.base}/appraisal-eligibility${q}`);
+  }
+  getProbationOverview(): Observable<any> {
+    return this.http.get(`${this.base}/probation-overview`);
   }
 }

@@ -1,0 +1,125 @@
+<div class="arf-shell">
+
+  <!-- Header -->
+  <div class="arf-header">
+    <button pButton icon="pi pi-arrow-left" class="p-button-text p-button-sm" (click)="onBack()"
+            pTooltip="Back" tooltipPosition="bottom"></button>
+    <div class="arf-title">
+      <h2>{{ levelLabel }} Remarks <span class="rating-hint">(Out of 10)</span></h2>
+      <div class="arf-sub" *ngIf="selectedAppraisal">
+        <span>{{ selectedAppraisal?.employee?.firstName }} {{ selectedAppraisal?.employee?.lastName }}</span>
+        <span *ngIf="selectedAppraisal?.employee?.employeeCode"> · {{ selectedAppraisal.employee.employeeCode }}</span>
+        <span *ngIf="selectedAppraisal?.cycle"> · {{ selectedAppraisal.cycle }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading skeletons -->
+  <div class="arf-grid" *ngIf="loading">
+    <div class="arf-card" *ngFor="let _ of [1,2,3,4]">
+      <p-skeleton width="40%" height="22px" styleClass="mb-2"></p-skeleton>
+      <p-skeleton width="80%" height="14px" styleClass="mb-2"></p-skeleton>
+      <p-skeleton width="100%" height="80px"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="arf-empty" *ngIf="!loading && questions.length === 0">
+    <i class="pi pi-info-circle"></i>
+    <p>No review questions are configured for the <strong>{{ levelLabel }}</strong> level.</p>
+    <p class="muted">Ask HR to add questions in <em>Administration → Appraisal → Review Questions</em>.</p>
+  </div>
+
+  <!-- Question grid -->
+  <div class="arf-grid" *ngIf="!loading && questions.length > 0">
+    <div class="arf-card" *ngFor="let q of questions; let i = index">
+
+      <div class="q-head">
+        <span class="q-num">{{ i + 1 }}.</span>
+        <span class="q-title">{{ q.title }}</span>
+      </div>
+
+      <div class="q-desc" *ngIf="q.description">{{ q.description }}</div>
+
+      <ul class="q-prompts" *ngIf="q.prompts && q.prompts.length">
+        <li *ngFor="let p of q.prompts">{{ p }}</li>
+      </ul>
+
+      <div class="q-bands" *ngIf="q.aboveAverage || q.average || q.belowAverage">
+        <p *ngIf="q.aboveAverage"><strong>Above Average:</strong> {{ q.aboveAverage }}</p>
+        <p *ngIf="q.average"><strong>Average:</strong> {{ q.average }}</p>
+        <p *ngIf="q.belowAverage"><strong>Below Average:</strong> {{ q.belowAverage }}</p>
+      </div>
+
+      <div class="q-inputs">
+        <div class="q-rating">
+          <label>Rating (0–10)</label>
+          <p-inputNumber [(ngModel)]="q.rating" (ngModelChange)="recomputeOverall()"
+                         [min]="0" [max]="10" [showButtons]="true"
+                         buttonLayout="horizontal" [step]="1"
+                         decrementButtonClass="p-button-secondary"
+                         incrementButtonClass="p-button-secondary"
+                         [disabled]="readOnly" [style]="{ width: '100%' }"></p-inputNumber>
+        </div>
+
+        <div class="q-comments">
+          <label>Comments</label>
+          <textarea pTextarea [(ngModel)]="q.comments" rows="2"
+                    [disabled]="readOnly" placeholder="Optional comments"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall section
+       - In-charge: just Overall Score + Overall Comments (supplementary summary).
+       - Manager:   Score + Comments + Recommendations + Final Decision + Final Comments.
+       - Management: Score + Comments + Recommendations (no final decision). -->
+  <div class="arf-overall" *ngIf="!loading && questions.length > 0">
+    <h3>Overall</h3>
+    <div class="overall-grid" [class.overall-grid-2col]="level === 'INCHARGE'">
+      <div>
+        <label>Overall Score (out of 10)</label>
+        <p-inputNumber [(ngModel)]="overallScore" [min]="0" [max]="10"
+                       [showButtons]="false" [maxFractionDigits]="1"
+                       [disabled]="true" [readonly]="true"
+                       [style]="{ width: '100%' }"></p-inputNumber>
+        <small class="auto-hint">
+          Auto-calculated from {{ ratedCount }} of {{ ratedDenom }} ratings
+        </small>
+      </div>
+      <div>
+        <label>Overall Comments</label>
+        <textarea pTextarea [(ngModel)]="overallComments" rows="2"
+                  [disabled]="readOnly" placeholder="Optional"></textarea>
+      </div>
+      <div *ngIf="level !== 'INCHARGE'">
+        <label>Recommendations</label>
+        <textarea pTextarea [(ngModel)]="recommendations" rows="2"
+                  [disabled]="readOnly" placeholder="Optional"></textarea>
+      </div>
+    </div>
+
+    <div class="final-grid" *ngIf="level === 'MANAGER'">
+      <div>
+        <label>Final Decision</label>
+        <input pInputText [(ngModel)]="finalDecision" [disabled]="readOnly"
+               placeholder="e.g. Promoted / Retained / Increment / Probation" />
+      </div>
+      <div>
+        <label>Final Comments</label>
+        <textarea pTextarea [(ngModel)]="finalComments" rows="2" [disabled]="readOnly"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="arf-actions" *ngIf="!loading && questions.length > 0 && !readOnly">
+    <button pButton label="Save Draft" class="p-button-text"
+            (click)="save(true)" [loading]="saving" icon="pi pi-save"></button>
+    <button pButton label="Submit Review" class="p-button-success"
+            (click)="save(false)" [loading]="saving" icon="pi pi-check"></button>
+  </div>
+</div>
+
+<p-toast position="top-right"></p-toast>

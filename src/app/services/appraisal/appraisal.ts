@@ -38,6 +38,33 @@ export class Appraisal {
     return this.http.post(`${this.apiUrl}/${id}/reassign-manager`, body);
   }
 
+  // ── Review Questions (master pool for In-charge / Manager / Management) ──
+  listReviewQuestions(params?: { level?: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT'; includeInactive?: boolean }): Observable<any[]> {
+    const q: any = {};
+    if (params?.level) q.level = params.level;
+    if (params?.includeInactive) q.includeInactive = 'true';
+    return this.http.get<any[]>(`${this.apiUrl}/review-questions`, { params: q });
+  }
+  createReviewQuestion(body: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/review-questions`, body);
+  }
+  updateReviewQuestion(id: number, body: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/review-questions/${id}`, body);
+  }
+  toggleReviewQuestion(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/review-questions/${id}/toggle`, {});
+  }
+  deleteReviewQuestion(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/review-questions/${id}`);
+  }
+  seedReviewQuestions(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/seed-review-questions`, {});
+  }
+
+  submitInchargeAppraisal(id: number, body: { answers: any[]; isDraft?: boolean }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/incharge-appraisal`, body);
+  }
+
   submitSelfAppraisal(id: number, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/self-appraisal`, data);
   }

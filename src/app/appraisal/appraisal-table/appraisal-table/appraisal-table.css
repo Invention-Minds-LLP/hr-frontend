@@ -357,6 +357,20 @@ form{
 .mgmt-btn:hover { background: #FB9C2A; color: white; }
 .reassign-btn { border-color: #9333ea; color: #9333ea; font-size: 14px; padding: 8px 16px; }
 .reassign-btn:hover { background: #9333ea; color: white; }
+.incharge-btn { border-color: #06b6d4; color: #06b6d4; font-size: 14px; padding: 8px 16px; }
+.incharge-btn:hover { background: #06b6d4; color: white; }
+
+/* Decision cell — truncate long free-form decisions, full text on hover via pTooltip. */
+.decision-cell { max-width: 220px; }
+.decision-cell .decision-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  cursor: help;
+}
 
 .btn-green {
   background-color: #3465b0;
@@ -575,6 +589,7 @@ label{
 .fd-section-head i { font-size: 14px; }
 .fd-green { border-left: 3px solid #4CAF50; }
 .fd-blue { border-left: 3px solid #2196F3; }
+.fd-cyan { border-left: 3px solid #06b6d4; }
 .fd-purple { border-left: 3px solid #9C27B0; }
 .fd-grey { border-left: 3px solid #607D8B; }
 

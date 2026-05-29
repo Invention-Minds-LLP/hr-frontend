@@ -20,6 +20,8 @@
        <button> <li class="sub-item" [ngClass]="{ 'active': active === 'dept' }" (click)="show('dept')">Dept Performance Indicator</li></button>
         <div class="br"></div>
        <button *ngIf="!isHRExecutive"> <li class="sub-item" [ngClass]="{ 'active': active === 'rating' }" (click)="show('rating')">Weekly Rating</li></button>
+        <div class="br" *ngIf="canManageQuestions"></div>
+       <button *ngIf="canManageQuestions"> <li class="sub-item" [ngClass]="{ 'active': active === 'questions' }" (click)="show('questions')">Review Questions</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -29,8 +31,16 @@
 
 <div>
     <app-apprasial-form *ngIf="active === 'form'" [selectedAppraisal]="selectedAppraisal" [formType]="formType" (formSubmitted)="onFormSubmitted()" (backToList)="show('list')"></app-apprasial-form>
+    <app-appraisal-review-form *ngIf="active === 'review'"
+        [appraisalId]="selectedAppraisal?.id"
+        [level]="reviewLevel"
+        [selectedAppraisal]="selectedAppraisal"
+        [readOnly]="reviewReadOnly"
+        (submitted)="onFormSubmitted()"
+        (backToList)="show('list')"></app-appraisal-review-form>
     <app-appraisal-table *ngIf="active === 'list'" (editAppraisal)="onEditAppraisal($event)"></app-appraisal-table>
     <!-- <app-self-appraisal *ngIf="active === 'self'"></app-self-appraisal> -->
     <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>
     <app-weekly-rating-overview *ngIf="active === 'rating'"></app-weekly-rating-overview>
+    <app-review-questions-master *ngIf="active === 'questions'"></app-review-questions-master>
 </div>

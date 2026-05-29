@@ -168,17 +168,29 @@ export class AppraisalTable {
             a.employee?.departmentId !== 1
           );
         } else if (this.role === 'Reporting Manager' || this.loggedRoleId === 3) {
-          // Reporting Manager: their direct reports + their own appraisal
-          filtered = data.filter(a =>
-            (a.employee?.reportingManager === this.loggedEmployeeId || a.employeeId === this.loggedEmployeeId)
-            && !['AUTO_DRAFT', 'Draft'].includes(a.status)
-          );
+          // Reporting Manager: direct reports + own appraisal + appraisals
+          // where they're the snapshotted manager (HR-reassigned) or the
+          // snapshotted/current in-charge.
+          filtered = data.filter(a => {
+            const inchargeId = a.inchargeId ?? a.employee?.inchargeId;
+            return (
+              a.employee?.reportingManager === this.loggedEmployeeId
+              || a.employeeId === this.loggedEmployeeId
+              || a.managerId === this.loggedEmployeeId
+              || inchargeId === this.loggedEmployeeId
+            ) && !['AUTO_DRAFT', 'Draft'].includes(a.status);
+          });
         } else {
-          // All other employees: only their own appraisal
-          filtered = data.filter(a =>
-            a.employeeId === this.loggedEmployeeId
-            && !['AUTO_DRAFT', 'Draft'].includes(a.status)
-          );
+          // All other employees: own appraisal + appraisals where they're
+          // the snapshotted manager (reassigned) or the in-charge.
+          filtered = data.filter(a => {
+            const inchargeId = a.inchargeId ?? a.employee?.inchargeId;
+            return (
+              a.employeeId === this.loggedEmployeeId
+              || a.managerId === this.loggedEmployeeId
+              || inchargeId === this.loggedEmployeeId
+            ) && !['AUTO_DRAFT', 'Draft'].includes(a.status);
+          });
         }
 
         // ✅ FLATTEN HERE
@@ -364,7 +376,8 @@ export class AppraisalTable {
       designation: appraisal.employee.designation.name,
       departmentName: departmentName,
       dateOfJoining: appraisal.employee.dateOfJoining,
-      email: appraisal.employee.email
+      email: appraisal.employee.email,
+      formType: 'MANAGER',
     };
 
     delete mergedAppraisal.employee; // Remove nested employee object
@@ -398,6 +411,24 @@ export class AppraisalTable {
   fmtDate(d: any): string {
     if (!d) return '';
     try { return new Date(d).toLocaleDateString('en-GB'); } catch { return ''; }
+  }
+
+  /** Filter the unified review answers by level (used by the Full Details
+   *  dialog to render the In-charge section dynamically). */
+  answersForLevel(a: any, level: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT'): any[] {
+    return (a?.reviewAnswers || [])
+      .filter((r: any) => r?.level === level && r?.question)
+      .sort((x: any, y: any) =>
+        (x.question?.displayOrder ?? 0) - (y.question?.displayOrder ?? 0)
+        || (x.question?.id ?? 0) - (y.question?.id ?? 0));
+  }
+
+  /** Tailwind-style colour class for a 0-10 rating bar. */
+  ratingBarClass(r: number | null | undefined): string {
+    if (r == null) return '';
+    if (r >= 8) return 'fd-bar-high';
+    if (r >= 5) return 'fd-bar-mid';
+    return 'fd-bar-low';
   }
 
   getStatusLabel(a: any): string {
@@ -471,11 +502,122 @@ export class AppraisalTable {
     });
   }
 
+  // ── Read-only "View Review" launchers ──────────────────────────────
+  /** In-charge can view their own submitted review at any time. */
+  canInchargeView(a: any): boolean {
+    const inchargeId = a?.inchargeId ?? a?.employee?.inchargeId;
+    return !!inchargeId
+      && Number(inchargeId) === this.loggedEmployeeId
+      && !!a.inchargeAppraisalSubmittedAt;
+  }
+
+  /** Manager can view their own submitted review at any time. */
+  canManagerView(a: any): boolean {
+    const isAssignedManager =
+      (this.loggedRoleId === 3 && a.employee?.reportingManager === this.loggedEmployeeId)
+      || a.managerId === this.loggedEmployeeId;
+    return isAssignedManager
+      && a.employeeId !== this.loggedEmployeeId
+      && !!a.managerAppraisalSubmittedAt;
+  }
+
+  /** Management can view their own submitted review at any time. */
+  canManagementView(a: any): boolean {
+    return this.isManagement && !!a.managementAppraisalSubmittedAt;
+  }
+
+  /** Generic emit helper: same merge as the Fill click but with readOnly:true. */
+  private emitReviewView(a: any, formType: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT') {
+    const merged = {
+      ...a,
+      employeeId: a.employee?.id,
+      employeeCode: a.employee?.employeeCode,
+      fullName: `${a.employee?.firstName ?? ''} ${a.employee?.lastName ?? ''}`.trim(),
+      designation: a.employee?.designation?.name,
+      departmentName: this.getDepartmentName(a.employee?.departmentId),
+      dateOfJoining: a.employee?.dateOfJoining,
+      email: a.employee?.email,
+      formType,
+      readOnly: true,
+    };
+    this.editAppraisal.emit(merged);
+  }
+  onInchargeViewClick(a: any)   { this.emitReviewView(a, 'INCHARGE'); }
+  onManagerViewClick(a: any)    { this.emitReviewView(a, 'MANAGER'); }
+  onManagementViewClick(a: any) { this.emitReviewView(a, 'MANAGEMENT'); }
+
+  // ── In-charge edit request ──────────────────────────────────────────
+  inchargeEditRequestDialogVisible = false;
+  inchargeEditRequestAppraisalId: number | null = null;
+  inchargeEditRequestReason = '';
+  inchargeEditLoading = false;
+
+  canInchargeRequestEdit(a: any): boolean {
+    const inchargeId = a?.inchargeId ?? a?.employee?.inchargeId;
+    return !!inchargeId
+      && Number(inchargeId) === this.loggedEmployeeId
+      && !!a.inchargeAppraisalSubmittedAt
+      && !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+  }
+
+  openInchargeEditRequest(a: any) {
+    this.inchargeEditRequestAppraisalId = a.id;
+    this.inchargeEditRequestReason = '';
+    this.inchargeEditRequestDialogVisible = true;
+  }
+
+  submitInchargeEditRequest() {
+    if (!this.inchargeEditRequestReason.trim()) return;
+    this.inchargeEditLoading = true;
+    this.appraisalService.requestEdit(this.inchargeEditRequestAppraisalId!, {
+      requestedBy: this.loggedEmployeeId,
+      reason: this.inchargeEditRequestReason,
+      requestType: 'INCHARGE',
+    } as any).subscribe({
+      next: () => {
+        this.inchargeEditLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Submitted', detail: 'Edit request sent to HR' });
+        this.inchargeEditRequestDialogVisible = false;
+        this.getAppraisals();
+      },
+      error: (e: any) => {
+        this.inchargeEditLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' });
+      },
+    });
+  }
+
   // ── Management Actions ──────────────────────────────────────────────
   canManagementFill(a: any): boolean {
     return this.isManagement &&
       ['PENDING_FILL', 'SELF_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status) &&
       !a.managementAppraisalSubmittedAt;
+  }
+
+  // ── In-charge Actions ───────────────────────────────────────────────
+  /** Logged-in user is the appraisal's in-charge (snapshot if present,
+   *  else the employee's current in-charge) and hasn't submitted yet. */
+  canInchargeFill(a: any): boolean {
+    const inchargeId = a?.inchargeId ?? a?.employee?.inchargeId;
+    if (!inchargeId) return false;
+    if (Number(inchargeId) !== this.loggedEmployeeId) return false;
+    if (a.inchargeAppraisalSubmittedAt) return false;
+    return ['PENDING_FILL', 'SELF_APPRAISAL_SUBMITTED'].includes(a.status);
+  }
+
+  onInchargeEditClick(a: any) {
+    const merged = {
+      ...a,
+      employeeId: a.employee?.id,
+      employeeCode: a.employee?.employeeCode,
+      fullName: `${a.employee?.firstName ?? ''} ${a.employee?.lastName ?? ''}`.trim(),
+      designation: a.employee?.designation?.name,
+      departmentName: this.getDepartmentName(a.employee?.departmentId),
+      dateOfJoining: a.employee?.dateOfJoining,
+      email: a.employee?.email,
+      formType: 'INCHARGE',
+    };
+    this.editAppraisal.emit(merged);
   }
 
   canManagementRequestEdit(a: any): boolean {
@@ -541,9 +683,10 @@ export class AppraisalTable {
   reassignLoading = false;
   reassignManagerOptions: { label: string; value: number }[] = [];
 
-  /** Allow reassign for HR roles while the manager hasn't submitted yet. */
+  /** HR only (HR Manager or HR Executive) — Management can no longer reassign.
+   *  Manager hasn't submitted yet. */
   canReassignManager(a: any): boolean {
-    return (this.isHRManager || this.isHRExecutive || this.isManagement)
+    return (this.isHRManager || this.isHRExecutive)
       && !a.managerAppraisalSubmittedAt;
   }
 

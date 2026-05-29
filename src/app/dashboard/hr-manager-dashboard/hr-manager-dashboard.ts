@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ManagementService } from '../../services/management/management.service';
 import { environment } from '../../../environment/environment.prod';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -8,16 +9,18 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-management-dashboard',
+  selector: 'app-hr-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, SkeletonModule, TooltipModule],
-  templateUrl: './management-dashboard.html',
-  styleUrl: './management-dashboard.css',
+  imports: [CommonModule, FormsModule, SkeletonModule, TooltipModule],
+  templateUrl: './hr-manager-dashboard.html',
+  styleUrl: './hr-manager-dashboard.css',
 })
-export class ManagementDashboard implements OnInit, AfterViewInit {
+export class HrManagerDashboard implements OnInit, AfterViewInit {
 
-  /** Client feature flag — hides the Payroll Summary section when false. */
+  /** Client feature flag — hides the Payroll Readiness section when false. */
   readonly payrollEnabled = environment.payrollEnabled;
+  /** Client feature flag — hides salary/CTC-derived analytics (OT-vs-hire). */
+  readonly salaryDataEnabled = environment.salaryDataEnabled;
 
   // ── Chart.js plugins: always-on value labels ───────────────
   // Applied to every chart via the `plugins: [...]` array.
@@ -127,6 +130,44 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   shiftDrilldown: any = null;
   shiftDrilldownLoading = false;
   shiftDrilldownFilter: 'all' | 'present' | 'late' | 'earlyCheckout' | 'onLeave' | 'absent' = 'all';
+  /** When false (default) the shift board hides shifts whose start time is still
+   *  in the future — so at 10:00 AM only shifts that have already started today
+   *  are shown. HR can flip this to review upcoming shifts too. */
+  showAllShifts = false;
+  /** #2 — today's department-wise attendance split (present/leave/permission/absent/week-off). */
+  deptAttendance: any = null;
+  loadingDeptAtt = true;
+  /** #3 weekly leave-by-type · #17 OT eligibility · #12 weekly-perf · #14 incidents · #10 leave-abuse */
+  leaveByType: any = null;      loadingLeaveByType = true;
+  otEligibility: any = null;    loadingOtElig = true;
+  weeklyPerfStatus: any = null; loadingWeeklyPerf = true;
+  incidents: any = null;        loadingIncidents = true;
+  leaveAbuse: any = null;       loadingLeaveAbuse = true;
+  /** #9 punctuality (late + early-leaving) · #11 scheduled-vs-actual worked hours */
+  punctuality: any = null;      loadingPunctuality = true;
+  workedHours: any = null;      loadingWorkedHours = true;
+  /** #6/#7/#8 recruitment ops — today's activity, vacancies, designation funnel */
+  recruitmentOps: any = null;   loadingRecruitment = true;
+  /** #18/#19 capacity planning — OT budget vs actual, min strength vs present (editable masters) */
+  deptPlanning: any = null;     loadingDeptPlanning = true;
+  savingDeptId: number | null = null;
+  /** #16 appraisal scores · #13/#21 reliability score + half-year readiness */
+  appraisalScores: any = null;  loadingAppraisal = true;
+  reliability: any = null;      loadingReliability = true;
+  /** #15 PIP monitor · #23 OT-vs-hire (salary-gated) */
+  pipMonitor: any = null;       loadingPipMonitor = true;
+  otVsHire: any = null;         loadingOtVsHire = true;
+  /** #22 salary increments (salary-gated) · #20 appraisal eligibility */
+  salaryIncrements: any = null; loadingSalaryIncrements = true;
+  appraisalElig: any = null;    loadingAppraisalElig = true;
+  /** probation overview (status breakdown + active list) */
+  probation: any = null;        loadingProbation = true;
+  /** month options for the per-dept calendar-appraisal selector */
+  readonly monthOptions = [
+    { v: 1, n: 'Jan' }, { v: 2, n: 'Feb' }, { v: 3, n: 'Mar' }, { v: 4, n: 'Apr' },
+    { v: 5, n: 'May' }, { v: 6, n: 'Jun' }, { v: 7, n: 'Jul' }, { v: 8, n: 'Aug' },
+    { v: 9, n: 'Sep' }, { v: 10, n: 'Oct' }, { v: 11, n: 'Nov' }, { v: 12, n: 'Dec' },
+  ];
   loadingPerformance = true;
   loadingPIPs        = true;
   loadingAttrition   = true;
@@ -155,18 +196,21 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   // the template. Adding a new section? Add an entry here and tag the
   // section with the matching id.
   readonly tocSections: { id: string; label: string; icon: string }[] = [
-    { id: 'sec-attention',   label: 'Attention',     icon: '🚨' },
-    { id: 'sec-pulse',       label: 'Pulse',         icon: '💓' },
-    { id: 'sec-workforce',   label: 'Workforce',     icon: '👥' },
-    { id: 'sec-dept-snap',   label: 'Departments',   icon: '🏢' },
-    { id: 'sec-dept-risk',   label: 'Risk',          icon: '⚠️' },
-    { id: 'sec-perf-dist',   label: 'Perf. Trend',   icon: '📈' },
-    { id: 'sec-attrition',   label: 'Attrition',     icon: '📤' },
-    { id: 'sec-payroll',     label: 'Payroll',       icon: '💵' },
-    { id: 'sec-loans',       label: 'Loans',         icon: '🏦' },
-    { id: 'sec-incentives',  label: 'Incentives',    icon: '🎁' },
+    { id: 'sec-attendance',  label: 'Attendance',    icon: '🕒' },
+    { id: 'sec-pip',         label: 'Performance',   icon: '📊' },
+    { id: 'sec-training',    label: 'Training',      icon: '🎓' },
+    { id: 'sec-actions',     label: 'Actions',       icon: '✅' },
+    { id: 'sec-ot',          label: 'Overtime',      icon: '⏱️' },
+    { id: 'sec-readiness',   label: 'Payroll Ready', icon: '🧾' },
+    { id: 'sec-late',        label: 'Late Arrivals', icon: '🚦' },
+    { id: 'sec-leave-util',  label: 'Leave Util.',   icon: '🗓️' },
+    { id: 'sec-absent',      label: 'Absenteeism',   icon: '📉' },
+    { id: 'sec-quals',       label: 'Qualifications',icon: '🎓' },
+    { id: 'sec-el',          label: 'EL Insights',   icon: '💰' },
+    { id: 'sec-train-ins',   label: 'Train. Insights', icon: '📚' },
+    { id: 'sec-mobile',      label: 'Mobile',        icon: '📱' },
   ];
-  activeTocId = 'sec-attention';
+  activeTocId = 'sec-attendance';
 
   // ── Data ─────────────────────────────────────────────────
   pulse: any           = null;
@@ -289,6 +333,19 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   detailRows: any[] = [];
   loadingDetail = false;
 
+  // ── Probation extension-reason popup ──────────────────────
+  probationReason = { open: false, name: '', text: '' };
+  openProbationReason(p: any) {
+    this.probationReason = {
+      open: true,
+      name: p?.name ?? '',
+      text: (p?.remarks && String(p.remarks).trim()) ? p.remarks : 'No reason recorded.',
+    };
+  }
+  closeProbationReason() {
+    this.probationReason = { open: false, name: '', text: '' };
+  }
+
   // ── Chart detail modal ────────────────────────────────────
   modalVisible  = false;
   modalTitle    = '';
@@ -314,6 +371,14 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private workforceBarChart?: Chart;
   private workforceDonutChart?: Chart;
   private attendanceChart?: Chart;
+  private deptAttChart?: Chart;
+  private leaveByTypeChart?: Chart;
+  private otEligChart?: Chart;
+  private weeklyPerfChart?: Chart;
+  private incMonthChart?: Chart;
+  private incDeptChart?: Chart;
+  private appraisalBandChart?: Chart;
+  private probationChart?: Chart;
   private attritionChart?: Chart;
   private funnelChart?: Chart;
   private weeklyChart?: Chart;
@@ -366,15 +431,20 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     this.chartsReady = true;
     // If API responded before view was ready, draw now
     setTimeout(() => {
-      if (this.workforce)        this.drawWorkforceCharts();
-      if (this.attritionTrend)   this.drawAttritionChart();
-      if (this.recruitmentFunnel) this.drawFunnelChart();
-      if (this.weeklyTrend)      this.drawWeeklyChart();
-      if (this.perfDist)         this.drawPerfDistChart();
-      if (this.wfInsights)       this.drawWfInsightCharts();
-      if (this.payrollTrend)     this.drawPayrollTrendChart();
-      if (this.loanOverview)     this.drawLoanTypeChart();
-      if (this.incentiveOverview) this.drawIncentiveTypeChart();
+      if (this.deptAttendance)   this.drawDeptAttChart();
+      if (this.leaveByType)      this.drawLeaveByTypeChart();
+      if (this.otEligibility)    this.drawOtEligChart();
+      if (this.weeklyPerfStatus) this.drawWeeklyPerfChart();
+      if (this.incidents)        this.drawIncidentCharts();
+      if (this.appraisalScores)  this.drawAppraisalBandChart();
+      if (this.probation)        this.drawProbationChart();
+      if (this.otAnalysis)       this.drawOtDeptChart();
+      if (this.lateArrivals)     this.drawLateHeatChart();
+      if (this.mobileLogin)      this.drawMobileLoginChart();
+      if (this.qualifications)   this.drawQualDegreeChart();
+      if (this.elInsights)       this.drawElDistChart();
+      if (this.trainingInsights) { this.drawTrainingDeptChart(); this.drawTrainingScoreChart(); }
+      if (this.payrollReadiness) this.drawCtcDistChart();
     }, 0);
   }
 
@@ -484,16 +554,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
 
   // ── Data loading ──────────────────────────────────────────
   private loadAll() {
-    this.svc.getAttention().subscribe({
-      next: (d) => { this.attention = d; this.loadingAttention = false; },
-      error: () => { this.loadingAttention = false; },
-    });
-
-    this.svc.getPulse().subscribe({
-      next: (d) => { this.pulse = d; this.loadingPulse = false; },
-      error: () => { this.loadingPulse = false; }
-    });
-
+    // Workforce snapshot lives on the COO dashboard, but we still fetch it
+    // here because the Training drill-down sub-modal sources its employee
+    // list from `workforce.employeeList`. The workforce charts simply don't
+    // render (their canvases aren't in this template).
     this.svc.getWorkforce().subscribe({
       next: (d) => {
         this.workforce = d; this.loadingWorkforce = false;
@@ -502,51 +566,35 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       error: () => { this.loadingWorkforce = false; }
     });
 
-    this.svc.getAttritionTrend().subscribe({
-      next: (d) => {
-        this.attritionTrend = d; this.loadingAttrition = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawAttritionChart(); }
-      },
-      error: () => { this.loadingAttrition = false; }
+    this.loadDeptAttendance();
+    this.loadShiftAttendance();
+    this.loadLeaveByType();
+
+    this.svc.getPerformanceRadar().subscribe({
+      next: (d) => { this.performanceRadar = d; this.loadingPerformance = false; },
+      error: () => { this.loadingPerformance = false; }
     });
 
-    this.svc.getRecruitmentFunnel().subscribe({
-      next: (d) => {
-        this.recruitmentFunnel = d; this.loadingFunnel = false;
-        if (this.chartsReady) { this.cdr.detectChanges(); this.drawFunnelChart(); }
-      },
-      error: () => { this.loadingFunnel = false; }
+    this.svc.getActivePIPs().subscribe({
+      next: (d) => { this.activePIPs = d; this.loadingPIPs = false; },
+      error: () => { this.loadingPIPs = false; }
+    });
+
+    this.svc.getTrainingByDept().subscribe({
+      next: (d) => { this.trainingByDept = d; this.loadingTraining = false; },
+      error: () => { this.loadingTraining = false; }
     });
 
     // ── PHASE 2 (mid-fold sections) ────────────────────────────
     // Slight delay (200ms) so the eager phase's connections finish
     // first. These appear in the second viewport-height of the page.
     setTimeout(() => {
-      this.svc.getDeptSnapshot().subscribe({
-        next: (d) => { this.deptSnapshot = d; this.loadingDeptSnap = false; },
-        error: () => { this.loadingDeptSnap = false; }
+      this.svc.getActionItems().subscribe({
+        next: (d) => { this.actionItems = d; this.loadingActions = false; },
+        error: () => { this.loadingActions = false; }
       });
-
-      this.svc.getDeptRisk().subscribe({
-        next: (d) => { this.deptRisk = d; this.loadingDeptRisk = false; },
-        error: () => { this.loadingDeptRisk = false; }
-      });
-
-      this.svc.getWeeklyTrend().subscribe({
-        next: (d) => {
-          this.weeklyTrend = d; this.loadingWeekly = false;
-          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyChart(), 0); }
-        },
-        error: () => { this.loadingWeekly = false; }
-      });
-
-      this.svc.getPerformanceDistribution().subscribe({
-        next: (d) => {
-          this.perfDist = d; this.loadingPerfDist = false;
-          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawPerfDistChart(), 0); }
-        },
-        error: () => { this.loadingPerfDist = false; }
-      });
+      this.loadWeeklyPerf();
+      this.loadRecruitmentOps();
     }, 200);
 
     // ── PHASE 3 (lazy / bottom-of-page sections) ──────────────
@@ -555,40 +603,102 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     // CPU + network. User can already see and interact with the top of
     // the dashboard while these load in the background.
     setTimeout(() => {
-      // Payroll-run summary is skipped for clients without payroll (env flag).
+      this.loadOtAnalysis();
+      this.loadOtEligibility();
+      this.loadIncidents();
+      this.loadLeaveAbuse();
+      this.loadPunctuality();
+      this.loadWorkedHours();
+      this.loadDeptPlanning();
+      this.loadAppraisalScores();
+      this.loadReliability();
+      this.loadPipMonitor();
+      this.loadOtVsHire();
+      this.loadSalaryIncrements();
+      this.loadAppraisalElig();
+      this.loadProbation();
+      // Payroll readiness is skipped for clients without payroll (env flag).
       if (this.payrollEnabled) {
-        this.loadPayroll();
-        this.svc.getPayrollTrend().subscribe({
+        this.svc.getPayrollReadiness().subscribe({
           next: (d) => {
-            this.payrollTrend = d; this.loadingPayrollTrend = false;
-            if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawPayrollTrendChart(), 0); }
+            this.payrollReadiness = d; this.loadingPayrollReadiness = false;
+            if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawCtcDistChart(), 0); }
           },
-          error: () => { this.loadingPayrollTrend = false; }
+          error: () => { this.loadingPayrollReadiness = false; }
         });
       }
-      this.svc.getLoanOverview().subscribe({
-        next: (d) => {
-          this.loanOverview = d; this.loadingLoanOverview = false;
-          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawLoanTypeChart(), 0); }
-        },
-        error: () => { this.loadingLoanOverview = false; }
+      this.loadLateArrivals(this.lateDays);
+      this.svc.getLeaveUtilization().subscribe({
+        next: (d) => { this.leaveUtil = d; this.loadingLeaveUtil = false; },
+        error: () => { this.loadingLeaveUtil = false; }
       });
-      this.svc.getIncentiveOverview().subscribe({
+      this.loadAbsenteeism(this.absentDays);
+
+      this.loadMobileLogin(this.mobileLoginDays);
+
+      this.svc.getQualifications().subscribe({
         next: (d) => {
-          this.incentiveOverview = d; this.loadingIncentiveOverview = false;
-          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawIncentiveTypeChart(), 0); }
+          this.qualifications = d; this.loadingQualifications = false;
+          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawQualDegreeChart(), 0); }
         },
-        error: () => { this.loadingIncentiveOverview = false; }
-      });
-      this.svc.getWorkforceInsights().subscribe({
-        next: (d) => {
-          this.wfInsights = d; this.loadingWfInsights = false;
-          if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWfInsightCharts(), 0); }
-        },
-        error: () => { this.loadingWfInsights = false; }
+        error: () => { this.loadingQualifications = false; }
       });
 
+      this.svc.getElInsights().subscribe({
+        next: (d) => {
+          this.elInsights = d;
+          this.loadingElInsights = false;
+          this.cdr.detectChanges();
+          requestAnimationFrame(() => requestAnimationFrame(() => this.drawElDistChart()));
+        },
+        error: (err) => {
+          console.error('[el-insights] failed:', err);
+          this.loadingElInsights = false;
+        },
+      });
+
+      this.svc.getTrainingInsights().subscribe({
+        next: (d) => {
+          this.trainingInsights = d;
+          this.loadingTrainingInsights = false;
+          this.cdr.detectChanges();
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            this.drawTrainingDeptChart();
+            this.drawTrainingScoreChart();
+          }));
+        },
+        error: (err) => {
+          console.error('[training-insights] failed:', err);
+          this.loadingTrainingInsights = false;
+        },
+      });
+
+      // Training calendar — current month
+      const now = new Date();
+      this.trainingCalMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      this.loadTrainingCalendar(this.trainingCalMonth);
     }, 700);
+  }
+
+  // ── Training summaries (#4 today's trainings, #5 completed-to-date) ──
+  /** Trainings scheduled for today, taken from the loaded training calendar.
+   *  (The calendar holds the current month on load, so today is present; it
+   *  empties only if the user navigates the calendar to another month.) */
+  get todayTrainings(): any[] {
+    const days = this.trainingCalendar?.days ?? [];
+    const t = new Date();
+    const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    return days.find((d: any) => d.date === iso)?.trainings ?? [];
+  }
+  get trainingCompletedTotal(): number {
+    return (this.trainingByDept ?? []).reduce((s: number, d: any) => s + (d.completed || 0), 0);
+  }
+  get trainingAssignedTotal(): number {
+    return (this.trainingByDept ?? []).reduce((s: number, d: any) => s + (d.total || 0), 0);
+  }
+  get trainingCompletionPctOverall(): number {
+    const total = this.trainingAssignedTotal;
+    return total ? Math.round((this.trainingCompletedTotal / total) * 100) : 0;
   }
 
   loadTrainingCalendar(month: string) {
@@ -1258,7 +1368,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
 
   // Return a drill-down config when the modal shows aggregate rows and
   // we have an employee-level list available for a secondary popup.
-  private buildModalDrill(chartId: string): ManagementDashboard['modalDrill'] {
+  private buildModalDrill(chartId: string): HrManagerDashboard['modalDrill'] {
     const empCols = [
       { key: 'name',        label: 'Employee Name' },
       { key: 'designation', label: 'Designation' },
@@ -1641,6 +1751,502 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
    *  drill-down lists are NOT pulled here — we fetch them lazily
    *  when the user clicks "View" on a specific shift, so the dashboard
    *  load stays light. */
+  // ── #2 Department-wise attendance (today) ──────────────────
+  loadDeptAttendance() {
+    this.loadingDeptAtt = true;
+    this.svc.getDeptAttendanceToday().subscribe({
+      next: (d) => {
+        this.deptAttendance = d;
+        this.loadingDeptAtt = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawDeptAttChart(), 0); }
+      },
+      error: () => { this.loadingDeptAtt = false; },
+    });
+  }
+
+  private drawDeptAttChart() {
+    const ctx = document.getElementById('deptAttChart') as HTMLCanvasElement;
+    if (!ctx || !this.deptAttendance?.depts?.length) return;
+    if (this.deptAttChart) this.deptAttChart.destroy();
+    const depts = this.deptAttendance.depts;
+    this.deptAttChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: depts.map((d: any) => d.dept),
+        datasets: [
+          { label: 'Present',    data: depts.map((d: any) => d.present),    backgroundColor: '#22c55e', borderRadius: 4, stack: 'a' },
+          { label: 'Leave',      data: depts.map((d: any) => d.leave),      backgroundColor: '#60a5fa', borderRadius: 4, stack: 'a' },
+          { label: 'Permission', data: depts.map((d: any) => d.permission), backgroundColor: '#f59e0b', borderRadius: 4, stack: 'a' },
+          { label: 'Absent',     data: depts.map((d: any) => d.absent),     backgroundColor: '#ef4444', borderRadius: 4, stack: 'a' },
+          { label: 'Week Off',   data: depts.map((d: any) => d.weekoff),    backgroundColor: 'rgba(100,116,139,0.55)', borderRadius: 4, stack: 'a' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        // Click any dept's bar → popup that dept's employees with their status.
+        onClick: (_evt, els) => {
+          if (!els.length) return;
+          this.openDeptAttModal(depts[els[0].index]);
+        },
+        plugins: {
+          legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 12 } },
+          tooltip: { footerFont: { weight: 'normal' }, callbacks: { footer: () => 'Click a bar for the employee list' } },
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 10 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  /** Popup the clicked department's employees, tagged with today's status. */
+  openDeptAttModal(dept: any) {
+    if (!dept) return;
+    this.modalTitle   = `${dept.dept} — Attendance Today (${dept.headcount})`;
+    this.modalColumns = [
+      { key: 'name',         label: 'Employee' },
+      { key: 'employeeCode', label: 'Code' },
+      { key: 'designation',  label: 'Designation' },
+      { key: 'status',       label: 'Status' },
+    ];
+    this.modalRows    = dept.employees ?? [];
+    this.modalDrill   = null;
+    this.modalVisible = true;
+    this.cdr.detectChanges(); // chart onClick fires outside Angular's zone
+  }
+
+  /** Generic read-only list popup (reused by chart click-throughs). */
+  private openListModal(title: string, columns: { key: string; label: string }[], rows: any[]) {
+    this.modalTitle   = title;
+    this.modalColumns = columns;
+    this.modalRows    = rows ?? [];
+    this.modalDrill   = null;
+    this.modalVisible = true;
+    this.cdr.detectChanges();
+  }
+
+  // ── #3 Weekly leave by type ────────────────────────────────
+  loadLeaveByType() {
+    this.loadingLeaveByType = true;
+    this.svc.getLeaveByTypeWeekly(8).subscribe({
+      next: (d) => {
+        this.leaveByType = d; this.loadingLeaveByType = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawLeaveByTypeChart(), 0); }
+      },
+      error: () => { this.loadingLeaveByType = false; },
+    });
+  }
+  private drawLeaveByTypeChart() {
+    const ctx = document.getElementById('leaveByTypeChart') as HTMLCanvasElement;
+    if (!ctx || !this.leaveByType?.weeks?.length) return;
+    if (this.leaveByTypeChart) this.leaveByTypeChart.destroy();
+    const weeks = this.leaveByType.weeks;
+    const types: string[] = this.leaveByType.types ?? [];
+    this.leaveByTypeChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: weeks.map((w: any) => w.label),
+        datasets: types.map((t) => ({
+          label: t,
+          data: weeks.map((w: any) => w.byType?.[t] || 0),
+          backgroundColor: this.getLeaveTypeColor(t),
+          borderRadius: 4, stack: 'lv',
+        })),
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        onClick: (_e, els) => { if (els.length) this.openLeaveWeekModal(weeks[els[0].index]); },
+        plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 8 } } },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+  openLeaveWeekModal(week: any) {
+    this.openListModal(
+      `Leaves — week of ${week.label} (${week.total})`,
+      [
+        { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
+        { key: 'dept', label: 'Dept' }, { key: 'designation', label: 'Designation' },
+        { key: 'type', label: 'Leave Type' }, { key: 'dates', label: 'Dates' }, { key: 'days', label: 'Days' },
+      ],
+      week.employees,
+    );
+  }
+
+  // ── #17 OT eligibility breaches ────────────────────────────
+  loadOtEligibility() {
+    this.loadingOtElig = true;
+    this.svc.getOtEligibility().subscribe({
+      next: (d) => {
+        this.otEligibility = d; this.loadingOtElig = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawOtEligChart(), 0); }
+      },
+      error: () => { this.loadingOtElig = false; },
+    });
+  }
+  private drawOtEligChart() {
+    const ctx = document.getElementById('otEligChart') as HTMLCanvasElement;
+    if (!ctx || !this.otEligibility?.deptBreaches?.length) return;
+    if (this.otEligChart) this.otEligChart.destroy();
+    const depts = this.otEligibility.deptBreaches;
+    this.otEligChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: depts.map((d: any) => d.dept),
+        datasets: [{ label: 'Breach weeks', data: depts.map((d: any) => d.breachCount), backgroundColor: '#f59e0b', borderRadius: 5 }],
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        onClick: (_e, els) => { if (els.length) this.openOtBreachModal(depts[els[0].index].dept); },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+  openOtBreachModal(dept: string) {
+    const rows = (this.otEligibility?.breaches ?? []).filter((b: any) => b.dept === dept);
+    this.openListModal(
+      `OT-eligibility breaches — ${dept} (${rows.length})`,
+      [
+        { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
+        { key: 'designation', label: 'Designation' }, { key: 'week', label: 'Week of' },
+        { key: 'otDays', label: 'OT Days' }, { key: 'totalHours', label: 'Total Hrs' },
+        { key: 'reason', label: 'Breach' },
+      ],
+      rows,
+    );
+  }
+
+  // ── #12 Weekly performance filled vs pending ───────────────
+  loadWeeklyPerf() {
+    this.loadingWeeklyPerf = true;
+    this.svc.getWeeklyPerfStatus(6).subscribe({
+      next: (d) => {
+        this.weeklyPerfStatus = d; this.loadingWeeklyPerf = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyPerfChart(), 0); }
+      },
+      error: () => { this.loadingWeeklyPerf = false; },
+    });
+  }
+  private drawWeeklyPerfChart() {
+    const ctx = document.getElementById('weeklyPerfChart') as HTMLCanvasElement;
+    if (!ctx || !this.weeklyPerfStatus?.weeks?.length) return;
+    if (this.weeklyPerfChart) this.weeklyPerfChart.destroy();
+    const weeks = this.weeklyPerfStatus.weeks;
+    this.weeklyPerfChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: weeks.map((w: any) => w.label),
+        datasets: [
+          { label: 'Filled',  data: weeks.map((w: any) => w.filled),  backgroundColor: '#22c55e', borderRadius: 4, stack: 'wp' },
+          { label: 'Pending', data: weeks.map((w: any) => w.pending), backgroundColor: 'rgba(100,116,139,0.5)', borderRadius: 4, stack: 'wp' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 10 } } },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // ── #14 Incidents analytics ────────────────────────────────
+  loadIncidents() {
+    this.loadingIncidents = true;
+    this.svc.getIncidentsAnalytics(6).subscribe({
+      next: (d) => {
+        this.incidents = d; this.loadingIncidents = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawIncidentCharts(), 0); }
+      },
+      error: () => { this.loadingIncidents = false; },
+    });
+  }
+  private drawIncidentCharts() {
+    const incidentCols = [
+      { key: 'title', label: 'Incident' }, { key: 'category', label: 'Category' },
+      { key: 'severity', label: 'Severity' }, { key: 'status', label: 'Status' },
+      { key: 'outcome', label: 'Outcome' }, { key: 'employee', label: 'Employee' },
+      { key: 'date', label: 'Date' },
+    ];
+    const mctx = document.getElementById('incMonthChart') as HTMLCanvasElement;
+    if (mctx && this.incidents?.byMonth?.length) {
+      if (this.incMonthChart) this.incMonthChart.destroy();
+      const byMonth = this.incidents.byMonth;
+      this.incMonthChart = new Chart(mctx, {
+        type: 'bar',
+        data: { labels: byMonth.map((m: any) => m.label), datasets: [{ label: 'Incidents', data: byMonth.map((m: any) => m.count), backgroundColor: '#f472b6', borderRadius: 5 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          onClick: (_e, els) => { if (els.length) { const m = byMonth[els[0].index]; this.openListModal(`Incidents — ${m.label} (${m.count})`, incidentCols, m.incidents); } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          },
+        },
+        plugins: [this.valueLabelsPlugin],
+      });
+    }
+    const dctx = document.getElementById('incDeptChart') as HTMLCanvasElement;
+    if (dctx && this.incidents?.byDept?.length) {
+      if (this.incDeptChart) this.incDeptChart.destroy();
+      const byDept = this.incidents.byDept;
+      this.incDeptChart = new Chart(dctx, {
+        type: 'bar',
+        data: { labels: byDept.map((d: any) => d.dept), datasets: [{ label: 'Incidents', data: byDept.map((d: any) => d.count), backgroundColor: '#ef4444', borderRadius: 5 }] },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          onClick: (_e, els) => { if (els.length) { const d = byDept[els[0].index]; this.openListModal(`Incidents — ${d.dept} (${d.count})`, incidentCols, d.incidents); } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+          },
+        },
+        plugins: [this.valueLabelsPlugin],
+      });
+    }
+  }
+
+  // ── #10 Leave-abuse watch (table only) ─────────────────────
+  loadLeaveAbuse() {
+    this.loadingLeaveAbuse = true;
+    this.svc.getLeaveAbuse(undefined, 5).subscribe({
+      next: (d) => { this.leaveAbuse = d; this.loadingLeaveAbuse = false; },
+      error: () => { this.loadingLeaveAbuse = false; },
+    });
+  }
+
+  // ── #9 Punctuality watch · #11 Worked hours (tables) ───────
+  loadPunctuality() {
+    this.loadingPunctuality = true;
+    this.svc.getPunctuality(4).subscribe({
+      next: (d) => { this.punctuality = d; this.loadingPunctuality = false; },
+      error: () => { this.loadingPunctuality = false; },
+    });
+  }
+  loadWorkedHours() {
+    this.loadingWorkedHours = true;
+    this.svc.getWorkedHours().subscribe({
+      next: (d) => { this.workedHours = d; this.loadingWorkedHours = false; },
+      error: () => { this.loadingWorkedHours = false; },
+    });
+  }
+  /** Badge class for a punctuality score / rating. */
+  getPunctualityClass(rating: string): string {
+    return rating === 'Good' ? 'badge-good' : rating === 'Watch' ? 'badge-warn' : 'badge-danger';
+  }
+  /** Badge class for worked-hours match %. */
+  getMatchClass(pct: number): string {
+    if (pct >= 95) return 'badge-good';
+    if (pct >= 85) return 'badge-warn';
+    return 'badge-danger';
+  }
+
+  // ── #6/#7/#8 Recruitment ops ───────────────────────────────
+  loadRecruitmentOps() {
+    this.loadingRecruitment = true;
+    this.svc.getRecruitmentOps().subscribe({
+      next: (d) => { this.recruitmentOps = d; this.loadingRecruitment = false; },
+      error: () => { this.loadingRecruitment = false; },
+    });
+  }
+
+  // ── #16 Appraisal scores ───────────────────────────────────
+  loadAppraisalScores() {
+    this.loadingAppraisal = true;
+    this.svc.getAppraisalScores().subscribe({
+      next: (d) => {
+        this.appraisalScores = d; this.loadingAppraisal = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawAppraisalBandChart(), 0); }
+      },
+      error: () => { this.loadingAppraisal = false; },
+    });
+  }
+  private drawAppraisalBandChart() {
+    const ctx = document.getElementById('appraisalBandChart') as HTMLCanvasElement;
+    if (!ctx || !this.appraisalScores?.bands?.length) return;
+    if (this.appraisalBandChart) this.appraisalBandChart.destroy();
+    const bands = this.appraisalScores.bands;
+    this.appraisalBandChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: bands.map((b: any) => b.label),
+        datasets: [{ data: bands.map((b: any) => b.count), backgroundColor: bands.map((b: any) => b.color), borderWidth: 0, hoverOffset: 6 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '58%',
+        onClick: (_e, els) => { if (els.length) { const b = bands[els[0].index]; this.openListModal(`${b.label} (${b.count})`, [
+          { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
+          { key: 'dept', label: 'Dept' }, { key: 'designation', label: 'Designation' },
+          { key: 'score', label: 'Score' }, { key: 'cycle', label: 'Cycle' }, { key: 'appraisedOn', label: 'Appraised On' },
+        ], b.employees); } },
+        plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, usePointStyle: true } } },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // ── #13/#21 Reliability score + half-year readiness ────────
+  loadReliability() {
+    this.loadingReliability = true;
+    this.svc.getReliabilityScores(6).subscribe({
+      next: (d) => { this.reliability = d; this.loadingReliability = false; },
+      error: () => { this.loadingReliability = false; },
+    });
+  }
+  getReliabilityClass(rating: string): string {
+    return rating === 'Good' ? 'badge-good' : rating === 'Watch' ? 'badge-warn' : 'badge-danger';
+  }
+
+  /** Tooltip text for a reliability score — shows how each component was
+   *  calculated (mirrors the backend formula), then the total. */
+  reliabilityBreakdown(r: any): string {
+    const months = this.reliability?.months || 6;
+    const leaveThreshold = months * 2;
+    const w = this.reliability?.weights || { attendance: 40, leave: 20, weekly: 25, incidents: 15 };
+
+    const attDenom = (r.presentDays || 0) + (r.absentDays || 0);
+    const attendance = attDenom > 0
+      ? `Attendance ${r.attendanceScore}/${w.attendance} = ${w.attendance} × ${r.presentDays}/${attDenom} present`
+      : `Attendance ${r.attendanceScore}/${w.attendance} = ${w.attendance} × 0.85 (no attendance data)`;
+
+    const leave = `Leave ${r.leaveScore}/${w.leave} = ${w.leave} × (1 − ${r.leaveDays}/${leaveThreshold} leave-days)`;
+
+    const weekly = r.weeklyAvg != null
+      ? `Weekly ${r.weeklyScore}/${w.weekly} = ${w.weekly} × ${r.weeklyAvg}/100`
+      : `Weekly ${r.weeklyScore}/${w.weekly} = ${w.weekly} × 0.6 (no ratings, neutral)`;
+
+    const unconvicted = (r.incidents || 0) - (r.convicted || 0);
+    const incidents = `Incidents ${r.incidentScore}/${w.incidents} = ${w.incidents} − ${unconvicted}×3 − ${r.convicted || 0}×8`;
+
+    return `${attendance} · ${leave} · ${weekly} · ${incidents} · Total = ${r.score}`;
+  }
+
+  // ── #15 PIP monitor ────────────────────────────────────────
+  loadPipMonitor() {
+    this.loadingPipMonitor = true;
+    this.svc.getPipMonitor().subscribe({
+      next: (d) => { this.pipMonitor = d; this.loadingPipMonitor = false; },
+      error: () => { this.loadingPipMonitor = false; },
+    });
+  }
+  getPipStatusClass(status: string): string {
+    if (status === 'TERMINATION_INITIATED' || status === 'TERMINATED') return 'badge-danger';
+    if (status === 'PIP_EXTENDED') return 'badge-warn';
+    if (status === 'PIP_CLOSED_IMPROVED') return 'badge-good';
+    return '';
+  }
+
+  // ── #23 OT-vs-hire (salary-gated) ──────────────────────────
+  loadOtVsHire() {
+    if (!this.salaryDataEnabled) return;   // gated off for clients without salary data
+    this.loadingOtVsHire = true;
+    this.svc.getOtVsHire().subscribe({
+      next: (d) => { this.otVsHire = d; this.loadingOtVsHire = false; },
+      error: () => { this.loadingOtVsHire = false; },
+    });
+  }
+
+  // ── #22 Salary increments (salary-gated) ───────────────────
+  loadSalaryIncrements() {
+    if (!this.salaryDataEnabled) return;
+    this.loadingSalaryIncrements = true;
+    this.svc.getSalaryIncrements(12).subscribe({
+      next: (d) => { this.salaryIncrements = d; this.loadingSalaryIncrements = false; },
+      error: () => { this.loadingSalaryIncrements = false; },
+    });
+  }
+  openIncrementDeptModal(d: any) {
+    this.openListModal(
+      `${d.dept} — Increments (avg ${d.avgIncrementPct}%)`,
+      [
+        { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
+        { key: 'designation', label: 'Designation' }, { key: 'previousCtc', label: 'Prev CTC' },
+        { key: 'newCtc', label: 'New CTC' }, { key: 'percentage', label: 'Increment %' },
+        { key: 'effectiveFrom', label: 'Effective' },
+      ],
+      d.employees,
+    );
+  }
+
+  // ── #20 Appraisal eligibility ──────────────────────────────
+  loadAppraisalElig() {
+    this.loadingAppraisalElig = true;
+    this.svc.getAppraisalEligibility().subscribe({
+      next: (d) => { this.appraisalElig = d; this.loadingAppraisalElig = false; },
+      error: () => { this.loadingAppraisalElig = false; },
+    });
+  }
+
+  // ── Probation overview ─────────────────────────────────────
+  loadProbation() {
+    this.loadingProbation = true;
+    this.svc.getProbationOverview().subscribe({
+      next: (d) => {
+        this.probation = d; this.loadingProbation = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawProbationChart(), 0); }
+      },
+      error: () => { this.loadingProbation = false; },
+    });
+  }
+  private drawProbationChart() {
+    const ctx = document.getElementById('probationChart') as HTMLCanvasElement;
+    if (!ctx || !this.probation?.statusBreakdown?.length) return;
+    if (this.probationChart) this.probationChart.destroy();
+    const sb = this.probation.statusBreakdown;
+    this.probationChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: sb.map((s: any) => s.status.replace('_', ' ')),
+        datasets: [{ data: sb.map((s: any) => s.count), backgroundColor: sb.map((s: any) => s.color), borderWidth: 0, hoverOffset: 6 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '58%',
+        plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, usePointStyle: true } } },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // ── #18/#19 Capacity planning ──────────────────────────────
+  loadDeptPlanning() {
+    this.loadingDeptPlanning = true;
+    this.svc.getDeptPlanning().subscribe({
+      next: (d) => { this.deptPlanning = d; this.loadingDeptPlanning = false; },
+      error: () => { this.loadingDeptPlanning = false; },
+    });
+  }
+  /** Persist the edited OT budget + min strength for one department. */
+  saveDeptPlanning(row: any) {
+    this.savingDeptId = row.deptId;
+    this.svc.setDeptPlanning({
+      deptId: row.deptId,
+      otBudgetHoursPerMonth: Number(row.otBudgetHours) || 0,
+      minDailyStrength: Number(row.minDailyStrength) || 0,
+      appraisalCycleBasis: row.appraisalCycleBasis || 'DOJ',
+      appraisalPeriodMonths: Number(row.appraisalPeriodMonths) || 12,
+      appraisalCalendarMonth: row.appraisalCalendarMonth ? Number(row.appraisalCalendarMonth) : null,
+    }).subscribe({
+      next: () => { this.savingDeptId = null; this.loadDeptPlanning(); },
+      error: () => { this.savingDeptId = null; },
+    });
+  }
+
   loadShiftAttendance() {
     this.loadingShiftAtt = true;
     this.svc.getAttendanceByShift({ compareDays: 7 }).subscribe({
@@ -1673,6 +2279,41 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     });
   }
   closeShiftDrilldown() { this.shiftDrilldown = null; }
+
+  /** Shifts to render on the board. For *today* we hide shifts that have not
+   *  started yet (start time > now), showing only the current + already-passed
+   *  shifts. Unmapped shifts (shiftId === null) and unparseable times are always
+   *  shown so nothing silently disappears. Viewing a past date shows everything. */
+  get visibleShifts(): any[] {
+    const all = this.shiftAttendance?.shifts ?? [];
+    if (this.showAllShifts || !this.shiftAttendance?.isToday) return all;
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    return all.filter((s: any) => {
+      if (s.shiftId === null) return true;
+      const start = this.parseTimeToMinutes(s.startTime);
+      return start === null ? true : start <= nowMin;
+    });
+  }
+
+  /** How many of today's shifts are currently hidden because they're upcoming. */
+  get hiddenShiftCount(): number {
+    const total = this.shiftAttendance?.shifts?.length ?? 0;
+    return Math.max(0, total - this.visibleShifts.length);
+  }
+
+  /** Parse a shift time ("09:00", "9:00 AM", "21:30:00") into minutes-since-
+   *  midnight, or null if the format isn't recognised. */
+  private parseTimeToMinutes(t: string | null | undefined): number | null {
+    if (!t) return null;
+    const m = String(t).trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
+    if (!m) return null;
+    let h = parseInt(m[1], 10);
+    const min = parseInt(m[2], 10);
+    const ap = m[3]?.toUpperCase();
+    if (ap === 'PM' && h < 12) h += 12;
+    if (ap === 'AM' && h === 12) h = 0;
+    return h * 60 + min;
+  }
 
   /** Filter the drill-down list by category. */
   get filteredDrilldownEmployees(): any[] {

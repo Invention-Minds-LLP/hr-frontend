@@ -1,0 +1,137 @@
+<div class="rqm-shell">
+
+  <div class="rqm-header">
+    <div>
+      <h2 class="rqm-title">Review Questions</h2>
+      <p class="rqm-sub">Master pool used by In-charge, Manager and Management review forms. Same questions are shown to all three by default; you can scope a question to a subset using "Applies to".</p>
+    </div>
+    <div class="rqm-actions">
+      <button pButton label="Seed Defaults" icon="pi pi-database" class="p-button-text"
+              (click)="runSeed()" pTooltip="One-time: load the 13 default criteria if the list is empty"
+              tooltipPosition="bottom"></button>
+      <button pButton label="Add Question" icon="pi pi-plus" (click)="openAdd()"></button>
+    </div>
+  </div>
+
+  <p-table [value]="questions" [loading]="loading" dataKey="id" responsiveLayout="scroll"
+           [paginator]="questions.length > 10" [rows]="10" styleClass="rqm-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:70px">Order</th>
+        <th>Title</th>
+        <th style="width:180px">Applies to</th>
+        <th style="width:90px">Active</th>
+        <th style="width:140px;text-align:right">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-q>
+      <tr>
+        <td>{{ q.displayOrder }}</td>
+        <td>
+          <div class="q-title">{{ q.title }}</div>
+          <div class="q-desc" *ngIf="q.description">{{ q.description }}</div>
+        </td>
+        <td>
+          <span class="all-chip" *ngIf="appliesToAll(q)">All levels</span>
+          <ng-container *ngIf="!appliesToAll(q)">
+            <span class="lvl-chip" *ngFor="let l of q.levels">{{ levelChipLabel(l) }}</span>
+          </ng-container>
+        </td>
+        <td>
+          <p-toggleSwitch [ngModel]="q.isActive" (ngModelChange)="toggleActive(q)"></p-toggleSwitch>
+        </td>
+        <td style="text-align:right">
+          <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm"
+                  (click)="openEdit(q)" pTooltip="Edit" tooltipPosition="top"></button>
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                  (click)="remove(q)" pTooltip="Delete" tooltipPosition="top"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="rqm-empty">
+          No review questions yet. Click <strong>Seed Defaults</strong> to load the 13 built-in criteria,
+          or <strong>Add Question</strong> to create your own.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- ── Add / Edit dialog ─────────────────────────────────────── -->
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [closable]="true"
+          [style]="{ width: '720px', maxHeight: '92vh' }"
+          [header]="editingId ? 'Edit Question' : 'Add Question'">
+  <div class="rqm-form" *ngIf="dialogVisible">
+
+    <div class="rqm-row">
+      <label>Title <span class="req">*</span></label>
+      <input pInputText [(ngModel)]="form.title" placeholder="e.g. Quality of Work" />
+    </div>
+
+    <div class="rqm-row">
+      <label>Description</label>
+      <textarea pTextarea [(ngModel)]="form.description" rows="2"
+                placeholder="One-line intent (shown under the title)"></textarea>
+    </div>
+
+    <div class="rqm-row">
+      <label>Guiding Prompts</label>
+      <textarea pTextarea [(ngModel)]="promptsText" rows="3"
+                placeholder="One per line — e.g.&#10;How frequent are mistakes or errors?&#10;How consistent is the accuracy and thoroughness of work?"></textarea>
+      <small class="hint">Bullets shown under the description. One prompt per line.</small>
+    </div>
+
+    <div class="rqm-row">
+      <label>Above Average</label>
+      <textarea pTextarea [(ngModel)]="form.aboveAverage" rows="2"
+                placeholder="Description for the highest band"></textarea>
+    </div>
+
+    <div class="rqm-row">
+      <label>Average</label>
+      <textarea pTextarea [(ngModel)]="form.average" rows="2"
+                placeholder="Description for the middle band"></textarea>
+    </div>
+
+    <div class="rqm-row">
+      <label>Below Average</label>
+      <textarea pTextarea [(ngModel)]="form.belowAverage" rows="2"
+                placeholder="Description for the lowest band"></textarea>
+    </div>
+
+    <div class="rqm-grid">
+      <div class="rqm-row">
+        <label>Applies to <span class="req">*</span></label>
+        <p-multiSelect [options]="levelOptions" [(ngModel)]="form.levels"
+                       optionLabel="label" optionValue="value"
+                       [appendTo]="'body'" [style]="{ width: '100%' }"
+                       placeholder="Select reviewer levels"></p-multiSelect>
+        <small class="hint">Same question for all levels? Leave all three selected (default).</small>
+      </div>
+
+      <div class="rqm-row">
+        <label>Display Order</label>
+        <p-inputNumber [(ngModel)]="form.displayOrder" [min]="0" [showButtons]="true"
+                       [style]="{ width: '100%' }"></p-inputNumber>
+      </div>
+
+      <div class="rqm-row rqm-toggle-row">
+        <label>Active</label>
+        <p-toggleSwitch [(ngModel)]="form.isActive"></p-toggleSwitch>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="closeDialog()"></button>
+    <button pButton [label]="editingId ? 'Save Changes' : 'Create'" icon="pi pi-check"
+            (click)="save()" [loading]="saving"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog></p-confirmDialog>

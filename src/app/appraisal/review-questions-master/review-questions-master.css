@@ -1,0 +1,193 @@
+.rqm-shell {
+  /* Extra top padding so the page heading sits clearly below the parent
+     sub-nav (Managerial Appraisal / … / Review Questions). */
+  padding: 80px 24px 20px;
+}
+
+.rqm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.rqm-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.rqm-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+  max-width: 720px;
+}
+
+.rqm-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.rqm-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.q-title {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.q-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* Level chips */
+.all-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eefbf1;
+  color: #1f7a3a;
+  font-size: 12px;
+  font-weight: 600;
+}
+.lvl-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #2a54d6;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 6px;
+  margin-bottom: 4px;
+}
+
+.rqm-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: #94a3b8;
+}
+
+/* Dialog form */
+.rqm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.rqm-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rqm-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.2px;
+}
+
+.rqm-row input,
+.rqm-row textarea {
+  width: 100%;
+}
+
+.rqm-row .req {
+  color: #ef4444;
+}
+
+.rqm-row .hint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.rqm-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 14px;
+  align-items: end;
+}
+
+.rqm-toggle-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.rqm-toggle-row label { margin: 0; }
+
+/* ── Dark-theme overrides for PrimeNG inputs inside this component ── */
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep textarea.p-inputtext,
+:host ::ng-deep .p-textarea,
+:host ::ng-deep .p-inputnumber input,
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep .p-multiselect-label {
+  background: #1f1f1f !important;
+  color: #f1f5f9 !important;
+  border-color: #3a3a3a !important;
+  font-weight: 500;
+}
+
+:host ::ng-deep .p-inputtext::placeholder,
+:host ::ng-deep textarea.p-inputtext::placeholder,
+:host ::ng-deep .p-textarea::placeholder,
+:host ::ng-deep .p-inputnumber input::placeholder,
+:host ::ng-deep .p-multiselect-label.p-placeholder {
+  color: #64748b !important;
+}
+
+:host ::ng-deep .p-inputtext:focus,
+:host ::ng-deep textarea.p-inputtext:focus,
+:host ::ng-deep .p-textarea:focus,
+:host ::ng-deep .p-inputnumber input:focus {
+  border-color: #FB9C2A !important;
+  box-shadow: 0 0 0 2px rgba(251, 156, 42, 0.15) !important;
+}
+
+:host ::ng-deep .p-inputnumber-button {
+  background: #2a2a2a !important;
+  border-color: #3a3a3a !important;
+  color: #cbd5e1 !important;
+}
+:host ::ng-deep .p-inputnumber-button:hover {
+  background: #3a3a3a !important;
+  color: #FB9C2A !important;
+}
+
+/* Multiselect chips + dropdown panel */
+:host ::ng-deep .p-multiselect-token {
+  background: #2a4ea0 !important;
+  color: #f1f5f9 !important;
+}
+:host ::ng-deep .p-multiselect-panel,
+:host ::ng-deep .p-multiselect-items-wrapper {
+  background: #1f1f1f !important;
+  color: #f1f5f9 !important;
+}
+:host ::ng-deep .p-multiselect-item {
+  color: #f1f5f9 !important;
+}
+:host ::ng-deep .p-multiselect-item:hover {
+  background: #2a2a2a !important;
+}
+:host ::ng-deep .p-multiselect-item.p-highlight {
+  background: rgba(251, 156, 42, 0.2) !important;
+  color: #FB9C2A !important;
+}
+
+/* Dialog body — give a touch more readable border around inputs */
+:host ::ng-deep .p-dialog .p-dialog-content {
+  background: #141414 !important;
+  color: #f1f5f9 !important;
+}

@@ -1,0 +1,1955 @@
+<!-- ══ CHART DETAIL MODAL ══ -->
+<div class="modal-backdrop" *ngIf="modalVisible" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-title">{{ modalTitle }}</span>
+      <div class="modal-actions">
+        <button class="modal-export-btn" (click)="exportModalCsv()" pTooltip="Download as CSV" tooltipPosition="top">
+          ↓ Export CSV
+        </button>
+        <button class="modal-close-btn" (click)="closeModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-empty" *ngIf="!modalRows.length">No data available.</div>
+      <table class="modal-table" *ngIf="modalRows.length">
+        <thead>
+          <tr>
+            <th *ngFor="let col of modalColumns">{{ col.label }}</th>
+            <th *ngIf="modalDrill" class="modal-view-col">View</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of modalRows; let i = index" [class.modal-row-alt]="i % 2 === 1">
+            <td *ngFor="let col of modalColumns">{{ row[col.key] ?? '—' }}</td>
+            <td *ngIf="modalDrill" class="modal-view-col">
+              <button class="modal-view-btn" (click)="openSubModal(row)"
+                pTooltip="View employee list" tooltipPosition="top">
+                👁 View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">{{ modalRows.length }} record(s)</div>
+  </div>
+</div>
+
+<!-- ══ SUB-MODAL (drill-down employee list) ══ -->
+<div class="modal-backdrop sub-modal-backdrop" *ngIf="subModalVisible" (click)="closeSubModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-title">{{ subModalTitle }}</span>
+      <div class="modal-actions">
+        <button class="modal-export-btn" (click)="exportSubModalCsv()" pTooltip="Download as CSV" tooltipPosition="top">
+          ↓ Export CSV
+        </button>
+        <button class="modal-close-btn" (click)="closeSubModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-empty" *ngIf="!subModalRows.length">No employees to show for this row.</div>
+      <table class="modal-table" *ngIf="subModalRows.length">
+        <thead>
+          <tr>
+            <th *ngFor="let col of subModalColumns">{{ col.label }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of subModalRows; let i = index" [class.modal-row-alt]="i % 2 === 1">
+            <td *ngFor="let col of subModalColumns">{{ row[col.key] ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">{{ subModalRows.length }} record(s)</div>
+  </div>
+</div>
+
+<!-- ══ PROBATION EXTENSION REASON POPUP ══ -->
+<div class="modal-backdrop" *ngIf="probationReason.open" (click)="closeProbationReason()">
+  <div class="modal-box reason-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-title">Extension Reason — {{ probationReason.name }}</span>
+      <button class="modal-close-btn" (click)="closeProbationReason()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="reason-text">{{ probationReason.text }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="mgmt-shell">
+
+  <!-- ══ STICKY SIDE NAV (Table of Contents) ══ -->
+  <!-- Vertical chip list pinned to the left edge while user scrolls.
+       Tap a chip → smooth scroll to that section. Active chip highlights
+       based on what's currently visible (IntersectionObserver in TS). -->
+  <!-- <aside class="mgmt-toc no-print" aria-label="Dashboard sections">
+    <div class="mgmt-toc-title">Sections</div>
+    <button *ngFor="let s of tocSections"
+            class="mgmt-toc-chip"
+            [class.active]="activeTocId === s.id"
+            (click)="scrollToSection(s.id)">
+      <span class="mgmt-toc-icon">{{ s.icon }}</span>
+      <span class="mgmt-toc-label">{{ s.label }}</span>
+    </button>
+  </aside> -->
+
+<div class="mgmt-wrap">
+
+  <!-- ══ HEADER ══ -->
+  <div class="mgmt-header">
+    <div>
+      <h1 class="mgmt-title">HR Operations</h1>
+      <p class="mgmt-sub">Day-to-day people operations · {{ calendarMonth | date:'MMMM yyyy' }}</p>
+      <!-- Data-baseline notice — system went live in March 2026, so anything before
+           that date is intentionally absent (not a bug). Setting this expectation
+           up-front prevents "why is January empty?" questions from leadership. -->
+      <p class="mgmt-baseline" pTooltip="The HRMS was rolled out in March 2026. Records prior to that date are not available in the system."
+         tooltipPosition="bottom">
+        ⓘ Showing data from <b>March 2026</b> onwards · system launch date
+      </p>
+    </div>
+    <!-- Print/PDF export — uses the browser's native print pipeline + a print
+         stylesheet so the result is a clean board-pack-style PDF. -->
+    <div class="mgmt-header-actions no-print">
+      <button class="mgmt-print-btn" (click)="exportDashboardPdf()"
+              pTooltip="Export this dashboard as a PDF (uses your browser's print dialog)"
+              tooltipPosition="bottom">
+        🖨 Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 4 — ATTENDANCE & LEAVE ══ -->
+  <div id="sec-attendance" class="section-label">
+    Attendance & Leave
+    <span class="info-icon" pTooltip="Today's shift-wise attendance breakdown, last 7 days trend, and current month leave density calendar. Amber cells = more employees on leave." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Today's per-shift attendance, day-by-day attendance trend for the selected period, and a monthly leave density calendar. Darker calendar cells indicate more employees on leave that day — hover to see who.</p>
+
+  <!-- ── Shift-wise attendance (today) ── -->
+  <div class="card shift-att-card">
+    <div class="card-head">
+      <span class="card-title">
+        Shift-wise Attendance — {{ shiftAttendance?.isToday ? 'Today' : (shiftAttendance?.date | date:'dd MMM yyyy') }}
+      </span>
+      <div class="card-head-right">
+        <span class="card-badge" *ngIf="shiftAttendance?.totalActive">
+          {{ shiftAttendance.totalActive }} active employees
+        </span>
+        <!-- Time-gating toggle: by default only shifts that have already started
+             today are shown; flip to review upcoming shifts too. -->
+        <button class="shift-toggle-btn" *ngIf="shiftAttendance?.isToday && (hiddenShiftCount > 0 || showAllShifts)"
+                (click)="showAllShifts = !showAllShifts">
+          {{ showAllShifts ? 'Show only started' : 'Show all (' + hiddenShiftCount + ' upcoming)' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="shift-att-skel" *ngIf="loadingShiftAtt">
+      <p-skeleton width="100%" height="60px" *ngFor="let _ of [1,2,3]"></p-skeleton>
+    </div>
+
+    <div class="shift-att-body" *ngIf="!loadingShiftAtt && shiftAttendance">
+      <!-- Tile grid: shifts flow into as many columns as fit (auto-fill), so a
+           long shift list spreads horizontally instead of stretching the page.
+           The whole tile is clickable → opens the per-shift drill-down. -->
+      <div class="shift-att-empty" *ngIf="!visibleShifts.length">
+        No shift has started yet today. <button class="link-btn" (click)="showAllShifts = true">Show upcoming shifts</button>
+      </div>
+      <div class="shift-att-grid">
+        <div class="shift-att-tile" *ngFor="let s of visibleShifts"
+             [class.shift-unassigned]="s.shiftId === null"
+             (click)="openShiftDrilldown(s)">
+          <div class="st-head">
+            <div class="st-name-wrap">
+              <span class="shift-name">{{ s.name }}</span>
+              <span class="shift-time" *ngIf="s.startTime">{{ s.startTime }} – {{ s.endTime }}</span>
+            </div>
+            <div class="shift-att-pct" [class.bad]="s.attendancePct < 70" [class.warn]="s.attendancePct >= 70 && s.attendancePct < 85">
+              {{ s.attendancePct }}%
+              <span class="pct-delta" *ngIf="priorPctForShift(s.shiftId) !== null">
+                <span class="up"   *ngIf="s.attendancePct > priorPctForShift(s.shiftId)!">▲ {{ s.attendancePct - priorPctForShift(s.shiftId)! }}</span>
+                <span class="down" *ngIf="s.attendancePct < priorPctForShift(s.shiftId)!">▼ {{ priorPctForShift(s.shiftId)! - s.attendancePct }}</span>
+                <span class="flat" *ngIf="s.attendancePct === priorPctForShift(s.shiftId)!">·</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="shift-att-bar" *ngIf="s.assigned > 0">
+            <div class="seg seg-present" [style.width.%]="(s.present - s.late) / s.assigned * 100"
+                 [pTooltip]="(s.present - s.late) + ' on time'" tooltipPosition="top"></div>
+            <div class="seg seg-late" [style.width.%]="s.late / s.assigned * 100"
+                 [pTooltip]="s.late + ' late (>15 min)'" tooltipPosition="top"></div>
+            <div class="seg seg-leave" [style.width.%]="s.onLeave / s.assigned * 100"
+                 [pTooltip]="s.onLeave + ' on leave / WFH / permission'" tooltipPosition="top"></div>
+            <div class="seg seg-absent" [style.width.%]="s.absent / s.assigned * 100"
+                 [pTooltip]="s.absent + ' absent'" tooltipPosition="top"></div>
+          </div>
+          <div class="shift-att-bar shift-att-bar--empty" *ngIf="s.assigned === 0"></div>
+
+          <div class="st-counts">
+            <span class="sc sc-assigned">{{ s.assigned }} assigned</span>
+            <span class="sc ok">{{ s.present }} in</span>
+            <span class="sc warn"  *ngIf="s.late > 0">{{ s.late }} late</span>
+            <span class="sc info"  *ngIf="s.earlyCheckout > 0">{{ s.earlyCheckout }} early-out</span>
+            <span class="sc leave" *ngIf="s.onLeave > 0">{{ s.onLeave }} leave</span>
+            <span class="sc bad"   *ngIf="s.absent > 0">{{ s.absent }} absent</span>
+          </div>
+
+          <div class="st-foot">
+            <svg class="shift-spark" *ngIf="trendForShift(s.shiftId).length" viewBox="0 0 80 22" preserveAspectRatio="none"
+                 pTooltip="7-day attendance trend" tooltipPosition="top">
+              <path [attr.d]="sparkPath(trendForShift(s.shiftId))" fill="none" stroke="#60a5fa" stroke-width="1.5"/>
+            </svg>
+            <span class="st-view">View →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shift-legend">
+        <span><i class="dot dot-present"></i> On time</span>
+        <span><i class="dot dot-late"></i> Late (>15 min)</span>
+        <span><i class="dot dot-leave"></i> On leave / WFH / permission</span>
+        <span><i class="dot dot-absent"></i> Absent</span>
+        <span class="muted">· Early checkout shown separately</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drill-down modal — reuses the global modal-backdrop / modal-box / modal-table look -->
+  <div class="modal-backdrop" *ngIf="shiftDrilldown" (click)="closeShiftDrilldown()">
+    <div class="modal-box modal-box--wide" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="shift-modal-title">
+          <span class="shift-modal-icon">{{ shiftDrilldown.shift.shiftId === null ? '⚠️' : '🕒' }}</span>
+          <div>
+            <span class="modal-title">{{ shiftDrilldown.shift.name }}</span>
+            <div class="shift-modal-sub">
+              <span class="shift-modal-time" *ngIf="shiftDrilldown.shift.startTime">
+                {{ shiftDrilldown.shift.startTime }} – {{ shiftDrilldown.shift.endTime }}
+              </span>
+              <span class="shift-modal-time shift-modal-time-warn" *ngIf="!shiftDrilldown.shift.startTime">
+                No shift mapped — data quality issue
+              </span>
+              <span class="shift-modal-dot">·</span>
+              <span>{{ shiftDrilldown.shift.assigned }} {{ shiftDrilldown.shift.assigned === 1 ? 'employee' : 'employees' }}</span>
+              <span class="shift-modal-dot" *ngIf="shiftDrilldown.shift.shiftId !== null">·</span>
+              <span class="shift-modal-pct" *ngIf="shiftDrilldown.shift.shiftId !== null"
+                    [class.bad]="shiftDrilldown.shift.attendancePct < 70"
+                    [class.warn]="shiftDrilldown.shift.attendancePct >= 70 && shiftDrilldown.shift.attendancePct < 85">
+                {{ shiftDrilldown.shift.attendancePct }}% attendance
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-close-btn" (click)="closeShiftDrilldown()">✕</button>
+        </div>
+      </div>
+
+      <div class="shift-modal-tabs">
+        <button [class.active]="shiftDrilldownFilter === 'all'"           (click)="shiftDrilldownFilter = 'all'">All ({{ shiftDrilldown.shift.assigned }})</button>
+        <!-- Late / Left-early are only meaningful for real shifts (have start/end). -->
+        <ng-container *ngIf="shiftDrilldown.shift.shiftId !== null">
+          <button [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">On time ({{ shiftDrilldown.shift.present - shiftDrilldown.shift.late }})</button>
+          <button [class.active]="shiftDrilldownFilter === 'late'"          (click)="shiftDrilldownFilter = 'late'">Late ({{ shiftDrilldown.shift.late }})</button>
+          <button [class.active]="shiftDrilldownFilter === 'earlyCheckout'" (click)="shiftDrilldownFilter = 'earlyCheckout'">Left early ({{ shiftDrilldown.shift.earlyCheckout }})</button>
+        </ng-container>
+        <button *ngIf="shiftDrilldown.shift.shiftId === null"
+                [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">Checked in ({{ shiftDrilldown.shift.present }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'onLeave'"       (click)="shiftDrilldownFilter = 'onLeave'">On leave ({{ shiftDrilldown.shift.onLeave }})</button>
+        <button [class.active]="shiftDrilldownFilter === 'absent'"        (click)="shiftDrilldownFilter = 'absent'">Absent ({{ shiftDrilldown.shift.absent }})</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-empty" *ngIf="shiftDrilldownLoading">Loading…</div>
+
+        <table class="modal-table" *ngIf="!shiftDrilldownLoading">
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of filteredDrilldownEmployees; let i = index"
+                [class.modal-row-alt]="i % 2 === 1"
+                [attr.data-cat]="e.category">
+              <td>{{ e.employeeCode }}</td>
+              <td>{{ e.name }}</td>
+              <td>{{ e.departmentName || '—' }}</td>
+              <td>{{ formatTime(e.checkIn) }}</td>
+              <td>
+                {{ formatTime(e.checkOut) }}
+                <span class="early-tag" *ngIf="e.leftEarlyMinutes > 0"
+                      [pTooltip]="'Left ' + e.leftEarlyMinutes + ' min before shift end'" tooltipPosition="top">↩ early</span>
+              </td>
+              <td>
+                <span class="status-pill" [attr.data-status]="e.category">
+                  {{ e.category === 'present' ? 'On time'
+                     : e.category === 'late' ? ('Late · ' + e.lateByMinutes + 'm')
+                     : e.category === 'onLeave' ? 'On leave'
+                     : 'Absent' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredDrilldownEmployees.length && !shiftDrilldownLoading">
+              <td colspan="6" class="modal-empty">No employees in this category.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-foot">{{ filteredDrilldownEmployees.length }} record(s)</div>
+    </div>
+  </div>
+
+  <div class="row-2col">
+    <!-- #2 Department-wise attendance (today) — replaces the old trend chart.
+         Stacked present/leave/permission/absent/week-off; click a bar for the list. -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Department Attendance — Today</span>
+        <span class="card-badge" *ngIf="deptAttendance?.totals as t">
+          {{ t.present }} present · {{ t.absent }} absent
+        </span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingDeptAtt"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <ng-container *ngIf="!loadingDeptAtt">
+        <div class="action-empty" *ngIf="!deptAttendance?.depts?.length">No attendance data for today.</div>
+        <div class="chart-area" [hidden]="!deptAttendance?.depts?.length"><canvas id="deptAttChart"></canvas></div>
+        <p class="chart-hint" *ngIf="deptAttendance?.depts?.length">Click a department bar to see the employee list.</p>
+      </ng-container>
+    </div>
+    <!-- #3 Weekly leave by type — replaces the leave-density calendar.
+         Stacked by leave type per week; click a week for the employee list. -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Weekly Leave by Type</span>
+        <span class="card-badge">Last 8 weeks</span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingLeaveByType"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <ng-container *ngIf="!loadingLeaveByType">
+        <div class="action-empty" *ngIf="!leaveByType?.weeks?.length">No approved leave in this window.</div>
+        <div class="chart-area" [hidden]="!leaveByType?.weeks?.length"><canvas id="leaveByTypeChart"></canvas></div>
+        <p class="chart-hint" *ngIf="leaveByType?.weeks?.length">Click a week to see who was on leave (CL / EL / SL / …).</p>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 5 — PERFORMANCE & PIP ══ -->
+  <div id="sec-pip" class="section-label">
+    Performance & PIP
+    <span class="info-icon" pTooltip="Average manager appraisal ratings by dimension (scale 0–10). Right panel shows employees currently on PIPs." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Average manager ratings across key performance dimensions (e.g. Quality, Productivity, Teamwork). The right panel lists every employee currently on a Performance Improvement Plan with their trend — improving, stable, or declining.</p>
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Avg Manager Ratings by Dimension</span>
+        <span class="card-badge" *ngIf="performanceRadar">{{ performanceRadar.totalAppraisals }} appraisals</span>
+      </div>
+      <ng-container *ngIf="!loadingPerformance && performanceRadar; else perfSkel">
+        <div class="radar-bars">
+          <div class="radar-row" *ngFor="let d of radarDimensions">
+            <span class="radar-label">{{ d.label }}</span>
+            <div class="radar-track">
+              <div class="radar-fill"
+                [style.width.%]="getRadarScore(d.key) * 10"
+                [style.background]="getScoreColor(getRadarScore(d.key))">
+              </div>
+            </div>
+            <span class="radar-val" [style.color]="getScoreColor(getRadarScore(d.key))">{{ getRadarScore(d.key) }}/10</span>
+          </div>
+        </div>
+        <p class="radar-note" *ngIf="performanceRadar.totalAppraisals === 0">No appraisal data available yet.</p>
+      </ng-container>
+      <ng-template #perfSkel>
+        <div class="chart-area skel"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      </ng-template>
+    </div>
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Active PIPs</span>
+        <span class="card-badge">{{ activePIPs.length }} employee(s)</span>
+      </div>
+      <ng-container *ngIf="!loadingPIPs">
+        <div class="pip-empty" *ngIf="!activePIPs.length">
+          <i class="pi pi-check-circle"></i> No active PIPs — great performance!
+        </div>
+        <div class="pip-list">
+          <div class="pip-item" *ngFor="let p of activePIPs">
+            <div class="pip-item-top">
+              <span class="pip-name">{{ p.employeeName }}</span>
+              <span class="pip-badge" [ngClass]="getPIPStatusClass(p.status)">{{ p.status.replace('_',' ') }}</span>
+            </div>
+            <div class="pip-item-sub">
+              <span>{{ p.department }}</span>
+              <span>Trigger: <strong style="color:#fcd34d">{{ p.triggerScore }}/100</strong></span>
+              <span class="pip-trend" [ngClass]="p.trend">
+                <i class="pi" [ngClass]="p.trend==='improving'?'pi-arrow-up':p.trend==='declining'?'pi-arrow-down':'pi-minus'"></i>
+                {{ p.trend }}
+              </span>
+            </div>
+            <div class="pip-weeks" *ngIf="p.weeklyScores.length">
+              <div class="pip-week-bar" *ngFor="let w of p.weeklyScores"
+                [style.height.%]="w.score||0"
+                [style.background]="getScoreColor((w.score||0)/10)"
+                [pTooltip]="'Week '+w.week+': '+(w.score||'N/A')"
+                tooltipPosition="top">
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <div class="chart-area skel" *ngIf="loadingPIPs"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- #6/#7/#8 Recruitment operations -->
+  <div id="sec-recruitment" class="section-label">
+    Recruitment
+    <span class="info-icon" pTooltip="Today's hiring activity, open vacancies with applications received, and the applied → selected → joined funnel by designation." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Live hiring snapshot — today's interviews/offers/joiners, open vacancies and how many applications each has drawn, and the conversion funnel per designation.</p>
+
+  <!-- #7 today's activity -->
+  <div class="card full-card">
+    <div class="pulse-grid el-kpi-grid">
+      <div class="pulse-card">
+        <span class="pulse-label">Interviews Today</span>
+        <span class="pulse-value">{{ recruitmentOps?.today?.interviewsScheduled ?? '—' }}</span>
+        <span class="pulse-sub">scheduled</span>
+      </div>
+      <div class="pulse-card">
+        <span class="pulse-label">Offers Issued Today</span>
+        <span class="pulse-value">{{ recruitmentOps?.today?.offersIssued ?? '—' }}</span>
+        <span class="pulse-sub">sent to candidates</span>
+      </div>
+      <div class="pulse-card">
+        <span class="pulse-label">Joinees Today</span>
+        <span class="pulse-value">{{ recruitmentOps?.today?.joinees ?? '—' }}</span>
+        <span class="pulse-sub">joined</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-2col">
+    <!-- #6 open vacancies -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Open Vacancies &amp; Applications</span>
+        <span class="card-badge" *ngIf="recruitmentOps?.vacancies?.length">{{ recruitmentOps.vacancies.length }} open</span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingRecruitment"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+      <ng-container *ngIf="!loadingRecruitment">
+        <div class="action-empty" *ngIf="!recruitmentOps?.vacancies?.length">No open vacancies.</div>
+        <table class="dept-table" *ngIf="recruitmentOps?.vacancies?.length">
+          <thead><tr><th>Designation</th><th>Department</th><th>Headcount</th><th>Applications</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let v of visibleRows('vacancies', recruitmentOps.vacancies)">
+              <td class="dept-name">{{ v.title }}</td>
+              <td>{{ v.dept }}</td>
+              <td>{{ v.headcount }}</td>
+              <td><span class="dept-badge badge-good">{{ v.applications }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row" *ngIf="recruitmentOps?.vacancies?.length">
+          <button class="expand-btn" *ngIf="canShowMore('vacancies', recruitmentOps.vacancies)" (click)="showMore('vacancies', recruitmentOps.vacancies)">View More ({{ recruitmentOps.vacancies.length - (expandCount['vacancies'] ?? 5) }} more)</button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('vacancies')" (click)="showLess('vacancies')">Show Less</button>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- #8 designation funnel -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">By Designation — Applied / Selected / Joined</span>
+        <span class="card-badge">Last 12 months</span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingRecruitment"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+      <ng-container *ngIf="!loadingRecruitment">
+        <div class="action-empty" *ngIf="!recruitmentOps?.byDesignation?.length">No applications in this window.</div>
+        <table class="dept-table" *ngIf="recruitmentOps?.byDesignation?.length">
+          <thead><tr><th>Designation</th><th>Applied</th><th>Selected</th><th>Joined</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let d of visibleRows('desigFunnel', recruitmentOps.byDesignation)">
+              <td class="dept-name">{{ d.designation }}</td>
+              <td>{{ d.applied }}</td>
+              <td><span class="dept-badge badge-warn">{{ d.selected }}</span></td>
+              <td><span class="dept-badge badge-good">{{ d.joined }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row" *ngIf="recruitmentOps?.byDesignation?.length">
+          <button class="expand-btn" *ngIf="canShowMore('desigFunnel', recruitmentOps.byDesignation)" (click)="showMore('desigFunnel', recruitmentOps.byDesignation)">View More ({{ recruitmentOps.byDesignation.length - (expandCount['desigFunnel'] ?? 5) }} more)</button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('desigFunnel')" (click)="showLess('desigFunnel')">Show Less</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 8 — TRAINING ══ -->
+  <div id="sec-training" class="section-label">
+    Training Completion
+    <span class="info-icon" pTooltip="% of training assignments completed per department. Low completion = skill gap or engagement risk." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Percentage of assigned training modules completed per department. Low completion rates may signal time constraints, engagement issues, or skill gaps that need management follow-up.</p>
+
+  <!-- #4 Today's trainings — derived from the training calendar -->
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Today's Trainings</span>
+      <span class="card-badge" *ngIf="todayTrainings.length">{{ todayTrainings.length }} scheduled today</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingTrainingCalendar"><p-skeleton width="100%" height="4rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingTrainingCalendar">
+      <div class="action-empty" *ngIf="!todayTrainings.length">
+        <i class="pi pi-info-circle"></i> No trainings scheduled for today.
+      </div>
+      <table class="dept-table" *ngIf="todayTrainings.length">
+        <thead>
+          <tr><th>Training</th><th>Department</th><th>Mode</th><th>Assigned</th><th>Attended</th><th>Attendance</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of todayTrainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.dept }}</td>
+            <td>{{ t.mode }}</td>
+            <td>{{ t.assignedCount }}</td>
+            <td>{{ t.attendedCount }}</td>
+            <td><span class="dept-badge" [ngClass]="t.attendancePct >= 80 ? 'badge-good' : t.attendancePct >= 50 ? 'badge-warn' : 'badge-danger'">{{ t.attendancePct }}%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Training Completion by Department</span>
+      <div class="card-head-right">
+        <!-- #5 institute-wide training completion to date -->
+        <span class="card-badge" *ngIf="trainingAssignedTotal">
+          {{ trainingCompletedTotal }}/{{ trainingAssignedTotal }} completed · {{ trainingCompletionPctOverall }}%
+        </span>
+        <button class="view-details-btn" *ngIf="trainingByDept.length" (click)="openChartModal('training')">View Details</button>
+      </div>
+    </div>
+    <ng-container *ngIf="!loadingTraining">
+      <div class="training-empty" *ngIf="!trainingByDept.length">No training data available.</div>
+      <div class="training-grid">
+        <div class="training-dept-card" *ngFor="let d of trainingByDept">
+          <div class="tr-ring">
+            <svg viewBox="0 0 44 44" class="tr-ring-svg">
+              <circle class="ring-bg" cx="22" cy="22" r="18"/>
+              <circle class="ring-fill" cx="22" cy="22" r="18"
+                [attr.stroke]="getScoreColor(d.pct/10)"
+                [style.stroke-dasharray]="(d.pct/100*113.1)+' 113.1'">
+              </circle>
+            </svg>
+            <span class="tr-ring-num" [style.color]="getScoreColor(d.pct/10)">{{ d.pct }}%</span>
+          </div>
+          <div class="tr-info">
+            <span class="tr-dept">{{ d.dept }}</span>
+            <span class="tr-count">{{ d.completed }}/{{ d.total }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <div class="chart-area skel" *ngIf="loadingTraining"><p-skeleton width="100%" height="5rem"></p-skeleton></div>
+  </div>
+
+  <!-- #15 PIP monitor — richer read-only view -->
+  <div id="sec-pip-monitor" class="section-label">
+    PIP Monitor
+    <span class="info-icon" pTooltip="Live view of all Performance Improvement Plans: status, weekly-review trend, employee response, days in current stage, extensions and who's nearing termination. Manage actions in Administration → PIP." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Early-warning monitor for active PIPs. Status breakdown, weekly-review trend, whether the employee has responded, and days in the current stage. Use Administration → PIP for actions.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Performance Improvement Plans</span>
+      <div class="card-head-right">
+        <span class="card-badge" *ngFor="let s of pipMonitor?.statusBreakdown" [ngClass]="getPipStatusClass(s.status)" style="margin-left:4px;">
+          {{ s.status.replace('_',' ').replace('_',' ') }}: {{ s.count }}
+        </span>
+      </div>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingPipMonitor"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingPipMonitor">
+      <div class="action-empty" *ngIf="!pipMonitor?.list?.length"><i class="pi pi-check-circle"></i> No active PIPs.</div>
+      <div class="dept-table-wrap" *ngIf="pipMonitor?.list?.length">
+        <table class="dept-table">
+          <thead>
+            <tr><th>Employee</th><th>Dept</th><th>Status</th><th>Trigger</th><th>Days in Stage</th><th>Reviews</th><th>Latest</th><th>Trend</th><th>Responded</th><th>Ends</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of visibleRows('pipMonitor', pipMonitor.list)" [class.modal-row-alt]="p.nearingTermination">
+              <td class="dept-name">{{ p.employeeName }}</td>
+              <td>{{ p.dept }}</td>
+              <td>
+                <span class="dept-badge" [ngClass]="getPipStatusClass(p.status)">{{ p.status.replace('_',' ').replace('_',' ') }}</span>
+                <span *ngIf="p.extendedCount > 0" class="text-muted" style="font-size:0.7rem;"> ×{{ p.extendedCount }}</span>
+              </td>
+              <td>{{ p.triggerScore }}/100</td>
+              <td>{{ p.daysInStage }}d</td>
+              <td>{{ p.reviewsDone }}</td>
+              <td>{{ p.latestScore != null ? p.latestScore : '—' }}</td>
+              <td>
+                <span [ngClass]="{'text-good': p.trend==='improving', 'text-muted': p.trend==='stable'||p.trend==='neutral'}"
+                      [style.color]="p.trend==='declining' ? '#fca5a5' : null">
+                  {{ p.trend === 'improving' ? '▲' : p.trend === 'declining' ? '▼' : '·' }} {{ p.trend }}
+                </span>
+              </td>
+              <td><span class="dept-badge" [ngClass]="p.responded ? 'badge-good' : 'badge-warn'">{{ p.responded ? 'Yes' : 'Pending' }}</span></td>
+              <td>{{ p.pipEndDate || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="expand-row" *ngIf="pipMonitor?.list?.length">
+        <button class="expand-btn" *ngIf="canShowMore('pipMonitor', pipMonitor.list)" (click)="showMore('pipMonitor', pipMonitor.list)">View More ({{ pipMonitor.list.length - (expandCount['pipMonitor'] ?? 5) }} more)</button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('pipMonitor')" (click)="showLess('pipMonitor')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- #16 Appraisal scores -->
+  <div id="sec-appraisal" class="section-label">
+    Appraisal Scores
+    <span class="info-icon" pTooltip="Latest appraisal overall score per employee — distribution by band, department averages, and who's not yet been appraised. Click a band for the employee list." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Latest appraisal results across the institute — score-band split, department averages, and appraisal coverage. Click a band slice to see those employees.</p>
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Score Distribution</span>
+        <span class="card-badge" *ngIf="appraisalScores">{{ appraisalScores.appraised }}/{{ appraisalScores.totalActive }} appraised ({{ appraisalScores.completionPct }}%)</span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingAppraisal"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingAppraisal">
+        <div class="action-empty" *ngIf="!appraisalScores?.bands?.length"><i class="pi pi-chart-pie"></i> No appraisal scores recorded yet.</div>
+        <div class="chart-area" style="height:240px;" [hidden]="!appraisalScores?.bands?.length"><canvas id="appraisalBandChart"></canvas></div>
+        <p class="chart-hint" *ngIf="appraisalScores?.bands?.length">Click a band for the employees in it.</p>
+      </ng-container>
+    </div>
+    <div class="card col-6">
+      <div class="card-head"><span class="card-title">Average Score by Department</span></div>
+      <div class="chart-area skel" *ngIf="loadingAppraisal"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingAppraisal">
+        <div class="action-empty" *ngIf="!appraisalScores?.deptAvg?.length">No data.</div>
+        <table class="dept-table" *ngIf="appraisalScores?.deptAvg?.length">
+          <thead><tr><th>Department</th><th>Avg Score</th><th>Appraised</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let d of visibleRows('apprDept', appraisalScores.deptAvg)">
+              <td class="dept-name">{{ d.dept }}</td>
+              <td><span class="dept-badge" [ngClass]="d.avg >= 80 ? 'badge-good' : d.avg >= 60 ? '' : d.avg >= 40 ? 'badge-warn' : 'badge-danger'">{{ d.avg }}/100</span></td>
+              <td>{{ d.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row" *ngIf="appraisalScores?.deptAvg?.length">
+          <button class="expand-btn" *ngIf="canShowMore('apprDept', appraisalScores.deptAvg)" (click)="showMore('apprDept', appraisalScores.deptAvg)">View More</button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('apprDept')" (click)="showLess('apprDept')">Show Less</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- #13/#21 Employee reliability + half-year appraisal readiness -->
+  <div id="sec-reliability" class="section-label">
+    Employee Reliability &amp; Appraisal Readiness
+    <span class="info-icon" pTooltip="Composite reliability score (last 6 months) from attendance, leave discipline, weekly performance and incidents. Eligible = score ≥ 60. Convicted incidents apply a heavy negative." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc" *ngIf="reliability?.weights as w">
+    Half-year reliability score = Attendance ({{ w.attendance }}) + Leave discipline ({{ w.leave }}) + Weekly performance ({{ w.weekly }}) + Incidents ({{ w.incidents }}); a substantiated (convicted) incident is a heavy negative. <strong>Eligible for appraisal = score ≥ {{ reliability.cutoff }}.</strong> Worst scores shown first.
+  </p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Reliability Scorecard (last {{ reliability?.months || 6 }} months)</span>
+      <span class="card-badge" *ngIf="reliability?.summary as s">{{ s.ready }}/{{ s.total }} eligible (≥{{ reliability.cutoff }})</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingReliability"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingReliability">
+      <div class="action-empty" *ngIf="!reliability?.rows?.length">No data.</div>
+      <div class="dept-table-wrap" *ngIf="reliability?.rows?.length">
+        <table class="dept-table">
+          <thead>
+            <tr><th>Employee</th><th>Dept</th><th>Atd</th><th>Leave</th><th>Weekly</th><th>Incidents</th><th>Score</th><th>Appraisal</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of visibleRows('reliability', reliability.rows)">
+              <td class="dept-name">{{ r.name }}</td>
+              <td>{{ r.dept }}</td>
+              <td [pTooltip]="r.presentDays + ' present · ' + r.absentDays + ' absent'" tooltipPosition="top">{{ r.attendanceScore }}</td>
+              <td [pTooltip]="r.leaveDays + ' leave days'" tooltipPosition="top">{{ r.leaveScore }}</td>
+              <td [pTooltip]="r.weeklyAvg != null ? ('avg ' + r.weeklyAvg + '/100') : 'no ratings (neutral)'" tooltipPosition="top">{{ r.weeklyScore }}</td>
+              <td [pTooltip]="r.incidents + ' incidents · ' + r.convicted + ' convicted'" tooltipPosition="top">
+                {{ r.incidentScore }}
+                <span *ngIf="r.convicted > 0" class="dept-badge badge-danger" style="margin-left:4px;">{{ r.convicted }}⚠</span>
+              </td>
+              <td>
+                <span class="dept-badge" [ngClass]="getReliabilityClass(r.rating)">{{ r.score }} · {{ r.rating }}</span>
+                <span class="reason-link" [pTooltip]="reliabilityBreakdown(r)" tooltipPosition="left">ⓘ</span>
+              </td>
+              <td>
+                <span class="dept-badge" [ngClass]="r.eligible ? 'badge-good' : 'badge-danger'">{{ r.eligible ? 'Eligible' : 'Not yet' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="expand-row" *ngIf="reliability?.rows?.length">
+        <button class="expand-btn" *ngIf="canShowMore('reliability', reliability.rows)" (click)="showMore('reliability', reliability.rows)">View More ({{ reliability.rows.length - (expandCount['reliability'] ?? 5) }} more)</button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('reliability')" (click)="showLess('reliability')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Probation overview -->
+  <div id="sec-probation" class="section-label">
+    Probation
+    <span class="info-icon" pTooltip="Probation status breakdown (in-progress, extended, confirmed, etc.) and a list of employees currently on or with extended probation, with end dates." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Where employees stand on probation — status split and who's currently on (or has extended) probation, with how long until their probation end date.</p>
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Probation Status</span>
+        <span class="card-badge" *ngIf="probation">{{ probation.inProgress }} in-progress · {{ probation.extended }} extended</span>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingProbation"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingProbation">
+        <div class="action-empty" *ngIf="!probation?.statusBreakdown?.length">No probation records.</div>
+        <div class="chart-area" style="height:240px;" [hidden]="!probation?.statusBreakdown?.length"><canvas id="probationChart"></canvas></div>
+      </ng-container>
+    </div>
+    <div class="card col-6">
+      <div class="card-head"><span class="card-title">On / Extended Probation</span></div>
+      <div class="chart-area skel" *ngIf="loadingProbation"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingProbation">
+        <div class="action-empty" *ngIf="!probation?.list?.length">No employees on active probation.</div>
+        <table class="dept-table" *ngIf="probation?.list?.length">
+          <thead><tr><th>Employee</th><th>Dept</th><th>Status</th><th>Ends</th><th>Days Left</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of visibleRows('probation', probation.list)">
+              <td class="dept-name">{{ p.name }}</td>
+              <td>{{ p.dept }}</td>
+              <td>
+                <span class="dept-badge" [ngClass]="p.status === 'EXTENDED' ? 'badge-warn' : ''">{{ p.status.replace('_',' ') }}</span>
+                <span *ngIf="p.status === 'EXTENDED'" class="reason-link" (click)="openProbationReason(p)"
+                      pTooltip="View extension reason" tooltipPosition="top">ⓘ</span>
+              </td>
+              <td>{{ p.endDate }}</td>
+              <td>
+                <span *ngIf="p.daysToEnd !== null" class="dept-badge" [ngClass]="p.overdue ? 'badge-danger' : p.daysToEnd <= 14 ? 'badge-warn' : 'badge-good'">
+                  {{ p.overdue ? (-p.daysToEnd) + 'd overdue' : p.daysToEnd + 'd' }}
+                </span>
+                <span *ngIf="p.daysToEnd === null" class="text-muted">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row" *ngIf="probation?.list?.length">
+          <button class="expand-btn" *ngIf="canShowMore('probation', probation.list)" (click)="showMore('probation', probation.list)">View More</button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('probation')" (click)="showLess('probation')">Show Less</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- #12 Weekly performance — filled vs pending -->
+  <div id="sec-weekly-perf" class="section-label">
+    Weekly Performance Status
+    <span class="info-icon" pTooltip="How many manager weekly-performance ratings were submitted (filled) vs still pending, per week." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Submitted vs pending weekly manager ratings across the last 6 weeks — a quick view of how consistently teams are completing the weekly review cycle.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Filled vs Pending (last 6 weeks)</span>
+      <span class="card-badge" *ngIf="weeklyPerfStatus?.totalActive">{{ weeklyPerfStatus.totalActive }} active employees</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingWeeklyPerf"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+    <div class="chart-area" style="height:240px;" [hidden]="loadingWeeklyPerf"><canvas id="weeklyPerfChart"></canvas></div>
+  </div>
+
+  <!-- ══ SECTION 9 — ACTION ITEMS ══ -->
+  <div id="sec-actions" class="section-label">
+    Action Required
+    <span class="info-icon" pTooltip="Items needing immediate attention: PIPs at termination, unresolved grievances, POSH cases, probation endings, expiring documents, pending clearances." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Consolidated list of items that need immediate management action — PIPs nearing termination stage, open grievances, POSH cases, probation end dates, expiring documents, and pending exit clearances.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Items Needing Attention</span>
+      <span class="card-badge danger-badge" *ngIf="!loadingActions && actionItems.length">{{ actionItems.length }} item(s)</span>
+    </div>
+    <ng-container *ngIf="!loadingActions">
+      <div class="action-empty" *ngIf="!actionItems.length">
+        <i class="pi pi-check-circle"></i> All clear — no pending action items!
+      </div>
+      <table class="action-table" *ngIf="actionItems.length">
+        <thead>
+          <tr>
+            <th>Category</th><th>Item</th><th>Employee</th><th>Department</th><th>Since / Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of actionItems" [ngClass]="getSeverityClass(a.severity)">
+            <td><span class="action-cat-badge" [ngClass]="'cat-'+a.tag">{{ a.category }}</span></td>
+            <td>{{ a.item }}</td>
+            <td>{{ a.employee }}</td>
+            <td>{{ a.dept }}</td>
+            <td>
+              <span *ngIf="a.since !== null && a.since !== undefined">{{ a.since }} day(s) ago</span>
+              <span *ngIf="a.daysLeft !== null && a.daysLeft !== undefined">{{ a.daysLeft }} day(s) left</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+    <div class="chart-area skel" *ngIf="loadingActions"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+  </div>
+
+  <!-- #14 Incidents analytics -->
+  <div id="sec-incidents" class="section-label">
+    Incidents
+    <span class="info-icon" pTooltip="Incident trend by month and by department, severity split, and outcome totals (substantiated = proven; false report = proven false)." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Workplace incidents over the last 6 months — volume trend, where they occur, severity mix, and how investigations concluded. Click a bar for the underlying incidents.</p>
+  <div class="card full-card" *ngIf="incidents?.totals as t">
+    <div class="pulse-grid el-kpi-grid">
+      <div class="pulse-card"><span class="pulse-label">Total Incidents</span><span class="pulse-value">{{ t.total }}</span><span class="pulse-sub">last {{ incidents.months }} months</span></div>
+      <div class="pulse-card"><span class="pulse-label">Open</span><span class="pulse-value">{{ t.open }}</span><span class="pulse-sub">under investigation</span></div>
+      <div class="pulse-card"><span class="pulse-label">Substantiated</span><span class="pulse-value">{{ t.substantiated }}</span><span class="pulse-sub">proven (convicted)</span></div>
+      <div class="pulse-card"><span class="pulse-label">False Reports</span><span class="pulse-value">{{ t.falseReport }}</span><span class="pulse-sub">proven false</span></div>
+    </div>
+  </div>
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head"><span class="card-title">Incidents by Month</span></div>
+      <div class="chart-area skel" *ngIf="loadingIncidents"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingIncidents">
+        <div class="action-empty" *ngIf="!incidents?.byMonth?.length">No incidents recorded.</div>
+        <div class="chart-area" style="height:220px;" [hidden]="!incidents?.byMonth?.length"><canvas id="incMonthChart"></canvas></div>
+        <p class="chart-hint" *ngIf="incidents?.byMonth?.length">Click a month for its incidents.</p>
+      </ng-container>
+    </div>
+    <div class="card col-6">
+      <div class="card-head"><span class="card-title">Incidents by Department</span></div>
+      <div class="chart-area skel" *ngIf="loadingIncidents"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+      <ng-container *ngIf="!loadingIncidents">
+        <div class="action-empty" *ngIf="!incidents?.byDept?.length">No incidents recorded.</div>
+        <div class="chart-area" style="height:220px;" [hidden]="!incidents?.byDept?.length"><canvas id="incDeptChart"></canvas></div>
+        <p class="chart-hint" *ngIf="incidents?.byDept?.length">Click a department for its incidents.</p>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 12 — OT ANALYSIS ══ -->
+  <div id="sec-ot" class="section-label">
+    Overtime Analysis
+    <span class="info-icon" pTooltip="Department-wise and employee-wise overtime hours for the selected month. Only approved OT is counted." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Approved overtime hours broken down by department and individual employees for the selected month. Consistently high OT in a department may indicate understaffing or workload imbalance.</p>
+  <div class="month-nav">
+    <button class="month-nav-btn" (click)="prevOtMonth()">‹</button>
+    <span class="month-nav-label">{{ otMonthLabel || (otMonth | date:'MMMM yyyy') }}</span>
+    <button class="month-nav-btn" (click)="nextOtMonth()" [disabled]="isCurrentOtMonth()">›</button>
+  </div>
+  <div class="row-2col">
+    <!-- OT by dept chart -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">OT Hours by Department</span>
+        <button class="view-details-btn" *ngIf="otAnalysis?.deptTotals?.length" (click)="openChartModal('ot-dept')">View Details</button>
+      </div>
+      <div class="chart-area" style="height:220px;" [hidden]="loadingOtAnalysis">
+        <canvas id="otDeptChart"></canvas>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingOtAnalysis"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+    <!-- Top OT employees -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Overtime Employees</span>
+        <button class="view-details-btn" *ngIf="otAnalysis?.topEmployees?.length" (click)="openChartModal('ot-emp')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingOtAnalysis && otAnalysis?.topEmployees?.length">
+        <table class="dept-table">
+          <thead><tr><th>Name</th><th>Dept</th><th>Designation</th><th>OT Hrs</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let e of visibleRows('otEmp', otAnalysis.topEmployees)">
+              <td>{{ e.name }}</td>
+              <td>{{ e.dept }}</td>
+              <td>{{ e.designation }}</td>
+              <td><strong>{{ e.hours }}h</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('otEmp', otAnalysis.topEmployees)" (click)="showMore('otEmp', otAnalysis.topEmployees)">
+            View More ({{ otAnalysis.topEmployees.length - (expandCount['otEmp'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('otEmp')" (click)="showLess('otEmp')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingOtAnalysis && !otAnalysis?.topEmployees?.length">No OT records this month.</div>
+      <div class="chart-area skel" *ngIf="loadingOtAnalysis"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- #17 OT eligibility breaches -->
+  <div id="sec-ot-elig" class="section-label">
+    OT Eligibility Breaches
+    <span class="info-icon" pTooltip="Policy: an employee may do OT at most twice a week, max 2 hours each time. Weeks exceeding that are flagged, grouped by department." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">{{ otEligibility?.policy || 'Eligible OT: max 2 days/week, ≤ 2h each.' }} Departments where the rule is being exceeded this month — click a bar for the offending employee-weeks.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Breaches by Department — {{ otEligibility?.monthLabel }}</span>
+      <span class="card-badge" *ngIf="otEligibility?.breaches">{{ otEligibility.breaches.length }} breach-weeks</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingOtElig"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    <ng-container *ngIf="!loadingOtElig">
+      <div class="action-empty" *ngIf="!otEligibility?.deptBreaches?.length">No OT-eligibility breaches this month. ✅</div>
+      <div class="chart-area" style="height:240px;" [hidden]="!otEligibility?.deptBreaches?.length"><canvas id="otEligChart"></canvas></div>
+      <p class="chart-hint" *ngIf="otEligibility?.deptBreaches?.length">Click a department bar for the breach details.</p>
+    </ng-container>
+  </div>
+
+  <!-- #18/#19 Capacity planning — read-only; config is set in Masters → Departments -->
+  <div id="sec-capacity" class="section-label">
+    Capacity Planning
+    <span class="info-icon" pTooltip="Per-department OT budget vs actual approved OT this month, and minimum daily strength vs how many are present today. Budgets, min-strength and appraisal cycle are configured in Masters → Departments." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Actual OT and today's present headcount tracked against each department's <strong>OT budget</strong>, <strong>minimum daily strength</strong> and <strong>appraisal cycle</strong>. Over-budget OT and below-minimum strength are flagged. <em>Configure these values in <strong>Masters → Departments</strong>.</em></p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Department OT Budget &amp; Strength — {{ deptPlanning?.monthLabel }}</span>
+      <span class="card-badge" *ngIf="deptPlanning?.rows?.length">{{ deptPlanning.rows.length }} departments</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingDeptPlanning"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingDeptPlanning">
+      <div class="action-empty" *ngIf="!deptPlanning?.rows?.length">No departments found.</div>
+      <div class="dept-table-wrap" *ngIf="deptPlanning?.rows?.length">
+        <table class="dept-table">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>OT Budget</th>
+              <th>OT Actual</th>
+              <th>Used</th>
+              <th>Min Strength</th>
+              <th>Headcount</th>
+              <th>Present Today</th>
+              <th>Status</th>
+              <th>Appraisal Cycle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of deptPlanning.rows">
+              <td class="dept-name">{{ r.dept }}</td>
+              <td>{{ r.otBudgetHours ? r.otBudgetHours + 'h' : '—' }}</td>
+              <td>{{ r.otActualHours }}h</td>
+              <td>
+                <span *ngIf="r.otPctUsed !== null" class="dept-badge" [ngClass]="r.otOver ? 'badge-danger' : r.otPctUsed >= 80 ? 'badge-warn' : 'badge-good'">{{ r.otPctUsed }}%</span>
+                <span *ngIf="r.otPctUsed === null" class="text-muted">—</span>
+              </td>
+              <td>{{ r.minDailyStrength || '—' }}</td>
+              <td>{{ r.headcount }}</td>
+              <td>{{ r.presentToday }}</td>
+              <td>
+                <span *ngIf="r.belowMin" class="dept-badge badge-danger">−{{ r.strengthShortfall }} short</span>
+                <span *ngIf="!r.belowMin && r.minDailyStrength > 0" class="dept-badge badge-good">OK</span>
+                <span *ngIf="r.minDailyStrength === 0 && !r.otOver" class="text-muted">—</span>
+                <span *ngIf="r.otOver" class="dept-badge badge-danger">OT over budget</span>
+              </td>
+              <td>
+                <span class="text-muted">
+                  {{ r.appraisalCycleBasis === 'CALENDAR'
+                      ? ('Calendar · ' + (monthOptions[(r.appraisalCalendarMonth || 1) - 1]?.n || '—'))
+                      : ('DOJ · ' + r.appraisalPeriodMonths + 'mo') }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- #20 Appraisal due this month (per dept cycle config above) -->
+  <div id="sec-appraisal-due" class="section-label">
+    Appraisal Due This Month
+    <span class="info-icon" pTooltip="Employees due for appraisal in the current month, per each department's configured cycle (DOJ anniversary or fixed calendar month, 6/12-month period — set in Capacity Planning / Masters)." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Who is due for appraisal in {{ appraisalElig?.monthLabel }}, based on each department's cycle policy. Configure the policy per department in the Capacity Planning table above (or Masters → Departments).</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Due — {{ appraisalElig?.monthLabel }}</span>
+      <span class="card-badge" [ngClass]="appraisalElig?.dueCount ? 'danger-badge' : ''">{{ appraisalElig?.dueCount || 0 }} due</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingAppraisalElig"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingAppraisalElig">
+      <div class="action-empty" *ngIf="!appraisalElig?.due?.length"><i class="pi pi-info-circle"></i> No employees due for appraisal this month under the current policies.</div>
+      <table class="dept-table" *ngIf="appraisalElig?.due?.length">
+        <thead>
+          <tr><th>Employee</th><th>Code</th><th>Department</th><th>Designation</th><th>Joined</th><th>Tenure</th><th>Milestone</th><th>Basis</th><th>Last Appraisal</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of visibleRows('apprDue', appraisalElig.due)">
+            <td class="dept-name">{{ e.name }}</td>
+            <td>{{ e.employeeCode }}</td>
+            <td>{{ e.dept }}</td>
+            <td>{{ e.designation }}</td>
+            <td>{{ e.doj }}</td>
+            <td>{{ e.tenureMonths }} mo</td>
+            <td><span class="dept-badge badge-warn">{{ e.milestone }}</span></td>
+            <td>{{ e.basis }}</td>
+            <td><span [ngClass]="e.lastAppraisal === 'Never' ? 'text-muted' : ''">{{ e.lastAppraisal }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row" *ngIf="appraisalElig?.due?.length">
+        <button class="expand-btn" *ngIf="canShowMore('apprDue', appraisalElig.due)" (click)="showMore('apprDue', appraisalElig.due)">View More ({{ appraisalElig.due.length - (expandCount['apprDue'] ?? 5) }} more)</button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('apprDue')" (click)="showLess('apprDue')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- #22 Salary increments by department — salary-gated -->
+  <ng-container *ngIf="salaryDataEnabled">
+  <div id="sec-increments" class="section-label">
+    Salary Increments
+    <span class="info-icon" pTooltip="Average salary increment % per department (latest revision per employee over the last 12 months). Click a department for the individual increments." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Average increment % by department over the last 12 months (from recorded salary revisions). Click a department for each employee's previous → new CTC and %.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Average Increment % by Department</span>
+      <span class="card-badge" *ngIf="salaryIncrements">{{ salaryIncrements.employeesRevised }} employees revised</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingSalaryIncrements"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingSalaryIncrements">
+      <div class="action-empty" *ngIf="!salaryIncrements?.deptAvg?.length">
+        <i class="pi pi-info-circle"></i> No salary revisions recorded yet. Increment % populates as salaries are revised (via Payroll → Salary Structure).
+      </div>
+      <table class="dept-table" *ngIf="salaryIncrements?.deptAvg?.length">
+        <thead><tr><th>Department</th><th>Avg Increment %</th><th>Employees</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let d of salaryIncrements.deptAvg">
+            <td class="dept-name">{{ d.dept }}</td>
+            <td><span class="dept-badge" [ngClass]="d.avgIncrementPct >= 10 ? 'badge-good' : d.avgIncrementPct > 0 ? 'badge-warn' : 'badge-danger'">{{ d.avgIncrementPct }}%</span></td>
+            <td>{{ d.count }}</td>
+            <td><button class="shift-toggle-btn" (click)="openIncrementDeptModal(d)">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+  </ng-container>
+
+  <!-- #23 OT vs marginal-hire cost — salary-gated -->
+  <ng-container *ngIf="salaryDataEnabled">
+  <div id="sec-ot-vs-hire" class="section-label">
+    OT vs Hiring Cost
+    <span class="info-icon" pTooltip="Per department, this month's approved OT valued against the cost of one junior hire. When OT approaches a full FTE-month, it's cheaper to hire than keep paying OT." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">{{ otVsHire?.assumptions }} Departments where sustained OT is approaching the cost of an extra hire are flagged "consider hiring".</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">OT-vs-Hire — {{ otVsHire?.monthLabel }}</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingOtVsHire"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingOtVsHire">
+      <div class="action-empty" *ngIf="!otVsHire?.rows?.length">No approved OT this month.</div>
+      <table class="dept-table" *ngIf="otVsHire?.rows?.length">
+        <thead>
+          <tr><th>Department</th><th>OT Hours</th><th>≈ FTE-days</th><th>Junior Avg/mo</th><th>OT Cost</th><th>≈ Hires</th><th>Recommendation</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of otVsHire.rows">
+            <td class="dept-name">{{ r.dept }}</td>
+            <td>{{ r.otHours }}h</td>
+            <td>{{ r.otEquivalentDays }}</td>
+            <td>{{ r.juniorAvgMonthly | currency:'INR':'symbol':'1.0-0' }}</td>
+            <td>{{ r.otCost | currency:'INR':'symbol':'1.0-0' }}</td>
+            <td><span class="dept-badge" [ngClass]="r.equivalentHires >= 0.8 ? 'badge-danger' : r.equivalentHires >= 0.5 ? 'badge-warn' : 'badge-good'">{{ r.equivalentHires }}</span></td>
+            <td>
+              <span *ngIf="r.recommendHire" class="dept-badge badge-danger">Consider hiring</span>
+              <span *ngIf="!r.recommendHire" class="text-muted">OT within limits</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+  </ng-container>
+
+  <!-- ══ SECTION 12e — PAYROLL READINESS ══ -->
+  <!-- Gated by environment.payrollEnabled — payroll is not applicable for some clients (e.g. JMRH). -->
+  <ng-container *ngIf="payrollEnabled">
+  <div id="sec-readiness" class="section-label">
+    Payroll Readiness
+    <span class="info-icon" pTooltip="Pre-run health check: active employees with no salary structure would be skipped in a payroll run. Also shows CTC spread, monthly TDS liability and scheduled salary revisions." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Active employees missing a salary structure (would be skipped at payroll run), monthly CTC distribution, total monthly TDS liability and upcoming salary revisions.</p>
+
+  <div class="chart-area skel" *ngIf="loadingPayrollReadiness"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+
+  <ng-container *ngIf="!loadingPayrollReadiness && payrollReadiness">
+    <div class="card full-card">
+      <div class="pulse-grid">
+        <div class="pulse-card">
+          <span class="pulse-label">Missing Salary Structure</span>
+          <span class="pulse-value">{{ payrollReadiness.missingStructure.count }}</span>
+          <span class="pulse-sub">Active staff not payroll-ready</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Structures On File</span>
+          <span class="pulse-value">{{ payrollReadiness.structuresOnFile }}</span>
+          <span class="pulse-sub">Salary structures configured</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Monthly TDS Liability</span>
+          <span class="pulse-value">{{ payrollReadiness.totalMonthlyTds | currency:'INR':'symbol':'1.0-0' }}</span>
+          <span class="pulse-sub">Sum of configured TDS</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Upcoming Revisions</span>
+          <span class="pulse-value">{{ payrollReadiness.upcomingRevisions.count }}</span>
+          <span class="pulse-sub">Scheduled salary changes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-2col">
+      <div class="card col-6">
+        <div class="card-head"><span class="card-title">Monthly CTC Distribution</span></div>
+        <div class="chart-area" style="height:240px;"><canvas id="ctcDistChart"></canvas></div>
+        <div class="action-empty" *ngIf="!payrollReadiness.ctcDistribution?.length">No salary structures.</div>
+      </div>
+      <div class="card col-6">
+        <div class="card-head"><span class="card-title">Missing Salary Structure</span></div>
+        <ng-container *ngIf="payrollReadiness.missingStructure.employees?.length">
+          <table class="dept-table">
+            <thead><tr><th>Employee</th><th>Code</th><th>Dept</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of visibleRows('missStruct', payrollReadiness.missingStructure.employees)">
+                <td class="dept-name">{{ e.name }}</td>
+                <td>{{ e.employeeCode }}</td>
+                <td>{{ e.dept }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="expand-row">
+            <button class="expand-btn" *ngIf="canShowMore('missStruct', payrollReadiness.missingStructure.employees)" (click)="showMore('missStruct', payrollReadiness.missingStructure.employees)">
+              View More ({{ payrollReadiness.missingStructure.employees.length - (expandCount['missStruct'] ?? 5) }} more)
+            </button>
+            <button class="expand-btn expand-btn-less" *ngIf="isExpanded('missStruct')" (click)="showLess('missStruct')">Show Less</button>
+          </div>
+        </ng-container>
+        <div class="action-empty" *ngIf="!payrollReadiness.missingStructure.employees?.length">All active staff have a salary structure.</div>
+      </div>
+    </div>
+
+    <div class="card full-card" *ngIf="payrollReadiness.upcomingRevisions.items?.length">
+      <div class="card-head"><span class="card-title">Upcoming Salary Revisions</span></div>
+      <table class="dept-table">
+        <thead><tr><th>Employee</th><th>Code</th><th>Dept</th><th>Effective From</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let u of payrollReadiness.upcomingRevisions.items">
+            <td class="dept-name">{{ u.name }}</td>
+            <td>{{ u.employeeCode }}</td>
+            <td>{{ u.dept }}</td>
+            <td>{{ u.effectiveFrom | date:'mediumDate' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+  </ng-container>
+
+  <!-- #9 Punctuality watch — chronic late + early-leaving, scored -->
+  <div id="sec-punctuality" class="section-label">
+    Punctuality & Discipline
+    <span class="info-icon" pTooltip="Employees repeatedly arriving late (>15 min) or leaving before shift end over the last 4 weeks, scored. Lower score = more frequent breaches." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Over the last {{ punctuality?.weeks || 4 }} weeks ({{ punctuality?.rangeStart }} – {{ punctuality?.rangeEnd }}): who is regularly late or leaving early. Score = 100 − (5 × late days) − (4 × early-leave days).</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Late &amp; Early-Leaving Watch</span>
+      <span class="card-badge danger-badge" *ngIf="punctuality?.rows?.length">{{ punctuality.rows.length }} flagged</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingPunctuality"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingPunctuality">
+      <div class="action-empty" *ngIf="!punctuality?.rows?.length"><i class="pi pi-check-circle"></i> No late / early-leaving patterns this period.</div>
+      <table class="dept-table" *ngIf="punctuality?.rows?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Present Days</th><th>Late Days</th><th>Avg Late</th><th>Early-Leave Days</th><th>Avg Early</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of visibleRows('punctuality', punctuality.rows)">
+            <td class="dept-name">{{ e.name }}</td>
+            <td>{{ e.dept }}</td>
+            <td>{{ e.daysPresent }}</td>
+            <td><span *ngIf="e.lateCount" class="dept-badge badge-warn">{{ e.lateCount }}x</span><span *ngIf="!e.lateCount" class="text-good">—</span></td>
+            <td>{{ e.lateCount ? e.avgLateMin + ' min' : '—' }}</td>
+            <td><span *ngIf="e.earlyCount" class="dept-badge" style="background:rgba(96,165,250,0.15);color:#93c5fd;">{{ e.earlyCount }}x</span><span *ngIf="!e.earlyCount" class="text-good">—</span></td>
+            <td>{{ e.earlyCount ? e.avgEarlyMin + ' min' : '—' }}</td>
+            <td><span class="dept-badge" [ngClass]="getPunctualityClass(e.rating)">{{ e.score }} · {{ e.rating }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row" *ngIf="punctuality?.rows?.length">
+        <button class="expand-btn" *ngIf="canShowMore('punctuality', punctuality.rows)" (click)="showMore('punctuality', punctuality.rows)">View More ({{ punctuality.rows.length - (expandCount['punctuality'] ?? 5) }} more)</button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('punctuality')" (click)="showLess('punctuality')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- #11 Scheduled vs actual worked hours (this week) -->
+  <div id="sec-worked-hours" class="section-label">
+    Worked Hours vs Shift Hours
+    <span class="info-icon" pTooltip="For the current week, on days present: shift (scheduled) hours vs actual hours worked (check-out − check-in). Lowest match % shown first." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Current week ({{ workedHours?.weekLabel }}): are employees putting in their shift hours? Compares scheduled shift duration with actual worked hours on the days they were present. {{ workedHours?.coverageNote }}</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Scheduled vs Actual — {{ workedHours?.weekLabel }}</span>
+      <span class="card-badge" *ngIf="workedHours?.rows?.length">{{ workedHours.rows.length }} employees</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingWorkedHours"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingWorkedHours">
+      <div class="action-empty" *ngIf="!workedHours?.rows?.length">No worked-hours data for this week yet.</div>
+      <table class="dept-table" *ngIf="workedHours?.rows?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Days</th><th>Scheduled Hrs</th><th>Actual Hrs</th><th>Diff</th><th>Match</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of visibleRows('workedHours', workedHours.rows)">
+            <td class="dept-name">{{ e.name }}</td>
+            <td>{{ e.dept }}</td>
+            <td>{{ e.days }}</td>
+            <td>{{ e.scheduledHrs }}h</td>
+            <td>{{ e.actualHrs }}h</td>
+            <td [style.color]="e.diffHrs < 0 ? '#fca5a5' : '#86efac'">{{ e.diffHrs > 0 ? '+' : '' }}{{ e.diffHrs }}h</td>
+            <td><span class="dept-badge" [ngClass]="getMatchClass(e.matchPct)">{{ e.matchPct }}%</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row" *ngIf="workedHours?.rows?.length">
+        <button class="expand-btn" *ngIf="canShowMore('workedHours', workedHours.rows)" (click)="showMore('workedHours', workedHours.rows)">View More ({{ workedHours.rows.length - (expandCount['workedHours'] ?? 5) }} more)</button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('workedHours')" (click)="showLess('workedHours')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- ══ SECTION 13 — LATE ARRIVALS ══ -->
+  <div id="sec-late" class="section-label">
+    Late Arrival Analysis
+    <span class="info-icon" pTooltip="Employees and departments with most late check-ins. Based on LateLoginLog records." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Identifies employees and departments with the most late check-ins within the selected period. Chronic late-comers (repeated pattern) are listed separately from the department heatmap to focus both team-level and individual-level action.</p>
+  <div class="period-tabs">
+    <button class="period-tab" *ngFor="let p of periodOptions"
+      [class.active]="lateDays === p.days"
+      (click)="selectLatePeriod(p.days)">{{ p.label }}</button>
+  </div>
+  <div class="row-2col">
+    <!-- Dept heatmap chart -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Late Days by Department</span>
+        <button class="view-details-btn" *ngIf="lateArrivals?.deptHeatmap?.length" (click)="openChartModal('late-dept')">View Details</button>
+      </div>
+      <div class="chart-area" style="height:220px;" [hidden]="loadingLateArrivals">
+        <canvas id="lateHeatChart"></canvas>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingLateArrivals"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+    <!-- Chronic late-comers table -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Chronic Late-Comers</span>
+        <button class="view-details-btn" *ngIf="lateArrivals?.topLate?.length" (click)="openChartModal('late-emp')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingLateArrivals && lateArrivals?.topLate?.length">
+        <table class="dept-table">
+          <thead><tr><th>Name</th><th>Dept</th><th>Count</th><th>Avg Delay</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let e of visibleRows('lateEmp', lateArrivals.topLate)">
+              <td>{{ e.name }}</td>
+              <td>{{ e.dept }}</td>
+              <td><span class="dept-badge" [ngClass]="getLateHeatClass(e.count)">{{ e.count }}x</span></td>
+              <td>{{ e.avgMinutes }} min</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('lateEmp', lateArrivals.topLate)" (click)="showMore('lateEmp', lateArrivals.topLate)">
+            View More ({{ lateArrivals.topLate.length - (expandCount['lateEmp'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('lateEmp')" (click)="showLess('lateEmp')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingLateArrivals && !lateArrivals?.topLate?.length">No late arrivals in this period.</div>
+      <div class="chart-area skel" *ngIf="loadingLateArrivals"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 14 — LEAVE BALANCE UTILIZATION ══ -->
+  <div id="sec-leave-util" class="section-label">
+    Leave Balance Utilization
+    <span class="info-icon" pTooltip="How much of the annual leave allowance has been used per department. High utilization (>80%) may indicate burnout risk." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Shows how much of each department's total annual leave entitlement has been consumed so far this year. High utilisation early in the year can indicate burnout risk; very low utilisation may mean employees are not taking adequate rest.</p>
+  <div class="row-2col">
+    <!-- Dept utilization bars -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Department-wise Utilization ({{ leaveUtil?.year }})</span>
+        <button class="view-details-btn" *ngIf="leaveUtil?.deptStats?.length" (click)="openChartModal('leave-util-dept')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingLeaveUtil && leaveUtil?.deptStats?.length">
+        <div class="util-row" *ngFor="let d of visibleRows('leaveUtil', leaveUtil.deptStats)">
+          <div class="util-label-row">
+            <span class="util-dept">{{ d.dept }}</span>
+            <span class="util-pct" [ngClass]="getUtilClass(d.utilizationPct)">{{ d.utilizationPct }}%</span>
+          </div>
+          <div class="util-bar-wrap">
+            <div class="util-bar-fill" [ngClass]="getUtilClass(d.utilizationPct)"
+              [style.width.%]="d.utilizationPct"></div>
+          </div>
+          <div class="util-meta">{{ d.totalUsed }} / {{ d.totalAllowed }} days used · {{ d.headcount }} staff</div>
+        </div>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('leaveUtil', leaveUtil.deptStats)" (click)="showMore('leaveUtil', leaveUtil.deptStats)">
+            View More ({{ leaveUtil.deptStats.length - (expandCount['leaveUtil'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('leaveUtil')" (click)="showLess('leaveUtil')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingLeaveUtil && !leaveUtil?.deptStats?.length">No leave balance data available.</div>
+      <div class="chart-area skel" *ngIf="loadingLeaveUtil"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+    </div>
+    <!-- Top individuals -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Highest Leave Usage (Individuals)</span>
+        <button class="view-details-btn" *ngIf="leaveUtil?.topUsers?.length" (click)="openChartModal('leave-util-emp')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingLeaveUtil && leaveUtil?.topUsers?.length">
+        <table class="dept-table">
+          <thead><tr><th>Name</th><th>Dept</th><th>Used</th><th>Remaining</th><th>%</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let u of visibleRows('leaveUtilEmp', leaveUtil.topUsers)">
+              <td>{{ u.name }}</td>
+              <td>{{ u.dept }}</td>
+              <td>{{ u.used }}d</td>
+              <td>{{ u.remaining }}d</td>
+              <td><span class="dept-badge" [ngClass]="getUtilClass(u.utilizationPct)">{{ u.utilizationPct }}%</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('leaveUtilEmp', leaveUtil.topUsers)" (click)="showMore('leaveUtilEmp', leaveUtil.topUsers)">
+            View More ({{ leaveUtil.topUsers.length - (expandCount['leaveUtilEmp'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('leaveUtilEmp')" (click)="showLess('leaveUtilEmp')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingLeaveUtil && !leaveUtil?.topUsers?.length">No data available.</div>
+      <div class="chart-area skel" *ngIf="loadingLeaveUtil"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 15 — ABSENTEEISM TRACKING ══ -->
+  <div id="sec-absent" class="section-label">
+    Absenteeism Tracking
+    <span class="info-icon" pTooltip="Employees with 3 or more unexplained absences (ABSENT status) and department-wise absence rates." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Tracks unexplained absences (ABSENT status, not approved leave) per department and flags individuals with 3 or more absent days in the selected period. High absence rates may point to engagement, health, or team-culture concerns.</p>
+  <div class="period-tabs">
+    <button class="period-tab" *ngFor="let p of periodOptions"
+      [class.active]="absentDays === p.days"
+      (click)="selectAbsentPeriod(p.days)">{{ p.label }}</button>
+  </div>
+  <div class="row-2col">
+    <!-- Dept summary -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Absence Rate by Department</span>
+        <button class="view-details-btn" *ngIf="absenteeism?.deptSummary?.length" (click)="openChartModal('absent-dept')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingAbsenteeism && absenteeism?.deptSummary?.length">
+        <div class="util-row" *ngFor="let d of visibleRows('absentDept', absenteeism.deptSummary)">
+          <div class="util-label-row">
+            <span class="util-dept">{{ d.dept }}</span>
+            <span class="util-pct" [ngClass]="getAbsentRateClass(d.absentRate)">{{ d.absentRate }}%</span>
+          </div>
+          <div class="util-bar-wrap">
+            <div class="util-bar-fill" [ngClass]="getAbsentRateClass(d.absentRate)"
+              [style.width.%]="d.absentRate <= 100 ? d.absentRate : 100"></div>
+          </div>
+          <div class="util-meta">{{ d.totalAbsentDays }} absent-days · {{ d.headcount }} staff · avg {{ d.avgAbsentDays }}d/person</div>
+        </div>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('absentDept', absenteeism.deptSummary)" (click)="showMore('absentDept', absenteeism.deptSummary)">
+            View More ({{ absenteeism.deptSummary.length - (expandCount['absentDept'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('absentDept')" (click)="showLess('absentDept')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingAbsenteeism && !absenteeism?.deptSummary?.length">No absences recorded in this period.</div>
+      <div class="chart-area skel" *ngIf="loadingAbsenteeism"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
+    </div>
+    <!-- Chronic absentees -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Chronic Absentees (3+ days)</span>
+        <button class="view-details-btn" *ngIf="absenteeism?.chronicAbsentees?.length" (click)="openChartModal('absent-emp')">View Details</button>
+      </div>
+      <ng-container *ngIf="!loadingAbsenteeism && absenteeism?.chronicAbsentees?.length">
+        <table class="dept-table">
+          <thead><tr><th>Name</th><th>Dept</th><th>Absent Days</th><th>Rate</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let e of visibleRows('absentEmp', absenteeism.chronicAbsentees)">
+              <td>{{ e.name }}</td>
+              <td>{{ e.dept }}</td>
+              <td><strong>{{ e.absentDays }}</strong></td>
+              <td><span class="dept-badge" [ngClass]="getAbsentRateClass(e.absentRate)">{{ e.absentRate }}%</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('absentEmp', absenteeism.chronicAbsentees)" (click)="showMore('absentEmp', absenteeism.chronicAbsentees)">
+            View More ({{ absenteeism.chronicAbsentees.length - (expandCount['absentEmp'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('absentEmp')" (click)="showLess('absentEmp')">
+            Show Less
+          </button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingAbsenteeism && !absenteeism?.chronicAbsentees?.length">No chronic absentees in this period.</div>
+      <div class="chart-area skel" *ngIf="loadingAbsenteeism"><p-skeleton width="100%" height="220px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- #10 Leave-abuse watch -->
+  <div id="sec-leave-abuse" class="section-label">
+    Leave Utilisation Watch
+    <span class="info-icon" pTooltip="Employees who took 5 or more approved leave-days this month (against ~25 working days). High counts can signal a productivity risk." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Employees with <strong>{{ leaveAbuse?.threshold || 5 }}+ approved leave-days</strong> in {{ leaveAbuse?.monthLabel }} (of ~{{ leaveAbuse?.workingDaysRef || 25 }} working days). Surfaced so HR can check for patterns affecting team output.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">High Leave Takers — {{ leaveAbuse?.monthLabel }}</span>
+      <span class="card-badge danger-badge" *ngIf="leaveAbuse?.flagged?.length">{{ leaveAbuse.flagged.length }} flagged</span>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingLeaveAbuse"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingLeaveAbuse">
+      <div class="action-empty" *ngIf="!leaveAbuse?.flagged?.length">
+        <i class="pi pi-check-circle"></i> No employee crossed the {{ leaveAbuse?.threshold || 5 }}-day threshold this month.
+      </div>
+      <table class="dept-table" *ngIf="leaveAbuse?.flagged?.length">
+        <thead>
+          <tr><th>Employee</th><th>Code</th><th>Department</th><th>Designation</th><th>Leave Days</th><th>Requests</th><th>By Type</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of visibleRows('leaveAbuse', leaveAbuse.flagged)">
+            <td class="dept-name">{{ e.name }}</td>
+            <td>{{ e.employeeCode }}</td>
+            <td>{{ e.dept }}</td>
+            <td>{{ e.designation }}</td>
+            <td><span class="dept-badge" [ngClass]="e.totalDays >= 10 ? 'badge-danger' : 'badge-warn'">{{ e.totalDays }}</span></td>
+            <td>{{ e.requests }}</td>
+            <td>{{ e.types }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row" *ngIf="leaveAbuse?.flagged?.length">
+        <button class="expand-btn" *ngIf="canShowMore('leaveAbuse', leaveAbuse.flagged)" (click)="showMore('leaveAbuse', leaveAbuse.flagged)">
+          View More ({{ leaveAbuse.flagged.length - (expandCount['leaveAbuse'] ?? 5) }} more)
+        </button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('leaveAbuse')" (click)="showLess('leaveAbuse')">Show Less</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- ══ SECTION 18 — QUALIFICATIONS ══ -->
+  <div id="sec-quals" class="section-label">
+    Qualifications Overview
+    <span class="info-icon" pTooltip="Degree type distribution, top institutions, and department-wise qualification breakdown across all active employees." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Academic qualification breakdown of active employees — which degrees are most common, which institutions they graduated from, how each department's workforce is qualified, and what decade they completed their education.</p>
+
+  <div class="row-2col">
+    <!-- Degree distribution chart -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Degree Distribution (Top 10)</span>
+        <div class="card-head-right">
+          <span class="card-badge" *ngIf="qualifications">
+            {{ qualifications.withQualification }}/{{ qualifications.totalActive }} staff ({{ qualifications.coveragePct }}% covered)
+          </span>
+          <button class="view-details-btn" *ngIf="qualifications?.degreeDistribution?.length" (click)="openChartModal('qual-degree')">View All</button>
+        </div>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="260px"></p-skeleton></div>
+      <div class="chart-area" style="height:260px;" [hidden]="loadingQualifications"><canvas id="qualDegreeChart"></canvas></div>
+      <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.degreeDistribution?.length">No qualification records found.</div>
+    </div>
+
+    <!-- Top institutions + graduation decades -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Institutions</span>
+        <button class="view-details-btn" *ngIf="qualifications?.topInstitutions?.length" (click)="openChartModal('qual-inst')">View All</button>
+      </div>
+      <ng-container *ngIf="!loadingQualifications && qualifications?.topInstitutions?.length">
+        <div class="util-row" *ngFor="let inst of visibleRows('qualInst', qualifications.topInstitutions)">
+          <div class="util-label-row">
+            <span class="util-dept">{{ inst.institution }}</span>
+            <span class="util-pct" style="color:#60a5fa;">{{ inst.count }}</span>
+          </div>
+          <div class="util-bar-wrap">
+            <div class="util-bar-fill" style="background:#60a5fa;"
+              [style.width.%]="(inst.count / qualifications.topInstitutions[0].count) * 100"></div>
+          </div>
+        </div>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('qualInst', qualifications.topInstitutions)" (click)="showMore('qualInst', qualifications.topInstitutions)">
+            View More ({{ qualifications.topInstitutions.length - (expandCount['qualInst'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('qualInst')" (click)="showLess('qualInst')">Show Less</button>
+        </div>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.topInstitutions?.length">No institution data.</div>
+      <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="260px"></p-skeleton></div>
+    </div>
+  </div>
+
+  <!-- Dept breakdown table -->
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Department-wise Qualification Breakdown</span>
+      <button class="view-details-btn" *ngIf="qualifications?.deptBreakdown?.length" (click)="openChartModal('qual-dept')">View Details</button>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingQualifications"><p-skeleton width="100%" height="5rem"></p-skeleton></div>
+    <ng-container *ngIf="!loadingQualifications && qualifications?.deptBreakdown?.length">
+      <table class="dept-table">
+        <thead>
+          <tr><th>Department</th><th>Qualified Staff</th><th>Most Common Degree</th><th>Total Records</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of visibleRows('qualDept', qualifications.deptBreakdown)">
+            <td class="dept-name">{{ d.dept }}</td>
+            <td><span class="dept-badge badge-good">{{ d.qualifiedCount }}</span></td>
+            <td>{{ d.topDegree || '—' }}</td>
+            <td>{{ d.totalQuals }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="expand-row">
+        <button class="expand-btn" *ngIf="canShowMore('qualDept', qualifications.deptBreakdown)" (click)="showMore('qualDept', qualifications.deptBreakdown)">
+          View More ({{ qualifications.deptBreakdown.length - (expandCount['qualDept'] ?? 5) }} more)
+        </button>
+        <button class="expand-btn expand-btn-less" *ngIf="isExpanded('qualDept')" (click)="showLess('qualDept')">Show Less</button>
+      </div>
+    </ng-container>
+    <div class="action-empty" *ngIf="!loadingQualifications && !qualifications?.deptBreakdown?.length">No data available.</div>
+  </div>
+
+  <!-- ══ SECTION 18 — LEAVE ENCASHMENT & EL BALANCE INSIGHTS ══ -->
+  <div id="sec-el" class="section-label">
+    Leave Encashment & EL Balance Insights
+    <span class="info-icon"
+      pTooltip="Earned-leave (EL) balances across the workforce. Actual encashment eligibility kicks in at the policy cap (60 days). The 55-day 'approaching' list is a proactive heads-up so management can plan pay-out before people hit the hard cap."
+      tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">
+    Insight into earned-leave accumulation. Employees become encashment-eligible once their balance reaches the policy cap (60 days). The "approaching" tile surfaces people above 55 days — heads-up for planning so pay-out can be scheduled before they breach the cap.
+  </p>
+
+  <div class="row-2col" *ngIf="elInsights">
+    <!-- KPI strip -->
+    <div class="card full-card">
+      <div class="pulse-grid el-kpi-grid">
+        <div class="pulse-card">
+          <span class="pulse-label">Encashment Eligible ( ≥ {{ elInsights.thresholds.eligible }} days )</span>
+          <span class="pulse-value">{{ elInsights.summary.countEligible }}</span>
+          <span class="pulse-sub">{{ elInsights.summary.totalEligibleDays }} days over policy max</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Approaching Eligibility ( > {{ elInsights.thresholds.approaching }} days )</span>
+          <span class="pulse-value">{{ elInsights.summary.countApproaching }}</span>
+          <span class="pulse-sub">Heads-up — nearing {{ elInsights.thresholds.eligible }}-day cap</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">High-balance Watch ( > {{ elInsights.thresholds.watchlist }} days )</span>
+          <span class="pulse-value">{{ elInsights.summary.countWatch }}</span>
+          <span class="pulse-sub">Monitor before they reach the cap</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Employees with EL balance</span>
+          <span class="pulse-value">{{ elInsights.summary.totalEmployees }}</span>
+          <span class="pulse-sub">Across all active staff</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-2col">
+    <!-- Balance distribution -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">EL Balance Distribution</span>
+        <button class="view-details-btn"
+          *ngIf="elInsights?.distribution?.length"
+          (click)="openChartModal('el-dist')">View Details</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingElInsights"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <div class="chart-area" style="height:260px;" [hidden]="loadingElInsights"><canvas id="elDistChart"></canvas></div>
+    </div>
+
+    <!-- Top 10 offenders -->
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Highest EL Balances (Top 10)</span>
+        <button class="view-details-btn"
+          *ngIf="elInsights?.topOffenders?.length"
+          (click)="openChartModal('el-top')">View All</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingElInsights"><p-skeleton width="100%" height="5rem"></p-skeleton></div>
+      <ng-container *ngIf="!loadingElInsights && elInsights?.topOffenders?.length">
+        <table class="dept-table">
+          <thead>
+            <tr>
+              <th>Employee</th><th>Dept</th><th>Balance</th><th>Over 55</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of elInsights.topOffenders">
+              <td class="dept-name">{{ o.employeeName }}</td>
+              <td>{{ o.dept }}</td>
+              <td><span class="dept-badge"
+                [ngClass]="o.balance >= elInsights.thresholds.eligible ? 'badge-danger' :
+                           o.balance > elInsights.thresholds.approaching ? 'badge-warn' : 'badge-good'">
+                {{ o.balance }}
+              </span></td>
+              <td>{{ o.daysOver55 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </ng-container>
+      <div class="action-empty" *ngIf="!loadingElInsights && !elInsights?.topOffenders?.length">No data available.</div>
+    </div>
+  </div>
+
+  <!-- Department-wise avg -->
+  <div class="card full-card" *ngIf="elInsights?.deptAvg?.length">
+    <div class="card-head">
+      <span class="card-title">EL Average by Department</span>
+      <button class="view-details-btn" (click)="openChartModal('el-dept')">View Details</button>
+    </div>
+    <table class="dept-table">
+      <thead>
+        <tr><th>Department</th><th>Headcount</th><th>Avg Balance</th><th>Over 55</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of visibleRows('elDept', elInsights.deptAvg)">
+          <td class="dept-name">{{ d.dept }}</td>
+          <td>{{ d.headcount }}</td>
+          <td><span class="dept-badge"
+            [ngClass]="d.avgBalance >= elInsights.thresholds.eligible ? 'badge-danger' :
+                       d.avgBalance > elInsights.thresholds.approaching ? 'badge-warn' : 'badge-good'">
+            {{ d.avgBalance }}
+          </span></td>
+          <td>{{ d.overThreshold }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="expand-row">
+      <button class="expand-btn" *ngIf="canShowMore('elDept', elInsights.deptAvg)"
+        (click)="showMore('elDept', elInsights.deptAvg)">
+        View More ({{ elInsights.deptAvg.length - (expandCount['elDept'] ?? 5) }} more)
+      </button>
+      <button class="expand-btn expand-btn-less" *ngIf="isExpanded('elDept')"
+        (click)="showLess('elDept')">Show Less</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 19 — TRAINING INSIGHTS ══ -->
+  <div id="sec-train-ins" class="section-label">
+    Training Insights
+    <span class="info-icon"
+      pTooltip="Training calendar, department-wise participation, test performance distribution, top/low performers, and training feedback ratings. Helps management track L&D investment and outcomes."
+      tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">
+    L&amp;D snapshot — what's scheduled, who's attending, how people are scoring on assessments, and which trainings are landing well with employees.
+  </p>
+
+  <!-- KPI tiles -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card full-card">
+      <div class="pulse-grid el-kpi-grid">
+        <div class="pulse-card">
+          <span class="pulse-label">Trainings This Month</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.trainingsThisMonth }}</span>
+          <span class="pulse-sub">Scheduled / running</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Total Assigned</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.totalAssigned }}</span>
+          <span class="pulse-sub">Across all trainings</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Avg Completion</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.avgCompletionPct }}%</span>
+          <span class="pulse-sub">Of all assignments</span>
+        </div>
+        <div class="pulse-card">
+          <span class="pulse-label">Avg Test Score</span>
+          <span class="pulse-value">{{ trainingInsights.kpis.avgTestScore }}/100</span>
+          <span class="pulse-sub">{{ trainingInsights.kpis.pendingAssignedTests }} tests pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training Calendar (month view) -->
+  <div class="card full-card" *ngIf="trainingCalendar">
+    <div class="card-head">
+      <div class="cal-month-nav">
+        <button class="cal-nav-btn" (click)="shiftTrainingCalMonth(-1)">‹</button>
+        <span class="card-title">Training Calendar — {{ trainingCalendar.monthLabel }}</span>
+        <button class="cal-nav-btn" (click)="shiftTrainingCalMonth(1)">›</button>
+      </div>
+      <span class="card-badge">{{ trainingCalendar.totalTrainings }} trainings this month</span>
+    </div>
+
+    <div class="train-cal">
+      <div class="train-cal-header">
+        <div class="train-cal-dow" *ngFor="let d of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ d }}</div>
+      </div>
+      <div class="train-cal-grid">
+        <!-- leading blanks before day 1 -->
+        <div class="train-cal-cell empty-cell" *ngFor="let _ of trainingCalLeadingBlanks"></div>
+
+        <div class="train-cal-cell" *ngFor="let day of trainingCalendar.days"
+          [class.has-training]="day.total > 0"
+          [class.is-selected]="selectedCalDay?.date === day.date"
+          (click)="selectTrainingCalDay(day)">
+          <div class="cal-day-num">{{ day.dayOfMonth }}</div>
+          <div class="cal-day-pills" *ngIf="day.total > 0">
+            <span class="cal-pill cal-pill-count">{{ day.total }}T</span>
+            <span class="cal-pill cal-pill-att" *ngIf="day.totalAttended > 0">{{ day.totalAttended }}P</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected day details -->
+    <div class="train-cal-detail" *ngIf="selectedCalDay && selectedCalDay.trainings.length">
+      <h4 class="cal-detail-head">Trainings on {{ selectedCalDay.date }}</h4>
+      <table class="dept-table">
+        <thead>
+          <tr>
+            <th>Title</th><th>Department</th><th>Mode</th><th>Assigned</th><th>Attended</th><th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of selectedCalDay.trainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.dept }}</td>
+            <td>{{ t.mode }}</td>
+            <td>{{ t.assignedCount }}</td>
+            <td>{{ t.attendedCount }}</td>
+            <td><span class="dept-badge"
+              [ngClass]="t.attendancePct >= 80 ? 'badge-good' : t.attendancePct >= 50 ? 'badge-warn' : 'badge-danger'">
+              {{ t.attendancePct }}%
+            </span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="train-cal-detail empty-detail" *ngIf="!selectedCalDay">
+      <i class="pi pi-info-circle"></i>
+      Click a day with trainings to see who attended and which dept was trained.
+    </div>
+  </div>
+
+  <!-- Dept Participation + Score Distribution -->
+  <div class="row-2col">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Department Participation</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights?.deptParticipation?.length"
+          (click)="openChartModal('training-dept')">View Details</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingTrainingInsights"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <div class="chart-area" style="height:280px;" [hidden]="loadingTrainingInsights"><canvas id="trainingDeptChart"></canvas></div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Test Score Distribution</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights?.scoreDistribution?.length"
+          (click)="openChartModal('training-score')">View Details</button>
+      </div>
+      <div class="chart-area skel" *ngIf="loadingTrainingInsights"><p-skeleton width="100%" height="100%"></p-skeleton></div>
+      <div class="chart-area" style="height:280px;" [hidden]="loadingTrainingInsights"><canvas id="trainingScoreChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top/Low performers + Top/Low rated trainings -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Performers</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.topPerformers?.length"
+          (click)="openChartModal('training-top')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.topPerformers?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Avg Score</th><th>Attempts</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of trainingInsights.topPerformers.slice(0, 5)">
+            <td class="dept-name">{{ p.name }}</td>
+            <td>{{ p.dept }}</td>
+            <td><span class="dept-badge badge-good">{{ p.avgScore }}/100</span></td>
+            <td>{{ p.attemptsCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.topPerformers?.length">No completed test attempts yet.</div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Needs Attention (Low Scorers)</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.lowPerformers?.length"
+          (click)="openChartModal('training-low')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.lowPerformers?.length">
+        <thead>
+          <tr><th>Employee</th><th>Dept</th><th>Avg Score</th><th>Attempts</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of trainingInsights.lowPerformers.slice(0, 5)">
+            <td class="dept-name">{{ p.name }}</td>
+            <td>{{ p.dept }}</td>
+            <td><span class="dept-badge badge-danger">{{ p.avgScore }}/100</span></td>
+            <td>{{ p.attemptsCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.lowPerformers?.length">No employees scoring below 60.</div>
+    </div>
+  </div>
+
+  <!-- Training feedback (top + low rated) -->
+  <div class="row-2col" *ngIf="trainingInsights">
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Top Rated Trainings</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.topRatedTrainings?.length"
+          (click)="openChartModal('training-rated')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.topRatedTrainings?.length">
+        <thead>
+          <tr><th>Training</th><th>Trainer</th><th>Content</th><th>Rating</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of trainingInsights.topRatedTrainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.avgTrainer }}/5</td>
+            <td>{{ t.avgContent }}/5</td>
+            <td><span class="dept-badge badge-good">{{ t.avgRating }}/5</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.topRatedTrainings?.length">No training feedback collected yet.</div>
+    </div>
+
+    <div class="card col-6">
+      <div class="card-head">
+        <span class="card-title">Trainings Needing Improvement</span>
+        <button class="view-details-btn"
+          *ngIf="trainingInsights.lowRatedTrainings?.length"
+          (click)="openChartModal('training-low-rated')">View All</button>
+      </div>
+      <table class="dept-table" *ngIf="trainingInsights.lowRatedTrainings?.length">
+        <thead>
+          <tr><th>Training</th><th>Trainer</th><th>Content</th><th>Rating</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of trainingInsights.lowRatedTrainings">
+            <td class="dept-name">{{ t.title }}</td>
+            <td>{{ t.avgTrainer }}/5</td>
+            <td>{{ t.avgContent }}/5</td>
+            <td><span class="dept-badge"
+              [ngClass]="t.avgRating >= 3.5 ? 'badge-warn' : 'badge-danger'">{{ t.avgRating }}/5</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="action-empty" *ngIf="!trainingInsights.lowRatedTrainings?.length">No low-rated trainings.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 17 — MOBILE LOGIN ACTIVITY ══ -->
+  <div id="sec-mobile" class="section-label">
+    Mobile Login Activity
+    <span class="info-icon" pTooltip="Daily login count from mobile vs desktop devices, detected from browser user-agent. Helps track app adoption and remote access patterns." tooltipPosition="right">ⓘ</span>
+  </div>
+  <p class="section-desc">Daily breakdown of successful logins from mobile devices (phones/tablets) vs desktop/laptop, detected from the browser user-agent. Tracks app adoption rates and helps identify whether remote or field staff are actively using the system.</p>
+  <div class="card full-card">
+    <div class="card-head">
+      <span class="card-title">Login Activity — Mobile vs Desktop</span>
+      <div class="card-head-right">
+        <ng-container *ngIf="mobileLogin">
+          <span class="card-badge" style="background:rgba(167,139,250,0.15);color:#c4b5fd;">📱 {{ mobileLogin.mobilePct }}% Mobile</span>
+          <span class="card-badge">{{ mobileLogin.totalLogins }} logins · {{ mobileLogin.uniqueActiveUsers }} users</span>
+        </ng-container>
+        <button class="view-details-btn" *ngIf="mobileLogin?.daily?.length" (click)="openChartModal('mobile-login')">View Details</button>
+        <div class="period-tabs" style="margin-left:6px;">
+          <button class="period-tab" *ngFor="let p of periodOptions"
+            [class.active]="mobileLoginDays === p.days"
+            (click)="selectMobileLoginPeriod(p.days)">{{ p.label }}</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-area skel" *ngIf="loadingMobileLogin"><p-skeleton width="100%" height="240px"></p-skeleton></div>
+    <div class="chart-area" style="height:240px;" [hidden]="loadingMobileLogin"><canvas id="mobileLoginChart"></canvas></div>
+    <div class="action-empty" *ngIf="!loadingMobileLogin && !mobileLogin?.totalLogins">No login records in this period.</div>
+  </div>
+
+</div>
+</div><!-- /mgmt-shell -->
