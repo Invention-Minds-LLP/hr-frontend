@@ -31,7 +31,17 @@ export class DeptPerformance {
   employees: any[] = [];
   departments: any[] = [];
   filteredEmployees: any[] = [];
+  templates: any[] = [];
+  templatesLoading = false;
   visible = false;
+
+  // Per-row "Assign Template" dialog state
+  assignTemplateVisible = false;
+  assignTemplateRow: any = null;
+  rowTemplates: any[] = [];
+  rowTemplatesLoading = false;
+  selectedRowTemplateId: number | null = null;
+  assignTemplateSaving = false;
   assignForm: FormGroup;
   selectedSummary: any = null;
   role: string = '';
@@ -65,6 +75,7 @@ export class DeptPerformance {
       employeeIds: [[], Validators.required],
       departmentId: [null, Validators.required],
       cycle: ['', Validators.required],
+      templateId: [null, Validators.required],
       period: ['', Validators.required],
     });
   }
@@ -76,6 +87,41 @@ export class DeptPerformance {
     this.role = localStorage.getItem('role') || '';
     document.addEventListener('click', this.closeDropdownOnClickOutside);
     this.generateCycles();
+
+    // Reload templates whenever department or cycle changes; clear stale picks.
+    this.assignForm.get('departmentId')?.valueChanges.subscribe(() => {
+      this.assignForm.patchValue({ templateId: null }, { emitEvent: false });
+      this.loadTemplates();
+    });
+    this.assignForm.get('cycle')?.valueChanges.subscribe(() => {
+      this.assignForm.patchValue({ templateId: null }, { emitEvent: false });
+      this.loadTemplates();
+    });
+  }
+
+  loadTemplates() {
+    const departmentId = this.assignForm.value.departmentId;
+    const cycle = this.assignForm.value.cycle;
+    if (!departmentId || !cycle) {
+      this.templates = [];
+      return;
+    }
+    this.templatesLoading = true;
+    this.performanceService.listTemplates(departmentId, cycle).subscribe({
+      next: (rows) => {
+        this.templates = rows || [];
+        this.templatesLoading = false;
+      },
+      error: () => {
+        this.templates = [];
+        this.templatesLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load templates for this department + cycle'
+        });
+      }
+    });
   }
 
   closeDropdownOnClickOutside = (event: any) => {
@@ -204,6 +250,46 @@ export class DeptPerformance {
 
   openDialog() {
     this.visible = true;
+  }
+
+  openAssignTemplate(row: any) {
+    this.assignTemplateRow = row;
+    this.selectedRowTemplateId = null;
+    this.rowTemplates = [];
+    this.assignTemplateVisible = true;
+    this.rowTemplatesLoading = true;
+    this.performanceService.listTemplates(row.departmentId, row.cycle).subscribe({
+      next: (rows) => {
+        this.rowTemplates = rows || [];
+        this.rowTemplatesLoading = false;
+      },
+      error: () => {
+        this.rowTemplates = [];
+        this.rowTemplatesLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load templates' });
+      },
+    });
+  }
+
+  confirmAssignTemplate() {
+    if (!this.assignTemplateRow || !this.selectedRowTemplateId) return;
+    this.assignTemplateSaving = true;
+    this.performanceService.assignSummaryTemplate(this.assignTemplateRow.id, this.selectedRowTemplateId).subscribe({
+      next: () => {
+        this.assignTemplateSaving = false;
+        this.assignTemplateVisible = false;
+        this.messageService.add({ severity: 'success', summary: 'Assigned', detail: 'Template attached to this row' });
+        this.loadSummaries();
+      },
+      error: (err) => {
+        this.assignTemplateSaving = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Cannot assign',
+          detail: err?.error?.error || 'Failed to assign template',
+        });
+      },
+    });
   }
   filterEmployees(deptId: number) {
     this.filteredEmployees = this.employees.filter(e => e.departmentId === deptId);

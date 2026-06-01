@@ -22,6 +22,8 @@
        <button *ngIf="!isHRExecutive"> <li class="sub-item" [ngClass]="{ 'active': active === 'rating' }" (click)="show('rating')">Weekly Rating</li></button>
         <div class="br" *ngIf="canManageQuestions"></div>
        <button *ngIf="canManageQuestions"> <li class="sub-item" [ngClass]="{ 'active': active === 'questions' }" (click)="show('questions')">Review Questions</li></button>
+        <div class="br" *ngIf="canManageQuestions"></div>
+       <button *ngIf="canManageQuestions"> <li class="sub-item" [ngClass]="{ 'active': active === 'templates' }" (click)="show('templates')">Manage Templates</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -43,4 +45,5 @@
     <app-dept-performance *ngIf="active === 'dept'"></app-dept-performance>
     <app-weekly-rating-overview *ngIf="active === 'rating'"></app-weekly-rating-overview>
     <app-review-questions-master *ngIf="active === 'questions'"></app-review-questions-master>
+    <app-performance-template-manager *ngIf="active === 'templates'"></app-performance-template-manager>
 </div>

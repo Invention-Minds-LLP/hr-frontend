@@ -21,7 +21,10 @@
         </thead>
         <tbody>
           <tr *ngFor="let row of modalRows; let i = index" [class.modal-row-alt]="i % 2 === 1">
-            <td *ngFor="let col of modalColumns">{{ row[col.key] ?? '—' }}</td>
+            <td *ngFor="let col of modalColumns"
+                [pTooltip]="col.tooltip && (row[col.key]?.length > 30) ? row[col.key] : ''" tooltipPosition="top">
+              {{ col.tooltip ? truncateText(row[col.key]) : (row[col.key] ?? '—') }}
+            </td>
             <td *ngIf="modalDrill" class="modal-view-col">
               <button class="modal-view-btn" (click)="openSubModal(row)"
                 pTooltip="View employee list" tooltipPosition="top">
@@ -188,6 +191,8 @@
                  [pTooltip]="s.onLeave + ' on leave / WFH / permission'" tooltipPosition="top"></div>
             <div class="seg seg-absent" [style.width.%]="s.absent / s.assigned * 100"
                  [pTooltip]="s.absent + ' absent'" tooltipPosition="top"></div>
+            <div class="seg seg-weekoff" *ngIf="s.weekOff > 0" [style.width.%]="s.weekOff / s.assigned * 100"
+                 [pTooltip]="s.weekOff + ' on week-off'" tooltipPosition="top"></div>
           </div>
           <div class="shift-att-bar shift-att-bar--empty" *ngIf="s.assigned === 0"></div>
 
@@ -198,6 +203,7 @@
             <span class="sc info"  *ngIf="s.earlyCheckout > 0">{{ s.earlyCheckout }} early-out</span>
             <span class="sc leave" *ngIf="s.onLeave > 0">{{ s.onLeave }} leave</span>
             <span class="sc bad"   *ngIf="s.absent > 0">{{ s.absent }} absent</span>
+            <span class="sc weekoff" *ngIf="s.weekOff > 0">{{ s.weekOff }} week-off</span>
           </div>
 
           <div class="st-foot">
@@ -215,6 +221,7 @@
         <span><i class="dot dot-late"></i> Late (>15 min)</span>
         <span><i class="dot dot-leave"></i> On leave / WFH / permission</span>
         <span><i class="dot dot-absent"></i> Absent</span>
+        <span><i class="dot dot-weekoff"></i> Week-off</span>
         <span class="muted">· Early checkout shown separately</span>
       </div>
     </div>
@@ -263,6 +270,8 @@
                 [class.active]="shiftDrilldownFilter === 'present'"       (click)="shiftDrilldownFilter = 'present'">Checked in ({{ shiftDrilldown.shift.present }})</button>
         <button [class.active]="shiftDrilldownFilter === 'onLeave'"       (click)="shiftDrilldownFilter = 'onLeave'">On leave ({{ shiftDrilldown.shift.onLeave }})</button>
         <button [class.active]="shiftDrilldownFilter === 'absent'"        (click)="shiftDrilldownFilter = 'absent'">Absent ({{ shiftDrilldown.shift.absent }})</button>
+        <button *ngIf="shiftDrilldown.shift.weekOff > 0"
+                [class.active]="shiftDrilldownFilter === 'weekOff'"       (click)="shiftDrilldownFilter = 'weekOff'">Week-off ({{ shiftDrilldown.shift.weekOff }})</button>
       </div>
 
       <div class="modal-body">
@@ -297,6 +306,7 @@
                   {{ e.category === 'present' ? 'On time'
                      : e.category === 'late' ? ('Late · ' + e.lateByMinutes + 'm')
                      : e.category === 'onLeave' ? 'On leave'
+                     : e.category === 'weekOff' ? 'Week-off'
                      : 'Absent' }}
                 </span>
               </td>
@@ -324,8 +334,13 @@
       <div class="chart-area skel" *ngIf="loadingDeptAtt"><p-skeleton width="100%" height="100%"></p-skeleton></div>
       <ng-container *ngIf="!loadingDeptAtt">
         <div class="action-empty" *ngIf="!deptAttendance?.depts?.length">No attendance data for today.</div>
-        <div class="chart-area" [hidden]="!deptAttendance?.depts?.length"><canvas id="deptAttChart"></canvas></div>
-        <p class="chart-hint" *ngIf="deptAttendance?.depts?.length">Click a department bar to see the employee list.</p>
+        <!-- Horizontal scroll + per-dept min width so bars stay readable when many departments exist. -->
+        <div class="dept-att-scroll" [hidden]="!deptAttendance?.depts?.length">
+          <div class="dept-att-inner" [style.minWidth.px]="deptAttMinWidth">
+            <canvas id="deptAttChart"></canvas>
+          </div>
+        </div>
+        <p class="chart-hint" *ngIf="deptAttendance?.depts?.length">Click a department bar to see the employee list.<span *ngIf="deptAttScrolls"> Scroll sideways to see all departments.</span></p>
       </ng-container>
     </div>
     <!-- #3 Weekly leave by type — replaces the leave-density calendar.
@@ -473,7 +488,7 @@
     <div class="card col-6">
       <div class="card-head">
         <span class="card-title">By Designation — Applied / Selected / Joined</span>
-        <span class="card-badge">Last 12 months</span>
+        <span class="card-badge">Last 3 months</span>
       </div>
       <div class="chart-area skel" *ngIf="loadingRecruitment"><p-skeleton width="100%" height="6rem"></p-skeleton></div>
       <ng-container *ngIf="!loadingRecruitment">
@@ -651,7 +666,7 @@
           <tbody>
             <tr *ngFor="let d of visibleRows('apprDept', appraisalScores.deptAvg)">
               <td class="dept-name">{{ d.dept }}</td>
-              <td><span class="dept-badge" [ngClass]="d.avg >= 80 ? 'badge-good' : d.avg >= 60 ? '' : d.avg >= 40 ? 'badge-warn' : 'badge-danger'">{{ d.avg }}/100</span></td>
+              <td><span class="dept-badge" [ngClass]="d.avg >= 8 ? 'badge-good' : d.avg >= 6 ? '' : d.avg >= 4 ? 'badge-warn' : 'badge-danger'">{{ d.avg }}/10</span></td>
               <td>{{ d.count }}</td>
             </tr>
           </tbody>
@@ -783,13 +798,13 @@
 
   <!-- ══ SECTION 9 — ACTION ITEMS ══ -->
   <div id="sec-actions" class="section-label">
-    Action Required
+   Critical Actions
     <span class="info-icon" pTooltip="Items needing immediate attention: PIPs at termination, unresolved grievances, POSH cases, probation endings, expiring documents, pending clearances." tooltipPosition="right">ⓘ</span>
   </div>
-  <p class="section-desc">Consolidated list of items that need immediate management action — PIPs nearing termination stage, open grievances, POSH cases, probation end dates, expiring documents, and pending exit clearances.</p>
+    <p class="section-desc">Consolidated list of critical actions that require immediate management attention.</p>
   <div class="card full-card">
     <div class="card-head">
-      <span class="card-title">Items Needing Attention</span>
+      <span class="card-title">Attention Needed</span>
       <span class="card-badge danger-badge" *ngIf="!loadingActions && actionItems.length">{{ actionItems.length }} item(s)</span>
     </div>
     <ng-container *ngIf="!loadingActions">
@@ -799,7 +814,7 @@
       <table class="action-table" *ngIf="actionItems.length">
         <thead>
           <tr>
-            <th>Category</th><th>Item</th><th>Employee</th><th>Department</th><th>Since / Due</th>
+            <th>Category</th><th>Action Required</th><th>Employee</th><th>Department</th><th>Since / Due</th>
           </tr>
         </thead>
         <tbody>
@@ -931,9 +946,9 @@
   <!-- #18/#19 Capacity planning — read-only; config is set in Masters → Departments -->
   <div id="sec-capacity" class="section-label">
     Capacity Planning
-    <span class="info-icon" pTooltip="Per-department OT budget vs actual approved OT this month, and minimum daily strength vs how many are present today. Budgets, min-strength and appraisal cycle are configured in Masters → Departments." tooltipPosition="right">ⓘ</span>
+    <span class="info-icon" pTooltip="Per-department OT budget vs actual approved OT this month, and minimum daily strength vs how many are present today. Budgets and min-strength are configured in Masters → Departments." tooltipPosition="right">ⓘ</span>
   </div>
-  <p class="section-desc">Actual OT and today's present headcount tracked against each department's <strong>OT budget</strong>, <strong>minimum daily strength</strong> and <strong>appraisal cycle</strong>. Over-budget OT and below-minimum strength are flagged. <em>Configure these values in <strong>Masters → Departments</strong>.</em></p>
+  <p class="section-desc">Actual OT and today's present headcount tracked against each department's <strong>OT budget</strong> and <strong>minimum daily strength</strong>. Over-budget OT and below-minimum strength are flagged. <em>Configure these values in <strong>Masters → Departments</strong>.</em></p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Department OT Budget &amp; Strength — {{ deptPlanning?.monthLabel }}</span>
@@ -954,11 +969,10 @@
               <th>Headcount</th>
               <th>Present Today</th>
               <th>Status</th>
-              <th>Appraisal Cycle</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of deptPlanning.rows">
+            <tr *ngFor="let r of visibleRows('capacity', deptPlanning.rows)">
               <td class="dept-name">{{ r.dept }}</td>
               <td>{{ r.otBudgetHours ? r.otBudgetHours + 'h' : '—' }}</td>
               <td>{{ r.otActualHours }}h</td>
@@ -975,16 +989,17 @@
                 <span *ngIf="r.minDailyStrength === 0 && !r.otOver" class="text-muted">—</span>
                 <span *ngIf="r.otOver" class="dept-badge badge-danger">OT over budget</span>
               </td>
-              <td>
-                <span class="text-muted">
-                  {{ r.appraisalCycleBasis === 'CALENDAR'
-                      ? ('Calendar · ' + (monthOptions[(r.appraisalCalendarMonth || 1) - 1]?.n || '—'))
-                      : ('DOJ · ' + r.appraisalPeriodMonths + 'mo') }}
-                </span>
-              </td>
             </tr>
           </tbody>
         </table>
+        <div class="expand-row">
+          <button class="expand-btn" *ngIf="canShowMore('capacity', deptPlanning.rows)" (click)="showMore('capacity', deptPlanning.rows)">
+            View More ({{ deptPlanning.rows.length - (expandCount['capacity'] ?? 5) }} more)
+          </button>
+          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('capacity')" (click)="showLess('capacity')">
+            Show Less
+          </button>
+        </div>
       </div>
     </ng-container>
   </div>
@@ -1032,9 +1047,9 @@
   <ng-container *ngIf="salaryDataEnabled">
   <div id="sec-increments" class="section-label">
     Salary Increments
-    <span class="info-icon" pTooltip="Average salary increment % per department (latest revision per employee over the last 12 months). Click a department for the individual increments." tooltipPosition="right">ⓘ</span>
+    <span class="info-icon" pTooltip="Average salary increment % per department (latest revision per employee over the last 3 months). Click a department for the individual increments." tooltipPosition="right">ⓘ</span>
   </div>
-  <p class="section-desc">Average increment % by department over the last 12 months (from recorded salary revisions). Click a department for each employee's previous → new CTC and %.</p>
+  <p class="section-desc">Average increment % by department over the last 3 months (from recorded salary revisions). Click a department for each employee's previous → new CTC and %.</p>
   <div class="card full-card">
     <div class="card-head">
       <span class="card-title">Average Increment % by Department</span>
@@ -1314,9 +1329,9 @@
   <!-- ══ SECTION 14 — LEAVE BALANCE UTILIZATION ══ -->
   <div id="sec-leave-util" class="section-label">
     Leave Balance Utilization
-    <span class="info-icon" pTooltip="How much of the annual leave allowance has been used per department. High utilization (>80%) may indicate burnout risk." tooltipPosition="right">ⓘ</span>
+    <span class="info-icon" pTooltip="How much of the annual leave allowance has been used per department. 'Allowed' is the combined entitlement across all leave types. High utilization (>80%) may indicate burnout risk." tooltipPosition="right">ⓘ</span>
   </div>
-  <p class="section-desc">Shows how much of each department's total annual leave entitlement has been consumed so far this year. High utilisation early in the year can indicate burnout risk; very low utilisation may mean employees are not taking adequate rest.</p>
+  <p class="section-desc">Shows how much of each department's total annual leave entitlement has been consumed so far this year. The <strong>Allowed</strong> figure incorporates every leave type's entitlement combined (not a single type). High utilisation early in the year can indicate burnout risk; very low utilisation may mean employees are not taking adequate rest.</p>
   <div class="row-2col">
     <!-- Dept utilization bars -->
     <div class="card col-6">
@@ -1381,79 +1396,6 @@
     </div>
   </div>
 
-  <!-- ══ SECTION 15 — ABSENTEEISM TRACKING ══ -->
-  <div id="sec-absent" class="section-label">
-    Absenteeism Tracking
-    <span class="info-icon" pTooltip="Employees with 3 or more unexplained absences (ABSENT status) and department-wise absence rates." tooltipPosition="right">ⓘ</span>
-  </div>
-  <p class="section-desc">Tracks unexplained absences (ABSENT status, not approved leave) per department and flags individuals with 3 or more absent days in the selected period. High absence rates may point to engagement, health, or team-culture concerns.</p>
-  <div class="period-tabs">
-    <button class="period-tab" *ngFor="let p of periodOptions"
-      [class.active]="absentDays === p.days"
-      (click)="selectAbsentPeriod(p.days)">{{ p.label }}</button>
-  </div>
-  <div class="row-2col">
-    <!-- Dept summary -->
-    <div class="card col-6">
-      <div class="card-head">
-        <span class="card-title">Absence Rate by Department</span>
-        <button class="view-details-btn" *ngIf="absenteeism?.deptSummary?.length" (click)="openChartModal('absent-dept')">View Details</button>
-      </div>
-      <ng-container *ngIf="!loadingAbsenteeism && absenteeism?.deptSummary?.length">
-        <div class="util-row" *ngFor="let d of visibleRows('absentDept', absenteeism.deptSummary)">
-          <div class="util-label-row">
-            <span class="util-dept">{{ d.dept }}</span>
-            <span class="util-pct" [ngClass]="getAbsentRateClass(d.absentRate)">{{ d.absentRate }}%</span>
-          </div>
-          <div class="util-bar-wrap">
-            <div class="util-bar-fill" [ngClass]="getAbsentRateClass(d.absentRate)"
-              [style.width.%]="d.absentRate <= 100 ? d.absentRate : 100"></div>
-          </div>
-          <div class="util-meta">{{ d.totalAbsentDays }} absent-days · {{ d.headcount }} staff · avg {{ d.avgAbsentDays }}d/person</div>
-        </div>
-        <div class="expand-row">
-          <button class="expand-btn" *ngIf="canShowMore('absentDept', absenteeism.deptSummary)" (click)="showMore('absentDept', absenteeism.deptSummary)">
-            View More ({{ absenteeism.deptSummary.length - (expandCount['absentDept'] ?? 5) }} more)
-          </button>
-          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('absentDept')" (click)="showLess('absentDept')">
-            Show Less
-          </button>
-        </div>
-      </ng-container>
-      <div class="action-empty" *ngIf="!loadingAbsenteeism && !absenteeism?.deptSummary?.length">No absences recorded in this period.</div>
-      <div class="chart-area skel" *ngIf="loadingAbsenteeism"><p-skeleton width="100%" height="8rem"></p-skeleton></div>
-    </div>
-    <!-- Chronic absentees -->
-    <div class="card col-6">
-      <div class="card-head">
-        <span class="card-title">Chronic Absentees (3+ days)</span>
-        <button class="view-details-btn" *ngIf="absenteeism?.chronicAbsentees?.length" (click)="openChartModal('absent-emp')">View Details</button>
-      </div>
-      <ng-container *ngIf="!loadingAbsenteeism && absenteeism?.chronicAbsentees?.length">
-        <table class="dept-table">
-          <thead><tr><th>Name</th><th>Dept</th><th>Absent Days</th><th>Rate</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let e of visibleRows('absentEmp', absenteeism.chronicAbsentees)">
-              <td>{{ e.name }}</td>
-              <td>{{ e.dept }}</td>
-              <td><strong>{{ e.absentDays }}</strong></td>
-              <td><span class="dept-badge" [ngClass]="getAbsentRateClass(e.absentRate)">{{ e.absentRate }}%</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="expand-row">
-          <button class="expand-btn" *ngIf="canShowMore('absentEmp', absenteeism.chronicAbsentees)" (click)="showMore('absentEmp', absenteeism.chronicAbsentees)">
-            View More ({{ absenteeism.chronicAbsentees.length - (expandCount['absentEmp'] ?? 5) }} more)
-          </button>
-          <button class="expand-btn expand-btn-less" *ngIf="isExpanded('absentEmp')" (click)="showLess('absentEmp')">
-            Show Less
-          </button>
-        </div>
-      </ng-container>
-      <div class="action-empty" *ngIf="!loadingAbsenteeism && !absenteeism?.chronicAbsentees?.length">No chronic absentees in this period.</div>
-      <div class="chart-area skel" *ngIf="loadingAbsenteeism"><p-skeleton width="100%" height="220px"></p-skeleton></div>
-    </div>
-  </div>
 
   <!-- #10 Leave-abuse watch -->
   <div id="sec-leave-abuse" class="section-label">

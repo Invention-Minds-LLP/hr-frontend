@@ -1,5 +1,5 @@
 .performance-container {
-  padding: 20px 60px;
+  padding: 80px 60px 20px;
   background: transparent;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -129,6 +129,21 @@
   font-weight: 500;
   color: #fff;
   cursor: pointer;
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Highlight rows that need HR to attach a template */
+.btn.assign-tpl-btn {
+  border-color: #FB9C2A;
+  color: #FB9C2A;
+}
+
+.btn.assign-tpl-btn:hover {
+  background: rgba(251, 156, 42, 0.12);
 }
 
 .heading {

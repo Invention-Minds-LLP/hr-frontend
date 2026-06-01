@@ -1,0 +1,358 @@
+/* Page wrapper. Top padding clears the parent sub-nav (position:absolute)
+   that labels the current tab. Matches the review-questions-master pattern. */
+.ptm-page {
+  padding: 80px 60px 20px;
+  color: #fff;
+}
+
+/* Sections within the page */
+.ptm-section {
+  color: #fff;
+}
+
+/* Edit-mode bar: small back link + section label, kept compact so it doesn't
+   collide with the absolute sub-nav above. */
+.ptm-edit-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ptm-back-link {
+  background: transparent;
+  border: none;
+  color: #c4c4c4;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.ptm-back-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.ptm-edit-label {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Toolbar (list mode filters + new button) */
+.ptm-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ptm-spacer {
+  flex: 1;
+}
+
+.ptm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.ptm-field-grow {
+  flex: 1;
+}
+
+.ptm-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #c4c4c4;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.ptm-field input[pInputText],
+.ptm-field input {
+  background: #0a0a0a !important;
+  color: #fff !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  height: 40px;
+  font-size: 14px;
+}
+
+.ptm-field input:focus {
+  border-color: #c160ff !important;
+  outline: none;
+}
+
+/* Edit form top grid */
+.ptm-form-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+/* Questions section header */
+.ptm-questions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.ptm-questions-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+/* Questions table */
+.ptm-table-wrap {
+  max-height: 50vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+}
+
+.ptm-q-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ptm-q-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.ptm-q-table thead th {
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.ptm-q-table tbody tr {
+  background: #0a0a0a;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.ptm-q-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ptm-q-table tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+  color: #fff;
+}
+
+/* Column widths */
+.col-num {
+  width: 48px;
+  text-align: center;
+  color: #9b9b9b;
+}
+
+.col-cat {
+  width: 28%;
+  min-width: 200px;
+}
+
+.col-text {
+  width: auto;
+  min-width: 320px;
+}
+
+.col-actions {
+  width: 150px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Inputs inside the table — borderless feel */
+.ptm-q-table input[pInputText] {
+  width: 100%;
+  background: #141414 !important;
+  color: #fff !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 6px !important;
+  padding: 8px 10px !important;
+  height: 36px;
+  font-size: 14px;
+}
+
+.ptm-q-table input[pInputText]:focus {
+  border-color: #c160ff !important;
+  outline: none;
+}
+
+/* Bottom row of buttons */
+.ptm-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* --- Custom buttons (NOT pButton — global p-button override would force them
+       to 120x36 blue. Plain elements so we control size + color.) --- */
+.ptm-primary {
+  background: #194b9b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: filter 0.15s;
+}
+
+.ptm-primary:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.ptm-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ptm-primary.ptm-small {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.ptm-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #c4c4c4;
+  border-radius: 8px;
+  padding: 0 18px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.15s;
+}
+
+.ptm-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Compact icon buttons for row actions */
+.ptm-icon-btn {
+  background: transparent;
+  color: #c4c4c4;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  transition: all 0.15s;
+}
+
+.ptm-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: #3a3a3a;
+}
+
+.ptm-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ptm-icon-btn.ptm-danger {
+  color: #ff6b6b;
+  border-color: #3a1f1f;
+}
+
+.ptm-icon-btn.ptm-danger:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff4d4d;
+  border-color: #5a2a2a;
+}
+
+/* Empty / loading states */
+.ptm-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: #888;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* List-mode p-table styling — match the appraisal-table dark theme */
+:host ::ng-deep .p-datatable {
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 14px 16px;
+  border: none;
+  text-align: center;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background: #0a0a0a !important;
+  color: #fff;
+  padding: 14px 16px;
+  font-size: 14px;
+  border: none;
+  border-bottom: 1px solid #1f1f1f !important;
+  text-align: center;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* p-select inside this dialog — keep dark */
+:host ::ng-deep .p-select {
+  background: #0a0a0a !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 8px !important;
+  height: 40px;
+}
+
+:host ::ng-deep .p-select-label {
+  color: #fff !important;
+  padding: 10px 12px !important;
+  font-size: 14px;
+}
+

@@ -1,0 +1,151 @@
+<p-confirmDialog></p-confirmDialog>
+
+<div class="ptm-page">
+  <!-- ============ LIST MODE ============ -->
+  <div *ngIf="mode === 'list'" class="ptm-section">
+    <div class="ptm-toolbar">
+      <div class="ptm-field">
+        <label>Department</label>
+        <p-select [options]="departments" optionLabel="name" optionValue="id"
+          [(ngModel)]="listDepartmentId" placeholder="Select" [filter]="true"
+          (onChange)="loadList()" appendTo="body"></p-select>
+      </div>
+      <div class="ptm-field">
+        <label>Cycle (optional)</label>
+        <p-select [options]="cycles" optionLabel="label" optionValue="value"
+          [(ngModel)]="listCycle" placeholder="All cycles" [filter]="true" [showClear]="true"
+          (onChange)="loadList()" appendTo="body"></p-select>
+      </div>
+      <div class="ptm-spacer"></div>
+      <button class="ptm-primary" (click)="openNew()" [disabled]="!listDepartmentId">
+        + New Template
+      </button>
+    </div>
+
+    <p-table [value]="templates" *ngIf="!loadingList; else loading" [paginator]="templates.length > 10" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Title</th>
+          <th style="width:220px;">Cycle</th>
+          <th style="width:120px;">Questions</th>
+          <th style="width:160px;">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-t let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ t.title }}</td>
+          <td>{{ t.cycle }}</td>
+          <td>{{ t._count?.questions ?? 0 }}</td>
+          <td>
+            <button class="ptm-icon-btn" (click)="openEdit(t)" title="Edit">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button class="ptm-icon-btn ptm-danger" (click)="onDelete(t)" title="Delete">
+              <i class="pi pi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="ptm-empty">
+            <span *ngIf="!listDepartmentId">Select a department to view templates.</span>
+            <span *ngIf="listDepartmentId">No templates found.</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <ng-template #loading>
+      <div class="ptm-empty">Loading…</div>
+    </ng-template>
+  </div>
+
+  <!-- ============ EDIT MODE ============ -->
+  <div *ngIf="mode === 'edit'" class="ptm-section">
+    <div class="ptm-edit-bar">
+      <button type="button" class="ptm-back-link" (click)="backToList()">← Back to list</button>
+      <span class="ptm-edit-label">
+        <span *ngIf="!editingId">New Template</span>
+        <span *ngIf="editingId">Edit Template</span>
+      </span>
+    </div>
+
+    <div *ngIf="loadingDetail" class="ptm-empty">Loading template…</div>
+
+    <form *ngIf="!loadingDetail" [formGroup]="form" (ngSubmit)="save()">
+      <div class="ptm-form-grid">
+        <div class="ptm-field ptm-field-grow">
+          <label>Title *</label>
+          <input pInputText formControlName="title" placeholder="e.g. IT - System Administrator" />
+        </div>
+        <div class="ptm-field">
+          <label>Department *</label>
+          <p-select [options]="departments" optionLabel="name" optionValue="id"
+            formControlName="departmentId" [filter]="true" appendTo="body"></p-select>
+        </div>
+        <div class="ptm-field">
+          <label>Cycle *</label>
+          <p-select [options]="cycles" optionLabel="label" optionValue="value"
+            formControlName="cycle" [filter]="true" appendTo="body"></p-select>
+        </div>
+      </div>
+
+      <div class="ptm-questions-header">
+        <h4>Questions</h4>
+        <button type="button" class="ptm-primary ptm-small" (click)="addQuestion()" [disabled]="form.disabled">
+          + Add Question
+        </button>
+      </div>
+
+      <div class="ptm-table-wrap">
+        <table class="ptm-q-table" formArrayName="questions">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-cat">Category</th>
+              <th class="col-text">Question / Criterion</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let q of questionsArray.controls; let i = index" [formGroupName]="i">
+              <td class="col-num">{{ i + 1 }}</td>
+              <td class="col-cat">
+                <input pInputText formControlName="category" placeholder="e.g. Quality of work" />
+              </td>
+              <td class="col-text">
+                <input pInputText formControlName="text" placeholder="Criterion text" />
+              </td>
+              <td class="col-actions">
+                <button type="button" class="ptm-icon-btn" (click)="moveUp(i)"
+                  [disabled]="i === 0 || form.disabled" title="Move up">
+                  <i class="pi pi-arrow-up"></i>
+                </button>
+                <button type="button" class="ptm-icon-btn" (click)="moveDown(i)"
+                  [disabled]="i === questionsArray.length - 1 || form.disabled" title="Move down">
+                  <i class="pi pi-arrow-down"></i>
+                </button>
+                <button type="button" class="ptm-icon-btn ptm-danger" (click)="removeQuestion(i)"
+                  [disabled]="form.disabled" title="Remove">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="questionsArray.length === 0">
+              <td colspan="4" class="ptm-empty">No questions yet. Click "+ Add Question" to start.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ptm-actions-row">
+        <button type="button" class="ptm-secondary" (click)="backToList()">Back</button>
+        <button type="submit" class="ptm-primary" [disabled]="saving || form.disabled">
+          {{ saving ? 'Saving…' : (editingId ? 'Update' : 'Create') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -34,6 +34,7 @@ import { AnnouncementForm } from './announcements/announcement-form/announcement
 import { AnnouncementPopup } from './announcements/announcement-popup/announcement-popup';
 import { SurveyForm } from './survey/survey-form/survey-form';
 import { SurveyList } from './survey/survey-list/survey-list';
+import { SurveyDashboard } from './survey/survey-dashboard/survey-dashboard';
 import { ExitInterview } from './resignation/exit-interview/exit-interview';
 import { ExitInterviewList } from './resignation/exit-interview-list/exit-interview-list';
 import { AppraisalTemplate } from './appraisal/appraisal-template/appraisal-template';
@@ -92,6 +93,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
   { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard]},
   { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard]},
+  { path: 'survey-dashboard', component: SurveyDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
   { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
 

@@ -1,0 +1,653 @@
+/* ─────────────────────────────────────────────────────────────
+   Survey Analytics dashboard — dark theme
+   Visual language follows hr-manager-dashboard.css:
+   translucent panels, thin white borders, semantic color variants,
+   uppercase section labels with letter-spacing, hover-lift.
+   ───────────────────────────────────────────────────────────── */
+
+.sd-page {
+  padding: 28px 40px 60px;
+  background: #000;
+  min-height: 100vh;
+  color: #f3f4f6;
+  font-family: 'Sofia Sans', sans-serif;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.sd-page .sd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sd-page .sd-title {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.sd-page .sd-sub {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.86rem;
+}
+
+/* ── Filter bar ───────────────────────────────────────────── */
+.sd-page .sd-filters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 18px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  align-items: end;
+}
+.sd-page .sd-filter { display: flex; flex-direction: column; gap: 6px; }
+.sd-page .sd-filter label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sd-page .sd-filter-actions { display: flex; gap: 8px; }
+
+@media (max-width: 1100px) {
+  .sd-page .sd-filters { grid-template-columns: repeat(2, 1fr); }
+  .sd-page .sd-filter-actions { grid-column: 1 / -1; }
+}
+
+/* ── KPI cards — semantic variants ────────────────────────── */
+.sd-page .sd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.sd-page .sd-kpi {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.sd-page .sd-kpi:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+.sd-page .sd-kpi-label {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.sd-page .sd-kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.sd-page .sd-delta {
+  display: inline-block;
+  font-size: 0.78rem;
+  margin-left: 8px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.sd-page .text-green-600 {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.18);
+}
+.sd-page .text-red-600 {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.18);
+}
+.sd-page .text-gray-500 {
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* When the KPI value itself carries the semantic color (positive/negative %)
+   the chip styling above turns the standalone number into a pill — strip it. */
+.sd-page .sd-kpi-value.text-green-600,
+.sd-page .sd-kpi-value.text-red-600 {
+  background: transparent;
+  padding: 0;
+}
+.sd-page .sd-kpi-value.text-green-600 { color: #4ade80; }
+.sd-page .sd-kpi-value.text-red-600 { color: #f87171; }
+
+@media (max-width: 1200px) { .sd-page .sd-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .sd-page .sd-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Cards & rows ─────────────────────────────────────────── */
+.sd-page .sd-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.sd-page .sd-row.sd-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.sd-page .sd-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 18px 20px;
+  color: #e5e7eb;
+  transition: border-color 0.2s ease;
+}
+.sd-page .sd-card:hover { border-color: rgba(255, 255, 255, 0.16); }
+.sd-page .sd-card h4 {
+  margin: 0 0 14px;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sd-page .sd-card-full { grid-column: 1 / -1; }
+
+@media (max-width: 900px) {
+  .sd-page .sd-row, .sd-page .sd-row.sd-row-3 { grid-template-columns: 1fr; }
+}
+
+/* ── Chart sizes ──────────────────────────────────────────── */
+.sd-page .sd-chart-box { position: relative; height: 280px; }
+.sd-page .sd-chart-box-lg { position: relative; height: 420px; }
+
+/* ── Mini stacked distribution bar (used in tables) ───────── */
+.sd-page .sd-mini-stack {
+  display: flex;
+  height: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 160px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.sd-page .sd-mini-stack .seg { height: 100%; }
+.sd-page .sd-mini-stack .seg.fa { background: #22c55e; }
+.sd-page .sd-mini-stack .seg.ma { background: #84cc16; }
+.sd-page .sd-mini-stack .seg.md { background: #f59e0b; }
+.sd-page .sd-mini-stack .seg.sd { background: #ef4444; }
+
+/* ── Question lists (top/bottom 10) ───────────────────────── */
+.sd-page .sd-q-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 360px;
+  overflow: auto;
+}
+.sd-page .sd-q-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  gap: 12px;
+  color: #e5e7eb;
+  transition: background 0.12s ease;
+}
+.sd-page .sd-q-list li:hover { background: rgba(255, 255, 255, 0.05); }
+.sd-page .sd-q-text { font-size: 0.85rem; color: #cbd5e1; }
+.sd-page .sd-q-empty { color: #94a3b8; text-align: center; padding: 14px; cursor: default; }
+
+/* ── Department cards ─────────────────────────────────────── */
+.sd-page .sd-dept-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+.sd-page .sd-dept-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+.sd-page .sd-dept-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+.sd-page .sd-dept-concerns ol {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+.sd-page .sd-dept-concerns ol li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.sd-page .sd-dept-concerns-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 1200px) { .sd-page .sd-dept-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .sd-page .sd-dept-grid { grid-template-columns: 1fr; } }
+
+/* ── Employee cells ───────────────────────────────────────── */
+.sd-page .sd-emp { display: flex; align-items: center; gap: 10px; color: #e5e7eb; }
+.sd-page .sd-emp img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  flex: 0 0 34px;
+}
+.sd-page .sd-emp small { color: #94a3b8; font-size: 0.75rem; }
+
+/* ── At-risk lowest answers ───────────────────────────────── */
+.sd-page .sd-low-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.78rem;
+}
+.sd-page .sd-low-list li {
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+.sd-page .sd-low-list em { color: #f87171; font-style: italic; font-size: 0.74rem; }
+
+/* ── Empty / drill stats ──────────────────────────────────── */
+.sd-page .sd-empty {
+  text-align: center;
+  padding: 28px;
+  color: #94a3b8;
+  font-style: italic;
+}
+.sd-page .sd-drill-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+.sd-page .sd-drill-stats strong { color: #f3f4f6; }
+
+/* =====================================================================
+   PrimeNG overrides — established pattern: ::ng-deep .sd-page .p-x
+   ===================================================================== */
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+::ng-deep .sd-page .p-tabs { background: transparent; }
+::ng-deep .sd-page .p-tablist {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+::ng-deep .sd-page .p-tablist-tab-list { background: transparent !important; }
+::ng-deep .sd-page .p-tablist-active-bar { background: #f97316 !important; }
+::ng-deep .sd-page .p-tabs .p-tablist::before,
+::ng-deep .sd-page .p-tabs .p-tablist::after { display: none !important; }
+::ng-deep .sd-page .p-tab {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  border-bottom: 2px solid transparent !important;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 12px 18px !important;
+}
+::ng-deep .sd-page .p-tab:hover {
+  color: #f3f4f6 !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+::ng-deep .sd-page .p-tab.p-tab-active,
+::ng-deep .sd-page .p-tab[data-p-active='true'] {
+  color: #f97316 !important;
+  border-bottom-color: #f97316 !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-tabpanels {
+  background: transparent !important;
+  padding: 22px 0 0 !important;
+}
+::ng-deep .sd-page .p-tabpanel {
+  background: transparent !important;
+  padding: 0 !important;
+  color: #e5e7eb !important;
+}
+::ng-deep .sd-page .p-tablist-nav-button {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+/* ── Inputs (datepicker / select / multiselect) ───────────── */
+::ng-deep .sd-page .p-inputtext,
+::ng-deep .sd-page .p-datepicker-input,
+::ng-deep .sd-page .p-select,
+::ng-deep .sd-page .p-multiselect {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f3f4f6 !important;
+  border-radius: 8px !important;
+}
+::ng-deep .sd-page .p-select .p-select-label,
+::ng-deep .sd-page .p-multiselect .p-multiselect-label {
+  color: #f3f4f6 !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-placeholder,
+::ng-deep .sd-page .p-select .p-select-label.p-placeholder,
+::ng-deep .sd-page .p-multiselect .p-multiselect-label.p-placeholder {
+  color: #64748b !important;
+}
+::ng-deep .sd-page .p-icon,
+::ng-deep .sd-page .p-select .p-select-dropdown,
+::ng-deep .sd-page .p-multiselect .p-multiselect-trigger { color: #94a3b8 !important; }
+
+/* ── Tables (page + dialog scopes) ────────────────────────── */
+::ng-deep .sd-page .p-datatable,
+::ng-deep .sd-page .p-datatable-table-container,
+::ng-deep .sd-page .p-datatable-wrapper,
+::ng-deep .sd-page .p-datatable-table,
+::ng-deep .p-dialog .p-datatable,
+::ng-deep .p-dialog .p-datatable-table-container,
+::ng-deep .p-dialog .p-datatable-wrapper,
+::ng-deep .p-dialog .p-datatable-table {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  --p-datatable-background: transparent !important;
+  --p-datatable-row-background: transparent !important;
+  --p-datatable-header-cell-background: rgba(255, 255, 255, 0.04) !important;
+  --p-datatable-header-cell-color: #cbd5e1 !important;
+  --p-datatable-body-cell-color: #e5e7eb !important;
+  --p-datatable-row-color: #e5e7eb !important;
+  --p-datatable-border-color: rgba(255, 255, 255, 0.08) !important;
+}
+::ng-deep .sd-page .p-datatable .p-datatable-thead > tr > th,
+::ng-deep .p-dialog .p-datatable .p-datatable-thead > tr > th {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+::ng-deep .sd-page .p-datatable .p-datatable-tbody > tr,
+::ng-deep .sd-page .p-datatable .p-datatable-tbody > tr.p-element,
+::ng-deep .p-dialog .p-datatable .p-datatable-tbody > tr,
+::ng-deep .p-dialog .p-datatable .p-datatable-tbody > tr.p-element {
+  background: transparent !important;
+  color: #e5e7eb !important;
+}
+::ng-deep .sd-page .p-datatable .p-datatable-tbody > tr > td,
+::ng-deep .p-dialog .p-datatable .p-datatable-tbody > tr > td {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: #e5e7eb !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-datatable .p-datatable-tbody > tr:hover > td,
+::ng-deep .p-dialog .p-datatable .p-datatable-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+::ng-deep .sd-page .p-sortable-column-icon { color: #94a3b8 !important; }
+
+/* Paginator */
+::ng-deep .sd-page .p-paginator,
+::ng-deep .p-dialog .p-paginator {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+  border: none !important;
+}
+::ng-deep .sd-page .p-paginator .p-paginator-page,
+::ng-deep .sd-page .p-paginator .p-paginator-first,
+::ng-deep .sd-page .p-paginator .p-paginator-prev,
+::ng-deep .sd-page .p-paginator .p-paginator-next,
+::ng-deep .sd-page .p-paginator .p-paginator-last,
+::ng-deep .p-dialog .p-paginator .p-paginator-page {
+  color: #cbd5e1 !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-paginator .p-paginator-page.p-paginator-page-selected,
+::ng-deep .p-dialog .p-paginator .p-paginator-page.p-paginator-page-selected {
+  background: #f97316 !important;
+  color: #000 !important;
+  border-radius: 6px;
+}
+
+/* ── Dialog (drill-down modal) ────────────────────────────── */
+::ng-deep .p-dialog {
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+::ng-deep .p-dialog,
+::ng-deep .p-dialog .p-dialog-content,
+::ng-deep .p-dialog .p-dialog-header,
+::ng-deep .p-dialog .p-dialog-footer {
+  background: #0b0b0e !important;
+  color: #f3f4f6 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+::ng-deep .p-dialog .p-dialog-header {
+  padding: 18px 22px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  color: #ffffff !important;
+  font-size: 1.02rem !important;
+  font-weight: 700 !important;
+}
+::ng-deep .p-dialog .p-dialog-close-button {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+::ng-deep .p-dialog .p-dialog-close-button:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+::ng-deep .p-dialog .p-dialog-content { padding: 20px 22px !important; }
+::ng-deep .p-dialog-mask { background: rgba(0, 0, 0, 0.65) !important; backdrop-filter: blur(4px); }
+
+/* Custom-class content inside the dialog isn't reached by component-scoped
+   selectors because the dialog portals to <body>. Promote the few classes
+   we actually use inside the modal to ::ng-deep here. */
+::ng-deep .p-dialog .sd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+::ng-deep .p-dialog .sd-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 16px 18px;
+  color: #e5e7eb;
+}
+::ng-deep .p-dialog .sd-card h4 {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+::ng-deep .p-dialog .sd-card-half {}
+::ng-deep .p-dialog .sd-chart-box { position: relative; height: 240px; }
+::ng-deep .p-dialog .sd-drill-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+::ng-deep .p-dialog .sd-drill-stats strong { color: #f3f4f6; }
+::ng-deep .p-dialog .sd-emp { display: flex; align-items: center; gap: 10px; color: #e5e7eb; }
+::ng-deep .p-dialog .sd-emp img {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  background: rgba(255, 255, 255, 0.08);
+  flex: 0 0 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+}
+::ng-deep .p-dialog .sd-emp small { color: #94a3b8; font-size: 0.74rem; }
+::ng-deep .p-dialog .sd-empty { text-align: center; padding: 24px; color: #94a3b8; font-style: italic; }
+
+@media (max-width: 720px) {
+  ::ng-deep .p-dialog .sd-row { grid-template-columns: 1fr; }
+}
+
+/* Nested tabs inside the dialog */
+::ng-deep .p-dialog .p-tablist {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+::ng-deep .p-dialog .p-tab {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  font-weight: 600;
+  padding: 10px 16px !important;
+}
+::ng-deep .p-dialog .p-tab.p-tab-active,
+::ng-deep .p-dialog .p-tab[data-p-active='true'] {
+  color: #f97316 !important;
+  border-bottom-color: #f97316 !important;
+}
+::ng-deep .p-dialog .p-tabpanels,
+::ng-deep .p-dialog .p-tabpanel {
+  background: transparent !important;
+  padding-top: 14px !important;
+}
+
+/* ── Overlay panels (portaled to body) ────────────────────── */
+::ng-deep .p-multiselect-overlay,
+::ng-deep .p-select-overlay,
+::ng-deep .p-datepicker-panel {
+  background: #0b0b0e !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f3f4f6 !important;
+  border-radius: 10px !important;
+}
+::ng-deep .p-multiselect-overlay .p-multiselect-item,
+::ng-deep .p-select-overlay .p-select-option {
+  color: #e5e7eb !important;
+  background: transparent !important;
+}
+::ng-deep .p-multiselect-overlay .p-multiselect-item:hover,
+::ng-deep .p-select-overlay .p-select-option:hover,
+::ng-deep .p-multiselect-overlay .p-multiselect-item.p-focus,
+::ng-deep .p-select-overlay .p-select-option.p-focus {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+::ng-deep .p-multiselect-overlay .p-multiselect-item.p-multiselect-item-selected,
+::ng-deep .p-select-overlay .p-select-option.p-select-option-selected {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #f97316 !important;
+}
+::ng-deep .p-multiselect-overlay .p-multiselect-header,
+::ng-deep .p-select-overlay .p-select-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f3f4f6 !important;
+}
+::ng-deep .p-multiselect-overlay .p-multiselect-filter,
+::ng-deep .p-select-overlay .p-select-filter {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f3f4f6 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-header,
+::ng-deep .p-datepicker-panel .p-datepicker-calendar {
+  background: transparent !important;
+  color: #f3f4f6 !important;
+}
+::ng-deep .p-datepicker-panel .p-datepicker-day { color: #e5e7eb !important; }
+::ng-deep .p-datepicker-panel .p-datepicker-day:hover { background: rgba(255, 255, 255, 0.06) !important; }
+::ng-deep .p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected {
+  background: #f97316 !important; color: #000 !important;
+}
+
+/* ── Progress bar / skeleton ──────────────────────────────── */
+::ng-deep .sd-page .p-progressbar {
+  background: rgba(255, 255, 255, 0.06) !important;
+  height: 6px !important;
+  margin-top: 8px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+::ng-deep .sd-page .p-progressbar .p-progressbar-value { background: #60a5fa !important; }
+::ng-deep .sd-page .p-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08), rgba(255,255,255,0.04)) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+::ng-deep .sd-page .p-button,
+::ng-deep .p-dialog .p-button {
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
+::ng-deep .sd-page .p-button.p-button-outlined,
+::ng-deep .p-dialog .p-button.p-button-outlined {
+  color: #e5e7eb !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-button.p-button-outlined:hover,
+::ng-deep .p-dialog .p-button.p-button-outlined:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+}
+::ng-deep .sd-page .p-button.p-button-text,
+::ng-deep .p-dialog .p-button.p-button-text {
+  color: #cbd5e1 !important;
+  background: transparent !important;
+}
+::ng-deep .sd-page .p-button.p-button-text:hover,
+::ng-deep .p-dialog .p-button.p-button-text:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+
+/* Tags */
+::ng-deep .sd-page .p-tag,
+::ng-deep .p-dialog .p-tag {
+  font-weight: 700 !important;
+  font-size: 0.74rem !important;
+  padding: 3px 8px !important;
+}

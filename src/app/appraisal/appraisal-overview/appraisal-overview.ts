@@ -8,10 +8,11 @@ import { SelfAppraisalComponent } from "../self-appraisal/self-appraisal";
 import { WeeklyRatingOverview } from "../../weekly-rating/weekly-rating-overview";
 import { ReviewQuestionsMaster } from "../review-questions-master/review-questions-master";
 import { AppraisalReviewForm } from "../appraisal-review-form/appraisal-review-form";
+import { PerformanceTemplateManager } from "../performance-template-manager/performance-template-manager";
 
 @Component({
   selector: 'app-appraisal-overview',
-  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, SelfAppraisalComponent, WeeklyRatingOverview, ModuleGuide, ReviewQuestionsMaster, AppraisalReviewForm],
+  imports: [CommonModule, AppraisalTable, ApprasialForm, DeptPerformance, SelfAppraisalComponent, WeeklyRatingOverview, ModuleGuide, ReviewQuestionsMaster, AppraisalReviewForm, PerformanceTemplateManager],
   templateUrl: './appraisal-overview.html',
   styleUrl: './appraisal-overview.css'
 })

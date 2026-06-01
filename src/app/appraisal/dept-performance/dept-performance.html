@@ -133,6 +133,7 @@
         <!-- <th>Emp ID</th> -->
         <th>Employee Name</th>
         <th>Department</th>
+        <th>Template</th>
         <th>Cycle</th>
         <th>Period</th>
         <th>Score</th>
@@ -158,6 +159,7 @@
             </div>
           </td>
           <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
           <td><p-skeleton width="70px"></p-skeleton></td>
           <td><p-skeleton width="60px"></p-skeleton></td>
           <td><p-skeleton width="50px"></p-skeleton></td>
@@ -190,11 +192,22 @@
               {{ getDepartmentName(s?.department?.id) }}
             </span>
           </td>
+          <td>{{ s.template?.title || '-' }}</td>
           <td>{{ s.cycle }}</td>
           <td>{{ s.period }}</td>
           <td>{{ s.marksScored || '-' }}</td>
           <td>{{ s.overallPerf || 'Draft' }}</td>
-          <td><button class="btn" (click)="openSummary(s)">Open</button></td>
+          <td>
+            <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)">Open</button>
+            <button *ngIf="!s.templateId && (role === 'HR' || role === 'HR Manager')"
+              class="btn assign-tpl-btn" (click)="openAssignTemplate(s)">
+              Assign Template
+            </button>
+            <button *ngIf="!s.templateId && !(role === 'HR' || role === 'HR Manager')"
+              class="btn" disabled title="HR must assign a template first">
+              No Template
+            </button>
+          </td>
         </tr>
       </ng-template>
 
@@ -203,7 +216,7 @@
     <!-- NO DATA ROW — placed outside the body template -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="9" class="no-data center-right">
+        <td colspan="10" class="no-data center-right">
           No Data Found
         </td>
       </tr>
@@ -252,11 +265,23 @@
       <!-- Cycle -->
       <div class="field">
         <label for="cycle">Appraisal Cycle</label>
-        <!-- <input id="cycle" pInputText formControlName="cycle" placeholder="APR-2024 TO MAR-2025" /> -->
         <p-select [options]="cycles" [filter]="true" optionLabel="label" optionValue="value" formControlName="cycle"
           placeholder="Select Appraisal Cycle" appendTo="body" [showClear]="true">
         </p-select>
+      </div>
 
+      <!-- Template -->
+      <div class="field">
+        <label for="templateId">Template</label>
+        <p-select id="templateId" [options]="templates" optionLabel="title" optionValue="id"
+          formControlName="templateId" appendTo="body"
+          [placeholder]="templatesLoading ? 'Loading templates...' : (templates.length ? 'Select template' : 'No templates for this dept + cycle')"
+          [disabled]="!assignForm.value.departmentId || !assignForm.value.cycle || !templates.length">
+        </p-select>
+        <small *ngIf="assignForm.value.departmentId && assignForm.value.cycle && !templatesLoading && !templates.length"
+          style="color:#b00; display:block; margin-top:4px;">
+          No templates exist for this department + cycle. Create one first.
+        </small>
       </div>
 
       <!-- Period -->
@@ -278,3 +303,41 @@
   <app-appraisal-template [summaryData]="selectedSummary" (closeForm)="closeSummary()"
     (closeForm)="closeSurvey()"></app-appraisal-template>
 </div>
+
+<!-- Assign-Template (per row) Popup -->
+<p-dialog header="Assign Template" class="Performance-Form" [(visible)]="assignTemplateVisible" [modal]="true"
+  [closable]="false" [style]="{width:'460px'}">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Assign Template</span>
+      <button class="dialog-close-btn" (click)="assignTemplateVisible = false">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="p-fluid" *ngIf="assignTemplateRow">
+    <p style="margin: 0 0 12px; color: #c4c4c4; font-size: 14px;">
+      <strong>{{ assignTemplateRow.employee?.firstName }} {{ assignTemplateRow.employee?.lastName }}</strong>
+      &nbsp;·&nbsp; {{ assignTemplateRow.cycle }} &nbsp;·&nbsp; {{ assignTemplateRow.period }}
+    </p>
+
+    <div class="field">
+      <label for="rowTemplateId">Template</label>
+      <p-select id="rowTemplateId" [options]="rowTemplates" optionLabel="title" optionValue="id"
+        [(ngModel)]="selectedRowTemplateId" appendTo="body"
+        [placeholder]="rowTemplatesLoading ? 'Loading…' : (rowTemplates.length ? 'Select template' : 'No templates for this dept + cycle')"
+        [disabled]="!rowTemplates.length"></p-select>
+      <small *ngIf="!rowTemplatesLoading && !rowTemplates.length"
+        style="color:#ff6b6b; display:block; margin-top:6px;">
+        Create a template for this department + cycle in "Manage Templates" first.
+      </small>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px;" class="flex justify-content-center">
+    <button pButton type="button" [label]="assignTemplateSaving ? 'Assigning…' : 'Assign'"
+      [loading]="assignTemplateSaving"
+      [disabled]="assignTemplateSaving || !selectedRowTemplateId"
+      (click)="confirmAssignTemplate()"></button>
+  </div>
+</p-dialog>

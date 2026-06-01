@@ -115,6 +115,40 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     },
   };
 
+  // Draws the column TOTAL just above each (stacked) vertical bar. Used on the
+  // department charts so departments with small/minimal segment values — where
+  // a number can't fit inside the segment — still always show a number.
+  private readonly barTotalsPlugin = {
+    id: 'barTotals',
+    afterDatasetsDraw(chart: any) {
+      if (chart.config.type !== 'bar') return;
+      if (chart.options?.indexAxis === 'y') return; // vertical bars only
+      const ctx = chart.ctx;
+      const top = chart.chartArea?.top ?? 0;
+      const labels = chart.data.labels || [];
+      for (let idx = 0; idx < labels.length; idx++) {
+        let total = 0, topY = Infinity, x = 0, has = false;
+        chart.data.datasets.forEach((ds: any, di: number) => {
+          const meta = chart.getDatasetMeta(di);
+          if (meta.hidden) return;
+          const el = meta.data[idx];
+          if (!el) return;
+          total += Number(ds.data[idx]) || 0;
+          if (el.y < topY) { topY = el.y; x = el.x; }
+          has = true;
+        });
+        if (!has || total <= 0) continue;
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(String(total), x, Math.max(topY - 3, top + 9));
+        ctx.restore();
+      }
+    },
+  };
+
   // ── Loading flags ─────────────────────────────────────────
   loadingPulse       = true;
   loadingWorkforce   = true;
@@ -202,6 +236,35 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   loadingTrainingCalendar = true;
   trainingCalMonth: string = ''; // YYYY-MM
   selectedCalDay: any | null = null;
+
+  // ── Ported HR-Analytics section data ──────────────────────
+  recruitmentOps: any = null;   loadingRecruitment = true;
+  pipMonitor: any = null;       loadingPipMonitor = true;
+  reliability: any = null;      loadingReliability = true;
+  weeklyPerfStatus: any = null; loadingWeeklyPerf = true;
+  probation: any = null;        loadingProbation = true;
+  incidents: any = null;        loadingIncidents = true;
+  otEligibility: any = null;    loadingOtElig = true;
+  deptPlanning: any = null;     loadingDeptPlanning = true;
+  /** month options for the per-dept calendar-appraisal cycle label */
+  readonly monthOptions = [
+    { v: 1, n: 'Jan' }, { v: 2, n: 'Feb' }, { v: 3, n: 'Mar' }, { v: 4, n: 'Apr' },
+    { v: 5, n: 'May' }, { v: 6, n: 'Jun' }, { v: 7, n: 'Jul' }, { v: 8, n: 'Aug' },
+    { v: 9, n: 'Sep' }, { v: 10, n: 'Oct' }, { v: 11, n: 'Nov' }, { v: 12, n: 'Dec' },
+  ];
+
+  // ── Probation extension-reason popup ──────────────────────
+  probationReason = { open: false, name: '', text: '' };
+  openProbationReason(p: any) {
+    this.probationReason = {
+      open: true,
+      name: p?.name ?? '',
+      text: (p?.remarks && String(p.remarks).trim()) ? p.remarks : 'No reason recorded.',
+    };
+  }
+  closeProbationReason() {
+    this.probationReason = { open: false, name: '', text: '' };
+  }
 
   // ── OT month navigation ───────────────────────────────────
   otMonth = new Date();
@@ -292,7 +355,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   // ── Chart detail modal ────────────────────────────────────
   modalVisible  = false;
   modalTitle    = '';
-  modalColumns: { key: string; label: string }[] = [];
+  modalColumns: { key: string; label: string; tooltip?: boolean }[] = [];
   modalRows: any[] = [];
   // Drill-down config for the modal: which row field to filter by, plus
   // the source employee list and sub-modal columns. When set, a "View"
@@ -301,13 +364,13 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     rowKey: string;        // field on modal row to match (e.g., 'dept')
     sourceKey: string;     // field on source row to match (usually same)
     source: any[];         // employee-level rows
-    cols: { key: string; label: string }[];  // columns for sub-modal
+    cols: { key: string; label: string; tooltip?: boolean }[];  // columns for sub-modal
   } | null = null;
 
   // ── Sub-modal (drill-down from a row) ─────────────────────
   subModalVisible  = false;
   subModalTitle    = '';
-  subModalColumns: { key: string; label: string }[] = [];
+  subModalColumns: { key: string; label: string; tooltip?: boolean }[] = [];
   subModalRows: any[] = [];
 
   // ── Chart instances ───────────────────────────────────────
@@ -332,6 +395,12 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   private loanTypeChart?: Chart;
   private incentiveTypeChart?: Chart;
   private ctcDistChart?: Chart;
+  // ── Ported HR-Analytics section charts ─────────────────────
+  private incMonthChart?: Chart;
+  private incDeptChart?: Chart;
+  private probationChart?: Chart;
+  private weeklyPerfChart?: Chart;
+  private otEligChart?: Chart;
   private chartsReady = false;
 
   // ── KPI card config ───────────────────────────────────────
@@ -375,6 +444,12 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
       if (this.payrollTrend)     this.drawPayrollTrendChart();
       if (this.loanOverview)     this.drawLoanTypeChart();
       if (this.incentiveOverview) this.drawIncentiveTypeChart();
+      // ── Ported HR-Analytics section charts ─────────────────
+      if (this.incidents)        this.drawIncidentCharts();
+      if (this.probation)        this.drawProbationChart();
+      if (this.weeklyPerfStatus) this.drawWeeklyPerfChart();
+      if (this.otEligibility)    this.drawOtEligChart();
+      if (this.otAnalysis)       this.drawOtDeptChart();
     }, 0);
   }
 
@@ -588,7 +663,322 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         error: () => { this.loadingWfInsights = false; }
       });
 
+      // ── Ported HR-Analytics sections ───────────────────────
+      this.svc.getTrainingByDept().subscribe({
+        next: (d) => { this.trainingByDept = d; this.loadingTraining = false; },
+        error: () => { this.loadingTraining = false; }
+      });
+      // Training calendar — current month (drives Today's Trainings)
+      const now = new Date();
+      this.trainingCalMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      this.loadTrainingCalendar(this.trainingCalMonth);
+
+      this.loadRecruitmentOps();
+      this.loadOtAnalysis();
+      this.loadOtEligibility();
+      this.loadIncidents();
+      this.loadDeptPlanning();
+      this.loadReliability();
+      this.loadPipMonitor();
+      this.loadProbation();
+      this.loadWeeklyPerf();
+
     }, 700);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // Ported HR-Analytics section loaders / charts / helpers
+  // ═══════════════════════════════════════════════════════════
+
+  /** Open the chart-detail modal with a flat list of rows (no drill). */
+  private openListModal(title: string, columns: { key: string; label: string; tooltip?: boolean }[], rows: any[]) {
+    this.modalTitle   = title;
+    this.modalColumns = columns;
+    this.modalRows    = rows ?? [];
+    this.modalDrill   = null;
+    this.modalVisible = true;
+    this.cdr.detectChanges();
+  }
+
+  // ── Training summaries (today's trainings, completed-to-date) ──
+  /** Trainings scheduled for today, taken from the loaded training calendar. */
+  get todayTrainings(): any[] {
+    const days = this.trainingCalendar?.days ?? [];
+    const t = new Date();
+    const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    return days.find((d: any) => d.date === iso)?.trainings ?? [];
+  }
+  get trainingCompletedTotal(): number {
+    return (this.trainingByDept ?? []).reduce((s: number, d: any) => s + (d.completed || 0), 0);
+  }
+  get trainingAssignedTotal(): number {
+    return (this.trainingByDept ?? []).reduce((s: number, d: any) => s + (d.total || 0), 0);
+  }
+  get trainingCompletionPctOverall(): number {
+    const total = this.trainingAssignedTotal;
+    return total ? Math.round((this.trainingCompletedTotal / total) * 100) : 0;
+  }
+
+  // ── #6/#7/#8 Recruitment ops ───────────────────────────────
+  loadRecruitmentOps() {
+    this.loadingRecruitment = true;
+    this.svc.getRecruitmentOps().subscribe({
+      next: (d) => { this.recruitmentOps = d; this.loadingRecruitment = false; },
+      error: () => { this.loadingRecruitment = false; },
+    });
+  }
+
+  // ── #17 OT eligibility breaches ────────────────────────────
+  loadOtEligibility() {
+    this.loadingOtElig = true;
+    this.svc.getOtEligibility().subscribe({
+      next: (d) => {
+        this.otEligibility = d; this.loadingOtElig = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawOtEligChart(), 0); }
+      },
+      error: () => { this.loadingOtElig = false; },
+    });
+  }
+  private drawOtEligChart() {
+    const ctx = document.getElementById('otEligChart') as HTMLCanvasElement;
+    if (!ctx || !this.otEligibility?.deptBreaches?.length) return;
+    if (this.otEligChart) this.otEligChart.destroy();
+    const depts = this.otEligibility.deptBreaches;
+    this.otEligChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: depts.map((d: any) => d.dept),
+        datasets: [{ label: 'Breach weeks', data: depts.map((d: any) => d.breachCount), backgroundColor: '#f59e0b', borderRadius: 5 }],
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        onClick: (_e, els) => { if (els.length) this.openOtBreachModal(depts[els[0].index].dept); },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+  openOtBreachModal(dept: string) {
+    const rows = (this.otEligibility?.breaches ?? []).filter((b: any) => b.dept === dept);
+    this.openListModal(
+      `OT-eligibility breaches — ${dept} (${rows.length})`,
+      [
+        { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
+        { key: 'designation', label: 'Designation' }, { key: 'week', label: 'Week of' },
+        { key: 'otDays', label: 'OT Days' }, { key: 'totalHours', label: 'Total Hrs' },
+        { key: 'reason', label: 'Breach' },
+      ],
+      rows,
+    );
+  }
+
+  // ── #12 Weekly performance filled vs pending ───────────────
+  loadWeeklyPerf() {
+    this.loadingWeeklyPerf = true;
+    this.svc.getWeeklyPerfStatus(6).subscribe({
+      next: (d) => {
+        this.weeklyPerfStatus = d; this.loadingWeeklyPerf = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawWeeklyPerfChart(), 0); }
+      },
+      error: () => { this.loadingWeeklyPerf = false; },
+    });
+  }
+  private drawWeeklyPerfChart() {
+    const ctx = document.getElementById('weeklyPerfChart') as HTMLCanvasElement;
+    if (!ctx || !this.weeklyPerfStatus?.weeks?.length) return;
+    if (this.weeklyPerfChart) this.weeklyPerfChart.destroy();
+    const weeks = this.weeklyPerfStatus.weeks;
+    this.weeklyPerfChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: weeks.map((w: any) => w.label),
+        datasets: [
+          { label: 'Filled',  data: weeks.map((w: any) => w.filled),  backgroundColor: '#22c55e', borderRadius: 4, stack: 'wp' },
+          { label: 'Pending', data: weeks.map((w: any) => w.pending), backgroundColor: 'rgba(100,116,139,0.5)', borderRadius: 4, stack: 'wp' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 10 } } },
+        scales: {
+          x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        },
+      },
+      plugins: [this.valueLabelsPlugin],
+    });
+  }
+
+  // ── #14 Incidents analytics ────────────────────────────────
+  loadIncidents() {
+    this.loadingIncidents = true;
+    this.svc.getIncidentsAnalytics(6).subscribe({
+      next: (d) => {
+        this.incidents = d; this.loadingIncidents = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawIncidentCharts(), 0); }
+      },
+      error: () => { this.loadingIncidents = false; },
+    });
+  }
+  private drawIncidentCharts() {
+    const incidentCols = [
+      { key: 'title', label: 'Incident' }, { key: 'category', label: 'Category' },
+      { key: 'severity', label: 'Severity' }, { key: 'status', label: 'Status' },
+      { key: 'outcome', label: 'Outcome' }, { key: 'employee', label: 'Employee' },
+      { key: 'date', label: 'Date' },
+    ];
+    const mctx = document.getElementById('incMonthChart') as HTMLCanvasElement;
+    if (mctx && this.incidents?.byMonth?.length) {
+      if (this.incMonthChart) this.incMonthChart.destroy();
+      const byMonth = this.incidents.byMonth;
+      this.incMonthChart = new Chart(mctx, {
+        type: 'bar',
+        data: { labels: byMonth.map((m: any) => m.label), datasets: [{ label: 'Incidents', data: byMonth.map((m: any) => m.count), backgroundColor: '#f472b6', borderRadius: 5 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          onClick: (_e, els) => { if (els.length) { const m = byMonth[els[0].index]; this.openListModal(`Incidents — ${m.label} (${m.count})`, incidentCols, m.incidents); } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          },
+        },
+        plugins: [this.valueLabelsPlugin],
+      });
+    }
+    const dctx = document.getElementById('incDeptChart') as HTMLCanvasElement;
+    if (dctx && this.incidents?.byDept?.length) {
+      if (this.incDeptChart) this.incDeptChart.destroy();
+      const byDept = this.incidents.byDept;
+      this.incDeptChart = new Chart(dctx, {
+        type: 'bar',
+        data: { labels: byDept.map((d: any) => d.dept), datasets: [{ label: 'Incidents', data: byDept.map((d: any) => d.count), backgroundColor: '#ef4444', borderRadius: 5 }] },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          onClick: (_e, els) => { if (els.length) { const d = byDept[els[0].index]; this.openListModal(`Incidents — ${d.dept} (${d.count})`, incidentCols, d.incidents); } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#e5e7eb', font: { size: 11 } }, grid: { display: false } },
+          },
+        },
+        plugins: [this.valueLabelsPlugin],
+      });
+    }
+  }
+
+  // ── #13/#21 Reliability score + half-year readiness ────────
+  loadReliability() {
+    this.loadingReliability = true;
+    this.svc.getReliabilityScores(6).subscribe({
+      next: (d) => { this.reliability = d; this.loadingReliability = false; },
+      error: () => { this.loadingReliability = false; },
+    });
+  }
+  getReliabilityClass(rating: string): string {
+    return rating === 'Good' ? 'badge-good' : rating === 'Watch' ? 'badge-warn' : 'badge-danger';
+  }
+  /** Tooltip text for a reliability score — mirrors the backend formula. */
+  reliabilityBreakdown(r: any): string {
+    const months = this.reliability?.months || 6;
+    const leaveThreshold = months * 2;
+    const w = this.reliability?.weights || { attendance: 40, leave: 20, weekly: 25, incidents: 15 };
+
+    const attDenom = (r.presentDays || 0) + (r.absentDays || 0);
+    const attendance = attDenom > 0
+      ? `Attendance ${r.attendanceScore}/${w.attendance} = ${w.attendance} × ${r.presentDays}/${attDenom} present`
+      : `Attendance ${r.attendanceScore}/${w.attendance} = ${w.attendance} × 0.85 (no attendance data)`;
+
+    const leave = `Leave ${r.leaveScore}/${w.leave} = ${w.leave} × (1 − ${r.leaveDays}/${leaveThreshold} leave-days)`;
+
+    const weekly = r.weeklyAvg != null
+      ? `Weekly ${r.weeklyScore}/${w.weekly} = ${w.weekly} × ${r.weeklyAvg}/100`
+      : `Weekly ${r.weeklyScore}/${w.weekly} = ${w.weekly} × 0.6 (no ratings, neutral)`;
+
+    const unconvicted = (r.incidents || 0) - (r.convicted || 0);
+    const incidents = `Incidents ${r.incidentScore}/${w.incidents} = ${w.incidents} − ${unconvicted}×3 − ${r.convicted || 0}×8`;
+
+    return `${attendance} · ${leave} · ${weekly} · ${incidents} · Total = ${r.score}`;
+  }
+
+  // ── #15 PIP monitor ────────────────────────────────────────
+  loadPipMonitor() {
+    this.loadingPipMonitor = true;
+    this.svc.getPipMonitor().subscribe({
+      next: (d) => { this.pipMonitor = d; this.loadingPipMonitor = false; },
+      error: () => { this.loadingPipMonitor = false; },
+    });
+  }
+  getPipStatusClass(status: string): string {
+    if (status === 'TERMINATION_INITIATED' || status === 'TERMINATED') return 'badge-danger';
+    if (status === 'PIP_EXTENDED') return 'badge-warn';
+    if (status === 'PIP_CLOSED_IMPROVED') return 'badge-good';
+    return '';
+  }
+
+  // ── Probation overview ─────────────────────────────────────
+  loadProbation() {
+    this.loadingProbation = true;
+    this.svc.getProbationOverview().subscribe({
+      next: (d) => {
+        this.probation = d; this.loadingProbation = false;
+        if (this.chartsReady) { this.cdr.detectChanges(); setTimeout(() => this.drawProbationChart(), 0); }
+      },
+      error: () => { this.loadingProbation = false; },
+    });
+  }
+  private drawProbationChart() {
+    const ctx = document.getElementById('probationChart') as HTMLCanvasElement;
+    if (!ctx || !this.probation?.statusBreakdown?.length) return;
+    if (this.probationChart) this.probationChart.destroy();
+    const sb = this.probation.statusBreakdown;
+    const total = sb.reduce((s: number, x: any) => s + (x.count || 0), 0);
+    // Draw the total headcount in the centre of the doughnut hole.
+    const centerTotal = {
+      id: 'probationCenterTotal',
+      afterDatasetsDraw(chart: any) {
+        const area = chart.chartArea;
+        if (!area) return;
+        const cx = (area.left + area.right) / 2;
+        const cy = (area.top + area.bottom) / 2;
+        const c = chart.ctx;
+        c.save();
+        c.textAlign = 'center';
+        c.fillStyle = '#ffffff';
+        c.font = 'bold 28px sans-serif';
+        c.textBaseline = 'middle';
+        c.fillText(String(total), cx, cy - 7);
+        c.fillStyle = '#b4c0d4';
+        c.font = '600 11px sans-serif';
+        c.fillText('Total', cx, cy + 15);
+        c.restore();
+      },
+    };
+    this.probationChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: sb.map((s: any) => s.status.replace('_', ' ')),
+        datasets: [{ data: sb.map((s: any) => s.count), backgroundColor: sb.map((s: any) => s.color), borderWidth: 0, hoverOffset: 6 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '58%',
+        plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, usePointStyle: true } } },
+      },
+      plugins: [this.valueLabelsPlugin, centerTotal],
+    });
+  }
+
+  // ── #18/#19 Capacity planning (read-only) ──────────────────
+  loadDeptPlanning() {
+    this.loadingDeptPlanning = true;
+    this.svc.getDeptPlanning().subscribe({
+      next: (d) => { this.deptPlanning = d; this.loadingDeptPlanning = false; },
+      error: () => { this.loadingDeptPlanning = false; },
+    });
   }
 
   loadTrainingCalendar(month: string) {
@@ -910,7 +1300,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         break;
 
       case 'attrition':
-        title = 'Attrition Trend (12 Months)';
+        title = 'Attrition Trend (3 Months)';
         cols  = [
           { key: 'month',     label: 'Month' },
           { key: 'submitted', label: 'Resignations Submitted' },
@@ -956,7 +1346,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         title = 'Avg Appraisal Score by Department';
         cols  = [
           { key: 'dept',  label: 'Department' },
-          { key: 'avg',   label: 'Avg Score (/100)' },
+          { key: 'avg',   label: 'Avg Score (/10)' },
           { key: 'count', label: 'Employees Appraised' },
         ];
         rows = this.perfDist?.deptAvg ?? [];
@@ -1026,7 +1416,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         cols  = [
           { key: 'dept',           label: 'Department' },
           { key: 'name',           label: 'Employee Name' },
-          { key: 'allowed',        label: 'Allowed (days)' },
+          { key: 'allowed',        label: 'Allowed — all leave types (days)' },
           { key: 'used',           label: 'Used (days)' },
           { key: 'remaining',      label: 'Remaining' },
           { key: 'utilizationPct', label: 'Utilization %' },
@@ -1278,7 +1668,13 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         return {
           rowKey: 'dept', sourceKey: 'dept',
           source: this.perfDist?.employeeList ?? this.workforce?.employeeList ?? [],
-          cols: empCols,
+          cols: [
+            { key: 'name',        label: 'Employee Name' },
+            { key: 'designation', label: 'Designation' },
+            { key: 'dept',        label: 'Department' },
+            { key: 'score',       label: 'Score' },
+            { key: 'finalDecision', label: 'Final Decision', tooltip: true },
+          ],
         };
       case 'training':
         return {
@@ -1578,9 +1974,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   }
 
   getScoreBadge(score: number | null): string {
+    // Appraisal score is on a 0–10 scale (average of 0–10 ratings).
     if (score === null) return 'badge-muted';
-    if (score >= 70) return 'badge-good';
-    if (score >= 50) return 'badge-warn';
+    if (score >= 7) return 'badge-good';
+    if (score >= 5) return 'badge-warn';
     return 'badge-danger';
   }
 
@@ -1606,6 +2003,14 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     if (s === 'danger') return 'sev-danger';
     if (s === 'warn')   return 'sev-warn';
     return 'sev-info';
+  }
+
+  /** Truncate a cell value to 30 chars (full text shown via tooltip). Used by
+   *  modal columns flagged `tooltip: true` (e.g. appraisal Final Decision). */
+  truncateText(v: any): string {
+    const s = (v ?? '').toString().trim();
+    if (!s) return '—';
+    return s.length > 30 ? s.slice(0, 30) + '…' : s;
   }
 
   getPIPStatusClass(s: string) {
@@ -1827,7 +2232,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         options: { responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 16 } } },
           scales: { x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } } } },
-        plugins: [this.valueLabelsPlugin],
+        plugins: [this.valueLabelsPlugin, this.barTotalsPlugin],
       });
     }
     const donutCtx = document.getElementById('workforceDonutChart') as HTMLCanvasElement;
@@ -1946,7 +2351,7 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 } } } },
         scales: {
           x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
-          y: { min: 0, max: 100, ticks: { color: '#d1d5db', stepSize: 10 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 0, max: 10, ticks: { color: '#d1d5db', stepSize: 2 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         } },
       plugins: [this.valueLabelsPlugin],
     });

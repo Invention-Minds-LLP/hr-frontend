@@ -30,6 +30,7 @@ export class AppraisalTemplate {
   employeeId!: number;
   departmentId!: number;
   cycle!: string;
+  templateId?: number;
   currentPeriod: 'MONTH_1' | 'MONTH_3' | 'MONTH_6' | 'YEAR_1' = 'MONTH_1';
   joiningDate: any;
   employeeName: string = '';
@@ -136,6 +137,7 @@ export class AppraisalTemplate {
       this.employeeId = this.summaryData.employeeId;
       this.departmentId = this.summaryData.departmentId;
       this.cycle = this.summaryData.cycle;
+      this.templateId = this.summaryData.templateId ?? this.summaryData.template?.id;
       this.employeeCode = this.summaryData.employee.employeeCode;
       console.log(this.summaryData);
       this.employeeName = this.summaryData.employee.firstName + ' ' + this.summaryData.employee.lastName;
@@ -149,7 +151,7 @@ export class AppraisalTemplate {
 
     }
 
-    this.formService.getEmployeeForm(this.employeeId, this.departmentId, this.cycle).subscribe(data => {
+    this.formService.getEmployeeForm(this.employeeId, this.departmentId, this.cycle, this.templateId).subscribe(data => {
       this.template = {
         ...data.template,
         questions: data.template.questions.map((q: any) => ({
@@ -433,6 +435,7 @@ export class AppraisalTemplate {
       employeeId: this.employeeId,
       departmentId: this.departmentId,
       cycle: this.cycle,
+      templateId: this.templateId ?? null,
       responses: flattenedResponses,
       summaries: flattenedSummaries,
       finalReview: this.finalReview

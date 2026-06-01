@@ -45,4 +45,49 @@ export class SurveryService {
     const params = new HttpParams().set('employeeId', employeeId.toString());
     return this.http.get<any[]>(`${this.baseUrl}/drafts`, { params });
   }
+
+  // ===== HR Analytics Dashboard =====
+  private analyticsParams(filters?: any): HttpParams {
+    let p = new HttpParams();
+    if (!filters) return p;
+    if (filters.from) p = p.set('from', filters.from);
+    if (filters.to) p = p.set('to', filters.to);
+    if (filters.departmentId) p = p.set('departmentId', String(filters.departmentId));
+    if (filters.departmentIds?.length) p = p.set('departmentIds', filters.departmentIds.join(','));
+    if (filters.gender) p = p.set('gender', filters.gender);
+    if (filters.designationId) p = p.set('designationId', String(filters.designationId));
+    if (filters.sections?.length) p = p.set('sections', filters.sections.join(','));
+    return p;
+  }
+
+  getAnalyticsSummary(filters?: any): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/summary`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsBySection(filters?: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/analytics/by-section`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsByQuestion(filters?: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/analytics/by-question`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsByDepartment(filters?: any): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/by-department`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsQuestionDrilldown(questionId: number, filters?: any): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/question/${questionId}`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsAtRisk(filters?: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/analytics/at-risk`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsDemographics(filters?: any): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/demographics`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsScatter(filters?: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/analytics/scatter`, { params: this.analyticsParams(filters) });
+  }
+  getAnalyticsPending(filters?: any): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/pending`, { params: this.analyticsParams(filters) });
+  }
+  sendPendingReminders(surveyIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/analytics/pending/remind`, { surveyIds });
+  }
 }

@@ -118,6 +118,40 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
     },
   };
 
+  // Draws the column TOTAL just above each (stacked) vertical bar. Used on the
+  // department charts so departments with small/minimal segment values — where
+  // a number can't fit inside the segment — still always show a number.
+  private readonly barTotalsPlugin = {
+    id: 'barTotals',
+    afterDatasetsDraw(chart: any) {
+      if (chart.config.type !== 'bar') return;
+      if (chart.options?.indexAxis === 'y') return; // vertical bars only
+      const ctx = chart.ctx;
+      const top = chart.chartArea?.top ?? 0;
+      const labels = chart.data.labels || [];
+      for (let idx = 0; idx < labels.length; idx++) {
+        let total = 0, topY = Infinity, x = 0, has = false;
+        chart.data.datasets.forEach((ds: any, di: number) => {
+          const meta = chart.getDatasetMeta(di);
+          if (meta.hidden) return;
+          const el = meta.data[idx];
+          if (!el) return;
+          total += Number(ds.data[idx]) || 0;
+          if (el.y < topY) { topY = el.y; x = el.x; }
+          has = true;
+        });
+        if (!has || total <= 0) continue;
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(String(total), x, Math.max(topY - 3, top + 9));
+        ctx.restore();
+      }
+    },
+  };
+
   // ── Loading flags ─────────────────────────────────────────
   loadingPulse       = true;
   loadingWorkforce   = true;
@@ -129,7 +163,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   /** Drill-down state for the modal. */
   shiftDrilldown: any = null;
   shiftDrilldownLoading = false;
-  shiftDrilldownFilter: 'all' | 'present' | 'late' | 'earlyCheckout' | 'onLeave' | 'absent' = 'all';
+  shiftDrilldownFilter: 'all' | 'present' | 'late' | 'earlyCheckout' | 'onLeave' | 'weekOff' | 'absent' = 'all';
   /** When false (default) the shift board hides shifts whose start time is still
    *  in the future — so at 10:00 AM only shifts that have already started today
    *  are shown. HR can flip this to review upcoming shifts too. */
@@ -204,7 +238,6 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
     { id: 'sec-readiness',   label: 'Payroll Ready', icon: '🧾' },
     { id: 'sec-late',        label: 'Late Arrivals', icon: '🚦' },
     { id: 'sec-leave-util',  label: 'Leave Util.',   icon: '🗓️' },
-    { id: 'sec-absent',      label: 'Absenteeism',   icon: '📉' },
     { id: 'sec-quals',       label: 'Qualifications',icon: '🎓' },
     { id: 'sec-el',          label: 'EL Insights',   icon: '💰' },
     { id: 'sec-train-ins',   label: 'Train. Insights', icon: '📚' },
@@ -349,7 +382,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   // ── Chart detail modal ────────────────────────────────────
   modalVisible  = false;
   modalTitle    = '';
-  modalColumns: { key: string; label: string }[] = [];
+  modalColumns: { key: string; label: string; tooltip?: boolean }[] = [];
   modalRows: any[] = [];
   // Drill-down config for the modal: which row field to filter by, plus
   // the source employee list and sub-modal columns. When set, a "View"
@@ -632,7 +665,6 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         next: (d) => { this.leaveUtil = d; this.loadingLeaveUtil = false; },
         error: () => { this.loadingLeaveUtil = false; }
       });
-      this.loadAbsenteeism(this.absentDays);
 
       this.loadMobileLogin(this.mobileLoginDays);
 
@@ -1020,7 +1052,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         break;
 
       case 'attrition':
-        title = 'Attrition Trend (12 Months)';
+        title = 'Attrition Trend (3 Months)';
         cols  = [
           { key: 'month',     label: 'Month' },
           { key: 'submitted', label: 'Resignations Submitted' },
@@ -1136,7 +1168,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         cols  = [
           { key: 'dept',           label: 'Department' },
           { key: 'name',           label: 'Employee Name' },
-          { key: 'allowed',        label: 'Allowed (days)' },
+          { key: 'allowed',        label: 'Allowed — all leave types (days)' },
           { key: 'used',           label: 'Used (days)' },
           { key: 'remaining',      label: 'Remaining' },
           { key: 'utilizationPct', label: 'Utilization %' },
@@ -1688,9 +1720,10 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   }
 
   getScoreBadge(score: number | null): string {
+    // Appraisal score is on a 0–10 scale (average of 0–10 ratings).
     if (score === null) return 'badge-muted';
-    if (score >= 70) return 'badge-good';
-    if (score >= 50) return 'badge-warn';
+    if (score >= 7) return 'badge-good';
+    if (score >= 5) return 'badge-warn';
     return 'badge-danger';
   }
 
@@ -1716,6 +1749,14 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
     if (s === 'danger') return 'sev-danger';
     if (s === 'warn')   return 'sev-warn';
     return 'sev-info';
+  }
+
+  /** Truncate a cell value to 30 chars (full text shown via tooltip). Used by
+   *  modal columns flagged `tooltip: true` (e.g. appraisal Final Decision). */
+  truncateText(v: any): string {
+    const s = (v ?? '').toString().trim();
+    if (!s) return '—';
+    return s.length > 30 ? s.slice(0, 30) + '…' : s;
   }
 
   getPIPStatusClass(s: string) {
@@ -1764,6 +1805,21 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
     });
   }
 
+  /** Min canvas width (px) for the dept-attendance chart: ~92px per department
+   *  so bars keep a readable, roomy width. When the total exceeds the card the
+   *  container scrolls horizontally; when it fits, the chart just fills the card
+   *  (a px min-width below the container doesn't shrink the block). */
+  get deptAttMinWidth(): number | null {
+    const n = this.deptAttendance?.depts?.length || 0;
+    return n ? n * 92 : null;
+  }
+
+  /** Show the "scroll sideways" hint only once there are enough departments
+   *  that the chart is likely to overflow the card. */
+  get deptAttScrolls(): boolean {
+    return (this.deptAttendance?.depts?.length || 0) > 8;
+  }
+
   private drawDeptAttChart() {
     const ctx = document.getElementById('deptAttChart') as HTMLCanvasElement;
     if (!ctx || !this.deptAttendance?.depts?.length) return;
@@ -1797,7 +1853,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
           y: { stacked: true, ticks: { color: '#d1d5db', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         },
       },
-      plugins: [this.valueLabelsPlugin],
+      plugins: [this.valueLabelsPlugin, this.barTotalsPlugin],
     });
   }
 
@@ -1818,7 +1874,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   }
 
   /** Generic read-only list popup (reused by chart click-throughs). */
-  private openListModal(title: string, columns: { key: string; label: string }[], rows: any[]) {
+  private openListModal(title: string, columns: { key: string; label: string; tooltip?: boolean }[], rows: any[]) {
     this.modalTitle   = title;
     this.modalColumns = columns;
     this.modalRows    = rows ?? [];
@@ -2094,6 +2150,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
           { key: 'name', label: 'Employee' }, { key: 'employeeCode', label: 'Code' },
           { key: 'dept', label: 'Dept' }, { key: 'designation', label: 'Designation' },
           { key: 'score', label: 'Score' }, { key: 'cycle', label: 'Cycle' }, { key: 'appraisedOn', label: 'Appraised On' },
+          { key: 'finalDecision', label: 'Final Decision', tooltip: true },
         ], b.employees); } },
         plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, usePointStyle: true } } },
       },
@@ -2166,7 +2223,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   loadSalaryIncrements() {
     if (!this.salaryDataEnabled) return;
     this.loadingSalaryIncrements = true;
-    this.svc.getSalaryIncrements(12).subscribe({
+    this.svc.getSalaryIncrements(3).subscribe({
       next: (d) => { this.salaryIncrements = d; this.loadingSalaryIncrements = false; },
       error: () => { this.loadingSalaryIncrements = false; },
     });
@@ -2209,6 +2266,28 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
     if (!ctx || !this.probation?.statusBreakdown?.length) return;
     if (this.probationChart) this.probationChart.destroy();
     const sb = this.probation.statusBreakdown;
+    const total = sb.reduce((s: number, x: any) => s + (x.count || 0), 0);
+    // Draw the total headcount in the centre of the doughnut hole.
+    const centerTotal = {
+      id: 'probationCenterTotal',
+      afterDatasetsDraw(chart: any) {
+        const area = chart.chartArea;
+        if (!area) return;
+        const cx = (area.left + area.right) / 2;
+        const cy = (area.top + area.bottom) / 2;
+        const c = chart.ctx;
+        c.save();
+        c.textAlign = 'center';
+        c.fillStyle = '#ffffff';
+        c.font = 'bold 28px sans-serif';
+        c.textBaseline = 'middle';
+        c.fillText(String(total), cx, cy - 7);
+        c.fillStyle = '#b4c0d4';
+        c.font = '600 11px sans-serif';
+        c.fillText('Total', cx, cy + 15);
+        c.restore();
+      },
+    };
     this.probationChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -2219,7 +2298,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         responsive: true, maintainAspectRatio: false, cutout: '58%',
         plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 11 }, padding: 10, usePointStyle: true } } },
       },
-      plugins: [this.valueLabelsPlugin],
+      plugins: [this.valueLabelsPlugin, centerTotal],
     });
   }
 
@@ -2468,7 +2547,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         options: { responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 }, padding: 16 } } },
           scales: { x: { stacked: true, ticks: { color: '#d1d5db', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { stacked: true, ticks: { color: '#d1d5db' }, grid: { color: 'rgba(255,255,255,0.06)' } } } },
-        plugins: [this.valueLabelsPlugin],
+        plugins: [this.valueLabelsPlugin, this.barTotalsPlugin],
       });
     }
     const donutCtx = document.getElementById('workforceDonutChart') as HTMLCanvasElement;
@@ -2587,7 +2666,7 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
         plugins: { legend: { labels: { color: '#d1d5db', font: { size: 11 } } } },
         scales: {
           x: { ticks: { color: '#d1d5db', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
-          y: { min: 0, max: 100, ticks: { color: '#d1d5db', stepSize: 10 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 0, max: 10, ticks: { color: '#d1d5db', stepSize: 2 }, grid: { color: 'rgba(255,255,255,0.06)' } },
         } },
       plugins: [this.valueLabelsPlugin],
     });

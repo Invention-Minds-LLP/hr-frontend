@@ -1,0 +1,502 @@
+<p-toast></p-toast>
+
+<div class="sd-page">
+
+  <!-- ============== HEADER ============== -->
+  <div class="sd-header">
+    <div>
+      <h2 class="sd-title">Survey Analytics</h2>
+      <p class="sd-sub">HR insight across submitted employee surveys</p>
+    </div>
+  </div>
+
+  <!-- ============== FILTER BAR ============== -->
+  <div class="sd-filters">
+    <div class="sd-filter">
+      <label>Date range (submitted)</label>
+      <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [readonlyInput]="true"
+                    dateFormat="dd-mm-yy" placeholder="All time" [showButtonBar]="true"
+                    appendTo="body"></p-datepicker>
+    </div>
+    <div class="sd-filter">
+      <label>Department</label>
+      <p-multiSelect [(ngModel)]="selectedDeptIds" [options]="departments" optionLabel="name"
+                     optionValue="id" placeholder="All departments" [filter]="true"
+                     appendTo="body" [maxSelectedLabels]="2"></p-multiSelect>
+    </div>
+    <div class="sd-filter">
+      <label>Gender</label>
+      <p-select [(ngModel)]="selectedGender" [options]="genderOptions"
+                optionLabel="label" optionValue="value" placeholder="All" appendTo="body"></p-select>
+    </div>
+    <div class="sd-filter">
+      <label>Sections</label>
+      <p-multiSelect [(ngModel)]="selectedSections" [options]="sectionOptions"
+                     optionLabel="label" optionValue="value" placeholder="All sections"
+                     appendTo="body" [maxSelectedLabels]="2"></p-multiSelect>
+    </div>
+    <div class="sd-filter-actions">
+      <button pButton label="Apply" icon="pi pi-filter" (click)="applyFilters()"></button>
+      <button pButton label="Clear" icon="pi pi-times" class="p-button-outlined" (click)="clearFilters()"></button>
+    </div>
+  </div>
+
+  <!-- ============== TABS ============== -->
+  <p-tabs [(value)]="activeTab">
+    <p-tablist>
+      <p-tab [value]="0">Overview</p-tab>
+      <p-tab [value]="1">Sections</p-tab>
+      <p-tab [value]="2">Questions</p-tab>
+      <p-tab [value]="3">Departments</p-tab>
+      <p-tab [value]="4">At-Risk</p-tab>
+      <p-tab [value]="5">Demographics</p-tab>
+      <p-tab [value]="6">Pending Drafts ({{ pending?.total || 0 }})</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ===================== OVERVIEW ===================== -->
+      <p-tabpanel [value]="0">
+        <div class="sd-kpi-grid" *ngIf="summary; else loadingKpi">
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Submitted</div>
+            <div class="sd-kpi-value">{{ summary.totalSubmitted }}</div>
+          </div>
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Pending drafts</div>
+            <div class="sd-kpi-value">{{ summary.totalDrafts }}</div>
+          </div>
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Completion</div>
+            <div class="sd-kpi-value">{{ summary.completionPct }}%</div>
+            <p-progressBar [value]="summary.completionPct" [showValue]="false"></p-progressBar>
+          </div>
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Avg score (1–4)</div>
+            <div class="sd-kpi-value">
+              {{ summary.avgScore }}
+              <span class="sd-delta" [ngClass]="deltaClass(summary.scoreDelta)" *ngIf="summary.scoreDelta != null">
+                {{ deltaIcon(summary.scoreDelta) }} {{ summary.scoreDelta | number:'1.2-2' }}
+              </span>
+            </div>
+          </div>
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Positive %</div>
+            <div class="sd-kpi-value text-green-600">{{ summary.pctPositive }}%</div>
+          </div>
+          <div class="sd-kpi">
+            <div class="sd-kpi-label">Negative %</div>
+            <div class="sd-kpi-value text-red-600">{{ summary.pctNegative }}%</div>
+          </div>
+        </div>
+        <ng-template #loadingKpi>
+          <div class="sd-kpi-grid">
+            <p-skeleton height="90px" *ngFor="let _ of [1,2,3,4,5,6]"></p-skeleton>
+          </div>
+        </ng-template>
+
+        <div class="sd-row">
+          <div class="sd-card sd-card-half">
+            <h4>Overall sentiment</h4>
+            <div class="sd-chart-box"><canvas #overallDonut></canvas></div>
+          </div>
+          <div class="sd-card sd-card-half">
+            <h4>Diverging sentiment (counts)</h4>
+            <div class="sd-chart-box"><canvas #divergingBar></canvas></div>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== SECTIONS ===================== -->
+      <p-tabpanel [value]="1">
+        <div class="sd-row">
+          <div class="sd-card sd-card-full">
+            <h4>Section response distribution</h4>
+            <div class="sd-chart-box-lg"><canvas #sectionStacked></canvas></div>
+          </div>
+        </div>
+        <div class="sd-row">
+          <div class="sd-card sd-card-half">
+            <h4>Sections ranked by avg score</h4>
+            <div class="sd-chart-box"><canvas #sectionSorted></canvas></div>
+          </div>
+          <div class="sd-card sd-card-half">
+            <h4>Section profile (radar)</h4>
+            <div class="sd-chart-box"><canvas #sectionRadar></canvas></div>
+          </div>
+        </div>
+
+        <div class="sd-card sd-card-full">
+          <h4>Section breakdown</h4>
+          <p-table [value]="sections" [loading]="loading.sections" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Section</th>
+                <th>Title</th>
+                <th>Responses</th>
+                <th>Avg score</th>
+                <th>% Positive</th>
+                <th>% Negative</th>
+                <th>Distribution</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-s>
+              <tr>
+                <td><strong>{{ s.section }}</strong></td>
+                <td>{{ s.title }}</td>
+                <td>{{ s.total }}</td>
+                <td><p-tag [value]="s.avgScore" [severity]="scoreColor(s.avgScore)"></p-tag></td>
+                <td>{{ s.pctPositive }}%</td>
+                <td>{{ s.pctNegative }}%</td>
+                <td>
+                  <div class="sd-mini-stack" [title]="'FA ' + s.counts.fullyAgree + ' • MA ' + s.counts.mostlyAgree + ' • MD ' + s.counts.mostlyDisagree + ' • SD ' + s.counts.stronglyDisagree">
+                    <span class="seg fa" [style.width.%]="s.total ? (s.counts.fullyAgree / s.total) * 100 : 0"></span>
+                    <span class="seg ma" [style.width.%]="s.total ? (s.counts.mostlyAgree / s.total) * 100 : 0"></span>
+                    <span class="seg md" [style.width.%]="s.total ? (s.counts.mostlyDisagree / s.total) * 100 : 0"></span>
+                    <span class="seg sd" [style.width.%]="s.total ? (s.counts.stronglyDisagree / s.total) * 100 : 0"></span>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== QUESTIONS ===================== -->
+      <p-tabpanel [value]="2">
+        <div class="sd-row">
+          <div class="sd-card sd-card-half">
+            <h4>Top 10 most agreed</h4>
+            <ol class="sd-q-list">
+              <li *ngFor="let q of topPositive" (click)="openDrill(q)">
+                <span class="sd-q-text">{{ q.section }}. {{ q.questionText }}</span>
+                <p-tag [value]="q.avgScore" [severity]="scoreColor(q.avgScore)"></p-tag>
+              </li>
+              <li class="sd-q-empty" *ngIf="!topPositive.length">No data</li>
+            </ol>
+          </div>
+          <div class="sd-card sd-card-half">
+            <h4>Top 10 most disagreed</h4>
+            <ol class="sd-q-list">
+              <li *ngFor="let q of topNegative" (click)="openDrill(q)">
+                <span class="sd-q-text">{{ q.section }}. {{ q.questionText }}</span>
+                <p-tag [value]="q.avgScore" [severity]="scoreColor(q.avgScore)"></p-tag>
+              </li>
+              <li class="sd-q-empty" *ngIf="!topNegative.length">No data</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="sd-card sd-card-full">
+          <h4>All questions</h4>
+          <p-table [value]="questions" [loading]="loading.questions" [paginator]="true" [rows]="15"
+                   styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>#</th>
+                <th>Section</th>
+                <th pSortableColumn="questionText">Question</th>
+                <th pSortableColumn="total">Responses <p-sortIcon field="total"></p-sortIcon></th>
+                <th pSortableColumn="avgScore">Avg score <p-sortIcon field="avgScore"></p-sortIcon></th>
+                <th pSortableColumn="pctPositive">% Pos <p-sortIcon field="pctPositive"></p-sortIcon></th>
+                <th>Distribution</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-q let-i="rowIndex">
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td><strong>{{ q.section }}</strong></td>
+                <td>{{ q.questionText }}</td>
+                <td>{{ q.total }}</td>
+                <td><p-tag [value]="q.avgScore" [severity]="scoreColor(q.avgScore)"></p-tag></td>
+                <td>{{ q.pctPositive }}%</td>
+                <td>
+                  <div class="sd-mini-stack">
+                    <span class="seg fa" [style.width.%]="q.total ? (q.counts.fullyAgree / q.total) * 100 : 0"></span>
+                    <span class="seg ma" [style.width.%]="q.total ? (q.counts.mostlyAgree / q.total) * 100 : 0"></span>
+                    <span class="seg md" [style.width.%]="q.total ? (q.counts.mostlyDisagree / q.total) * 100 : 0"></span>
+                    <span class="seg sd" [style.width.%]="q.total ? (q.counts.stronglyDisagree / q.total) * 100 : 0"></span>
+                  </div>
+                </td>
+                <td><button pButton icon="pi pi-search" class="p-button-text p-button-sm" (click)="openDrill(q)"></button></td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== DEPARTMENTS ===================== -->
+      <p-tabpanel [value]="3">
+        <div class="sd-row">
+          <div class="sd-card sd-card-half">
+            <h4>Departments ranked</h4>
+            <div class="sd-chart-box"><canvas #deptRanking></canvas></div>
+          </div>
+          <div class="sd-card sd-card-half">
+            <h4>Department × section heatmap</h4>
+            <div class="sd-chart-box"><canvas #deptHeatmap></canvas></div>
+          </div>
+        </div>
+
+        <div class="sd-dept-grid">
+          <div class="sd-card" *ngFor="let d of deptData?.departments">
+            <div class="sd-dept-head">
+              <strong>{{ d.name }}</strong>
+              <p-tag [value]="d.avgScore" [severity]="scoreColor(d.avgScore)"></p-tag>
+            </div>
+            <div class="sd-dept-meta">
+              <span>Headcount: {{ d.headcount }}</span>
+              <span>Responded: {{ d.submittedEmployees }} ({{ d.responseRate }}%)</span>
+              <span>Pos {{ d.pctPositive }}% / Neg {{ d.pctNegative }}%</span>
+            </div>
+            <div class="sd-dept-concerns" *ngIf="d.topConcerns?.length">
+              <div class="sd-dept-concerns-title">Top 3 concerns</div>
+              <ol>
+                <li *ngFor="let c of d.topConcerns">
+                  <span>{{ c.section }}. {{ c.questionText }}</span>
+                  <p-tag [value]="c.avgScore" [severity]="scoreColor(c.avgScore)"></p-tag>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div *ngIf="!deptData?.departments?.length && !loading.departments" class="sd-empty">No department data</div>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== AT-RISK ===================== -->
+      <p-tabpanel [value]="4">
+        <div class="sd-card sd-card-full">
+          <h4>Tenure vs sentiment</h4>
+          <div class="sd-chart-box-lg"><canvas #atRiskScatter></canvas></div>
+        </div>
+
+        <div class="sd-card sd-card-full">
+          <h4>Employees flagged (avg ≤ 2)</h4>
+          <p-table [value]="atRisk" [loading]="loading.atRisk" [paginator]="true" [rows]="10"
+                   styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th pSortableColumn="avgScore">Avg score <p-sortIcon field="avgScore"></p-sortIcon></th>
+                <th>Lowest answers</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-r>
+              <tr>
+                <td>
+                  <div class="sd-emp">
+                    <img [src]="r.photoUrl || defaultPhoto(r.gender)" alt="" />
+                    <div>
+                      <div><strong>{{ r.name }}</strong></div>
+                      <small>{{ r.employeeCode }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ r.department }}</td>
+                <td>{{ r.designation }}</td>
+                <td><p-tag [value]="r.avgScore" severity="danger"></p-tag></td>
+                <td>
+                  <ul class="sd-low-list">
+                    <li *ngFor="let a of r.lowestAnswers">
+                      <span>{{ a.section }}. {{ a.questionText }}</span>
+                      <em>— {{ a.answer }}</em>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="5" class="sd-empty">No at-risk employees in this window</td></tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== DEMOGRAPHICS ===================== -->
+      <p-tabpanel [value]="5">
+        <div class="sd-row sd-row-3">
+          <div class="sd-card">
+            <h4>By gender</h4>
+            <div class="sd-chart-box"><canvas #genderDonut></canvas></div>
+          </div>
+          <div class="sd-card">
+            <h4>By tenure</h4>
+            <div class="sd-chart-box"><canvas #tenureBar></canvas></div>
+          </div>
+          <div class="sd-card">
+            <h4>By designation (top 12)</h4>
+            <div class="sd-chart-box"><canvas #designationBar></canvas></div>
+          </div>
+        </div>
+
+        <div class="sd-row sd-row-3">
+          <div class="sd-card">
+            <h4>Gender — avg score</h4>
+            <p-table [value]="demographics?.byGender || []" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header"><tr><th>Gender</th><th>Employees</th><th>Avg</th></tr></ng-template>
+              <ng-template pTemplate="body" let-r>
+                <tr><td>{{ r.key }}</td><td>{{ r.employees }}</td><td><p-tag [value]="r.avgScore" [severity]="scoreColor(r.avgScore)"></p-tag></td></tr>
+              </ng-template>
+            </p-table>
+          </div>
+          <div class="sd-card">
+            <h4>Tenure — avg score</h4>
+            <p-table [value]="demographics?.byTenure || []" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header"><tr><th>Bucket</th><th>Employees</th><th>Avg</th></tr></ng-template>
+              <ng-template pTemplate="body" let-r>
+                <tr><td>{{ r.key }}</td><td>{{ r.employees }}</td><td><p-tag [value]="r.avgScore" [severity]="scoreColor(r.avgScore)"></p-tag></td></tr>
+              </ng-template>
+            </p-table>
+          </div>
+          <div class="sd-card">
+            <h4>Designation — avg score</h4>
+            <p-table [value]="(demographics?.byDesignation || []).slice(0,12)" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header"><tr><th>Designation</th><th>Employees</th><th>Avg</th></tr></ng-template>
+              <ng-template pTemplate="body" let-r>
+                <tr><td>{{ r.key }}</td><td>{{ r.employees }}</td><td><p-tag [value]="r.avgScore" [severity]="scoreColor(r.avgScore)"></p-tag></td></tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- ===================== PENDING ===================== -->
+      <p-tabpanel [value]="6">
+        <div class="sd-row">
+          <div class="sd-card sd-card-half">
+            <h4>Pending by department</h4>
+            <div class="sd-chart-box"><canvas #pendingByDept></canvas></div>
+          </div>
+          <div class="sd-card sd-card-half">
+            <h4>Bulk action</h4>
+            <p>{{ selectedDraftIds.length }} selected of {{ pending?.total || 0 }} drafts.</p>
+            <button pButton icon="pi pi-bell" label="Send Reminders" [disabled]="!selectedDraftIds.length"
+                    (click)="sendRemindersForSelected()"></button>
+          </div>
+        </div>
+
+        <div class="sd-card sd-card-full">
+          <h4>Pending list</h4>
+          <p-table [value]="pending?.items || []" [loading]="loading.pending" [paginator]="true" [rows]="15"
+                   styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:40px"></th>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Created</th>
+                <th pSortableColumn="daysOverdue">Days overdue <p-sortIcon field="daysOverdue"></p-sortIcon></th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-r>
+              <tr>
+                <td>
+                  <input type="checkbox" [checked]="selectedDraftIds.includes(r.surveyId)"
+                         (change)="toggleDraft(r.surveyId, $any($event.target).checked)" />
+                </td>
+                <td>
+                  <div class="sd-emp">
+                    <img [src]="r.photoUrl || defaultPhoto(r.gender)" alt="" />
+                    <div>
+                      <div><strong>{{ r.name }}</strong></div>
+                      <small>{{ r.employeeCode }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ r.department }}</td>
+                <td>{{ r.designation }}</td>
+                <td>{{ r.createdAt | date:'dd-MM-yyyy' }}</td>
+                <td>
+                  <p-tag [value]="r.daysOverdue + 'd'"
+                         [severity]="r.daysOverdue > 14 ? 'danger' : r.daysOverdue > 7 ? 'warn' : 'info'"></p-tag>
+                </td>
+                <td>
+                  <button pButton icon="pi pi-bell" class="p-button-text p-button-sm"
+                          (click)="sendReminderForOne(r.surveyId)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="7" class="sd-empty">No pending drafts</td></tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+</div>
+
+<!-- ============== QUESTION DRILL-DOWN MODAL ============== -->
+<p-dialog [(visible)]="drillVisible" [modal]="true" [style]="{ width: '950px' }"
+          [closable]="true" (onHide)="closeDrill()" [draggable]="false">
+  <ng-template pTemplate="header">
+    <span *ngIf="drillData?.question">
+      {{ drillData.question.section }}. {{ drillData.question.questionText }}
+    </span>
+    <span *ngIf="!drillData?.question">Question detail</span>
+  </ng-template>
+
+  <div *ngIf="loading.drill" class="sd-empty">Loading…</div>
+
+  <div *ngIf="drillData && !loading.drill">
+    <div class="sd-row">
+      <div class="sd-card sd-card-half">
+        <h4>Distribution</h4>
+        <div class="sd-chart-box"><canvas #drillDonut></canvas></div>
+        <div class="sd-drill-stats">
+          <div><strong>Responses:</strong> {{ drillData.total }}</div>
+          <div><strong>Avg:</strong> {{ drillData.avgScore }}</div>
+          <div><strong>Positive:</strong> {{ drillData.pctPositive }}%</div>
+          <div><strong>Negative:</strong> {{ drillData.pctNegative }}%</div>
+        </div>
+      </div>
+      <div class="sd-card sd-card-half">
+        <h4>By department</h4>
+        <div class="sd-chart-box"><canvas #drillByDept></canvas></div>
+      </div>
+    </div>
+
+    <p-tabs [(value)]="drillOptionTab">
+      <p-tablist>
+        <p-tab [value]="0">Strongly Disagree ({{ drillData.byOption['Strongly Disagree']?.length || 0 }})</p-tab>
+        <p-tab [value]="1">Mostly Disagree ({{ drillData.byOption['Mostly Disagree']?.length || 0 }})</p-tab>
+        <p-tab [value]="2">Mostly Agree ({{ drillData.byOption['Mostly Agree']?.length || 0 }})</p-tab>
+        <p-tab [value]="3">Fully Agree ({{ drillData.byOption['Fully Agree']?.length || 0 }})</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel *ngFor="let opt of ['Strongly Disagree','Mostly Disagree','Mostly Agree','Fully Agree']; let i = index"
+                    [value]="i">
+          <p-table [value]="drillData.byOption[opt] || []" styleClass="p-datatable-sm" [paginator]="true" [rows]="10">
+            <ng-template pTemplate="header">
+              <tr><th>Employee</th><th>Department</th><th>Designation</th></tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-e>
+              <tr>
+                <td>
+                  <div class="sd-emp">
+                    <img [src]="e.photoUrl || defaultPhoto(e.gender)" alt="" />
+                    <div>
+                      <div><strong>{{ e.name }}</strong></div>
+                      <small>{{ e.employeeCode }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ e.department }}</td>
+                <td>{{ e.designation }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="3" class="sd-empty">No employees picked this option</td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</p-dialog>

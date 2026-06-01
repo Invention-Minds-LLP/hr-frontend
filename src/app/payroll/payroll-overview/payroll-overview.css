@@ -4,7 +4,9 @@
 }
 
 /* ── Tabs ─────────────────────────────────────────────────────────────────── */
-::ng-deep .payroll-page .p-tabs { background: transparent; }
+::ng-deep .payroll-page .p-tabs {
+  background: transparent;
+}
 
 ::ng-deep .payroll-page .p-tablist {
   background: #1a1a1a;
@@ -12,13 +14,38 @@
   border-top: none !important;
   box-shadow: none !important;
 }
-::ng-deep .payroll-page .p-tablist-active-bar { background: #f97316 !important; }
+
+::ng-deep .payroll-page .p-tablist-active-bar {
+  background: #f97316 !important;
+}
+
 ::ng-deep .payroll-page .p-tabs .p-tablist::before,
-::ng-deep .payroll-page .p-tabs .p-tablist::after { display: none !important; }
-::ng-deep .payroll-page .p-tab { color: #aaa; background: transparent; border-bottom: 2px solid transparent; }
-::ng-deep .payroll-page .p-tab:hover { color: #fff; background: #222; }
-::ng-deep .payroll-page .p-tab.p-tab-active { color: #f97316; border-bottom-color: #f97316; background: transparent; }
-::ng-deep .payroll-page .p-tabpanel { background: transparent; padding: 0; }
+::ng-deep .payroll-page .p-tabs .p-tablist::after {
+  display: none !important;
+}
+
+::ng-deep .payroll-page .p-tab {
+  color: #aaa  !important;
+  background: transparent  !important;
+  border-bottom: 2px solid transparent  !important;
+}
+
+::ng-deep .payroll-page .p-tab:hover {
+  color: #fff  !important;
+  background: #222  !important;
+}
+
+::ng-deep .payroll-page .p-tab.p-tab-active {
+  color: #f97316  !important;
+  border-bottom-color: #f97316  !important;
+  border-top: none !important;
+  background: transparent  !important;
+}
+
+::ng-deep .payroll-page .p-tabpanels {
+  background: transparent  !important;
+  padding: 0  !important;
+}
 
 /* ── Tab header row ───────────────────────────────────────────────────────── */
 .tab-header {
@@ -29,10 +56,29 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-.tab-header-left { display: flex; align-items: center; gap: 14px; }
-.tab-header-left h3 { margin: 0; font-size: 1.15rem; color: #fff; }
-.tab-header-right { display: flex; align-items: center; gap: 10px; }
-.sub { font-size: 0.82rem; color: #888; }
+
+.tab-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tab-header-left h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+.tab-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sub {
+  font-size: 0.82rem;
+  color: #888;
+}
 
 /* ── Search input ─────────────────────────────────────────────────────────── */
 .search-input {
@@ -44,39 +90,275 @@
   font-size: 0.85rem;
   width: 200px;
 }
-.search-input:focus { border-color: #555 !important; outline: none; }
+
+.search-input:focus {
+  border-color: #555 !important;
+  outline: none;
+}
+/* Text inputs */
+::ng-deep .payroll-page input.p-inputtext,
+::ng-deep .payroll-page .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  border-radius: 6px;
+}
+
+::ng-deep .payroll-page input.p-inputtext::placeholder,
+::ng-deep .payroll-page .p-inputtext::placeholder {
+  color: #fff !important;
+}
+
+::ng-deep .payroll-page input.p-inputtext:focus,
+::ng-deep .payroll-page .p-inputtext:focus {
+  border-color: #555 !important;
+  box-shadow: none !important;
+}
+
+/* AutoComplete */
+::ng-deep .payroll-page .p-autocomplete .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-autocomplete-dropdown {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-left: none !important;
+  color: #aaa !important;
+}
+
+::ng-deep .payroll-page .p-autocomplete-option{
+  color: white !important;
+}
+
+::ng-deep .payroll-page .p-autocomplete-overlay {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-autocomplete-option:hover,
+::ng-deep .payroll-page .p-autocomplete-option.p-focus {
+  background: #2a2a2a !important;
+}
+
+/* Select (p-select / p-dropdown) */
+::ng-deep .payroll-page .p-select,
+::ng-deep .payroll-page .p-dropdown {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  border-radius: 6px;
+}
+
+::ng-deep .payroll-page  .p-select-option{
+  color: white !important;
+}
+
+::ng-deep .payroll-page .p-select .p-select-label,
+::ng-deep .payroll-page .p-dropdown .p-dropdown-label {
+  color: #eee !important;
+  background: transparent !important;
+}
+
+::ng-deep .payroll-page .p-select .p-select-label.p-placeholder,
+::ng-deep .payroll-page .p-dropdown .p-dropdown-label.p-placeholder {
+  color: #fff !important;
+}
+
+::ng-deep .payroll-page .p-select-overlay,
+::ng-deep .payroll-page .p-dropdown-panel {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-select-option:hover,
+::ng-deep .payroll-page .p-dropdown-item:hover,
+::ng-deep .payroll-page .p-select-option.p-focus,
+::ng-deep .payroll-page .p-dropdown-item.p-highlight {
+  background: #2a2a2a !important;
+  color: #fff !important;
+}
+
+::ng-deep .payroll-page .p-select-option.p-selected,
+::ng-deep .payroll-page .p-dropdown-item.p-highlight {
+  background: #2a2a2a !important;
+  color: #fff !important;
+}
+
+/* InputNumber */
+::ng-deep .payroll-page .p-inputnumber .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-inputnumber-button {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+  color: #aaa !important;
+}
+
+/* DatePicker */
+::ng-deep .payroll-page .p-datepicker .p-inputtext {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+  width: 100% !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-input-icon-container .p-datepicker-button,
+::ng-deep .payroll-page .p-datepicker .p-datepicker-button {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-left: none !important;
+  color: #aaa !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-overlay,
+::ng-deep .payroll-page .p-datepicker-panel {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-header {
+  background: #111 !important;
+  border-bottom: 1px solid #2a2a2a !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-day-cell:not(.p-datepicker-day-selected):hover .p-datepicker-day {
+  background: #2a2a2a !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-day-selected .p-datepicker-day {
+  background: #444 !important;
+  color: #fff !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-day {
+  color: #ccc !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-day.p-datepicker-day-other-month {
+  color: #444 !important;
+}
+
+::ng-deep .payroll-page .p-datepicker-weekday {
+  color: #666 !important;
+}
+
+::ng-deep .payroll-page .p-timepicker {
+  background: #111 !important;
+  border-top: 1px solid #2a2a2a !important;
+  color: #eee !important;
+}
+
+::ng-deep .payroll-page .p-timepicker button {
+  color: #aaa !important;
+}
+
+::ng-deep .payroll-page .p-timepicker span {
+  color: #eee !important;
+}
+
+/* Checkbox */
+::ng-deep .payroll-page .p-checkbox .p-checkbox-box {
+  background: #111 !important;
+  border: 1px solid #444 !important;
+}
+
+::ng-deep .payroll-page .p-checkbox .p-checkbox-box.p-checked {
+  background: #444 !important;
+  border-color: #555 !important;
+}
 
 /* ── Add button (reuse existing new-app style) ────────────────────────────── */
 .new-app {
-  display: flex; align-items: center; gap: 8px;
-  background: #f97316; color: #fff; border: none;
-  border-radius: 8px; padding: 8px 16px; cursor: pointer;
-  font-size: 0.88rem; font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f97316;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
 }
-.new-app:hover { background: #ea6c10; }
-.publish-btn { background: #22c55e; }
-.publish-btn:hover { background: #16a34a; }
+
+.new-app:hover {
+  background: #ea6c10;
+}
+
+.publish-btn {
+  background: #22c55e;
+}
+
+.publish-btn:hover {
+  background: #16a34a;
+}
 
 /* ── Table dark theme ─────────────────────────────────────────────────────── */
-::ng-deep .payroll-page .p-datatable { background: #111; }
-::ng-deep .payroll-page .p-datatable-thead > tr > th {
-  background: #1a1a1a; color: #aaa; border-color: #2a2a2a;
-  font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em;
+::ng-deep .payroll-page .p-datatable {
+  background: #111;
 }
-::ng-deep .payroll-page .p-datatable-tbody > tr > td {
-  background: #111; color: #ddd; border-color: #1e1e1e; font-size: 0.88rem;
+
+::ng-deep .payroll-page .p-datatable-thead>tr>th {
+  background: #1a1a1a;
+  color: #aaa;
+  border-color: #2a2a2a;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-::ng-deep .payroll-page .p-datatable-tbody > tr:hover > td { background: #1a1a1a; }
+
+::ng-deep .payroll-page .p-datatable-tbody>tr>td {
+  background: #111;
+  color: #ddd;
+  border-color: #1e1e1e;
+  font-size: 0.88rem;
+}
+
+::ng-deep .payroll-page .p-datatable-tbody>tr:hover>td {
+  background: #1a1a1a;
+}
 
 /* ── Employee cell ────────────────────────────────────────────────────────── */
-.emp-cell { display: flex; flex-direction: column; gap: 2px; }
-.emp-name { font-weight: 600; color: #eee; }
-.emp-code { font-size: 0.78rem; color: #666; }
+.emp-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.emp-name {
+  font-weight: 600;
+  color: #eee;
+}
+
+.emp-code {
+  font-size: 0.78rem;
+  color: #666;
+}
 
 /* ── Net pay highlight ────────────────────────────────────────────────────── */
-.net-pay { color: #4ade80; }
-.lop-warn { color: #f87171; font-weight: 600; }
-.deduction-col { color: #fb923c; }
+.net-pay {
+  color: #4ade80;
+}
+
+.lop-warn {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.deduction-col {
+  color: #fb923c;
+}
 
 /* ── Run summary cards ────────────────────────────────────────────────────── */
 .run-summary-cards {
@@ -85,126 +367,375 @@
   gap: 12px;
   margin: 16px 0;
 }
+
 .sum-card {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 14px 16px;
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-.sum-card.highlight { border-color: #4ade80; background: #0d1f15; }
-.sum-label { font-size: 0.78rem; color: #888; }
-.sum-val { font-size: 1.05rem; font-weight: 700; color: #eee; }
-.sum-card.highlight .sum-val { color: #4ade80; }
+
+.sum-card.highlight {
+  border-color: #4ade80;
+  background: #0d1f15;
+}
+
+.sum-label {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.sum-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #eee;
+}
+
+.sum-card.highlight .sum-val {
+  color: #4ade80;
+}
 
 /* ── Payroll run rows ────────────────────────────────────────────────────── */
-.run-row { cursor: pointer; transition: background 0.15s; }
-.run-actions { display: flex; gap: 4px; align-items: center; }
-.back-btn { color: #aaa !important; }
+.run-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.run-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.back-btn {
+  color: #aaa !important;
+}
 
 /* ── Filters row ─────────────────────────────────────────────────────────── */
 .filters-row {
-  display: flex; align-items: flex-end; gap: 14px;
-  flex-wrap: wrap; margin-bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
-.filter-group { display: flex; flex-direction: column; gap: 5px; }
-.filter-group label { font-size: 0.78rem; color: #888; }
-.clear-btn { margin-bottom: 0 !important; }
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.clear-btn {
+  margin-bottom: 0 !important;
+}
 
 /* ── Dialog header ─────────────────────────────────────────────────────────── */
 .dialog-header-custom {
-  display: flex; align-items: center; justify-content: space-between; width: 100%;
-  color: #eee; font-size: 1rem; font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  color: #eee;
+  font-size: 1rem;
+  font-weight: 600;
 }
+
 .dialog-close-btn {
-  background: transparent; border: none; color: #aaa;
-  font-size: 1.1rem; cursor: pointer; padding: 2px 6px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
 }
-.dialog-close-btn:hover { color: #fff; }
+
+.dialog-close-btn:hover {
+  color: #fff;
+}
 
 /* ── Structure form dialog ────────────────────────────────────────────────── */
-.structure-form { display: flex; flex-direction: column; gap: 12px; }
-.form-row { display: flex; flex-direction: column; gap: 5px; }
-.form-row label, .form-field label { font-size: 0.82rem; color: #aaa; }
-.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.form-field { display: flex; flex-direction: column; gap: 5px; }
-.divider-label { font-size: 0.78rem; color: #f97316; font-weight: 600; letter-spacing: 0.06em; }
-.checkbox-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 4px; }
-.check-label { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: #ccc; cursor: pointer; }
-.gross-preview {
-  display: flex; justify-content: space-between; align-items: center;
-  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px;
-  padding: 10px 14px; margin-top: 6px; color: #aaa; font-size: 0.9rem;
+.structure-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.gross-preview strong { color: #4ade80; font-size: 1.05rem; }
-.emp-display { color: #ddd; font-size: 0.9rem; }
-.req { color: #f87171; }
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-row label,
+.form-field label {
+  font-size: 0.82rem;
+  color: #aaa;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.divider-label {
+  font-size: 0.78rem;
+  color: #f97316;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.gross-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 6px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.gross-preview strong {
+  color: #4ade80;
+  font-size: 1.05rem;
+}
+
+.emp-display {
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.req {
+  color: #f87171;
+}
 
 /* ── New run form ─────────────────────────────────────────────────────────── */
-.run-form { display: flex; flex-direction: column; gap: 14px; }
-.info-box {
-  display: flex; gap: 8px; align-items: flex-start;
-  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px;
-  padding: 10px 12px; color: #888; font-size: 0.83rem; line-height: 1.5;
+.run-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.info-box i { color: #f97316; margin-top: 2px; flex-shrink: 0; }
+
+.info-box {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #888;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+.info-box i {
+  color: #f97316;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
 
 /* ── Payslip detail dialog ────────────────────────────────────────────────── */
-.payslip-detail { display: flex; flex-direction: column; gap: 12px; }
-.ps-meta {
-  display: flex; flex-wrap: wrap; gap: 16px;
-  font-size: 0.86rem; color: #bbb;
+.payslip-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.ps-meta strong { color: #eee; }
-.ps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.ps-col h4 { font-size: 0.82rem; color: #f97316; text-transform: uppercase;
-  letter-spacing: 0.06em; margin: 0 0 8px; }
+
+.ps-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.86rem;
+  color: #bbb;
+}
+
+.ps-meta strong {
+  color: #eee;
+}
+
+.ps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.ps-col h4 {
+  font-size: 0.82rem;
+  color: #f97316;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+
 .ps-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.86rem; color: #ccc; padding: 4px 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  color: #ccc;
+  padding: 4px 0;
   border-bottom: 1px solid #1e1e1e;
 }
-.ps-row.total { color: #eee; font-weight: 700; border-bottom: none; margin-top: 4px; }
-.ps-row.lop { color: #f87171; }
-.ps-row .muted { color: #666; font-size: 0.8rem; }
-.net-pay-banner {
-  display: flex; justify-content: space-between; align-items: center;
-  background: #0d1f15; border: 1px solid #4ade80;
-  border-radius: 8px; padding: 14px 18px; margin-top: 6px;
-  font-size: 0.95rem; color: #aaa;
-}
-.net-pay-banner strong { font-size: 1.3rem; color: #4ade80; }
-.remarks-section { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.remarks-section label { font-size: 0.8rem; color: #888; }
-.remarks-input-row { display: flex; gap: 8px; align-items: center; }
-.remarks-input-row input { flex: 1; }
-.remarks-display { font-size: 0.86rem; color: #aaa; background: #1a1a1a;
-  border-radius: 6px; padding: 8px 12px; }
-.remarks-display label { color: #f97316; font-weight: 600; margin-right: 6px; }
 
-.no-data { text-align: center; color: #555; padding: 24px; }
-.center-right { text-align: center; }
+.ps-row.total {
+  color: #eee;
+  font-weight: 700;
+  border-bottom: none;
+  margin-top: 4px;
+}
+
+.ps-row.lop {
+  color: #f87171;
+}
+
+.ps-row .muted {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.net-pay-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1f15;
+  border: 1px solid #4ade80;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #aaa;
+}
+
+.net-pay-banner strong {
+  font-size: 1.3rem;
+  color: #4ade80;
+}
+
+.remarks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.remarks-section label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.remarks-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.remarks-input-row input {
+  flex: 1;
+}
+
+.remarks-display {
+  font-size: 0.86rem;
+  color: #aaa;
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.remarks-display label {
+  color: #f97316;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.no-data {
+  text-align: center;
+  color: #555;
+  padding: 24px;
+}
+
+.center-right {
+  text-align: center;
+}
 
 /* ── PrimeNG input overrides (dark) ──────────────────────────────────────── */
 ::ng-deep .payroll-page .p-inputtext,
 ::ng-deep .payroll-page .p-select,
 ::ng-deep .payroll-page .p-autocomplete .p-inputtext {
-  background: #1e1e1e !important; border-color: #333 !important; color: #eee !important;
+  background: #1e1e1e !important;
+  border-color: #333 !important;
+  color: #eee !important;
 }
+
 ::ng-deep .payroll-page .p-inputtext:focus,
 ::ng-deep .payroll-page .p-select:focus-within {
-  border-color: #555 !important; box-shadow: none !important;
+  border-color: #555 !important;
+  box-shadow: none !important;
 }
+
 ::ng-deep .payroll-page .p-inputnumber input {
-  background: #1e1e1e !important; border-color: #333 !important; color: #eee !important;
+  background: #1e1e1e !important;
+  border-color: #333 !important;
+  color: #eee !important;
 }
+
 ::ng-deep .payroll-page .p-select-overlay,
 ::ng-deep .payroll-page .p-autocomplete-overlay {
-  background: #1e1e1e !important; border-color: #333 !important;
+  background: #1e1e1e !important;
+  border-color: #333 !important;
 }
+
 ::ng-deep .payroll-page .p-select-option:hover,
-::ng-deep .payroll-page .p-autocomplete-option:hover { background: #2a2a2a !important; }
-::ng-deep .payroll-page .p-paginator { background: #111 !important; border-color: #2a2a2a !important; }
-::ng-deep .payroll-page .p-paginator .p-paginator-page.p-highlight { background: #333 !important; }
-::ng-deep .payroll-page .p-divider .p-divider-content { background: #111; }
-::ng-deep .payroll-page .p-divider::before { border-color: #2a2a2a !important; }
+::ng-deep .payroll-page .p-autocomplete-option:hover {
+  background: #2a2a2a !important;
+}
+
+::ng-deep .payroll-page .p-paginator {
+  background: #111 !important;
+  border-color: #2a2a2a !important;
+}
+
+::ng-deep .payroll-page .p-paginator .p-paginator-page.p-highlight {
+  background: #333 !important;
+}
+
+::ng-deep .payroll-page .p-divider .p-divider-content {
+  background: #111;
+}
+
+::ng-deep .payroll-page .p-divider::before {
+  border-color: #2a2a2a !important;
+}
