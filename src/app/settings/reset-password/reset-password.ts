@@ -27,6 +27,8 @@ export class ResetPassword {
   selectedEmployee: any;
   role: string = '';
   disableSelect = false;
+  /** HR department (deptId === 1) may reset any employee's password. */
+  isHrDept = false;
   userId: number | null = null;
   roleId: number | null = null;
 
@@ -41,47 +43,40 @@ export class ResetPassword {
     //   this.employeeList = [this.employee];
     //   this.selectedEmployee = this.employee; // optional auto-select
     // }
-    const storedEmployee = localStorage.getItem('employee');
     const storedRole = localStorage.getItem('role');
     this.roleId = Number(localStorage.getItem('roleId')) || 0;
-    console.log(this.roleId)
     const storedEmpId = localStorage.getItem('employeeId');
     const storedName = localStorage.getItem('name');
     const storedId = localStorage.getItem('userId');
 
     if (storedId) this.userId = Number(storedId);
+    if (storedRole) this.role = storedRole.toLowerCase();
 
-    console.log(this.userId)
+    // Access is by department, not role: HR (deptId === 1) may reset ANY
+    // employee's password (searchable list); everyone else can only reset
+    // their own account.
+    this.isHrDept = Number(localStorage.getItem('deptId')) === 1;
 
-    if (storedRole) {
-      this.role = storedRole.toLowerCase();
-    }
-
-    const restrictedRoles = ['executives', 'intern', 'junior executive', 'reporting manager'];
-    console.log(this.role)
-    // Incharge (roleId 5) is also self-service: no dropdown is shown for them
-    // (it only renders for admin roleId 1), so they must reset their own account.
-    if (restrictedRoles.includes(this.role) || this.roleId === 5) {
-      // Just show their own employee
+    if (this.isHrDept) {
+      this.disableSelect = false;
+      this.userService.listAllUsers().subscribe({
+        next: (res: any) => {
+          const items = Array.isArray(res) ? res : res?.items;
+          this.employeeList = (items ?? []).map((u: any) => ({
+            userId: u.id,
+            employeeId: u.employeeCode,
+            name: u.username
+          }));
+        },
+        error: (err) => console.error('Failed to fetch employee list', err)
+      });
+    } else {
+      // Self-service: lock to the logged-in user's own account.
       this.disableSelect = true;
       if (storedEmpId && storedName) {
         this.employeeList = [{ employeeId: storedEmpId, name: storedName }];
         this.selectedEmployee = this.employeeList[0];
       }
-    } else {
-      this.userService.listAllUsers().subscribe({
-        next: (res: any) => {
-          const items = Array.isArray(res) ? res : res?.items;
-          const list = (items ?? []).map((u: any) => ({
-            userId: u.id,
-            employeeId: u.employeeCode,
-            name: u.username
-          }));
-          this.employeeList = list;
-        },
-        error: (err) => console.error('Failed to fetch employee list', err)
-      });
-
     }
   }
 
@@ -90,14 +85,23 @@ export class ResetPassword {
 
   onResetPassword(form: NgForm) {
     this.formSubmitted = true;
-    if (form.valid && !this.passwordMismatch()) {
 
-      const targetUserId =
-        this.disableSelect
-          ? this.userId              // self reset
-          : Number(this.selectedEmployee?.userId);
+    if (!form.valid || this.passwordMismatch()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Confirm Password Not Matched'
+      });
+      this.formSubmitted = false;
+      return;
+    }
 
-      console.log(targetUserId);
+    // HR (deptId 1) resets the SELECTED employee via the admin endpoint;
+    // everyone else resets their OWN account via the self-service endpoint
+    // (which always targets the authenticated user server-side).
+    let request$;
+    if (this.isHrDept) {
+      const targetUserId = Number(this.selectedEmployee?.userId);
       if (!targetUserId || Number.isNaN(targetUserId)) {
         this.messageService.add({
           severity: 'error',
@@ -107,41 +111,33 @@ export class ResetPassword {
         this.formSubmitted = false;
         return;
       }
-      this.userService
-        .resetMyPassword(targetUserId, this.reset.confirmPassword, this.reset.newPassword)
-        .subscribe({
-          next: (res) => {
-            // alert(res?.message || 'Password reset successfully!');
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: res.message || 'Password reset successfully!'
-            })
-            this.onClear(form);
-          },
-          error: (err) => {
-            const msg =
-              err?.error?.error ||
-              err?.error?.message ||
-              'Failed to reset password.';
-            // alert(msg);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: msg
-            })
-          }
-        })
-
+      request$ = this.userService.adminResetPassword(targetUserId, this.reset.newPassword);
     } else {
-      // alert('Confirm Password Not Mathched');
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Confirm Password Not Matched'
-      })
+      request$ = this.userService.resetMyPassword(this.userId, this.reset.confirmPassword, this.reset.newPassword);
     }
-    // this.onClear(); 
+
+    request$.subscribe({
+      next: (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: res.message || 'Password reset successfully!'
+        });
+        this.onClear(form);
+      },
+      error: (err) => {
+        const msg =
+          err?.error?.error ||
+          err?.error?.message ||
+          'Failed to reset password.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: msg
+        });
+        this.formSubmitted = false;
+      }
+    });
   }
 
   passwordMismatch(): boolean {
