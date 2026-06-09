@@ -604,6 +604,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Status</th>
+                            <th>Applied On</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -634,6 +635,15 @@
                                 </div>
                             </td>
 
+                            <!-- APPLIED ON -->
+                            <td>
+                                <div class="dropdown-container-in-table">
+                                    <div>
+                                        {{ leave.createdAt ? (leave.createdAt | date: 'dd-MM-yyyy') : '—' }}
+                                    </div>
+                                </div>
+                            </td> 
+
                             <!-- ACTION -->
                             <td>
                                 <div class="row-actions">
@@ -654,7 +664,7 @@
                         </tr>
                         <!-- EMPTY MESSAGE -->
                         <tr *ngIf="leave.length === 0">
-                            <td colspan="3" class="no-data-message">
+                            <td colspan="4" class="no-data-message">
                                 <i class="pi pi-info-circle"></i>
                                 No Leave requests found.
                             </td>

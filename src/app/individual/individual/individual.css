@@ -821,6 +821,7 @@
   overflow: auto;
   border-radius: 14px;
   width: 100%;
+  flex-wrap: nowrap;
 }
 
 .permission-table-container {
@@ -897,6 +898,8 @@
   color: black;
   text-align: center;
   height: 50px;
+  white-space: nowrap;
+  flex-wrap: nowrap;
 }
 
 /* Rows */
@@ -904,12 +907,14 @@
   border-radius: 16px;
   background: rgba(85, 85, 85, 0.4);
   border-bottom: 1px solid #727272;
+  flex-wrap: nowrap;
 }
 
 .leave-normal-table td {
   padding: 16px 20px;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Date display */
@@ -988,7 +993,7 @@
   display: inline-flex;
   gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 .row-act {
   padding: 8px 14px;
