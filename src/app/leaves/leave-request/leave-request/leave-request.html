@@ -93,6 +93,7 @@
                         <th>Leave Dates</th>
                         <th>Reason</th>
                         <th>Status</th>
+                        <th>Applied On</th>
                         <th>Action</th>
                     </tr>
                 </ng-template>
@@ -163,6 +164,14 @@
                                 </button>
                             </div>
                         </td> -->
+                        <!-- APPLIED ON -->
+                             <td>
+                            <div class="dropdown-container-in-table">
+                                <span style="white-space: nowrap;">
+                                    {{ leaveData.createdAt ? (leaveData.createdAt | date: 'dd-MM-yyyy') : '—' }}
+                                </span>
+                            </div>
+                        </td> 
                         <td>
                             <div class="btns">
 

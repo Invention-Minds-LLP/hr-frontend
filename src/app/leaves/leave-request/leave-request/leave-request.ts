@@ -188,7 +188,8 @@ export class LeaveRequest {
             halfDaySession: leave.halfDaySession,
             gender: leave.employee?.gender,
             photoUrl: leave.employee?.photoUrl,
-            prescriptionUrl: leave.prescriptionUrl
+            prescriptionUrl: leave.prescriptionUrl,
+            createdAt: leave.createdAt
           }
         });
         // Only pending rows are actionable in this screen
