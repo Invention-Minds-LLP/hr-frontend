@@ -1,0 +1,277 @@
+/* Dialog shell — match the rest of the appraisal system (dark body + purple
+   gradient header + red circular close). Drop the `:host` prefix because
+   PrimeNG renders p-dialog into a portal under <body>, outside the component's
+   host scope. ::ng-deep alone makes the rule truly global, scoped by the
+   .apd-dialog class on the dialog element itself. */
+::ng-deep .apd-dialog.p-dialog {
+  border-radius: 20px !important;
+  background: #020403 !important;
+  box-shadow: 3px 4px 100px 0 #3a1d4d !important;
+  border: none !important;
+  color: white !important;
+  padding: 0 !important;
+}
+
+::ng-deep .apd-dialog .p-dialog-header {
+  background: linear-gradient(96deg, #c160ff 0%, #e6cffb 100%) !important;
+  border-bottom: none !important;
+  color: #020403 !important;
+  font-family: "Sofia Sans";
+  font-weight: 700;
+  letter-spacing: 0.24px;
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  height: 70px !important;
+  padding: 0 24px !important;
+}
+
+::ng-deep .apd-dialog .p-dialog-header .dialog-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+::ng-deep .apd-dialog .p-dialog-content {
+  padding: 20px 24px !important;
+  background: #020403 !important;
+}
+
+.dialog-header-custom span:first-child {
+  font-weight: 700;
+  font-size: 20px;
+  color: #020403;
+}
+
+.dialog-close-btn {
+  background: transparent;
+  color: red;
+  border: 1px solid red;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dialog-close-btn:hover {
+  background: red;
+  color: white;
+}
+
+.apd-empty {
+  text-align: center;
+  padding: 24px;
+  color: #888;
+  font-style: italic;
+}
+
+.apd-active-card {
+  background: rgba(251, 156, 42, 0.08);
+  border: 1px solid #FB9C2A;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 18px;
+  color: #fff;
+}
+
+.apd-active-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FB9C2A;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.apd-meta {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c4c4c4;
+  margin-bottom: 14px;
+}
+
+.apd-meta strong {
+  color: #fff;
+}
+
+.apd-start-card {
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 18px;
+  color: #fff;
+}
+
+.apd-start-card h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.apd-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.apd-end-row {
+  align-items: flex-end;
+}
+
+.apd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.apd-field.apd-full {
+  flex-basis: 100%;
+}
+
+.apd-field label {
+  font-size: 12px;
+  color: #c4c4c4;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.apd-field textarea {
+  background: #141414 !important;
+  color: #fff !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.apd-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
+.apd-primary {
+  background: #FB9C2A;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  height: 38px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.apd-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.apd-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apd-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #c4c4c4;
+  border-radius: 8px;
+  padding: 0 18px;
+  height: 38px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.apd-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.apd-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apd-history {
+  margin-top: 8px;
+}
+
+.apd-history h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c4c4c4;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.apd-icon-btn {
+  background: transparent;
+  color: #c4c4c4;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apd-icon-btn.apd-danger {
+  color: #ff6b6b;
+  border-color: #3a1f1f;
+}
+
+.apd-icon-btn.apd-danger:hover {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff4d4d;
+}
+
+:host ::ng-deep .p-datepicker {
+  background: #0a0a0a !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 6px !important;
+  height: 38px;
+}
+
+:host ::ng-deep .p-datepicker-input {
+  background: transparent !important;
+  color: #fff !important;
+  padding: 8px 10px !important;
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #fff;
+  color: #000;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background: #0a0a0a !important;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #1f1f1f !important;
+}

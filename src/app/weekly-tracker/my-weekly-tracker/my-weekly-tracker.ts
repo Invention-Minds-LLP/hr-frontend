@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MessageService } from 'primeng/api';
 import { WeeklyTrackerService } from '../../services/weekly-tracker/weekly-tracker';
+import { Employees } from '../../services/employees/employees';
 
 @Component({
   selector: 'app-my-weekly-tracker',
@@ -28,6 +29,22 @@ export class MyWeeklyTracker implements OnInit {
 
   reports: any[] = [];
   loading = true;
+  creating = false;
+  savingTask = false;
+
+  // Carry-forward
+  carryDialogVisible = false;
+  carrying = false;
+  carrySourceId: number | null = null;
+  carryCandidates: any[] = [];
+
+  // Carry-forward history
+  historyDialogVisible = false;
+  historyLoading = false;
+  historyEntries: any[] = [];
+
+  // Employee picker (Assigned By)
+  allEmployees: any[] = [];
 
   // Create report
   createDialogVisible = false;
@@ -63,11 +80,27 @@ export class MyWeeklyTracker implements OnInit {
 
   constructor(
     private trackerService: WeeklyTrackerService,
+    private employeeService: Employees,
     private messageService: MessageService
   ) {}
 
   ngOnInit() {
     this.loadReports();
+    this.loadEmployees();
+  }
+
+  // All active employees (no pagination cap) so the picker can find anyone.
+  loadEmployees() {
+    this.employeeService.getActiveEmployees().subscribe({
+      next: (rows: any) => {
+        const list = Array.isArray(rows) ? rows : (rows?.data ?? rows ?? []);
+        this.allEmployees = list.map((e: any) => ({
+          ...e,
+          displayName: `${e.employeeCode} - ${e.firstName} ${e.lastName}`
+        }));
+      },
+      error: () => { this.allEmployees = []; },
+    });
   }
 
   loadReports() {
@@ -113,6 +146,23 @@ export class MyWeeklyTracker implements OnInit {
     }
   }
 
+  // Editable by the owner until an approver acts: DRAFT, REJECTED, or SUBMITTED-and-untouched.
+  isEditable(report: any): boolean {
+    if (!report) return false;
+    if (report.status === 'DRAFT' || report.status === 'REJECTED') return true;
+    if (report.status === 'SUBMITTED') {
+      return report.inChargeDecision === 'PENDING'
+        && report.hodDecision === 'PENDING'
+        && report.hrDecision === 'PENDING';
+    }
+    return false;
+  }
+
+  // First submission vs. re-submission (after edit/reject) — drives the button label.
+  submitLabel(report: any): string {
+    return report?.status === 'DRAFT' ? 'Submit' : 'Resubmit';
+  }
+
   // ── Create Report ──────────────────────────────────────────────────────
   openCreateDialog() {
     const today = new Date();
@@ -131,6 +181,7 @@ export class MyWeeklyTracker implements OnInit {
 
   createReport() {
     if (!this.weekStartDate || !this.weekEndDate) return;
+    this.creating = true;
     this.trackerService.createReport({
       employeeId: this.loggedEmpId,
       weekStartDate: this.weekStartDate.toISOString(),
@@ -140,10 +191,12 @@ export class MyWeeklyTracker implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Weekly report created' });
         this.createDialogVisible = false;
+        this.creating = false;
         this.loadReports();
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Create failed' });
+        this.creating = false;
       }
     });
   }
@@ -214,15 +267,18 @@ export class MyWeeklyTracker implements OnInit {
       completionDate: this.taskForm.completionDate?.toISOString() || null,
     };
 
+    this.savingTask = true;
     if (this.editingTaskId) {
       this.trackerService.updateTask(this.editingTaskId, payload).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Task updated' });
           this.taskDialogVisible = false;
+          this.savingTask = false;
           this.openTasksForReport(this.selectedReport);
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Update failed' });
+          this.savingTask = false;
         }
       });
     } else {
@@ -230,10 +286,12 @@ export class MyWeeklyTracker implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Task added' });
           this.taskDialogVisible = false;
+          this.savingTask = false;
           this.openTasksForReport(this.selectedReport);
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Add failed' });
+          this.savingTask = false;
         }
       });
     }
@@ -270,6 +328,81 @@ export class MyWeeklyTracker implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Report deleted' });
         this.loadReports();
+      }
+    });
+  }
+
+  // ── Carry Forward ──────────────────────────────────────────────────────
+  openCarryDialog(report: any) {
+    this.trackerService.getReportById(report.id).subscribe({
+      next: (data) => {
+        const candidates = (data.dailyTasks || []).filter(
+          (t: any) => t.taskStatus !== 'COMPLETED' && t.taskStatus !== 'CARRIED_FORWARD'
+        );
+        if (candidates.length === 0) {
+          this.messageService.add({ severity: 'info', summary: 'Nothing to carry', detail: 'No incomplete tasks in this report.' });
+          return;
+        }
+        this.carrySourceId = report.id;
+        this.carryCandidates = candidates.map((t: any) => ({ ...t, _sel: true }));
+        this.carryDialogVisible = true;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tasks' });
+      }
+    });
+  }
+
+  confirmCarryForward() {
+    const ids = this.carryCandidates.filter(t => t._sel).map(t => t.id);
+    if (!ids.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Select tasks', detail: 'Pick at least one task to carry forward.' });
+      return;
+    }
+    this.carrying = true;
+    this.trackerService.carryForwardTasks(this.carrySourceId!, { taskEntryIds: ids, userId: this.loggedEmpId }).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Carried forward', detail: res?.message || 'Tasks carried to next week' });
+        this.carrying = false;
+        this.carryDialogVisible = false;
+        if (this.selectedReport) this.openTasksForReport(this.selectedReport);
+        this.loadReports();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Carry forward failed' });
+        this.carrying = false;
+      }
+    });
+  }
+
+  actLabel(a: string): string {
+    return ({
+      CREATED: 'Created', SUBMITTED: 'Submitted', RESUBMITTED: 'Resubmitted', EDITED: 'Edited',
+      TASK_ADDED: 'Task added', TASK_UPDATED: 'Task updated', TASK_DELETED: 'Task deleted',
+      APPROVED: 'Approved', DECLINED: 'Declined', CARRIED_FORWARD: 'Carried forward'
+    } as any)[a] || a;
+  }
+
+  actClass(a: string): string {
+    if (a === 'APPROVED') return 'act-approved';
+    if (a === 'DECLINED') return 'act-declined';
+    if (a === 'CARRIED_FORWARD') return 'act-carried';
+    return 'act-neutral';
+  }
+
+  // ── Carry-forward history ──────────────────────────────────────────────
+  openHistory(task: any) {
+    this.historyDialogVisible = true;
+    this.historyLoading = true;
+    this.historyEntries = [];
+    this.trackerService.getTaskHistory(task.id).subscribe({
+      next: (res) => {
+        this.historyEntries = res?.history || [];
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.historyLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load history' });
       }
     });
   }

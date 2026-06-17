@@ -73,6 +73,10 @@ export class WeeklyTrackerService {
     return this.http.post(`${this.apiUrl}/${reportId}/carry-forward`, data || {});
   }
 
+  getTaskHistory(taskId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/tasks/${taskId}/history`);
+  }
+
   getDashboard(params?: any): Observable<any> {
     let httpParams = new HttpParams();
     if (params) {

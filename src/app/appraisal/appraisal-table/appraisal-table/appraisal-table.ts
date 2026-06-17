@@ -21,6 +21,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { AppraisalPauseDialog } from '../../appraisal-pause-dialog/appraisal-pause-dialog';
 
 interface Table {
   empName: string;
@@ -38,7 +39,7 @@ interface Table {
 
 @Component({
   selector: 'app-appraisal-table',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule, DialogModule, DatePickerModule, TextareaModule, TooltipModule, ButtonModule, ToastModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule, DialogModule, DatePickerModule, TextareaModule, TooltipModule, ButtonModule, ToastModule, AppraisalPauseDialog],
   providers: [MessageService],
   templateUrl: './appraisal-table.html',
   styleUrl: './appraisal-table.css'
@@ -58,9 +59,12 @@ export class AppraisalTable {
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
     { label: 'Department', value: 'departmentId' },
-    { label: 'Status', value: 'status' }
-
   ];
+
+  // Status filter — workflow stages produced by getStatusLabel().
+  searchText: string = '';
+  selectedStatus: string = 'All';
+  statusOptions: string[] = ['All', 'Draft', 'Pending Fill', 'Submitted', 'Both Submitted', 'HR Review', 'Edit Requested', 'Completed'];
 
   selectedFilter: any = null;
   filteredEmployees: any[] = [];
@@ -104,6 +108,26 @@ export class AppraisalTable {
   editResponseItem: any = null;
   editResponseAction: 'APPROVE' | 'REJECT' = 'APPROVE';
   editRejectionReason = ''
+
+  // Pause dialog state
+  pauseDialogVisible = false;
+  pauseEmployeeId: number | null = null;
+  pauseEmployeeLabel = '';
+  pauseStatus: Record<number, { active: boolean; since: string } | null> = {};
+
+  /** Mirrors backend rule: roleId 1 OR (deptId 1 + roleId 2). HR overrides pause. */
+  isLockedByPause(employeeId: number): boolean {
+    if (!this.pauseStatus[employeeId]?.active) return false;
+    return !(this.isHRManager || this.isHRExecutive);
+  }
+
+  private toastPaused() {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Paused',
+      detail: 'Employee appraisal is paused — only HR can open the form.',
+    });
+  }
 
 
   constructor(private fb: FormBuilder,
@@ -200,8 +224,14 @@ export class AppraisalTable {
           photoUrl: a.employee?.photoUrl
         }));
 
-        this.filteredEmployees = [...this.appraisals];
+        this.applyFilters();
         this.loading = false;
+
+        // TEMP: pause feature on hold — uncomment to re-enable.
+        // Without this load, pauseStatus stays empty, so badges don't render
+        // and the Fill/Edit click guards always pass.
+        // const uniqueEmpIds = Array.from(new Set(this.appraisals.map(a => a.employeeId).filter(Boolean)));
+        // for (const empId of uniqueEmpIds) this.refreshPauseStatus(empId);
       },
       error: () => {
         this.messageService.add({
@@ -211,6 +241,28 @@ export class AppraisalTable {
         });
         this.loading = false;
       }
+    });
+  }
+
+  openPauseDialog(row: any) {
+    this.pauseEmployeeId = row.employeeId ?? row.employee?.id;
+    this.pauseEmployeeLabel = `${row.employee?.firstName ?? ''} ${row.employee?.lastName ?? ''}`.trim()
+      || `Employee #${this.pauseEmployeeId}`;
+    this.pauseDialogVisible = true;
+  }
+
+  onPauseChanged() {
+    if (this.pauseEmployeeId != null) this.refreshPauseStatus(this.pauseEmployeeId);
+  }
+
+  refreshPauseStatus(employeeId: number) {
+    this.appraisalService.getActivePause(employeeId).subscribe({
+      next: ({ active }) => {
+        this.pauseStatus[employeeId] = active
+          ? { active: true, since: active.startDate }
+          : null;
+      },
+      error: () => { /* badge just stays absent */ },
     });
   }
 
@@ -284,53 +336,58 @@ export class AppraisalTable {
       (!selectedBranch || emp.branchId === selectedBranch)
     );
 
-    this.filteredEmployees = [...this.appraisals]
+    this.applyFilters();
   }
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
-    const searchText = input.value.trim().toLowerCase();
+    this.searchText = input.value;
+    this.applyFilters();
+  }
 
+  selectStatus(status: string) {
+    this.selectedStatus = status;
+    this.showFilterDropdown = false;
+    this.applyFilters();
+  }
 
-    if (!searchText) {
-      this.filteredEmployees = [...this.appraisals];
-      return;
+  /** Apply the status filter and field search together. */
+  applyFilters() {
+    let data = [...this.appraisals];
+
+    // Status filter (workflow stage)
+    if (this.selectedStatus && this.selectedStatus !== 'All') {
+      data = data.filter((emp: any) => this.getStatusLabel(emp) === this.selectedStatus);
     }
 
-    const filterKey = this.selectedFilter?.value || 'name';
+    // Field search (defaults to name when no field is chosen)
+    const searchText = this.searchText.trim().toLowerCase();
+    if (searchText) {
+      const filterKey = this.selectedFilter?.value || 'name';
+      data = data.filter((emp: any) => {
+        const e = emp.employee;
+        if (!e) return false;
 
-    this.filteredEmployees = this.appraisals.filter((emp: any) => {
-      const e = emp.employee;
-      if (!e) return false;
+        if (filterKey === 'name') {
+          return `${e.firstName} ${e.lastName}`.toLowerCase().includes(searchText);
+        }
+        if (filterKey === 'employeeCode') {
+          return e.employeeCode?.toLowerCase().includes(searchText);
+        }
+        if (filterKey === 'departmentId') {
+          const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
+          return deptName.includes(searchText);
+        }
+        return e[filterKey]?.toString().toLowerCase().includes(searchText);
+      });
+    }
 
-      if (filterKey === 'name') {
-        return `${e.firstName} ${e.lastName}`
-          .toLowerCase()
-          .includes(searchText);
-      }
-
-      if (filterKey === 'employeeCode') {
-        return e.employeeCode?.toLowerCase().includes(searchText);
-      }
-
-      if (filterKey === 'departmentId') {
-        const deptName = this.getDepartmentName(e.departmentId)?.toLowerCase() || '';
-        return deptName.includes(searchText);
-      }
-       if (filterKey === 'status') {
-        const status = this.getStatusLabel(emp).toLowerCase();
-        return status.includes(searchText);
-      }
-
-
-      return e[filterKey]?.toString().toLowerCase().includes(searchText);
-    });
+    this.filteredEmployees = data;
   }
 
 
   onFilterChange() {
-    this.filteredEmployees = [...this.appraisals];
     this.showFilterDropdown = false;
-    console.log(this.selectedFilter)
+    this.applyFilters();
   }
   toggleFilterDropdown() {
     this.showFilterDropdown = !this.showFilterDropdown;
@@ -340,10 +397,12 @@ export class AppraisalTable {
     this.showFilterDropdown = false; // hide after selecting
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
     if (searchBox) searchBox.value = '';
+    this.searchText = '';
     this.onFilterChange(); // trigger filter logic
   }
 
   onManagementEditClick(appraisal: any) {
+    if (this.isLockedByPause(appraisal.employeeId)) { this.toastPaused(); return; }
     this.appraisalService.getAppraisalDetail(appraisal.id, 'MANAGEMENT').subscribe({
       next: (detail: any) => {
         const mergedAppraisal = {
@@ -365,6 +424,7 @@ export class AppraisalTable {
   }
 
   onEditClick(appraisal: any) {
+    if (this.isLockedByPause(appraisal.employeeId)) { this.toastPaused(); return; }
     const departmentName = this.getDepartmentName(appraisal.employee.departmentId);
 
     // Merge employee properties and appraisal properties into one flat object
@@ -479,6 +539,7 @@ export class AppraisalTable {
   }
 
   openManagerEditRequest(a: any) {
+    if (this.isLockedByPause(a.employeeId)) { this.toastPaused(); return; }
     this.managerEditRequestAppraisalId = a.id;
     this.managerEditRequestReason = '';
     this.managerEditRequestDialogVisible = true;
@@ -561,6 +622,7 @@ export class AppraisalTable {
   }
 
   openInchargeEditRequest(a: any) {
+    if (this.isLockedByPause(a.employeeId)) { this.toastPaused(); return; }
     this.inchargeEditRequestAppraisalId = a.id;
     this.inchargeEditRequestReason = '';
     this.inchargeEditRequestDialogVisible = true;
@@ -606,6 +668,7 @@ export class AppraisalTable {
   }
 
   onInchargeEditClick(a: any) {
+    if (this.isLockedByPause(a.employeeId)) { this.toastPaused(); return; }
     const merged = {
       ...a,
       employeeId: a.employee?.id,
@@ -632,6 +695,7 @@ export class AppraisalTable {
   managementEditLoading = false;
 
   openManagementEditRequest(a: any) {
+    if (this.isLockedByPause(a.employeeId)) { this.toastPaused(); return; }
     this.managementEditRequestAppraisalId = a.id;
     this.managementEditRequestReason = '';
     this.managementEditRequestDialogVisible = true;

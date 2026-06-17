@@ -5,7 +5,6 @@ import { IncidentForm } from '../incident-form/incident-form';
 import { IncidentTable } from '../incident-table/incident-table';
 import { IncidentDetail } from '../incident-detail/incident-detail';
 import { IncidentDashboard } from '../incident-dashboard/incident-dashboard';
-import { IncidentCategoryAdmin } from '../incident-category-admin/incident-category-admin';
 
 /**
  * Incident module shell.
@@ -29,14 +28,13 @@ import { IncidentCategoryAdmin } from '../incident-category-admin/incident-categ
     IncidentTable,
     IncidentDetail,
     IncidentDashboard,
-    IncidentCategoryAdmin,
   ],
   templateUrl: './incident-overview.html',
   styleUrl: './incident-overview.css',
 })
 export class IncidentOverview implements OnInit {
-  /** Active tab — 'dashboard' | 'list' | 'form' | 'categories' */
-  active: 'dashboard' | 'list' | 'form' | 'categories' = 'dashboard';
+  /** Active tab — 'dashboard' | 'list' | 'form' */
+  active: 'dashboard' | 'list' | 'form' = 'dashboard';
 
   /** Set when user clicks a row → renders <app-incident-detail>. */
   selectedIncidentId: number | null = null;
@@ -66,7 +64,7 @@ export class IncidentOverview implements OnInit {
   }
 
   /* ─── Tab + detail navigation ─────────────── */
-  show(tab: 'dashboard' | 'list' | 'form' | 'categories') {
+  show(tab: 'dashboard' | 'list' | 'form') {
     this.active = tab;
     this.selectedIncidentId = null;
   }

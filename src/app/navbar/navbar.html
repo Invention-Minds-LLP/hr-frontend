@@ -273,6 +273,17 @@
           </ng-container>
 
           <ng-container *ngIf="activeAdminGroup==='performance'">
+            <!-- Weekly Tracker — gated by environment.weeklyTrackerEnabled (per-client). -->
+            <li class="nav-items" *ngIf="weeklyTrackerEnabled">
+              <a [routerLink]="'/admin/weekly-tracker'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 16l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Weekly Tracker</span>
+              </a>
+            </li>
             <li class="nav-items" *ngIf="!isIncharge">
               <a [routerLink]="'/admin/appraisal'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -330,7 +341,7 @@
               </a>
             </li>
             <!-- Committees (POSH ICC + Grievance Redressal) — HR only -->
-            <!-- <li class="nav-items" *ngIf="isHRManager">
+            <li class="nav-items" *ngIf="isHRManager">
               <a [routerLink]="'/admin/committees'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -340,7 +351,7 @@
                 </svg>
                 <span>Committees</span>
               </a>
-            </li> -->
+            </li>
           </ng-container>
 
           <ng-container *ngIf="activeAdminGroup==='hrops'">
@@ -384,7 +395,7 @@
                 <span>Data Export</span>
               </a>
             </li>
-            <!-- <li class="nav-items" *ngIf="deptId === 1">
+            <li class="nav-items" *ngIf="deptId === 1 && payrollEnabled">
               <a [routerLink]="'/admin/payroll'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -393,7 +404,7 @@
                 </svg>
                 <span>Payroll</span>
               </a>
-            </li> -->
+            </li>
           </ng-container>
 
         </ul>
@@ -528,13 +539,6 @@
               <span>Departments</span></a>
           </li>
           <li class="nav-items">
-            <a [routerLink]="'/masters/branches'" routerLinkActive="active" class="nav-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5"/>
-              </svg>
-              <span>Branches</span></a>
-          </li>
-          <li class="nav-items">
             <a [routerLink]="'/masters/designations'" routerLinkActive="active" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V6h16zM4 0h16v2H4zm0 22h16v2H4zm8-10a2 2 0 1 0 0-4a2 2 0 0 0 0 4m-4 4h8v-1c0-1.33-2.67-2-4-2s-4 .67-4 2z"/>
@@ -568,6 +572,15 @@
                 <path fill="currentColor" d="M6.76 4.84l-1.8-1.79l-1.41 1.41l1.79 1.79zM4 10.5H1v2h3zm9-9.95h-2V3.5h2zm7.45 3.91l-1.41-1.41l-1.79 1.79l1.41 1.41zm-3.21 13.7l1.79 1.8l1.41-1.41l-1.8-1.79zM20 10.5v2h3v-2zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6s6-2.69 6-6s-2.69-6-6-6m-1 16.95h2V19.5h-2zm-7.45-3.91l1.41 1.41l1.79-1.8l-1.41-1.41z"/>
               </svg>
               <span>Holidays</span></a>
+          </li>
+          <li class="nav-items">
+            <a [routerLink]="'/masters/incident-categories'" routerLinkActive="active" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>Incident Categories</span></a>
           </li>
           <!-- <li class="nav-items">
             <a [routerLink]="'/masters/rating-questions'" routerLinkActive="active" class="nav-link">

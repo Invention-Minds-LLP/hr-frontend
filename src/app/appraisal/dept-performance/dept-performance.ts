@@ -10,6 +10,8 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { AppraisalTemplate } from '../appraisal-template/appraisal-template';
+import { AppraisalPauseDialog } from '../appraisal-pause-dialog/appraisal-pause-dialog';
+import { Appraisal } from '../../services/appraisal/appraisal';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { InputText, InputTextModule } from 'primeng/inputtext';
@@ -17,12 +19,14 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
+import { ToastModule } from 'primeng/toast';
 
 
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
-    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule, InputIconModule, IconFieldModule],
+    ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule, InputIconModule, IconFieldModule,
+    AppraisalPauseDialog, ToastModule],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })
@@ -42,6 +46,24 @@ export class DeptPerformance {
   rowTemplatesLoading = false;
   selectedRowTemplateId: number | null = null;
   assignTemplateSaving = false;
+
+  // Pause dialog state
+  pauseDialogVisible = false;
+  pauseEmployeeId: number | null = null;
+  pauseEmployeeLabel = '';
+  // employeeId -> {active: true, since: Date} or null. Drives the row badge.
+  pauseStatus: Record<number, { active: boolean; since: string } | null> = {};
+  // Mirror of the backend HR-override rule (roleId 1 OR dept 1 + roleId 2)
+  isHRUser = Number(localStorage.getItem('roleId')) === 1 ||
+    (Number(localStorage.getItem('deptId')) === 1 && Number(localStorage.getItem('roleId')) === 2);
+
+  // Dept-performance has only one form path (the performance template). Block
+  // it for EVERYONE when paused — HR must un-pause first to backfill. The
+  // managerial-appraisal flow keeps HR's override because HR uses separate
+  // buttons there (Verify / Review) that bypass Fill Review entirely.
+  isLockedByPause(employeeId: number): boolean {
+    return !!this.pauseStatus[employeeId]?.active;
+  }
   assignForm: FormGroup;
   selectedSummary: any = null;
   role: string = '';
@@ -70,7 +92,8 @@ export class DeptPerformance {
   cycles: any[] = [];
 
   constructor(private performanceService: PerformanceService, private employeeService: Employees,
-    private departmentService: Departments, private fb: FormBuilder, private messageService: MessageService) {
+    private departmentService: Departments, private fb: FormBuilder, private messageService: MessageService,
+    private appraisalService: Appraisal) {
     this.assignForm = this.fb.group({
       employeeIds: [[], Validators.required],
       departmentId: [null, Validators.required],
@@ -227,6 +250,12 @@ export class DeptPerformance {
 
         this.filteredSummaries = [...this.summaries];
         this.loading = false;
+
+        // TEMP: pause feature on hold — uncomment to re-enable.
+        // Without this load, pauseStatus stays empty, so badges don't render
+        // and openSummary's isLockedByPause() guard always returns false.
+        // const uniqueEmpIds = Array.from(new Set(this.summaries.map(s => s.employeeId).filter(Boolean)));
+        // for (const empId of uniqueEmpIds) this.refreshPauseStatus(empId);
       },
       error: () => {
         this.messageService.add({
@@ -250,6 +279,29 @@ export class DeptPerformance {
 
   openDialog() {
     this.visible = true;
+  }
+
+  openPauseDialog(row: any) {
+    this.pauseEmployeeId = row.employeeId ?? row.employee?.id;
+    this.pauseEmployeeLabel = `${row.employee?.firstName ?? ''} ${row.employee?.lastName ?? ''}`.trim()
+      || `Employee #${this.pauseEmployeeId}`;
+    this.pauseDialogVisible = true;
+  }
+
+  onPauseChanged() {
+    // Refresh pause badges for the employee that was just edited
+    if (this.pauseEmployeeId != null) this.refreshPauseStatus(this.pauseEmployeeId);
+  }
+
+  refreshPauseStatus(employeeId: number) {
+    this.appraisalService.getActivePause(employeeId).subscribe({
+      next: ({ active }) => {
+        this.pauseStatus[employeeId] = active
+          ? { active: true, since: active.startDate }
+          : null;
+      },
+      error: () => { /* badge just stays absent */ },
+    });
   }
 
   openAssignTemplate(row: any) {
@@ -314,6 +366,14 @@ export class DeptPerformance {
     });
   }
   openSummary(summary: any) {
+    if (this.isLockedByPause(summary.employeeId)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Paused',
+        detail: 'Employee appraisal is paused. End the pause before opening the form.',
+      });
+      return;
+    }
     this.selectedSummary = summary;
   }
 

@@ -20,26 +20,26 @@
       <div class="field">
         <label>Week Start Date</label>
         <p-datepicker [(ngModel)]="weekStartDate" dateFormat="dd-mm-yy" [showIcon]="true"
-          [disabled]="!!reportId" placeholder="Select start date" [style]="{'width': '100%'}">
+          [disabled]="!!reportId" placeholder="Select start date" [style]="{'width': '100%'}" appendTo="body">
         </p-datepicker>
       </div>
       <div class="field">
         <label>Week End Date</label>
         <p-datepicker [(ngModel)]="weekEndDate" dateFormat="dd-mm-yy" [showIcon]="true"
-          [disabled]="!!reportId" placeholder="Select end date" [style]="{'width': '100%'}">
+          [disabled]="!!reportId" placeholder="Select end date" [style]="{'width': '100%'}" appendTo="body">
         </p-datepicker>
       </div>
       <div class="field full-width">
         <label>Weekly Summary / Comments</label>
         <textarea pTextarea [(ngModel)]="employeeSummary" rows="3" style="width: 100%"
           placeholder="Summarize your week's work, achievements, blockers..."
-          [disabled]="reportStatus !== 'DRAFT'"></textarea>
+          [disabled]="!canEdit"></textarea>
       </div>
     </div>
 
     <div class="form-actions">
       <button pButton [label]="reportId ? 'Update Report' : 'Create Report'" class="p-button-primary"
-        (click)="saveReport()" [loading]="saving" [disabled]="reportStatus !== 'DRAFT' && !!reportId">
+        (click)="saveReport()" [loading]="saving" [disabled]="!canEdit && !!reportId">
       </button>
     </div>
   </div>
@@ -49,7 +49,7 @@
     <div class="section-header">
       <h4>Daily Tasks</h4>
       <button pButton label="Add Task" icon="pi pi-plus" class="p-button-sm p-button-success"
-        (click)="openTaskDialog()" *ngIf="reportStatus === 'DRAFT'">
+        (click)="openTaskDialog()" *ngIf="canEdit">
       </button>
     </div>
 
@@ -66,7 +66,7 @@
           <th>Deadline</th>
           <th>Completed</th>
           <th>Remarks</th>
-          <th style="width: 100px" *ngIf="reportStatus === 'DRAFT'">Actions</th>
+          <th style="width: 100px" *ngIf="canEdit">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-task let-i="rowIndex">
@@ -84,7 +84,7 @@
           <td>{{ fmtDate(task.deadline) || '-' }}</td>
           <td>{{ fmtDate(task.completionDate) || '-' }}</td>
           <td>{{ task.remarks || '-' }}</td>
-          <td *ngIf="reportStatus === 'DRAFT'" class="action-cell">
+          <td *ngIf="canEdit" class="action-cell">
             <button class="btn-icon edit" (click)="openTaskDialog(task, i)">
               <i class="pi pi-pencil"></i>
             </button>
@@ -96,7 +96,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td [attr.colspan]="reportStatus === 'DRAFT' ? 11 : 10"
+          <td [attr.colspan]="canEdit ? 11 : 10"
             style="text-align: center; padding: 2rem; color: #888;">
             No tasks added yet. Click "Add Task" to get started.
           </td>
@@ -104,9 +104,9 @@
       </ng-template>
     </p-table>
 
-    <div class="form-actions" *ngIf="reportStatus === 'DRAFT' && tasks.length > 0">
-      <button pButton label="Submit for Approval" icon="pi pi-send" class="p-button-warning"
-        (click)="submitReport()">
+    <div class="form-actions" *ngIf="canEdit && tasks.length > 0">
+      <button pButton [label]="reportStatus === 'DRAFT' ? 'Submit for Approval' : 'Resubmit for Approval'"
+        icon="pi pi-send" class="p-button-warning" (click)="submitReport()">
       </button>
     </div>
   </div>
@@ -119,12 +119,12 @@
     <div class="field">
       <label>Task Date <span class="req">*</span></label>
       <p-datepicker [(ngModel)]="taskForm.taskDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Priority</label>
       <p-select [options]="priorityOptions" [(ngModel)]="taskForm.priority"
-        optionLabel="label" optionValue="value" [style]="{'width': '100%'}"></p-select>
+        optionLabel="label" optionValue="value" [style]="{'width': '100%'}" appendTo="body"></p-select>
     </div>
     <div class="field full-width">
       <label>Task Description <span class="req">*</span></label>
@@ -139,7 +139,7 @@
     <div class="field">
       <label>Status</label>
       <p-select [options]="taskStatusOptions" [(ngModel)]="taskForm.taskStatus"
-        optionLabel="label" optionValue="value" [style]="{'width': '100%'}"></p-select>
+        optionLabel="label" optionValue="value" [style]="{'width': '100%'}" appendTo="body"></p-select>
     </div>
     <div class="field">
       <label>% Complete</label>
@@ -147,19 +147,20 @@
         style="width: 100%" />
     </div>
     <div class="field">
-      <label>Assigned By (Emp ID)</label>
-      <input type="number" pInputText [(ngModel)]="taskForm.assignedById" placeholder="Employee ID"
-        style="width: 100%" />
+      <label>Assigned By</label>
+      <p-select [options]="allEmployees" [(ngModel)]="taskForm.assignedById"
+        optionLabel="displayName" optionValue="id"
+        placeholder="Select employee" [style]="{'width':'100%'}" appendTo="body"></p-select>
     </div>
     <div class="field">
       <label>Deadline</label>
       <p-datepicker [(ngModel)]="taskForm.deadline" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Completion Date</label>
       <p-datepicker [(ngModel)]="taskForm.completionDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field full-width">
       <label>Remarks</label>
@@ -169,8 +170,9 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancel" class="p-button-text" (click)="taskDialogVisible = false"></button>
+    <button pButton label="Cancel" class="p-button-text" (click)="taskDialogVisible = false"
+      [disabled]="savingTask"></button>
     <button pButton [label]="editingTaskIndex !== null ? 'Update Task' : 'Add Task'" class="p-button-primary"
-      (click)="saveTask()"></button>
+      (click)="saveTask()" [loading]="savingTask"></button>
   </ng-template>
 </p-dialog>

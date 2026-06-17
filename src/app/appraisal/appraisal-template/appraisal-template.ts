@@ -13,6 +13,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { Incident } from '../../services/incident/incident';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
+import { Appraisal } from '../../services/appraisal/appraisal';
 
 @Component({
   selector: 'app-appraisal-template',
@@ -65,6 +66,17 @@ export class AppraisalTemplate {
   ];
 
   summaryPeriods = ['MONTH_1', 'MONTH_3', 'MONTH_6', 'YEAR_1'];
+
+  /** Total paused days within the current cycle window. Loaded after the
+   *  appraisal-form GET resolves; subtracted from the elapsed-months calc
+   *  so a 6-month maternity pause keeps the employee on MONTH_6 instead of
+   *  flipping them to YEAR_1. */
+  pauseDays = 0;
+  /** Currently-active pause, if any. Disables submit + shows top banner.
+   *  HR can still override (banner reflects that). */
+  activePause: { startDate: string; reason: string } | null = null;
+  isHRUser = Number(localStorage.getItem('roleId')) === 1 ||
+    (Number(localStorage.getItem('deptId')) === 1 && Number(localStorage.getItem('roleId')) === 2);
   setCurrentPeriod(joiningDate: Date, cycle: string) {
     // Parse cycle
     const { start: cycleStart, end: cycleEnd } = this.parseCycle(cycle);
@@ -76,8 +88,10 @@ export class AppraisalTemplate {
     const today = new Date();
     const effectiveToday = today > cycleEnd ? cycleEnd : today;
 
-    const months = this.monthsBetween(effectiveStart, effectiveToday);
-    console.log("Months inside cycle =", months);
+    const rawMonths = this.monthsBetween(effectiveStart, effectiveToday);
+    // Convert paused days → months (mean month length) and subtract.
+    const months = Math.max(0, rawMonths - this.pauseDays / 30.4375);
+    console.log("Months inside cycle =", rawMonths, "minus paused =", this.pauseDays, "→ effective =", months);
 
     if (months < 1) return "MONTH_1";
     if (months < 3) return "MONTH_3";
@@ -94,6 +108,26 @@ export class AppraisalTemplate {
     const end = new Date(to.replace("-", " "));
     return { start, end };
   }
+  /** Total paused days that overlap [max(DOJ, cycleStart), min(today, cycleEnd)]. */
+  computePausedDaysInCycle(pauses: any[], doj: Date, cycle: string): number {
+    const { start: cycleStart, end: cycleEnd } = this.parseCycle(cycle);
+    const from = doj > cycleStart ? doj : cycleStart;
+    const today = new Date();
+    const to = today > cycleEnd ? cycleEnd : today;
+    if (to <= from) return 0;
+    const MS_DAY = 24 * 60 * 60 * 1000;
+    let days = 0;
+    for (const p of pauses) {
+      const ps = new Date(p.startDate);
+      const pe = p.endDate ? new Date(p.endDate) : to;
+      const a = ps < from ? from : ps;
+      const b = pe > to ? to : pe;
+      if (b <= a) continue;
+      days += Math.ceil((b.getTime() - a.getTime()) / MS_DAY);
+    }
+    return days;
+  }
+
   monthsBetween(d1: Date, d2: Date) {
     return (
       d2.getFullYear() * 12 + d2.getMonth() - (d1.getFullYear() * 12 + d1.getMonth())
@@ -130,7 +164,8 @@ export class AppraisalTemplate {
 
 
 
-  constructor(private formService: PerformanceService, private incidentService: Incident, private messageService: MessageService) { }
+  constructor(private formService: PerformanceService, private incidentService: Incident, private messageService: MessageService,
+    private appraisalService: Appraisal) { }
 
   ngOnInit() {
     if (this.summaryData) {
@@ -168,9 +203,25 @@ export class AppraisalTemplate {
       // ✅ auto assign currentPeriod based on employee DOJ (from API ideally)
       if (data.employee?.dateOfJoining) {
         this.joiningDate = new Date(data.employee.dateOfJoining).toLocaleDateString();
-        this.currentPeriod = this.setCurrentPeriod(new Date(data.employee.dateOfJoining), this.cycle) as any;
-        console.log("Set currentPeriod to", this.currentPeriod);
-        this.initializeSignaturePads()
+        const doj = new Date(data.employee.dateOfJoining);
+        // Fetch pauses first so we can subtract paused days BEFORE picking the
+        // current period — otherwise a maternity-paused employee jumps to
+        // YEAR_1 too early.
+        this.appraisalService.listEmployeePauses(this.employeeId).subscribe({
+          next: (pauses) => {
+            this.pauseDays = this.computePausedDaysInCycle(pauses || [], doj, this.cycle);
+            this.activePause = (pauses || []).find(p => !p.endDate) || null;
+            this.currentPeriod = this.setCurrentPeriod(doj, this.cycle) as any;
+            console.log("Set currentPeriod to", this.currentPeriod);
+            this.initializeSignaturePads();
+          },
+          error: () => {
+            this.pauseDays = 0;
+            this.activePause = null;
+            this.currentPeriod = this.setCurrentPeriod(doj, this.cycle) as any;
+            this.initializeSignaturePads();
+          },
+        });
       }
 
 

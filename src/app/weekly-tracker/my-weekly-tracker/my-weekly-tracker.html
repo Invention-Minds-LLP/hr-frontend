@@ -56,17 +56,13 @@
           <button class="btn-icon view" (click)="viewReport(report)" pTooltip="View" tooltipPosition="top">
             <i class="pi pi-eye"></i>
           </button>
-          <button class="btn-icon edit" *ngIf="report.status === 'DRAFT'"
+          <button class="btn-icon edit" *ngIf="isEditable(report)"
             (click)="openTasksForReport(report)" pTooltip="Manage Tasks" tooltipPosition="top">
             <i class="pi pi-pencil"></i>
           </button>
-          <button class="btn-icon submit" *ngIf="report.status === 'DRAFT' && (report._count?.dailyTasks > 0)"
-            (click)="submitReport(report)" pTooltip="Submit" tooltipPosition="top">
+          <button class="btn-icon submit" *ngIf="isEditable(report) && (report._count?.dailyTasks > 0)"
+            (click)="submitReport(report)" [pTooltip]="submitLabel(report)" tooltipPosition="top">
             <i class="pi pi-send"></i>
-          </button>
-          <button class="btn-icon delete" *ngIf="report.status === 'DRAFT'"
-            (click)="deleteReport(report)" pTooltip="Delete" tooltipPosition="top">
-            <i class="pi pi-trash"></i>
           </button>
         </td>
       </tr>
@@ -91,11 +87,14 @@
       <h3>{{ selectedReport.weekLabel }} — Tasks</h3>
       <span class="status-badge" [ngClass]="getStatusClass(selectedReport.status)">{{ selectedReport.status }}</span>
     </div>
-    <div class="task-header-right" *ngIf="selectedReport.status === 'DRAFT'">
+    <div class="task-header-right">
+      <button pButton label="Carry Forward" icon="pi pi-arrow-right" class="p-button-sm p-button-secondary"
+        (click)="openCarryDialog(selectedReport)" *ngIf="tasks.length > 0"
+        pTooltip="Copy incomplete tasks into next week" tooltipPosition="top"></button>
       <button pButton label="Add Task" icon="pi pi-plus" class="p-button-sm p-button-success"
-        (click)="openTaskDialog()"></button>
-      <button pButton label="Submit" icon="pi pi-send" class="p-button-sm p-button-warning"
-        (click)="submitReport(selectedReport)" *ngIf="tasks.length > 0"></button>
+        (click)="openTaskDialog()" *ngIf="isEditable(selectedReport)"></button>
+      <button pButton [label]="submitLabel(selectedReport)" icon="pi pi-send" class="p-button-sm p-button-warning"
+        (click)="submitReport(selectedReport)" *ngIf="isEditable(selectedReport) && tasks.length > 0"></button>
     </div>
   </div>
 
@@ -116,7 +115,7 @@
         <th>Deadline</th>
         <th>Completed</th>
         <th>Remarks</th>
-        <th style="width: 80px" *ngIf="selectedReport.status === 'DRAFT'">Actions</th>
+        <th style="width: 80px" *ngIf="isEditable(selectedReport)">Actions</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-task let-i="rowIndex">
@@ -134,7 +133,7 @@
         <td>{{ fmtDate(task.deadline) || '-' }}</td>
         <td>{{ fmtDate(task.completionDate) || '-' }}</td>
         <td>{{ task.remarks || '-' }}</td>
-        <td *ngIf="selectedReport.status === 'DRAFT'" class="action-cell">
+        <td *ngIf="isEditable(selectedReport)" class="action-cell">
           <button class="btn-icon edit" (click)="openTaskDialog(task)"><i class="pi pi-pencil"></i></button>
           <button class="btn-icon delete" (click)="deleteTask(task)"><i class="pi pi-trash"></i></button>
         </td>
@@ -142,7 +141,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td [attr.colspan]="selectedReport.status === 'DRAFT' ? 11 : 10"
+        <td [attr.colspan]="isEditable(selectedReport) ? 11 : 10"
           style="text-align: center; padding: 2rem; color: #888;">No tasks added. Click "Add Task".</td>
       </tr>
     </ng-template>
@@ -156,12 +155,12 @@
     <div class="field">
       <label>Week Start Date</label>
       <p-datepicker [(ngModel)]="weekStartDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Week End Date</label>
       <p-datepicker [(ngModel)]="weekEndDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Weekly Summary (optional)</label>
@@ -170,8 +169,10 @@
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <button pButton label="Cancel" class="p-button-text" (click)="createDialogVisible = false"></button>
-    <button pButton label="Create" class="p-button-primary" (click)="createReport()"></button>
+    <button pButton label="Cancel" class="p-button-text" (click)="createDialogVisible = false"
+      [disabled]="creating"></button>
+    <button pButton label="Create" class="p-button-primary" (click)="createReport()"
+      [loading]="creating"></button>
   </ng-template>
 </p-dialog>
 
@@ -182,7 +183,7 @@
     <div class="field">
       <label>Task Date <span class="req">*</span></label>
       <p-datepicker [(ngModel)]="taskForm.taskDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Priority</label>
@@ -210,19 +211,20 @@
         style="width: 100%" />
     </div>
     <div class="field">
-      <label>Assigned By (Emp ID)</label>
-      <input type="number" pInputText [(ngModel)]="taskForm.assignedById" placeholder="Employee ID"
-        style="width: 100%" />
+      <label>Assigned By</label>
+      <p-select [options]="allEmployees" [(ngModel)]="taskForm.assignedById"
+        optionLabel="displayName" optionValue="id"
+        placeholder="Select employee" [style]="{'width':'100%'}" appendTo="body"></p-select>
     </div>
     <div class="field">
       <label>Deadline</label>
       <p-datepicker [(ngModel)]="taskForm.deadline" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field">
       <label>Completion Date</label>
       <p-datepicker [(ngModel)]="taskForm.completionDate" dateFormat="dd-mm-yy" [showIcon]="true"
-        [style]="{'width': '100%'}"></p-datepicker>
+        [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
     </div>
     <div class="field full-width">
       <label>Remarks</label>
@@ -231,9 +233,10 @@
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <button pButton label="Cancel" class="p-button-text" (click)="taskDialogVisible = false"></button>
+    <button pButton label="Cancel" class="p-button-text" (click)="taskDialogVisible = false"
+      [disabled]="savingTask"></button>
     <button pButton [label]="editingTaskId ? 'Update Task' : 'Add Task'" class="p-button-primary"
-      (click)="saveTask()"></button>
+      (click)="saveTask()" [loading]="savingTask"></button>
   </ng-template>
 </p-dialog>
 
@@ -272,28 +275,83 @@
       </div>
     </div>
 
-    <h4 style="margin: 1rem 0 0.5rem;">Tasks ({{ detailTasks.length }})</h4>
-    <p-table [value]="detailTasks" styleClass="p-datatable-sm" [scrollable]="true">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>#</th><th>Date</th><th>Task</th><th>Category</th><th>Priority</th>
-          <th>Status</th><th>%</th><th>Deadline</th><th>Completed</th><th>Remarks</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-t let-i="rowIndex">
-        <tr>
-          <td>{{ i+1 }}</td>
-          <td>{{ fmtDate(t.taskDate) }}</td>
-          <td>{{ t.taskDescription }}</td>
-          <td>{{ t.category || '-' }}</td>
-          <td><span class="priority-badge" [ngClass]="getPriorityClass(t.priority)">{{ t.priority }}</span></td>
-          <td><span class="task-status-badge" [ngClass]="getTaskStatusClass(t.taskStatus)">{{ t.taskStatus?.replace('_',' ') }}</span></td>
-          <td>{{ t.percentComplete }}%</td>
-          <td>{{ fmtDate(t.deadline) || '-' }}</td>
-          <td>{{ fmtDate(t.completionDate) || '-' }}</td>
-          <td>{{ t.remarks || '-' }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <h4 class="tasks-title">Tasks ({{ detailTasks.length }})</h4>
+
+    <div class="task-cards" *ngIf="detailTasks.length">
+      <div class="task-card" *ngFor="let t of detailTasks; let i = index">
+        <div class="task-card-head">
+          <span class="task-num">#{{ i + 1 }}</span>
+          <span class="task-date">{{ fmtDate(t.taskDate) }}</span>
+          <span class="priority-badge" [ngClass]="getPriorityClass(t.priority)">{{ t.priority }}</span>
+          <span class="task-status-badge" [ngClass]="getTaskStatusClass(t.taskStatus)">{{ t.taskStatus?.replace('_', ' ') }}</span>
+          <span class="carried-tag" *ngIf="t.isCarriedForward">CF</span>
+          <span class="task-pct">{{ t.percentComplete }}%</span>
+          <button class="cf-history-btn" (click)="openHistory(t)" pTooltip="Carry-forward history" tooltipPosition="top">
+            <i class="pi pi-history"></i>
+          </button>
+        </div>
+        <div class="task-desc">{{ t.taskDescription }}</div>
+        <div class="task-meta">
+          <span *ngIf="t.category"><i class="pi pi-folder"></i>{{ t.category }}</span>
+          <span *ngIf="t.deadline"><i class="pi pi-flag"></i>Due {{ fmtDate(t.deadline) }}</span>
+          <span *ngIf="t.completionDate"><i class="pi pi-check-circle"></i>Done {{ fmtDate(t.completionDate) }}</span>
+        </div>
+        <div class="task-remarks" *ngIf="t.remarks"><strong>Remarks:</strong> {{ t.remarks }}</div>
+      </div>
+    </div>
+
+    <div class="task-empty" *ngIf="!detailTasks.length">No tasks added</div>
+
+    <h4 class="tasks-title" *ngIf="detailReport.activities?.length">Activity</h4>
+    <div class="activity-list" *ngIf="detailReport.activities?.length">
+      <div class="activity-item" *ngFor="let a of detailReport.activities">
+        <span class="act-badge" [ngClass]="actClass(a.action)">{{ actLabel(a.action) }}</span>
+        <div class="act-body">
+          <div class="act-line"><span class="act-by">{{ a.byName || 'System' }}</span>
+            <span class="act-detail" *ngIf="a.detail">— {{ a.detail }}</span></div>
+          <div class="act-time">{{ a.createdAt | date:'dd-MM-yyyy HH:mm' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- ── CARRY FORWARD DIALOG ─────────────────────────────────────────────── -->
+<p-dialog header="Carry Forward to Next Week" [(visible)]="carryDialogVisible" [modal]="true"
+  [style]="{ width: '560px' }" [closable]="true">
+  <p class="carry-hint">Select the incomplete tasks to copy into next week's report:</p>
+  <div class="carry-list">
+    <label class="carry-item" *ngFor="let t of carryCandidates">
+      <input type="checkbox" [(ngModel)]="t._sel" />
+      <span class="carry-task">{{ t.taskDescription }}</span>
+      <span class="task-status-badge" [ngClass]="getTaskStatusClass(t.taskStatus)">{{ t.taskStatus?.replace('_', ' ') }}</span>
+    </label>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="carryDialogVisible = false"
+      [disabled]="carrying"></button>
+    <button pButton label="Carry Forward" class="p-button-primary" (click)="confirmCarryForward()"
+      [loading]="carrying"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── CARRY-FORWARD HISTORY DIALOG ─────────────────────────────────────── -->
+<p-dialog header="Carry-Forward History" [(visible)]="historyDialogVisible" [modal]="true"
+  [style]="{ width: '520px' }" [closable]="true">
+  <div class="cf-loading" *ngIf="historyLoading">Loading…</div>
+  <div class="cf-empty" *ngIf="!historyLoading && historyEntries.length <= 1">
+    This task has not been carried across weeks.
+  </div>
+  <div class="cf-timeline" *ngIf="!historyLoading && historyEntries.length > 1">
+    <div class="cf-step" *ngFor="let h of historyEntries; let last = last">
+      <div class="cf-dot" [class.cf-dot-last]="last"></div>
+      <div class="cf-step-body">
+        <div class="cf-week">{{ h.week?.weekLabel || '—' }}
+          <span class="task-status-badge" [ngClass]="getTaskStatusClass(h.taskStatus)">{{ h.taskStatus?.replace('_', ' ') }}</span>
+          <span class="cf-pct">{{ h.percentComplete }}%</span>
+        </div>
+        <div class="cf-task">{{ h.taskDescription }}</div>
+      </div>
+    </div>
   </div>
 </p-dialog>

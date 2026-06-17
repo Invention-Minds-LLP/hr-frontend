@@ -1,0 +1,97 @@
+<p-confirmDialog></p-confirmDialog>
+
+<p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" [modal]="true"
+  [closable]="false" [style]="{width:'640px', maxWidth:'95vw'}" class="Performance-Form apd-dialog">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <span>Appraisal Pause &middot; {{ employeeLabel || 'Employee' }}</span>
+      <button class="dialog-close-btn" (click)="close()">✕</button>
+    </div>
+  </ng-template>
+
+  <div *ngIf="loading" class="apd-empty">Loading…</div>
+
+  <div *ngIf="!loading">
+    <!-- ACTIVE PAUSE -->
+    <div *ngIf="active" class="apd-active-card">
+      <div class="apd-active-title">
+        <i class="pi pi-pause-circle"></i>
+        Currently paused
+      </div>
+      <div class="apd-meta">
+        <div><strong>Since:</strong> {{ active.startDate | date:'dd-MM-yyyy' }}</div>
+        <div><strong>Reason:</strong> {{ active.reason }}</div>
+      </div>
+
+      <div class="apd-row apd-end-row">
+        <div class="apd-field">
+          <label>End pause on</label>
+          <p-datepicker [(ngModel)]="endDate" dateFormat="dd-mm-yy" appendTo="body"   showIcon iconDisplay="input" ></p-datepicker>
+        </div>
+        <button class="apd-secondary" type="button"
+          [disabled]="saving || !endDate" (click)="endActivePause()">
+          End Pause
+        </button>
+      </div>
+    </div>
+
+    <!-- START NEW PAUSE -->
+    <div *ngIf="!active" class="apd-start-card">
+      <h4>Start a new pause</h4>
+      <div class="apd-row">
+        <div class="apd-field">
+          <label>Start date *</label>
+          <p-datepicker [(ngModel)]="newStart" dateFormat="dd-mm-yy" appendTo="body"   showIcon iconDisplay="input"></p-datepicker>
+        </div>
+        <div class="apd-field">
+          <label>End date (optional)</label>
+          <p-datepicker [(ngModel)]="newEnd" dateFormat="dd-mm-yy" appendTo="body" [showIcon]="true"
+              showIcon iconDisplay="input" placeholder="Leave blank for ongoing"></p-datepicker>
+        </div>
+      </div>
+      <div class="apd-field apd-full">
+        <label>Reason *</label>
+        <textarea pInputTextarea [(ngModel)]="newReason" rows="2"
+          placeholder="e.g. Maternity leave, long medical leave, sabbatical"></textarea>
+      </div>
+      <div class="apd-actions">
+        <button class="apd-primary" type="button"
+          [disabled]="saving" (click)="startPause()">
+          {{ saving ? 'Saving…' : 'Start Pause' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="apd-history">
+      <h4>History</h4>
+      <p-table [value]="history" *ngIf="history.length; else noHist">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Reason</th>
+            <th style="width:60px"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-h>
+          <tr>
+            <td>{{ h.startDate | date:'dd-MM-yyyy' }}</td>
+            <td>{{ h.endDate | date:'dd-MM-yyyy' }}</td>
+            <td>{{ h.reason }}</td>
+            <td>
+              <button class="apd-icon-btn apd-danger" (click)="deletePause(h)" title="Delete">
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <ng-template #noHist>
+        <div class="apd-empty">No past pauses.</div>
+      </ng-template>
+    </div>
+  </div>
+
+</p-dialog>

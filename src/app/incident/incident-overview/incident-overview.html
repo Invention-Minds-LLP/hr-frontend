@@ -37,10 +37,7 @@
       <button class="ic-tab" [class.active]="active === 'form'" (click)="show('form')">
         ➕ New Incident
       </button>
-      <!-- Category management — HR-only. -->
-      <button *ngIf="isHR" class="ic-tab" [class.active]="active === 'categories'" (click)="show('categories')">
-        ⚙️ Categories
-      </button>
+      <!-- Category management lives under Masters → Incident Categories. -->
     </nav>
 
     <div class="ic-content">
@@ -61,11 +58,6 @@
           *ngSwitchCase="'form'"
           (created)="onCreated()">
         </app-incident-form>
-
-        <!-- Categories — HR-only admin (gated by the tab visibility above). -->
-        <app-incident-category-admin
-          *ngSwitchCase="'categories'">
-        </app-incident-category-admin>
       </ng-container>
     </div>
   </ng-template>

@@ -11,6 +11,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { WeeklyTrackerService } from '../../services/weekly-tracker/weekly-tracker';
+import { Employees } from '../../services/employees/employees';
 
 @Component({
   selector: 'app-weekly-tracker-form',
@@ -38,6 +39,9 @@ export class WeeklyTrackerForm implements OnInit {
 
   // Tasks
   tasks: any[] = [];
+
+  // Employee picker (Assigned By)
+  allEmployees: any[] = [];
 
   // Task form dialog
   taskDialogVisible = false;
@@ -70,13 +74,19 @@ export class WeeklyTrackerForm implements OnInit {
   ];
 
   saving = false;
+  savingTask = false;
+
+  // Editable until an approver acts: DRAFT, REJECTED, or SUBMITTED-and-untouched. New reports start editable.
+  canEdit = true;
 
   constructor(
     private trackerService: WeeklyTrackerService,
+    private employeeService: Employees,
     private messageService: MessageService
   ) {}
 
   ngOnInit() {
+    this.loadEmployees();
     if (this.report) {
       this.reportId = this.report.id;
       this.reportStatus = this.report.status;
@@ -84,10 +94,20 @@ export class WeeklyTrackerForm implements OnInit {
       this.weekStartDate = new Date(this.report.weekStartDate);
       this.weekEndDate = new Date(this.report.weekEndDate);
       this.weekLabel = this.report.weekLabel || '';
+      this.canEdit = this.computeEditable(this.report);
       this.loadTasks();
     } else {
       this.setCurrentWeek();
     }
+  }
+
+  private computeEditable(r: any): boolean {
+    if (!r) return true;
+    if (r.status === 'DRAFT' || r.status === 'REJECTED') return true;
+    if (r.status === 'SUBMITTED') {
+      return r.inChargeDecision === 'PENDING' && r.hodDecision === 'PENDING' && r.hrDecision === 'PENDING';
+    }
+    return false;
   }
 
   setCurrentWeek() {
@@ -101,6 +121,20 @@ export class WeeklyTrackerForm implements OnInit {
 
     this.weekStartDate = monday;
     this.weekEndDate = sunday;
+  }
+
+  // All active employees (no pagination cap) so the picker can find anyone.
+  loadEmployees() {
+    this.employeeService.getActiveEmployees().subscribe({
+      next: (rows: any) => {
+        const list = Array.isArray(rows) ? rows : (rows?.data ?? rows ?? []);
+        this.allEmployees = list.map((e: any) => ({
+          ...e,
+          displayName: `${e.employeeCode} - ${e.firstName} ${e.lastName}`
+        }));
+      },
+      error: () => { this.allEmployees = []; },
+    });
   }
 
   loadTasks() {
@@ -211,16 +245,19 @@ export class WeeklyTrackerForm implements OnInit {
       completionDate: this.taskForm.completionDate?.toISOString() || null,
     };
 
+    this.savingTask = true;
     if (this.editingTaskIndex !== null && this.tasks[this.editingTaskIndex]) {
       const taskId = this.tasks[this.editingTaskIndex].id;
       this.trackerService.updateTask(taskId, payload).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Task updated' });
           this.taskDialogVisible = false;
+          this.savingTask = false;
           this.loadTasks();
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Update failed' });
+          this.savingTask = false;
         }
       });
     } else {
@@ -228,10 +265,12 @@ export class WeeklyTrackerForm implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Task added' });
           this.taskDialogVisible = false;
+          this.savingTask = false;
           this.loadTasks();
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Add failed' });
+          this.savingTask = false;
         }
       });
     }

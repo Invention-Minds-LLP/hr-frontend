@@ -42,10 +42,22 @@ export class LeaveRequest {
     { label: 'Leave Type', value: 'leaveType' },
   ];
 
-  // Status filter (lives inside the funnel dropdown, alongside field search)
+  // Status filter (lives inside the funnel dropdown, alongside field search).
+  // Flat list — each option maps one-to-one to a getStatusLabel() output and
+  // is matched exactly (no buckets/sub-grouping).
   searchText: string = '';
   selectedStatus: string = 'All';
-  statusOptions: string[] = ['All', 'Pending', 'Approved', 'Rejected', 'Cancelled'];
+  statusOptions: string[] = [
+    'All',
+    'Pending',
+    'Incharge Approved (Waiting Manager)',
+    'Incharge Rejected',
+    'Manager Approved (Waiting HR)',
+    'Manager Rejected',
+    'HR Approved',
+    'HR Rejected',
+    'Cancelled',
+  ];
   private isHRRole(role: string): boolean {
     const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
@@ -242,27 +254,13 @@ export class LeaveRequest {
     this.applyFilters();
   }
 
-  /**
-   * Collapse the granular status labels (from getStatusLabel) into the four
-   * buckets shown in the filter: Pending / Approved / Rejected / Cancelled.
-   * Intermediate "Approved (Waiting …)" states count as Pending since the
-   * request isn't finalised yet.
-   */
-  getStatusCategory(leave: any): string {
-    const label = this.getStatusLabel(leave);
-    if (label === 'Cancelled') return 'Cancelled';
-    if (label.includes('Rejected')) return 'Rejected';
-    if (label === 'HR Approved') return 'Approved';
-    return 'Pending';
-  }
-
   /** Apply the status filter and field search together. */
   applyFilters() {
     let data = [...this.leaveData];
 
-    // Status filter
+    // Status filter — exact match against the granular getStatusLabel() value.
     if (this.selectedStatus && this.selectedStatus !== 'All') {
-      data = data.filter(leave => this.getStatusCategory(leave) === this.selectedStatus);
+      data = data.filter(leave => this.getStatusLabel(leave) === this.selectedStatus);
     }
 
     // Field search (only when a field is selected and text is entered)

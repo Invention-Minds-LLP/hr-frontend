@@ -73,6 +73,7 @@ import { Export } from './settings/export/export';
 import { PayrollOverview } from './payroll/payroll-overview/payroll-overview';
 import { WeeklyTrackerOverview } from './weekly-tracker/weekly-tracker-overview/weekly-tracker-overview';
 import { Masters } from './settings/masters/masters';
+import { IncidentCategoryAdmin } from './incident/incident-category-admin/incident-category-admin';
 import { EncashmentOverview } from './encashment/encashment-overview';
 import { CompOffOverview } from './comp-off/comp-off-overview';
 import { IncentivesOverview } from './incentives/incentives-overview';
@@ -146,13 +147,13 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'departments' },
       { path: 'departments', component: Masters },
-      { path: 'branches', component: Masters },
       { path: 'designations', component: Masters },
       { path: 'roles', component: Masters },
       { path: 'leave-types', component: Masters },
       { path: 'shift-templates', component: Masters },
       { path: 'holidays', component: Masters },
       { path: 'rating-questions', component: Masters },
+      { path: 'incident-categories', component: IncidentCategoryAdmin },
     ],
   },
 

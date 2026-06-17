@@ -4,6 +4,18 @@
   </div>
   <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
 
+  <!-- Pause banner: shown when the employee is currently paused. HR sees a
+       softer override notice; non-HR sees a hard block. -->
+  <div *ngIf="activePause" class="pause-banner">
+    <i class="pi pi-pause-circle"></i>
+    <div>
+      <strong>Appraisal paused</strong>
+      <span> &middot; since {{ activePause.startDate | date:'dd-MM-yyyy' }} &middot; {{ activePause.reason }}</span>
+      <div *ngIf="!isHRUser" class="pause-banner-sub">Submissions are disabled until HR ends the pause.</div>
+      <div *ngIf="isHRUser" class="pause-banner-sub">HR override allowed — submit will proceed.</div>
+    </div>
+  </div>
+
   <div class="grid mb-4" style="align-items:baseline;">
     <!-- Employee Name -->
     <div class="col-12 md:col-3">
@@ -238,8 +250,12 @@
     </div>
     <!-- Submit Button -->
     <div class="mt-4">
-      <button pButton class="new-app" label="Submit" icon="pi pi-check" [label]="isLoading ? 'Submitting': 'Submit'"
-        [loading]="isLoading" [disabled]="isLoading" (click)="onSubmit()"></button>
+      <button pButton class="new-app" label="Submit" icon="pi pi-check"
+        [label]="isLoading ? 'Submitting': (activePause && !isHRUser ? 'Paused — Submit Disabled' : 'Submit')"
+        [loading]="isLoading"
+        [disabled]="isLoading || (activePause && !isHRUser)"
+        [title]="activePause && !isHRUser ? 'Employee appraisal is paused' : ''"
+        (click)="onSubmit()"></button>
     </div>
   </div>
 </div>

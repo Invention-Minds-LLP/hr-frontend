@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div *ngIf="!selectedSummary" class="performance-container">
   <!-- New Appraisal Button -->
   <div class="flex justify-content-end align-items-center mb-4 flex1">
@@ -198,15 +200,30 @@
           <td>{{ s.marksScored || '-' }}</td>
           <td>{{ s.overallPerf || 'Draft' }}</td>
           <td>
-            <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)">Open</button>
-            <button *ngIf="!s.templateId && (role === 'HR' || role === 'HR Manager')"
-              class="btn assign-tpl-btn" (click)="openAssignTemplate(s)">
-              Assign Template
-            </button>
-            <button *ngIf="!s.templateId && !(role === 'HR' || role === 'HR Manager')"
-              class="btn" disabled title="HR must assign a template first">
-              No Template
-            </button>
+            <div class="action-cell">
+              <!-- TEMP: pause feature on hold — uncomment to re-enable
+              <span *ngIf="pauseStatus[s.employeeId]?.active" class="paused-badge" title="Appraisal paused">
+                <i class="pi pi-pause-circle"></i> Paused
+              </span>
+              -->
+              <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)">Open</button>
+              <button *ngIf="!s.templateId && (role === 'HR' || role === 'HR Manager')"
+                class="btn assign-tpl-btn" (click)="openAssignTemplate(s)">
+                Assign Template
+              </button>
+              <button *ngIf="!s.templateId && !(role === 'HR' || role === 'HR Manager')"
+                class="btn" disabled title="HR must assign a template first">
+                No Template
+              </button>
+              <!-- TEMP: pause feature on hold — uncomment to re-enable
+              <button *ngIf="role === 'HR' || role === 'HR Manager'"
+                class="btn pause-btn" (click)="openPauseDialog(s)"
+                [title]="pauseStatus[s.employeeId]?.active ? 'Currently paused — click to view / resume' : 'Pause appraisal clock'">
+                <i class="pi" [ngClass]="pauseStatus[s.employeeId]?.active ? 'pi-play' : 'pi-pause'"></i>
+                {{ pauseStatus[s.employeeId]?.active ? 'Resume' : 'Pause' }}
+              </button>
+              -->
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -341,3 +358,7 @@
       (click)="confirmAssignTemplate()"></button>
   </div>
 </p-dialog>
+
+<app-appraisal-pause-dialog [(visible)]="pauseDialogVisible"
+  [employeeId]="pauseEmployeeId" [employeeLabel]="pauseEmployeeLabel"
+  (changed)="onPauseChanged()"></app-appraisal-pause-dialog>

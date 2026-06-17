@@ -174,6 +174,7 @@ button {
 /* Detail view */
 .detail-body {
   padding: 0.5rem;
+  color: #fff;
 }
 
 .detail-header {
@@ -185,11 +186,12 @@ button {
   gap: 8px;
   margin-bottom: 6px;
   font-size: 14px;
+  color: #e6e6e6;
 }
 
 .detail-label {
   font-weight: 600;
-  color: #555;
+  color: #aaa;
   min-width: 120px;
 }
 
@@ -201,19 +203,20 @@ button {
 }
 
 .approval-card {
-  background: #f8f9fa;
+  background: #1a1a1a;
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 13px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #2e2e2e;
   flex: 1;
   min-width: 200px;
+  color: #e0e0e0;
 }
 
 .approval-note {
   margin: 4px 0 0;
   font-style: italic;
-  color: #666;
+  color: #999;
   font-size: 12px;
 }
 
@@ -222,3 +225,132 @@ button {
   font-family: "Sofia Sans";
   color: black !important;
 }
+
+/* ── Task cards (detail popup) ──────────────────────────────────────────── */
+.tasks-title { margin: 1rem 0 0.6rem; color: #fff; font-size: 16px; font-weight: 700; }
+.task-cards { display: flex; flex-direction: column; gap: 10px; }
+.task-card {
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.task-card-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.task-num { color: #888; font-weight: 700; font-size: 13px; }
+.task-date { color: #ccc; font-size: 13px; font-weight: 600; }
+.task-pct { margin-left: auto; color: #FB9C2A; font-weight: 700; font-size: 13px; }
+.task-desc { color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.task-meta { display: flex; flex-wrap: wrap; gap: 14px; color: #aaa; font-size: 12.5px; }
+.task-meta i { color: #777; margin-right: 5px; }
+.task-remarks { margin-top: 8px; color: #bbb; font-size: 12.5px; }
+.task-empty { color: #888; text-align: center; padding: 1.5rem; }
+
+/* ── Carry-forward history timeline ─────────────────────────────────────── */
+.cf-history-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 5px;
+}
+.cf-history-btn:hover { color: #FB9C2A; background: #232323; }
+.cf-loading, .cf-empty { color: #888; padding: 1rem 0.25rem; font-size: 13px; }
+.cf-timeline { display: flex; flex-direction: column; }
+.cf-step { display: flex; gap: 12px; }
+.cf-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #FB9C2A; margin-top: 4px; flex-shrink: 0;
+  position: relative;
+}
+.cf-step:not(:last-child) .cf-dot::after {
+  content: ''; position: absolute; left: 50%; top: 12px;
+  transform: translateX(-50%); width: 2px; height: calc(100% + 10px);
+  background: #3a3a3a;
+}
+.cf-step-body { padding-bottom: 16px; }
+.cf-week { color: #fff; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 8px; }
+.cf-pct { color: #FB9C2A; font-weight: 700; }
+.cf-task { color: #bbb; font-size: 12.5px; margin-top: 3px; }
+
+/* ── Activity timeline ──────────────────────────────────────────────────── */
+.activity-list { display: flex; flex-direction: column; gap: 8px; }
+.activity-item { display: flex; gap: 10px; align-items: flex-start; }
+.act-badge {
+  flex-shrink: 0; padding: 2px 8px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; min-width: 92px; text-align: center;
+}
+.act-neutral { background: #2a2a2a; color: #ccc; }
+.act-approved { background: #d4edda; color: #155724; }
+.act-declined { background: #f8d7da; color: #721c24; }
+.act-carried { background: #fff3cd; color: #856404; }
+.act-body { display: flex; flex-direction: column; }
+.act-line { color: #e6e6e6; font-size: 13px; }
+.act-by { font-weight: 600; }
+.act-detail { color: #aaa; }
+.act-time { color: #777; font-size: 11.5px; margin-top: 1px; }
+
+/* ── List table — appraisal-table design, orange accent header ──────────── */
+:host ::ng-deep .table-container .p-datatable .p-datatable-thead > tr {
+  background: linear-gradient(96deg, #FB9C2A 0%, #FFD79E 100%) !important;
+}
+:host ::ng-deep .table-container .p-datatable .p-datatable-thead > tr > th {
+  background: transparent !important;
+  color: #000 !important;
+  font-family: "Sofia Sans" !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  border: none !important;
+  padding: 14px 16px !important;
+  white-space: nowrap !important;
+}
+:host ::ng-deep .table-container .p-datatable .p-datatable-thead > tr > th:first-child { border-top-left-radius: 14px !important; }
+:host ::ng-deep .table-container .p-datatable .p-datatable-thead > tr > th:last-child { border-top-right-radius: 14px !important; }
+
+:host ::ng-deep .table-container .p-datatable .p-datatable-tbody > tr {
+  background: rgba(85, 85, 85, 0.4) !important;
+}
+:host ::ng-deep .table-container .p-datatable .p-datatable-tbody > tr > td {
+  background: transparent !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  border: none !important;
+  border-bottom: 1px solid #727272 !important;
+  padding: 12px 16px !important;
+}
+:host ::ng-deep .table-container .p-datatable .p-datatable-tbody > tr:last-child > td { border-bottom: none !important; }
+.action-cell { justify-content: center; }
+:host ::ng-deep .table-container .p-paginator { background: transparent !important; color: #ccc !important; }
+
+/* ── Dialogs — match the module's dark dialogs (individual / PIP) ───────── */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #1a1a1a !important;
+  color: #fff !important;
+  border-bottom: 1px solid #333 !important;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 14px 20px !important;
+  font-family: "Sofia Sans" !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-title { color: #fff !important; font-weight: 700 !important; }
+:host ::ng-deep .p-dialog .p-dialog-header-icon { color: #aaa !important; }
+:host ::ng-deep .p-dialog .p-dialog-header-icon:hover { color: #fff !important; background: #333 !important; }
+:host ::ng-deep .p-dialog .p-dialog-content { background: #111 !important; color: #fff !important; padding: 16px 20px !important; }
+:host ::ng-deep .p-dialog .p-dialog-footer { background: #1a1a1a !important; border-top: 1px solid #333 !important; padding: 10px 20px !important; border-radius: 0 0 10px 10px !important; }
+
+/* Dialog inputs — dark (override the global white .p-inputtext rule above) */
+:host ::ng-deep .p-dialog .p-inputtext,
+:host ::ng-deep .p-dialog .p-select,
+:host ::ng-deep .p-dialog textarea {
+  background: #1f1f1f !important;
+  color: #fff !important;
+  border: 1px solid #3a3a3a !important;
+}
+:host ::ng-deep .p-dialog .p-select-label { color: #fff !important; }
+:host ::ng-deep .p-dialog .p-inputtext::placeholder,
+:host ::ng-deep .p-dialog textarea::placeholder { color: #888 !important; }
+:host ::ng-deep .p-dialog .p-inputtext:focus,
+:host ::ng-deep .p-dialog .p-select:not(.p-disabled).p-focus,
+:host ::ng-deep .p-dialog textarea:focus { border-color: #FB9C2A !important; box-shadow: none !important; }

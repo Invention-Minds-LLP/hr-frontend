@@ -4,6 +4,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 .ica-shell {
+  /* Kept for the dialog below (it renders inside this host and uses these vars) */
   --ica-card:      #0f1419;
   --ica-soft:      #161c24;
   --ica-border:    rgba(148, 163, 184, 0.18);
@@ -18,175 +19,137 @@
   --ica-warn:      #f59e0b;
   --ica-danger:    #ef4444;
 
-  background:
-    radial-gradient(1200px 320px at -10% -40%, rgba(96,165,250,0.08), transparent 60%),
-    var(--ica-card);
-  border: 1px solid var(--ica-border);
-  border-left: 4px solid var(--ica-accent);
-  border-radius: 14px;
-  padding: 20px 22px;
-  color: var(--ica-text);
+  padding: 20px 60px 40px;
+  color: #fff;
   font-family: 'Sofia Sans', sans-serif;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-/* ── Head ───────────────────────────────────────── */
-.ica-head {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
-}
-.ica-head h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--ica-strong);
-}
 .ica-sub {
-  margin: 6px 0 0;
+  margin: 0 0 8px;
   font-size: 0.86rem;
-  color: var(--ica-muted);
-  max-width: 580px;
+  color: #94a3b8;
+  max-width: 760px;
   line-height: 1.5;
 }
-.ica-new-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg, var(--ica-accent), var(--ica-accent-2));
-  color: #ffffff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-  transition: transform 0.15s, box-shadow 0.15s;
+
+/* ── Header bar — matches the other masters ─────────────────────────── */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
 }
-.ica-new-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+.table-header h4 {
+  margin: 0;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 20px;
+  font-weight: 600;
 }
 
-/* ── Table ──────────────────────────────────────── */
-::ng-deep .ica-table .p-datatable-table { background: transparent; }
-::ng-deep .ica-table .p-datatable-thead > tr > th {
-  background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.02));
-  color: #93c5fd;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+/* ── Action buttons (masters style) ─────────────────────────────────── */
+.action-cell { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.btn-icon {
+  width: 32px; height: 32px;
+  padding: 0;
+  border-radius: 6px;
   border: none;
-  border-bottom: 1px solid rgba(96, 165, 250, 0.22);
-  padding: 12px 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: opacity 0.2s;
 }
-::ng-deep .ica-table .p-datatable-tbody > tr > td {
-  background: transparent;
-  color: var(--ica-text);
-  border: none;
-  border-bottom: 1px solid var(--ica-border);
-  padding: 12px 14px;
-  font-size: 0.88rem;
-  vertical-align: middle;
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.edit   { background: #fff3e0; color: #e65100; }
+.btn-icon.toggle { background: #e2e3e5; color: #383d41; }
+
+/* ── Table — matching the other masters ─────────────────────────────── */
+::ng-deep .master-table .p-datatable { border: none; background: transparent; }
+::ng-deep .master-table .p-datatable .p-datatable-thead > tr > th {
+  background: #dcdcdc !important;
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 5px;
+  border: none !important;
+  height: 60px !important;
+  text-align: center !important;
+  text-wrap: nowrap;
 }
-::ng-deep .ica-table .p-datatable-tbody > tr:nth-child(even) > td {
-  background: rgba(255, 255, 255, 0.018);
+::ng-deep .master-table .p-datatable .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 10px; border-bottom-left-radius: 10px;
 }
-::ng-deep .ica-table .p-datatable-tbody > tr:hover > td {
-  background: rgba(96, 165, 250, 0.10);
+::ng-deep .master-table .p-datatable .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 10px; border-bottom-right-radius: 10px;
 }
+::ng-deep .master-table .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: center !important;
+  border: none !important;
+  border-bottom: 2px solid #d9d9d9 !important;
+  text-wrap: nowrap;
+}
+::ng-deep .master-table .p-datatable .p-datatable-tbody > tr:hover > td { background: #1a1a1a !important; }
 .ica-row-archived td { opacity: 0.55; }
 
-.ica-cat strong { color: var(--ica-strong); display: block; }
+::ng-deep .master-table .p-paginator {
+  display: flex; justify-content: center; gap: 4px;
+  margin-top: 1rem; padding: 0.5rem; background: transparent; border: none;
+}
+::ng-deep .master-table .p-paginator .p-paginator-page,
+::ng-deep .master-table .p-paginator .p-paginator-first,
+::ng-deep .master-table .p-paginator .p-paginator-prev,
+::ng-deep .master-table .p-paginator .p-paginator-next,
+::ng-deep .master-table .p-paginator .p-paginator-last {
+  width: 40px; height: 40px; border-radius: 8px;
+  background: #fff; color: #333; font-weight: 600; font-size: 13px; border: none;
+}
+::ng-deep .master-table .p-paginator .p-paginator-page.p-highlight {
+  background: #FB9C2A !important; color: white !important;
+}
+
+/* Category name cell */
+.ica-cat strong { color: #fff; display: block; }
 .ica-cat-desc {
   display: block;
   font-size: 0.78rem;
-  color: var(--ica-muted);
+  color: #9aa4b2;
   margin-top: 2px;
-  max-width: 380px;
+  max-width: 420px;
+  white-space: normal;
 }
 
-/* Severity chip */
+/* ── Badges — pill palette consistent with the other masters/trackers ── */
 .ica-sev {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-  white-space: nowrap;
+  display: inline-block; padding: 3px 10px; border-radius: 10px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; white-space: nowrap;
 }
-.ica-sev.sev-critical { background: rgba(239,68,68,0.22);  color: #fca5a5; border-color: rgba(239,68,68,0.5); }
-.ica-sev.sev-high     { background: rgba(245,101,101,0.18); color: #fda4af; border-color: rgba(245,101,101,0.4); }
-.ica-sev.sev-medium   { background: rgba(245,158,11,0.16); color: #fcd34d; border-color: rgba(245,158,11,0.4); }
-.ica-sev.sev-low      { background: rgba(96,165,250,0.16); color: #93c5fd; border-color: rgba(96,165,250,0.4); }
-.ica-sev.sev-none     { background: rgba(148,163,184,0.12); color: var(--ica-muted); border-color: var(--ica-border); }
+.ica-sev.sev-critical { background: #f8d7da; color: #721c24; }
+.ica-sev.sev-high     { background: #f8d7da; color: #721c24; }
+.ica-sev.sev-medium   { background: #fff3cd; color: #856404; }
+.ica-sev.sev-low      { background: #d1ecf1; color: #0c5460; }
+.ica-sev.sev-none     { background: #e2e3e5; color: #383d41; }
 
-/* Yes/No flag pill */
 .ica-flag {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: rgba(148, 163, 184, 0.14);
-  color: var(--ica-muted);
-  border: 1px solid var(--ica-border);
+  display: inline-block; padding: 3px 10px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; background: #e2e3e5; color: #383d41;
 }
-.ica-flag.ica-yes {
-  background: rgba(34, 197, 94, 0.16);
-  color: #86efac;
-  border-color: rgba(34, 197, 94, 0.4);
-}
+.ica-flag.ica-yes { background: #d4edda; color: #155724; }
 
-/* Active/Archived */
 .ica-status {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: rgba(148, 163, 184, 0.14);
-  color: var(--ica-muted);
-  border: 1px solid var(--ica-border);
+  display: inline-block; padding: 3px 10px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; background: #f8d7da; color: #721c24;
 }
-.ica-status.ica-active {
-  background: rgba(96, 165, 250, 0.16);
-  color: #93c5fd;
-  border-color: rgba(96, 165, 250, 0.42);
-}
-
-/* Action buttons */
-.ica-actions { display: inline-flex; gap: 6px; justify-content: center; }
-.ica-edit-btn,
-.ica-archive-btn {
-  background: var(--ica-soft);
-  border: 1px solid var(--ica-border);
-  color: var(--ica-text);
-  width: 32px; height: 32px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
-}
-.ica-edit-btn:hover {
-  border-color: var(--ica-border-hi);
-  background: var(--ica-tint);
-  color: var(--ica-accent);
-}
-.ica-archive-btn:hover {
-  border-color: rgba(245, 158, 11, 0.45);
-  background: rgba(245, 158, 11, 0.12);
-  color: #fcd34d;
-}
+.ica-status.ica-active { background: #d4edda; color: #155724; }
 
 .ica-empty {
-  padding: 36px;
+  padding: 2rem;
   text-align: center;
-  color: var(--ica-muted);
-  font-style: italic;
+  color: #888;
 }
 
 /* ─────────────────────────────────────────────────

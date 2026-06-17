@@ -132,6 +132,33 @@ form{
   border-radius: 20px;
 }
 
+/* Section heading + divider inside the filter dropdown */
+.filter-dropdown .menu-heading {
+  padding: 0.35rem 1rem 0.2rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #9b9b9b;
+  cursor: default;
+}
+
+.filter-dropdown .menu-heading:hover {
+  background: transparent;
+}
+
+.filter-dropdown .menu-divider {
+  height: 1px;
+  margin: 0.3rem 0.5rem;
+  padding: 0;
+  background: #ddd;
+  cursor: default;
+}
+
+.filter-dropdown .menu-divider:hover {
+  background: #ddd;
+}
+
 /* Table Container */
 .table {
   /* background: #f4f6f8; */
@@ -245,6 +272,34 @@ form{
   font-weight: 500;
   color: #FFFFFF;
   cursor: pointer;
+}
+
+/* Pause / Resume button */
+.btn.pause-btn {
+  border-color: #7c8bff;
+  color: #7c8bff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn.pause-btn:hover {
+  background: rgba(124, 139, 255, 0.12);
+}
+
+/* Paused badge shown next to actions when the employee's clock is paused */
+.paused-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(251, 156, 42, 0.18);
+  color: #FB9C2A;
+  border: 1px solid #FB9C2A;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Paginator */

@@ -11,7 +11,7 @@
  *  primary key, NOT the display employeeCode like "EMP001". */
 export const MGMT_DASHBOARD_EMPID_ALLOWLIST: number[] = [
   // TODO: add the empId here, e.g.  42,
-  4,8
+  4,1
 ];
 
 /** True if the currently-logged-in user can see the Management Dashboard.

@@ -57,6 +57,11 @@ export class WeeklyTrackerOverview implements OnInit {
   detailReport: any = null;
   detailTasks: any[] = [];
 
+  // Carry-forward history
+  historyDialogVisible = false;
+  historyLoading = false;
+  historyEntries: any[] = [];
+
   // Edit
   editReport: any = null;
 
@@ -100,6 +105,9 @@ export class WeeklyTrackerOverview implements OnInit {
     this.loading = true;
     const params: any = {};
     if (this.statusFilter) params.status = this.statusFilter;
+    // Incharge / Reporting Manager see only their own team's reports
+    if (this.isIncharge) params.inchargeId = this.loggedEmpId;
+    else if (this.isReportingManager) params.reportingManagerId = this.loggedEmpId;
 
     this.trackerService.getReports(params).subscribe({
       next: (res) => {
@@ -146,6 +154,22 @@ export class WeeklyTrackerOverview implements OnInit {
       case 'REJECTED': return 'status-rejected';
       default: return '';
     }
+  }
+
+  // Owner can edit until an approver acts: DRAFT, REJECTED, or SUBMITTED-and-untouched.
+  isEditable(report: any): boolean {
+    if (!report) return false;
+    if (report.status === 'DRAFT' || report.status === 'REJECTED') return true;
+    if (report.status === 'SUBMITTED') {
+      return report.inChargeDecision === 'PENDING'
+        && report.hodDecision === 'PENDING'
+        && report.hrDecision === 'PENDING';
+    }
+    return false;
+  }
+
+  submitLabel(report: any): string {
+    return report?.status === 'DRAFT' ? 'Submit' : 'Resubmit';
   }
 
   // ── View Detail ────────────────────────────────────────────────────────────
@@ -206,10 +230,13 @@ export class WeeklyTrackerOverview implements OnInit {
     if (report.status !== 'SUBMITTED') return false;
     const empRoleId = report.employee?.roleId;
     const empDeptId = report.employee?.departmentId;
-    const hasIncharge = !!report.employee?.inchargeId;
+    const inchargeId = report.employee?.inchargeId;
+    const reportingManagerId = report.employee?.reportingManager;
+    const hasIncharge = !!inchargeId;
 
-    // Incharge approval
-    if (hasIncharge && report.inChargeDecision === 'PENDING' && this.isIncharge) return true;
+    // Incharge approval — only this employee's own incharge
+    if (hasIncharge && report.inChargeDecision === 'PENDING' && this.isIncharge)
+      return inchargeId === this.loggedEmpId;
 
     // Skip incharge level if already approved or no incharge
     if (hasIncharge && report.inChargeDecision !== 'APPROVED') return false;
@@ -220,8 +247,9 @@ export class WeeklyTrackerOverview implements OnInit {
     if (empRoleId === 1 && this.isManagement) return true;
     // HOD/Senior HOD -> Management
     if ((empRoleId === 3 || empRoleId === 5) && this.isManagement && report.hodDecision === 'PENDING') return true;
-    // Normal employee -> Reporting Manager
-    if (empRoleId === 2 && this.isReportingManager && report.hodDecision === 'PENDING') return true;
+    // Normal employee -> Reporting Manager (only this employee's own manager)
+    if (empRoleId === 2 && this.isReportingManager && report.hodDecision === 'PENDING')
+      return reportingManagerId === this.loggedEmpId;
 
     return false;
   }
@@ -304,6 +332,37 @@ export class WeeklyTrackerOverview implements OnInit {
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Decline failed' });
+      }
+    });
+  }
+
+  actLabel(a: string): string {
+    return ({
+      CREATED: 'Created', SUBMITTED: 'Submitted', RESUBMITTED: 'Resubmitted', EDITED: 'Edited',
+      TASK_ADDED: 'Task added', TASK_UPDATED: 'Task updated', TASK_DELETED: 'Task deleted',
+      APPROVED: 'Approved', DECLINED: 'Declined', CARRIED_FORWARD: 'Carried forward'
+    } as any)[a] || a;
+  }
+
+  actClass(a: string): string {
+    if (a === 'APPROVED') return 'act-approved';
+    if (a === 'DECLINED') return 'act-declined';
+    if (a === 'CARRIED_FORWARD') return 'act-carried';
+    return 'act-neutral';
+  }
+
+  openHistory(task: any) {
+    this.historyDialogVisible = true;
+    this.historyLoading = true;
+    this.historyEntries = [];
+    this.trackerService.getTaskHistory(task.id).subscribe({
+      next: (res) => {
+        this.historyEntries = res?.history || [];
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.historyLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load history' });
       }
     });
   }

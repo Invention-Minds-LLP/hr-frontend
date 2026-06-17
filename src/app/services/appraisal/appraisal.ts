@@ -110,4 +110,26 @@ export class Appraisal {
   getEmployeeInsights(appraisalId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${appraisalId}/insights`);
   }
+
+  // Appraisal pauses (maternity, long medical leave, sabbatical). One pause
+  // covers BOTH managerial appraisal and dept performance clocks.
+  listEmployeePauses(employeeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/employees/${employeeId}/pauses`);
+  }
+
+  getActivePause(employeeId: number): Observable<{ active: any | null }> {
+    return this.http.get<{ active: any | null }>(`${this.apiUrl}/employees/${employeeId}/pauses/active`);
+  }
+
+  startPause(employeeId: number, body: { startDate: string; endDate?: string | null; reason: string; createdBy: number }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/employees/${employeeId}/pauses`, body);
+  }
+
+  updatePause(pauseId: number, body: { startDate?: string; endDate?: string | null; reason?: string; endedBy?: number }): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/pauses/${pauseId}`, body);
+  }
+
+  deletePause(pauseId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/pauses/${pauseId}`);
+  }
 }

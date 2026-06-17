@@ -2,23 +2,21 @@
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <header class="ica-head">
-    <div>
-      <h2>Incident Categories</h2>
-      <p class="ica-sub">
-        Categories drive auto-assignment, SLA, default severity, and which channels
-        accept anonymous reports. Edit carefully — these settings affect every new
-        incident going forward.
-      </p>
-    </div>
-    <button class="ica-new-btn" type="button" (click)="openNew()">
-      <i class="pi pi-plus"></i> New Category
-    </button>
-  </header>
+  <p class="ica-sub">
+    Categories drive auto-assignment, SLA, default severity, and which channels
+    accept anonymous reports. Edit carefully — these settings affect every new
+    incident going forward.
+  </p>
+
+  <div class="table-header">
+    <h4>Incident Categories</h4>
+    <button pButton label="New Category" icon="pi pi-plus" class="p-button-sm p-button-success"
+      (click)="openNew()"></button>
+  </div>
 
   <!-- ── Table ──────────────────────────────────── -->
-  <p-table [value]="rows" [loading]="loading" styleClass="ica-table"
-           [paginator]="rows.length > 12" [rows]="12" responsiveLayout="scroll">
+  <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm" class="master-table"
+           [paginator]="rows.length > 12" [rows]="12" [scrollable]="true">
     <ng-template pTemplate="header">
       <tr>
         <th style="width:60px;">#</th>
@@ -71,12 +69,12 @@
           </span>
         </td>
         <td style="text-align:center;">
-          <div class="ica-actions">
-            <button class="ica-edit-btn" type="button" (click)="openEdit(row)"
+          <div class="action-cell">
+            <button class="btn-icon edit" type="button" (click)="openEdit(row)"
                     pTooltip="Edit" tooltipPosition="top">
               <i class="pi pi-pencil"></i>
             </button>
-            <button class="ica-archive-btn" type="button" (click)="toggleActive(row)"
+            <button class="btn-icon toggle" type="button" (click)="toggleActive(row)"
                     [pTooltip]="row.isActive ? 'Archive' : 'Re-enable'" tooltipPosition="top">
               <i [class]="row.isActive ? 'pi pi-eye-slash' : 'pi pi-undo'"></i>
             </button>

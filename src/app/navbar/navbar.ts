@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { PopUp } from "../pop-up/pop-up";
 import { AnnouncementForm } from "../announcements/announcement-form/announcement-form";
 import { ResignationForm } from "../resignation/resignation-form/resignation-form";
-// import { environment } from '../../../environment/environment';
+import { environment } from '../../environment/environment.prod';
 import { Notifications } from '../services/notifications/notifications';
 import { Announcements, } from '../services/announcement/announcements';
 import { canAccessManagementDashboard } from '../shared/access-rules';
@@ -57,6 +57,10 @@ export class Navbar {
   isIncharge = false;
   isHRManager = false;
   isManagement = false;
+  // Per-client module flags (set in environment): show these nav items only for
+  // clients that have the module (e.g. IM). Off for others (e.g. JMRH).
+  readonly payrollEnabled = environment.payrollEnabled;
+  readonly weeklyTrackerEnabled = environment.weeklyTrackerEnabled;
   roleId = localStorage.getItem('roleId') || '';
   deptId = Number(localStorage.getItem('deptId')) || 0;
   executiveRoleId = Number(localStorage.getItem('roleId')) || 0;

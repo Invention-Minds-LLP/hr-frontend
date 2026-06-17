@@ -146,6 +146,42 @@
   background: rgba(251, 156, 42, 0.12);
 }
 
+/* Inline action cell — keeps badge + buttons on one row */
+.action-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Pause / Resume button */
+.btn.pause-btn {
+  border-color: #7c8bff;
+  color: #7c8bff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn.pause-btn:hover {
+  background: rgba(124, 139, 255, 0.12);
+}
+
+/* Paused badge shown next to the action when the employee's clock is paused */
+.paused-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(251, 156, 42, 0.18);
+  color: #FB9C2A;
+  border: 1px solid #FB9C2A;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .heading {
   font-size: 24px;
   font-weight: 600;

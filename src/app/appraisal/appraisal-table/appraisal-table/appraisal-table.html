@@ -17,9 +17,21 @@
         <i class="pi pi-filter"></i>
 
         <ul id="filterDropdown" class="filter-dropdown" *ngIf="showFilterDropdown">
+          <!-- Search by field -->
+          <li class="menu-heading">Search by</li>
           <li class="list" *ngFor="let option of filterOptions" (click)="selectFilter(option); $event.stopPropagation()"
             [ngClass]="{ 'active': selectedFilter?.value === option.value }">
             {{ option.label }}
+          </li>
+
+          <li class="menu-divider"></li>
+
+          <!-- Filter by status -->
+          <li class="menu-heading">Status</li>
+          <li class="list" *ngFor="let status of statusOptions"
+            (click)="selectStatus(status); $event.stopPropagation()"
+            [ngClass]="{ 'active': selectedStatus === status }">
+            {{ status }}
           </li>
         </ul>
       </div>
@@ -189,7 +201,17 @@
               </span>
             </td>
             <td>
-              <div class="flex gap-2">
+              <div class="flex gap-2 align-items-center">
+                <!-- TEMP: pause feature on hold — uncomment to re-enable
+                <span *ngIf="pauseStatus[appraisal.employeeId]?.active" class="paused-badge" title="Appraisal paused">
+                  <i class="pi pi-pause-circle"></i> Paused
+                </span>
+                <button class="btn pause-btn" *ngIf="isHRManager || isHRExecutive" (click)="openPauseDialog(appraisal)"
+                  [pTooltip]="pauseStatus[appraisal.employeeId]?.active ? 'Currently paused — click to view / resume' : 'Pause appraisal clock'">
+                  <i class="pi" [ngClass]="pauseStatus[appraisal.employeeId]?.active ? 'pi-play' : 'pi-pause'"></i>
+                  {{ pauseStatus[appraisal.employeeId]?.active ? 'Resume' : 'Pause' }}
+                </button>
+                -->
                 <!-- Assigned manager (Reporting Manager or HR Manager for HR dept employees) fills form for their direct reports -->
                 <button class="btn verify-btn" *ngIf="(loggedRoleId === 3 || appraisal.managerId === loggedEmployeeId) && appraisal.employeeId !== loggedEmployeeId && !['AUTO_DRAFT', 'Draft'].includes(appraisal.status) && !appraisal.managerAppraisalSubmittedAt" (click)="onEditClick(appraisal)" pTooltip="Fill your Manager review">Fill Review</button>
                 <button class="btn view-btn" *ngIf="canManagerView(appraisal)" (click)="onManagerViewClick(appraisal)" pTooltip="View your submitted Manager review">View My Review</button>
@@ -743,3 +765,7 @@
       [disabled]="!managementEditRequestReason.trim()" [loading]="managementEditLoading"></button>
   </ng-template>
 </p-dialog>
+
+<app-appraisal-pause-dialog [(visible)]="pauseDialogVisible"
+  [employeeId]="pauseEmployeeId" [employeeLabel]="pauseEmployeeLabel"
+  (changed)="onPauseChanged()"></app-appraisal-pause-dialog>

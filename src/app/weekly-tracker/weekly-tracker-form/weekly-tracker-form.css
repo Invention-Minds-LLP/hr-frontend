@@ -36,14 +36,16 @@
 }
 
 .report-section {
-  background: white;
+  background: #141414;
+  border: 1px solid #262626;
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
 }
 
 .tasks-section {
-  background: white;
+  background: #141414;
+  border: 1px solid #262626;
   border-radius: 12px;
   padding: 24px;
 }
@@ -57,7 +59,7 @@
 
 .section-header h4 {
   margin: 0;
-  color: #333;
+  color: #fff;
   font-size: 18px;
 }
 
@@ -86,7 +88,7 @@
 .field label {
   margin-bottom: 6px;
   font-weight: 600;
-  color: #333;
+  color: #fff;
   font-size: 14px;
 }
 
@@ -175,3 +177,84 @@
 .btn-icon:hover { opacity: 0.8; }
 .btn-icon.edit { background: #fff3e0; color: #e65100; }
 .btn-icon.delete { background: #fce4ec; color: #c62828; }
+
+/* ── Task dialog — match app dark dialog theme (see individual/PIP dialogs) ─ */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #1a1a1a !important;
+  color: white !important;
+  border-bottom: 1px solid #333 !important;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 14px 20px !important;
+  font-family: "Sofia Sans" !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-title {
+  color: white !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  font-family: "Sofia Sans" !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-header-icon { color: #aaa !important; }
+:host ::ng-deep .p-dialog .p-dialog-header-icon:hover { color: white !important; background: #333 !important; }
+:host ::ng-deep .p-dialog .p-dialog-content {
+  background: #111 !important;
+  color: white !important;
+  padding: 16px 20px !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  background: #1a1a1a !important;
+  border-top: 1px solid #333 !important;
+  padding: 10px 20px !important;
+  border-radius: 0 0 10px 10px !important;
+}
+
+/* Labels read on the dark dialog body */
+.task-form-grid .field label { color: #fff; }
+
+/* ── Inputs (report section + dialog) — dark, not white ─────────────────── */
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-autocomplete-input,
+:host ::ng-deep textarea {
+  background: #1f1f1f !important;
+  color: #fff !important;
+  border: 1px solid #3a3a3a !important;
+}
+:host ::ng-deep .p-select-label { color: #fff !important; }
+:host ::ng-deep .p-inputtext::placeholder,
+:host ::ng-deep textarea::placeholder { color: #888 !important; }
+:host ::ng-deep .p-inputtext:focus,
+:host ::ng-deep .p-select:not(.p-disabled).p-focus,
+:host ::ng-deep textarea:focus {
+  border-color: #FB9C2A !important;
+  box-shadow: none !important;
+}
+/* Datepicker calendar trigger button — no white box */
+:host ::ng-deep .p-datepicker-trigger,
+:host ::ng-deep .p-datepicker .p-button {
+  background: #1f1f1f !important;
+  border: 1px solid #3a3a3a !important;
+  border-left: none !important;
+  color: #ccc !important;
+}
+:host ::ng-deep .p-datepicker-trigger:hover,
+:host ::ng-deep .p-datepicker .p-button:hover {
+  background: #2a2a2a !important;
+  color: #FB9C2A !important;
+}
+
+/* ── Tasks table — dark on the dark card ────────────────────────────────── */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #1f1f1f !important;
+  color: #fff !important;
+  border-color: #2e2e2e !important;
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background: transparent !important;
+  color: #e0e0e0 !important;
+  border-color: #2e2e2e !important;
+}

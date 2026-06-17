@@ -4,6 +4,35 @@
       --p-floatlabel-active-color:#ffff;
 }
 
+.pause-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(251, 156, 42, 0.12);
+  border: 1px solid #FB9C2A;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.pause-banner > i {
+  color: #FB9C2A;
+  font-size: 22px;
+  margin-top: 2px;
+}
+
+.pause-banner strong {
+  color: #FB9C2A;
+  font-size: 15px;
+}
+
+.pause-banner-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #c4c4c4;
+}
+
 ::ng-deep .p-inputtext, .p-textarea, .p-select{
     width: 100%;
     background-color: transparent !important;
