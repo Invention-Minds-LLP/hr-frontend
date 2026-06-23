@@ -168,6 +168,9 @@
                         <div class="name">{{ employee?.firstName }} {{ employee?.lastName }}</div>
                         <div class="role">{{ employee?.designation?.name }}</div>
                         <div class="code">{{ employee?.employeeCode }}</div>
+                        <div class="reporting-mgr" *ngIf="reportingManagerName">
+                            Reporting Manager: {{ reportingManagerName }}
+                        </div>
 
                         <button pButton label="Take Survey" class="survey-btn"
                             (click)="pendingSurveys.length > 0 && openSurveyForm(pendingSurveys[0])">
@@ -214,8 +217,6 @@
                     <div class="detail"><strong>Email:</strong> {{ employee?.email }}</div>
                     <hr />
                     <div class="detail"><strong>Department:</strong> {{ employee?.departmentName }}</div>
-                    <hr />
-                    <div class="detail"><strong>Reporting Manager:</strong> {{ reportingManagerName || '-' }}</div>
                     <hr />
                     <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd-MM-yyyy' }}</div>
                     <hr />

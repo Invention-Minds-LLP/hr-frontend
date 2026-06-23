@@ -1671,6 +1671,19 @@ h1 {
   margin-top: 12px;
 }
 
+.reporting-mgr {
+  color: #cfcfcf;
+  font-family: "Sofia Sans";
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+  margin-top: 10px;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .survey-btn {
   margin-top: 32px;
   width: 150px;
