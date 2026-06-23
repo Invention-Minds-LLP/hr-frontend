@@ -48,7 +48,7 @@
           
           <td>
             <div class="flex align-items-center gap-2 empname">
-               <img *ngIf="interview.photoUrl; else defaultPhoto" [src]="interview.photoUrl" alt="Profile" />
+               <img *ngIf="interview.photoUrl; else defaultPhoto" [src]="interview.photoUrl | fileUrl" alt="Profile" />
                     <ng-template #defaultPhoto>
                         <img style="background-color: white;" [src]="getDefaultImage(interview?.gender)"
                             alt="Default Profile" />

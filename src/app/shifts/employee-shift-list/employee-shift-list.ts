@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Shifts } from '../../services/shifts/shifts';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 @Component({
   selector: 'app-employee-shift-list',
@@ -26,7 +27,8 @@ import { SkeletonModule } from 'primeng/skeleton';
     TagModule,
     InputTextModule,
     CardModule,
-    SkeletonModule
+    SkeletonModule,
+    FileUrlPipe
   ],
   templateUrl: './employee-shift-list.html',
   styleUrl: './employee-shift-list.css',

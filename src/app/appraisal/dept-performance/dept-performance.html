@@ -176,7 +176,7 @@
           <td>{{ i + 1 }}</td>
           
           <td class="empname">
-            <img *ngIf="s.photoUrl; else defaultPhoto" [src]="s.photoUrl" alt="Profile" />
+            <img *ngIf="s.photoUrl; else defaultPhoto" [src]="s.photoUrl | fileUrl" alt="Profile" />
             <ng-template #defaultPhoto>
               <img style="background-color: white;" [src]="getDefaultImage(s?.gender)" alt="Default Profile" />
             </ng-template>

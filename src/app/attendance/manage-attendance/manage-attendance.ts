@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { AttendanceCalendar } from '../../services/attendance-calendar/attendance-calendar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Departments } from '../../services/departments/departments';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 interface Attendance {
   empName: string;
@@ -28,7 +29,7 @@ interface Attendance {
   selector: 'app-manage-attendance',
   imports: [InputIconModule, IconFieldModule, InputTextModule,
     FloatLabelModule, FormsModule, TableModule, CommonModule,
-    SkeletonModule],
+    SkeletonModule, FileUrlPipe],
   templateUrl: './manage-attendance.html',
   styleUrl: './manage-attendance.css'
 })

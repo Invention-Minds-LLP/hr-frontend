@@ -18,13 +18,14 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { FileUrlPipe } from '../../../pipes/file-url.pipe';
 
 export type BucketKey = 'today' | 'thisWeek' | 'nextMonth';
 
 
 @Component({
   selector: 'app-leave-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup, SkeletonModule, ButtonModule, ToastModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, LeavePopup, SkeletonModule, ButtonModule, ToastModule, FileUrlPipe],
   templateUrl: './leave-request.html',
   styleUrl: './leave-request.css',
   providers: [MessageService]

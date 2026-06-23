@@ -13,6 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { DialogModule } from 'primeng/dialog';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 interface Attendance {
   empName: string;
@@ -32,7 +33,7 @@ interface Attendance {
   selector: 'app-history',
   imports: [InputIconModule, IconFieldModule, InputTextModule,
     FloatLabelModule, FormsModule, TableModule, CommonModule,
-    SkeletonModule, DatePickerModule, DialogModule],
+    SkeletonModule, DatePickerModule, DialogModule, FileUrlPipe],
   templateUrl: './history.html',
   styleUrl: './history.css'
 })

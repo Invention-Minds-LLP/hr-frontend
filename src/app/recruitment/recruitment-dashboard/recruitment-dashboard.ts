@@ -21,6 +21,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { resolveFileUrl } from '../../pipes/file-url.pipe';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { ButtonModule } from 'primeng/button';
 
@@ -647,7 +648,7 @@ export class RecruitmentDashboard implements OnInit {
 
     this.candidateResumeRawUrl = url;
     this.candidateResumeUrl =
-      this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(url));
 
     this.resumeDialogOpen = true;
   }

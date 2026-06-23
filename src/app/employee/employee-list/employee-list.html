@@ -111,7 +111,7 @@
           <tr>
             <td class="t-data al">{{ rowIndex + 1 }}</td>
             <td class="empname">
-              <img *ngIf="employeeData.photoUrl; else defaultPhoto" [src]="employeeData.photoUrl" alt="Profile" />
+              <img *ngIf="employeeData.photoUrl; else defaultPhoto" [src]="employeeData.photoUrl | fileUrl" alt="Profile" />
               <ng-template #defaultPhoto>
                 <img style="background-color: white;" [src]="getDefaultImage(employeeData?.gender)"
                   alt="Default Profile" />

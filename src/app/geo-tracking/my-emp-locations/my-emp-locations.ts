@@ -7,11 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import * as L from 'leaflet';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
   selector: 'app-my-emp-locations',
-  imports: [CommonModule, TableModule, DialogModule, ButtonModule, DatePickerModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, TableModule, DialogModule, ButtonModule, DatePickerModule, FormsModule, ReactiveFormsModule, FileUrlPipe],
   templateUrl: './my-emp-locations.html',
   styleUrl: './my-emp-locations.css',
 })

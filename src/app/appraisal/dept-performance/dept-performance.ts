@@ -20,13 +20,14 @@ import { MessageService } from 'primeng/api';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ToastModule } from 'primeng/toast';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
   selector: 'app-dept-performance',
   imports: [CommonModule, FormsModule, CardModule, SelectModule, DialogModule, TableModule, ReactiveFormsModule,
     ButtonModule, AppraisalTemplate, MultiSelectModule, TextareaModule, InputTextModule, SkeletonModule, InputIconModule, IconFieldModule,
-    AppraisalPauseDialog, ToastModule],
+    AppraisalPauseDialog, ToastModule, FileUrlPipe],
   templateUrl: './dept-performance.html',
   styleUrl: './dept-performance.css'
 })

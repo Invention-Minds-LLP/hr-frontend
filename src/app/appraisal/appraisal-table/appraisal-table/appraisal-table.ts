@@ -22,6 +22,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { AppraisalPauseDialog } from '../../appraisal-pause-dialog/appraisal-pause-dialog';
+import { FileUrlPipe } from '../../../pipes/file-url.pipe';
 
 interface Table {
   empName: string;
@@ -39,7 +40,7 @@ interface Table {
 
 @Component({
   selector: 'app-appraisal-table',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule, DialogModule, DatePickerModule, TextareaModule, TooltipModule, ButtonModule, ToastModule, AppraisalPauseDialog],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, ReactiveFormsModule, FormsModule, TableModule, CommonModule, MultiSelectModule, SelectModule, SkeletonModule, DialogModule, DatePickerModule, TextareaModule, TooltipModule, ButtonModule, ToastModule, AppraisalPauseDialog, FileUrlPipe],
   providers: [MessageService],
   templateUrl: './appraisal-table.html',
   styleUrl: './appraisal-table.css'

@@ -13,6 +13,7 @@ import { PermissionPopup } from '../../permission-popup/permission-popup';
 import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
+import { FileUrlPipe } from '../../../pipes/file-url.pipe';
 
 interface requestTable {
   empName: string;
@@ -28,7 +29,7 @@ interface requestTable {
 
 @Component({
   selector: 'app-permission-request',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup, SkeletonModule, ToastModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, FloatLabelModule, FormsModule, TableModule, CommonModule, TooltipModule, PermissionPopup, SkeletonModule, ToastModule, FileUrlPipe],
   templateUrl: './permission-request.html',
   styleUrl: './permission-request.css'
 })

@@ -83,7 +83,7 @@
                         <td class="t-data al">{{ rowIndex + 1 }}</td>
                         
                         <td class="empname">
-                            <img *ngIf="balancesData.photoUrl; else defaultPhoto" [src]="balancesData.photoUrl"
+                            <img *ngIf="balancesData.photoUrl; else defaultPhoto" [src]="balancesData.photoUrl | fileUrl"
                                 alt="Profile" />
                             <ng-template #defaultPhoto>
                                 <img style="background-color: white;" [src]="getDefaultImage(balancesData?.gender)"

@@ -288,7 +288,7 @@
               <tr>
                 <td>
                   <div class="sd-emp">
-                    <img [src]="r.photoUrl || defaultPhoto(r.gender)" alt="" />
+                    <img [src]="(r.photoUrl || defaultPhoto(r.gender)) | fileUrl" alt="" />
                     <div>
                       <div><strong>{{ r.name }}</strong></div>
                       <small>{{ r.employeeCode }}</small>
@@ -401,7 +401,7 @@
                 </td>
                 <td>
                   <div class="sd-emp">
-                    <img [src]="r.photoUrl || defaultPhoto(r.gender)" alt="" />
+                    <img [src]="(r.photoUrl || defaultPhoto(r.gender)) | fileUrl" alt="" />
                     <div>
                       <div><strong>{{ r.name }}</strong></div>
                       <small>{{ r.employeeCode }}</small>
@@ -480,7 +480,7 @@
               <tr>
                 <td>
                   <div class="sd-emp">
-                    <img [src]="e.photoUrl || defaultPhoto(e.gender)" alt="" />
+                    <img [src]="(e.photoUrl || defaultPhoto(e.gender)) | fileUrl" alt="" />
                     <div>
                       <div><strong>{{ e.name }}</strong></div>
                       <small>{{ e.employeeCode }}</small>

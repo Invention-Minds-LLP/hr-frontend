@@ -28,7 +28,7 @@
             <tr>
                 <td>{{ rowIndex + 1 }}</td>
                 <td class="empname">
-                    <img *ngIf="row.photoUrl; else defaultPhoto" [src]="row.photoUrl" alt="Profile" />
+                    <img *ngIf="row.photoUrl; else defaultPhoto" [src]="row.photoUrl | fileUrl" alt="Profile" />
                     <ng-template #defaultPhoto>
                         <img style="background-color: white;" [src]="getDefaultImage(row?.gender)"
                             alt="Default Profile" />

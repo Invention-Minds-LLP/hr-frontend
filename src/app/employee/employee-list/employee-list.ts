@@ -22,6 +22,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EmployeeAuditLog } from '../employee-audit-log/employee-audit-log';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 
@@ -29,7 +30,7 @@ import { EmployeeAuditLog } from '../employee-audit-log/employee-audit-log';
   selector: 'app-employee-list',
   imports: [TableModule, CommonModule, FormsModule, RouterModule, RouterLink, ButtonModule,
     SkeletonModule, AttendanceCalendars, DialogModule, SelectModule, DatePickerModule,
-    EmployeeAuditLog],
+    EmployeeAuditLog, FileUrlPipe],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.css'
 })

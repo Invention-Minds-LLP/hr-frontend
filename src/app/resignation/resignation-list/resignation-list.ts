@@ -19,13 +19,14 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
   selector: 'app-resignation-list',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, DatePipe, DialogModule, ResignPost,
-    RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, SkeletonModule, DatePickerModule, FormsModule, ToolbarModule],
+    RouterModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, SkeletonModule, DatePickerModule, FormsModule, ToolbarModule, FileUrlPipe],
   templateUrl: './resignation-list.html',
   styleUrl: './resignation-list.css'
 })

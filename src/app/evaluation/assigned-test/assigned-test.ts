@@ -16,11 +16,12 @@ import { FormsModule } from '@angular/forms';
 import { TestAttempt } from '../../services/test-attempt/test-attempt';
 import { FloatLabel } from 'primeng/floatlabel';
 import { SkeletonModule } from 'primeng/skeleton';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 @Component({
   selector: 'app-assigned-test',
   imports: [CommonModule, TableModule, DialogModule, BadgeModule, ButtonModule,
-    InputTextModule, IconFieldModule, InputIconModule, FormsModule, FloatLabel, InputTextModule, SkeletonModule],
+    InputTextModule, IconFieldModule, InputIconModule, FormsModule, FloatLabel, InputTextModule, SkeletonModule, FileUrlPipe],
   templateUrl: './assigned-test.html',
   styleUrl: './assigned-test.css',
 

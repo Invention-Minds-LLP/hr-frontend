@@ -12,12 +12,13 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { Employee, Employees } from '../../services/employees/employees';
 import { SkeletonModule } from 'primeng/skeleton';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
   selector: 'app-clearances',
   imports: [TableModule, CommonModule, TextareaModule, ReactiveFormsModule, FormsModule,
-    SelectModule, DialogModule, BadgeModule, ButtonModule, SkeletonModule],
+    SelectModule, DialogModule, BadgeModule, ButtonModule, SkeletonModule, FileUrlPipe],
   templateUrl: './clearances.html',
   styleUrl: './clearances.css'
 })

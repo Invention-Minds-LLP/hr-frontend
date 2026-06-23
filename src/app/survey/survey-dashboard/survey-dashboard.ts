@@ -19,6 +19,7 @@ import { MessageService } from 'primeng/api';
 
 import { SurveryService } from '../../services/surveyService/survery-service';
 import { Departments, Department } from '../../services/departments/departments';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 Chart.register(...registerables);
 
@@ -53,6 +54,7 @@ const DARK_LEGEND = { labels: { color: DARK_TICK, font: { size: 11 }, padding: 1
     TableModule, TabsModule, ButtonModule, TagModule,
     DatePickerModule, MultiSelectModule, SelectModule, DialogModule,
     SkeletonModule, TooltipModule, CardModule, ProgressBarModule, ToastModule,
+    FileUrlPipe,
   ],
   providers: [MessageService],
   templateUrl: './survey-dashboard.html',

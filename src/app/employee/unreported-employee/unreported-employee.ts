@@ -7,11 +7,12 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Departments } from '../../services/departments/departments';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
   selector: 'app-unreported-employee',
-  imports: [CommonModule, CardModule, TableModule, DatePickerModule, FormsModule, ButtonModule],
+  imports: [CommonModule, CardModule, TableModule, DatePickerModule, FormsModule, ButtonModule, FileUrlPipe],
   templateUrl: './unreported-employee.html',
   styleUrl: './unreported-employee.css',
 })

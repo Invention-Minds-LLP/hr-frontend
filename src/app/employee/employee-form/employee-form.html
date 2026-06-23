@@ -427,7 +427,7 @@
                                 <div class="col-3 flex justify-content-center align-items-start">
                                     <div class="profile-pic-container">
                                         <!-- Circular Image -->
-                                        <img *ngIf="photoUrl; else placeholder" [src]="photoUrl" class="profile-pic" />
+                                        <img *ngIf="photoUrl; else placeholder" [src]="photoUrl | fileUrl" class="profile-pic" />
                                         <ng-template #placeholder>
                                             <div class="profile-placeholder">
                                                 <i class="pi pi-user"></i>
@@ -1091,7 +1091,7 @@
                                     <!-- Preview (image or link)
                                     <div class="field col-12" *ngIf="getDocPreview(i) as p">
                                         <div class="doc-preview" [ngSwitch]="p.kind">
-                                            <img *ngSwitchCase="'image'" [src]="p.src" alt="Document preview"
+                                            <img *ngSwitchCase="'image'" [src]="p.src | fileUrl" alt="Document preview"
                                                 class="doc-img" />
                                         </div>
                                     </div> -->
@@ -1562,7 +1562,7 @@
 
 
         <!-- If Image -->
-        <img *ngIf="selectedDocUrl.toLowerCase().includes('image/')" [src]="selectedDocUrl" alt="Document"
+        <img *ngIf="selectedDocUrl.toLowerCase().includes('image/')" [src]="selectedDocUrl | fileUrl" alt="Document"
             style="max-width:100%;max-height:600px;" />
 
         <!-- Other file types -->
@@ -1570,7 +1570,7 @@
              !selectedDocUrl.toLowerCase().includes('application/pdf')">
 
             <!-- <a [href]="selectedDocUrl" target="_blank" rel="noopener noreferrer" style="color: black;">Open in new tab</a> -->
-            <img [src]="selectedDocUrl" alt="Document" style="max-width:100%;max-height:600px;" />
+            <img [src]="selectedDocUrl | fileUrl" alt="Document" style="max-width:100%;max-height:600px;" />
 
         </div>
     </ng-container>

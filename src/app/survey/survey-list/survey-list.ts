@@ -11,10 +11,11 @@ import { value } from '@primeuix/themes/aura/knob';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Tag, TagModule } from 'primeng/tag';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 @Component({
   selector: 'app-survey-list',
-  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule, SkeletonModule, TagModule],
+  imports: [SurveyForm, CommonModule, TableModule, ButtonModule, InputIconModule, IconFieldModule, InputTextModule, SkeletonModule, TagModule, FileUrlPipe],
   templateUrl: './survey-list.html',
   styleUrl: './survey-list.css'
 })

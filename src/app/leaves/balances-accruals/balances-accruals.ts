@@ -19,6 +19,7 @@ import { Permission } from '../../services/permission/permission';
 import { Employees } from '../../services/employees/employees';
 import { DatePicker } from "primeng/datepicker";
 import { TextareaModule } from 'primeng/textarea';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 
@@ -40,7 +41,7 @@ interface balancesTable {
   selector: 'app-balances-accruals',
   imports: [InputIconModule, IconFieldModule, InputTextModule,
     FloatLabelModule, FormsModule, TableModule, CommonModule,
-    EmployeeDetails, SkeletonModule, DialogModule, ButtonModule, ReactiveFormsModule, DatePicker, TextareaModule],
+    EmployeeDetails, SkeletonModule, DialogModule, ButtonModule, ReactiveFormsModule, DatePicker, TextareaModule, FileUrlPipe],
   templateUrl: './balances-accruals.html',
   styleUrl: './balances-accruals.css'
 })

@@ -20,6 +20,7 @@ import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { resolveFileUrl } from '../pipes/file-url.pipe';
 
 
 function score01Validator(ctrl: AbstractControl): ValidationErrors | null {
@@ -436,7 +437,7 @@ get isImageResume(): boolean {
 
     if (resume) {
       this.candidateResumeRawUrl = resume; // plain string
-      this.candidateResumeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resume);
+      this.candidateResumeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(resume));
     }
 
     this.form.patchValue({

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { resolveFileUrl } from '../../pipes/file-url.pipe';
 import { of, switchMap } from 'rxjs';
 // RxJS
 import { forkJoin, firstValueFrom } from 'rxjs';
@@ -728,7 +729,7 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       return;
     }
     // If your resumes are PDFs this will embed them; other formats will download/open in-browser as supported
-    this.resumeSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.resumeSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(url));
     this.resumeDialogOpen = true;
   }
   openRejectDialog(a: Application) { this.rejectDlg = { visible: true, app: a, reason: null, note: '' }; }

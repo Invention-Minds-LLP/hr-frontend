@@ -19,7 +19,7 @@
 
       <!-- Employee -->
       <td class="empname">
-        <img *ngIf="emp.photoUrl; else defaultPhoto" [src]="emp.photoUrl" />
+        <img *ngIf="emp.photoUrl; else defaultPhoto" [src]="emp.photoUrl | fileUrl" />
         <ng-template #defaultPhoto>
           <img src="/img.png" />
         </ng-template>
@@ -158,7 +158,7 @@
   <!-- Photos -->
   <h4 class="photo-title">Photos</h4>
   <div class="photo-grid">
-    <img *ngFor="let p of photos" [src]="p.url" />
+    <img *ngFor="let p of photos" [src]="p.url | fileUrl" />
   </div>
 </p-dialog>
 

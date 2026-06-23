@@ -24,6 +24,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FileUrlPipe, resolveFileUrl } from '../../pipes/file-url.pipe';
 
 
 
@@ -31,7 +32,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
   selector: 'app-employee-form',
   imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
     StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule,
-    DialogModule, ToastModule, ToggleSwitchModule],
+    DialogModule, ToastModule, ToggleSwitchModule, FileUrlPipe],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css',
   providers: [MessageService]
@@ -1896,7 +1897,7 @@ export class EmployeeForm {
       const reader = new FileReader();
       reader.onload = () => {
         this.selectedDocUrl = reader.result as string;
-        this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.selectedDocUrl);
+        this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(this.selectedDocUrl));
         this.docDialogVisible = true;
       };
       reader.readAsDataURL(doc.file);
@@ -1905,7 +1906,7 @@ export class EmployeeForm {
 
     if (url) {
       this.selectedDocUrl = url;
-      this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      this.safeDocUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(url));
       this.docDialogVisible = true;
     }
   }

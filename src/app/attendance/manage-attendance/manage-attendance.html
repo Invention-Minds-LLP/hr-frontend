@@ -93,7 +93,7 @@
                         <td>{{ rowIndex + 1 }}</td>
 
                         <td class="empname">
-                            <img *ngIf="data.photoUrl; else defaultPhoto" [src]="data.photoUrl" />
+                            <img *ngIf="data.photoUrl; else defaultPhoto" [src]="data.photoUrl | fileUrl" />
                             <ng-template #defaultPhoto>
                                 <img [src]="getDefaultImage(data?.gender)" />
                             </ng-template>

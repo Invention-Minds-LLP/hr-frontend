@@ -9,6 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
+import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
 @Component({
@@ -23,7 +24,8 @@ import { TooltipModule } from 'primeng/tooltip';
     TagModule,
     ButtonModule,
     FormsModule,
-    TooltipModule
+    TooltipModule,
+    FileUrlPipe
   ],
   templateUrl: './shift-requests.html',
   styleUrl: './shift-requests.css',
