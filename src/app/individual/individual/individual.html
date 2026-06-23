@@ -215,6 +215,8 @@
                     <hr />
                     <div class="detail"><strong>Department:</strong> {{ employee?.departmentName }}</div>
                     <hr />
+                    <div class="detail"><strong>Reporting Manager:</strong> {{ reportingManagerName || '-' }}</div>
+                    <hr />
                     <div class="detail"><strong>Date of Joining:</strong> {{ employee?.dateOfJoining | date: 'dd-MM-yyyy' }}</div>
                     <hr />
                     <div class="detail"><strong>Blood Group:</strong> {{ employee?.bloodGroup }}</div>

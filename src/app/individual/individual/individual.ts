@@ -299,6 +299,7 @@ currentWeeklyShiftIndex = 0;
   rawAttendance: any[] = [];
 
   employee: any = null;
+  reportingManagerName = '';
   pendingSurveys: any[] = [];
 
   ngOnInit() {
@@ -320,6 +321,17 @@ currentWeeklyShiftIndex = 0;
       this.employeeService.getEmployeeById(employeeId).subscribe({
         next: (res) => {
           this.employee = res;
+          // Resolve the reporting manager's name from the id already on the payload.
+          if (res?.reportingManager) {
+            this.employeeService.getEmployeeById(res.reportingManager).subscribe({
+              next: (mgr) => {
+                this.reportingManagerName = mgr
+                  ? `${mgr.firstName ?? ''} ${mgr.lastName ?? ''}`.trim()
+                  : '';
+              },
+              error: () => { this.reportingManagerName = ''; }
+            });
+          }
           setTimeout(() => {
             this.loading = false
           }, 2000)
