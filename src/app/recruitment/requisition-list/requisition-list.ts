@@ -85,14 +85,14 @@ export class RequisitionList {
 
   /** True when the current user is allowed to withdraw `row`.
    *  Mirrors the backend permission rules:
-   *    - HR / Admin (roleId 1)        → any status before COO_APPROVED
-   *    - Management (roleId 4)        → any status before COO_APPROVED
+   *    - HR / Admin (roleId 1)        → any status before HR_APPROVED
+   *    - Management (roleId 4)        → any status before HR_APPROVED
    *    - Raiser themselves            → at status = RAISED
    *    - HOD/Mgmt who auto-approved   → at status = HOD_APPROVED if it's their own
    */
   canWithdraw(row: any): boolean {
     if (!row) return false;
-    const TERMINAL = ['REJECTED', 'WITHDRAWN', 'COO_APPROVED', 'RECEIVED_BY_HR', 'CLOSED'];
+    const TERMINAL = ['REJECTED', 'WITHDRAWN', 'HR_APPROVED', 'COO_APPROVED', 'RECEIVED_BY_HR', 'CLOSED'];
     if (TERMINAL.includes(row.status)) return false;
 
     const isHR    = this.myRoleId === 1;

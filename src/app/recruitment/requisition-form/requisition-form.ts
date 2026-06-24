@@ -79,11 +79,13 @@ export class RequisitionForm {
       case 'RAISED':
         return 'HOD'; // waiting for HoD action
       case 'HOD_APPROVED':
-        return 'COO'; // waiting for COO action
+        return 'HR';  // waiting for HR review
+      case 'HR_APPROVED':
+        return 'COO'; // waiting for COO final approval
       case 'COO_APPROVED':
-        return 'HR';  // waiting for HR action
+        return 'CLOSED'; // COO is final → workflow completed
       case 'HR_RECEIVED':
-        return 'CLOSED'; // workflow completed
+        return 'CLOSED'; // legacy completed rows (old HR-final flow)
       case 'REJECTED':
         return 'REJECTED'; // no more actions allowed
       default:
