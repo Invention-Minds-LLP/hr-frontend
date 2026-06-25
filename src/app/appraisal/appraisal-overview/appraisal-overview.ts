@@ -24,6 +24,7 @@ export class AppraisalOverview {
   reviewLevel: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT' = 'MANAGER';
   /** When true, the review form opens read-only (post-submit view). */
   reviewReadOnly = false;
+  isIncharge = Number(localStorage.getItem('roleId')) === 5;
 
   readonly isHRExecutive =
     Number(localStorage.getItem('deptId')) === 1 &&
