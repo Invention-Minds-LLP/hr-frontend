@@ -82,7 +82,8 @@ export class EmployeeForm {
     { label: 'Suspended', value: 'SUSPENDED' },
     { label: 'Notice Period', value: 'NOTICE_PERIOD' },
     { label: 'Resigned', value: 'RESIGNED' },
-    { label: 'Sabbatical', value: 'SABBATICAL' }
+    { label: 'Sabbatical', value: 'SABBATICAL' },
+    { label: 'Deactivated', value: 'DEACTIVATED' }
 
   ];
   documentCategories = [
