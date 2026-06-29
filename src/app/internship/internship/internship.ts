@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Department, Departments } from '../../services/departments/departments';
 import { Employees } from '../../services/employees/employees';
@@ -20,6 +20,14 @@ import {
   UpdateInternshipDto,
   ConvertPayload,
   InternshipListResponse,
+  InternshipEvaluation,
+  CreateEvaluationDto,
+  InternshipRecommendation,
+  InternshipStipend,
+  CreateStipendDto,
+  StipendStatus,
+  StipendSummary,
+  InternshipAnalytics,
 } from '../../services/internship/internship-service.model';
 import { InternshipService } from '../../services/internship/internship-service';
 import { Select } from "primeng/select";
@@ -27,7 +35,7 @@ import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
-type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert';
+type ActionKind = 'create' | 'edit' | 'offer' | 'activate' | 'extend' | 'complete' | 'drop' | 'convert' | 'evaluations' | 'stipends';
 // add near the top with your other types
 type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger';
 
@@ -53,6 +61,10 @@ export class Internship implements OnInit {
   loading = false;
   error = '';
 
+  // In-flight flags for submit buttons
+  creating = false;
+  savingEval = false;
+
   isLoading = true
 
   // Filters
@@ -64,6 +76,16 @@ export class Internship implements OnInit {
   startTo?: string;
   endFrom?: string;
   endTo?: string;
+
+  // Analytics (module-level stats strip)
+  analytics?: InternshipAnalytics;
+
+  // Bulk selection
+  selectedRows: Internships[] = [];
+
+  // Role-based scope: roleId 3 & 5 are restricted to interns they mentor.
+  // Everyone else (incl. roleId 4 / deptId 1 = HR) sees all.
+  restrictedToOwn = false;
 
 
 
@@ -169,25 +191,55 @@ export class Internship implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true
+    // Departments feed the filter/mentor dropdowns; loading them must not gate
+    // the table skeleton (which is driven by the actual list fetch below).
     this.dept.getDepartments().subscribe({
       next: (rows) => {
         this.departments = rows || [];
         this.deptOptions = this.departments.map(d => ({ label: d.name, value: d.id! }));
-        setTimeout(() => {
-          this.isLoading = false
-        }, 2000)
       },
       error: () => {
         this.departments = []; this.deptOptions = [];
-        this.isLoading = false
       }
-
     });
     this.search$.pipe(debounceTime(300)).subscribe(() => {
       this.page = 1;
       this.load();
     });
+    this.applyRoleScope();
     this.load();
+    this.loadAnalytics();
+  }
+
+  loadAnalytics() {
+    this.api.analytics().subscribe({
+      next: (a) => this.analytics = a,
+      error: () => { /* stats strip is non-critical; ignore */ },
+    });
+  }
+
+  private localNum(key: string): number | undefined {
+    if (typeof localStorage === 'undefined') return undefined;
+    const raw = localStorage.getItem(key);
+    const n = raw ? Number(raw) : NaN;
+    return Number.isFinite(n) ? n : undefined;
+  }
+
+  /**
+   * Scope the list to the logged-in user's role:
+   *   roleId 3 & 5  → only the interns they mentor (mentorId = own empId)
+   *   everyone else (incl. roleId 4 / deptId 1 = HR) → all interns
+   * Called once on init before the first load.
+   */
+  private applyRoleScope() {
+    const roleId = this.localNum('roleId');
+    const empId = this.localNum('empId');
+    if ((roleId === 3 || roleId === 5) && empId) {
+      this.mentorId = empId;
+      this.restrictedToOwn = true;
+    } else {
+      this.restrictedToOwn = false;
+    }
   }
 
   private todayStr(): string {
@@ -212,7 +264,7 @@ export class Internship implements OnInit {
       pageSize: this.pageSize,
       order: this.order,
       departmentId: this.departmentId,
-    }).pipe(finalize(() => this.loading = false))
+    }).pipe(finalize(() => { this.loading = false; this.isLoading = false; }))
       .subscribe({
         next: (resp: InternshipListResponse) => {
           this.items = resp.items;
@@ -310,8 +362,231 @@ export class Internship implements OnInit {
     if (kind === 'extend') this.workflowForm = { endDate: it.endDate?.slice(0, 10) || this.todayStr() };
     if (kind === 'complete') this.workflowForm = { endDate: it.endDate?.slice(0, 10) || this.todayStr() };
     if (kind === 'drop') this.workflowForm = { reason: '' };
-    if (kind === 'convert') this.workflowForm = { employeeId: it.employeeId ?? null, createEmployee: { firstName: '', lastName: '', email: '', departmentId: undefined, branchId: undefined, dateOfJoining: this.todayStr() } };
+    if (kind === 'convert') this.workflowForm = { employeeId: it.employeeId ?? null, createEmployee: { firstName: '', lastName: '', email: it.email ?? '', phone: it.phone ?? '', departmentId: it.departmentId ?? undefined, branchId: undefined, dateOfJoining: this.todayStr() } };
     this.modalOpen = true;
+  }
+
+  // ── Evaluations ───────────────────────────────────────────────────────────
+  evaluations: InternshipEvaluation[] = [];
+  evalLoading = false;
+  evaluatorOptions: { label: string; value: number }[] = [];
+  ratingOptions = [1, 2, 3, 4, 5];
+  recommendationOptions: InternshipRecommendation[] = ['RETAIN', 'EXTEND', 'COMPLETE', 'TERMINATE'];
+  evalForm: CreateEvaluationDto = {};
+  editingEvalId: number | null = null;
+
+  private resetEvalForm(it: Internships) {
+    this.editingEvalId = null;
+    this.evalForm = {
+      evaluatorId: it.mentorId ?? null,
+      periodLabel: '',
+      evaluationDate: this.todayStr(),
+      rating: null,
+      strengths: '',
+      areasToImprove: '',
+      comments: '',
+      recommendation: null,
+    };
+  }
+
+  editEvaluation(ev: InternshipEvaluation) {
+    this.editingEvalId = ev.id;
+    this.evalForm = {
+      evaluatorId: ev.evaluatorId,
+      periodLabel: ev.periodLabel,
+      evaluationDate: ev.evaluationDate ? ev.evaluationDate.slice(0, 10) : this.todayStr(),
+      rating: ev.rating,
+      strengths: ev.strengths,
+      areasToImprove: ev.areasToImprove,
+      comments: ev.comments,
+      recommendation: ev.recommendation,
+    };
+  }
+
+  cancelEvalEdit() {
+    if (this.selected) this.resetEvalForm(this.selected);
+  }
+
+  openEvaluations(it: Internships) {
+    this.selected = it;
+    this.action = 'evaluations';
+    this.resetEvalForm(it);
+    this.evaluations = [];
+    this.evaluatorOptions = [];
+    if (it.departmentId) {
+      this.loadMentors(it.departmentId).then(opts => this.evaluatorOptions = opts);
+    }
+    this.loadEvaluations(it.id);
+    this.modalOpen = true;
+  }
+
+  loadEvaluations(id: number) {
+    this.evalLoading = true;
+    this.api.listEvaluations(id)
+      .pipe(finalize(() => this.evalLoading = false))
+      .subscribe({
+        next: (resp) => { this.evaluations = resp.items || []; },
+        error: (err) => this.messageService.add({
+          severity: 'error', summary: 'Error',
+          detail: err?.error?.error || 'Failed to load evaluations',
+        }),
+      });
+  }
+
+  submitEvaluation() {
+    if (!this.selected) return;
+    const id = this.selected.id;
+    const done = (detail: string) => {
+      this.messageService.add({ severity: 'success', summary: 'Saved', detail });
+      this.resetEvalForm(this.selected!);
+      this.loadEvaluations(id);
+    };
+    const onErr = (err: any) => this.messageService.add({
+      severity: 'error', summary: 'Error',
+      detail: err?.error?.error || 'Failed to save evaluation',
+    });
+
+    this.savingEval = true;
+    const req$ = this.editingEvalId
+      ? this.api.updateEvaluation(id, this.editingEvalId, this.evalForm)
+      : this.api.createEvaluation(id, this.evalForm);
+    const msg = this.editingEvalId ? 'Evaluation updated' : 'Evaluation added';
+    req$.pipe(finalize(() => this.savingEval = false)).subscribe({
+      next: () => done(msg), error: onErr,
+    });
+  }
+
+  deleteEvaluation(evalId: number) {
+    if (!this.selected) return;
+    const id = this.selected.id;
+    this.api.deleteEvaluation(id, evalId).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Evaluation removed' });
+        this.loadEvaluations(id);
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || 'Failed to delete evaluation',
+      }),
+    });
+  }
+
+  // ── Stipends ──────────────────────────────────────────────────────────────
+  stipends: InternshipStipend[] = [];
+  stipendSummary: StipendSummary = { paidAmount: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 };
+  stipendLoading = false;
+  stipendStatusOptions: StipendStatus[] = ['PENDING', 'PAID', 'CANCELLED'];
+  stipendMonth = '';                       // yyyy-MM from <input type="month">
+  stipendForm: { amount?: number | null; status?: StipendStatus; notes?: string } = {};
+
+  private thisMonthStr(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+  }
+
+  private resetStipendForm() {
+    this.stipendMonth = this.thisMonthStr();
+    this.stipendForm = { amount: this.selected?.stipend ?? null, status: 'PENDING', notes: '' };
+  }
+
+  openStipends(it: Internships) {
+    this.selected = it;
+    this.action = 'stipends';
+    this.stipends = [];
+    this.resetStipendForm();
+    this.loadStipends(it.id);
+    this.modalOpen = true;
+  }
+
+  loadStipends(id: number) {
+    this.stipendLoading = true;
+    this.api.listStipends(id)
+      .pipe(finalize(() => this.stipendLoading = false))
+      .subscribe({
+        next: (resp) => { this.stipends = resp.items || []; this.stipendSummary = resp.summary; },
+        error: (err) => this.messageService.add({
+          severity: 'error', summary: 'Error',
+          detail: err?.error?.error || 'Failed to load stipends',
+        }),
+      });
+  }
+
+  submitStipend() {
+    if (!this.selected) return;
+    if (!this.stipendMonth) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Select a month' });
+      return;
+    }
+    const id = this.selected.id;
+    const body: CreateStipendDto = {
+      periodMonth: `${this.stipendMonth}-01`,
+      amount: Number(this.stipendForm.amount ?? 0),
+      status: this.stipendForm.status ?? 'PENDING',
+      notes: this.stipendForm.notes || null,
+    };
+    this.api.createStipend(id, body).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Stipend added' });
+        this.resetStipendForm();
+        this.loadStipends(id);
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || 'Failed to add stipend',
+      }),
+    });
+  }
+
+  markStipendPaid(s: InternshipStipend) {
+    if (!this.selected) return;
+    const id = this.selected.id;
+    this.api.updateStipend(id, s.id, { status: 'PAID' }).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Marked as paid' });
+        this.loadStipends(id);
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || 'Failed to update stipend',
+      }),
+    });
+  }
+
+  deleteStipend(stipendId: number) {
+    if (!this.selected) return;
+    const id = this.selected.id;
+    this.api.deleteStipend(id, stipendId).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Stipend removed' });
+        this.loadStipends(id);
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || 'Failed to delete stipend',
+      }),
+    });
+  }
+
+  generateStipendSchedule() {
+    if (!this.selected) return;
+    const id = this.selected.id;
+    this.api.generateStipendSchedule(id).subscribe({
+      next: (r) => {
+        this.messageService.add({
+          severity: 'success', summary: 'Generated',
+          detail: `Added ${r.created} of ${r.monthsInRange} month(s)`,
+        });
+        this.loadStipends(id);
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || 'Failed to generate schedule',
+      }),
+    });
+  }
+
+  stipendPillClass(status: StipendStatus): string {
+    return { PAID: 'good', PENDING: 'warn', CANCELLED: 'danger' }[status] || 'muted';
   }
 
   close() {
@@ -320,20 +595,26 @@ export class Internship implements OnInit {
     this.selected = undefined;
     this.editForm = {};
     this.workflowForm = {};
+    this.evaluations = [];
+    this.evalForm = {};
+    this.stipends = [];
+    this.stipendForm = {};
   }
 
   // Submit handlers
   submitCreate() {
-    this.api.create(this.createForm).subscribe({
-      next: () => { this.close(); this.load(); },
-      error: (err) =>
-        // alert(err?.error?.error || 'Create failed'),
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err?.error?.error || 'Create failed'
-        })
-    });
+    this.creating = true;
+    this.api.create(this.createForm)
+      .pipe(finalize(() => this.creating = false))
+      .subscribe({
+        next: () => { this.close(); this.load(); this.loadAnalytics(); },
+        error: (err) =>
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err?.error?.error || 'Create failed'
+          })
+      });
   }
 
   submitEdit() {
@@ -382,7 +663,43 @@ export class Internship implements OnInit {
     }
   }
 
-  private afterAction = () => { this.close(); this.load(); };
+  private afterAction = () => { this.close(); this.load(); this.loadAnalytics(); };
+
+  // ── Bulk actions ──────────────────────────────────────────────────────────
+  private bulkRun(label: string, calls: Array<ReturnType<InternshipService['complete']>>) {
+    if (!calls.length) return;
+    forkJoin(calls).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Done', detail: `${label} ${calls.length} internship(s)` });
+        this.selectedRows = [];
+        this.load();
+        this.loadAnalytics();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error', summary: 'Error',
+        detail: err?.error?.error || `Bulk ${label.toLowerCase()} failed`,
+      }),
+    });
+  }
+
+  bulkComplete() {
+    // Only ACTIVE internships can be completed.
+    const eligible = this.selectedRows.filter(r => r.status === 'ACTIVE');
+    if (!eligible.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Nothing to do', detail: 'Select ACTIVE internships to complete' });
+      return;
+    }
+    this.bulkRun('Completed', eligible.map(r => this.api.complete(r.id, {})));
+  }
+
+  bulkDrop() {
+    const eligible = this.selectedRows.filter(r => !['DROPPED', 'COMPLETED', 'CONVERTED'].includes(r.status));
+    if (!eligible.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Nothing to do', detail: 'No droppable internships selected' });
+      return;
+    }
+    this.bulkRun('Dropped', eligible.map(r => this.api.drop(r.id, { reason: 'Bulk drop' })));
+  }
   private onErr = (err: any) =>
     //  alert(err?.error?.error || 'Action failed');
     this.messageService.add({

@@ -2,7 +2,10 @@
   margin: 16px auto;
   padding: 0px 60px;
   font-family: "Sofia Sans";
-
+  /* The data table scrolls horizontally within itself (scrollable mode);
+     keep any residual width from pushing the whole page sideways, which was
+     clipping the page heading. */
+  overflow-x: hidden;
 }
   .guide{
     padding: 0px 60px;
@@ -70,6 +73,15 @@
 
 .btn.ghost {
   background: transparent;
+  /* These buttons sit on the dark modal sheet / dark page — without an explicit
+     colour they inherited near-black text and were invisible. */
+  color: #fff;
+  border-color: #9ca3af;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn.danger,
@@ -314,6 +326,12 @@ table.list td {
   text-wrap: nowrap;
 }
 
+/* Center the "no records" row instead of flush-left */
+::ng-deep .p-datatable .p-datatable-tbody>tr>td.p-text-center {
+  text-align: center !important;
+  padding: 16px !important;
+}
+
 /* 2-column grid for the modal form */
 .form.two-col {
   display: grid;
@@ -437,9 +455,238 @@ table.list td {
 }
 
 
+/* Evaluations list (inside the dark modal sheet) */
+.eval-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.eval-item {
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #0c0f0e;
+}
+
+.eval-item-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.eval-period {
+  font-weight: 600;
+}
+
+.eval-date {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.eval-rating {
+  color: #FB9C2A;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.eval-rec {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #194B9B;
+  color: #fff;
+}
+
+.eval-del {
+  position: static;
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.eval-meta {
+  opacity: 0.6;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.eval-body {
+  font-size: 13px;
+  margin-top: 4px;
+  white-space: pre-wrap;
+}
+
+/* Stipend summary + actions */
+.stip-summary {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stip-pay {
+  margin-left: auto;
+  font-size: 12px !important;
+}
+
+.stip-gen {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+/* Analytics bar — single dark panel with divided, colour-coded segments */
+.stats-bar {
+  display: inline-flex;
+  align-items: stretch;
+  margin: 10px 0 6px;
+  background: linear-gradient(180deg, #11161a 0%, #0a0d0f 100%);
+  border: 1px solid #232a31;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.stat-seg {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 26px;
+  border-left: 1px solid #1c2329;
+  position: relative;
+}
+
+.stat-seg:first-child {
+  border-left: none;
+}
+
+.stat-seg .stat-num {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f1f5f9;
+}
+
+.stat-seg .stat-lbl {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a949e;
+  letter-spacing: 0.2px;
+}
+
+/* Colour accents per metric */
+.stat-seg.accent-green .stat-num { color: #22c55e; }
+.stat-seg.accent-orange .stat-num { color: #FB9C2A; }
+.stat-seg.accent-red .stat-num { color: #ef4444; }
+.stat-seg.accent-blue .stat-num { color: #3b82f6; }
+
+@media (max-width: 640px) {
+  .stats-bar { width: 100%; overflow-x: auto; }
+  .stat-seg { padding: 10px 18px; }
+}
+
+/* My-interns toggle */
+/* Bulk action bar */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0c0f0e;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+/* ── Filter bar (dark, cohesive with the page) ──────────────────────────── */
+.filters .input {
+  background: #11161a;
+  border: 1px solid #2a323a;
+  color: #e5e7eb;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.filters .input::placeholder {
+  color: #6b7280;
+}
+
+.filters .input:focus {
+  outline: none;
+  border-color: #194B9B;
+}
+
+/* Search box with leading icon */
+.search-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.search-wrap .pi-search {
+  position: absolute;
+  left: 12px;
+  color: #8a949e;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-wrap .search-input {
+  padding-left: 34px;
+  min-width: 250px;
+}
+
+/* Native status select on dark */
+.filters select.input {
+  cursor: pointer;
+  min-width: 150px;
+}
+
+/* New Internship button — icon + consistent height with the inputs */
+.filters .btn.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  width: auto;
+  padding: 0 18px;
+}
+
+/* Date-range picker styled to match the dark inputs (scoped so it does not
+   affect datepickers elsewhere; placed after the global white rule to win). */
+::ng-deep .filters .filter-date .p-datepicker-input {
+  background: #11161a !important;
+  color: #e5e7eb !important;
+  border: 1px solid #2a323a !important;
+  height: 40px;
+  border-radius: 10px !important;
+  min-width: 200px;
+}
+
+::ng-deep .filters .filter-date .p-datepicker-input::placeholder {
+  color: #6b7280 !important;
+}
+
+::ng-deep .filters .filter-date .p-datepicker-dropdown,
+::ng-deep .filters .filter-date .p-datepicker-input-icon-container {
+  color: #8a949e !important;
+}
+
 /* stack to one column on small screens */
 @media (max-width: 640px) {
   .form.two-col {
     grid-template-columns: 1fr;
+  }
+
+  .filters .search-wrap,
+  .filters .search-input {
+    width: 100%;
   }
 }

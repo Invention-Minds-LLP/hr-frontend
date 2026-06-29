@@ -16,68 +16,71 @@
 
     <h2>Internships</h2>
 
+    <!-- Analytics bar -->
+    <div class="stats-bar" *ngIf="analytics">
+        <div class="stat-seg">
+            <span class="stat-num">{{ analytics.total }}</span>
+            <span class="stat-lbl">Total</span>
+        </div>
+        <div class="stat-seg accent-green">
+            <span class="stat-num">{{ analytics.active }}</span>
+            <span class="stat-lbl">Active</span>
+        </div>
+        <div class="stat-seg accent-orange">
+            <span class="stat-num">{{ analytics.conversionRate }}%</span>
+            <span class="stat-lbl">Conversion</span>
+        </div>
+        <div class="stat-seg accent-red">
+            <span class="stat-num">{{ analytics.dropRate }}%</span>
+            <span class="stat-lbl">Drop rate</span>
+        </div>
+        <div class="stat-seg accent-blue">
+            <span class="stat-num">{{ analytics.avgDurationDays }}</span>
+            <span class="stat-lbl">Avg days</span>
+        </div>
+    </div>
+
     <!-- Filters -->
     <div class="filters">
-        <input class="input" placeholder="Search (candidate / employee)" [(ngModel)]="q"
-            (ngModelChange)="onSearchChange($event)">
+        <div class="search-wrap">
+            <i class="pi pi-search"></i>
+            <input class="input search-input" placeholder="Search candidate / employee" [(ngModel)]="q"
+                (ngModelChange)="onSearchChange($event)">
+        </div>
 
         <select class="input" [(ngModel)]="status" (ngModelChange)="onImmediateFilterChange()">
             <option class="drop-down" value="">All Statuses</option>
             <option class="drop-down" *ngFor="let s of statuses" [value]="s">{{ s }}</option>
         </select>
-        <!-- <input class="input" type="number" placeholder="Employee ID" [(ngModel)]="employeeId">
-      <input class="input" type="number" placeholder="Mentor ID" [(ngModel)]="mentorId"> -->
-        <p-datepicker [(ngModel)]="activeRange" selectionMode="range" dateFormat="dd-mm-yy" [showIcon]="true"
-            (ngModelChange)="onRangeChange($event)">
+
+        <p-datepicker class="filter-date" [(ngModel)]="activeRange" selectionMode="range" dateFormat="dd-mm-yy"
+            [showIcon]="true" appendTo="body" placeholder="Active period" (ngModelChange)="onRangeChange($event)">
         </p-datepicker>
 
-        <!-- <button class="btn" (click)="page=1; load()">Apply</button>
-        <button class="btn ghost" (click)="resetFilters()">Reset</button> -->
-        <!-- <div class="spacer"></div> -->
-        <button class="btn primary" (click)="openCreate()">+ New Internship</button>
+        <button class="btn primary" (click)="openCreate()"><i class="pi pi-plus"></i> New Internship</button>
     </div>
 
     <!-- Loading / error -->
     <!-- <div *ngIf="loading" class="card">Loading…</div> -->
     <div *ngIf="error" class="card danger">{{ error }}</div>
 
-    <ng-container *ngIf="isLoading; else intership">
-        <p-table class="skeleton-table" [value]="[1, 2, 3, 4, 5]" [scrollable]="true">
-            <!-- Header -->
-            <ng-template pTemplate="header">
-                <tr>
-                    <th *ngFor="let h of ['No','Candidate','Job Title','Offer','Resume','Status','Actions','Overview']">
-                        {{ h }}
-                    </th>
-                </tr>
-            </ng-template>
+    <!-- Bulk action bar -->
+        <div class="bulk-bar" *ngIf="selectedRows.length">
+            <span>{{ selectedRows.length }} selected</span>
+            <button class="btn" (click)="bulkComplete()">Complete</button>
+            <button class="btn danger" (click)="bulkDrop()">Drop</button>
+            <button class="btn ghost" (click)="selectedRows = []">Clear</button>
+        </div>
 
-            <!-- Body -->
-            <ng-template pTemplate="body">
-                <tr class="skeleton">
-                    <td><p-skeleton width="2rem"></p-skeleton></td>
-
-                    <td><p-skeleton width="70px"></p-skeleton></td>
-                    <td><p-skeleton width="90px"></p-skeleton></td>
-                    <td><p-skeleton width="100px"></p-skeleton></td>
-                    <td><p-skeleton width="60px"></p-skeleton></td>
-                    <td><p-skeleton width="80px"></p-skeleton></td>
-                    <td><p-skeleton width="100px"></p-skeleton></td>
-                    <td><p-skeleton width="60px"></p-skeleton></td>
-                    <!-- <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td> -->
-                </tr>
-            </ng-template>
-        </p-table>
-    </ng-container>
-
-    <ng-template #intership>
         <!-- Table -->
         <p-table [value]="items" [paginator]="true" [rows]="pageSize" [totalRecords]="total"
             [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="true" [first]="(page - 1) * pageSize" [rowHover]="true"
+            [(selection)]="selectedRows" dataKey="id" [scrollable]="true"
             responsiveLayout="scroll" (onLazyLoad)="onLazyLoad($event)">
             <!-- HEADER -->
             <ng-template pTemplate="header">
                 <tr>
+                    <th style="width:3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
                     <th>No</th>
                     <th>Candidate</th>
                     <th>Title</th>
@@ -95,6 +98,7 @@
             <!-- BODY -->
             <ng-template pTemplate="body" let-it let-index="rowIndex">
                 <tr>
+                    <td><p-tableCheckbox [value]="it"></p-tableCheckbox></td>
                     <td>{{ index + 1 }}</td>
 
                     <td>
@@ -151,6 +155,12 @@
                             <button pButton type="button" class="p-button-text" icon="pi pi-pencil" label="Edit"
                                 (click)="openEdit(it)">
                             </button>
+                            <button pButton type="button" class="p-button-text" icon="pi pi-star" label="Reviews"
+                                (click)="openEvaluations(it)">
+                            </button>
+                            <button pButton type="button" class="p-button-text" icon="pi pi-wallet" label="Stipend"
+                                (click)="openStipends(it)">
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -159,11 +169,10 @@
             <!-- EMPTY -->
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="10" class="p-text-center">No internships found.</td>
+                    <td colspan="12" class="p-text-center">No internships found.</td>
                 </tr>
             </ng-template>
         </p-table>
-    </ng-template>
 
 </div>
 
@@ -225,12 +234,12 @@
                 <label class="field">Start
                     <!-- <input class="input" type="date" [(ngModel)]="createForm.startDate"> -->
                     
-                     <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.startDate" dateFormat="dd-mm-yy"></p-datepicker>
+                     <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.startDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
                 </label>
 
                 <label class="field">End
                     <!-- <input class="input" type="date" [(ngModel)]="createForm.endDate"> -->
-                    <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.endDate" dateFormat="dd-mm-yy"></p-datepicker>
+                    <p-datepicker showIcon iconDisplay="input" [(ngModel)]="createForm.endDate" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
                 </label>
 
                 <label class="field span-2">Notes
@@ -238,7 +247,9 @@
                 </label>
 
                 <div class="actions span-2">
-                    <button class="btn primary" (click)="submitCreate()">Create</button>
+                    <button class="btn primary" (click)="submitCreate()" [disabled]="creating">
+                        {{ creating ? 'Creating…' : 'Create' }}
+                    </button>
                 </div>
             </div>
             <!--               
@@ -249,7 +260,7 @@
 
         <!-- EDIT -->
         <ng-container *ngIf="a==='edit' && selected">
-            <h3>Edit #{{ selected.id }}</h3>
+            <h3>Edit — {{ selected.candidateName }}</h3>
             <!-- Edit modal form: two columns -->
             <div class="form two-col">
                 <label class="field">Candidate Name
@@ -319,7 +330,7 @@
 
         <!-- WORKFLOW: Offer -->
         <ng-container *ngIf="a==='offer' && selected">
-            <h3>Offer #{{ selected.id }}</h3>
+            <h3>Offer — {{ selected.candidateName }}</h3>
             <label>Offer Start <input class="input" type="date" [(ngModel)]="workflowForm.startDate"></label>
             <div class="actions">
                 <button class="btn primary" (click)="submitAction()">Set OFFERED</button>
@@ -328,7 +339,7 @@
 
         <!-- WORKFLOW: Activate -->
         <ng-container *ngIf="a==='activate' && selected">
-            <h3>Activate #{{ selected.id }}</h3>
+            <h3>Activate — {{ selected.candidateName }}</h3>
             <div class="row2">
                 <label>Start <input class="input" type="date" [(ngModel)]="workflowForm.startDate"></label>
                 <label>Employee ID <input class="input" type="number" [(ngModel)]="workflowForm.employeeId"></label>
@@ -340,7 +351,7 @@
 
         <!-- WORKFLOW: Extend -->
         <ng-container *ngIf="a==='extend' && selected">
-            <h3>Extend #{{ selected.id }}</h3>
+            <h3>Extend — {{ selected.candidateName }}</h3>
             <label>New End Date <input class="input" type="date" [(ngModel)]="workflowForm.endDate"></label>
             <div class="actions">
                 <button class="btn primary" (click)="submitAction()">Extend</button>
@@ -349,7 +360,7 @@
 
         <!-- WORKFLOW: Complete -->
         <ng-container *ngIf="a==='complete' && selected">
-            <h3>Complete #{{ selected.id }}</h3>
+            <h3>Complete — {{ selected.candidateName }}</h3>
             <label>End Date (optional) <input class="input" type="date" [(ngModel)]="workflowForm.endDate"></label>
             <div class="actions">
                 <button class="btn primary" (click)="submitAction()">Complete</button>
@@ -358,7 +369,7 @@
 
         <!-- WORKFLOW: Drop -->
         <ng-container *ngIf="a==='drop' && selected">
-            <h3>Drop #{{ selected.id }}</h3>
+            <h3>Drop — {{ selected.candidateName }}</h3>
             <label>Reason <textarea class="input" rows="3" [(ngModel)]="workflowForm.reason"></textarea></label>
             <div class="actions">
                 <button class="btn danger" (click)="submitAction()">Drop</button>
@@ -367,7 +378,7 @@
 
         <!-- WORKFLOW: Convert -->
         <ng-container *ngIf="a==='convert' && selected">
-            <h3>Convert #{{ selected.id }}</h3>
+            <h3>Convert — {{ selected.candidateName }}</h3>
             <p class="muted">Either specify an existing Employee ID, or fill the fields to create a new employee.</p>
             <label>Employee ID (existing) <input class="input" type="number"
                     [(ngModel)]="workflowForm.employeeId"></label>
@@ -376,7 +387,10 @@
                 <label>First Name <input class="input" [(ngModel)]="workflowForm.createEmployee.firstName"></label>
                 <label>Last Name <input class="input" [(ngModel)]="workflowForm.createEmployee.lastName"></label>
             </div>
-            <label>Email <input class="input" [(ngModel)]="workflowForm.createEmployee.email"></label>
+            <div class="row2">
+                <label>Email <input class="input" [(ngModel)]="workflowForm.createEmployee.email"></label>
+                <label>Phone <input class="input" [(ngModel)]="workflowForm.createEmployee.phone"></label>
+            </div>
             <div class="row2">
                 <label>Dept ID <input class="input" type="number"
                         [(ngModel)]="workflowForm.createEmployee.departmentId"></label>
@@ -384,8 +398,147 @@
                         [(ngModel)]="workflowForm.createEmployee.branchId"></label>
             </div>
             <label>DOJ <input class="input" type="date" [(ngModel)]="workflowForm.createEmployee.dateOfJoining"></label>
+            <p class="muted">The assigned mentor becomes the new employee's reporting manager. Email, phone and department carry over from the internship.</p>
             <div class="actions">
                 <button class="btn primary" (click)="submitAction()">Convert</button>
+            </div>
+        </ng-container>
+
+        <!-- EVALUATIONS -->
+        <ng-container *ngIf="a==='evaluations' && selected">
+            <h3>Evaluations — {{ selected.candidateName }}</h3>
+
+            <!-- Existing evaluations -->
+            <div class="eval-list">
+                <div *ngIf="evalLoading" class="muted">Loading…</div>
+                <div *ngIf="!evalLoading && evaluations.length === 0" class="muted">No evaluations yet.</div>
+
+                <div class="eval-item" *ngFor="let ev of evaluations">
+                    <div class="eval-item-head">
+                        <span class="eval-period">{{ ev.periodLabel || 'Evaluation' }}</span>
+                        <span class="eval-date">{{ ev.evaluationDate | date: 'dd-MM-yyyy' }}</span>
+                        <span class="eval-rating" *ngIf="ev.rating">★ {{ ev.rating }}/5</span>
+                        <span class="eval-rec" *ngIf="ev.recommendation">{{ ev.recommendation }}</span>
+                        <button pButton type="button" class="p-button-text stip-pay" icon="pi pi-pencil"
+                            (click)="editEvaluation(ev)" title="Edit"></button>
+                    </div>
+                    <div class="eval-meta" *ngIf="ev.evaluatorName">By {{ ev.evaluatorName }}</div>
+                    <div class="eval-body" *ngIf="ev.strengths"><strong>Strengths:</strong> {{ ev.strengths }}</div>
+                    <div class="eval-body" *ngIf="ev.areasToImprove"><strong>Areas to improve:</strong> {{ ev.areasToImprove }}</div>
+                    <div class="eval-body" *ngIf="ev.comments"><strong>Comments:</strong> {{ ev.comments }}</div>
+                </div>
+            </div>
+
+            <div class="bar-sep">{{ editingEvalId ? 'EDIT EVALUATION' : 'ADD EVALUATION' }}</div>
+
+            <!-- New evaluation form -->
+            <div class="form two-col">
+                <label class="field">Period
+                    <input class="input" placeholder="e.g. Month 1 / Final" [(ngModel)]="evalForm.periodLabel">
+                </label>
+
+                <label class="field">Date
+                    <input class="input" type="date" [(ngModel)]="evalForm.evaluationDate">
+                </label>
+
+                <label class="field">Rating
+                    <select class="input" [(ngModel)]="evalForm.rating">
+                        <option [ngValue]="null">—</option>
+                        <option class="drop-down" *ngFor="let r of ratingOptions" [ngValue]="r">{{ r }}</option>
+                    </select>
+                </label>
+
+                <label class="field">Recommendation
+                    <select class="input" [(ngModel)]="evalForm.recommendation">
+                        <option [ngValue]="null">—</option>
+                        <option class="drop-down" *ngFor="let r of recommendationOptions" [ngValue]="r">{{ r }}</option>
+                    </select>
+                </label>
+
+                <label class="field span-2">Evaluator
+                    <p-select [options]="evaluatorOptions" [(ngModel)]="evalForm.evaluatorId"
+                        placeholder="Select evaluator" [showClear]="true" appendTo="body" [filter]="true"
+                        style="min-width: 14rem">
+                    </p-select>
+                </label>
+
+                <label class="field span-2">Strengths
+                    <textarea class="input" rows="2" [(ngModel)]="evalForm.strengths"></textarea>
+                </label>
+
+                <label class="field span-2">Areas to Improve
+                    <textarea class="input" rows="2" [(ngModel)]="evalForm.areasToImprove"></textarea>
+                </label>
+
+                <label class="field span-2">Comments
+                    <textarea class="input" rows="2" [(ngModel)]="evalForm.comments"></textarea>
+                </label>
+
+                <div class="actions span-2">
+                    <button class="btn primary" (click)="submitEvaluation()" [disabled]="savingEval">
+                        {{ savingEval ? 'Saving…' : (editingEvalId ? 'Update' : 'Add Evaluation') }}
+                    </button>
+                    <button class="btn ghost" *ngIf="editingEvalId" [disabled]="savingEval" (click)="cancelEvalEdit()">Cancel</button>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- STIPENDS -->
+        <ng-container *ngIf="a==='stipends' && selected">
+            <h3>Stipend — {{ selected.candidateName }}</h3>
+            <p class="muted">Track this intern's monthly stipend payments — record each month's amount, mark it Paid, or generate the full schedule from the internship dates.</p>
+
+            <div class="stip-summary">
+                <span class="pill good">Paid ₹{{ stipendSummary.paidAmount }} ({{ stipendSummary.paidCount }})</span>
+                <span class="pill warn">Pending ₹{{ stipendSummary.pendingAmount }} ({{ stipendSummary.pendingCount }})</span>
+                <button class="btn ghost stip-gen" (click)="generateStipendSchedule()"
+                    title="Create a pending entry for each month of the internship">Generate from internship</button>
+            </div>
+
+            <!-- Existing disbursements -->
+            <div class="eval-list">
+                <div *ngIf="stipendLoading" class="muted">Loading…</div>
+                <div *ngIf="!stipendLoading && stipends.length === 0" class="muted">No stipend records yet.</div>
+
+                <div class="eval-item" *ngFor="let s of stipends">
+                    <div class="eval-item-head">
+                        <span class="eval-period">{{ s.periodMonth | date: 'MMM yyyy' }}</span>
+                        <span class="eval-rating">₹{{ s.amount }}</span>
+                        <span class="pill" [ngClass]="stipendPillClass(s.status)">{{ s.status }}</span>
+                        <span class="eval-date" *ngIf="s.paidAt">paid {{ s.paidAt | date: 'dd-MM-yyyy' }}</span>
+                        <button *ngIf="s.status !== 'PAID'" pButton type="button"
+                            class="p-button-text stip-pay" label="Mark Paid" (click)="markStipendPaid(s)"></button>
+                        <button class="close eval-del" title="Delete" (click)="deleteStipend(s.id)">✕</button>
+                    </div>
+                    <div class="eval-body" *ngIf="s.notes">{{ s.notes }}</div>
+                </div>
+            </div>
+
+            <div class="bar-sep">ADD STIPEND</div>
+
+            <!-- New disbursement form -->
+            <div class="form two-col">
+                <label class="field">Month
+                    <input class="input" type="month" [(ngModel)]="stipendMonth">
+                </label>
+
+                <label class="field">Amount (₹)
+                    <input class="input" type="number" [(ngModel)]="stipendForm.amount">
+                </label>
+
+                <label class="field">Status
+                    <select class="input" [(ngModel)]="stipendForm.status">
+                        <option class="drop-down" *ngFor="let st of stipendStatusOptions" [ngValue]="st">{{ st }}</option>
+                    </select>
+                </label>
+
+                <label class="field span-2">Notes
+                    <textarea class="input" rows="2" [(ngModel)]="stipendForm.notes"></textarea>
+                </label>
+
+                <div class="actions span-2">
+                    <button class="btn primary" (click)="submitStipend()">Add Stipend</button>
+                </div>
             </div>
         </ng-container>
     </div>
