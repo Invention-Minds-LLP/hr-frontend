@@ -195,7 +195,9 @@ export class AppraisalReviewForm implements OnInit, OnChanges {
   save(isDraft: boolean) {
     if (this.readOnly) return;
 
-    if (!isDraft) {
+    // In-charge & Manager must rate every question before submitting. Management
+    // has no mandatory fields — it can submit without rating all questions.
+    if (!isDraft && this.level !== 'MANAGEMENT') {
       const missing = this.questions.filter((q) => q.rating == null || isNaN(q.rating as any));
       if (missing.length) {
         this.messageService.add({
