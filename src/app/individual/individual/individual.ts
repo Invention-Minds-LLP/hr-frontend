@@ -115,6 +115,7 @@ weeklyShiftTemplates: {
   endTime: string;
   fromDate: string;
   toDate: string;
+  weekOff: string;
 }[] = [];
 
 currentWeeklyShiftIndex = 0;
@@ -362,6 +363,7 @@ loadWeeklyShiftTemplates() {
           shiftName: w.shiftName,
           fromDate: w.fromDate,
           toDate:w.toDate,
+          weekOff: w.weekOff,
           startTime: this.formatShiftDisplayTime(w.startTime),
           endTime: this.formatShiftDisplayTime(w.endTime)
         }));

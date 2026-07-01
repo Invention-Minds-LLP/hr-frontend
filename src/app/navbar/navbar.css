@@ -647,6 +647,13 @@ a {
   background-color: #f9f9f9;
 }
 
+.notification-title {
+  font-size: 13px;
+  color: #194B9B;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
 .notification-message {
   font-size: 14px;
   color: #222;

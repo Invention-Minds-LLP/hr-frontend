@@ -38,6 +38,7 @@
 
             <div *ngFor="let notification of notifications; let i = index" class="notification-item"
               (click)="handleNotificationClick(i)">
+              <div class="notification-title" *ngIf="notification.title">{{ notification.title }}</div>
               <div class="notification-message">{{ notification.message }}</div>
               <div class="notification-time">{{ notification.createdAt | date:'dd-MM-yyyy HH:mm' }}</div>
               <span class="mark-read" *ngIf="!notification.isRead" (click)="markAsRead(notification.id, i)">

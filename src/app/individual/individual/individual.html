@@ -444,6 +444,10 @@
                             {{ weeklyShiftTemplates[currentWeeklyShiftIndex].endTime }}
                         </div>
 
+                        <div class="dept" *ngIf="weeklyShiftTemplates[currentWeeklyShiftIndex].weekOff">
+                            Week Off: {{ weeklyShiftTemplates[currentWeeklyShiftIndex].weekOff | date:'EEE, dd-MM-yyyy' }}
+                        </div>
+
                         <div class="dots" *ngIf="weeklyShiftTemplates.length > 1">
                             <span *ngFor="let s of weeklyShiftTemplates; let i = index"
                                 [class.active]="i === currentWeeklyShiftIndex">

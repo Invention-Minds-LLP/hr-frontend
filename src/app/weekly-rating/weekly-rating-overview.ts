@@ -97,22 +97,28 @@ export class WeeklyRatingOverview implements OnInit {
     const day = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    monday.setHours(0, 0, 0, 0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
 
     this.weekStartDate = monday;
-    this.weekEndDate = sunday.toISOString().split('T')[0];
+    this.weekEndDate = this.toISODate(sunday)!;
   }
 
+  // Local YYYY-MM-DD (NOT toISOString, which shifts an IST-local date back a day).
   private toISODate(d: Date | null): string | undefined {
-    return d ? d.toISOString().split('T')[0] : undefined;
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
   }
 
   onWeekChange() {
     if (this.weekStartDate) {
       const end = new Date(this.weekStartDate);
       end.setDate(this.weekStartDate.getDate() + 6);
-      this.weekEndDate = end.toISOString().split('T')[0];
+      this.weekEndDate = this.toISODate(end)!;
       this.loadTeam();
     }
   }

@@ -246,7 +246,8 @@ export class WeeklyTrackerOverview implements OnInit {
     // HR Manager -> Management
     if (empRoleId === 1 && this.isManagement) return true;
     // HOD/Senior HOD -> Management
-    if ((empRoleId === 3 || empRoleId === 5) && this.isManagement && report.hodDecision === 'PENDING') return true;
+    if ((empRoleId === 3) && this.isManagement && report.hodDecision === 'PENDING') return true;
+    if ((empRoleId === 5) && this.isReportingManager && report.hodDecision === 'PENDING') return true;
     // Normal employee -> Reporting Manager (only this employee's own manager)
     if (empRoleId === 2 && this.isReportingManager && report.hodDecision === 'PENDING')
       return reportingManagerId === this.loggedEmpId;
