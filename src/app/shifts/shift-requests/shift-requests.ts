@@ -9,6 +9,8 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
 
@@ -25,8 +27,10 @@ import { FileUrlPipe } from '../../pipes/file-url.pipe';
     ButtonModule,
     FormsModule,
     TooltipModule,
+    ToastModule,
     FileUrlPipe
   ],
+  providers: [MessageService],
   templateUrl: './shift-requests.html',
   styleUrl: './shift-requests.css',
 })
@@ -51,12 +55,20 @@ export class ShiftRequests {
   loadingAction: { [key: string]: boolean } = {};
   declineSubmitting = false;
 
+  loggedEmpId = Number(localStorage.getItem('empId'));
+  monthLocked = false;
 
 
 
 
 
-  constructor(private shifts: Shifts) { }
+
+  editLoading: { [id: number]: boolean } = {};
+
+  constructor(private shifts: Shifts, private toast: MessageService) { }
+
+  private ok(detail: string) { this.toast.add({ severity: 'success', summary: 'Success', detail, life: 3000 }); }
+  private err(detail: string) { this.toast.add({ severity: 'error', summary: 'Error', detail, life: 4000 }); }
 
   ngOnInit() {
     this.load();
@@ -71,6 +83,109 @@ export class ShiftRequests {
   private isHRRole(role: string): boolean {
     const norm = role.trim().toUpperCase();
     return norm === 'HR' || norm === 'HR MANAGER';
+  }
+
+  /* ── Edit workflow ─────────────────────────────────────────────────── */
+
+  // Creator may ask HR to edit an already-approved plan.
+  canRequestEdit(a: any): boolean {
+    return a?.status === 'APPROVED'
+      && a?.requestedBy === this.loggedEmpId
+      && a?.editStatus !== 'REQUESTED'
+      && a?.editStatus !== 'APPROVED';
+  }
+
+  // HR may approve/reject a pending edit request.
+  canDecideEdit(a: any): boolean {
+    return this.isHRManager && a?.editStatus === 'REQUESTED';
+  }
+
+  // Shared reason dialog (used for "request edit" and "reject edit").
+  reasonDialogVisible = false;
+  reasonText = '';
+  reasonTitle = '';
+  reasonMode: 'REQUEST' | 'REJECT' | null = null;
+  reasonApprovalId: number | null = null;
+  reasonSubmitting = false;
+
+  requestEdit(a: any) {
+    this.reasonMode = 'REQUEST';
+    this.reasonApprovalId = a.id;
+    this.reasonTitle = 'Reason for editing this approved plan';
+    this.reasonText = '';
+    this.reasonDialogVisible = true;
+  }
+
+  decideEdit(a: any, decision: 'APPROVED' | 'REJECTED') {
+    if (decision === 'REJECTED') {
+      this.reasonMode = 'REJECT';
+      this.reasonApprovalId = a.id;
+      this.reasonTitle = 'Reason for rejecting the edit request';
+      this.reasonText = '';
+      this.reasonDialogVisible = true;
+      return;
+    }
+    // Approve — no reason needed.
+    this.editLoading[a.id] = true;
+    this.shifts.decideShiftEditRequest(a.id, 'APPROVED').subscribe({
+      next: () => { this.editLoading[a.id] = false; this.ok('Edit request approved.'); this.load(); },
+      error: (e) => { this.editLoading[a.id] = false; this.err(e?.error?.error || 'Failed to approve edit request'); this.load(); },
+    });
+  }
+
+  confirmReason() {
+    if (!this.reasonText.trim() || this.reasonApprovalId == null) return; // reason required
+    this.reasonSubmitting = true;
+    const id = this.reasonApprovalId;
+    const done = (msg: string) => {
+      this.reasonSubmitting = false;
+      this.reasonDialogVisible = false;
+      this.reasonApprovalId = null;
+      this.reasonText = '';
+      this.ok(msg);
+      this.load();
+    };
+    const fail = (e: any) => { this.reasonSubmitting = false; this.err(e?.error?.error || 'Action failed'); };
+
+    if (this.reasonMode === 'REQUEST') {
+      this.shifts.requestShiftEdit(id, this.reasonText.trim()).subscribe({ next: () => done('Edit request sent to HR.'), error: fail });
+    } else {
+      this.shifts.decideShiftEditRequest(id, 'REJECTED', this.reasonText.trim()).subscribe({ next: () => done('Edit request rejected.'), error: fail });
+    }
+  }
+
+  /* ── HR month lock (org-wide, for the selected month) ──────────────── */
+
+  refreshMonthLock() {
+    const m = this.selectedMonth.getMonth() + 1;
+    const y = this.selectedMonth.getFullYear();
+    this.shifts.getShiftMonthLock(m, y).subscribe({
+      next: (r) => this.monthLocked = !!r.locked,
+      error: () => this.monthLocked = false,
+    });
+  }
+
+  monthLockLoading = false;
+
+  closeMonth() {
+    if (!this.isHRManager) return;
+    const m = this.selectedMonth.getMonth() + 1, y = this.selectedMonth.getFullYear();
+    if (typeof window !== 'undefined' && !window.confirm(`Close ${m}/${y} for everyone? No shifts can be edited until reopened.`)) return;
+    this.monthLockLoading = true;
+    this.shifts.closeShiftMonth(m, y).subscribe({
+      next: () => { this.monthLockLoading = false; this.monthLocked = true; this.ok('Month closed.'); },
+      error: (e) => { this.monthLockLoading = false; this.err(e?.error?.error || 'Failed to close month'); },
+    });
+  }
+
+  reopenMonth() {
+    if (!this.isHRManager) return;
+    const m = this.selectedMonth.getMonth() + 1, y = this.selectedMonth.getFullYear();
+    this.monthLockLoading = true;
+    this.shifts.reopenShiftMonth(m, y).subscribe({
+      next: () => { this.monthLockLoading = false; this.monthLocked = false; this.ok('Month reopened.'); },
+      error: (e) => { this.monthLockLoading = false; this.err(e?.error?.error || 'Failed to reopen month'); },
+    });
   }
   private actionKey(id: number, level: 'LEVEL1' | 'LEVEL2') {
     return `${id}_${level}`;
@@ -330,6 +445,16 @@ export class ShiftRequests {
     );
     const weekOffWeeks = approval.weekOffConfig?.weeks || {};
 
+    // Group pattern items by week so we can surface per-day overrides (days whose
+    // shift differs from that week's base shift) for the approver to review.
+    const firstWeekStart = weeks.length ? new Date(weeks[0].start) : null;
+    const itemsByWeek: Record<number, { dayIndex: number; shiftId: number }[]> = {};
+    for (const it of (approval.pattern.items || [])) {
+      if (typeof it?.dayIndex !== 'number' || typeof it?.shiftId !== 'number') continue;
+      const wi = Math.floor(it.dayIndex / 7);
+      (itemsByWeek[wi] ||= []).push(it);
+    }
+
     // // 3️⃣ Fill weekWisePattern from CURRENT month first
     // this.weekWisePattern = weeks.map((w, i) => ({
     //   ...w,
@@ -339,16 +464,29 @@ export class ShiftRequests {
 
     this.weekWisePattern = weeks.map((w, i) => {
       const weekOffDay = weekOffWeeks[i]; // 0–6 or undefined
+      const base = currWeekShiftIds[i];
+
+      // Per-day overrides in this week: items whose shift differs from the base,
+      // limited to days that fall inside the selected month.
+      const dayOverrides = (itemsByWeek[i] || [])
+        .filter(it => it.shiftId !== base)
+        .map(it => ({
+          date: firstWeekStart ? new Date(firstWeekStart.getTime() + it.dayIndex * 86400000) : null,
+          shift: this.getShiftById(it.shiftId),
+        }))
+        .filter(o => o.date && o.shift && o.date.getMonth() === (month - 1))
+        .sort((a, b) => (a.date!.getTime() - b.date!.getTime()));
 
       return {
         ...w,
-        shift: currWeekShiftIds[i] != null
-          ? this.getShiftById(currWeekShiftIds[i])
+        shift: base != null
+          ? this.getShiftById(base)
           : null,
         weekOffDate:
           typeof weekOffDay === 'number'
             ? this.getWeekOffDate(w, weekOffDay)
-            : null
+            : null,
+        dayOverrides,
       };
     });
 

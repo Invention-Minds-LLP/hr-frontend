@@ -81,6 +81,7 @@ import { LoansOverview } from './loans/loans-overview';
 import { IncentiveRequests } from './incentives/incentive-requests/incentive-requests';
 import { WeeklyRatingOverview } from './weekly-rating/weekly-rating-overview';
 import { PipOverview } from './pip/pip-overview/pip-overview';
+import { ModuleUtilization } from './module-utilization/module-utilization';
 import { PipResponseForm } from './pip/pip-response-form/pip-response-form';
 
 export const routes: Routes = [
@@ -136,6 +137,7 @@ export const routes: Routes = [
         { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard]},
         { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard]},
         { path: 'loans', component: LoansOverview, canActivate: [authGuard]},
+        { path: 'module-utilization', component: ModuleUtilization, canActivate: [authGuard]},
     ],
 
   },

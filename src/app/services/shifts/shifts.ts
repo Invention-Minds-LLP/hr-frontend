@@ -169,6 +169,44 @@ export class Shifts {
 requestMonthlyShift(payload: any) {
   return this.http.post(`${this.apiUrl}/monthly-request`, payload);
 }
+
+/* ── Monthly-shift edit workflow ──────────────────────────────────────── */
+getMonthlyRequestEditability(approvalId: number) {
+  return this.http.get<{
+    editable: boolean;
+    mode: 'INFLIGHT' | 'POSTEDIT' | null;
+    canRequestEdit: boolean;
+    monthLocked: boolean;
+    editStatus: string;
+    status: string;
+    reason?: string;
+  }>(`${this.apiUrl}/monthly-request/${approvalId}/editability`);
+}
+
+editMonthlyRequest(approvalId: number, payload: any) {
+  return this.http.put(`${this.apiUrl}/monthly-request/${approvalId}`, payload);
+}
+
+requestShiftEdit(approvalId: number, reason?: string) {
+  return this.http.post(`${this.apiUrl}/monthly-request/${approvalId}/edit-request`, { reason });
+}
+
+decideShiftEditRequest(approvalId: number, decision: 'APPROVED' | 'REJECTED', reason?: string) {
+  return this.http.post(`${this.apiUrl}/monthly-request/${approvalId}/edit-request/decide`, { decision, reason });
+}
+
+/* ── HR month lock (org-wide) ─────────────────────────────────────────── */
+getShiftMonthLock(month: number, year: number) {
+  return this.http.get<{ locked: boolean; lock: any }>(`${this.apiUrl}/month-lock`, { params: { month, year } as any });
+}
+
+closeShiftMonth(month: number, year: number) {
+  return this.http.post(`${this.apiUrl}/month-lock`, { month, year });
+}
+
+reopenShiftMonth(month: number, year: number) {
+  return this.http.delete(`${this.apiUrl}/month-lock`, { body: { month, year } });
+}
   getMonthlyShiftForEmployee(payload: {
     employeeId: number;
     month: number;
@@ -176,7 +214,12 @@ requestMonthlyShift(payload: any) {
   }) {
     return this.http.post<{
       isMonthAssigned: boolean;
+      approvalId?: number;
+      status?: string;
+      editStatus?: string;
+      requestedBy?: number;
       weekShifts?: { [weekIndex: number]: number };
+      dayOverrides?: { [iso: string]: number }; // per-day overrides (date -> shiftId)
         weekOffConfig?: {
     weeks: Record<number, number>; // weekIndex -> dayOfWeek (0–6)
   };
@@ -219,5 +262,33 @@ getEmployeeDailyShiftsForRange(employeeId: number, from: string, to: string) {
       }
     }
   );
+}
+
+/* ── HR monthly shift + attendance report ─────────────────────────────── */
+getShiftAttendanceReport(month: number, year: number) {
+  return this.http.get<any>(`${this.apiUrl}/attendance-report`, {
+    params: { month, year } as any
+  });
+}
+
+exportShiftAttendanceReport(month: number, year: number) {
+  return this.http.get(`${this.apiUrl}/attendance-report/export`, {
+    params: { month, year } as any,
+    responseType: 'blob'
+  });
+}
+
+/* ── HR shift adherence report (allotted vs actual shift) ──────────────── */
+getShiftAdherenceReport(month: number, year: number) {
+  return this.http.get<any>(`${this.apiUrl}/adherence-report`, {
+    params: { month, year } as any
+  });
+}
+
+exportShiftAdherenceReport(month: number, year: number) {
+  return this.http.get(`${this.apiUrl}/adherence-report/export`, {
+    params: { month, year } as any,
+    responseType: 'blob'
+  });
 }
 }

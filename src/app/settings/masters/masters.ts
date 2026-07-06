@@ -22,6 +22,7 @@ import { Holidays } from '../../services/holidays/holidays';
 import { WeeklyRatingService } from '../../services/weekly-rating/weekly-rating';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
 
 type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveTypes' | 'shiftTemplates' | 'holidays' | 'ratingQuestions';
@@ -30,7 +31,7 @@ type MasterTab = 'departments' | 'branches' | 'designations' | 'roles' | 'leaveT
   selector: 'app-masters',
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, ToastModule,
-    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, SelectModule, InputNumberModule, ModuleGuide, RouterModule
+    DialogModule, InputTextModule, TooltipModule, ToggleSwitchModule, ConfirmDialogModule, DatePickerModule, SelectModule, MultiSelectModule, InputNumberModule, ModuleGuide, RouterModule
   ],
   templateUrl: './masters.html',
   styleUrl: './masters.css',
@@ -108,6 +109,7 @@ export class Masters implements OnInit {
   formShiftType = 'MORNING';
   formStartTime = '';
   formEndTime = '';
+  formDepartmentIds: number[] = []; // departments this shift is assignable to
   formDate: Date | null = null;
   formCalendarYear: number = new Date().getFullYear();
   formCalendarName = '';
@@ -207,6 +209,10 @@ export class Masters implements OnInit {
         });
         break;
       case 'shiftTemplates':
+        // Departments are needed for the per-shift "Departments" multi-select.
+        if (!this.departments.length) {
+          this.departmentService.getDepartments().subscribe({ next: (d) => { this.departments = d; } });
+        }
         this.shiftService.getShiftTemplates().subscribe({
           next: (data) => { this.shiftTemplates = data; this.loading = false; },
           error: () => { this.showError('Failed to load shift templates'); this.loading = false; }
@@ -276,6 +282,7 @@ export class Masters implements OnInit {
     this.formShiftType = 'MORNING';
     this.formStartTime = '';
     this.formEndTime = '';
+    this.formDepartmentIds = [];
     this.formDate = null;
     this.formDescription = '';
     this.formIsOptional = false;
@@ -298,6 +305,7 @@ export class Masters implements OnInit {
     this.formShiftType = item.shiftType || 'MORNING';
     this.formStartTime = item.startTime ? this.toTimeString(item.startTime) : '';
     this.formEndTime = item.endTime ? this.toTimeString(item.endTime) : '';
+    this.formDepartmentIds = item.departmentIds || (item.departments?.map((d: any) => d.id) ?? []);
     this.formDate = item.date ? new Date(item.date) : null;
     this.formIsOptional = item.isOptional ?? false;
     this.dialogTitle = `Edit ${this.getTabLabel()}`;
@@ -442,6 +450,7 @@ export class Masters implements OnInit {
           shiftType: this.formShiftType,
           startTime: this.toISOTime(this.formStartTime),
           endTime: this.toISOTime(this.formEndTime),
+          departmentIds: this.formDepartmentIds || [],
         };
         if (this.isEditing) {
           this.shiftService.updateShiftTemplate(this.editingId!, shiftData).subscribe({

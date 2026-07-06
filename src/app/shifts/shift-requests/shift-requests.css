@@ -5,6 +5,51 @@
     /* padding: 0 50px; */
 }
 
+.month-lock-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ml-btn {
+    white-space: nowrap;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    line-height: 1.2;
+    min-width: 120px;
+}
+
+.ml-label {
+    color: #fff;
+    font-weight: 600;
+}
+
+.edit-pill {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    white-space: nowrap;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid transparent;
+}
+
+.edit-pill.pending {
+    background: #fff4e5;
+    color: #a15c00;
+    border-color: #f0c893;
+}
+
+.edit-pill.approved {
+    background: #e7f5e8;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+}
+
 .filters {
     display: flex;
     gap: 0.5rem;
@@ -1298,4 +1343,45 @@ button:disabled {
 .email {
   font-size: 12px;
   color: #a1a1a1;
+}
+
+/* Per-day overrides inside the pattern view dialog */
+.day-overrides {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(185, 119, 14, .12);
+  border: 1px solid rgba(185, 119, 14, .4);
+}
+.day-overrides .ov-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f0a728;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.day-overrides .ov-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+  font-size: 12px;
+}
+.day-overrides .ov-date {
+  min-width: 74px;
+  font-weight: 600;
+  color: #f4c66b;
+}
+.day-overrides .ov-shift {
+  color: #fff;
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.day-overrides .ov-time {
+  font-size: 11px;
+  opacity: .75;
 }

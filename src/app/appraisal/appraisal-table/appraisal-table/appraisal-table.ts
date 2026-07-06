@@ -529,6 +529,25 @@ export class AppraisalTable {
   managerEditRequestAppraisalId: number | null = null;
   managerEditRequestReason = '';
 
+  /** Free unlimited edits are allowed only while the due date is set and in the future. */
+  hasFreeEditWindow(a: any): boolean {
+    return !!a.dueDate && new Date(a.dueDate) > new Date();
+  }
+
+  /** Manager can fill (first time) or directly edit (submitted, within the
+   *  free-edit window). Outside the window a submitted review goes through the
+   *  edit-request flow instead — see canManagerRequestEdit. */
+  canManagerFill(a: any): boolean {
+    const isFiller =
+      (this.loggedRoleId === 3 || a.managerId === this.loggedEmployeeId) &&
+      a.employeeId !== this.loggedEmployeeId &&
+      !['AUTO_DRAFT', 'Draft'].includes(a.status);
+    if (!isFiller) return false;
+    if (!a.managerAppraisalSubmittedAt) return true; // first fill
+    if (['COMPLETED', 'HR_APPROVED', 'HR_REVIEW'].includes(a.status)) return false;
+    return this.hasFreeEditWindow(a); // free re-edit window
+  }
+
   canManagerRequestEdit(a: any): boolean {
     const isAssignedManager =
       (this.loggedRoleId === 3 && a.employee?.reportingManager === this.loggedEmployeeId)
@@ -536,7 +555,8 @@ export class AppraisalTable {
     return isAssignedManager &&
       a.employeeId !== this.loggedEmployeeId &&
       !!a.managerAppraisalSubmittedAt &&
-      !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+      !['COMPLETED', 'HR_APPROVED'].includes(a.status) &&
+      !this.hasFreeEditWindow(a); // free window → edit directly, no request
   }
 
   openManagerEditRequest(a: any) {
@@ -619,7 +639,8 @@ export class AppraisalTable {
     return !!inchargeId
       && Number(inchargeId) === this.loggedEmployeeId
       && !!a.inchargeAppraisalSubmittedAt
-      && !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+      && !['COMPLETED', 'HR_APPROVED'].includes(a.status)
+      && !this.hasFreeEditWindow(a); // free window → edit directly, no request
   }
 
   openInchargeEditRequest(a: any) {
@@ -652,9 +673,10 @@ export class AppraisalTable {
 
   // ── Management Actions ──────────────────────────────────────────────
   canManagementFill(a: any): boolean {
-    return this.isManagement &&
-      ['PENDING_FILL', 'SELF_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status) &&
-      !a.managementAppraisalSubmittedAt;
+    if (!this.isManagement) return false;
+    if (!['PENDING_FILL', 'SELF_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_PENDING', 'MANAGER_APPRAISAL_SUBMITTED'].includes(a.status)) return false;
+    if (!a.managementAppraisalSubmittedAt) return true; // first fill
+    return this.hasFreeEditWindow(a); // free re-edit window
   }
 
   // ── In-charge Actions ───────────────────────────────────────────────
@@ -664,8 +686,9 @@ export class AppraisalTable {
     const inchargeId = a?.inchargeId ?? a?.employee?.inchargeId;
     if (!inchargeId) return false;
     if (Number(inchargeId) !== this.loggedEmployeeId) return false;
-    if (a.inchargeAppraisalSubmittedAt) return false;
-    return ['PENDING_FILL', 'SELF_APPRAISAL_SUBMITTED'].includes(a.status);
+    if (!['PENDING_FILL', 'SELF_APPRAISAL_SUBMITTED'].includes(a.status)) return false;
+    if (!a.inchargeAppraisalSubmittedAt) return true; // first fill
+    return this.hasFreeEditWindow(a); // free re-edit window
   }
 
   onInchargeEditClick(a: any) {
@@ -687,7 +710,8 @@ export class AppraisalTable {
   canManagementRequestEdit(a: any): boolean {
     return this.isManagement &&
       !!a.managementAppraisalSubmittedAt &&
-      !['COMPLETED', 'HR_APPROVED'].includes(a.status);
+      !['COMPLETED', 'HR_APPROVED'].includes(a.status) &&
+      !this.hasFreeEditWindow(a); // free window → edit directly, no request
   }
 
   managementEditRequestDialogVisible = false;

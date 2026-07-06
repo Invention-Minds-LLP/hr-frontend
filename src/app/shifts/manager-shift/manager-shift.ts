@@ -34,8 +34,25 @@ import { MessageService } from 'primeng/api';
 })
 export class ManagerShift {
   employees: any[] = [];
+  filteredEmployees: any[] = [];
   executiveShifts: any[] = [];
   patterns: any[] = [];
+
+  // ── Team-list filters (client-side) ──
+  filterName = '';
+  filterCode = '';
+  filterDept: string | null = null;
+  filterDesignation: string | null = null;
+  departmentOptions: string[] = [];
+  designationOptions: string[] = [];
+
+  // ── Per-day shift overrides in the monthly dialog ──
+  // { 'YYYY-MM-DD': shiftId } — a day whose shift differs from its week's shift.
+  dayOverrideMap: { [iso: string]: number | null } = {};
+  expandedWeeks = new Set<number>();
+  // Stable per-week day list — computed ONCE per month. Never call weekDays()
+  // from the template (it returns a fresh array each CD cycle → render loop).
+  weekDaysMap: { [weekIndex: number]: Date[] } = {};
 
   selectedEmployee: any;
   selectedMode: 'FIXED' | 'ROTATIONAL' = 'FIXED';
@@ -90,6 +107,17 @@ export class ManagerShift {
   // 🔁 rotation order (business-defined)
   executiveRotationOrder: number[] = [];
 
+  // Master switch for the monthly-shift rotation rules (queue order, no-duplicate
+  // -in-month, night→6h, 6h-only-after-night, one-6h/night-per-cycle). Currently
+  // OFF so a manager can assign ANY shift to ANY week. Set to true to re-enable.
+  enforceRotationRules = false;
+
+  // Edit mode: when set, submitting PUTs to the existing approval instead of
+  // creating a new request. POSTEDIT additionally locks past weeks.
+  editingApprovalId: number | null = null;
+  editMode: 'INFLIGHT' | 'POSTEDIT' | null = null;
+  editLockNote = ''; // shown at the bottom of the dialog when locked/edit-pending
+
   // 🔁 runtime state
   usedRotationShiftIds = new Set<number>();
   sixHourUsed = false;
@@ -110,7 +138,26 @@ export class ManagerShift {
   }
 
   load() {
-    this.service.getMyEmployees().subscribe(r => this.employees = r);
+    this.service.getMyEmployees().subscribe({
+      next: (r) => {
+        this.employees = Array.isArray(r) ? r : [];
+        this.buildFilterOptions();
+        this.applyEmpFilter();
+        if (!this.employees.length) {
+          console.warn('getMyEmployees returned no team members');
+        }
+      },
+      error: (err) => {
+        this.employees = [];
+        this.applyEmpFilter();
+        console.error('getMyEmployees failed', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not load team',
+          detail: err?.error?.error || err?.error?.message || 'Failed to load your team members.'
+        });
+      }
+    });
     // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
     this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
       this.executiveShifts = res.map((s: any) => ({
@@ -120,6 +167,100 @@ export class ManagerShift {
       this.buildExecutiveRotation();
     });
     this.service.getRotationPatterns().subscribe(r => this.patterns = r);
+  }
+
+  // ── Team-list filtering & department-name sort ──
+  buildFilterOptions() {
+    const depts = new Set<string>();
+    const desigs = new Set<string>();
+    for (const e of this.employees) {
+      if (e?.Department?.name) depts.add(e.Department.name);
+      if (e?.designation?.name) desigs.add(e.designation.name);
+    }
+    this.departmentOptions = [...depts].sort((a, b) => a.localeCompare(b));
+    this.designationOptions = [...desigs].sort((a, b) => a.localeCompare(b));
+  }
+
+  applyEmpFilter() {
+    const name = this.filterName.trim().toLowerCase();
+    const code = this.filterCode.trim().toLowerCase();
+
+    this.filteredEmployees = this.employees
+      .filter(e => {
+        const full = `${e.firstName || ''} ${e.lastName || ''}`.toLowerCase();
+        if (name && !full.includes(name)) return false;
+        if (code && !String(e.employeeCode || '').toLowerCase().includes(code)) return false;
+        if (this.filterDept && e?.Department?.name !== this.filterDept) return false;
+        if (this.filterDesignation && e?.designation?.name !== this.filterDesignation) return false;
+        return true;
+      })
+      // Default order: department name, then employee name.
+      .sort((a, b) => {
+        const d = (a?.Department?.name || '').localeCompare(b?.Department?.name || '');
+        if (d !== 0) return d;
+        return `${a.firstName || ''} ${a.lastName || ''}`.localeCompare(`${b.firstName || ''} ${b.lastName || ''}`);
+      });
+  }
+
+  clearEmpFilter() {
+    this.filterName = '';
+    this.filterCode = '';
+    this.filterDept = null;
+    this.filterDesignation = null;
+    this.applyEmpFilter();
+  }
+
+  // ── Per-day shift override helpers (monthly dialog) ──
+  private isoOf(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  toggleWeekDays(weekIndex: number) {
+    if (this.expandedWeeks.has(weekIndex)) this.expandedWeeks.delete(weekIndex);
+    else this.expandedWeeks.add(weekIndex);
+  }
+
+  // In-month days of a week (overrides only apply within the selected month).
+  weekDays(week: { start: Date; end: Date }): Date[] {
+    if (!this.selectedMonth) return [];
+    const m = this.selectedMonth.getMonth();
+    const y = this.selectedMonth.getFullYear();
+    const days: Date[] = [];
+    for (let d = new Date(week.start); d <= week.end; d.setDate(d.getDate() + 1)) {
+      if (d.getMonth() === m && d.getFullYear() === y) days.push(new Date(d));
+    }
+    return days;
+  }
+
+  // Effective shift shown for a day = its override, else the week's shift.
+  dayShiftValue(day: Date, weekIndex: number): number | null {
+    const iso = this.isoOf(day);
+    const ov = this.dayOverrideMap[iso];
+    return (ov ?? this.weekShiftMap[weekIndex]) ?? null;
+  }
+
+  onDayShiftChange(day: Date, weekIndex: number, shiftId: number | null) {
+    const iso = this.isoOf(day);
+    // Same as the week's shift (or cleared) → not an override.
+    if (!shiftId || shiftId === this.weekShiftMap[weekIndex]) delete this.dayOverrideMap[iso];
+    else this.dayOverrideMap[iso] = shiftId;
+  }
+
+  isDayOverridden(day: Date, weekIndex: number): boolean {
+    const iso = this.isoOf(day);
+    const ov = this.dayOverrideMap[iso];
+    return ov != null && ov !== this.weekShiftMap[weekIndex];
+  }
+
+  isDayLocked(day: Date, weekIndex: number): boolean {
+    if (this.isMonthLocked || this.lockedWeeks.has(weekIndex)) return true;
+    // POSTEDIT: only upcoming days are editable.
+    if (this.editMode === 'POSTEDIT') {
+      const d = new Date(day); d.setHours(0, 0, 0, 0);
+      const t = new Date(); t.setHours(0, 0, 0, 0);
+      if (d < t) return true;
+    }
+    return false;
   }
 
   loadExistingDailyShifts(employeeId: number, from: Date, to: Date) {
@@ -634,87 +775,87 @@ export class ManagerShift {
   //     });
   // }
   getWeekDefaultDate(week: { start: Date; end: Date }): Date {
-  const selectedMonth = this.selectedMonth.getMonth();
-  const selectedYear = this.selectedMonth.getFullYear();
+    const selectedMonth = this.selectedMonth.getMonth();
+    const selectedYear = this.selectedMonth.getFullYear();
 
-  // Find first date of this week inside the selected month
-  for (
-    let d = new Date(week.start);
-    d <= week.end;
-    d.setDate(d.getDate() + 1)
-  ) {
-    if (
-      d.getMonth() === selectedMonth &&
-      d.getFullYear() === selectedYear
+    // Find first date of this week inside the selected month
+    for (
+      let d = new Date(week.start);
+      d <= week.end;
+      d.setDate(d.getDate() + 1)
     ) {
-      return new Date(d);
+      if (
+        d.getMonth() === selectedMonth &&
+        d.getFullYear() === selectedYear
+      ) {
+        return new Date(d);
+      }
     }
+
+    // fallback: month start
+    return new Date(selectedYear, selectedMonth, 1);
   }
+  trackByWeek = (_: number, w: any) =>
+    `${w.start.toISOString()}-${this.selectedMonth?.getMonth()}`;
 
-  // fallback: month start
-  return new Date(selectedYear, selectedMonth, 1);
-}
-trackByWeek = (_: number, w: any) =>
-  `${w.start.toISOString()}-${this.selectedMonth?.getMonth()}`;
+  // getWeekSelectableRange(week: { start: Date; end: Date }) {
+  //   const year = this.selectedMonth.getFullYear();
+  //   const month = this.selectedMonth.getMonth();
 
-// getWeekSelectableRange(week: { start: Date; end: Date }) {
-//   const year = this.selectedMonth.getFullYear();
-//   const month = this.selectedMonth.getMonth();
+  //   const monthStart = new Date(year, month, 1);
+  //   const monthEnd = new Date(year, month + 1, 0);
 
-//   const monthStart = new Date(year, month, 1);
-//   const monthEnd = new Date(year, month + 1, 0);
+  //   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
+  //   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
 
-//   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
-//   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+  //   // 🔒 SAFETY: if invalid range, lock it
+  //   if (min > max) {
+  //     return { min: null, max: null };
+  //   }
 
-//   // 🔒 SAFETY: if invalid range, lock it
-//   if (min > max) {
-//     return { min: null, max: null };
-//   }
+  //   return { min, max };
+  // }
+  // getWeekSelectableRange(week: { start: Date; end: Date }) {
+  //   const year = this.selectedMonth.getFullYear();
+  //   const month = this.selectedMonth.getMonth();
 
-//   return { min, max };
-// }
-// getWeekSelectableRange(week: { start: Date; end: Date }) {
-//   const year = this.selectedMonth.getFullYear();
-//   const month = this.selectedMonth.getMonth();
+  //   const monthStart = new Date(year, month, 1);
+  //   const monthEnd = new Date(year, month + 1, 0);
 
-//   const monthStart = new Date(year, month, 1);
-//   const monthEnd = new Date(year, month + 1, 0);
+  //   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
+  //   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
 
-//   const min = new Date(Math.max(week.start.getTime(), monthStart.getTime()));
-//   const max = new Date(Math.min(week.end.getTime(), monthEnd.getTime()));
+  //   // If week doesn't intersect month, lock to month start
+  //   if (min > max) {
+  //     return { min: monthStart, max: monthStart };
+  //   }
 
-//   // If week doesn't intersect month, lock to month start
-//   if (min > max) {
-//     return { min: monthStart, max: monthStart };
-//   }
+  //   return { min, max };
+  // }
 
-//   return { min, max };
-// }
+  getWeekSelectableRange(week: { start: Date; end: Date }) {
+    if (!this.selectedMonth) {
+      return { min: null, max: null };
+    }
 
-getWeekSelectableRange(week: { start: Date; end: Date }) {
-  if (!this.selectedMonth) {
-    return { min: null, max: null };
+    const year = this.selectedMonth.getFullYear();
+    const month = this.selectedMonth.getMonth();
+
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
+
+    let minTime = Math.max(week.start.getTime(), monthStart.getTime());
+    let maxTime = Math.min(week.end.getTime(), monthEnd.getTime());
+
+    let min = new Date(minTime);
+    let max = new Date(maxTime);
+
+    // 🔑 normalize times
+    min.setHours(0, 0, 0, 0);
+    max.setHours(23, 59, 59, 999);
+
+    return { min, max };
   }
-
-  const year = this.selectedMonth.getFullYear();
-  const month = this.selectedMonth.getMonth();
-
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0);
-
-  let minTime = Math.max(week.start.getTime(), monthStart.getTime());
-  let maxTime = Math.min(week.end.getTime(), monthEnd.getTime());
-
-  let min = new Date(minTime);
-  let max = new Date(maxTime);
-
-  // 🔑 normalize times
-  min.setHours(0, 0, 0, 0);
-  max.setHours(23, 59, 59, 999);
-
-  return { min, max };
-}
 
 
   async onMonthSelected() {
@@ -730,6 +871,8 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
 
     // reset state
     this.weekShiftMap = {};
+    this.dayOverrideMap = {};
+    this.expandedWeeks.clear();
     this.usedRotationShiftIds.clear();
     this.usedShiftIdsInCurrentMonth.clear();
     this.sixHourUsed = false;
@@ -737,6 +880,9 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
     this.isMonthLocked = false;
     this.weekOffDateMap = {};
     this.lockedWeeks.clear();
+    this.editingApprovalId = null;
+    this.editMode = null;
+    this.editLockNote = '';
 
     const rangeStart = this.weeks[0].start;
     const rangeEnd = this.weeks[this.weeks.length - 1].end;
@@ -791,11 +937,14 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
           });
 
           if (shiftsInWeek.length > 0) {
-            // 🔒 lock week
-            this.lockedWeeks.add(index);
-
             // 🟢 auto-fill using first shift
             this.weekShiftMap[index] = shiftsInWeek[0].shiftId;
+
+            // 🔒 lock only PAST weeks — an assigned but still-upcoming week must
+            // stay editable (otherwise editing an approved month locks everything).
+            if (this.isPastWeekDate(week)) {
+              this.lockedWeeks.add(index);
+            }
 
             // 🔁 update rotation state
             const shift = this.executiveShifts.find(
@@ -818,38 +967,56 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
       year
     }).toPromise();
 
-    if (curr?.isMonthAssigned) {
-      this.weekShiftMap = { ...curr.weekShifts };
-      this.isMonthLocked = true;
+    // An existing monthly request (approved OR still pending) → load it. Whether
+    // it's editable or read-only is decided by the backend editability check.
+    if (curr?.approvalId) {
+      this.weekShiftMap = { ...(curr.weekShifts || {}) };
+      this.dayOverrideMap = { ...(curr.dayOverrides || {}) };
       const weekOffConfig = curr.weekOffConfig;
       if (weekOffConfig?.weeks) {
         const weeksConfig = weekOffConfig.weeks;
-
         Object.keys(weeksConfig).forEach(k => {
-          const weekIndex = Number(k);   // 🔑 convert
-          const dayOfWeek = weeksConfig[weekIndex]; // ✅ number index
-
+          const weekIndex = Number(k);
+          const dayOfWeek = weeksConfig[weekIndex];
           const week = this.weeks[weekIndex];
           if (!week) return;
-
           const resolved = this.resolveWeekOffDate(
             week,
             dayOfWeek,
             this.selectedMonth.getMonth(),
             this.selectedMonth.getFullYear()
           );
-
-          if (resolved) {
-            this.weekOffDateMap[weekIndex] = resolved;
-          }
-
-          // this.weekOffDateMap[weekIndex] =
-          // this.resolveWeekOffDate(week, dayOfWeek);
+          if (resolved) this.weekOffDateMap[weekIndex] = resolved;
         });
       }
 
+      // Editable? (creator, in-flight or HR-granted post-approval; month not locked)
+      const ed = await this.service.getMonthlyRequestEditability(curr.approvalId).toPromise();
+      if (ed?.editable) {
+        this.isMonthLocked = false;             // unlock the dialog for editing
+        this.editingApprovalId = curr.approvalId;
+        this.editMode = ed.mode;
+        this.editLockNote = ed.mode === 'POSTEDIT' ? 'Editing — past weeks are locked.' : '';
+        if (ed.mode === 'POSTEDIT') {
+          // Only upcoming weeks may change — lock the past ones.
+          this.weeks.forEach((w, i) => { if (this.isPastWeekDate(w)) this.lockedWeeks.add(i); });
+        }
+      } else {
+        this.isMonthLocked = true;              // read-only
+        this.editingApprovalId = null;
+        this.editMode = null;
+        this.editLockNote =
+          ed?.monthLocked ? 'This month is closed by HR — no edits allowed.'
+          : ed?.editStatus === 'REQUESTED' ? 'Edit requested — waiting for HR approval.'
+          : ed?.status === 'APPROVED' ? 'This plan is approved. Use "Request Edit" in Shift Requests to change upcoming weeks.'
+          : 'This month is already assigned and cannot be edited.';
+      }
       return;
     }
+
+    this.editingApprovalId = null;
+    this.editMode = null;
+    this.editLockNote = '';
 
     // 🔑 CALCULATE TRUE CYCLE PROGRESS
     const cycleProgress =
@@ -900,116 +1067,122 @@ getWeekSelectableRange(week: { start: Date; end: Date }) {
   //   }
   // }
 
-//   generateWeeks() {
-//   this.weeks = [];
-//   this.weekShiftMap = {};
-//   this.weekSelectableRanges = [];
+  //   generateWeeks() {
+  //   this.weeks = [];
+  //   this.weekShiftMap = {};
+  //   this.weekSelectableRanges = [];
 
-//   const year = this.selectedMonth.getFullYear();
-//   const month = this.selectedMonth.getMonth();
+  //   const year = this.selectedMonth.getFullYear();
+  //   const month = this.selectedMonth.getMonth();
 
-//   const monthStart = new Date(year, month, 1);
-//   const monthEnd = new Date(year, month + 1, 0);
+  //   const monthStart = new Date(year, month, 1);
+  //   const monthEnd = new Date(year, month + 1, 0);
 
-//   const firstWeekStart = new Date(monthStart);
-//   firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
+  //   const firstWeekStart = new Date(monthStart);
+  //   firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
 
-//   let current = new Date(firstWeekStart);
+  //   let current = new Date(firstWeekStart);
 
-//   while (current <= monthEnd) {
-//     const weekStart = new Date(current);
-//     const weekEnd = new Date(current);
-//     weekEnd.setDate(weekEnd.getDate() + 6);
+  //   while (current <= monthEnd) {
+  //     const weekStart = new Date(current);
+  //     const weekEnd = new Date(current);
+  //     weekEnd.setDate(weekEnd.getDate() + 6);
 
-//     this.weeks.push({
-//       start: new Date(weekStart),
-//       end: new Date(weekEnd)
-//     });
+  //     this.weeks.push({
+  //       start: new Date(weekStart),
+  //       end: new Date(weekEnd)
+  //     });
 
-//     let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
-//     let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
+  //     let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
+  //     let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
 
-//     const min = new Date(minTime);
-//     const max = new Date(maxTime);
+  //     const min = new Date(minTime);
+  //     const max = new Date(maxTime);
 
-//     min.setHours(0, 0, 0, 0);
-//     max.setHours(23, 59, 59, 999);
+  //     min.setHours(0, 0, 0, 0);
+  //     max.setHours(23, 59, 59, 999);
 
-//     this.weekSelectableRanges.push({ min, max });
+  //     this.weekSelectableRanges.push({ min, max });
 
-//     current.setDate(current.getDate() + 7);
-//   }
-// }
-generateWeeks() {
-  this.weeks = [];
-  this.weekShiftMap = {};
-  this.weekSelectableRanges = [];
-  this.weekDefaultDates = [];
+  //     current.setDate(current.getDate() + 7);
+  //   }
+  // }
+  generateWeeks() {
+    this.weeks = [];
+    this.weekShiftMap = {};
+    this.weekSelectableRanges = [];
+    this.weekDefaultDates = [];
 
-  const year = this.selectedMonth.getFullYear();
-  const month = this.selectedMonth.getMonth();
+    const year = this.selectedMonth.getFullYear();
+    const month = this.selectedMonth.getMonth();
 
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0);
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
 
-  const firstWeekStart = new Date(monthStart);
-  firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
+    const firstWeekStart = new Date(monthStart);
+    firstWeekStart.setDate(monthStart.getDate() - monthStart.getDay());
 
-  let current = new Date(firstWeekStart);
+    let current = new Date(firstWeekStart);
 
-  while (current <= monthEnd) {
-    const weekStart = new Date(current);
-    const weekEnd = new Date(current);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+    while (current <= monthEnd) {
+      const weekStart = new Date(current);
+      const weekEnd = new Date(current);
+      weekEnd.setDate(weekEnd.getDate() + 6);
 
-    this.weeks.push({
-      start: new Date(weekStart),
-      end: new Date(weekEnd)
-    });
+      this.weeks.push({
+        start: new Date(weekStart),
+        end: new Date(weekEnd)
+      });
 
-    // ----- min/max -----
-    let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
-    let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
+      // ----- min/max -----
+      let minTime = Math.max(weekStart.getTime(), monthStart.getTime());
+      let maxTime = Math.min(weekEnd.getTime(), monthEnd.getTime());
 
-    const min = new Date(minTime);
-    const max = new Date(maxTime);
+      const min = new Date(minTime);
+      const max = new Date(maxTime);
 
-    min.setHours(0, 0, 0, 0);
-    max.setHours(23, 59, 59, 999);
+      min.setHours(0, 0, 0, 0);
+      max.setHours(23, 59, 59, 999);
 
-    this.weekSelectableRanges.push({ min, max });
+      this.weekSelectableRanges.push({ min, max });
 
-    // ----- default date -----
-    this.weekDefaultDates.push(
-      this.calculateWeekDefaultDate(weekStart, weekEnd, month, year)
-    );
+      // ----- default date -----
+      this.weekDefaultDates.push(
+        this.calculateWeekDefaultDate(weekStart, weekEnd, month, year)
+      );
 
-    current.setDate(current.getDate() + 7);
-  }
-}
-calculateWeekDefaultDate(
-  weekStart: Date,
-  weekEnd: Date,
-  selectedMonth: number,
-  selectedYear: number
-): Date {
-  for (
-    let d = new Date(weekStart);
-    d <= weekEnd;
-    d.setDate(d.getDate() + 1)
-  ) {
-    if (
-      d.getMonth() === selectedMonth &&
-      d.getFullYear() === selectedYear
-    ) {
-      const result = new Date(d);
-      result.setHours(0, 0, 0, 0);
-      return result;
+      current.setDate(current.getDate() + 7);
     }
+
+    // Precompute the (stable) in-month day list per week for the override UI.
+    this.weekDaysMap = {};
+    this.weeks.forEach((w, i) => { this.weekDaysMap[i] = this.weekDays(w); });
   }
 
-  return new Date(selectedYear, selectedMonth, 1);
-}
+  trackByDay(_i: number, d: Date): number { return d.getTime(); }
+  calculateWeekDefaultDate(
+    weekStart: Date,
+    weekEnd: Date,
+    selectedMonth: number,
+    selectedYear: number
+  ): Date {
+    for (
+      let d = new Date(weekStart);
+      d <= weekEnd;
+      d.setDate(d.getDate() + 1)
+    ) {
+      if (
+        d.getMonth() === selectedMonth &&
+        d.getFullYear() === selectedYear
+      ) {
+        const result = new Date(d);
+        result.setHours(0, 0, 0, 0);
+        return result;
+      }
+    }
+
+    return new Date(selectedYear, selectedMonth, 1);
+  }
 
 
   submitMonthlyRequest() {
@@ -1043,21 +1216,62 @@ calculateWeekDefaultDate(
         weekOffWeeks[idx] = date.getDay(); // 🔑 Sun=0 ... Sat=6
       }
     });
+    // Per-day overrides — only real overrides (differ from the week shift) whose
+    // week isn't locked. Backend additionally drops past days on POSTEDIT.
+    const firstWeekStart = this.weeks.length ? new Date(this.weeks[0].start) : null;
+    const dayOverrides: Record<string, number> = {};
+    Object.keys(this.dayOverrideMap).forEach(iso => {
+      const shiftId = this.dayOverrideMap[iso];
+      if (!shiftId || !firstWeekStart) return;
+      const d = new Date(`${iso}T00:00:00`);
+      const weekIndex = Math.floor((d.getTime() - firstWeekStart.getTime()) / (7 * 86400000));
+      if (this.lockedWeeks.has(weekIndex)) return;
+      if (shiftId === this.weekShiftMap[weekIndex]) return; // no longer an override
+      dayOverrides[iso] = shiftId;
+    });
+
     const payload = {
       employeeId: this.requestEmployees[0].id,
       month: this.selectedMonth.getMonth() + 1,
       year: this.selectedMonth.getFullYear(),
       weekShifts: filteredWeekShifts,
+      dayOverrides: Object.keys(dayOverrides).length ? dayOverrides : undefined,
       weekOffConfig: Object.keys(weekOffWeeks).length
         ? { weeks: weekOffWeeks }
         : null
     };
 
 
-    this.service.requestMonthlyShift(payload).subscribe(() => {
-      this.requestVisible = false;
-      this.load();
+    const req$ = this.editingApprovalId
+      ? this.service.editMonthlyRequest(this.editingApprovalId, payload)
+      : this.service.requestMonthlyShift(payload);
+
+    req$.subscribe({
+      next: () => {
+        this.monthlySubmitting = false;
+        this.requestVisible = false;
+        this.editingApprovalId = null;
+        this.editMode = null;
+        this.load();
+      },
+      error: (err) => {
+        this.monthlySubmitting = false;
+        this.showError(
+          this.editingApprovalId ? 'Edit Failed' : 'Request Failed',
+          err?.error?.error || err?.error?.message || 'Failed to submit monthly shift request'
+        );
+      }
     });
+  }
+
+  // A week is "past" only once it has fully ENDED (its end date is before today),
+  // so the current + future weeks stay editable (mirrors the backend).
+  private isPastWeekDate(week: { end?: Date }): boolean {
+    console.log('checking past week', week);
+    if (!week?.end) return false;
+    const e = new Date(week.end); e.setHours(0, 0, 0, 0);
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    return e < t;
   }
 
   getShiftMeta(shift: any) {
@@ -1235,6 +1449,8 @@ calculateWeekDefaultDate(
     const shift = this.executiveShifts.find(s => s.id === shiftId)!;
     const meta = this.getShiftMeta(shift);
 
+    // Rotation rules gated behind the flag (currently OFF) → any shift, any week.
+    if (this.enforceRotationRules) {
     const remaining = this.getRemainingRotationQueue();
 
     /* -------------------------------
@@ -1295,6 +1511,7 @@ calculateWeekDefaultDate(
 
       this.sixHourUsed = true;
     }
+    } // end if (enforceRotationRules)
 
     /* -------------------------------
      ✅ ACCEPT SHIFT
@@ -1638,6 +1855,8 @@ calculateWeekDefaultDate(
 
     // reset month state
     this.weekShiftMap = {};
+    this.dayOverrideMap = {};
+    this.expandedWeeks.clear();
     this.weekOffDateMap = {};
     this.isMonthLocked = false;
     this.selectedMonth = undefined!;
@@ -1647,6 +1866,9 @@ calculateWeekDefaultDate(
 
 
   getAvailableShiftsForWeek(weekIndex: number) {
+    // Restrictions off → every shift is selectable for every week.
+    if (!this.enforceRotationRules) return this.executiveShifts;
+
     const remaining = this.getRemainingRotationQueue();
     const selectedForWeek = this.weekShiftMap[weekIndex];
 
@@ -1663,14 +1885,18 @@ calculateWeekDefaultDate(
         return false;
       }
 
+      console.log(remaining, shift.id, this.usedRotationShiftIds)
       if (remaining.length === 0) {
         this.resetRotationCycle()
       }
 
+
       // 🔒 must finish remaining rotation first
       if (remaining.length > 0) {
+        console.log(remaining.includes(shift.id))
         return remaining.includes(shift.id);
       }
+
 
       return true;
     });
@@ -1679,12 +1905,32 @@ calculateWeekDefaultDate(
 
   resetRotationCycle() {
     this.usedRotationShiftIds.clear();
+    // Also clear the month-duplicate set so a small shift set (e.g. a nurse's
+    // 6h/6h/8h) can repeat across the month's weeks instead of dead-ending once
+    // every distinct shift has been used once.
+    this.usedShiftIdsInCurrentMonth.clear();
     this.sixHourUsed = false;
     this.lastShiftMeta = null;
   }
 
+  // One full rotation cycle = every non-6h shift once, plus at most one 6h shift
+  // (only one 6h is allowed per cycle). Derived from the employee's actual shift
+  // set rather than a hard-coded 7, so departments with fewer shifts (nurses,
+  // etc.) complete a cycle and reset correctly.
+  getRotationCycleSize(): number {
+    if (!this.executiveShifts?.length) return 0;
+    let nonSixHour = 0;
+    let hasSixHour = false;
+    for (const s of this.executiveShifts) {
+      if (this.getShiftMeta(s).isSixHour) hasSixHour = true;
+      else nonSixHour++;
+    }
+    return nonSixHour + (hasSixHour ? 1 : 0);
+  }
+
   isRotationCycleComplete(): boolean {
-    return this.usedRotationShiftIds.size === 7
+    const size = this.getRotationCycleSize();
+    return size > 0 && this.usedRotationShiftIds.size >= size;
   }
 
 
@@ -1704,8 +1950,11 @@ calculateWeekDefaultDate(
 
     // weeks & selections
     this.weeks = [];
+    this.weekDaysMap = {};
     this.weekShiftMap = {};
-    this.weekOffDateMap = {};  
+    this.dayOverrideMap = {};
+    this.expandedWeeks.clear();
+    this.weekOffDateMap = {};
     this.lockedWeeks.clear();
 
     // rotation runtime state

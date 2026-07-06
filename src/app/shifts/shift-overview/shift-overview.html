@@ -38,6 +38,14 @@
                 <li class="sub-item" [ngClass]="{ 'active': active === 'request' }">Shift Request
                 </li>
             </button>
+            <span class="br" *ngIf="deptId === 1"></span>
+            <button (click)="show('report')" *ngIf="deptId === 1">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'report' }">Attendance Report</li>
+            </button>
+            <span class="br" *ngIf="deptId === 1"></span>
+            <button (click)="show('adherence')" *ngIf="deptId === 1">
+                <li class="sub-item" [ngClass]="{ 'active': active === 'adherence' }">Shift Adherence</li>
+            </button>
         </ul>
     </nav>
 
@@ -54,4 +62,6 @@
     <!-- <app-work-from-home *ngIf="active === 'wfh'"></app-work-from-home> -->
     <app-manager-shift *ngIf="active === 'manager'"></app-manager-shift>
     <app-employee-shift-list *ngIf="active === 'hr'"></app-employee-shift-list>
+    <app-shift-attendance-report *ngIf="active === 'report'"></app-shift-attendance-report>
+    <app-shift-adherence-report *ngIf="active === 'adherence'"></app-shift-adherence-report>
 </div>

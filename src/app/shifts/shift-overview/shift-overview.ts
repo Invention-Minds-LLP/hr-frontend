@@ -8,10 +8,12 @@ import { ShiftRequests } from "../shift-requests/shift-requests";
 import { ManagerShift } from "../manager-shift/manager-shift";
 import { EmployeeDetails } from "../../leaves/employee-details/employee-details";
 import { EmployeeShiftList } from "../employee-shift-list/employee-shift-list";
+import { ShiftAttendanceReport } from "../shift-attendance-report/shift-attendance-report";
+import { ShiftAdherenceReport } from "../shift-adherence-report/shift-adherence-report";
 
 @Component({
   selector: 'app-shift-overview',
-  imports: [IconField, InputTextModule, FormsModule, CommonModule, ShiftRequests, ManagerShift, EmployeeDetails, EmployeeShiftList, ModuleGuide],
+  imports: [IconField, InputTextModule, FormsModule, CommonModule, ShiftRequests, ManagerShift, EmployeeDetails, EmployeeShiftList, ShiftAttendanceReport, ShiftAdherenceReport, ModuleGuide],
   templateUrl: './shift-overview.html',
   styleUrl: './shift-overview.css',
 })

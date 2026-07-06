@@ -1,6 +1,17 @@
+<p-toast></p-toast>
 <p-card class="leave-request">
     <div class="table-header">
         <h3>Shift Change Requests</h3>
+
+        <!-- HR: org-wide month lock -->
+        <div class="month-lock-bar" *ngIf="isHRManager">
+            <span class="ml-label">{{ selectedMonth | date:'MMMM yyyy' }}:</span>
+            <span class="edit-pill" [class.approved]="!monthLocked" [class.pending]="monthLocked">
+                {{ monthLocked ? 'Closed' : 'Open' }}
+            </span>
+            <button class="btn btn-2 ml-btn" *ngIf="!monthLocked" [disabled]="monthLockLoading" (click)="closeMonth()">Close Month</button>
+            <button class="btn btn-1 ml-btn" *ngIf="monthLocked" [disabled]="monthLockLoading" (click)="reopenMonth()">Reopen Month</button>
+        </div>
     </div>
 
     <p-table [value]="approvals">
@@ -138,7 +149,22 @@
                             View Details
                         </button>
 
+                        <!-- Edit workflow -->
+                        <span *ngIf="a.editStatus === 'REQUESTED'" class="edit-pill pending">Edit requested</span>
+                        <span *ngIf="a.editStatus === 'APPROVED'" class="edit-pill approved">Edit allowed</span>
 
+                        <button *ngIf="canRequestEdit(a)" class="btn btn-info" (click)="requestEdit(a)">
+                            Request Edit
+                        </button>
+                        <button *ngIf="canDecideEdit(a)" class="btn btn-1" [disabled]="editLoading[a.id]"
+                            (click)="decideEdit(a, 'APPROVED')">
+                            <span *ngIf="!editLoading[a.id]">Approve Edit</span>
+                            <span *ngIf="editLoading[a.id]" class="btn-spinner"></span>
+                        </button>
+                        <button *ngIf="canDecideEdit(a)" class="btn btn-2" [disabled]="editLoading[a.id]"
+                            (click)="decideEdit(a, 'REJECTED')">
+                            Reject Edit
+                        </button>
                     </div>
                 </td>
 
@@ -181,6 +207,24 @@
         </div>
 
 
+    </div>
+</div>
+
+<!-- Edit-workflow reason dialog (request edit / reject edit) -->
+<div class="custom-popup" *ngIf="reasonDialogVisible">
+    <div class="popup-content">
+        <h3>{{ reasonTitle }}</h3>
+        <hr>
+        <textarea placeholder="Type your reason here..." [(ngModel)]="reasonText" rows="4"></textarea>
+        <div class="popup-actions">
+            <button class="btn btn-green" [disabled]="!reasonText.trim() || reasonSubmitting" (click)="confirmReason()">
+                <span *ngIf="!reasonSubmitting">Submit</span>
+                <span *ngIf="reasonSubmitting" class="btn-spinner"></span>
+            </button>
+            <button class="btn btn-red" [disabled]="reasonSubmitting" (click)="reasonDialogVisible = false">
+                Cancel
+            </button>
+        </div>
     </div>
 </div>
 
@@ -228,6 +272,18 @@
                 <span class="week-off-date">
                     {{ week.weekOffDate | date:'EEE, dd-MM-yyyy' }}
                 </span>
+            </div>
+
+            <!-- Single-day overrides for this week -->
+            <div *ngIf="week.dayOverrides?.length" class="day-overrides">
+                <span class="ov-title">Day override{{ week.dayOverrides.length > 1 ? 's' : '' }}:</span>
+                <div *ngFor="let ov of week.dayOverrides" class="ov-row">
+                    <span class="ov-date">{{ ov.date | date:'EEE, dd-MM' }}</span>
+                    <span class="ov-shift">
+                        {{ ov.shift.name }}
+                        <span class="ov-time">{{ formatISTTime(ov.shift.startTime) }} – {{ formatISTTime(ov.shift.endTime) }}</span>
+                    </span>
+                </div>
             </div>
 
 

@@ -213,7 +213,7 @@
                 </button>
                 -->
                 <!-- Assigned manager (Reporting Manager or HR Manager for HR dept employees) fills form for their direct reports -->
-                <button class="btn verify-btn" *ngIf="(loggedRoleId === 3 || appraisal.managerId === loggedEmployeeId) && appraisal.employeeId !== loggedEmployeeId && !['AUTO_DRAFT', 'Draft'].includes(appraisal.status) && !appraisal.managerAppraisalSubmittedAt" (click)="onEditClick(appraisal)" pTooltip="Fill your Manager review">Fill Review</button>
+                <button class="btn verify-btn" *ngIf="canManagerFill(appraisal)" (click)="onEditClick(appraisal)" [pTooltip]="appraisal.managerAppraisalSubmittedAt ? 'Edit your Manager review' : 'Fill your Manager review'">{{ appraisal.managerAppraisalSubmittedAt ? 'Edit Review' : 'Fill Review' }}</button>
                 <button class="btn view-btn" *ngIf="canManagerView(appraisal)" (click)="onManagerViewClick(appraisal)" pTooltip="View your submitted Manager review">View My Review</button>
                 <!-- HR -->
                 <button class="btn view-btn" *ngIf="isHRManager || isManagement || isHRExecutive" (click)="viewFullDetail(appraisal)" pTooltip="View All Appraisal Sections">View All</button>
@@ -224,11 +224,11 @@
                 <!-- Reporting Manager -->
                 <button class="btn edit-req-btn" *ngIf="canManagerRequestEdit(appraisal)" (click)="openManagerEditRequest(appraisal)" pTooltip="Request to Edit Manager Review">Request Edit</button>
                 <!-- In-charge -->
-                <button class="btn incharge-btn" *ngIf="canInchargeFill(appraisal)" (click)="onInchargeEditClick(appraisal)" pTooltip="Fill In-charge Review">Fill In-charge</button>
+                <button class="btn incharge-btn" *ngIf="canInchargeFill(appraisal)" (click)="onInchargeEditClick(appraisal)" [pTooltip]="appraisal.inchargeAppraisalSubmittedAt ? 'Edit In-charge Review' : 'Fill In-charge Review'">{{ appraisal.inchargeAppraisalSubmittedAt ? 'Edit In-charge' : 'Fill In-charge' }}</button>
                 <button class="btn view-btn" *ngIf="canInchargeView(appraisal)" (click)="onInchargeViewClick(appraisal)" pTooltip="View your submitted In-charge review">View In-charge</button>
                 <button class="btn edit-req-btn" *ngIf="canInchargeRequestEdit(appraisal)" (click)="openInchargeEditRequest(appraisal)" pTooltip="Request to Edit In-charge Review">Request Edit</button>
                 <!-- Management -->
-                <button class="btn mgmt-btn" *ngIf="canManagementFill(appraisal)" (click)="onManagementEditClick(appraisal)" pTooltip="Fill Management Review">Fill Review</button>
+                <button class="btn mgmt-btn" *ngIf="canManagementFill(appraisal)" (click)="onManagementEditClick(appraisal)" [pTooltip]="appraisal.managementAppraisalSubmittedAt ? 'Edit Management Review' : 'Fill Management Review'">{{ appraisal.managementAppraisalSubmittedAt ? 'Edit Review' : 'Fill Review' }}</button>
                 <button class="btn view-btn" *ngIf="canManagementView(appraisal)" (click)="onManagementViewClick(appraisal)" pTooltip="View your submitted Management review">View My Review</button>
                 <button class="btn edit-req-btn" *ngIf="canManagementRequestEdit(appraisal)" (click)="openManagementEditRequest(appraisal)" pTooltip="Request to Edit Management Review">Request Edit</button>
               </div>
@@ -734,15 +734,33 @@
     </div>
 
     <!-- ── Edit History ───────────────────────────────────────────── -->
-    <div class="fd-section" *ngIf="fullDetailAppraisal.editHistory?.length">
+    <div class="fd-section">
       <div class="fd-section-head fd-grey">
         <i class="pi pi-history"></i> Edit History
       </div>
       <div class="fd-section-body">
         <div class="fd-hist" *ngFor="let h of fullDetailAppraisal.editHistory">
-          <span class="fd-hist-type">{{ h.editType?.split('_').join(' ') }}</span>
-          <span class="fd-hist-date">{{ fmtDate(h.editedAt) }}</span>
-          <span class="fd-hist-reason" *ngIf="h.editReason">{{ h.editReason }}</span>
+          <div class="fd-hist-head">
+            <span class="fd-hist-type">{{ h.editType?.split('_').join(' ') }}</span>
+            <span class="fd-hist-by" *ngIf="h.editedByName">by {{ h.editedByName }}</span>
+            <span class="fd-hist-date">{{ fmtDate(h.editedAt) }}</span>
+            <span class="fd-hist-badge" [class.req]="h.editReason">{{ h.editReason ? 'Requested edit' : 'Direct edit' }}</span>
+          </div>
+          <div class="fd-hist-reason-text" *ngIf="h.editReason">Reason: {{ h.editReason }}</div>
+          <div class="fd-hist-changes" *ngIf="h.changes?.length">
+            <div class="fd-change" *ngFor="let c of h.changes">
+              <span class="fd-change-label">{{ c.label }}</span>
+              <span class="fd-change-vals">
+                <span class="fd-from">{{ c.from }}</span>
+                <span class="fd-arrow">→</span>
+                <span class="fd-to">{{ c.to }}</span>
+              </span>
+            </div>
+          </div>
+          <div class="fd-hist-empty" *ngIf="!h.changes?.length">No field-level changes captured for this edit.</div>
+        </div>
+        <div class="fd-hist" *ngIf="!fullDetailAppraisal.editHistory?.length" style="opacity:.6">
+          No edits recorded yet.
         </div>
       </div>
     </div>

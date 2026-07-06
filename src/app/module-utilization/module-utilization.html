@@ -1,0 +1,139 @@
+<div class="guide">
+  <app-module-guide
+    title="Module Utilization"
+    subtitle="See which application modules employees are actually using over a date range, and who has never touched them."
+    [points]="[
+      { label: 'Adoption per Module', desc: 'For each business module, the count and percentage of active employees who used at least one of its features in the selected period.' },
+      { label: 'Who Is (Not) Using It', desc: 'Drill into any module to see the names of employees using it and those who are not.' },
+      { label: 'Date Range', desc: 'Pick any window (default: last 30 days) and refresh — data comes from the API access log.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<p-toast></p-toast>
+
+<div class="module-utilization">
+  <!-- Controls -->
+  <div class="controls">
+    <div class="form-field">
+      <label>From</label>
+      <p-datepicker [(ngModel)]="fromDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        [maxDate]="toDate" placeholder="From date"></p-datepicker>
+    </div>
+    <div class="form-field">
+      <label>To</label>
+      <p-datepicker [(ngModel)]="toDate" dateFormat="dd-mm-yy" [showIcon]="true"
+        [minDate]="fromDate" placeholder="To date"></p-datepicker>
+    </div>
+    <button pButton type="button" label="Apply" icon="pi pi-refresh"
+      [loading]="loading" (click)="load()"></button>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-cards">
+    <div class="card highlight">
+      <div class="card-value">{{ totalEligible }}</div>
+      <div class="card-label">Eligible Users (Active Employees)</div>
+    </div>
+    <div class="card">
+      <div class="card-value">{{ modules.length }}</div>
+      <div class="card-label">Modules Tracked</div>
+    </div>
+    <div class="card">
+      <div class="card-value range">
+        {{ rangeFrom ? (rangeFrom | date:'dd MMM yyyy') : '—' }} →
+        {{ rangeTo ? (rangeTo | date:'dd MMM yyyy') : '—' }}
+      </div>
+      <div class="card-label">Date Range</div>
+    </div>
+  </div>
+
+  <!-- Module table -->
+  <p-table [value]="modules" [loading]="loading" styleClass="p-datatable-sm" [scrollable]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Module</th>
+        <th style="width: 140px">Active Users</th>
+        <th style="width: 140px">Not Using</th>
+        <th style="width: 260px">Adoption</th>
+        <th style="width: 120px">Details</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-mod>
+      <tr>
+        <td class="module-name">{{ mod.label }}</td>
+        <td>
+          <span class="count-badge using" (click)="openUsers(mod, 'using')"
+            pTooltip="View users" tooltipPosition="top">{{ mod.activeCount }}</span>
+        </td>
+        <td>
+          <span class="count-badge not-using" (click)="openUsers(mod, 'notUsing')"
+            pTooltip="View non-users" tooltipPosition="top">{{ mod.inactiveCount }}</span>
+        </td>
+        <td>
+          <div class="adoption-cell">
+            <div class="adoption-bar">
+              <div class="adoption-fill" [class]="'adoption-fill ' + adoptionClass(mod.adoptionPct)"
+                [style.width.%]="mod.adoptionPct"></div>
+            </div>
+            <span class="adoption-pct" [class]="'adoption-pct ' + adoptionClass(mod.adoptionPct)">
+              {{ mod.adoptionPct }}%
+            </span>
+          </div>
+        </td>
+        <td>
+          <button class="btn-icon view" (click)="openUsers(mod)" pTooltip="View users"
+            tooltipPosition="top">
+            <i class="pi pi-users"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="empty-msg">No usage data for the selected period</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Users dialog -->
+<p-dialog [(visible)]="usersDialogVisible" [modal]="true" [style]="{ width: '620px' }"
+  [header]="selectedModule ? selectedModule.label + ' — Users' : 'Users'" [dismissableMask]="true">
+  <div class="dialog-body" *ngIf="selectedModule">
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="usersTab === 'using'" (click)="usersTab = 'using'">
+        Using ({{ selectedModule.activeCount }})
+      </button>
+      <button class="tab-btn" [class.active]="usersTab === 'notUsing'" (click)="usersTab = 'notUsing'">
+        Not Using ({{ selectedModule.inactiveCount }})
+      </button>
+    </div>
+
+    <span class="p-input-icon-left search-box">
+      <input pInputText type="text" [(ngModel)]="userSearch"
+        placeholder="Search by name, code or department" />
+    </span>
+
+    <p-table [value]="dialogUsers" styleClass="p-datatable-sm" [paginator]="dialogUsers.length > 10"
+      [rows]="10" [scrollable]="true" scrollHeight="340px">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 44px">#</th>
+          <th>Name</th>
+          <th style="width: 110px">Code</th>
+          <th>Department</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-u let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.code }}</td>
+          <td>{{ u.department || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="4" class="empty-msg">No users</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>

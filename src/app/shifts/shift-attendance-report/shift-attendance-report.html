@@ -1,0 +1,108 @@
+<p-toast></p-toast>
+
+<p-card class="report-card">
+  <div class="report-header">
+    <div class="rh-left">
+      <h3>Shift &amp; Attendance Report</h3>
+      <p class="sub">Per-employee monthly shift vs check-in/out — late-in &amp; early-out highlighted.</p>
+    </div>
+    <div class="rh-right">
+      <p-datepicker
+        [(ngModel)]="selectedMonth"
+        view="month"
+        dateFormat="MM yy"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        (onSelect)="load()">
+      </p-datepicker>
+      <button class="btn btn-1" [disabled]="loading" (click)="load()">
+        <span *ngIf="!loading">Refresh</span>
+        <span *ngIf="loading" class="btn-spinner"></span>
+      </button>
+      <button class="btn btn-2" [disabled]="exporting || !data" (click)="export()">
+        <span *ngIf="!exporting">Export Excel</span>
+        <span *ngIf="exporting" class="btn-spinner"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" *ngIf="data">
+    <span class="lg"><i class="sw shift-MORNING"></i>Morning</span>
+    <span class="lg"><i class="sw shift-EVENING"></i>Evening</span>
+    <span class="lg"><i class="sw shift-NIGHT"></i>Night</span>
+    <span class="lg"><i class="sw shift-NURSING"></i>Nursing</span>
+    <span class="lg"><i class="sw shift-EXECUTIVE"></i>Executive</span>
+    <span class="lg"><i class="sw c-wo"></i>Week off</span>
+    <span class="lg"><i class="sw c-holiday"></i>Holiday</span>
+    <span class="lg"><i class="sw c-absent"></i>Absent</span>
+    <span class="lg"><b class="ok">In/Out</b> on time</span>
+    <span class="lg"><b class="late">In/Out</b> late-in / early-out</span>
+  </div>
+
+  <div *ngIf="loading" class="state">Loading report…</div>
+  <div *ngIf="!loading && !data" class="state">No data.</div>
+
+  <div class="grid-wrap" *ngIf="!loading && data">
+    <table class="report-grid">
+      <thead>
+        <tr>
+          <th class="sticky-col emp-col">Employee</th>
+          <th *ngFor="let d of data.days"
+              class="day-head"
+              [class.sun]="d.isSunday"
+              [class.hol]="d.isHoliday"
+              [pTooltip]="d.holidayName || ''"
+              tooltipPosition="top">
+            <div class="dnum">{{ d.day }}</div>
+            <div class="dname">{{ d.dayName }}</div>
+          </th>
+          <th class="sum-head">P</th>
+          <th class="sum-head">A</th>
+          <th class="sum-head">Late</th>
+          <th class="sum-head">Early</th>
+          <th class="sum-head">L.Min</th>
+          <th class="sum-head">WO</th>
+          <th class="sum-head">Hol</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let row of data.rows; let i = index">
+          <!-- department band -->
+          <tr class="dept-band" *ngIf="i === 0 || data.rows[i-1].department !== row.department">
+            <td [attr.colspan]="data.days.length + 8">{{ row.department }}</td>
+          </tr>
+          <tr>
+            <td class="sticky-col emp-col">
+              <div class="emp-name">{{ row.name }}</div>
+              <div class="emp-code">{{ row.employeeCode }}</div>
+            </td>
+            <td *ngFor="let cell of row.cells"
+                [ngClass]="cellClass(cell)"
+                [pTooltip]="cell.note || ''"
+                tooltipPosition="top">
+              <ng-container *ngIf="cell.type === 'WORK'">
+                <div class="cs-shift">{{ shiftShort(cell) }}</div>
+                <div class="cs-time" [ngClass]="inClass(cell)">In {{ cell.checkIn || '--' }}</div>
+                <div class="cs-time" [ngClass]="outClass(cell)">Out {{ cell.checkOut || '--' }}</div>
+              </ng-container>
+              <span *ngIf="cell.type === 'WEEKOFF'" class="tag">WO</span>
+              <span *ngIf="cell.type === 'HOLIDAY'" class="tag">H</span>
+              <span *ngIf="cell.type === 'ABSENT'" class="tag">A</span>
+            </td>
+            <td class="sum">{{ row.summary.present }}</td>
+            <td class="sum" [class.bad]="row.summary.absent > 0">{{ row.summary.absent }}</td>
+            <td class="sum">{{ row.summary.late }}</td>
+            <td class="sum">{{ row.summary.early }}</td>
+            <td class="sum">{{ row.summary.lateMinutes }}</td>
+            <td class="sum">{{ row.summary.weekOff }}</td>
+            <td class="sum">{{ row.summary.holiday }}</td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="data.rows.length === 0">
+          <td [attr.colspan]="data.days.length + 8" class="state">No employees found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</p-card>

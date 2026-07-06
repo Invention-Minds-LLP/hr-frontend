@@ -180,6 +180,7 @@
         <th style="width: 60px">#</th>
         <th>Shift Name</th>
         <th>Shift Type</th>
+        <th>Departments</th>
         <th>Start Time</th>
         <th>End Time</th>
         <th style="width: 120px">Actions</th>
@@ -190,6 +191,10 @@
         <td>{{ i + 1 }}</td>
         <td>{{ item.name }}</td>
         <td><span class="shift-type-badge">{{ item.shiftType }}</span></td>
+        <td>
+          <span *ngFor="let d of item.departments" class="shift-type-badge dept-badge">{{ d.name }}</span>
+          <span *ngIf="!item.departments?.length" class="muted">—</span>
+        </td>
         <td>{{ item.startTime | date:'HH:mm' }}</td>
         <td>{{ item.endTime | date:'HH:mm' }}</td>
         <td class="action-cell">
@@ -198,7 +203,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="6" class="empty-msg">No shift templates found</td></tr>
+      <tr><td colspan="7" class="empty-msg">No shift templates found</td></tr>
     </ng-template>
   </p-table>
     <div *ngIf="activeTab === 'holidays'">
@@ -376,6 +381,14 @@
     <div class="field" *ngIf="activeTab === 'shiftTemplates'">
       <label>End Time <span class="req">*</span></label>
       <input type="time" [(ngModel)]="formEndTime" class="form-input" />
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'shiftTemplates'">
+      <label>Departments</label>
+      <p-multiSelect [options]="departments" [(ngModel)]="formDepartmentIds" optionLabel="name" optionValue="id"
+        placeholder="Select departments" [filter]="true" display="chip" appendTo="body" styleClass="w-full">
+      </p-multiSelect>
+      <small class="hint">Shifts appear in the monthly shift request for the departments selected here.</small>
     </div>
 
     <div class="field" *ngIf="activeTab === 'holidays'">

@@ -1,0 +1,105 @@
+<p-toast></p-toast>
+
+<p-card class="report-card">
+  <div class="report-header">
+    <div class="rh-left">
+      <h3>Shift Adherence Report</h3>
+      <p class="sub">Allotted shift vs the shift they actually came for — mismatches highlighted. Salary input, not linked to payroll.</p>
+    </div>
+    <div class="rh-right">
+      <p-datepicker
+        [(ngModel)]="selectedMonth"
+        view="month"
+        dateFormat="MM yy"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        (onSelect)="load()">
+      </p-datepicker>
+      <button class="btn btn-1" [disabled]="loading" (click)="load()">
+        <span *ngIf="!loading">Refresh</span>
+        <span *ngIf="loading" class="btn-spinner"></span>
+      </button>
+      <button class="btn btn-2" [disabled]="exporting || !data" (click)="export()">
+        <span *ngIf="!exporting">Export Excel</span>
+        <span *ngIf="exporting" class="btn-spinner"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="legend" *ngIf="data">
+    <span class="lg"><i class="sw c-match"></i>Came for allotted shift</span>
+    <span class="lg"><i class="sw c-mismatch"></i>Mismatch (allotted → came)</span>
+    <span class="lg"><i class="sw c-noshift"></i>Worked, none allotted</span>
+    <span class="lg"><i class="sw c-absent"></i>Absent</span>
+    <span class="lg"><i class="sw c-wo"></i>Week off</span>
+    <span class="lg"><i class="sw c-holiday"></i>Holiday</span>
+  </div>
+
+  <div *ngIf="loading" class="state">Loading report…</div>
+  <div *ngIf="!loading && !data" class="state">No data.</div>
+
+  <div class="grid-wrap" *ngIf="!loading && data">
+    <table class="report-grid">
+      <thead>
+        <tr>
+          <th class="sticky-col emp-col">Employee</th>
+          <th *ngFor="let d of data.days"
+              class="day-head"
+              [class.sun]="d.isSunday"
+              [class.hol]="d.isHoliday"
+              [pTooltip]="d.holidayName || ''"
+              tooltipPosition="top">
+            <div class="dnum">{{ d.day }}</div>
+            <div class="dname">{{ d.dayName }}</div>
+          </th>
+          <th class="sum-head">P</th>
+          <th class="sum-head">Match</th>
+          <th class="sum-head">Mis</th>
+          <th class="sum-head">A</th>
+          <th class="sum-head">WO</th>
+          <th class="sum-head">Hol</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let row of data.rows; let i = index">
+          <tr class="dept-band" *ngIf="i === 0 || data.rows[i-1].department !== row.department">
+            <td [attr.colspan]="data.days.length + 7">{{ row.department }}</td>
+          </tr>
+          <tr>
+            <td class="sticky-col emp-col">
+              <div class="emp-name">{{ row.name }}</div>
+              <div class="emp-code">{{ row.employeeCode }}</div>
+            </td>
+            <td *ngFor="let cell of row.cells"
+                [ngClass]="cellClass(cell)"
+                [pTooltip]="cell.note || ''"
+                tooltipPosition="top">
+              <ng-container *ngIf="cell.type === 'MATCH'">
+                <div class="cs-ok">{{ allottedShort(cell) }} ✓</div>
+              </ng-container>
+              <ng-container *ngIf="cell.type === 'MISMATCH'">
+                <div class="cs-allot">{{ allottedShort(cell) }}</div>
+                <div class="cs-came">→ {{ workedShort(cell) }}</div>
+              </ng-container>
+              <ng-container *ngIf="cell.type === 'NO_SHIFT'">
+                <div class="cs-noshift">? {{ workedShort(cell) }}</div>
+              </ng-container>
+              <span *ngIf="cell.type === 'WEEKOFF'" class="tag">WO</span>
+              <span *ngIf="cell.type === 'HOLIDAY'" class="tag">H</span>
+              <span *ngIf="cell.type === 'ABSENT'" class="tag">A</span>
+            </td>
+            <td class="sum">{{ row.summary.present }}</td>
+            <td class="sum">{{ row.summary.matched }}</td>
+            <td class="sum" [class.bad]="row.summary.mismatched > 0">{{ row.summary.mismatched }}</td>
+            <td class="sum">{{ row.summary.absent }}</td>
+            <td class="sum">{{ row.summary.weekOff }}</td>
+            <td class="sum">{{ row.summary.holiday }}</td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="data.rows.length === 0">
+          <td [attr.colspan]="data.days.length + 7" class="state">No employees found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</p-card>

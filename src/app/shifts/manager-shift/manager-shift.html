@@ -19,8 +19,31 @@
 
     </div>
 
+    <!-- Team filters -->
+    <div class="team-filters">
+        <span class="tf-item">
+            <input type="text" pInputText placeholder="Name" [(ngModel)]="filterName"
+                (ngModelChange)="applyEmpFilter()" />
+        </span>
+        <span class="tf-item">
+            <input type="text" pInputText placeholder="Emp code" [(ngModel)]="filterCode"
+                (ngModelChange)="applyEmpFilter()" />
+        </span>
+        <p-select class="tf-item" [options]="departmentOptions" [(ngModel)]="filterDept"
+            (onChange)="applyEmpFilter()" placeholder="All departments" [showClear]="true" [filter]="true"
+            appendTo="body">
+        </p-select>
+        <p-select class="tf-item" [options]="designationOptions" [(ngModel)]="filterDesignation"
+            (onChange)="applyEmpFilter()" placeholder="All designations" [showClear]="true" [filter]="true"
+            appendTo="body">
+        </p-select>
+        <button pButton type="button" label="Clear" icon="pi pi-times" class="p-button-outlined tf-clear"
+            (click)="clearEmpFilter()"></button>
+        <span class="tf-count">{{ filteredEmployees.length }} of {{ employees.length }}</span>
+    </div>
 
-    <p-table [value]="employees" [(selection)]="selectedEmployees" [paginator]="true" [rows]="10"
+
+    <p-table [value]="filteredEmployees" [(selection)]="selectedEmployees" [paginator]="true" [rows]="10"
         responsiveLayout="scroll">
 
         <!-- HEADER -->
@@ -112,6 +135,19 @@
 
                         <i class="pi pi-send"></i>
                     </button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="9" class="empty-row">
+                    <ng-container *ngIf="employees.length === 0">
+                        No team members found for your account.
+                    </ng-container>
+                    <ng-container *ngIf="employees.length > 0">
+                        No employees match the current filters.
+                    </ng-container>
                 </td>
             </tr>
         </ng-template>
@@ -416,10 +452,32 @@
 
             </div>
 
+            <!-- Per-day override -->
+            <div class="day-override" *ngIf="weekShiftMap[i]">
+                <button type="button" class="day-toggle" (click)="toggleWeekDays(i)">
+                    <i class="pi" [ngClass]="expandedWeeks.has(i) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                    Per-day override
+                </button>
+
+                <div *ngIf="expandedWeeks.has(i)" class="day-list">
+                    <div *ngFor="let day of weekDaysMap[i]; trackBy: trackByDay" class="day-row"
+                        [class.overridden]="isDayOverridden(day, i)">
+                        <span class="day-label">{{ day | date:'EEE dd' }}</span>
+                        <p-select [options]="executiveShifts" optionLabel="label" optionValue="id"
+                            [ngModel]="dayShiftValue(day, i)"
+                            (onChange)="onDayShiftChange(day, i, $event.value)"
+                            [disabled]="isDayLocked(day, i)" appendTo="body" placeholder="Same as week"
+                            styleClass="day-select">
+                        </p-select>
+                        <span *ngIf="isDayOverridden(day, i)" class="day-badge">override</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <p *ngIf="isMonthLocked" class="muted">
-            This month is already assigned and cannot be edited.
+        <p *ngIf="editLockNote" class="muted">
+            {{ editLockNote }}
         </p>
 
     </div>

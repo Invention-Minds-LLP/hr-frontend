@@ -104,6 +104,14 @@
   color: #1565c0;
 }
 
+/* Department chips in the shift-templates table */
+.dept-badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+  margin: 2px 4px 2px 0;
+  display: inline-block;
+}
+
 /* Empty message */
 .empty-msg {
   text-align: center;

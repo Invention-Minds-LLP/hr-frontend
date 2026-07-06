@@ -50,7 +50,8 @@
           <td *ngIf="isHRManager">{{ a.finalDecision || '-' }}</td>
           <td class="action-cell">
             <!-- Employee: Fill self-appraisal -->
-            <button class="btn-icon edit" *ngIf="canFillSelf(a)" (click)="openSelfAppraisalForm(a)" pTooltip="Fill Self-Appraisal" tooltipPosition="top">
+            <button class="btn-icon edit" *ngIf="canFillSelf(a)" (click)="openSelfAppraisalForm(a)"
+              [pTooltip]="a.selfAppraisalSubmittedAt ? 'Edit Self-Appraisal' : 'Fill Self-Appraisal'" tooltipPosition="top">
               <i class="pi pi-pencil"></i>
             </button>
             <span *ngIf="isDueDatePassed(a) && !a.selfAppraisalSubmittedAt" style="color:#f44336; font-size:11px">Due Passed</span>
@@ -303,8 +304,18 @@
       <div class="detail-card-body">
         <div class="history-entry" *ngFor="let h of detailAppraisal.editHistory">
           <div class="history-type">{{ h.editType?.split('_').join(' ') }}</div>
+          <div class="history-by" *ngIf="h.editedByName">By {{ h.editedByName }}</div>
           <div class="history-date">{{ fmtDate(h.editedAt) }}</div>
-          <div class="history-reason" *ngIf="h.editReason">{{ h.editReason }}</div>
+          <div class="history-reason" *ngIf="h.editReason">Reason: {{ h.editReason }}</div>
+          <div class="history-reason" *ngIf="!h.editReason">Direct edit (before due date)</div>
+          <div *ngIf="h.changes?.length" style="margin-top:6px;display:flex;flex-direction:column;gap:3px">
+            <div *ngFor="let c of h.changes" style="display:flex;gap:8px;align-items:center;font-size:12px;flex-wrap:wrap">
+              <span style="min-width:160px;color:#9ca3af">{{ c.label }}</span>
+              <span style="color:#f87171;text-decoration:line-through">{{ c.from }}</span>
+              <span style="opacity:.6">→</span>
+              <span style="color:#4ade80;font-weight:600">{{ c.to }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -168,7 +168,7 @@
 
 
 ::ng-deep .p-select {
-  width: 100%;
+  /* width: 100%; */
   background-color: black !important;
   color: white !important;
 }
@@ -1038,4 +1038,91 @@ section {
 p-select,
 p-dropdown {
   width: 100%;
+}
+/* ── Team filters ── */
+.team-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 16px;
+}
+/* Fixed, equal widths so the row stays tidy and the dropdowns don't stretch
+   full-width. max-width caps the p-select host even against the global
+   p-select { width:100% }, and ::ng-deep sizes PrimeNG's inner element. */
+.team-filters .tf-item {
+  flex: 0 0 auto;
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+}
+.team-filters .tf-item input,
+.team-filters input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.team-filters ::ng-deep .p-select {
+  width: 100% !important;
+}
+.team-filters .tf-clear {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.team-filters .tf-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9aa0a6;
+}
+
+/* ── Per-day override ── */
+.day-override { margin-top: 10px; }
+.day-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.day-list {
+  margin-top: 8px;
+  border: 1px solid #e5e8ec;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #000;
+}
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+/* .day-row + .day-row { border-top: 1px solid #eceff1; } */
+.day-row .day-label {
+  min-width: 62px;
+  font-size: 12px;
+  color: #ffffff;
+  font-weight: 600;
+}
+.day-row .day-select { flex: 1; }
+.day-row.overridden .day-label { color: #b9770e; }
+.day-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b9770e;
+  background: #fcf3cf;
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+/* Empty-state row for the team table */
+.empty-row {
+  text-align: center;
+  padding: 22px 12px;
+  color: #6b7280;
+  font-size: 14px;
 }

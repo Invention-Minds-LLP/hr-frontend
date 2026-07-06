@@ -230,23 +230,30 @@ export class SelfAppraisalComponent implements OnInit {
     }
   }
 
+  isDueDatePassed(a: any): boolean {
+    return a.dueDate && new Date(a.dueDate) < new Date();
+  }
+
+  /** Free unlimited edits are allowed only while the due date is set and in the future. */
+  hasFreeEditWindow(a: any): boolean {
+    return !!a.dueDate && new Date(a.dueDate) > new Date();
+  }
+
   canFillSelf(a: any): boolean {
     if (a.employeeId !== this.loggedEmpId) return false;
     if (!['PENDING_FILL', 'SELF_APPRAISAL_PENDING'].includes(a.status)) return false;
-    if (a.selfAppraisalSubmittedAt) return false; // already submitted
-    // Check due date
-    if (a.dueDate && new Date(a.dueDate) < new Date()) return false;
-    return true;
-  }
-
-  isDueDatePassed(a: any): boolean {
-    return a.dueDate && new Date(a.dueDate) < new Date();
+    // Not yet submitted: fill until the due date passes.
+    if (!a.selfAppraisalSubmittedAt) return !this.isDueDatePassed(a);
+    // Already submitted: unlimited direct edits only while the due-date window is open.
+    return this.hasFreeEditWindow(a);
   }
 
   canRequestEdit(a: any): boolean {
     if (a.employeeId !== this.loggedEmpId) return false;
     if (!a.selfAppraisalSubmittedAt) return false; // nothing to edit
     if (['COMPLETED', 'HR_REVIEW'].includes(a.status)) return false; // HR already reviewing/completed
+    // While the free-edit window is open they edit directly — no request needed.
+    if (this.hasFreeEditWindow(a)) return false;
     return true;
   }
 
