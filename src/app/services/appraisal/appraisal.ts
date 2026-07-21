@@ -39,10 +39,11 @@ export class Appraisal {
   }
 
   // ── Review Questions (master pool for In-charge / Manager / Management) ──
-  listReviewQuestions(params?: { level?: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT'; includeInactive?: boolean }): Observable<any[]> {
+  listReviewQuestions(params?: { level?: 'INCHARGE' | 'MANAGER' | 'MANAGEMENT'; includeInactive?: boolean; appraisalId?: number }): Observable<any[]> {
     const q: any = {};
     if (params?.level) q.level = params.level;
     if (params?.includeInactive) q.includeInactive = 'true';
+    if (params?.appraisalId) q.appraisalId = String(params.appraisalId);
     return this.http.get<any[]>(`${this.apiUrl}/review-questions`, { params: q });
   }
   createReviewQuestion(body: any): Observable<any> {

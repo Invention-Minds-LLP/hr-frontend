@@ -361,7 +361,8 @@ export class LeavePopup {
         'CO',
         'RH',
         'Maternity Leave',
-        'Paternity Leave'
+        'Paternity Leave',
+        'LOP'
       ];
 
       // Step 1: Filter by gender
@@ -510,6 +511,21 @@ export class LeavePopup {
       return;
     }
 
+    // LOP is unpaid by definition — it has no balance. Don't run the balance
+    // check (which would print a misleading "0 LOP balance left" warning).
+    if (this.leaveType === 'LOP') {
+      this.remainingLeave = 0;
+      if (this.days > 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Loss of Pay',
+          detail: `This leave is applied as Loss of Pay — all ${this.days} day(s) will be unpaid.`,
+          life: 6000,
+        });
+      }
+      return;
+    }
+
 
     const year = this.getFinancialYear(this.fromDate)
 
@@ -520,13 +536,17 @@ export class LeavePopup {
 
         this.remainingLeave = bal.remaining;
 
+        // Over-balance no longer blocks the application: the shortfall is booked
+        // as Loss of Pay (unpaid) at approval. Warn, but keep the selection.
         if (this.days > bal.remaining) {
+          const lop = this.days - Math.max(0, bal.remaining);
           this.messageService.add({
-            severity: 'error',
-            summary: 'Insufficient Balance',
-            detail: `Only ${bal.remaining} days left for ${this.leaveType}`
+            severity: 'warn',
+            summary: 'Loss of Pay',
+            detail: `Only ${Math.max(0, bal.remaining)} day(s) of ${this.leaveType} balance left. `
+                  + `${lop} day(s) will be Loss of Pay (unpaid).`,
+            life: 6000,
           });
-          this.leaveType = '';
         }
 
       });
@@ -1437,7 +1457,7 @@ export class LeavePopup {
 
     // RH is applied ON a holiday — skip sandwich check
     // SL is unplanned (illness) — employee cannot control dates around holidays
-    if (this.leaveType === 'RH' || this.leaveType === 'SL'|| this.leaveType === 'EL') return true;
+    if (this.leaveType === 'RH' || this.leaveType === 'SL'|| this.leaveType === 'EL' || this.leaveType === 'LOP') return true;
 
     if (this.isSandwichLeave(this.fromDate, this.toDate)) {
       this.messageService.add({

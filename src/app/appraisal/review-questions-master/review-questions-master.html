@@ -37,6 +37,10 @@
           <ng-container *ngIf="!appliesToAll(q)">
             <span class="lvl-chip" *ngFor="let l of q.levels">{{ levelChipLabel(l) }}</span>
           </ng-container>
+          <div class="target-line">
+            <span class="target-chip" *ngIf="isTargeted(q)" pTooltip="Scoped to specific departments/designations/roles/employees" tooltipPosition="top">Targeted</span>
+            <span class="target-chip target-all" *ngIf="!isTargeted(q)">All employees</span>
+          </div>
         </td>
         <td>
           <p-toggleSwitch [ngModel]="q.isActive" (ngModelChange)="toggleActive(q)"></p-toggleSwitch>
@@ -122,6 +126,47 @@
       <div class="rqm-row rqm-toggle-row">
         <label>Active</label>
         <p-toggleSwitch [(ngModel)]="form.isActive"></p-toggleSwitch>
+      </div>
+    </div>
+
+    <!-- ── Target audience: which appraised employees get this question ── -->
+    <div class="rqm-row">
+      <label>Target audience (which employees get this question)</label>
+      <small class="hint">Leave every picker empty to show this question for <strong>all</strong> employees. Otherwise an employee sees it if they match <strong>any</strong> selected department, designation, role, or are picked by name.</small>
+    </div>
+
+    <div class="rqm-grid">
+      <div class="rqm-row">
+        <label>Departments</label>
+        <p-multiSelect [options]="departmentOptions" [(ngModel)]="form.targetDepartmentIds"
+                       optionLabel="label" optionValue="value" [filter]="true"
+                       [appendTo]="'body'" [style]="{ width: '100%' }"
+                       placeholder="All departments"></p-multiSelect>
+      </div>
+
+      <div class="rqm-row">
+        <label>Designations</label>
+        <p-multiSelect [options]="designationOptions" [(ngModel)]="form.targetDesignationIds"
+                       optionLabel="label" optionValue="value" [filter]="true"
+                       [appendTo]="'body'" [style]="{ width: '100%' }"
+                       placeholder="All designations"></p-multiSelect>
+      </div>
+
+      <div class="rqm-row">
+        <label>Roles</label>
+        <p-multiSelect [options]="roleOptions" [(ngModel)]="form.targetRoleIds"
+                       optionLabel="label" optionValue="value" [filter]="true"
+                       [appendTo]="'body'" [style]="{ width: '100%' }"
+                       placeholder="All roles"></p-multiSelect>
+      </div>
+
+      <div class="rqm-row">
+        <label>Specific employees</label>
+        <p-multiSelect [options]="filteredEmployeeOptions" [(ngModel)]="form.targetEmployeeIds"
+                       optionLabel="label" optionValue="value" [filter]="true"
+                       [appendTo]="'body'" [style]="{ width: '100%' }"
+                       placeholder="Pick individual employees"></p-multiSelect>
+        <small class="hint">List is narrowed by the department / designation / role selected above; all active employees show when those are empty.</small>
       </div>
     </div>
   </div>

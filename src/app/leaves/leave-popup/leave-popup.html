@@ -244,10 +244,8 @@
                 <div class="buttons" *ngIf="!isViewOnly">
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
                     <!-- <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading"> -->
-                    <button class="apply" (click)="applyLeave()" [disabled]="
-          (leaveType !== 'CO' && leaveType !== 'RH' && !leaveData?.id && days > remainingLeave) ||
-          isLoading
-        ">
+                    <!-- Over-balance no longer blocks apply — the excess is booked as LOP. -->
+                    <button class="apply" (click)="applyLeave()" [disabled]="isLoading">
 
                         <span *ngIf="!isLoading">{{ leaveData?.id ? 'Update Leave' : 'Apply Leave' }}</span>
                         <span *ngIf="isLoading" class="spinner"></span>

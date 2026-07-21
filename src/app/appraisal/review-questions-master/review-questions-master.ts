@@ -14,6 +14,10 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Appraisal } from '../../services/appraisal/appraisal';
+import { Departments } from '../../services/departments/departments';
+import { Designations } from '../../services/designations/designations';
+import { Roles } from '../../services/roles/roles';
+import { Employees } from '../../services/employees/employees';
 
 type ReviewLevel = 'INCHARGE' | 'MANAGER' | 'MANAGEMENT';
 
@@ -28,6 +32,12 @@ interface ReviewQuestion {
   category: string | null;
   section: string | null;
   levels: ReviewLevel[];
+  // Subject targeting — which appraised employees get this question.
+  // All four empty = applies to everyone.
+  targetDepartmentIds: number[];
+  targetDesignationIds: number[];
+  targetRoleIds: number[];
+  targetEmployeeIds: number[];
   displayOrder: number;
   isActive: boolean;
 }
@@ -64,14 +74,86 @@ export class ReviewQuestionsMaster implements OnInit {
     { label: 'Management', value: 'MANAGEMENT' },
   ];
 
+  // "Target audience" option lists (which appraised employees get the question).
+  departmentOptions: { label: string; value: number }[] = [];
+  designationOptions: { label: string; value: number }[] = [];
+  roleOptions: { label: string; value: number }[] = [];
+  // Full active-employee roster; the "Specific employees" picker is derived from
+  // this and narrowed by the selected department / designation / role.
+  private allEmployees: { id: number; firstName: string; lastName: string; employeeCode?: string | null; departmentId?: number | null; designationId?: number | null; roleId?: number | null }[] = [];
+
   constructor(
     private appraisalService: Appraisal,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private departmentsService: Departments,
+    private designationsService: Designations,
+    private rolesService: Roles,
+    private employeesService: Employees,
   ) {}
 
   ngOnInit() {
     this.load();
+    this.loadTargetOptions();
+  }
+
+  /** Load the department / designation / role / employee pickers for targeting. */
+  private loadTargetOptions() {
+    this.departmentsService.getDepartments().subscribe({
+      next: (rows) => {
+        this.departmentOptions = (rows || [])
+          .filter((d) => d.id != null)
+          .map((d) => ({ label: d.name, value: d.id as number }));
+      },
+      error: () => {},
+    });
+    this.designationsService.getDesignations().subscribe({
+      next: (rows) => {
+        this.designationOptions = (rows || [])
+          .filter((d) => d.id != null)
+          .map((d) => ({ label: d.name, value: d.id as number }));
+      },
+      error: () => {},
+    });
+    this.rolesService.getRoles().subscribe({
+      next: (rows) => {
+        this.roleOptions = (rows || [])
+          .filter((r) => r.id != null)
+          .map((r) => ({ label: r.name, value: r.id as number }));
+      },
+      error: () => {},
+    });
+    this.employeesService.getActiveEmployees().subscribe({
+      next: (rows: any[]) => {
+        this.allEmployees = (rows || []).filter((e) => e?.id != null);
+      },
+      error: () => {},
+    });
+  }
+
+  /**
+   * "Specific employees" options, narrowed by the selected department /
+   * designation / role (union). When none of those axes are set, every active
+   * employee is offered. Already-selected employees are always kept visible so
+   * editing a scoped question never silently drops them.
+   */
+  get filteredEmployeeOptions(): { label: string; value: number }[] {
+    const dep = this.form.targetDepartmentIds || [];
+    const des = this.form.targetDesignationIds || [];
+    const rol = this.form.targetRoleIds || [];
+    const hasFilter = dep.length > 0 || des.length > 0 || rol.length > 0;
+    const selected = new Set(this.form.targetEmployeeIds || []);
+    return this.allEmployees
+      .filter((e) =>
+        !hasFilter
+        || (e.departmentId != null && dep.includes(e.departmentId))
+        || (e.designationId != null && des.includes(e.designationId))
+        || (e.roleId != null && rol.includes(e.roleId))
+        || selected.has(e.id))
+      .map((e) => ({
+        label: `${e.firstName} ${e.lastName}${e.employeeCode ? ' (' + e.employeeCode + ')' : ''}`,
+        value: e.id,
+      }));
   }
 
   load() {
@@ -82,6 +164,10 @@ export class ReviewQuestionsMaster implements OnInit {
           ...r,
           levels: this.normaliseLevels(r.levels),
           prompts: Array.isArray(r.prompts) ? r.prompts : (r.prompts ? [String(r.prompts)] : []),
+          targetDepartmentIds: Array.isArray(r.targetDepartmentIds) ? r.targetDepartmentIds : [],
+          targetDesignationIds: Array.isArray(r.targetDesignationIds) ? r.targetDesignationIds : [],
+          targetRoleIds: Array.isArray(r.targetRoleIds) ? r.targetRoleIds : [],
+          targetEmployeeIds: Array.isArray(r.targetEmployeeIds) ? r.targetEmployeeIds : [],
         }));
         this.loading = false;
       },
@@ -110,7 +196,14 @@ export class ReviewQuestionsMaster implements OnInit {
 
   openEdit(q: ReviewQuestion) {
     this.editingId = q.id ?? null;
-    this.form = { ...q, levels: [...q.levels] };
+    this.form = {
+      ...q,
+      levels: [...q.levels],
+      targetDepartmentIds: [...(q.targetDepartmentIds || [])],
+      targetDesignationIds: [...(q.targetDesignationIds || [])],
+      targetRoleIds: [...(q.targetRoleIds || [])],
+      targetEmployeeIds: [...(q.targetEmployeeIds || [])],
+    };
     this.promptsText = (q.prompts || []).join('\n');
     this.dialogVisible = true;
   }
@@ -130,6 +223,10 @@ export class ReviewQuestionsMaster implements OnInit {
       category: null,
       section: null,
       levels: ['INCHARGE', 'MANAGER', 'MANAGEMENT'],
+      targetDepartmentIds: [],
+      targetDesignationIds: [],
+      targetRoleIds: [],
+      targetEmployeeIds: [],
       displayOrder: (this.questions[this.questions.length - 1]?.displayOrder ?? 0) + 1,
       isActive: true,
     };
@@ -161,6 +258,10 @@ export class ReviewQuestionsMaster implements OnInit {
       category: this.form.category || null,
       section: this.form.section || null,
       levels: this.form.levels,
+      targetDepartmentIds: this.form.targetDepartmentIds || [],
+      targetDesignationIds: this.form.targetDesignationIds || [],
+      targetRoleIds: this.form.targetRoleIds || [],
+      targetEmployeeIds: this.form.targetEmployeeIds || [],
       displayOrder: this.form.displayOrder,
       isActive: this.form.isActive,
     };
@@ -238,6 +339,11 @@ export class ReviewQuestionsMaster implements OnInit {
   }
   appliesToAll(q: ReviewQuestion): boolean {
     return q.levels?.length === 3;
+  }
+  /** True when the question is scoped to a subset of employees (any target set). */
+  isTargeted(q: ReviewQuestion): boolean {
+    return !!(q.targetDepartmentIds?.length || q.targetDesignationIds?.length
+      || q.targetRoleIds?.length || q.targetEmployeeIds?.length);
   }
 
   /** One-shot seeder for the 13 defaults (idempotent on the server). */

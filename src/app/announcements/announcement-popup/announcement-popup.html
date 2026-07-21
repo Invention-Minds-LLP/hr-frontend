@@ -8,6 +8,9 @@
 >
   <div *ngIf="current">
     <h3>{{ current.title }}</h3>
+    <div class="circular-code" *ngIf="current.circularCode">
+      <small><i class="pi pi-hashtag"></i> Circular No: {{ current.circularCode }}</small>
+    </div>
     <p>{{ current.body }}</p>
     <div class="dates">
       <small>

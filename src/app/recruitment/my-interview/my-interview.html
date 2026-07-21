@@ -90,7 +90,22 @@
                     <td>{{ r.avgScore }}</td>
 
                     <td>
-                        <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+                        <div style="display:flex; flex-direction:column; gap:.4rem; align-items:flex-start;">
+                            <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+
+                            <!-- Availability acknowledgement (panel rounds only) -->
+                            <div *ngIf="!r.candidateAssignedTestId"
+                                 style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
+                                <p-tag *ngIf="r.myAck === 'AVAILABLE'" severity="success" value="Available"></p-tag>
+                                <p-tag *ngIf="r.myAck === 'UNAVAILABLE'" severity="danger" value="Can't attend"
+                                    [pTooltip]="r.myAckReason || ''" tooltipPosition="top"></p-tag>
+
+                                <button *ngIf="r.myAck !== 'AVAILABLE'" pButton severity="success" size="small"
+                                    icon="pi pi-check" label="I'm available" (click)="confirmAvailable(r)"></button>
+                                <button *ngIf="r.myAck !== 'UNAVAILABLE'" pButton severity="danger" variant="outlined"
+                                    size="small" icon="pi pi-times" label="Can't attend" (click)="openDecline(r)"></button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </ng-template>
@@ -113,3 +128,21 @@
         [interview]="selectedInterview()" (closeForm)="closeFrom()">
     </app-candidate-eval-form>
 </div>
+
+<!-- Decline / can't-attend reason -->
+<p-dialog header="Can't attend this interview" [(visible)]="ackDialogOpen" [modal]="true" [dismissableMask]="true"
+    [draggable]="false" [resizable]="false" [style]="{ width:'440px' }">
+    <div *ngIf="ackRow" style="display:flex; flex-direction:column; gap:.6rem;">
+        <div style="font-size:.9rem;">
+            Let HR know why you can't attend the {{ ackRow.stage }} interview with
+            <b>{{ ackRow.application?.candidate?.name }}</b> on {{ ackRow.startTime | date:'dd-MM-yyyy HH:mm' }}.
+            They can then reschedule or cancel.
+        </div>
+        <textarea rows="3" [(ngModel)]="ackReason" placeholder="Reason (required)"
+            style="width:100%; padding:.5rem; border:1px solid #cbd5e1; border-radius:6px;"></textarea>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton class="p-button-text" label="Close" (click)="ackDialogOpen=false"></button>
+        <button pButton class="p-button-danger" [loading]="ackSaving" label="Submit" (click)="submitDecline()"></button>
+    </ng-template>
+</p-dialog>

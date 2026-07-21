@@ -234,6 +234,17 @@
 
     </div>
 
+    <!-- Multi-session round toggle -->
+    <div class="si-field si-check" style="margin-top:.25rem;">
+      <p-checkbox [binary]="true" inputId="grouped" [ngModel]="isGrouped" [ngModelOptions]="{ standalone: true }"
+        (onChange)="onGroupedToggle($event.checked)"></p-checkbox>
+      <label for="grouped">
+        Multi-session round
+        <span class="si-check-hint">Split the panel across sessions on different days (e.g. 2 members Mon, 1 member Tue).</span>
+      </label>
+    </div>
+
+    <ng-container *ngIf="!isGrouped">
     <!-- Time row -->
     <div class="dialog-row">
       <!-- Start -->
@@ -277,12 +288,64 @@
             Select interviewers </ng-template> </ng-template> </p-multiSelect>
 
     </div>
+
+    <!-- Availability finder -->
+    <div class="si-field si-checks">
+      <div class="si-check">
+        <p-checkbox [binary]="true" inputId="showSlots" [ngModel]="showSlots"
+          [ngModelOptions]="{ standalone: true }" (onChange)="toggleSlots($event.checked)"></p-checkbox>
+        <label for="showSlots">Show slots when the whole panel is free</label>
+      </div>
+
+      <div *ngIf="showSlots" class="si-slots">
+        <div *ngIf="slotsLoading" class="muted"><i class="pi pi-spin pi-spinner"></i> Finding free slots…</div>
+        <div *ngIf="!slotsLoading && !availableSlots.length" class="muted" style="font-size:.85rem;">
+          No common free slots in the next 7 days — try a different panel, or use a multi-session round.
+        </div>
+        <app-slot-picker *ngIf="!slotsLoading && availableSlots.length" [slots]="availableSlots"
+          (pick)="pickSlot($event)"></app-slot-picker>
+        <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-refresh" label="Refresh slots"
+          style="margin-top:.5rem;" (click)="loadAvailableSlots()" [disabled]="slotsLoading"></button>
+      </div>
+    </div>
+    </ng-container>
+
+    <!-- ══ Multi-session builder — different members on different days ══ -->
+    <ng-container *ngIf="isGrouped">
+      <div class="ms-sessions">
+        <div class="ms-session" *ngFor="let s of sessions; let i = index">
+          <div class="ms-session-head">
+            <strong>Session {{ i + 1 }}</strong>
+            <button *ngIf="sessions.length > 1" pButton type="button" size="small" variant="text" severity="danger"
+              icon="pi pi-trash" pTooltip="Remove session" (click)="removeSession(i)"></button>
+          </div>
+          <label class="si-label">Members</label>
+          <p-multiSelect [options]="panelOptions" [(ngModel)]="s.panelIds" [ngModelOptions]="{ standalone: true }"
+            optionLabel="label" optionValue="value" defaultLabel="Select members" [filter]="true" display="chip"
+            appendTo="body"></p-multiSelect>
+          <div class="si-row" style="margin-top:.6rem;">
+            <div>
+              <label class="si-label">Start</label>
+              <p-datepicker [(ngModel)]="s.start" [ngModelOptions]="{ standalone: true }" [showTime]="true"
+                hourFormat="24" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
+            </div>
+            <div>
+              <label class="si-label">End</label>
+              <p-datepicker [(ngModel)]="s.end" [ngModelOptions]="{ standalone: true }" [showTime]="true"
+                hourFormat="24" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
+            </div>
+          </div>
+        </div>
+        <button pButton type="button" size="small" variant="outlined" icon="pi pi-plus" label="Add session"
+          (click)="addSession()"></button>
+      </div>
+    </ng-container>
   </form>
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancel" class="p-button-text" (click)="showInterviewDialog=false"></button>
     <button pButton type="button" label="Save" [loading]="isLoading" [label]="isLoading ? 'Saving': 'Save'" icon="pi pi-check" (click)="submitInterview()"
-      [disabled]="interviewForm.invalid"></button>
+      [disabled]="isGrouped ? !interviewForm.get('stage')?.value : interviewForm.invalid"></button>
   </ng-template>
 </p-dialog>
 

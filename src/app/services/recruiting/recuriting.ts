@@ -149,8 +149,44 @@ export class Recuriting {
   }
 
   /* -------- Interviews -------- */
-  scheduleInterview(applicationId: number, body: { stage: string; startTime: string; endTime: string; panelUserIds?: string; feedbackDue?: string }) {
+  scheduleInterview(applicationId: number, body: { stage: string; startTime: string; endTime: string; panelUserIds?: string; feedbackDue?: string; grouped?: boolean; sessionGroupId?: number }) {
     return this.http.post<Interview>(`${baseUrl}/applications/${applicationId}/interviews`, body);
+  }
+
+  /** Panel member acknowledges availability ('AVAILABLE') or declines ('UNAVAILABLE'). */
+  panelAck(interviewId: number, status: 'AVAILABLE' | 'UNAVAILABLE', reason?: string) {
+    return this.http.post(`${baseUrl}/interviews/${interviewId}/panel-ack`, { status, reason });
+  }
+
+  /** Schedule a multi-session round (different members on different days) in one call. */
+  scheduleMultiSession(applicationId: number, body: { stage: string; feedbackDue?: string; sessions: { panelUserIds: string; startTime: string; endTime: string }[] }) {
+    return this.http.post<{ groupId: number; interviewIds: number[]; sessions: number }>(
+      `${baseUrl}/applications/${applicationId}/interviews/multi-session`, body);
+  }
+
+  /** Move an existing interview to a new slot (optionally swap the panel). */
+  rescheduleInterview(id: number, body: { startTime: string; endTime: string; panelUserIds?: string; stage?: string; feedbackDue?: string }) {
+    return this.http.patch<Interview>(`${baseUrl}/interviews/${id}/reschedule`, body);
+  }
+
+  /** Soft-cancel an interview (notifies candidate + panel). */
+  cancelInterview(id: number, reason?: string) {
+    return this.http.post<Interview>(`${baseUrl}/interviews/${id}/cancel`, { reason });
+  }
+
+  /** Move ONE panel member to their own session (same round) at a new time. */
+  splitPanelMember(id: number, body: { employeeId: number; startTime: string; endTime: string }) {
+    return this.http.post<Interview>(`${baseUrl}/interviews/${id}/split-member`, body);
+  }
+
+  /** Opt-in: upcoming slots where the whole panel is free of other interviews. */
+  getPanelAvailability(opts: { panelUserIds: (number | string)[]; durationMin?: number; days?: number }):
+    Observable<{ durationMin: number; count: number; slots: { start: string; end: string }[] }> {
+    let params = new HttpParams().set('panelUserIds', opts.panelUserIds.join(','));
+    if (opts.durationMin) params = params.set('durationMin', String(opts.durationMin));
+    if (opts.days) params = params.set('days', String(opts.days));
+    return this.http.get<{ durationMin: number; count: number; slots: { start: string; end: string }[] }>(
+      `${baseUrl}/panel-availability`, { params });
   }
   recordInterviewFeedback(id: number, body: { result: string; feedbackUrl?: string; feedbackAt?: string }) {
     return this.http.patch<Interview>(`${baseUrl}/interviews/${id}/feedback`, body);

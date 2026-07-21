@@ -59,14 +59,14 @@
     <div class="table-wrap">
       <table>
         <colgroup>
-          <col style="width:5.5%">
-          <col style="width:12.5%">
-          <col style="width:12.5%">
-          <col style="width:12.5%">
-          <col style="width:19.5%">
-          <col style="width:12.5%">
-          <col style="width:12.5%">
-          <col style="width:12.5%">
+          <col style="width:5%">
+          <col style="width:12%">
+          <col style="width:11%">
+          <col style="width:12%">
+          <col style="width:15%">
+          <col style="width:11%">
+          <col style="width:8%">
+          <col style="width:26%">
         </colgroup>
         <thead>
           <tr>
@@ -102,10 +102,23 @@
               </ng-container>
               <ng-template #panel>
                 {{ r.stage }} Round
+                <span *ngIf="r.sessionGroupId" class="iv-pill iv-info"
+                  style="margin-left:.35rem; font-size:.68rem; padding:.1rem .4rem;"
+                  pTooltip="Multi-session round #{{ r.sessionGroupId }}" tooltipPosition="top">Session</span>
               </ng-template>
             </td>
 
-            <td>{{ r.startTime | date:'dd-MM-yyyy HH:mm' }}</td>
+            <td>
+              {{ r.startTime | date:'dd-MM-yyyy HH:mm' }}
+              <div *ngIf="!r.candidateAssignedTestId && r.panel?.length" style="margin-top:.25rem;">
+                <span pTooltip="{{ panelAckTooltip(r) }}" tooltipPosition="top"
+                  style="font-size:.72rem; display:inline-flex; gap:.4rem; align-items:center; cursor:default;">
+                  <span style="color:#16a34a;">✓ {{ panelAckCounts(r).available }}</span>
+                  <span style="color:#dc2626;" *ngIf="panelAckCounts(r).unavailable">✗ {{ panelAckCounts(r).unavailable }}</span>
+                  <span style="opacity:.6;" *ngIf="panelAckCounts(r).pending">• {{ panelAckCounts(r).pending }} pending</span>
+                </span>
+              </div>
+            </td>
 
             <!-- Status -->
             <td>
@@ -115,8 +128,8 @@
                 </span>
               </ng-container>
               <ng-template #panelStatus>
-                <span class="iv-pill" [ngClass]="statusClass(r.result || 'Pending')">
-                  {{ r.result || 'Pending' }}
+                <span class="iv-pill" [ngClass]="statusClass(r.cancelledAt ? 'Cancelled' : (r.result || 'Pending'))">
+                  {{ r.cancelledAt ? 'Cancelled' : (r.result || 'Pending') }}
                 </span>
               </ng-template>
             </td>
@@ -137,7 +150,23 @@
             </td>
 
             <td>
-              <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+              <ng-container *ngIf="!r.cancelledAt; else cancelledCell">
+                <div class="iv-actions">
+                  <button pButton label="Evaluate" size="small" (click)="onEvaluate(r)"></button>
+                  <button pButton icon="pi pi-calendar" variant="outlined" size="small" pTooltip="Reschedule"
+                    tooltipPosition="top" (click)="openReschedule(r)"></button>
+                  <button pButton icon="pi pi-times" severity="danger" variant="outlined" size="small"
+                    pTooltip="Cancel" tooltipPosition="top" (click)="openCancel(r)"></button>
+                  <button *ngIf="r.sessionGroupId" pButton icon="pi pi-plus" variant="outlined" size="small"
+                    pTooltip="Add session" tooltipPosition="top" (click)="openAddSession(r)"></button>
+                  <button *ngIf="!r.candidateAssignedTestId && r.panel?.length > 1" pButton icon="pi pi-user-edit"
+                    variant="outlined" size="small" pTooltip="Reschedule one member" tooltipPosition="top"
+                    (click)="openSplit(r)"></button>
+                </div>
+              </ng-container>
+              <ng-template #cancelledCell>
+                <span class="iv-pill iv-danger" pTooltip="{{ r.cancelReason }}" tooltipPosition="top">Cancelled</span>
+              </ng-template>
             </td>
           </tr>
           <tr *ngIf="rows().length === 0">
@@ -228,5 +257,133 @@
     <button *ngIf="!readOnlyReview" pButton type="button" label="Save Review" icon="pi pi-check"
       (click)="submitReview()" [loading]="isLoading" [label]="isLoading ? 'Saving Review..': 'Save Review'"
       [disabled]="reviewForm.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Reschedule / add-session interview -->
+<p-dialog [header]="rescheduleMode === 'addSession' ? 'Add Session to Round' : 'Reschedule Interview'"
+  [(visible)]="showRescheduleDialog" [modal]="true" [dismissableMask]="true"
+  [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'70vw', '640px':'92vw' }" [style]="{ width:'560px' }">
+  <form [formGroup]="rescheduleForm" *ngIf="rescheduleRow" style="display:flex; flex-direction:column; gap:1rem;">
+    <div style="font-size:.9rem; opacity:.75;">
+      {{ rescheduleRow.application?.candidate?.name }} · {{ rescheduleRow.stage }} Round
+    </div>
+
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:.35rem;">
+        <label class="label">New start</label>
+        <p-datepicker formControlName="start" [showTime]="true" hourFormat="12" dateFormat="dd-mm-yy"
+          appendTo="body"></p-datepicker>
+      </div>
+      <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:.35rem;">
+        <label class="label">New end</label>
+        <p-datepicker formControlName="end" [showTime]="true" hourFormat="12" dateFormat="dd-mm-yy"
+          appendTo="body"></p-datepicker>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:.35rem;">
+      <label class="label">Panel (change to swap members)</label>
+      <p-multiSelect [options]="reschedulePanelOptions" formControlName="panelIds" optionLabel="label"
+        optionValue="value" defaultLabel="Select panel" [filter]="true" display="chip" appendTo="body"></p-multiSelect>
+    </div>
+
+    <div>
+      <div style="display:flex; align-items:center; gap:.6rem; font-size:.9rem;">
+        <p-checkbox [binary]="true" inputId="rescheduleSlots" [ngModel]="showSlots"
+          [ngModelOptions]="{ standalone: true }" (onChange)="toggleSlots($event.checked)"></p-checkbox>
+        <label for="rescheduleSlots" style="cursor:pointer; margin:0;">Show slots when the whole panel is free</label>
+      </div>
+      <div *ngIf="showSlots" style="margin-top:.5rem;">
+        <div *ngIf="slotsLoading" style="opacity:.7;"><i class="pi pi-spin pi-spinner"></i> Finding free slots…</div>
+        <div *ngIf="!slotsLoading && !availableSlots.length" style="opacity:.7; font-size:.85rem;">
+          No common free slots in the next 7 days — try a different panel, or split the round into two sessions.
+        </div>
+        <app-slot-picker *ngIf="!slotsLoading && availableSlots.length" [slots]="availableSlots"
+          (pick)="pickSlot($event)"></app-slot-picker>
+        <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-refresh" label="Refresh slots"
+          style="margin-top:.4rem;" (click)="loadAvailableSlots()" [disabled]="slotsLoading"></button>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="showRescheduleDialog=false"></button>
+    <button pButton type="button" icon="pi pi-check" [loading]="isLoading"
+      [label]="isLoading ? 'Saving…' : (rescheduleMode === 'addSession' ? 'Add session' : 'Reschedule')"
+      (click)="submitReschedule()" [disabled]="rescheduleForm.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Cancel interview -->
+<p-dialog header="Cancel Interview" [(visible)]="showCancelDialog" [modal]="true" [dismissableMask]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width:'460px' }">
+  <div *ngIf="cancelRow" style="display:flex; flex-direction:column; gap:.75rem;">
+    <div style="font-size:.9rem;">
+      Cancel the {{ cancelRow.stage }} interview with <b>{{ cancelRow.application?.candidate?.name }}</b>
+      on {{ cancelRow.startTime | date:'dd-MM-yyyy HH:mm' }}? The candidate and panel will be notified.
+    </div>
+    <div style="display:flex; flex-direction:column; gap:.35rem;">
+      <label class="label">Reason (optional)</label>
+      <textarea pInputTextarea rows="3" [(ngModel)]="cancelReason" [ngModelOptions]="{ standalone: true }"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Keep interview" class="p-button-text" (click)="showCancelDialog=false"></button>
+    <button pButton type="button" icon="pi pi-times" class="p-button-danger" [loading]="isLoading"
+      [label]="isLoading ? 'Cancelling…' : 'Cancel interview'" (click)="submitCancel()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Move one member to their own session -->
+<p-dialog header="Reschedule one member" [(visible)]="showSplitDialog" [modal]="true" [dismissableMask]="true"
+  [draggable]="false" [resizable]="false" [breakpoints]="{ '960px':'70vw', '640px':'92vw' }" [style]="{ width:'520px' }">
+  <div *ngIf="splitRow" style="display:flex; flex-direction:column; gap:1rem;">
+    <div style="font-size:.85rem; opacity:.75;">
+      Everyone else stays on {{ splitRow.startTime | date:'dd-MM-yyyy HH:mm' }}. The selected member gets their own
+      session in the same round.
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:.35rem;">
+      <label class="label">Member to move</label>
+      <p-select [options]="splitMemberOptions" [(ngModel)]="splitEmployeeId" optionLabel="label" optionValue="value"
+        optionDisabled="disabled" placeholder="Select a panel member" appendTo="body" [style]="{ width:'100%' }"
+        (onChange)="splitShowSlots && loadSplitSlots()"></p-select>
+    </div>
+
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+      <div style="flex:1; min-width:190px; display:flex; flex-direction:column; gap:.35rem;">
+        <label class="label">New start</label>
+        <p-datepicker [(ngModel)]="splitStart" [showTime]="true" hourFormat="12" dateFormat="dd-mm-yy"
+          appendTo="body"></p-datepicker>
+      </div>
+      <div style="flex:1; min-width:190px; display:flex; flex-direction:column; gap:.35rem;">
+        <label class="label">New end</label>
+        <p-datepicker [(ngModel)]="splitEnd" [showTime]="true" hourFormat="12" dateFormat="dd-mm-yy"
+          appendTo="body"></p-datepicker>
+      </div>
+    </div>
+
+    <div>
+      <div style="display:flex; align-items:center; gap:.6rem; font-size:.9rem;">
+        <p-checkbox [binary]="true" inputId="splitSlots" [ngModel]="splitShowSlots"
+          [ngModelOptions]="{ standalone: true }" (onChange)="toggleSplitSlots($event.checked)"></p-checkbox>
+        <label for="splitSlots" style="cursor:pointer; margin:0;">Show slots when this member is free</label>
+      </div>
+      <div *ngIf="splitShowSlots" style="margin-top:.5rem;">
+        <div *ngIf="splitSlotsLoading" style="opacity:.7;"><i class="pi pi-spin pi-spinner"></i> Finding free slots…</div>
+        <div *ngIf="!splitSlotsLoading && !splitSlots.length" style="opacity:.7; font-size:.85rem;">
+          No free slots in the next 7 days for this member.
+        </div>
+        <app-slot-picker *ngIf="!splitSlotsLoading && splitSlots.length" [slots]="splitSlots"
+          (pick)="pickSplitSlot($event)"></app-slot-picker>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="showSplitDialog=false"></button>
+    <button pButton type="button" icon="pi pi-check" [loading]="isLoading"
+      [label]="isLoading ? 'Moving…' : 'Move member'" (click)="submitSplit()"></button>
   </ng-template>
 </p-dialog>

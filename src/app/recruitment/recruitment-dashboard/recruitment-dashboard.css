@@ -1279,9 +1279,13 @@ td.title .text {
   color: white !important;
 }
 
-::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
+::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus{
+  background: rgba(255, 255, 255, .10) !important;
+  color: #fff !important;
+}
 ::ng-deep .p-select-option.p-select-option-selected{
-  color: black !important;
+  background: rgba(255, 255, 255, .16) !important;
+  color: #fff !important;
 }
 
 /* ═══════════════════════════════════════════════════════════

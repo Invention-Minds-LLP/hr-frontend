@@ -95,7 +95,7 @@ export class AppraisalReviewForm implements OnInit, OnChanges {
   loadAll() {
     this.loading = true;
     const detail$ = this.appraisalService.getAppraisalDetail(this.appraisalId, this.viewerRoleForLoad());
-    const questions$ = this.appraisalService.listReviewQuestions({ level: this.level });
+    const questions$ = this.appraisalService.listReviewQuestions({ level: this.level, appraisalId: this.appraisalId });
 
     let detail: any = null;
     let questions: any[] = [];

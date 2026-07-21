@@ -26,7 +26,9 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
 import { Employees } from '../../services/employees/employees';
+import { SlotPicker } from '../slot-picker/slot-picker';
 import { Chip } from 'primeng/chip';
 import { CandidateSummary } from '../candidate-summary/candidate-summary';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -60,7 +62,7 @@ type ActionKey =
     DividerModule,
     TagModule,
     Chip,
-    DatePicker, ReactiveFormsModule, SkeletonModule, Toast, BaseIcon],
+    DatePicker, ReactiveFormsModule, SkeletonModule, Toast, BaseIcon, CheckboxModule, SlotPicker],
   templateUrl: './application-status.html',
   styleUrl: './application-status.css',
   providers: [MessageService]
@@ -137,6 +139,10 @@ export class ApplicationStatus implements OnInit {
       endTime: [null as Date | null, Validators.required],
 
       panelIds: [[] as (number | string)[]],
+
+      // When true, this interview becomes a multi-session round anchor — the
+      // recruiter can then add more sessions (other members / other days) to it.
+      grouped: [false],
     },
     { validators: [this.endAfterStartValidator()] }
   );
@@ -201,8 +207,12 @@ export class ApplicationStatus implements OnInit {
     this.showInterviewDialog = true;
 
     // reset form (keep your existing defaults if any)
-    this.interviewForm.reset({ stage: stage, startTime: null, endTime: null, panelIds: [] });
+    this.interviewForm.reset({ stage: stage, startTime: null, endTime: null, panelIds: [], grouped: false });
     this.selectedPanelIds = [];
+    this.showSlots = false;
+    this.availableSlots = [];
+    this.isGrouped = false;
+    this.sessions = [];
 
     // load employees from job's department (ACTIVE only)
     // const depId = a?.job?.departmentId;
@@ -277,8 +287,115 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
 
 
 
+  // ── Opt-in panel-availability slot finder ──────────────────────────
+  showSlots = false;
+  slotsLoading = false;
+  availableSlots: { start: string; end: string }[] = [];
+
+  // ── Multi-session round builder (define sessions upfront) ───────────
+  isGrouped = false;
+  sessions: Array<{ panelIds: (number | string)[]; start: Date | null; end: Date | null }> = [];
+
+  onGroupedToggle(checked: boolean) {
+    this.isGrouped = checked;
+    if (checked) {
+      // Seed with one session, prefilling whatever panel/time is already chosen.
+      const v = this.interviewForm.value;
+      const start = (v.startDate && v.startTime) ? this.combineDateAndTime(v.startDate as Date, v.startTime as Date) : null;
+      const end = (v.endDate && v.endTime) ? this.combineDateAndTime(v.endDate as Date, v.endTime as Date) : null;
+      this.sessions = [{ panelIds: [...((v.panelIds ?? []) as (number | string)[])], start, end }];
+    } else {
+      this.sessions = [];
+    }
+  }
+
+  addSession() {
+    this.sessions.push({ panelIds: [], start: null, end: null });
+  }
+
+  removeSession(i: number) {
+    this.sessions.splice(i, 1);
+  }
+
+  submitMultiSession() {
+    if (!this.currentApp) return;
+    const stage = (this.interviewForm.value.stage ?? '').toString().trim();
+    if (!stage) { this.messageService.add({ severity: 'warn', summary: 'Stage required', detail: 'Choose a stage.' }); return; }
+    if (!this.sessions.length) { this.messageService.add({ severity: 'warn', summary: 'Add a session', detail: 'Add at least one session.' }); return; }
+
+    const payloadSessions: { panelUserIds: string; startTime: string; endTime: string }[] = [];
+    for (let i = 0; i < this.sessions.length; i++) {
+      const s = this.sessions[i];
+      if (!s.panelIds?.length) { this.messageService.add({ severity: 'warn', summary: `Session ${i + 1}`, detail: 'Select panel member(s).' }); return; }
+      if (!s.start || !s.end) { this.messageService.add({ severity: 'warn', summary: `Session ${i + 1}`, detail: 'Set start and end.' }); return; }
+      if (!(s.end > s.start)) { this.messageService.add({ severity: 'warn', summary: `Session ${i + 1}`, detail: 'End must be after start.' }); return; }
+      payloadSessions.push({
+        panelUserIds: (s.panelIds ?? []).join(','),
+        startTime: this.toOffsetIso(s.start),
+        endTime: this.toOffsetIso(s.end),
+      });
+    }
+
+    this.isLoading = true;
+    this.api.scheduleMultiSession(this.currentApp.id, { stage, sessions: payloadSessions }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.showInterviewDialog = false;
+        this.messageService.add({ severity: 'success', summary: 'Round scheduled', detail: `${res.sessions} session(s) created.` });
+        this.resetInterview();
+        this.load();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.status === 409 && err.error?.warning) {
+          const details = (err.error.conflicts || []).join('\n');
+          this.messageService.add({ severity: 'warn', summary: 'Scheduling Conflict', detail: `${err.error.message}\n${details}`, life: 8000 });
+        } else {
+          const msg = err?.error?.error || err?.error?.message || 'Failed to schedule round';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 7000 });
+        }
+      },
+    });
+  }
+
+  toggleSlots(on: boolean) {
+    this.showSlots = on;
+    this.availableSlots = [];
+    if (on) this.loadAvailableSlots();
+  }
+
+  loadAvailableSlots() {
+    const panelIds = (this.interviewForm.value.panelIds ?? []) as (number | string)[];
+    if (!panelIds.length) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Select panel first',
+        detail: 'Choose panel members to see when they are all free.',
+      });
+      return;
+    }
+    this.slotsLoading = true;
+    this.api.getPanelAvailability({ panelUserIds: panelIds, durationMin: 60, days: 7 }).subscribe({
+      next: (res) => { this.availableSlots = res.slots; this.slotsLoading = false; },
+      error: (err) => {
+        this.slotsLoading = false;
+        const msg = err?.error?.error || err?.error?.message || 'Failed to load availability';
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+      },
+    });
+  }
+
+  /** Fill the start/end date+time controls from a chosen free slot. */
+  pickSlot(slot: { start: string; end: string }) {
+    const s = new Date(slot.start);
+    const e = new Date(slot.end);
+    this.interviewForm.patchValue({ startDate: s, startTime: s, endDate: e, endTime: e });
+  }
+
   submitInterview() {
     if (!this.currentApp) return;
+    // Multi-session round → dedicated builder / endpoint.
+    if (this.isGrouped) { this.submitMultiSession(); return; }
     this.isLoading = true;
 
     const v = this.interviewForm.value;
@@ -287,9 +404,6 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
 
     const payload = {
       stage: (v.stage ?? '').toString().trim(),
-      // pick one based on your backend
-      // startTime: start.toISOString(),
-      // endTime:   end.toISOString(),
       startTime: this.toOffsetIso(start),
       endTime: this.toOffsetIso(end),
       panelUserIds: (v.panelIds ?? []).join(','),
@@ -318,10 +432,19 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
           });
           this.isLoading = false;
         } else {
+          // Surface the actual server message. `bad()` returns { error: '...' };
+          // some handlers use { message: '...' }. Fall back to a generic line.
+          const serverMsg =
+            err?.error?.error ||
+            err?.error?.message ||
+            (typeof err?.error === 'string' ? err.error : null) ||
+            err?.message ||
+            'Failed to schedule interview';
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to schedule interview',
+            detail: serverMsg,
+            life: 6000,
           });
           this.isLoading = false;
         }
@@ -391,11 +514,36 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
     this.isLoading = true;
     this.getOrCreateOffer(this.currentApp).pipe(
       switchMap(ofr => this.api.sendOffer(ofr.id, iso))
-    ).subscribe(() => {
-      this.isLoading = false;
-      this.showOfferDialog = false;
-      this.offerForm.reset();
-      this.load();
+    ).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.showOfferDialog = false;
+        this.offerForm.reset();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Offer Sent',
+          detail: 'Offer letter has been sent to the candidate.',
+        });
+        this.load();
+      },
+      error: (err) => {
+        // Surface the real server message (e.g. the BGV gate: "Cannot send the
+        // offer — background verification is IN_PROGRESS..."). `bad()` returns
+        // { error: '...' }.
+        const serverMsg =
+          err?.error?.error ||
+          err?.error?.message ||
+          (typeof err?.error === 'string' ? err.error : null) ||
+          err?.message ||
+          'Failed to send offer';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: serverMsg,
+          life: 8000,
+        });
+        this.isLoading = false;
+      },
     });
   }
 

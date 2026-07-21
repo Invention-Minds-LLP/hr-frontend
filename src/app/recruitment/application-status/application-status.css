@@ -873,4 +873,81 @@ td.actions {
   }
 }
 
+/* ── Schedule-dialog option checkboxes (left-aligned rows) ───────────── */
+.si-checks { display: flex; flex-direction: column; gap: 1rem; }
+.si-check { display: flex; align-items: flex-start; gap: .6rem; text-align: left; }
+.si-check label { font-weight: 500; cursor: pointer; margin: 0; color: #fff; }
+.si-check-hint { display: block; font-size: .78rem; opacity: .6; margin-top: .2rem; }
+.si-slots { padding-left: 1.9rem; margin-top: -.25rem; }
+.si-slot-list { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0; }
+
+/* ── Multi-session round builder ─────────────────────────────────────── */
+.ms-sessions { display: flex; flex-direction: column; gap: 1rem; }
+.ms-session {
+  border: 1px solid #2b2b3d;
+  border-radius: 10px;
+  padding: .85rem .9rem;
+  background: #0f0f16;
+}
+.ms-session-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .55rem; color: #fff;
+}
+
+/* ── Dark theme for the select / multiselect overlays (white text, subtle
+      neutral hover/selected — no harsh block colour). Calendar left as default. */
+::ng-deep .p-select-overlay,
+::ng-deep .p-multiselect-overlay {
+  background: #0b0b12 !important;
+  color: #fff !important;
+  border: 1px solid #2b2b3d !important;
+}
+::ng-deep .p-select-option,
+::ng-deep .p-multiselect-option,
+::ng-deep .p-select-option-label,
+::ng-deep .p-multiselect-option-label { color: #fff !important; }
+/* custom option template (Panel interviewers) */
+::ng-deep .p-multiselect-option .name { color: #fff !important; }
+::ng-deep .p-multiselect-option .muted { color: #9aa0ac !important; }
+::ng-deep .p-select-option:not(.p-disabled).p-focus,
+::ng-deep .p-multiselect-option:not(.p-disabled).p-focus {
+  background: rgba(255, 255, 255, .08) !important;
+  color: #fff !important;
+}
+::ng-deep .p-select-option.p-select-option-selected,
+::ng-deep .p-multiselect-option.p-multiselect-option-selected {
+  background: rgba(255, 255, 255, .14) !important;
+  color: #fff !important;
+}
+::ng-deep .p-select-header,
+::ng-deep .p-multiselect-header {
+  background: #0b0b12 !important;
+  border-bottom: 1px solid #2b2b3d !important;
+}
+::ng-deep .p-select-overlay .p-inputtext,
+::ng-deep .p-multiselect-overlay .p-inputtext,
+::ng-deep .p-select-filter,
+::ng-deep .p-multiselect-filter {
+  background: #17171f !important;
+  color: #fff !important;
+  border-color: #2b2b3d !important;
+}
+
+/* ── Attractive availability slot chips ─────────────────────────────── */
+.si-slot-list { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0; }
+.slot-chip {
+  border: 1px solid #33334a;
+  background: #16161f;
+  color: #e8e8f0;
+  border-radius: 999px;
+  padding: .42rem .85rem;
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .15s, background .15s, transform .05s;
+}
+.slot-chip:hover { border-color: #C160FF; background: #241a33; color: #fff; }
+.slot-chip:active { transform: translateY(1px); }
+
 

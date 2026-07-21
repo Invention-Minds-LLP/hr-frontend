@@ -70,6 +70,23 @@
   margin-bottom: 4px;
 }
 
+.target-line {
+  margin-top: 4px;
+}
+.target-chip {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #fff4e5;
+  color: #b3541e;
+  font-size: 11px;
+  font-weight: 600;
+}
+.target-chip.target-all {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 .rqm-empty {
   text-align: center;
   padding: 32px 16px;
