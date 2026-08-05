@@ -10,7 +10,7 @@ import { MyEmpLocations } from '../my-emp-locations/my-emp-locations';
   styleUrl: './geo-tracking-overview.css',
 })
 export class GeoTrackingOverview {
- active:string = 'list';
+ active:string = 'list';  
  roleId: number = Number(localStorage.getItem('roleId'))
 
    show(value: string){

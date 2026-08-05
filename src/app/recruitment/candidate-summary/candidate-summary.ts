@@ -56,8 +56,31 @@ export class CandidateSummary implements OnInit {
   bgv: any = null;
   loadingBgv = false;
   bgvDocs: any[] = [];
-  newDoc = { docType: '', fileName: '', fileUrl: '' };
   showAddDoc = false;
+
+  // BGV document upload — type dropdown mirrors the employee-doc taxonomy so the
+  // doc links cleanly onto the employee record on join; "Other" allows free text.
+  docTypeOptions = [
+    { label: 'Aadhaar Card', value: 'AADHAAR' },
+    { label: 'PAN Card', value: 'PAN' },
+    { label: 'Passport', value: 'PASSPORT' },
+    { label: 'SSLC Certificate', value: 'SSLC' },
+    { label: 'PU Certificate', value: 'PU' },
+    { label: 'Degree Certificate', value: 'DEGREE' },
+    { label: 'Diploma Certificate', value: 'DIPLOMA' },
+    { label: 'Employment Contract', value: 'EMPLOYMENT_CONTRACT' },
+    { label: 'Offer Letter', value: 'OFFER_LETTER' },
+    { label: 'Experience / Relieving Letter', value: 'EXPERIENCE' },
+    { label: 'Registration Certificate', value: 'REGISTRATION_CERT' },
+    { label: 'Salary Certificate', value: 'SALARY_CERT' },
+    { label: 'Verification Certificate', value: 'VERIFICATION_CERT' },
+    { label: 'Bank Document', value: 'BANK' },
+    { label: 'Other…', value: 'OTHER' },
+  ];
+  docSelectedType = '';
+  docOtherType = '';
+  docFile: File | null = null;
+  docUploading = false;
   // Per-check inline edit state
   bgvEdit: Record<number, { status: BgvCheckStatus; evidenceUrl: string; note: string }> = {};
   // Discrepancy resolution dialog
@@ -209,6 +232,12 @@ export class CandidateSummary implements OnInit {
     });
   }
 
+  /** BGV checks are editable only while IN_PROGRESS; once finalised
+   *  (CLEAR / FLAGGED / FAILED) they're read-only, not re-prompted for entry. */
+  bgvEditable(): boolean {
+    return this.bgv?.status === 'IN_PROGRESS';
+  }
+
   initiateBgv() {
     if (!this.summary?.bgvConsentAt) {
       this.toast.add({ severity: 'warn', summary: 'Consent required', detail: 'Record BGV consent first.' });
@@ -217,6 +246,31 @@ export class CandidateSummary implements OnInit {
     this.api.initiateBgv(this.applicationId).subscribe({
       next: () => { this.toast.add({ severity: 'success', summary: 'Started', detail: 'BGV initiated.' }); this.loadBgv(); },
       error: (err) => this.showError('Failed to initiate BGV', err),
+    });
+  }
+
+  // Per-check evidence upload state (keyed by check id).
+  evidenceUploading: Record<number, boolean> = {};
+
+  onEvidenceFileSelected(check: any, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length ? input.files[0] : null;
+    if (!file || !this.bgv) return;
+    this.evidenceUploading[check.id] = true;
+    this.api.uploadBgvCheckEvidence(this.bgv.id, check.id, file).subscribe({
+      next: (updated: any) => {
+        this.evidenceUploading[check.id] = false;
+        // Reflect the stored URL in the edit model + the loaded check.
+        if (this.bgvEdit[check.id]) this.bgvEdit[check.id].evidenceUrl = updated?.evidenceUrl ?? '';
+        check.evidenceUrl = updated?.evidenceUrl ?? check.evidenceUrl;
+        this.toast.add({ severity: 'success', summary: 'Uploaded', detail: 'Evidence attached.' });
+        input.value = '';
+      },
+      error: (err) => {
+        this.evidenceUploading[check.id] = false;
+        this.showError('Failed to upload evidence', err);
+        input.value = '';
+      },
     });
   }
 
@@ -250,6 +304,25 @@ export class CandidateSummary implements OnInit {
     });
   }
 
+  // Final BGV report upload state.
+  reportUploading = false;
+
+  onReportFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length ? input.files[0] : null;
+    if (!file || !this.bgv) return;
+    this.reportUploading = true;
+    this.api.uploadBgvReport(this.bgv.id, file).subscribe({
+      next: (updated: any) => {
+        this.reportUploading = false;
+        this.completeReportUrl = updated?.reportUrl ?? '';
+        this.toast.add({ severity: 'success', summary: 'Uploaded', detail: 'Report attached.' });
+        input.value = '';
+      },
+      error: (err) => { this.reportUploading = false; this.showError('Failed to upload report', err); input.value = ''; },
+    });
+  }
+
   completeBgv() {
     if (!this.bgv) return;
     this.confirm.confirm({
@@ -267,20 +340,44 @@ export class CandidateSummary implements OnInit {
   }
 
   // ─── BGV Documents ───
+  onDocFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.docFile = input.files && input.files.length ? input.files[0] : null;
+  }
+
+  private resetDocForm() {
+    this.docSelectedType = '';
+    this.docOtherType = '';
+    this.docFile = null;
+  }
+
   addBgvDocument() {
     if (!this.bgv) return;
-    if (!this.newDoc.docType.trim() || !this.newDoc.fileName.trim() || !this.newDoc.fileUrl.trim()) {
-      this.toast.add({ severity: 'warn', summary: 'Required', detail: 'Type, file name and URL are required.' });
+    const docType = (this.docSelectedType === 'OTHER' ? this.docOtherType : this.docSelectedType).trim();
+    if (!docType) {
+      this.toast.add({ severity: 'warn', summary: 'Required', detail: 'Choose a document type.' });
       return;
     }
-    this.api.addBgvDocument(this.bgv.id, this.newDoc).subscribe({
+    if (!this.docFile) {
+      this.toast.add({ severity: 'warn', summary: 'Required', detail: 'Choose a file to upload.' });
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('docType', docType);
+    fd.append('fileName', this.docFile.name);
+    fd.append('file', this.docFile);
+
+    this.docUploading = true;
+    this.api.addBgvDocument(this.bgv.id, fd).subscribe({
       next: () => {
-        this.toast.add({ severity: 'success', summary: 'Added', detail: 'Document attached.' });
-        this.newDoc = { docType: '', fileName: '', fileUrl: '' };
+        this.docUploading = false;
+        this.toast.add({ severity: 'success', summary: 'Uploaded', detail: 'Document attached.' });
+        this.resetDocForm();
         this.showAddDoc = false;
         this.loadBgv();
       },
-      error: (err) => this.showError('Failed to add document', err),
+      error: (err) => { this.docUploading = false; this.showError('Failed to upload document', err); },
     });
   }
 

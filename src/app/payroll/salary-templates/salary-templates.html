@@ -1,0 +1,461 @@
+<div class="tpl-wrap">
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <div class="tab-header">
+    <div class="tab-header-left">
+      <h3>Salary Templates</h3>
+      <span class="sub">
+        Define a structure once as percentages of gross, then apply it to many employees at once
+      </span>
+    </div>
+    <div class="tab-header-right">
+      <div class="checkbox-inline">
+        <p-checkbox [(ngModel)]="showInactive" [binary]="true" inputId="inact" (onChange)="load()" />
+        <label for="inact">Show inactive</label>
+      </div>
+      <button class="new-app" (click)="openNew()">
+        New Template
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+          <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="notice" *ngIf="!loading && !templates.length">
+    No templates yet. A template splits monthly gross into components that total 100% — set one up
+    once and you can put a whole department on it without touching each employee.
+  </div>
+
+  <p-table [value]="loading ? skeletonRows : templates" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Template</th>
+        <th>Applies to</th>
+        <th>Split</th>
+        <th class="num">Assigned</th>
+        <th>Status</th>
+        <th style="width:210px"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-t>
+      <tr *ngIf="loading"><td colspan="6"><p-skeleton height="18px" /></td></tr>
+      <tr *ngIf="!loading">
+        <td>
+          <div class="emp-cell">
+            <span class="emp-name">{{ t.name }}</span>
+            <span class="emp-code">{{ t.code || t.description || '—' }}</span>
+          </div>
+        </td>
+        <td class="muted">{{ scopeLabel(t) }}</td>
+        <td class="split-cell">{{ componentSummary(t) }}</td>
+        <td class="num">{{ t._count?.assignments ?? 0 }}</td>
+        <td>
+          <p-tag [value]="t.isActive ? 'Active' : 'Inactive'"
+            [severity]="t.isActive ? 'success' : 'secondary'" />
+        </td>
+        <td>
+          <button class="ghost-btn small" (click)="openEdit(t)">Edit</button>
+          <button class="new-app small" [disabled]="!t.isActive" (click)="openAssign(t)">Assign</button>
+          <button class="icon-btn danger" (click)="remove(t)" pTooltip="Delete">✕</button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="6" class="empty-cell">No templates found.</td></tr>
+    </ng-template>
+  </p-table>
+
+  <!-- ══════════════ BUILDER ══════════════════════════════════════════════════ -->
+  <p-dialog [header]="editing.id ? 'Edit Template' : 'New Salary Template'"
+    [(visible)]="builderDialog" [modal]="true" [style]="{ width: '1120px' }" styleClass="tpl-dialog">
+
+    <div class="builder">
+
+      <!-- LEFT: definition -->
+      <div class="builder-main">
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Template name</label>
+            <input pInputText [(ngModel)]="editing.name" placeholder="e.g. Nursing Staff — Standard" />
+          </div>
+          <div class="field">
+            <label>Short code <span class="hint">optional</span></label>
+            <input pInputText [(ngModel)]="editing.code" placeholder="e.g. NUR-STD" />
+          </div>
+        </div>
+
+        <h4 class="sec-head">Applies to <span class="hint">filters the employee list when assigning — it does not auto-apply</span></h4>
+        <div class="form-grid">
+          <div class="field">
+            <label>Department</label>
+            <p-select [(ngModel)]="editing.departmentId" [options]="departments" optionLabel="name"
+              optionValue="id" placeholder="Any" [showClear]="true" appendTo="body" />
+          </div>
+          <div class="field">
+            <label>Designation</label>
+            <p-select [(ngModel)]="editing.designationId" [options]="designations" optionLabel="name"
+              optionValue="id" placeholder="Any" [showClear]="true" appendTo="body" />
+          </div>
+          <div class="field">
+            <label>Role</label>
+            <p-select [(ngModel)]="editing.roleId" [options]="roles" optionLabel="name"
+              optionValue="id" placeholder="Any" [showClear]="true" appendTo="body" />
+          </div>
+          <div class="field">
+            <label>Branch</label>
+            <p-select [(ngModel)]="editing.branchId" [options]="branches" optionLabel="name"
+              optionValue="id" placeholder="Any" [showClear]="true" appendTo="body" />
+          </div>
+        </div>
+
+        <!-- ── Percentage split ──────────────────────────────────────────── -->
+        <h4 class="sec-head">
+          Percentage of monthly gross
+          <span class="hint">must total exactly 100%</span>
+        </h4>
+
+        <div class="total-bar" [class.balanced]="isBalanced" [class.over]="totalPercentage > 100">
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="totalPercentage > 100 ? 100 : totalPercentage"></div>
+          </div>
+          <div class="bar-label">
+            <b>{{ totalPercentage }}%</b>
+            <span *ngIf="isBalanced" class="ok-txt">balanced</span>
+            <span *ngIf="!isBalanced && remainingPercentage > 0" class="warn-txt">
+              {{ remainingPercentage }}% short
+            </span>
+            <span *ngIf="totalPercentage > 100" class="bad-txt">
+              {{ -remainingPercentage }}% over
+            </span>
+            <button class="ghost-btn small" *ngIf="!isBalanced" (click)="autoBalance()"
+              pTooltip="Push the difference into the balancing component">Auto-balance</button>
+          </div>
+        </div>
+
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th class="num" style="width:110px">%</th>
+              <th class="num" style="width:130px">At {{ inr(previewAmount) }}</th>
+              <th style="width:96px" class="center"
+                pTooltip="This component absorbs rounding so the parts always add up to the gross exactly."
+                tooltipPosition="top">Balancing</th>
+              <th style="width:44px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of pctComponents">
+              <td><b>{{ c.label }}</b></td>
+              <td class="num">
+                <p-inputNumber [(ngModel)]="c.percentage" mode="decimal" [min]="0" [max]="100"
+                  [minFractionDigits]="0" [maxFractionDigits]="2" (onInput)="revalidate()"
+                  [disabled]="c.isBalancing" styleClass="pct-input" />
+              </td>
+              <td class="num money">
+                {{ preview ? inr(preview.components[c.key]) : '—' }}
+              </td>
+              <td class="center">
+                <p-radioButton name="balancing" [value]="c.key" [(ngModel)]="balancingKey" />
+              </td>
+              <td>
+                <button class="icon-btn danger" (click)="removeComponent(c.key)" pTooltip="Remove">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="add-row" *ngIf="availablePctKeys.length">
+          <span class="add-label">Add:</span>
+          <button class="chip-btn" *ngFor="let k of availablePctKeys" (click)="addComponent(k.key, false)">
+            + {{ k.label }}
+          </button>
+        </div>
+
+        <!-- ── Fixed add-ons ─────────────────────────────────────────────── -->
+        <h4 class="sec-head">
+          Fixed monthly add-ons
+          <span class="hint">flat amounts paid on top of gross — outside the 100%</span>
+        </h4>
+
+        <table class="comp-table" *ngIf="fixedComponents.length">
+          <thead>
+            <tr><th>Component</th><th class="num" style="width:160px">Amount / month</th><th style="width:44px"></th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of fixedComponents">
+              <td><b>{{ c.label }}</b></td>
+              <td class="num">
+                <p-inputNumber [(ngModel)]="c.fixedAmount" mode="decimal" [min]="0" [useGrouping]="true"
+                  (onInput)="revalidate()" styleClass="pct-input" />
+              </td>
+              <td><button class="icon-btn danger" (click)="removeComponent(c.key)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="add-row" *ngIf="availableFixedKeys.length">
+          <span class="add-label">Add:</span>
+          <button class="chip-btn" *ngFor="let k of availableFixedKeys" (click)="addComponent(k.key, true)">
+            + {{ k.label }}
+          </button>
+        </div>
+
+        <!-- ── Statutory ─────────────────────────────────────────────────── -->
+        <h4 class="sec-head">Statutory applicability</h4>
+        <div class="stat-toggles">
+          <div class="checkbox-inline">
+            <p-checkbox [(ngModel)]="editing.pfApplicable" [binary]="true" inputId="pf" (onChange)="runPreview()" />
+            <label for="pf">Provident Fund</label>
+          </div>
+          <div class="checkbox-inline">
+            <p-checkbox [(ngModel)]="editing.esiApplicable" [binary]="true" inputId="esi" (onChange)="runPreview()" />
+            <label for="esi">ESI <span class="hint">applies only under the wage limit</span></label>
+          </div>
+          <div class="checkbox-inline">
+            <p-checkbox [(ngModel)]="editing.ptApplicable" [binary]="true" inputId="pt" (onChange)="runPreview()" />
+            <label for="pt">Professional Tax</label>
+          </div>
+          <div class="checkbox-inline">
+            <p-checkbox [(ngModel)]="editing.isActive" [binary]="true" inputId="act" />
+            <label for="act">Active <span class="hint">only valid templates can be activated</span></label>
+          </div>
+        </div>
+
+        <!-- ── Validation feedback ───────────────────────────────────────── -->
+        <div class="v-errors" *ngIf="validation && validation.errors.length">
+          <div *ngFor="let e of validation.errors">⚠ {{ e }}</div>
+        </div>
+        <div class="v-warnings" *ngIf="validation && validation.warnings.length">
+          <div *ngFor="let w of validation.warnings">{{ w }}</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: live preview -->
+      <div class="builder-preview">
+        <div class="pv-head">Live preview</div>
+        <div class="pv-note">
+          Enter a figure and see exactly what this template produces before you save it.
+        </div>
+
+        <div class="pv-controls">
+          <p-select [(ngModel)]="previewMode" [options]="inputModes" optionLabel="label" optionValue="value"
+            (onChange)="runPreview()" appendTo="body" styleClass="pv-select" />
+          <p-inputNumber [(ngModel)]="previewAmount" mode="decimal" [min]="0" [useGrouping]="true"
+            (onInput)="runPreview()" styleClass="pv-amount" />
+        </div>
+
+        <div class="pv-empty" *ngIf="!isBalanced">
+          The split must total 100% before a preview can be calculated.
+        </div>
+
+        <ng-container *ngIf="preview && isBalanced">
+          <div class="pv-headline">
+            <div><span>Monthly gross</span><b>{{ inr(preview.monthlyGross) }}</b></div>
+            <div><span>Monthly CTC</span><b>{{ inr(preview.monthlyCtc) }}</b></div>
+            <div class="accent"><span>Take-home</span><b>{{ inr(preview.monthlyNet) }}</b></div>
+          </div>
+
+          <div class="pv-warn" *ngIf="preview.netSolve && !preview.netSolve.exact">
+            {{ preview.netSolve.note }}
+          </div>
+
+          <table class="pv-table">
+            <tbody>
+              <tr *ngFor="let r of previewRows()">
+                <td>{{ r.label }} <span class="pv-pct" *ngIf="r.pct">{{ r.pct }}%</span></td>
+                <td class="num">{{ inr(r.value) }}</td>
+              </tr>
+              <tr class="pv-sub">
+                <td>Monthly gross</td>
+                <td class="num">{{ inr(preview.monthlyGross) }}</td>
+              </tr>
+              <tr class="pv-ded"><td>Less: PF</td><td class="num">− {{ inr(preview.deductions.pf) }}</td></tr>
+              <tr class="pv-ded" *ngIf="preview.deductions.esi">
+                <td>Less: ESI</td><td class="num">− {{ inr(preview.deductions.esi) }}</td></tr>
+              <tr class="pv-ded"><td>Less: Professional Tax</td><td class="num">− {{ inr(preview.deductions.pt) }}</td></tr>
+              <tr class="pv-total"><td>Net take-home</td><td class="num">{{ inr(preview.monthlyNet) }}</td></tr>
+            </tbody>
+          </table>
+
+          <div class="pv-annual">
+            <div><span>Annual gross</span><b>{{ inr(preview.annualGross) }}</b></div>
+            <div><span>Annual CTC</span><b>{{ inr(preview.annualCtc) }}</b></div>
+            <div><span>Employer PF</span><b>{{ inr(preview.employerPf) }}/mo</b></div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="builderDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="saving || !isBalanced" (click)="save()">
+        {{ saving ? 'Saving…' : 'Save Template' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ══════════════ ASSIGN ═══════════════════════════════════════════════════ -->
+  <p-dialog [header]="'Assign — ' + (assignTemplate?.name || '')" [(visible)]="assignDialog"
+    [modal]="true" [style]="{ width: '1180px' }" styleClass="tpl-dialog">
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <p-select [(ngModel)]="filters.departmentId" [options]="departments" optionLabel="name"
+        optionValue="id" placeholder="Department" [showClear]="true" (onChange)="loadEligible()" appendTo="body" />
+      <p-select [(ngModel)]="filters.designationId" [options]="designations" optionLabel="name"
+        optionValue="id" placeholder="Designation" [showClear]="true" (onChange)="loadEligible()" appendTo="body" />
+      <p-select [(ngModel)]="filters.roleId" [options]="roles" optionLabel="name"
+        optionValue="id" placeholder="Role" [showClear]="true" (onChange)="loadEligible()" appendTo="body" />
+      <p-select [(ngModel)]="filters.branchId" [options]="branches" optionLabel="name"
+        optionValue="id" placeholder="Branch" [showClear]="true" (onChange)="loadEligible()" appendTo="body" />
+      <input pInputText [(ngModel)]="filters.search" (keyup.enter)="loadEligible()"
+        placeholder="Name or code…" class="search-input" />
+      <div class="checkbox-inline">
+        <p-checkbox [(ngModel)]="filters.onlyWithoutStructure" [binary]="true" inputId="nostruct"
+          (onChange)="loadEligible()" />
+        <label for="nostruct">Only without a structure</label>
+      </div>
+      <button class="ghost-btn small" (click)="clearFilters()">Clear</button>
+    </div>
+
+    <!-- Bulk controls -->
+    <div class="bulk-bar">
+      <div class="bulk-left">
+        <span class="bulk-count">
+          {{ selectedRows.length }} of {{ assignRows.length }} selected
+        </span>
+        <p-select [(ngModel)]="assignMode" [options]="inputModes" optionLabel="label" optionValue="value"
+          appendTo="body" styleClass="pv-select"
+          pTooltip="What the amount column means" tooltipPosition="top" />
+      </div>
+      <div class="bulk-right">
+        <p-inputNumber [(ngModel)]="bulkAmount" mode="decimal" [min]="0" [useGrouping]="true"
+          placeholder="Amount for all" styleClass="pv-amount" />
+        <button class="ghost-btn small" (click)="applyBulkAmount()">Apply to selected</button>
+        <div class="checkbox-inline">
+          <p-checkbox [(ngModel)]="overwriteExisting" [binary]="true" inputId="ow" />
+          <label for="ow">Overwrite existing</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice" *ngIf="assignMode === 'NET'">
+      Net mode solves the gross backwards. Statutory deductions move in steps, so a few employees may
+      land a rupee or two off the exact take-home — the preview shows any that do.
+    </div>
+
+    <!-- Employee list -->
+    <p-table [value]="assignLoading ? skeletonRows : assignRows" responsiveLayout="scroll"
+      styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="300px">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:44px">
+            <p-checkbox [binary]="true" [ngModel]="allSelected"
+              (onChange)="toggleAll($any($event).checked)" />
+          </th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th class="num">Current gross</th>
+          <th class="num" style="width:170px">{{ assignMode | titlecase }} amount</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-r>
+        <tr *ngIf="assignLoading"><td colspan="6"><p-skeleton height="16px" /></td></tr>
+        <tr *ngIf="!assignLoading" [class.row-selected]="r.selected">
+          <td><p-checkbox [(ngModel)]="r.selected" [binary]="true" /></td>
+          <td>
+            <div class="emp-cell">
+              <span class="emp-name">{{ r.name }}</span>
+              <span class="emp-code">{{ r.employeeCode }}</span>
+            </div>
+          </td>
+          <td class="muted">{{ r.department || '—' }}</td>
+          <td class="muted">{{ r.designation || '—' }}</td>
+          <td class="num">
+            <span *ngIf="r.hasStructure">{{ inr(r.currentGross) }}</span>
+            <span class="chip-new" *ngIf="!r.hasStructure">none yet</span>
+          </td>
+          <td class="num">
+            <p-inputNumber [(ngModel)]="r.amount" mode="decimal" [min]="0" [useGrouping]="true"
+              styleClass="pct-input" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" class="empty-cell">No employees match these filters.</td></tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Dry-run result -->
+    <ng-container *ngIf="dryRun">
+      <p-divider />
+      <div class="dry-head">
+        Preview — nothing has been saved yet.
+        <b>{{ dryRun.applied }}</b> employee(s) would be updated.
+        <span class="bad-txt" *ngIf="dryRun.inexactNetCount">
+          · {{ dryRun.inexactNetCount }} cannot hit the exact net
+        </span>
+      </div>
+
+      <table class="dry-table">
+        <thead>
+          <tr>
+            <th>Employee</th><th class="num">Was</th><th class="num">Gross</th>
+            <th class="num">CTC</th><th class="num">Take-home</th><th>Split</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of dryRun.results">
+            <td>{{ employeeName(r.employeeId) }}</td>
+            <td class="num muted">{{ r.previousGross ? inr(r.previousGross) : '—' }}</td>
+            <td class="num"><b>{{ inr(r.monthlyGross) }}</b></td>
+            <td class="num">{{ inr(r.monthlyCtc) }}</td>
+            <td class="num">
+              {{ inr(r.monthlyNet) }}
+              <span class="var-chip" *ngIf="!r.netExact"
+                [pTooltip]="r.netNote || ''" tooltipPosition="left">
+                {{ r.netVariance > 0 ? '+' : '' }}{{ r.netVariance }}
+              </span>
+            </td>
+            <td class="split-cell">
+              B {{ inr(r.components['basic']) }} ·
+              H {{ inr(r.components['hra']) }} ·
+              S {{ inr(r.components['specialAllowance']) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="v-warnings" *ngIf="dryRun.warnings.length">
+        <div *ngFor="let w of dryRun.warnings">{{ w }}</div>
+      </div>
+      <div class="v-errors" *ngIf="dryRun.skipped.length">
+        <div *ngFor="let s of dryRun.skipped">
+          {{ employeeName(s.employeeId) }} — {{ s.reason }}
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="assignDialog = false">Cancel</button>
+      <button class="ghost-btn" [disabled]="assigning || !selectedValid.length" (click)="runDryRun()">
+        {{ assigning && !dryRun ? 'Calculating…' : 'Preview' }}
+      </button>
+      <button class="new-app" [disabled]="assigning || !dryRun" (click)="commit()">
+        {{ assigning && dryRun ? 'Applying…' : 'Apply to ' + (dryRun?.applied || 0) + ' Employee(s)' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+</div>

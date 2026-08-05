@@ -1,0 +1,96 @@
+<div class="nav-bar-container">
+  <header class="header">
+    <div class="header-top">
+      <div class="logo"><span class="logo-red">HR</span> <span>MINDS</span></div>
+      <div class="header-actions">
+        <button pButton type="button" class="p-button-text link-btn" icon="pi pi-list" label="My Tests"
+          (click)="goToTests()"></button>
+        <div class="profile">
+          <div class="user-profile">
+            <div class="flex">
+              <img [src]="'/img.png'" alt="User Avatar" class="avatar" />
+              <span class="username">{{ username }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<div class="offers-wrap">
+  <h2 class="heading">My Offer</h2>
+
+  <div *ngIf="loading" class="muted"><i class="pi pi-spin pi-spinner"></i> Loading…</div>
+
+  <div *ngIf="!loading && !offers.length" class="empty">
+    <span class="empty-icon">📄</span>
+    <div>No offer has been extended to you yet.</div>
+  </div>
+
+  <div class="offer-list" *ngIf="!loading && offers.length">
+    <div class="offer-card" *ngFor="let r of offers">
+      <div class="offer-head">
+        <div>
+          <div class="offer-title">{{ r.jobTitle }}</div>
+          <div class="offer-sub" *ngIf="r.departmentName">{{ r.departmentName }} department</div>
+        </div>
+        <p-tag [severity]="statusSeverity(r.offer.status)" [value]="statusLabel(r.offer.status)"></p-tag>
+      </div>
+
+      <div class="offer-grid">
+        <div class="cell"><span class="k">Annual CTC</span><span class="v">{{ r.offer.ctc ? ('₹' + (r.offer.ctc | number)) : '—' }}</span></div>
+        <div class="cell"><span class="k">Joining Location</span><span class="v">{{ r.offer.joinLocation || '—' }}</span></div>
+        <div class="cell"><span class="k">Work Mode</span><span class="v">{{ r.offer.workMode || '—' }}</span></div>
+        <div class="cell"><span class="k">Proposed Join</span><span class="v">{{ r.offer.proposedJoinAt ? (r.offer.proposedJoinAt | date:'dd MMM yyyy') : '—' }}</span></div>
+      </div>
+
+      <div class="offer-actions">
+        <button pButton type="button" icon="pi pi-file-pdf" label="View Letter" severity="secondary"
+          (click)="viewLetter(r)"></button>
+        <ng-container *ngIf="canAct(r.offer)">
+          <button pButton type="button" icon="pi pi-check" label="Accept" severity="success" [loading]="acting"
+            (click)="accept(r)"></button>
+          <button pButton type="button" icon="pi pi-times" label="Decline" severity="danger" variant="outlined"
+            (click)="openDecline(r)"></button>
+        </ng-container>
+        <span *ngIf="r.offer.status === 'SIGNED'" class="done ok">✓ You accepted this offer</span>
+        <span *ngIf="r.offer.status === 'DECLINED'" class="done no">✕ You declined this offer</span>
+        <span *ngIf="r.offer.status === 'EXPIRED'" class="done no">This offer has expired</span>
+        <span *ngIf="r.offer.status === 'WITHDRAWN'" class="done no">This offer was withdrawn</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accept confirmation -->
+<p-dialog header="Accept Offer" [(visible)]="acceptOpen" [modal]="true" [dismissableMask]="true"
+  [draggable]="false" [style]="{ width:'440px' }">
+  <div *ngIf="acceptTarget" style="font-size:.95rem;">
+    Accept the offer for <b>{{ acceptTarget.jobTitle }}</b>? This confirms your acceptance of employment.
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="acceptOpen=false"></button>
+    <button pButton type="button" icon="pi pi-check" label="Yes, Accept" severity="success" [loading]="acting"
+      (click)="confirmAccept()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Decline reason -->
+<p-dialog header="Decline Offer" [(visible)]="declineOpen" [modal]="true" [dismissableMask]="true"
+  [draggable]="false" [style]="{ width:'440px' }">
+  <div *ngIf="declineTarget" style="display:flex; flex-direction:column; gap:.6rem;">
+    <div style="font-size:.9rem;">
+      Decline the offer for <b>{{ declineTarget.jobTitle }}</b>? You can add a reason (optional).
+    </div>
+    <textarea rows="3" [(ngModel)]="declineReason" placeholder="Reason (optional)"
+      style="width:100%; padding:.5rem; border:1px solid #cbd5e1; border-radius:6px;"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" class="p-button-text" (click)="declineOpen=false"></button>
+    <button pButton type="button" label="Decline Offer" severity="danger" [loading]="acting"
+      (click)="submitDecline()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

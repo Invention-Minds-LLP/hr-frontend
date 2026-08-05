@@ -130,8 +130,8 @@
   
               <!-- Status -->
               <td class="t-data al">
-                <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).badgeColor }">
-                  <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t?.departmentId).dotColor }"></span>
+                <span class="dept-badge" [ngStyle]="{ backgroundColor: getStatusColors(t?.status).badgeColor }">
+                  <span class="dot" [ngStyle]="{ backgroundColor: getStatusColors(t?.status).dotColor }"></span>
                   {{ t.status }}
                 </span>
               </td>
@@ -281,8 +281,8 @@
 
             <!-- Status -->
             <td class="t-data al">
-              <span class="dept-badge" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).badgeColor }">
-                <span class="dot" [ngStyle]="{ backgroundColor: getDepartmentColors(t.departmentId).dotColor }"></span>
+              <span class="dept-badge" [ngStyle]="{ backgroundColor: getStatusColors(t.status).badgeColor }">
+                <span class="dot" [ngStyle]="{ backgroundColor: getStatusColors(t.status).dotColor }"></span>
                 {{ t.status }}
               </span>
             </td>
@@ -688,7 +688,7 @@
     <div class="status-current" *ngIf="statusTarget">
       <span class="label">Current status:</span>
       <span class="dept-badge"
-        [ngStyle]="{ backgroundColor: getDepartmentColors(statusTarget?.departmentId).badgeColor }">
+        [ngStyle]="{ backgroundColor: getStatusColors(statusTarget?.status).badgeColor }">
         {{ statusTarget?.status }}
       </span>
     </div>

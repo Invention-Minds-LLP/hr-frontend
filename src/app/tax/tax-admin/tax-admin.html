@@ -1,0 +1,400 @@
+<div class="tax-page">
+
+  <app-module-guide title="Tax &amp; Statutory"
+    subtitle="Review employee investment declarations, issue Form 16, and generate statutory return files." [points]="[
+      { label: 'Declarations', desc: 'Review what employees declared. Approve line by line — only approved amounts reduce their TDS.' },
+      { label: 'Form 16', desc: 'Generate and email password-protected TDS certificates. Built from published payslips only.' },
+      { label: 'Statutory Returns', desc: 'Download PF ECR, ESI, PT and LWF files for a month, and record the challan reference once filed.' },
+      { label: 'Rates', desc: 'PF/ESI/PT/LWF rates live under Companies & Statutory, versioned by effective date.' }
+    ]">
+  </app-module-guide>
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <p-tabs [(value)]="activeTab" class="tax-tabs">
+    <p-tablist>
+      <p-tab [value]="0">Declaration Review</p-tab>
+      <p-tab [value]="1">Form 16</p-tab>
+      <p-tab [value]="2">Statutory Returns</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ══ TAB 0: Declaration review ══════════════════════════════════════ -->
+      <p-tabpanel [value]="0">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Investment Declarations</h3>
+            <span class="sub">{{ declarationsTotal }} record(s) for {{ financialYear }}</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="financialYear" [options]="fyOptions" optionLabel="label" optionValue="value"
+              (onChange)="loadDeclarations(); loadForm16()" styleClass="fy-select" />
+            <p-select [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value"
+              (onChange)="page = 1; loadDeclarations()" styleClass="fy-select" />
+          </div>
+        </div>
+
+        <p-table [value]="declarationsLoading ? skeletonRows : declarations" [paginator]="!declarationsLoading"
+          [rows]="20" [totalRecords]="declarationsTotal" [lazy]="true" (onLazyLoad)="onPage($event)"
+          responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:60px">No.</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th class="num">Declared</th>
+              <th class="num">Approved</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th style="width:110px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr *ngIf="declarationsLoading"><td colspan="8"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!declarationsLoading">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ empName(row.employee) }}</span>
+                  <span class="emp-code">{{ row.employee?.employeeCode }}</span>
+                </div>
+              </td>
+              <td class="muted">{{ row.employee?.Department?.name || '—' }}</td>
+              <td class="num">{{ inr(row.totalDeclared) }}</td>
+              <td class="num">{{ inr(row.totalApproved) }}</td>
+              <td><p-tag [value]="statusLabel(row.status)" [severity]="statusSeverity(row.status)" /></td>
+              <td class="muted">{{ row.submittedAt ? (row.submittedAt | date: 'dd MMM yyyy') : '—' }}</td>
+              <td>
+                <button class="ghost-btn small" (click)="openReview(row)">
+                  {{ row.status === 'SUBMITTED' ? 'Review' : 'View' }}
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="8" class="empty-cell">No declarations match this filter.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 1: Form 16 ═════════════════════════════════════════════════ -->
+      <p-tabpanel [value]="1">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Form 16 — {{ financialYear }}</h3>
+            <span class="sub">Generated from published payslips only</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="financialYear" [options]="fyOptions" optionLabel="label" optionValue="value"
+              (onChange)="loadForm16()" styleClass="fy-select" />
+            <button class="new-app" [disabled]="emailingForm16" (click)="emailAll()">
+              {{ emailingForm16 ? 'Sending…' : 'Generate & Email All' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="notice">
+          Each certificate is password protected with the employee's <b>PAN in uppercase</b> +
+          <b>date of birth as DDMMYYYY</b>. Employees without a PAN, an email address, or published
+          payslips are skipped and listed as failures.
+        </div>
+
+        <div class="notice warn" *ngIf="emailResult">
+          Sent <b>{{ emailResult.sent }}</b> of {{ emailResult.requested }}.
+          <ng-container *ngIf="emailResult.failed.length">
+            {{ emailResult.failed.length }} skipped —
+            <span *ngFor="let f of emailResult.failed.slice(0, 5); let last = last">
+              #{{ f.employeeId }} ({{ f.reason }}){{ last ? '' : ', ' }}
+            </span>
+            <span *ngIf="emailResult.failed.length > 5"> and {{ emailResult.failed.length - 5 }} more</span>
+          </ng-container>
+        </div>
+
+        <p-table [value]="form16Loading ? skeletonRows : form16s" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:60px">No.</th>
+              <th>Employee</th>
+              <th>Regime</th>
+              <th class="num">Gross</th>
+              <th class="num">Taxable</th>
+              <th class="num">Tax</th>
+              <th class="num">TDS</th>
+              <th>Emailed</th>
+              <th style="width:110px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row let-i="rowIndex">
+            <tr *ngIf="form16Loading"><td colspan="9"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!form16Loading">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ empName(row.employee) }}</span>
+                  <span class="emp-code">{{ row.employee?.employeeCode }}</span>
+                </div>
+              </td>
+              <td><span class="sec-chip">{{ row.regime }}</span></td>
+              <td class="num">{{ inr(row.grossSalary) }}</td>
+              <td class="num">{{ inr(row.taxableIncome) }}</td>
+              <td class="num">{{ inr(row.totalTaxPayable) }}</td>
+              <td class="num">{{ inr(row.tdsDeducted) }}</td>
+              <td class="muted">{{ row.emailedAt ? (row.emailedAt | date: 'dd MMM') : 'Not sent' }}</td>
+              <td>
+                <button class="ghost-btn small"
+                  (click)="downloadFor(row.employeeId, row.employee?.employeeCode)">Download</button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9" class="empty-cell">
+                Nothing generated yet for {{ financialYear }}. Use “Generate &amp; Email All”, or download
+                an individual certificate from the employee's record.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 2: Statutory returns ═══════════════════════════════════════ -->
+      <p-tabpanel [value]="2">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Statutory Returns</h3>
+            <span class="sub">Built from published payroll for the selected month</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="selectedCompanyId" [options]="companyOptions" optionLabel="label"
+              optionValue="value" (onChange)="onStatPeriodChange()" styleClass="fy-select"
+              *ngIf="companyOptions.length > 2" />
+            <p-select [(ngModel)]="statMonth" [options]="months" optionLabel="label" optionValue="value"
+              (onChange)="onStatPeriodChange()" styleClass="fy-select" />
+            <p-select [(ngModel)]="statYear" [options]="years" (onChange)="onStatPeriodChange()"
+              styleClass="fy-select" />
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!summaryLoading && (!summary || !summary.payslipCount)">
+          <h4>No published payroll for {{ monthName(statMonth) }} {{ statYear }}</h4>
+          <p>Statutory files are generated from published payslips. Publish the payroll run first.</p>
+        </div>
+
+        <ng-container *ngIf="summary && summary.payslipCount">
+          <div class="stat-row">
+            <div class="stat">
+              <span class="stat-label">Payslips</span>
+              <span class="stat-value">{{ summary.payslipCount }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">PF (EE + ER)</span>
+              <span class="stat-value">{{ inr(summary.pf.employee + summary.pf.employer) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">ESI (EE + ER)</span>
+              <span class="stat-value">{{ inr(summary.esi.employee + summary.esi.employer) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Professional Tax</span>
+              <span class="stat-value">{{ inr(summary.pt.total) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">LWF</span>
+              <span class="stat-value">{{ inr(summary.lwf.employee + summary.lwf.employer) }}</span>
+            </div>
+            <div class="stat highlight">
+              <span class="stat-label">TDS</span>
+              <span class="stat-value">{{ inr(summary.tds.total) }}</span>
+            </div>
+          </div>
+
+          <div class="download-grid">
+            <div class="dl-card">
+              <div class="dl-title">PF ECR</div>
+              <div class="dl-sub">EPFO electronic challan cum return</div>
+              <div class="dl-amount">{{ inr(summary.pf.employee + summary.pf.employer) }}</div>
+              <button class="new-app full" (click)="download('PF_ECR')">Download .txt</button>
+            </div>
+            <div class="dl-card">
+              <div class="dl-title">ESI</div>
+              <div class="dl-sub">Monthly contribution statement</div>
+              <div class="dl-amount">{{ inr(summary.esi.employee + summary.esi.employer) }}</div>
+              <button class="new-app full" (click)="download('ESI')">Download .csv</button>
+            </div>
+            <div class="dl-card">
+              <div class="dl-title">Professional Tax</div>
+              <div class="dl-sub">Remittance statement</div>
+              <div class="dl-amount">{{ inr(summary.pt.total) }}</div>
+              <button class="new-app full" (click)="download('PT')">Download .csv</button>
+            </div>
+            <div class="dl-card">
+              <div class="dl-title">Labour Welfare Fund</div>
+              <div class="dl-sub">Contribution statement</div>
+              <div class="dl-amount">{{ inr(summary.lwf.employee + summary.lwf.employer) }}</div>
+              <button class="new-app full" (click)="download('LWF')">Download .csv</button>
+            </div>
+          </div>
+
+          <div class="notice warn">
+            Validate one PF ECR and one ESI file against the live portal before your first real filing —
+            portal column layouts change between versions.
+          </div>
+
+          <p-divider />
+
+          <div class="tab-header">
+            <div class="tab-header-left">
+              <h3>Employer Provisions</h3>
+              <span class="sub">Accrued cost, not deducted from anyone's pay</span>
+            </div>
+          </div>
+
+          <table class="calc-table">
+            <tbody>
+              <tr><td>Gratuity provision</td><td>{{ inr(summary.provisions.gratuity) }}</td></tr>
+              <tr><td>Statutory bonus provision</td><td>{{ inr(summary.provisions.bonus) }}</td></tr>
+              <tr><td>Leave encashment provision</td><td>{{ inr(summary.provisions.leaveEncashment) }}</td></tr>
+              <tr><td>PF admin charges</td><td>{{ inr(summary.pf.adminCharges) }}</td></tr>
+              <tr><td>EDLI charges</td><td>{{ inr(summary.pf.edli) }}</td></tr>
+              <tr class="total">
+                <td>Total employer provisions</td>
+                <td>{{ inr(summary.provisions.gratuity + summary.provisions.bonus
+                        + summary.provisions.leaveEncashment + summary.pf.adminCharges + summary.pf.edli) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+
+        <p-divider />
+
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Filing History — {{ statYear }}</h3>
+            <span class="sub">Audit trail of generated and filed returns</span>
+          </div>
+        </div>
+
+        <p-table [value]="filingsLoading ? skeletonRows : filings" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Type</th>
+              <th>Period</th>
+              <th class="num">Employees</th>
+              <th class="num">Total</th>
+              <th>Status</th>
+              <th>Reference</th>
+              <th style="width:120px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr *ngIf="filingsLoading"><td colspan="7"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!filingsLoading">
+              <td><span class="sec-chip">{{ typeLabel(row.type) }}</span></td>
+              <td>{{ monthName(row.month) }} {{ row.year }}</td>
+              <td class="num">{{ row.employeeCount }}</td>
+              <td class="num">{{ inr(row.totalAmount) }}</td>
+              <td>
+                <p-tag [value]="row.status === 'FILED' ? 'Filed' : 'Generated'"
+                  [severity]="row.status === 'FILED' ? 'success' : 'warn'" />
+              </td>
+              <td class="muted">{{ row.reference || '—' }}</td>
+              <td>
+                <button class="ghost-btn small" (click)="openMarkFiled(row)">
+                  {{ row.status === 'FILED' ? 'Edit ref' : 'Mark filed' }}
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="7" class="empty-cell">No returns generated for {{ statYear }} yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+  <!-- ── Review dialog ─────────────────────────────────────────────────────── -->
+  <p-dialog [header]="'Review — ' + empName(reviewing?.employee)" [(visible)]="reviewDialog" [modal]="true"
+    [style]="{ width: '780px' }" styleClass="tax-dialog">
+
+    <div class="review-summary" *ngIf="reviewing">
+      <div><span>Financial year</span><b>{{ reviewing.financialYear }}</b></div>
+      <div><span>Declared</span><b>{{ inr(reviewTotalDeclared) }}</b></div>
+      <div><span>Approving</span><b class="accent">{{ inr(reviewTotalApproved) }}</b></div>
+    </div>
+
+    <div class="bulk-actions">
+      <button class="ghost-btn small" (click)="approveAll()">Approve all</button>
+      <button class="ghost-btn small" (click)="rejectAll()">Reject all</button>
+      <span class="hint">Any line left at zero is treated as rejected.</span>
+    </div>
+
+    <table class="review-table">
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Category</th>
+          <th class="num">Declared</th>
+          <th class="num" style="width:150px">Approve</th>
+          <th style="width:110px">Proof</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of reviewItems">
+          <td><span class="sec-chip">{{ item.section }}</span></td>
+          <td>
+            {{ item.category }}
+            <div class="muted small" *ngIf="item.description">{{ item.description }}</div>
+          </td>
+          <td class="num">{{ inr(item.declaredAmount) }}</td>
+          <td class="num">
+            <p-inputNumber [(ngModel)]="item._approved" mode="decimal" [min]="0" [max]="item.declaredAmount"
+              [useGrouping]="true" styleClass="approve-input" />
+          </td>
+          <td>
+            <a *ngIf="item.proofUrl" [href]="item.proofUrl" target="_blank" class="proof-link">View</a>
+            <span *ngIf="!item.proofUrl" class="muted small">None</span>
+          </td>
+        </tr>
+        <tr *ngIf="!reviewItems.length">
+          <td colspan="5" class="empty-cell">This declaration has no line items.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="field" style="margin-top:14px">
+      <label>Remarks to the employee <span class="hint">optional</span></label>
+      <input pInputText [(ngModel)]="reviewRemarks" placeholder="e.g. Rent receipts missing for Q3" />
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="reviewDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="savingReview" (click)="submitReview()">
+        {{ savingReview ? 'Saving…' : 'Save Review' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Mark filed dialog ─────────────────────────────────────────────────── -->
+  <p-dialog header="Mark as filed" [(visible)]="filedDialog" [modal]="true" [style]="{ width: '420px' }"
+    styleClass="tax-dialog">
+    <div class="field">
+      <label>Challan / TRRN reference</label>
+      <input pInputText [(ngModel)]="filedReference" placeholder="e.g. TRRN 1234567890" />
+    </div>
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="filedDialog = false">Cancel</button>
+      <button class="new-app" (click)="saveMarkFiled()">Save</button>
+    </ng-template>
+  </p-dialog>
+
+</div>

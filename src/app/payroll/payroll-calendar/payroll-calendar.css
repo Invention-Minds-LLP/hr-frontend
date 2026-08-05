@@ -1,0 +1,253 @@
+/* Attendance calendar — the evidence behind a payslip.
+   Colour carries the PAY treatment, corner markers carry the exceptions. */
+
+.cal-wrap { font-family: "Sofia Sans"; color: #ddd; }
+
+.cal-loading { display: flex; flex-direction: column; gap: 10px; }
+
+.cal-error {
+  background: #2a1512; border: 1px solid #7a3128; color: #ff9c8f;
+  border-radius: 8px; padding: 12px 16px; font-size: 13px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.cal-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; margin-bottom: 12px; flex-wrap: wrap;
+}
+
+.cal-emp { display: flex; flex-direction: column; gap: 2px; }
+.cal-emp-name { color: #fff; font-size: 17px; font-weight: 600; }
+.cal-emp-meta { color: #888; font-size: 12.5px; }
+.cal-period { color: #f97316; font-size: 15px; font-weight: 600; }
+
+/* ── Reconciliation ───────────────────────────────────────────────────────── */
+.recon {
+  background: #12341f; border: 1px solid #2f6f4f; color: #a8e6c4;
+  border-radius: 8px; padding: 9px 14px; font-size: 13px; margin-bottom: 12px;
+}
+
+.recon.mismatch { background: #2a1512; border-color: #7a3128; color: #ff9c8f; }
+.recon-ot { color: #b9b9b9; margin-left: 6px; }
+
+/* ── Exceptions ───────────────────────────────────────────────────────────── */
+.exceptions {
+  background: #2a2412; border: 1px solid #6b5a1e; border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 14px;
+}
+
+.exceptions-head {
+  color: #e8d48a; font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
+}
+
+.exceptions ul { margin: 0; padding-left: 18px; }
+.exceptions li { color: #e8d48a; font-size: 12.5px; margin-bottom: 3px; }
+
+/* ── Summary strip ────────────────────────────────────────────────────────── */
+.cal-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px; margin-bottom: 16px;
+}
+
+.cs {
+  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
+  padding: 9px 11px; display: flex; flex-direction: column; gap: 2px;
+}
+
+.cs span { color: #808080; font-size: 11px; }
+.cs b { color: #eee; font-size: 17px; font-weight: 600; }
+.cs.ok b { color: #6ee7a8; }
+.cs.bad { border-color: #7a3128; }
+.cs.bad b { color: #ff9c8f; }
+.cs.warn { border-color: #6b5a1e; }
+.cs.warn b { color: #e8b45a; }
+.cs.muted { opacity: .45; border-color: #2a2a2a; }
+.cs.muted b { color: #999; }
+
+/* ── Grid ─────────────────────────────────────────────────────────────────── */
+.grid-head {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px;
+}
+
+.gh {
+  text-align: center; color: #777; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em; padding: 2px 0;
+}
+
+.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+
+.cell {
+  min-height: 92px; border-radius: 9px; padding: 7px 8px;
+  border: 1px solid #2a2a2a; background: #171717;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: transform .08s, border-color .12s, box-shadow .12s;
+  position: relative; overflow: hidden;
+}
+
+.cell.clickable { cursor: pointer; }
+.cell.clickable:hover { transform: translateY(-2px); border-color: #4a4a4a; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+.cell.selected { border-color: #f97316; box-shadow: 0 0 0 1px #f97316 inset; }
+.cell.empty { background: transparent; border-color: transparent; min-height: 92px; }
+
+/* Left colour band signals pay treatment at a glance */
+.cell::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: transparent;
+}
+
+.cell.present::before  { background: #2f6f4f; }
+.cell.leave::before    { background: #2b4a68; }
+.cell.lop::before      { background: #b3261e; }
+.cell.half::before     { background: #b26a00; }
+.cell.weekoff::before  { background: #3a3a3a; }
+.cell.holiday::before  { background: #6b4ea8; }
+.cell.wfh::before      { background: #1a6b6b; }
+.cell.compoff::before  { background: #4a6b1a; }
+.cell.nodata::before   { background: #333; }
+
+.cell.present  { background: #14211a; }
+.cell.leave    { background: #141c24; }
+.cell.lop      { background: #241413; }
+.cell.half     { background: #241d12; }
+.cell.weekoff  { background: #161616; }
+.cell.holiday  { background: #1c1726; }
+.cell.wfh      { background: #12201f; }
+.cell.compoff  { background: #1a1f12; }
+.cell.nodata   { background: #151515; }
+
+.cell-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.cell-day { color: #fff; font-size: 14px; font-weight: 700; line-height: 1; }
+
+.markers { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; }
+
+.mk {
+  font-style: normal; font-size: 9px; font-weight: 700; line-height: 1;
+  border-radius: 3px; padding: 2px 4px; letter-spacing: .02em;
+}
+
+.mk.late      { background: #3a1512; color: #ff8878; border: 1px solid #7a3128; }
+.mk.late-ok   { background: #2a2412; color: #e8b45a; border: 1px solid #6b5a1e; }
+.mk.early     { background: #2a2412; color: #e8b45a; border: 1px solid #6b5a1e; }
+.mk.ot        { background: #12341f; color: #6ee7a8; border: 1px solid #2f6f4f; }
+.mk.ot-pending{ background: #232323; color: #999;    border: 1px solid #3a3a3a; }
+.mk.touched   { background: #1c1726; color: #b79ce8; border: 1px solid #4a3a6b; }
+.mk.missing   { background: #3a1512; color: #ff8878; border: 1px solid #7a3128; }
+
+.cell-label { color: #ccc; font-size: 11.5px; font-weight: 500; line-height: 1.2; }
+
+.cell-times {
+  color: #8a8a8a; font-size: 10.5px; font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+.cell-times .arw { color: #555; }
+
+.cell-foot { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
+
+.chip {
+  font-size: 9.5px; border-radius: 3px; padding: 1px 5px;
+  border: 1px solid transparent; white-space: nowrap;
+}
+
+.chip.red   { background: #3a1512; color: #ff8878; border-color: #7a3128; }
+.chip.amber { background: #2a2412; color: #e8b45a; border-color: #6b5a1e; }
+.chip.green { background: #12341f; color: #6ee7a8; border-color: #2f6f4f; }
+.chip.grey  { background: #232323; color: #999;    border-color: #3a3a3a; }
+
+/* ── Legend ───────────────────────────────────────────────────────────────── */
+.legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid #2a2a2a;
+  color: #888; font-size: 11px;
+}
+
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend .sep { width: 1px; height: 14px; background: #333; }
+
+.sw { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.sw.present { background: #2f6f4f; }
+.sw.leave   { background: #2b4a68; }
+.sw.lop     { background: #b3261e; }
+.sw.half    { background: #b26a00; }
+.sw.weekoff { background: #3a3a3a; }
+.sw.holiday { background: #6b4ea8; }
+.sw.wfh     { background: #1a6b6b; }
+.sw.nodata  { background: #333; }
+
+/* ── Selected day ─────────────────────────────────────────────────────────── */
+.day-detail {
+  margin-top: 14px; background: #1a1a1a; border: 1px solid #f97316;
+  border-radius: 10px; padding: 14px 16px;
+}
+
+.dd-head {
+  color: #fff; font-size: 13.5px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+
+.dd-pay {
+  background: #12341f; color: #6ee7a8; border: 1px solid #2f6f4f;
+  border-radius: 20px; padding: 1px 10px; font-size: 11px; font-weight: 600;
+}
+
+.dd-pay.lop { background: #2a1512; color: #ff9c8f; border-color: #7a3128; }
+
+.dd-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 9px 16px;
+}
+
+.dd-grid > div { display: flex; flex-direction: column; gap: 1px; }
+.dd-grid span { color: #777; font-size: 11px; }
+.dd-grid b { color: #ddd; font-size: 13px; font-weight: 500; }
+.dd-grid b.danger { color: #ff9c8f; }
+.dd-grid em { color: #777; font-style: normal; font-size: 11px; margin-left: 4px; }
+
+.dd-note {
+  margin-top: 10px; color: #9dc4e4; font-size: 12px;
+  background: #16202b; border: 1px solid #2b4a68; border-radius: 6px; padding: 7px 11px;
+}
+
+.dd-note.warn { color: #e8d48a; background: #2a2412; border-color: #6b5a1e; }
+
+/* ── Loan / incentive lines ───────────────────────────────────────────────── */
+.adj-head {
+  color: #f97316; font-size: 13px; font-weight: 600; margin: 10px 0 8px;
+}
+
+.adj-table {
+  width: 100%; border-collapse: collapse; font-size: 12.5px;
+  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
+  overflow: hidden; margin-bottom: 10px;
+}
+
+.adj-table th {
+  background: #202020; color: #999; text-align: left; padding: 7px 11px;
+  font-size: 11.5px; font-weight: 600; border-bottom: 1px solid #2a2a2a;
+}
+
+.adj-table td { padding: 7px 11px; border-bottom: 1px solid #242424; color: #ddd; }
+.adj-table tr:last-child td { border-bottom: none; }
+.adj-table .muted { color: #777; font-size: 11.5px; }
+
+.adj-note {
+  color: #e8d48a; font-size: 12px; background: #2a2412;
+  border: 1px solid #6b5a1e; border-radius: 6px; padding: 7px 11px; margin-bottom: 6px;
+}
+
+/* Tooltip: multi-line, monospaced numbers */
+::ng-deep .cal-tip .p-tooltip-text {
+  white-space: pre-line;
+  font-size: 11.5px;
+  line-height: 1.5;
+  max-width: 320px;
+  background: #0f0f0f;
+  border: 1px solid #3a3a3a;
+  color: #ddd;
+}
+
+@media (max-width: 900px) {
+  .cell { min-height: 78px; padding: 5px 6px; }
+  .cell-times { font-size: 9.5px; }
+  .cell-label { font-size: 10.5px; }
+}

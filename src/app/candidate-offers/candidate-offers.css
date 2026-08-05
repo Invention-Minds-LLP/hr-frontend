@@ -1,0 +1,51 @@
+:host { display: block; background: #05050a; min-height: 100vh; color: #e8e8f0; }
+
+.nav-bar-container { background: #0b0b12; border-bottom: 1px solid #1c1c28; }
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 40px; max-width: 1200px; margin: 0 auto;
+}
+.logo { font-weight: 800; font-size: 1.4rem; letter-spacing: .04em; }
+.logo .logo-red { color: #FB9C2A; }
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+.link-btn { color: #cfd0dc !important; }
+.user-profile .flex { display: flex; align-items: center; gap: .5rem; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid #2b2b3d; }
+.username { font-weight: 600; }
+
+.offers-wrap { max-width: 900px; margin: 0 auto; padding: 40px; }
+.heading { font-size: 1.6rem; font-weight: 700; margin-bottom: 1.4rem; }
+.muted { opacity: .7; }
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  padding: 60px 20px; opacity: .7;
+}
+.empty-icon { font-size: 2.4rem; }
+
+.offer-list { display: flex; flex-direction: column; gap: 1.1rem; }
+.offer-card {
+  border: 1px solid #23232f; border-radius: 14px; background: #0d0d14;
+  padding: 1.2rem 1.3rem;
+}
+.offer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.offer-title { font-size: 1.15rem; font-weight: 700; }
+.offer-sub { font-size: .85rem; opacity: .65; margin-top: .15rem; }
+
+.offer-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem 1.5rem;
+  margin: 1rem 0 1.1rem;
+}
+.cell { display: flex; flex-direction: column; gap: .15rem; }
+.cell .k { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; opacity: .55; }
+.cell .v { font-size: 1rem; font-weight: 600; }
+
+.offer-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.done { font-weight: 600; font-size: .9rem; }
+.done.ok { color: #16a34a; }
+.done.no { color: #dc2626; }
+
+@media (max-width: 640px) {
+  .header-top, .offers-wrap { padding: 16px; }
+  .offer-grid { grid-template-columns: 1fr; }
+}

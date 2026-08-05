@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './Login/login/login';
-import { authGuard, landingRedirectGuard } from './auth-guard';
+import { authGuard, permissionGuard, landingRedirectGuard } from './auth-guard';
 
 import { PermissionRequest } from './leaves/permission-request/permission-request/permission-request';
 import { WorkFromHome } from './leaves/work-from-home/work-from-home';
@@ -71,8 +71,14 @@ import { HrCorrections } from './attendance/hr-corrections/hr-corrections';
 import { GeoTrackingOverview } from './geo-tracking/geo-tracking-overview/geo-tracking-overview';
 import { Export } from './settings/export/export';
 import { PayrollOverview } from './payroll/payroll-overview/payroll-overview';
+import { MyTax } from './tax/my-tax/my-tax';
+import { TaxAdmin } from './tax/tax-admin/tax-admin';
+import { Companies } from './settings/companies/companies';
+import { LettersOverview } from './letters/letters-overview/letters-overview';
+import { AssetsOverview } from './assets/assets-overview/assets-overview';
 import { WeeklyTrackerOverview } from './weekly-tracker/weekly-tracker-overview/weekly-tracker-overview';
 import { Masters } from './settings/masters/masters';
+import { RolePermissions } from './settings/role-permissions/role-permissions';
 import { IncidentCategoryAdmin } from './incident/incident-category-admin/incident-category-admin';
 import { EncashmentOverview } from './encashment/encashment-overview';
 import { CompOffOverview } from './comp-off/comp-off-overview';
@@ -92,9 +98,9 @@ export const routes: Routes = [
   { path: 'report-incident',              component: PublicReport },
   { path: 'report-incident/track/:token', component: PublicReport },
 
-  { path: 'dashboard', component: HrDashboard, canActivate: [authGuard]},
-  { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard]},
-  { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard]},
+  { path: 'dashboard', component: HrDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.hr.view' } },
+  { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.management.view' } },
+  { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.hrAnalytics.view' } },
   { path: 'survey-dashboard', component: SurveyDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
   { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
@@ -105,39 +111,45 @@ export const routes: Routes = [
   
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'individual' },
-      { path: 'employee', component: EmployeeOverview,canActivate: [authGuard]},
-      { path: 'leave', component: LeaveOverview, canActivate: [authGuard]},
-      { path: 'appraisal', component: AppraisalOverview,canActivate: [authGuard] },
-      { path: 'attendance', component: AttendanceOverview,canActivate: [authGuard] },
-      { path: 'resignation', component: ResignOverview,canActivate: [authGuard] },
-      { path: 'evaluation', component: EvaluationOverview, canActivate: [authGuard] }, // evaluation overview
+      { path: 'employee', component: EmployeeOverview,canActivate: [authGuard, permissionGuard], data: { perm: 'admin.employee.view' } },
+      { path: 'leave', component: LeaveOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.leave.view' } },
+      { path: 'appraisal', component: AppraisalOverview,canActivate: [authGuard, permissionGuard], data: { perm: 'admin.appraisal.view' } },
+      { path: 'attendance', component: AttendanceOverview,canActivate: [authGuard, permissionGuard], data: { perm: 'admin.attendance.view' } },
+      { path: 'resignation', component: ResignOverview,canActivate: [authGuard, permissionGuard], data: { perm: 'admin.resignation.view' } },
+      { path: 'evaluation', component: EvaluationOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.training.view' } }, // evaluation overview
       { path: 'all-announcement', component: AnnouncementForm, canActivate: [authGuard] },
       { path: 'announcement', component: AnnouncementPopup, canActivate: [authGuard] },
       { path: 'survey', component: SurveyList, canActivate: [authGuard] },
       { path: 'exit', component: ExitInterviewList, canActivate: [authGuard] },
       { path: 'grievance', component: GrievanceList, canActivate: [authGuard] },
       { path: 'posh', component: PoshList, canActivate: [authGuard] },
-      { path: 'committees', component: CommitteeAdmin, canActivate: [authGuard] },
-      { path: 'complaints', component: Complaints, canActivate: [authGuard] },
+      { path: 'committees', component: CommitteeAdmin, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.committees.view' } },
+      { path: 'complaints', component: Complaints, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.complaints.view' } },
       { path: 'clearance', component: Clearances, canActivate: [authGuard] },
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
-      { path: 'incidents', component: IncidentOverview, canActivate: [authGuard] },
-      { path: 'shifts', component: ShiftOverview, canActivate: [authGuard] },
+      { path: 'incidents', component: IncidentOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incidents.view' } },
+      { path: 'shifts', component: ShiftOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.shifts.view' } },
       { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]},
-        { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
-        { path: 'reports', component: Export, canActivate: [authGuard]},
-        { path: 'force-present', component: ForcePresent, canActivate: [authGuard]},
-        { path: 'hr-corrections', component: HrCorrections, canActivate: [authGuard]},
-        { path: 'payroll', component: PayrollOverview, canActivate: [authGuard]},
-        { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard]},
-        { path: 'incentive-requests', component: IncentiveRequests, canActivate: [authGuard]},
+        { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.otApprovals.view' } },
+        { path: 'reports', component: Export, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.reports.view' } },
+        { path: 'force-present', component: ForcePresent, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.forcePresent.view' } },
+        { path: 'hr-corrections', component: HrCorrections, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.hrCorrections.view' } },
+        { path: 'payroll', component: PayrollOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.payroll.view' } },
+        { path: 'tax-admin', component: TaxAdmin, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.taxDeclarations.view' } },
+        { path: 'companies', component: Companies, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.companies.view' } },
+        { path: 'letters', component: LettersOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.letters.view' } },
+        { path: 'assets', component: AssetsOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.assets.view' } },
+        // Employee self-service — every logged-in user has their own tax page.
+        { path: 'my-tax', component: MyTax, canActivate: [authGuard] },
+        { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.weeklyTracker.view' } },
+        { path: 'incentive-requests', component: IncentiveRequests, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incentiveRequests.view' } },
         { path: 'weekly-rating', component: WeeklyRatingOverview, canActivate: [authGuard]},
-        { path: 'pip', component: PipOverview, canActivate: [authGuard]},
-        { path: 'encashment', component: EncashmentOverview, canActivate: [authGuard]},
-        { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard]},
-        { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard]},
-        { path: 'loans', component: LoansOverview, canActivate: [authGuard]},
-        { path: 'module-utilization', component: ModuleUtilization, canActivate: [authGuard]},
+        { path: 'pip', component: PipOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.pip.view' } },
+        { path: 'encashment', component: EncashmentOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.encashment.view' } },
+        { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.compOff.view' } },
+        { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incentives.view' } },
+        { path: 'loans', component: LoansOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.loans.view' } },
+        { path: 'module-utilization', component: ModuleUtilization, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.moduleUtilization.view' } },
     ],
 
   },
@@ -148,14 +160,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'departments' },
-      { path: 'departments', component: Masters },
-      { path: 'designations', component: Masters },
-      { path: 'roles', component: Masters },
-      { path: 'leave-types', component: Masters },
-      { path: 'shift-templates', component: Masters },
-      { path: 'holidays', component: Masters },
+      { path: 'departments', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.departments.view' } },
+      { path: 'designations', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.designations.view' } },
+      { path: 'roles', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.roles.view' } },
+      { path: 'leave-types', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.leaveTypes.view' } },
+      { path: 'shift-templates', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.shiftTemplates.view' } },
+      { path: 'holidays', component: Masters, canActivate: [permissionGuard], data: { perm: 'masters.holidays.view' } },
       { path: 'rating-questions', component: Masters },
-      { path: 'incident-categories', component: IncidentCategoryAdmin },
+      { path: 'incident-categories', component: IncidentCategoryAdmin, canActivate: [permissionGuard], data: { perm: 'masters.incidentCategories.view' } },
+      { path: 'permissions', component: RolePermissions, canActivate: [permissionGuard], data: { perm: 'masters.permissions.manage' } },
     ],
   },
 
@@ -165,16 +178,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'jobs',},
-      { path: 'jobs', component: RecruitmentDashboard,},     // main recruitment board
-      { path: 'internships', component: Internship,},        // internship module
+      { path: 'jobs', component: RecruitmentDashboard, canActivate: [permissionGuard], data: { perm: 'recruitment.jobs.view' } }, // main recruitment board
+      { path: 'internships', component: Internship, canActivate: [permissionGuard], data: { perm: 'recruitment.internships.view' } }, // internship module
       { path: 'my-tests', component: MyTests,},              // keep tests under recruitment
       { path: 'take-test/:id', component: TestPlatform,},
       // { path: 'candidate-tests', component: CandidateTests}, // view candidate details
-      { path: 'recquisition', component: RequisitionList,}, // requisition form
+      { path: 'recquisition', component: RequisitionList, canActivate: [permissionGuard], data: { perm: 'recruitment.requisition.view' } }, // requisition form
       { path: 'survey', component: SurveyList, },
       { path: 'exit', component: ExitInterviewList, },
       { path: 'hr-review/:id', component: HrEvaluate, },
-      { path: 'my-interview', component: MyInterview, },
+      { path: 'my-interview', component: MyInterview, canActivate: [permissionGuard], data: { perm: 'recruitment.interviews.view' } },
     ],
   },
 
@@ -200,6 +213,7 @@ export const routes: Routes = [
   { path: 'take-test/:id', redirectTo: 'recruitment/take-test/:id', pathMatch: 'full', },
 
   { path: 'candidate-tests', component: CandidateTests, canActivate: [authGuard]},
+  { path: 'candidate-offers', loadComponent: () => import('./candidate-offers/candidate-offers').then(m => m.CandidateOffers), canActivate: [authGuard]},
 
 
   // Default / catch-all — landingRedirectGuard sends management users (roleId=4) to the

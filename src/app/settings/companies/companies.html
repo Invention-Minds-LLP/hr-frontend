@@ -1,0 +1,391 @@
+<div class="tax-page">
+
+  <app-module-guide title="Companies &amp; Statutory"
+    subtitle="Manage legal entities and the PF, ESI, PT and LWF rates payroll applies." [points]="[
+      { label: 'Companies', desc: 'A legal entity with its own PAN, TAN and PF/ESI/PT registration codes. Branch stays a location; company is the legal identity on Form 16 and challans.' },
+      { label: 'Default company', desc: 'Employees and payroll runs with no company assigned fall back to the default. Single-entity clients never need more than one.' },
+      { label: 'Statutory rates', desc: 'Versioned by effective date. Payroll uses the version in force for the month it processes, so past payslips never change.' },
+      { label: 'PT slabs', desc: 'Professional tax is state-specific. Enter the slabs for your state; leave the top slab upper limit blank for the open-ended band.' }
+    ]">
+  </app-module-guide>
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <p-tabs [(value)]="activeTab" class="tax-tabs">
+    <p-tablist>
+      <p-tab [value]="0">Companies</p-tab>
+      <p-tab [value]="1">Statutory Rates</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ══ TAB 0: Companies ═══════════════════════════════════════════════ -->
+      <p-tabpanel [value]="0">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Legal Entities</h3>
+            <span class="sub">{{ companies.length }} compan{{ companies.length === 1 ? 'y' : 'ies' }}</span>
+          </div>
+          <div class="tab-header-right">
+            <button class="ghost-btn" *ngIf="unassigned > 0" (click)="runBackfill()">
+              Assign {{ unassigned }} unassigned
+            </button>
+            <button class="new-app" (click)="openNewCompany()">
+              Add Company
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="notice" *ngIf="companies.length === 1">
+          You are running a single legal entity. Add another only if you payroll a second registered
+          company with its own PF/ESI codes — otherwise leave this as is.
+        </div>
+
+        <p-table [value]="loading ? skeletonRows : companies" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Company</th>
+              <th>PAN / TAN</th>
+              <th>PF / ESI codes</th>
+              <th class="num">Employees</th>
+              <th class="num">Runs</th>
+              <th>Status</th>
+              <th style="width:170px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr *ngIf="loading"><td colspan="7"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!loading">
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">
+                    {{ row.name }}
+                    <span class="default-chip" *ngIf="row.isDefault">Default</span>
+                  </span>
+                  <span class="emp-code">{{ row.legalName || '—' }}</span>
+                </div>
+              </td>
+              <td class="muted">{{ row.pan || '—' }} / {{ row.tan || '—' }}</td>
+              <td class="muted">{{ row.pfEstablishmentCode || '—' }} / {{ row.esiEmployerCode || '—' }}</td>
+              <td class="num">{{ row._count?.employees ?? 0 }}</td>
+              <td class="num">{{ row._count?.payrollRuns ?? 0 }}</td>
+              <td>
+                <p-tag [value]="row.isActive ? 'Active' : 'Inactive'"
+                  [severity]="row.isActive ? 'success' : 'secondary'" />
+              </td>
+              <td>
+                <button class="ghost-btn small" (click)="openEditCompany(row)">Edit</button>
+                <button class="ghost-btn small" *ngIf="!row.isDefault" (click)="makeDefault(row)">
+                  Set default
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="7" class="empty-cell">No companies yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 1: Statutory rates ═════════════════════════════════════════ -->
+      <p-tabpanel [value]="1">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Statutory Rates</h3>
+            <span class="sub">Versioned by effective date — payroll uses the version in force for the month</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="selectedCompanyId" [options]="companyOptions" optionLabel="label"
+              optionValue="value" (onChange)="onCompanyChange()" styleClass="fy-select" />
+            <button class="new-app" [disabled]="!selectedCompanyId" (click)="openNewConfig()">
+              New Version
+            </button>
+          </div>
+        </div>
+
+        <div class="notice warn">
+          Changing a rate here affects <b>future</b> payroll runs only. Payslips already generated keep
+          the figures they were computed with.
+        </div>
+
+        <p-table [value]="configsLoading ? skeletonRows : configs" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Effective from</th>
+              <th>PF</th>
+              <th>ESI</th>
+              <th>PT</th>
+              <th>LWF</th>
+              <th>Provisions</th>
+              <th style="width:150px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr *ngIf="configsLoading"><td colspan="7"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!configsLoading">
+              <td>{{ row.effectiveFrom | date: 'dd MMM yyyy' }}</td>
+              <td>
+                <span *ngIf="row.pfEnabled">
+                  {{ row.pfEmployeeRate }}% / {{ row.pfEmployerRate }}%
+                  <div class="muted small">
+                    {{ row.pfCapAtCeiling ? 'capped at ' + inr(row.pfWageCeiling) : 'on full basic' }}
+                  </div>
+                </span>
+                <span *ngIf="!row.pfEnabled" class="muted">Off</span>
+              </td>
+              <td>
+                <span *ngIf="row.esiEnabled">
+                  {{ row.esiEmployeeRate }}% / {{ row.esiEmployerRate }}%
+                  <div class="muted small">up to {{ inr(row.esiWageLimit) }}</div>
+                </span>
+                <span *ngIf="!row.esiEnabled" class="muted">Off</span>
+              </td>
+              <td>
+                <span *ngIf="row.ptEnabled">{{ row.ptState || 'Default slabs' }}</span>
+                <span *ngIf="!row.ptEnabled" class="muted">Off</span>
+              </td>
+              <td>
+                <span *ngIf="row.lwfEnabled">
+                  {{ inr(row.lwfEmployeeAmount) }} / {{ inr(row.lwfEmployerAmount) }}
+                  <div class="muted small">{{ row.lwfFrequency | lowercase }}</div>
+                </span>
+                <span *ngIf="!row.lwfEnabled" class="muted">Off</span>
+              </td>
+              <td class="muted small">
+                <div *ngIf="row.gratuityEnabled">Gratuity {{ row.gratuityRate }}%</div>
+                <div *ngIf="row.bonusEnabled">Bonus {{ row.bonusRate }}%</div>
+                <div *ngIf="row.leaveEncashEnabled">Encashment {{ row.leaveEncashDaysYear }} d/yr</div>
+              </td>
+              <td>
+                <button class="ghost-btn small" (click)="openEditConfig(row)">Edit</button>
+                <button class="ghost-btn small" (click)="deleteConfig(row)">Delete</button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="empty-cell">
+                No configuration yet — payroll is using the built-in defaults
+                (PF 12%, ESI 0.75%/3.25% up to ₹21,000, standard PT slabs, LWF off).
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+  <!-- ── Company dialog ────────────────────────────────────────────────────── -->
+  <p-dialog [header]="editing.id ? 'Edit Company' : 'Add Company'" [(visible)]="companyDialog" [modal]="true"
+    [style]="{ width: '720px' }" styleClass="tax-dialog">
+
+    <h4 class="dlg-section">Identity</h4>
+    <div class="form-grid">
+      <div class="field">
+        <label>Name <span class="hint">shown in the app</span></label>
+        <input pInputText [(ngModel)]="editing.name" placeholder="e.g. Cura Hospitals" />
+      </div>
+      <div class="field">
+        <label>Legal name <span class="hint">printed on Form 16</span></label>
+        <input pInputText [(ngModel)]="editing.legalName" placeholder="e.g. Cura Hospitals Pvt Ltd" />
+      </div>
+      <div class="field"><label>PAN</label><input pInputText [(ngModel)]="editing.pan" maxlength="10" /></div>
+      <div class="field"><label>TAN</label><input pInputText [(ngModel)]="editing.tan" maxlength="10" /></div>
+      <div class="field"><label>GSTIN</label><input pInputText [(ngModel)]="editing.gstin" maxlength="15" /></div>
+      <div class="field"><label>CIN</label><input pInputText [(ngModel)]="editing.cin" maxlength="21" /></div>
+    </div>
+
+    <h4 class="dlg-section">Statutory registration codes</h4>
+    <div class="form-grid">
+      <div class="field">
+        <label>PF establishment code</label>
+        <input pInputText [(ngModel)]="editing.pfEstablishmentCode" />
+      </div>
+      <div class="field">
+        <label>ESI employer code</label>
+        <input pInputText [(ngModel)]="editing.esiEmployerCode" />
+      </div>
+      <div class="field">
+        <label>PT registration number</label>
+        <input pInputText [(ngModel)]="editing.ptRegistrationNumber" />
+      </div>
+      <div class="field">
+        <label>LWF registration number</label>
+        <input pInputText [(ngModel)]="editing.lwfRegistrationNumber" />
+      </div>
+    </div>
+
+    <h4 class="dlg-section">Registered address</h4>
+    <div class="form-grid">
+      <div class="field"><label>Address line 1</label><input pInputText [(ngModel)]="editing.addressLine1" /></div>
+      <div class="field"><label>Address line 2</label><input pInputText [(ngModel)]="editing.addressLine2" /></div>
+      <div class="field"><label>City</label><input pInputText [(ngModel)]="editing.city" /></div>
+      <div class="field"><label>State</label><input pInputText [(ngModel)]="editing.state" /></div>
+      <div class="field"><label>Pincode</label><input pInputText [(ngModel)]="editing.pincode" maxlength="6" /></div>
+    </div>
+
+    <h4 class="dlg-section">Authorised signatory <span class="hint">signs Form 16</span></h4>
+    <div class="form-grid">
+      <div class="field"><label>Name</label><input pInputText [(ngModel)]="editing.signatoryName" /></div>
+      <div class="field"><label>Designation</label><input pInputText [(ngModel)]="editing.signatoryDesignation" /></div>
+      <div class="field"><label>Place</label><input pInputText [(ngModel)]="editing.signatoryPlace" /></div>
+      <div class="field checkbox-field">
+        <p-checkbox [(ngModel)]="editing.isActive" [binary]="true" inputId="active" />
+        <label for="active">Active</label>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="companyDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="savingCompany" (click)="saveCompany()">
+        {{ savingCompany ? 'Saving…' : 'Save' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Statutory config dialog ───────────────────────────────────────────── -->
+  <p-dialog [header]="config.id ? 'Edit Statutory Version' : 'New Statutory Version'"
+    [(visible)]="configDialog" [modal]="true" [style]="{ width: '820px' }" styleClass="tax-dialog">
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Effective from <span class="hint">applies to payroll months on or after this date</span></label>
+        <p-datepicker [(ngModel)]="configEffectiveFrom" dateFormat="dd M yy" appendTo="body" />
+      </div>
+      <div class="field">
+        <label>Notes <span class="hint">optional</span></label>
+        <input pInputText [(ngModel)]="config.notes" placeholder="e.g. FY 2026-27 budget revision" />
+      </div>
+    </div>
+
+    <h4 class="dlg-section">
+      <p-checkbox [(ngModel)]="config.pfEnabled" [binary]="true" inputId="pf" />
+      <label for="pf">Provident Fund</label>
+    </h4>
+    <div class="form-grid" *ngIf="config.pfEnabled">
+      <div class="field"><label>Employee rate %</label>
+        <p-inputNumber [(ngModel)]="config.pfEmployeeRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Employer rate %</label>
+        <p-inputNumber [(ngModel)]="config.pfEmployerRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Wage ceiling</label>
+        <p-inputNumber [(ngModel)]="config.pfWageCeiling" mode="decimal" [useGrouping]="true" /></div>
+      <div class="field"><label>EPS rate %</label>
+        <p-inputNumber [(ngModel)]="config.epsRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Admin charge %</label>
+        <p-inputNumber [(ngModel)]="config.pfAdminChargeRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>EDLI %</label>
+        <p-inputNumber [(ngModel)]="config.edliRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field checkbox-field">
+        <p-checkbox [(ngModel)]="config.pfCapAtCeiling" [binary]="true" inputId="pfcap" />
+        <label for="pfcap">Restrict PF to the wage ceiling</label>
+      </div>
+    </div>
+
+    <h4 class="dlg-section">
+      <p-checkbox [(ngModel)]="config.esiEnabled" [binary]="true" inputId="esi" />
+      <label for="esi">ESI</label>
+    </h4>
+    <div class="form-grid" *ngIf="config.esiEnabled">
+      <div class="field"><label>Employee rate %</label>
+        <p-inputNumber [(ngModel)]="config.esiEmployeeRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Employer rate %</label>
+        <p-inputNumber [(ngModel)]="config.esiEmployerRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Wage limit</label>
+        <p-inputNumber [(ngModel)]="config.esiWageLimit" mode="decimal" [useGrouping]="true" /></div>
+    </div>
+
+    <h4 class="dlg-section">
+      <p-checkbox [(ngModel)]="config.ptEnabled" [binary]="true" inputId="pt" />
+      <label for="pt">Professional Tax</label>
+    </h4>
+    <div *ngIf="config.ptEnabled">
+      <div class="form-grid">
+        <div class="field"><label>State</label>
+          <input pInputText [(ngModel)]="config.ptState" placeholder="e.g. Karnataka" /></div>
+      </div>
+
+      <table class="review-table" style="margin-top:10px">
+        <thead>
+          <tr>
+            <th>Gross up to <span class="hint">blank = no upper limit</span></th>
+            <th class="num">Monthly amount</th>
+            <th class="num">February amount <span class="hint">optional</span></th>
+            <th style="width:60px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let slab of ptSlabs; let i = index">
+            <td><p-inputNumber [(ngModel)]="slab.upTo" mode="decimal" [useGrouping]="true" placeholder="No limit" /></td>
+            <td class="num"><p-inputNumber [(ngModel)]="slab.amount" mode="decimal" [min]="0" /></td>
+            <td class="num"><p-inputNumber [(ngModel)]="slab.februaryAmount" mode="decimal" [min]="0" /></td>
+            <td><button class="icon-btn danger" (click)="removeSlab(i)">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="ghost-btn small" style="margin-top:8px" (click)="addSlab()">Add slab</button>
+    </div>
+
+    <h4 class="dlg-section">
+      <p-checkbox [(ngModel)]="config.lwfEnabled" [binary]="true" inputId="lwf" />
+      <label for="lwf">Labour Welfare Fund</label>
+    </h4>
+    <div class="form-grid" *ngIf="config.lwfEnabled">
+      <div class="field"><label>State</label><input pInputText [(ngModel)]="config.lwfState" /></div>
+      <div class="field"><label>Employee amount</label>
+        <p-inputNumber [(ngModel)]="config.lwfEmployeeAmount" mode="decimal" [min]="0" /></div>
+      <div class="field"><label>Employer amount</label>
+        <p-inputNumber [(ngModel)]="config.lwfEmployerAmount" mode="decimal" [min]="0" /></div>
+      <div class="field"><label>Frequency</label>
+        <p-select [(ngModel)]="config.lwfFrequency" [options]="lwfFrequencyOptions" optionLabel="label"
+          optionValue="value" appendTo="body" /></div>
+      <div class="field">
+        <label>Collection months <span class="hint">comma separated, e.g. 6, 12</span></label>
+        <input pInputText [(ngModel)]="lwfMonths" placeholder="Leave blank for the default" />
+      </div>
+    </div>
+
+    <h4 class="dlg-section">Employer provisions <span class="hint">accrued cost, never deducted from pay</span></h4>
+    <div class="form-grid">
+      <div class="field checkbox-field">
+        <p-checkbox [(ngModel)]="config.gratuityEnabled" [binary]="true" inputId="grat" />
+        <label for="grat">Gratuity</label>
+      </div>
+      <div class="field"><label>Gratuity rate % of basic</label>
+        <p-inputNumber [(ngModel)]="config.gratuityRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field checkbox-field">
+        <p-checkbox [(ngModel)]="config.bonusEnabled" [binary]="true" inputId="bonus" />
+        <label for="bonus">Statutory bonus</label>
+      </div>
+      <div class="field"><label>Bonus rate %</label>
+        <p-inputNumber [(ngModel)]="config.bonusRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Bonus eligibility wage</label>
+        <p-inputNumber [(ngModel)]="config.bonusEligibilityWage" mode="decimal" [useGrouping]="true" /></div>
+      <div class="field"><label>Bonus calculation cap</label>
+        <p-inputNumber [(ngModel)]="config.bonusCalculationCap" mode="decimal" [useGrouping]="true" /></div>
+      <div class="field checkbox-field">
+        <p-checkbox [(ngModel)]="config.leaveEncashEnabled" [binary]="true" inputId="enc" />
+        <label for="enc">Leave encashment provision</label>
+      </div>
+      <div class="field"><label>Days accrued per year</label>
+        <p-inputNumber [(ngModel)]="config.leaveEncashDaysYear" mode="decimal" [min]="0" /></div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="configDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="savingConfig" (click)="saveConfig()">
+        {{ savingConfig ? 'Saving…' : 'Save Version' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+</div>

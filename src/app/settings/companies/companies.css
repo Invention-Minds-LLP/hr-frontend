@@ -1,0 +1,524 @@
+/* Mirrors payroll-overview.css so the two modules read as one system. */
+
+.tax-page {
+  font-family: "Sofia Sans";
+  padding: 0 60px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+::ng-deep .tax-page .p-tabs { background: transparent; }
+
+::ng-deep .tax-page .p-tablist {
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .tax-page .p-tablist-active-bar { background: #f97316 !important; }
+
+::ng-deep .tax-page .p-tabs .p-tablist::before,
+::ng-deep .tax-page .p-tabs .p-tablist::after { display: none !important; }
+
+::ng-deep .tax-page .p-tab {
+  color: #aaa !important;
+  background: transparent !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+::ng-deep .tax-page .p-tab:hover { color: #fff !important; background: #222 !important; }
+
+::ng-deep .tax-page .p-tab.p-tab-active {
+  color: #f97316 !important;
+  border-bottom-color: #f97316 !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+::ng-deep .tax-page .p-tabpanels { background: transparent; padding: 24px 0; }
+
+/* ── FY selector ──────────────────────────────────────────────────────────── */
+.fy-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+.fy-bar label { color: #aaa; font-size: 14px; }
+
+::ng-deep .fy-select { min-width: 140px; }
+
+/* ── Section headers ──────────────────────────────────────────────────────── */
+.tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tab-header-left h3 { margin: 0; color: #fff; font-size: 19px; font-weight: 600; }
+.tab-header-left .sub { color: #888; font-size: 13px; }
+
+.tab-header-right { display: flex; align-items: center; gap: 10px; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.new-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f97316;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.new-app:hover:not(:disabled) { background: #ea6a0c; }
+.new-app:disabled { opacity: .5; cursor: not-allowed; }
+
+.ghost-btn {
+  background: transparent;
+  color: #ccc;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ghost-btn:hover:not(:disabled) { background: #222; color: #fff; }
+.ghost-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #f97316;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0 0 0 6px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: #aaa;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.icon-btn.danger:hover { border-color: #b3261e; color: #ff6b5e; background: #2a1512; }
+
+.actions-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* ── Regime comparison cards ──────────────────────────────────────────────── */
+.regime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.regime-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color .15s, background .15s;
+}
+
+.regime-card.recommended { border-color: #2f6f4f; }
+.regime-card.selected { border-color: #f97316; background: #1f1a15; }
+
+.regime-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.regime-name { color: #fff; font-size: 15px; font-weight: 600; }
+
+.badge-rec {
+  background: #12341f;
+  color: #6ee7a8;
+  border: 1px solid #2f6f4f;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.regime-amount { color: #fff; font-size: 30px; font-weight: 700; line-height: 1.1; }
+.regime-sub { color: #777; font-size: 12px; margin-bottom: 14px; }
+
+.regime-rows { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+
+.regime-rows > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #999;
+}
+
+.regime-rows b { color: #ddd; font-weight: 500; }
+.regime-rows b.muted { color: #666; font-weight: 400; font-style: italic; }
+
+.regime-pick {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.regime-pick:hover:not(:disabled) { background: #222; color: #fff; }
+.regime-pick:disabled { opacity: .45; cursor: not-allowed; }
+.regime-card.selected .regime-pick { background: #f97316; border-color: #f97316; color: #fff; }
+
+.saving-note {
+  background: #12341f;
+  border: 1px solid #2f6f4f;
+  color: #a8e6c4;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.locked-note {
+  background: #2a2412;
+  border: 1px solid #6b5a1e;
+  color: #e8d48a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* ── Stat row ─────────────────────────────────────────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat.highlight { border-color: #f97316; background: #1f1a15; }
+.stat-label { color: #888; font-size: 12px; }
+.stat-value { color: #fff; font-size: 19px; font-weight: 600; }
+
+/* ── Calculation table ────────────────────────────────────────────────────── */
+.calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.calc-table td { padding: 10px 16px; border-bottom: 1px solid #242424; color: #bbb; }
+.calc-table td:last-child { text-align: right; color: #eee; font-variant-numeric: tabular-nums; }
+.calc-table tr:last-child td { border-bottom: none; }
+.calc-table tr.deduct td { color: #999; }
+.calc-table tr.deduct td:last-child { color: #d98a6a; }
+
+.calc-table tr.subtotal td {
+  background: #202020;
+  color: #fff;
+  font-weight: 600;
+  border-top: 1px solid #333;
+}
+
+.calc-table tr.total td {
+  background: #1f1a15;
+  color: #f97316;
+  font-weight: 700;
+  font-size: 15px;
+  border-top: 1px solid #3a2a1a;
+}
+
+/* ── Forms ────────────────────────────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 18px;
+}
+
+.form-grid.single { grid-template-columns: 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { color: #bbb; font-size: 13px; }
+.field .hint { color: #666; font-size: 11px; font-weight: 400; }
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  align-self: end;
+  padding-bottom: 6px;
+}
+
+.checkbox-field label { color: #999; font-size: 13px; }
+
+::ng-deep .tax-page .p-inputtext,
+::ng-deep .tax-page .p-inputnumber-input,
+::ng-deep .tax-dialog .p-inputtext,
+::ng-deep .tax-dialog .p-inputnumber-input {
+  background: #141414;
+  border: 1px solid #333;
+  color: #eee;
+  width: 100%;
+}
+
+/* ── Notices ──────────────────────────────────────────────────────────────── */
+.notice {
+  background: #16202b;
+  border: 1px solid #2b4a68;
+  color: #9dc4e4;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.notice.warn { background: #2a2412; border-color: #6b5a1e; color: #e8d48a; }
+.notice code { background: #0f0f0f; padding: 1px 6px; border-radius: 4px; color: #ddd; }
+
+/* ── Empty states ─────────────────────────────────────────────────────────── */
+.empty-state {
+  background: #1a1a1a;
+  border: 1px dashed #333;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.empty-state h4 { margin: 0 0 6px; color: #ddd; font-size: 15px; font-weight: 600; }
+.empty-state p { margin: 0; color: #777; font-size: 13px; }
+.empty-cell { text-align: center; color: #666; padding: 26px !important; }
+.skeleton-block { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Table bits ───────────────────────────────────────────────────────────── */
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: #777; }
+
+.sec-chip {
+  background: #232323;
+  border: 1px solid #333;
+  color: #ccc;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cap-warn {
+  margin-left: 8px;
+  background: #2a1512;
+  border: 1px solid #7a3128;
+  color: #ff9c8f;
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+.approved-full { color: #6ee7a8; }
+.approved-part { color: #e8b45a; }
+
+::ng-deep .tax-page .p-datatable {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+::ng-deep .tax-page .p-datatable thead > tr > th {
+  background: #202020;
+  color: #aaa;
+  border-color: #2a2a2a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+::ng-deep .tax-page .p-datatable tbody > tr {
+  background: #1a1a1a;
+  color: #ddd;
+  border-color: #242424;
+}
+
+::ng-deep .tax-page .p-datatable tbody > tr > td { border-color: #242424; font-size: 13.5px; }
+::ng-deep .tax-page .p-datatable tbody > tr:hover { background: #202020; }
+
+@media (max-width: 900px) {
+  .tax-page { padding: 0 20px; }
+}
+
+/* ── Admin-only additions ─────────────────────────────────────────────────── */
+
+.ghost-btn.small { padding: 5px 11px; font-size: 12.5px; }
+
+.emp-cell { display: flex; flex-direction: column; gap: 1px; }
+.emp-name { color: #eee; font-size: 13.5px; }
+.emp-code { color: #777; font-size: 11.5px; }
+.small { font-size: 11.5px; }
+
+/* Statutory download cards */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.dl-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dl-title { color: #fff; font-size: 15px; font-weight: 600; }
+.dl-sub { color: #777; font-size: 12px; }
+.dl-amount { color: #f97316; font-size: 20px; font-weight: 700; margin: 8px 0 12px; }
+.new-app.full { width: 100%; justify-content: center; }
+
+/* Review dialog */
+.review-summary {
+  display: flex;
+  gap: 26px;
+  padding: 12px 14px;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.review-summary > div { display: flex; flex-direction: column; gap: 2px; }
+.review-summary span { color: #777; font-size: 11.5px; }
+.review-summary b { color: #eee; font-size: 15px; }
+.review-summary b.accent { color: #f97316; }
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bulk-actions .hint { color: #666; font-size: 11.5px; }
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.review-table th {
+  background: #202020;
+  color: #aaa;
+  text-align: left;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.review-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #242424;
+  color: #ddd;
+  vertical-align: middle;
+}
+
+.review-table tr:last-child td { border-bottom: none; }
+
+::ng-deep .approve-input .p-inputnumber-input {
+  background: #0f0f0f !important;
+  border: 1px solid #3a3a3a !important;
+  color: #f97316 !important;
+  text-align: right;
+  padding: 5px 9px;
+}
+
+.proof-link { color: #5aa9e6; font-size: 12.5px; text-decoration: underline; }
+
+/* ── Companies-only additions ─────────────────────────────────────────────── */
+
+.dlg-section {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #2a2a2a;
+  color: #f97316;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.dlg-section:first-of-type { margin-top: 4px; }
+.dlg-section label { color: #f97316; cursor: pointer; margin: 0; }
+.dlg-section .hint { color: #666; font-weight: 400; font-size: 11.5px; }
+
+.default-chip {
+  background: #1f1a15;
+  border: 1px solid #f97316;
+  color: #f97316;
+  border-radius: 20px;
+  padding: 1px 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.tax-page .ghost-btn.small + .ghost-btn.small { margin-left: 6px; }
+
+::ng-deep .tax-dialog .p-datepicker-input {
+  background: #141414;
+  border: 1px solid #333;
+  color: #eee;
+  width: 100%;
+}

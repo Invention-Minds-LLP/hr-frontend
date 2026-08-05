@@ -30,6 +30,8 @@ export class CandidateTests {
   }
 
   
+  goToOffers() { this.router.navigate(['/candidate-offers']); }
+
   start(a: any) {
     const now = new Date();
     const startTime = new Date(a.testDate);

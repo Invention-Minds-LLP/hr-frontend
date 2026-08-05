@@ -108,8 +108,14 @@ export class MyEmpLocations {
   }
 openSessionDetails(session: any) {
   this.photos = session.photos || [];
-  // Your API returns points inside `locations`
-  this.routePoints = session.locations || session.locationPoints || [];
+  // Your API returns points inside `locations`. They can arrive out of
+  // chronological order (offline-queued points get inserted after newer ones),
+  // so sort by recordedAt — otherwise the route polyline zigzags and the
+  // distance is wildly inflated.
+  this.routePoints = (session.locations || session.locationPoints || [])
+    .slice()
+    .sort((a: any, b: any) =>
+      new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
 
   this.mapStats = this.computeStats(this.routePoints);
 

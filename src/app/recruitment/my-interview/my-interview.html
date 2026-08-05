@@ -90,12 +90,17 @@
                     <td>{{ r.avgScore }}</td>
 
                     <td>
-                        <div style="display:flex; flex-direction:column; gap:.4rem; align-items:flex-start;">
-                            <button pButton label="Evaluate" (click)="onEvaluate(r)"></button>
+                        <div class="mi-actions">
+                            <!-- Locked (submitted + interview ended) → "View"; while the
+                                 interview is still running they can still edit. -->
+                            <button pButton size="small"
+                                [label]="r.isLocked ? 'View' : (r.mySubmitted ? 'Edit' : 'Evaluate')"
+                                [icon]="r.isLocked ? 'pi pi-eye' : ''" (click)="onEvaluate(r)"></button>
 
-                            <!-- Availability acknowledgement (panel rounds only) -->
-                            <div *ngIf="!r.candidateAssignedTestId"
-                                 style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;">
+                            <!-- Availability acknowledgement — panel rounds only, hidden
+                                 once I've submitted, and once the interview has started
+                                 (confirming availability after the fact is meaningless). -->
+                            <ng-container *ngIf="!r.candidateAssignedTestId && !r.mySubmitted && !r.isPast">
                                 <p-tag *ngIf="r.myAck === 'AVAILABLE'" severity="success" value="Available"></p-tag>
                                 <p-tag *ngIf="r.myAck === 'UNAVAILABLE'" severity="danger" value="Can't attend"
                                     [pTooltip]="r.myAckReason || ''" tooltipPosition="top"></p-tag>
@@ -104,7 +109,7 @@
                                     icon="pi pi-check" label="I'm available" (click)="confirmAvailable(r)"></button>
                                 <button *ngIf="r.myAck !== 'UNAVAILABLE'" pButton severity="danger" variant="outlined"
                                     size="small" icon="pi pi-times" label="Can't attend" (click)="openDecline(r)"></button>
-                            </div>
+                            </ng-container>
                         </div>
                     </td>
                 </tr>

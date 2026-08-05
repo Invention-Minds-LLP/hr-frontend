@@ -234,6 +234,22 @@
 
     </div>
 
+    <!-- Interview mode -->
+    <div class="si-field">
+      <label class="si-label">Mode</label>
+      <p-select formControlName="mode" appendTo="body" [style]="{ width:'100%' }" [options]="[
+        { label:'In-person (Offline)', value:'OFFLINE' },
+        { label:'Online (Video / Google Meet)', value:'ONLINE' }
+      ]"></p-select>
+    </div>
+    <div class="si-field" *ngIf="interviewForm.get('mode')?.value === 'ONLINE'">
+      <label class="si-label">Meeting link <span class="muted">(optional)</span></label>
+      <input pInputText formControlName="meetingLink"
+        placeholder="https://meet.google.com/… — leave blank to auto-generate" />
+      <small class="si-hint">Leave blank to auto-generate a Google Meet link (when Google is configured). The link is
+        emailed to the candidate and panel.</small>
+    </div>
+
     <!-- Multi-session round toggle -->
     <div class="si-field si-check" style="margin-top:.25rem;">
       <p-checkbox [binary]="true" inputId="grouped" [ngModel]="isGrouped" [ngModelOptions]="{ standalone: true }"
@@ -355,7 +371,7 @@
 <!-- Send Offer (optional date) -->
 <!-- ====================== -->
 <p-dialog header="Send Offer" [(visible)]="showOfferDialog" [modal]="true" [dismissableMask]="true" [draggable]="false"
-  [resizable]="false" [breakpoints]="{ '960px':'50vw', '640px':'90vw' }" [style]="{ width:'420px' }"
+  [resizable]="false" [breakpoints]="{ '960px':'60vw', '640px':'92vw' }" [style]="{ width:'560px' }"
   (onHide)="offerForm.reset(); currentApp && resetAction(currentApp.id)" [closable]="false" class="recruit">
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
@@ -367,16 +383,55 @@
     </div>
   </ng-template>
   <form [formGroup]="offerForm" class="dialog-body p-fluid">
-    <div class="dialog-field">
-      <label class="label">Proposed Join <span class="muted">(optional)</span></label>
-      <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
-      <small class="hint">You can leave this blank and set it later.</small>
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="label">Annual CTC (₹)</label>
+        <input pInputText type="number" formControlName="ctc" placeholder="e.g. 600000" />
+      </div>
+      <div class="dialog-field">
+        <label class="label">Work Mode</label>
+        <p-select [options]="workModeOptions" formControlName="workMode" optionLabel="label" optionValue="value"
+          placeholder="Select" appendTo="body" [showClear]="true" [style]="{ width:'100%' }"></p-select>
+      </div>
     </div>
+
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="label">Joining Location</label>
+        <input pInputText formControlName="joinLocation" placeholder="e.g. Bengaluru" />
+      </div>
+      <div class="dialog-field">
+        <label class="label">Proposed Join <span class="muted">(optional)</span></label>
+        <p-datepicker formControlName="proposedJoinAt" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy"
+          appendTo="body"></p-datepicker>
+      </div>
+    </div>
+
+    <div class="dialog-field">
+      <label class="label">Custom Notes / Terms <span class="muted">(optional)</span></label>
+      <textarea pTextarea rows="3" formControlName="customNotes"
+        placeholder="Any extra terms to print in the letter…"></textarea>
+    </div>
+
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="label">CC <span class="muted">(optional)</span></label>
+        <input pInputText formControlName="cc" placeholder="a@x.com, b@y.com" />
+      </div>
+      <div class="dialog-field">
+        <label class="label">BCC <span class="muted">(optional)</span></label>
+        <input pInputText formControlName="bcc" placeholder="hr@x.com" />
+      </div>
+    </div>
+
+    <small class="hint">Tip: use <b>Preview</b> to see the exact letter before sending.</small>
   </form>
 
   <ng-template pTemplate="footer">
-    <!-- <button pButton type="button" label="Skip" class="p-button-text"  [loading]="isLoading" [label]="isLoading ? 'Skipping': 'Skip'" (click)="submitOffer(true)"></button> -->
-    <button pButton type="button" label="Send" icon="pi pi-send"  [loading]="isLoading" [label]="isLoading ? 'Sending': 'Send'" (click)="submitOffer(false)"></button>
+    <button pButton type="button" icon="pi pi-eye" severity="secondary" [loading]="offerPreviewing"
+      [label]="offerPreviewing ? 'Preparing…' : 'Preview'" (click)="previewOffer()"></button>
+    <button pButton type="button" icon="pi pi-send" [loading]="isLoading" [label]="isLoading ? 'Sending' : 'Send'"
+      (click)="submitOffer(false)"></button>
   </ng-template>
 </p-dialog>
 

@@ -1,0 +1,324 @@
+<div class="tax-page">
+
+  <app-module-guide title="Letters"
+    subtitle="Design letter templates once, then issue them to any employee with details filled in automatically." [points]="[
+      { label: 'Templates', desc: 'Author the letter body once using the editor. Insert {{tokens}} like {{employee.fullName}} and they are replaced per employee at issue time.' },
+      { label: 'Preview', desc: 'Render against a real employee before issuing, so you catch a wrong token before the letter goes out.' },
+      { label: 'Issue', desc: 'Send to one employee or a whole group. Each letter is stored as a snapshot, so editing the template later never changes letters already handed over.' },
+      { label: 'History', desc: 'Every issued letter is downloadable as a PDF and can be revoked if issued in error.' }
+    ]">
+  </app-module-guide>
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <p-tabs [(value)]="activeTab" class="tax-tabs">
+    <p-tablist>
+      <p-tab [value]="0">Templates</p-tab>
+      <p-tab [value]="1">Issued Letters</p-tab>
+      <p-tab [value]="2">My Letters</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ══ TAB 0: Templates ═══════════════════════════════════════════════ -->
+      <p-tabpanel [value]="0">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Letter Templates</h3>
+            <span class="sub">{{ templates.length }} template(s)</span>
+          </div>
+          <div class="tab-header-right">
+            <div class="checkbox-inline">
+              <p-checkbox [(ngModel)]="showInactive" [binary]="true" inputId="inactive"
+                (onChange)="loadTemplates()" />
+              <label for="inactive">Show inactive</label>
+            </div>
+            <button class="new-app" (click)="openNewTemplate()">
+              New Template
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="notice" *ngIf="!templatesLoading && !templates.length">
+          No templates yet. Create one, or run <code>npm run seed:letters</code> on the server to load
+          a starter set (offer, confirmation, experience, relieving, increment, warning).
+        </div>
+
+        <p-table [value]="templatesLoading ? skeletonRows : templates" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Template</th>
+              <th>Category</th>
+              <th>Subject</th>
+              <th class="num">Issued</th>
+              <th>Status</th>
+              <th style="width:230px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-t>
+            <tr *ngIf="templatesLoading"><td colspan="6"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!templatesLoading">
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ t.name }}</span>
+                  <span class="emp-code">{{ t.preview }}</span>
+                </div>
+              </td>
+              <td><p-tag [value]="prettyCategory(t.category)" [severity]="categorySeverity(t.category)" /></td>
+              <td class="muted">{{ t.subject }}</td>
+              <td class="num">{{ t._count?.issued ?? 0 }}</td>
+              <td>
+                <p-tag [value]="t.isActive ? 'Active' : 'Inactive'"
+                  [severity]="t.isActive ? 'success' : 'secondary'" />
+              </td>
+              <td>
+                <button class="ghost-btn small" (click)="openEditTemplate(t)">Edit</button>
+                <button class="ghost-btn small" (click)="openPreview(t)">Preview</button>
+                <button class="new-app small" [disabled]="!t.isActive" (click)="openIssue(t)">Issue</button>
+                <button class="icon-btn danger" (click)="deleteTemplate(t)" pTooltip="Delete">✕</button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="6" class="empty-cell">No templates found.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 1: Issued ══════════════════════════════════════════════════ -->
+      <p-tabpanel [value]="1">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Issued Letters</h3>
+            <span class="sub">{{ issuedTotal }} letter(s) issued</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="issuedCategoryFilter" [options]="[{label:'All categories',value:''}].concat(categories)"
+              optionLabel="label" optionValue="value" (onChange)="issuedPage = 1; loadIssued()"
+              styleClass="fy-select" />
+          </div>
+        </div>
+
+        <p-table [value]="issuedLoading ? skeletonRows : issued" [paginator]="!issuedLoading" [rows]="20"
+          [totalRecords]="issuedTotal" [lazy]="true" (onLazyLoad)="onIssuedPage($event)"
+          responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Employee</th>
+              <th>Letter</th>
+              <th>Subject</th>
+              <th>Issued</th>
+              <th>Status</th>
+              <th style="width:170px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-l>
+            <tr *ngIf="issuedLoading"><td colspan="6"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!issuedLoading">
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ l.employee?.firstName }} {{ l.employee?.lastName }}</span>
+                  <span class="emp-code">{{ l.employee?.employeeCode }}</span>
+                </div>
+              </td>
+              <td>
+                {{ l.templateName || l.template?.name || '—' }}
+                <div class="muted small" *ngIf="l.template?.category">
+                  {{ prettyCategory(l.template?.category) }}
+                </div>
+              </td>
+              <td class="muted">{{ l.subject }}</td>
+              <td class="muted">{{ l.issuedAt | date: 'dd MMM yyyy' }}</td>
+              <td><p-tag [value]="l.status" [severity]="statusSeverity(l.status)" /></td>
+              <td>
+                <button class="ghost-btn small" (click)="download(l)">PDF</button>
+                <button class="icon-btn danger" *ngIf="l.status !== 'REVOKED'" (click)="revoke(l)"
+                  pTooltip="Revoke">✕</button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="6" class="empty-cell">No letters issued yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 2: My letters ══════════════════════════════════════════════ -->
+      <p-tabpanel [value]="2">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>My Letters</h3>
+            <span class="sub">Letters issued to you</span>
+          </div>
+        </div>
+
+        <p-table [value]="myLettersLoading ? skeletonRows : myLetters" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Letter</th>
+              <th>Subject</th>
+              <th>Issued On</th>
+              <th style="width:110px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-l>
+            <tr *ngIf="myLettersLoading"><td colspan="4"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!myLettersLoading">
+              <td><strong>{{ l.templateName || l.template?.name || 'Letter' }}</strong></td>
+              <td class="muted">{{ l.subject }}</td>
+              <td class="muted">{{ l.issuedAt | date: 'dd MMM yyyy' }}</td>
+              <td><button class="ghost-btn small" (click)="download(l)">Download</button></td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="4" class="empty-cell">No letters have been issued to you yet.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+  <!-- ── Template editor ───────────────────────────────────────────────────── -->
+  <p-dialog [header]="editing.id ? 'Edit Template' : 'New Template'" [(visible)]="templateDialog"
+    [modal]="true" [style]="{ width: '1080px' }" styleClass="tax-dialog">
+
+    <div class="editor-layout">
+      <div class="editor-main">
+        <div class="form-grid">
+          <div class="field">
+            <label>Template name</label>
+            <input pInputText [(ngModel)]="editing.name" placeholder="e.g. Offer Letter — Clinical" />
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <p-select [(ngModel)]="editing.category" [options]="categories" optionLabel="label"
+              optionValue="value" appendTo="body" />
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <label>Subject <span class="hint">tokens work here too</span></label>
+          <input pInputText [(ngModel)]="editing.subject"
+            placeholder="e.g. Offer of Employment — {{ '{{' }}employee.designation{{ '}}' }}" />
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <label>Letter body</label>
+          <p-editor [(ngModel)]="editing.bodyHtml" [style]="{ height: '340px' }" />
+        </div>
+
+        <div class="form-grid" style="margin-top:12px">
+          <div class="field checkbox-field">
+            <p-checkbox [(ngModel)]="editing.includeSignature" [binary]="true" inputId="sig" />
+            <label for="sig">Add the authorised signatory block at the end</label>
+          </div>
+          <div class="field checkbox-field">
+            <p-checkbox [(ngModel)]="editing.isActive" [binary]="true" inputId="act" />
+            <label for="act">Active</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token palette -->
+      <div class="token-palette">
+        <div class="palette-head">Available tokens</div>
+        <div class="palette-note">
+          Click to append at the end of the body, then move it where you need it.
+        </div>
+        <div class="palette-group" *ngFor="let g of tokenGroups">
+          <div class="palette-group-name">{{ g.group }}</div>
+          <button class="token-btn" *ngFor="let t of g.tokens" (click)="insertToken(t.token)"
+            [pTooltip]="t.label + ' — e.g. ' + t.example" tooltipPosition="left">
+            {{ t.token }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="templateDialog = false">Cancel</button>
+      <button class="ghost-btn" (click)="openPreview()">Preview</button>
+      <button class="new-app" [disabled]="savingTemplate" (click)="saveTemplate()">
+        {{ savingTemplate ? 'Saving…' : 'Save Template' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Preview ───────────────────────────────────────────────────────────── -->
+  <p-dialog header="Preview" [(visible)]="previewDialog" [modal]="true"
+    [style]="{ width: '780px' }" styleClass="tax-dialog">
+
+    <div class="preview-controls">
+      <div class="field" style="flex:1">
+        <label>Preview against</label>
+        <p-select [(ngModel)]="previewEmployee" [options]="employees" optionLabel="displayName"
+          [filter]="true" filterBy="displayName" placeholder="Select an employee"
+          (onChange)="runPreview()" appendTo="body" />
+      </div>
+    </div>
+
+    <div class="notice warn" *ngIf="previewResult?.unknownTokens?.length">
+      Unrecognised token(s): <b>{{ previewResult?.unknownTokens?.join(', ') }}</b>.
+      These are left visible in the letter rather than blanked — fix the spelling before issuing.
+    </div>
+
+    <div *ngIf="previewing" class="empty-state">Rendering…</div>
+
+    <ng-container *ngIf="previewResult && !previewing">
+      <div class="preview-subject"><span>Subject</span> {{ previewResult.subject }}</div>
+      <div class="letter-preview" [innerHTML]="previewResult.bodyHtml"></div>
+    </ng-container>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="previewDialog = false">Close</button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Issue ─────────────────────────────────────────────────────────────── -->
+  <p-dialog [header]="'Issue — ' + (issueTemplate?.name || '')" [(visible)]="issueDialog"
+    [modal]="true" [style]="{ width: '620px' }" styleClass="tax-dialog">
+
+    <div class="field">
+      <label>Employees</label>
+      <p-multiSelect [(ngModel)]="issueEmployees" [options]="employees" optionLabel="displayName"
+        [filter]="true" filterBy="displayName" placeholder="Select employees" display="chip"
+        appendTo="body" [style]="{ width: '100%' }" />
+      <span class="hint">{{ issueEmployees.length }} selected</span>
+    </div>
+
+    <div class="field checkbox-field" style="margin-top:14px">
+      <p-checkbox [(ngModel)]="issueSendEmail" [binary]="true" inputId="mail" />
+      <label for="mail">Email the letter as a PDF attachment</label>
+    </div>
+
+    <div class="field" style="margin-top:8px">
+      <label>Remarks <span class="hint">internal, not printed</span></label>
+      <input pInputText [(ngModel)]="issueRemarks" placeholder="e.g. Approved by HOD on 12 Jul" />
+    </div>
+
+    <div class="notice">
+      Each letter is stored as a snapshot of the rendered text. Editing this template later will not
+      change letters issued now.
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="issueDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="issuing || !issueEmployees.length" (click)="issue()">
+        {{ issuing ? 'Issuing…' : 'Issue ' + issueEmployees.length + ' Letter(s)' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+</div>

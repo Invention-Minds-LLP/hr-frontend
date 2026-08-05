@@ -8,21 +8,21 @@ import { ResignationForm } from "../resignation/resignation-form/resignation-for
 import { environment } from '../../environment/environment.prod';
 import { Notifications } from '../services/notifications/notifications';
 import { Announcements, } from '../services/announcement/announcements';
-import { canAccessManagementDashboard } from '../shared/access-rules';
+import { AuthSession } from '../services/auth/auth-session';
+import { PermissionService } from '../services/auth/permission.service';
+import { HasPermDirective } from '../shared/has-perm.directive';
 
 
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, CommonModule, PopUp, AnnouncementForm, ResignationForm],
+  imports: [RouterModule, CommonModule, PopUp, AnnouncementForm, ResignationForm, HasPermDirective],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
 export class Navbar {
   isOpen = false;
   showLogoutPopup = false;
-  allowedRoles = ['EXECUTIVE', 'INTERN'];
-  role: string = '';
   adminOpen = false;
   recruitOpen = false;
   // isRestricted = true;
@@ -39,74 +39,27 @@ export class Navbar {
   @ViewChild('notificationWrapper') notificationWrapper!: ElementRef;
 
 
-  constructor(private router: Router, private notificationsService: Notifications, private svc: Announcements) { }
+  constructor(private router: Router, private notificationsService: Notifications, private svc: Announcements, private auth: AuthSession, private perms: PermissionService) { }
 
   toggleDropdown(event: MouseEvent) {
     event.stopPropagation();
     this.isOpen = !this.isOpen;
   }
 
-  isRestricted = false;
-  isReportingManager = false;
-  canManageTraining = false;
-  isNurseEducator = false;
   username = '';
   // apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
   announcements: any[] = [];
-  isIncharge = false;
-  isHRManager = false;
-  isManagement = false;
   // Per-client module flags (set in environment): show these nav items only for
   // clients that have the module (e.g. IM). Off for others (e.g. JMRH).
+  // Separate axis from permissions — a licensed module is still permission-gated.
   readonly payrollEnabled = environment.payrollEnabled;
   readonly weeklyTrackerEnabled = environment.weeklyTrackerEnabled;
-  roleId = localStorage.getItem('roleId') || '';
-  deptId = Number(localStorage.getItem('deptId')) || 0;
-  executiveRoleId = Number(localStorage.getItem('roleId')) || 0;
-  
 
   ngOnInit(): void {
-    const rawRole = localStorage.getItem('role') ?? '';
     this.photoUrl = localStorage.getItem('photoUrl') ?? '';
-
-    this.role = rawRole;
-    const norm = this.normalizeRole(rawRole);
-
-    const deptRaw =
-      localStorage.getItem('deptId') ||
-      (JSON.parse(localStorage.getItem('user') || '{}')?.deptId ?? '');
-    const deptId = Number(deptRaw) || 0;
-
-    // Restrict only Executives not in dept 1
-    this.isRestricted = (norm === 'EXECUTIVE' && deptId !== 1);
-    console.log('Normalized Role:', norm, deptId, this.isRestricted);
-    this.isReportingManager = this.role === 'Reporting Manager';
-    console.log('isReportingManager:', this.isReportingManager);
-    console.log('Role after normalization:', norm, rawRole);
-    this.isIncharge = Number(this.roleId) === 5;
-    this.isHRManager = Number(this.roleId) === 1;
-    // `isManagement` controls visibility of the Management Dashboard nav link.
-    // Includes the empId allowlist from access-rules.ts so non-management users
-    // who are explicitly granted access also see it.
-    this.isManagement = canAccessManagementDashboard();
-    console.log('isIncharge:', this.isIncharge);
-
-    // Training authorization (mirrors backend rule):
-    //   HR Manager · Reporting Manager · Nursing-dept Incharge · Nursing Educator
-    const departmentName = (localStorage.getItem('departmentName') || '').trim().toLowerCase();
-    const designation = (localStorage.getItem('designation') || '').trim().toLowerCase();
-    const inNursing = departmentName === 'nursing';
-    this.isNurseEducator =
-      inNursing && ['nurse educator', 'nursing educator'].includes(designation);
-    this.canManageTraining =
-      this.isHRManager ||
-      this.isReportingManager ||
-      (this.isIncharge && inNursing) ||
-      this.isNurseEducator;
     this.username = localStorage.getItem('name') || '';
-    console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
-    console.log(this.executiveRoleId, 'Executive Role id')
+
     // ✅ Connect to Notification Stream
     this.notificationsService.connectStream();
 
@@ -142,24 +95,54 @@ export class Navbar {
       },
       error: (err) => console.error('Failed to load announcements', err)
     });
-
-    console.log('Employee ID:', this.employeeId, 'Dept ID:', this.deptId, 'Executive Role ID:', this.executiveRoleId);
   }
 
+  /**
+   * Training gets its own top-level link ONLY for people with no Administration
+   * menu to reach it through — Nurse Educators, whose single admin function is
+   * managing trainings. Anyone who has Administration finds it under
+   * Performance, so showing both would list the same screen twice.
+   *
+   * Placement, not capability: `admin.training.view` still decides WHETHER they
+   * get Training at all. This only decides WHERE the link sits, which is why it
+   * isn't a permission key of its own.
+   */
+  get showStandaloneTraining(): boolean {
+    return this.perms.has('admin.training.view') && !this.perms.has('admin.section.view');
+  }
+
+  /** Which permission opens each sub-nav, so the URL can't force one open. */
+  private readonly sectionPerm: Record<string, string> = {
+    admin: 'admin.section.view',
+    hrmanual: 'hrManual.section.view',
+    recruit: 'recruitment.section.view',
+    masters: 'masters.section.view',
+  };
+
   setActiveMenu(url: string): void {
+    let menu: string | null;
+
     if (url.startsWith('/admin/hr-corrections') || url.startsWith('/admin/force-present')
       || url.startsWith('/admin/encashment') || url.startsWith('/admin/comp-off')
       || url.startsWith('/admin/incentives') || url.startsWith('/admin/loans')) {
-      this.activeMenu = 'hrmanual';
+      menu = 'hrmanual';
     } else if (url.startsWith('/admin')) {
-      this.activeMenu = 'admin';
+      menu = 'admin';
     } else if (url.startsWith('/recruitment')) {
-      this.activeMenu = 'recruit';
+      menu = 'recruit';
     } else if (url.startsWith('/masters')) {
-      this.activeMenu = 'masters';
+      menu = 'masters';
     } else {
-      this.activeMenu = null;
+      menu = null;
     }
+
+    // A section the user can't open must not appear just because the URL sits
+    // underneath it. A Nurse Educator reaches /admin/evaluation from a direct
+    // top-level link and has no Administration menu — without this, navigating
+    // there re-opened the admin sub-nav the click had just closed.
+    if (menu && !this.perms.has(this.sectionPerm[menu])) menu = null;
+
+    this.activeMenu = menu;
     localStorage.setItem('activeMenu', this.activeMenu || '');
   }
 
@@ -177,29 +160,16 @@ export class Navbar {
     this.showNotifications = false;
   }
 
-  private normalizeRole(raw: any): string {
-    const s = (raw || '').toString().trim().toLowerCase()
-      .replace(/[_-]+/g, ' ')
-      .replace(/\s+/g, ' ');
-    const map: Record<string, string> = {
-      'executive': 'EXECUTIVE',
-      'executives': 'EXECUTIVE',
-      'junior executive': 'JUNIOR_EXECUTIVE',
-      'jr executive': 'JUNIOR_EXECUTIVE',
-      'jr. executive': 'JUNIOR_EXECUTIVE',
-      'intern': 'INTERN',
-      'interns': 'INTERN',
-    };
-    return map[s] ?? s.toUpperCase().replace(/ /g, '_');
-  }
-
-
+  /**
+   * Opening a section lands on its first page the user can actually reach.
+   * Previously this branched on role (Reporting Manager / Incharge); now it
+   * asks the same question the menu items ask, so the landing page can never
+   * disagree with what's visible.
+   */
   onAdminClick() {
-    if (this.isReportingManager || this.isIncharge) {
-      this.router.navigate(['/admin/leave']);
-    } else {
-      this.router.navigate(['/admin/employee']);
-    }
+    this.router.navigate([
+      this.perms.has('admin.employee.view') ? '/admin/employee' : '/admin/leave',
+    ]);
   }
 
   onHrManualClick() {
@@ -207,18 +177,13 @@ export class Navbar {
   }
 
   onRecruitClick() {
-    // Expand submenu
-    if (this.isReportingManager) {
+    if (this.perms.has('recruitment.jobs.view')) {
+      this.router.navigate(['/recruitment/jobs']);
+    } else if (this.perms.has('recruitment.interviews.view')) {
       this.router.navigate(['/recruitment/my-interview']);
-    }
-    else if (this.isIncharge) {
+    } else {
       this.router.navigate(['/recruitment/recquisition']);
     }
-    else {
-      this.router.navigate(['/recruitment/jobs']);
-    }
-
-    console.log(this.activeMenu);
   }
 
   goToProfile() {
@@ -232,7 +197,9 @@ export class Navbar {
   }
 
   handleLogout() {
-    localStorage.clear();
+    // Revokes the server-side session too, so the refresh cookie can't be
+    // replayed after logout.
+    this.auth.logout();
     this.showLogoutPopup = false;
     this.router.navigate(['/login']);
   }

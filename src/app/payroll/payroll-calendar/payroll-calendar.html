@@ -1,0 +1,209 @@
+<div class="cal-wrap">
+
+  <div *ngIf="loading" class="cal-loading">
+    <p-skeleton height="90px" styleClass="mb-2" />
+    <p-skeleton height="320px" />
+  </div>
+
+  <div *ngIf="error && !loading" class="cal-error">{{ error }}</div>
+
+  <ng-container *ngIf="calendar && !loading">
+
+    <!-- ── Header ──────────────────────────────────────────────────────────── -->
+    <div class="cal-head">
+      <div class="cal-emp">
+        <span class="cal-emp-name">{{ calendar.employeeName }}</span>
+        <span class="cal-emp-meta">
+          {{ calendar.employeeCode }}
+          <ng-container *ngIf="calendar.designation"> · {{ calendar.designation }}</ng-container>
+          <ng-container *ngIf="calendar.department"> · {{ calendar.department }}</ng-container>
+        </span>
+      </div>
+      <div class="cal-period">{{ monthName(calendar.month) }} {{ calendar.year }}</div>
+    </div>
+
+    <!-- ── Reconciliation: does the calendar still agree with the payslip? ──── -->
+    <div class="recon" *ngIf="reconciliation" [class.mismatch]="!reconciliation.lopMatches">
+      <ng-container *ngIf="reconciliation.lopMatches">
+        ✓ Payslip agrees with attendance — {{ reconciliation.payslipLopDays }} LOP day(s),
+        {{ reconciliation.payslipPresentDays }} present.
+      </ng-container>
+      <ng-container *ngIf="!reconciliation.lopMatches">
+        ⚠ <b>Payslip and attendance disagree.</b>
+        Payslip was built with {{ reconciliation.payslipLopDays }} LOP day(s); attendance now shows
+        {{ reconciliation.calendarLopDays }}. Regenerate this run before publishing.
+      </ng-container>
+      <span class="recon-ot" *ngIf="reconciliation.otApprovedHours !== reconciliation.otPaidHours">
+        · OT paid {{ reconciliation.otPaidHours }}h vs approved {{ reconciliation.otApprovedHours }}h
+      </span>
+    </div>
+
+    <!-- ── Exceptions ──────────────────────────────────────────────────────── -->
+    <div class="exceptions" *ngIf="calendar.exceptions.length">
+      <div class="exceptions-head">Needs a look before approving</div>
+      <ul>
+        <li *ngFor="let ex of calendar.exceptions">{{ ex }}</li>
+      </ul>
+    </div>
+
+    <!-- ── Summary strip ───────────────────────────────────────────────────── -->
+    <div class="cal-stats">
+      <div class="cs"><span>Working</span><b>{{ calendar.summary.workingDays }}</b></div>
+      <div class="cs ok"><span>Present</span><b>{{ calendar.summary.presentDays }}</b></div>
+      <div class="cs"><span>Week off</span><b>{{ calendar.summary.weekOffDays }}</b></div>
+      <div class="cs"><span>Holiday</span><b>{{ calendar.summary.holidayDays }}</b></div>
+      <div class="cs"><span>Leave</span><b>{{ calendar.summary.leaveDays }}</b></div>
+      <div class="cs bad" [class.muted]="!calendar.summary.lopDays">
+        <span>LOP</span><b>{{ calendar.summary.lopDays }}</b>
+      </div>
+      <div class="cs warn" [class.muted]="!calendar.summary.lateUnapprovedCount">
+        <span>Late (unappr.)</span><b>{{ calendar.summary.lateUnapprovedCount }}</b>
+      </div>
+      <div class="cs" [class.muted]="!calendar.summary.otMinutesTotal">
+        <span>OT approved</span><b>{{ hm(calendar.summary.otApprovedMinutes) }}</b>
+      </div>
+    </div>
+
+    <!-- ── Month grid ──────────────────────────────────────────────────────── -->
+    <div class="grid-head">
+      <div class="gh" *ngFor="let w of weekdayHeaders">{{ w }}</div>
+    </div>
+
+    <div class="grid">
+      <div *ngFor="let day of grid"
+        class="cell {{ dayClass(day) }}"
+        [class.selected]="day && selectedDay?.date === day.date"
+        [class.clickable]="!!day"
+        (click)="selectDay(day)"
+        [pTooltip]="day ? dayTooltip(day) : ''" tooltipPosition="top" [tooltipStyleClass]="'cal-tip'">
+
+        <ng-container *ngIf="day">
+          <div class="cell-top">
+            <span class="cell-day">{{ day.day }}</span>
+            <span class="markers">
+              <i class="mk late" *ngIf="hasUnapprovedLate(day)" title="Late — not approved">L</i>
+              <i class="mk late-ok" *ngIf="hasLate(day) && day.lateApproved" title="Late — approved">L</i>
+              <i class="mk early" *ngIf="hasEarly(day)" title="Left early">E</i>
+              <i class="mk ot" *ngIf="hasOt(day) && day.otApproved" title="Overtime approved">OT</i>
+              <i class="mk ot-pending" *ngIf="hasPendingOt(day)" title="Overtime not approved — unpaid">OT</i>
+              <i class="mk touched" *ngIf="wasTouched(day)" title="Adjusted by HR">✎</i>
+              <i class="mk missing" *ngIf="missingPunch(day)" title="Only one punch recorded">!</i>
+            </span>
+          </div>
+
+          <div class="cell-label">{{ dayLabel(day) }}</div>
+
+          <div class="cell-times" *ngIf="day.checkIn || day.checkOut">
+            {{ day.checkIn || '--:--' }} <span class="arw">→</span> {{ day.checkOut || '--:--' }}
+          </div>
+
+          <div class="cell-foot" *ngIf="day.lateMinutes || day.earlyMinutes || day.otMinutes">
+            <span class="chip red" *ngIf="day.lateMinutes && !day.lateApproved">+{{ day.lateMinutes }}m late</span>
+            <span class="chip amber" *ngIf="day.lateMinutes && day.lateApproved">late ok</span>
+            <span class="chip amber" *ngIf="day.earlyMinutes">-{{ day.earlyMinutes }}m</span>
+            <span class="chip green" *ngIf="day.otMinutes && day.otApproved">OT {{ hm(day.otMinutes) }}</span>
+            <span class="chip grey" *ngIf="day.otMinutes && !day.otApproved">OT {{ hm(day.otMinutes) }}?</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- ── Legend ──────────────────────────────────────────────────────────── -->
+    <div class="legend">
+      <span><i class="sw present"></i> Present</span>
+      <span><i class="sw leave"></i> Paid leave</span>
+      <span><i class="sw lop"></i> LOP / absent</span>
+      <span><i class="sw half"></i> Half day</span>
+      <span><i class="sw weekoff"></i> Week off</span>
+      <span><i class="sw holiday"></i> Holiday</span>
+      <span><i class="sw wfh"></i> WFH</span>
+      <span><i class="sw nodata"></i> No record</span>
+      <span class="sep"></span>
+      <span><i class="mk late">L</i> late unapproved</span>
+      <span><i class="mk late-ok">L</i> late approved</span>
+      <span><i class="mk early">E</i> early out</span>
+      <span><i class="mk ot">OT</i> overtime</span>
+      <span><i class="mk touched">✎</i> HR adjusted</span>
+    </div>
+
+    <!-- ── Selected day detail ─────────────────────────────────────────────── -->
+    <div class="day-detail" *ngIf="selectedDay">
+      <div class="dd-head">
+        <b>{{ selectedDay.date }}</b> · {{ selectedDay.weekday }} · {{ dayLabel(selectedDay) }}
+        <span class="dd-pay" [class.lop]="selectedDay.payTreatment === 'LOP'">
+          {{ pretty(selectedDay.payTreatment) }}
+        </span>
+      </div>
+      <div class="dd-grid">
+        <div><span>Shift</span><b>{{ selectedDay.shiftStart || '—' }} – {{ selectedDay.shiftEnd || '—' }}
+          <em *ngIf="selectedDay.shiftName">{{ selectedDay.shiftName }}</em></b></div>
+        <div><span>Check in</span><b>{{ selectedDay.checkIn || '—' }}</b></div>
+        <div><span>Check out</span><b>{{ selectedDay.checkOut || '—' }}</b></div>
+        <div><span>Worked</span><b>{{ hm(selectedDay.workedMinutes) }}</b></div>
+        <div *ngIf="selectedDay.lateMinutes">
+          <span>Late</span>
+          <b [class.danger]="!selectedDay.lateApproved">
+            {{ selectedDay.lateMinutes }} min — {{ selectedDay.lateApproved ? 'approved' : 'not approved' }}
+          </b>
+        </div>
+        <div *ngIf="selectedDay.earlyMinutes"><span>Left early</span><b>{{ selectedDay.earlyMinutes }} min</b></div>
+        <div *ngIf="selectedDay.otMinutes">
+          <span>Overtime</span>
+          <b [class.danger]="!selectedDay.otApproved">
+            {{ hm(selectedDay.otMinutes) }} — {{ selectedDay.otApproved ? 'approved' : 'unapproved, not paid' }}
+          </b>
+        </div>
+        <div *ngIf="selectedDay.leaveType">
+          <span>Leave</span>
+          <b>{{ selectedDay.leaveType }} ({{ selectedDay.leaveStatus }}){{ selectedDay.leaveIsLop ? ' — unpaid' : '' }}</b>
+        </div>
+        <div *ngIf="selectedDay.holidayName"><span>Holiday</span><b>{{ selectedDay.holidayName }}</b></div>
+        <div *ngIf="selectedDay.source"><span>Source</span><b>{{ selectedDay.source }}</b></div>
+      </div>
+      <div class="dd-note" *ngIf="selectedDay.lateApprovalNote">{{ selectedDay.lateApprovalNote }}</div>
+      <div class="dd-note warn" *ngIf="wasTouched(selectedDay)">
+        <ng-container *ngIf="selectedDay.isForcedPresent">Force-marked present by HR. </ng-container>
+        <ng-container *ngIf="selectedDay.isPunchCorrected">Punch corrected manually. </ng-container>
+        <ng-container *ngIf="selectedDay.isOverridden">Attendance overridden. </ng-container>
+      </div>
+      <div class="dd-note" *ngIf="selectedDay.remarks">{{ selectedDay.remarks }}</div>
+    </div>
+
+    <!-- ── Loan / incentive pulled into this run ───────────────────────────── -->
+    <ng-container *ngIf="adjustments && (adjustments.loans.length || adjustments.incentives.length)">
+      <p-divider />
+      <div class="adj-head">Loan &amp; incentive lines in this payslip</div>
+
+      <table class="adj-table" *ngIf="adjustments.loans.length">
+        <thead>
+          <tr><th>Loan</th><th>EMI</th><th>Recovering</th><th>Outstanding after</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of adjustments.loans">
+            <td>#{{ l.loanId }} <span class="muted">{{ pretty(l.loanType) }}</span></td>
+            <td>{{ inr(l.emiAmount) }}</td>
+            <td><b>{{ inr(l.recoverAmount) }}</b></td>
+            <td>{{ inr(l.outstandingAfter) }}</td>
+            <td>
+              <span class="chip green" *ngIf="l.isFinalInstalment">final instalment</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="adj-table" *ngIf="adjustments.incentives.length">
+        <thead><tr><th>Incentive</th><th>Effective</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let i of adjustments.incentives">
+            <td>{{ pretty(i.type) }} <span class="muted">{{ i.description }}</span></td>
+            <td class="muted">{{ i.effectiveDate | date: 'dd MMM yyyy' }}</td>
+            <td><b>{{ inr(i.amount) }}</b></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="adj-note" *ngFor="let n of adjustments.notes">{{ n }}</div>
+    </ng-container>
+
+  </ng-container>
+</div>

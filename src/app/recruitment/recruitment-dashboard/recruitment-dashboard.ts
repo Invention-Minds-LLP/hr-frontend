@@ -345,7 +345,7 @@ export class RecruitmentDashboard implements OnInit {
   sendOffer(app: Application) {
     this.ensureOffer(app, of => {
       const join = prompt('Proposed join date (ISO)?') || undefined;
-      this.api.sendOffer(of.id, join).subscribe(() => this.loadApps());
+      this.api.sendOffer(of.id, { proposedJoinAt: join }).subscribe(() => this.loadApps());
     });
   }
   signOffer(app: Application) {

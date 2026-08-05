@@ -149,7 +149,7 @@ export class Recuriting {
   }
 
   /* -------- Interviews -------- */
-  scheduleInterview(applicationId: number, body: { stage: string; startTime: string; endTime: string; panelUserIds?: string; feedbackDue?: string; grouped?: boolean; sessionGroupId?: number }) {
+  scheduleInterview(applicationId: number, body: { stage: string; startTime: string; endTime: string; panelUserIds?: string; feedbackDue?: string; grouped?: boolean; sessionGroupId?: number; mode?: string; meetingLink?: string }) {
     return this.http.post<Interview>(`${baseUrl}/applications/${applicationId}/interviews`, body);
   }
 
@@ -196,8 +196,20 @@ export class Recuriting {
   createOffer(applicationId: number) {
     return this.http.post<Offer>(`${baseUrl}/applications/${applicationId}/offer`, {});
   }
-  sendOffer(id: number, proposedJoinAt?: string) {
-    return this.http.post<Offer>(`${baseUrl}/offers/${id}/send`, { proposedJoinAt });
+  sendOffer(id: number, body: { proposedJoinAt?: string; ctc?: number; joinLocation?: string; workMode?: string; customNotes?: string; cc?: string; bcc?: string }) {
+    return this.http.post<Offer>(`${baseUrl}/offers/${id}/send`, body);
+  }
+  /** Render the offer-letter PDF from unsaved values (preview before send). */
+  previewOffer(id: number, body: { proposedJoinAt?: string; ctc?: number; joinLocation?: string; workMode?: string; customNotes?: string }) {
+    return this.http.post(`${baseUrl}/offers/${id}/preview`, body, { responseType: 'blob' });
+  }
+  /** Candidate portal: the logged-in candidate's own offers. */
+  getCandidateOffers(candidateId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${baseUrl}/candidate/${candidateId}/offers`);
+  }
+  /** Fetch the offer-letter PDF as a blob (auth token flows via the interceptor). */
+  getOfferPdf(id: number) {
+    return this.http.get(`${baseUrl}/offers/${id}/pdf`, { responseType: 'blob' });
   }
   markOfferViewed(id: number) { return this.http.post<Offer>(`${baseUrl}/offers/${id}/view`, {}); }
   markOfferSigned(id: number) { return this.http.post<Offer>(`${baseUrl}/offers/${id}/sign`, {}); }
@@ -359,6 +371,18 @@ export class Recuriting {
   }): Observable<any> {
     return this.http.patch(`${baseUrl}/bgv/${bgvId}/checks/${checkId}`, body);
   }
+  /** Upload a proof file for one BGV check; server stores it as the check's evidenceUrl. */
+  uploadBgvCheckEvidence(bgvId: number, checkId: number, file: File): Observable<any> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post(`${baseUrl}/bgv/${bgvId}/checks/${checkId}/evidence`, fd);
+  }
+  /** Upload the consolidated final BGV report; server stores it as the BGV's reportUrl. */
+  uploadBgvReport(bgvId: number, file: File): Observable<any> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post(`${baseUrl}/bgv/${bgvId}/report`, fd);
+  }
   resolveBgvDiscrepancy(bgvId: number, checkId: number, resolutionNote: string): Observable<any> {
     return this.http.post(`${baseUrl}/bgv/${bgvId}/checks/${checkId}/resolve`, { resolutionNote });
   }
@@ -368,7 +392,8 @@ export class Recuriting {
   listBgvDocuments(bgvId: number): Observable<any[]> {
     return this.http.get<any[]>(`${baseUrl}/bgv/${bgvId}/documents`);
   }
-  addBgvDocument(bgvId: number, body: { docType: string; fileName: string; fileUrl: string }): Observable<any> {
+  /** Multipart upload (file + docType). HttpClient sets the boundary — don't set Content-Type. */
+  addBgvDocument(bgvId: number, body: FormData): Observable<any> {
     return this.http.post(`${baseUrl}/bgv/${bgvId}/documents`, body);
   }
   deleteBgvDocument(docId: number): Observable<any> {

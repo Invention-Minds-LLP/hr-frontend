@@ -498,21 +498,20 @@ get isImageResume(): boolean {
       // this.viewAllPanelReadOnly = false;
 
       const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
-      console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
       if (mine) {
-        // Already filled → show only in read-only mode
         this.panelArr.push(this.fbFrom(mine));
-        this.viewAllPanelReadOnly = true;
+        // Locked only once SUBMITTED *and* the interview has ended.
+        this.viewAllPanelReadOnly = this.isFeedbackLocked(mine, v);
       }
 
       else {
         this.addPanelist(); // blank row for me to fill
-        console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
         this.viewAllPanelReadOnly = false;
       }
 
-      // enable editing my row
-      this.panelArr.enable({ emitEvent: false });
+      // Editable only while not locked
+      if (this.viewAllPanelReadOnly) this.panelArr.disable({ emitEvent: false });
+      else this.panelArr.enable({ emitEvent: false });
       if (v.InterviewHRReview) {
         this.form.patchValue({
           conclusion: v.InterviewHRReview.conclusion ?? 'Shortlisted',
@@ -539,19 +538,41 @@ get isImageResume(): boolean {
       this.viewAllPanelReadOnly = false;
 
       const mine = allFeedback.find(f => Number(f?.panelUserId) === Number(this.panelId));
-      console.log('mine:', mine, 'panelId:', this.panelId, 'total:', allFeedback);
-      if (mine) this.panelArr.push(this.fbFrom(mine));
+      if (mine) {
+        this.panelArr.push(this.fbFrom(mine));
+        // Locked only once SUBMITTED *and* the interview has ended.
+        this.viewAllPanelReadOnly = this.isFeedbackLocked(mine, v);
+      }
 
       else this.addPanelist(); // blank row for me to fill
-      console.log(this.panelArr.controls.length, 'panelists loaded', this.panelArr.controls);
 
-      // enable editing my row
-      this.panelArr.enable({ emitEvent: false });
+      // Editable only while not locked
+      if (this.viewAllPanelReadOnly) this.panelArr.disable({ emitEvent: false });
+      else this.panelArr.enable({ emitEvent: false });
     }
 
     // Re-apply validators/enablement for HR + panel
     this.applyAccessRules();
   }
+  /** A panellist's evaluation is SUBMITTED (vs. an editable DRAFT). */
+  private isSubmittedFb(f: any): boolean {
+    return (f?.status ?? '').toUpperCase() === 'SUBMITTED';
+  }
+
+  /** Interview window is over. */
+  private hasEnded(v: any): boolean {
+    return v?.endTime ? new Date(v.endTime).getTime() <= Date.now() : false;
+  }
+
+  /**
+   * Feedback is locked (view-only) only when it was SUBMITTED *and* the
+   * interview has ended. While the interview is still running a panellist can
+   * still correct their scores.
+   */
+  private isFeedbackLocked(f: any, v: any): boolean {
+    return this.isSubmittedFb(f) && this.hasEnded(v);
+  }
+
   private fbFrom(f: any) {
     const g = this.fb.group({
       name: this.fb.control<string>(f?.name || '', { nonNullable: true }),

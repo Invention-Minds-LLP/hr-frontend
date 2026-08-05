@@ -140,6 +140,12 @@ export class ApplicationStatus implements OnInit {
 
       panelIds: [[] as (number | string)[]],
 
+      // OFFLINE (in-person) or ONLINE (video). For ONLINE, meetingLink is
+      // optional — auto-generated (Google Meet) if blank and Google is
+      // configured, otherwise the recruiter pastes a link.
+      mode: ['OFFLINE'],
+      meetingLink: [''],
+
       // When true, this interview becomes a multi-session round anchor — the
       // recruiter can then add more sessions (other members / other days) to it.
       grouped: [false],
@@ -158,8 +164,20 @@ export class ApplicationStatus implements OnInit {
   }
 
   offerForm = this.fb.group({
+    ctc: [null as number | null],
+    joinLocation: [''],
+    workMode: [null as string | null],
     proposedJoinAt: [null as Date | null],
+    customNotes: [''],
+    cc: [''],
+    bcc: [''],
   });
+  workModeOptions = [
+    { label: 'Office', value: 'OFFICE' },
+    { label: 'Remote', value: 'REMOTE' },
+    { label: 'Hybrid', value: 'HYBRID' },
+  ];
+  offerPreviewing = false;
 
   reasonForm = this.fb.group({
     reason: [''],
@@ -207,7 +225,7 @@ export class ApplicationStatus implements OnInit {
     this.showInterviewDialog = true;
 
     // reset form (keep your existing defaults if any)
-    this.interviewForm.reset({ stage: stage, startTime: null, endTime: null, panelIds: [], grouped: false });
+    this.interviewForm.reset({ stage: stage, startTime: null, endTime: null, panelIds: [], mode: 'OFFLINE', meetingLink: '', grouped: false });
     this.selectedPanelIds = [];
     this.showSlots = false;
     this.availableSlots = [];
@@ -407,6 +425,8 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       startTime: this.toOffsetIso(start),
       endTime: this.toOffsetIso(end),
       panelUserIds: (v.panelIds ?? []).join(','),
+      mode: v.mode || 'OFFLINE',
+      meetingLink: v.mode === 'ONLINE' ? (v.meetingLink?.trim() || undefined) : undefined,
     };
 
     this.api.scheduleInterview(this.currentApp.id, payload).subscribe({
@@ -507,13 +527,51 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
     // this.resetAction(this.currentApp?.id!);
   }
 
+  /** Build the offer payload from the form (shared by preview + send). */
+  private offerPayload() {
+    const v = this.offerForm.value;
+    const dt = v.proposedJoinAt as Date | null;
+    return {
+      proposedJoinAt: dt ? dt.toISOString() : undefined,
+      ctc: (v.ctc !== null && v.ctc !== undefined && String(v.ctc) !== '') ? Number(v.ctc) : undefined,
+      joinLocation: v.joinLocation?.trim() || undefined,
+      workMode: v.workMode || undefined,
+      customNotes: v.customNotes?.trim() || undefined,
+      cc: v.cc?.trim() || undefined,
+      bcc: v.bcc?.trim() || undefined,
+    };
+  }
+
+  /** Render the offer letter with the entered values and open it in a new tab. */
+  previewOffer() {
+    if (!this.currentApp) return;
+    this.offerPreviewing = true;
+    const { cc, bcc, ...previewBody } = this.offerPayload();
+    this.getOrCreateOffer(this.currentApp).pipe(
+      switchMap(ofr => this.api.previewOffer(ofr.id, previewBody))
+    ).subscribe({
+      next: (blob: Blob) => {
+        this.offerPreviewing = false;
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // revoke a bit later so the new tab can load it
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      },
+      error: (err) => {
+        this.offerPreviewing = false;
+        const msg = err?.error?.error || err?.error?.message || 'Failed to generate preview';
+        this.messageService.add({ severity: 'error', summary: 'Preview failed', detail: msg });
+      },
+    });
+  }
+
   submitOffer(skipDate: boolean) {
     if (!this.currentApp) return;
-    const dt = this.offerForm.value.proposedJoinAt as Date | null;
-    const iso = skipDate || !dt ? undefined : dt.toISOString();
+    const payload = this.offerPayload();
+    if (skipDate) payload.proposedJoinAt = undefined;
     this.isLoading = true;
     this.getOrCreateOffer(this.currentApp).pipe(
-      switchMap(ofr => this.api.sendOffer(ofr.id, iso))
+      switchMap(ofr => this.api.sendOffer(ofr.id, payload))
     ).subscribe({
       next: () => {
         this.isLoading = false;

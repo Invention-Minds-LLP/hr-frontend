@@ -135,7 +135,9 @@ announcementPopup!: AnnouncementPopup;
     }
   }
   isCandidateTestsRoute(): boolean {
-    return this.router.url.startsWith('/candidate-tests');
+    // Candidate-portal routes render without the employee navbar.
+    const url = this.router.url;
+    return url.startsWith('/candidate-tests') || url.startsWith('/candidate-offers');
   }
   pastData: any[] = [];
   forecastData: any[] = [];

@@ -108,6 +108,11 @@ export class Interview {
     return 'iv-danger';
   }
 
+  /** True once HR has submitted their review for this interview — it's final then. */
+  hrReviewed(row: any): boolean {
+    return !!row?.InterviewHRReview?.reviewedAt;
+  }
+
   onEvaluate(row: any) {
     console.log(row)
     if (row.candidateAssignedTestId && row.candidateAssignedTest) {

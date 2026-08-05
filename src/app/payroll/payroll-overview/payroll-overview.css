@@ -739,3 +739,259 @@
 ::ng-deep .payroll-page .p-divider::before {
   border-color: #2a2a2a !important;
 }
+/* ── Phase 2: lock banner, arrears, import ────────────────────────────────── */
+
+.locked-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2a2412;
+  border: 1px solid #6b5a1e;
+  color: #e8d48a;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.arrear-note {
+  background: #16202b;
+  border: 1px solid #2b4a68;
+  color: #9dc4e4;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.arrear-preview {
+  border: 1px solid #2f6f4f;
+  background: #101a14;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.arrear-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+  color: #cfe9da;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.muted-sm { color: #888; font-size: 12px; margin-left: 6px; }
+
+/* Import dialog */
+.import-intro {
+  background: #16202b;
+  border: 1px solid #2b4a68;
+  color: #9dc4e4;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.import-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.import-file-row input[type="file"] {
+  color: #ccc;
+  font-size: 13px;
+  background: #141414;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 7px 10px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.import-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.import-stats > div {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.import-stats span { color: #888; font-size: 11.5px; }
+.import-stats strong { color: #eee; font-size: 17px; }
+.import-stats strong.accent { color: #f97316; }
+.import-stats strong.danger { color: #ff6b5e; }
+
+.import-warn {
+  background: #2a2412;
+  border: 1px solid #6b5a1e;
+  color: #e8d48a;
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 12.5px;
+  margin-bottom: 12px;
+}
+
+.import-warn.danger { background: #2a1512; border-color: #7a3128; color: #ff9c8f; }
+
+.import-none {
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+  padding: 20px;
+  border: 1px dashed #333;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.change-chip {
+  display: inline-block;
+  background: #202020;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 2px 8px;
+  margin: 2px 5px 2px 0;
+  font-size: 11.5px;
+  color: #bbb;
+}
+
+.change-chip s { color: #777; }
+.change-chip b { color: #f97316; }
+
+/* ── Pre-approval triage (exceptions + loan/incentive) ────────────────────── */
+
+.triage { margin-bottom: 16px; }
+
+.triage-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.triage-result { margin-bottom: 14px; }
+
+.triage-banner {
+  background: #2a2412;
+  border: 1px solid #6b5a1e;
+  color: #e8d48a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.triage-banner.clean { background: #12341f; border-color: #2f6f4f; color: #a8e6c4; }
+.triage-banner.adj  { background: #16202b; border-color: #2b4a68; color: #9dc4e4; }
+
+.issue-line {
+  color: #ccc;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 1px 0;
+}
+
+.issue-line.warn { color: #e8b45a; }
+
+.chip-final {
+  background: #12341f;
+  border: 1px solid #2f6f4f;
+  color: #6ee7a8;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  margin-left: 6px;
+}
+
+::ng-deep .calendar-dialog .p-dialog-content {
+  background: #121212;
+  padding: 18px 20px;
+}
+
+::ng-deep .calendar-dialog .p-dialog-header {
+  background: #1a1a1a;
+  color: #fff;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+::ng-deep .calendar-dialog .p-dialog-footer {
+  background: #1a1a1a;
+  border-top: 1px solid #2a2a2a;
+}
+
+/* ── Send-to-Finance dialog ───────────────────────────────────────────────── */
+
+.dispatch-loading { color: #888; font-size: 13px; padding: 24px; text-align: center; }
+
+.dispatch-block {
+  background: #2a1512; border: 1px solid #7a3128; color: #ff9c8f;
+  border-radius: 8px; padding: 11px 14px; font-size: 13px; margin-bottom: 12px;
+}
+
+.dispatch-block b { display: block; margin-bottom: 4px; }
+
+.dispatch-warn {
+  background: #2a2412; border: 1px solid #6b5a1e; color: #e8d48a;
+  border-radius: 8px; padding: 9px 13px; font-size: 12.5px; margin-bottom: 10px;
+}
+
+.dispatch-totals {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 9px; margin-bottom: 16px;
+}
+
+.dispatch-totals > div {
+  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
+  padding: 9px 12px; display: flex; flex-direction: column; gap: 2px;
+}
+
+.dispatch-totals span { color: #808080; font-size: 11px; }
+.dispatch-totals b { color: #eee; font-size: 15px; }
+.dispatch-totals .accent { border-color: #f97316; background: #1f1a15; }
+.dispatch-totals .accent b { color: #f97316; }
+
+.form-grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px;
+}
+
+.tpl-choices { display: flex; flex-direction: column; gap: 7px; }
+.tpl-choice { display: flex; align-items: center; gap: 9px; }
+.tpl-choice label { color: #ccc; font-size: 13px; cursor: pointer; }
+
+.draft-ack {
+  display: flex; align-items: center; gap: 10px; margin-top: 14px;
+  background: #2a1512; border: 1px solid #7a3128; border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.draft-ack label { color: #ff9c8f; font-size: 12.5px; cursor: pointer; }
+
+.dispatch-history {
+  margin-top: 16px; padding-top: 12px; border-top: 1px solid #2a2a2a;
+}
+
+.dh-head {
+  color: #888; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 7px;
+}
+
+.dh-row {
+  display: grid; grid-template-columns: 110px 1fr 100px 70px;
+  gap: 10px; padding: 5px 0; font-size: 12px; color: #bbb;
+  border-bottom: 1px solid #232323;
+}
+
+.dh-when { color: #888; }
+.dh-net { text-align: right; font-variant-numeric: tabular-nums; }
+.dh-status { color: #6ee7a8; font-size: 11px; text-align: right; }
+.dh-status.failed { color: #ff9c8f; }

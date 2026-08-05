@@ -1,0 +1,373 @@
+/* Dark-first, matching settings/masters: transparent over the black body,
+   white text, #555 borders, #FB9C2A accent. */
+
+.guide {
+  padding: 0 60px;
+  padding-top: 30px;
+}
+
+.rp-container {
+  padding: 20px 60px 40px;
+  font-family: "Sofia Sans";
+  color: white;
+}
+
+/* ── Tab bar (same shape as masters .tab-btn) ─────────────────────────── */
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: transparent;
+  color: white;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover { border-color: #FB9C2A; color: #FB9C2A; }
+.tab-btn.active { background: #FB9C2A; border-color: #FB9C2A; color: white; }
+
+.rp-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tab-btn:not(.active) .rp-badge { background: #3a2a12; color: #FB9C2A; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.rp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #555;
+  background: transparent;
+  color: white;
+  transition: all 0.2s;
+}
+
+.rp-btn.sm { padding: 6px 12px; font-size: 13px; }
+.rp-btn.ghost:hover:not(:disabled) { border-color: #FB9C2A; color: #FB9C2A; }
+.rp-btn.ghost.danger:hover:not(:disabled) { border-color: #ff5c7a; color: #ff5c7a; }
+.rp-btn.primary { background: #FB9C2A; border-color: #FB9C2A; color: #1a1a1a; }
+.rp-btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.rp-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Action bar ───────────────────────────────────────────────────────── */
+.rp-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.rp-dirty { color: #FB9C2A; font-size: 14px; font-weight: 600; margin-right: auto; }
+.rp-clean { color: #888; font-size: 14px; margin-right: auto; }
+
+.rp-loading, .rp-empty {
+  color: #888;
+  font-size: 14px;
+  padding: 14px 0;
+}
+
+.rp-note {
+  color: #9aa7b4;
+  font-size: 13.5px;
+  margin: 0 auto 0 0;
+  max-width: 620px;
+  line-height: 1.5;
+}
+
+.rp-note b { color: #d8e2ec; }
+
+.rp-error {
+  background: rgba(255, 92, 122, 0.1);
+  border: 1px solid rgba(255, 92, 122, 0.4);
+  color: #ff8fa3;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* ── Matrix ───────────────────────────────────────────────────────────── */
+.rp-scroll {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: #0d0d0d;
+}
+
+.rp-scroll.dialog { max-height: 52vh; }
+
+.rp-matrix, .rp-override-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  font-size: 13.5px;
+  color: #e6edf3;
+}
+
+.rp-matrix th, .rp-matrix td,
+.rp-override-table th, .rp-override-table td {
+  border-bottom: 1px solid #232323;
+  padding: 8px 12px;
+  background: #0d0d0d;
+}
+
+.rp-matrix thead th, .rp-override-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #171717;
+  border-bottom: 1px solid #3a3a3a;
+  text-align: center;
+  vertical-align: bottom;
+  color: #fff;
+  font-weight: 600;
+}
+
+.rp-perm-col {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 240px;
+  text-align: left;
+  box-shadow: 1px 0 0 #2c2c2c;
+}
+
+.rp-matrix thead .rp-perm-col { z-index: 4; }
+
+.rp-role-col { min-width: 104px; }
+.rp-role-col.dirty { background: #2a1f0c; }
+
+.rp-role-name { display: block; font-weight: 600; color: #fff; }
+.rp-role-count { display: block; font-size: 11.5px; color: #888; font-weight: 400; }
+
+.rp-group-row td {
+  background: #191919;
+  font-weight: 700;
+  color: #FB9C2A;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rp-group-row .rp-perm-col { background: #191919; }
+
+.rp-perm-name { display: flex; flex-direction: column; }
+.rp-label { color: #e6edf3; }
+.rp-key { color: #6b7684; font-size: 11.5px; font-family: monospace; }
+
+.rp-cell, .rp-center { text-align: center; }
+
+.rp-cell input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #FB9C2A;
+}
+
+.rp-group-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  font-size: 14px;
+}
+
+.rp-group-toggle.all  { color: #FB9C2A; }
+.rp-group-toggle.some { color: #b8801f; }
+
+/* ── Exceptions list ──────────────────────────────────────────────────── */
+.rp-exception {
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  background: #0d0d0d;
+}
+
+.rp-exception-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.rp-who strong { color: #fff; font-size: 15px; }
+.rp-exception-actions { display: flex; gap: 8px; }
+.rp-muted { color: #8a949f; font-size: 13px; margin-left: 10px; }
+
+.rp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.rp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 12.5px;
+  border: 1px solid transparent;
+}
+
+.rp-chip.grant { background: rgba(76, 227, 123, 0.12); color: #4ce37b; border-color: rgba(76, 227, 123, 0.3); }
+.rp-chip.deny  { background: rgba(255, 92, 122, 0.12); color: #ff5c7a; border-color: rgba(255, 92, 122, 0.3); }
+
+/* ── Data scope ───────────────────────────────────────────────────────── */
+.rp-group-title {
+  margin: 18px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6edf3;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Chips double as checkboxes on the scope tab, so the unticked state needs a
+   visible outline — without it an unselected branch reads as absent entirely. */
+label.rp-chip {
+  cursor: pointer;
+  user-select: none;
+  border-color: #3a424c;
+  color: #b6c0cb;
+}
+label.rp-chip:hover { border-color: #5c6672; }
+label.rp-chip input[type="checkbox"] { accent-color: #4ce37b; cursor: pointer; margin: 0; }
+
+/* ── Dialog ───────────────────────────────────────────────────────────── */
+.rp-search {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.rp-search:focus { border-color: #FB9C2A; }
+.rp-search::placeholder { color: #6b7684; }
+
+.rp-emp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.rp-emp-list li {
+  padding: 10px 14px;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rp-emp-list li:hover { border-color: #FB9C2A; background: #171717; }
+.rp-emp-list strong { color: #fff; }
+
+.rp-emp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #2c2c2c;
+  flex-wrap: wrap;
+}
+
+.rp-emp-head strong { color: #fff; font-size: 15px; }
+
+.rp-override-table { width: 100%; }
+.rp-override-table tr.changed td { background: #1a1508; }
+.rp-override-table tr.changed .rp-label { color: #FB9C2A; }
+
+.rp-yes { color: #4ce37b; }
+.rp-no  { color: #5c6672; }
+.rp-redundant { color: #b8801f; margin-left: 6px; font-size: 12px; }
+
+/* Tri-state selector */
+.rp-tri {
+  display: inline-flex;
+  border: 1px solid #444;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.rp-tri button {
+  border: none;
+  background: transparent;
+  color: #97a2ae;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rp-tri button + button { border-left: 1px solid #444; }
+.rp-tri button:hover { background: #1e1e1e; color: #fff; }
+.rp-tri button.on { background: #3a3a3a; color: #fff; }
+.rp-tri button.grant.on { background: rgba(76, 227, 123, 0.22); color: #4ce37b; }
+.rp-tri button.deny.on  { background: rgba(255, 92, 122, 0.22); color: #ff5c7a; }
+
+/* ── Dialog surface ───────────────────────────────────────────────────────
+   PrimeNG renders dialogs dark in this app, same as the pages. Everything
+   inside inherits the dark rules above; these only fix contrast against the
+   dialog's slightly lifted background. */
+
+.rp-dialog-body { color: #e6edf3; font-family: "Sofia Sans"; }
+
+.rp-dialog-body .rp-note { max-width: none; margin-bottom: 12px; }
+.rp-dialog-body .rp-emp-list strong,
+.rp-dialog-body .rp-emp-head strong { color: #ffffff; }
+.rp-dialog-body .rp-muted { color: #9aa7b4; }
+
+/* The dialog body sits on near-black, so panels need a touch more lift than
+   the page versions to stay distinguishable. */
+.rp-dialog-body .rp-emp-list li { border-color: #3a3a3a; background: #141414; }
+.rp-dialog-body .rp-emp-list li:hover { border-color: #FB9C2A; background: #1e1a12; }
+.rp-dialog-body .rp-scroll { border-color: #3a3a3a; }
+.rp-dialog-body .rp-emp-head { border-bottom-color: #3a3a3a; }
+.rp-dialog-body .rp-search { border-color: #555; }
+
+@media (max-width: 900px) {
+  .guide { padding: 20px 16px 0; }
+  .rp-container { padding: 16px 16px 32px; }
+  .rp-perm-col { min-width: 180px; }
+}

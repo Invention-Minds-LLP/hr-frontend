@@ -57,10 +57,25 @@ export class MyInterview {
           // My own availability acknowledgement for this interview.
           const myPanel = interview.panel?.find((p: any) => Number(p.employeeId) === empId);
 
+          // Interview already started — availability is no longer a question
+          // worth asking (feedback, however, is still expected).
+          const isPast = interview.startTime
+            ? new Date(interview.startTime).getTime() < Date.now()
+            : false;
+          // Interview window finished — submitted feedback becomes final then.
+          const hasEnded = interview.endTime
+            ? new Date(interview.endTime).getTime() <= Date.now()
+            : false;
+
           return {
             ...interview,
             displayStatus,
             avgScore,
+            isPast,
+            // Read-only only once submitted AND the interview has ended; while
+            // it's still running they can go back and correct their scores.
+            isLocked: isSubmitted && hasEnded,
+            mySubmitted: isSubmitted,
             myAck: myPanel?.ackStatus ?? 'PENDING',
             myAckReason: myPanel?.ackReason ?? null,
           };

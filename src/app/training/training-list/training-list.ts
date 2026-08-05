@@ -611,6 +611,17 @@ loadEmployeesByDepartments(departmentIds: number[]) {
     return { badgeColor, dotColor };
   }
 
+  /** Consistent badge colour per training status (not per department). */
+  getStatusColors(status: string) {
+    const map: Record<string, { badgeColor: string; dotColor: string }> = {
+      DRAFT:     { badgeColor: '#e5e7eb', dotColor: '#6b7280' }, // grey
+      ACTIVE:    { badgeColor: '#c8f7d4', dotColor: '#1f9d55' }, // green
+      COMPLETED: { badgeColor: '#cfe2ff', dotColor: '#2563eb' }, // blue
+      CANCELLED: { badgeColor: '#fdd8d8', dotColor: '#dc2626' }, // red
+    };
+    return map[(status || '').toUpperCase()] ?? { badgeColor: '#e5e7eb', dotColor: '#6b7280' };
+  }
+
   filteredTrainings: any[] = [];
   showFilterDropdown = false;
   selectedFilter: any = null;

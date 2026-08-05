@@ -17,6 +17,8 @@
       <p-tab [value]="1" *ngIf="isHR()">Payroll Runs</p-tab>
       <p-tab [value]="2" *ngIf="isHR()">Payslips</p-tab>
       <p-tab [value]="3">My Payslips</p-tab>
+      <p-tab [value]="4" *ngIf="isHR()">Arrears</p-tab>
+      <p-tab [value]="5" *ngIf="isHR()">Salary Templates</p-tab>
     </p-tablist>
 
     <p-tabpanels>
@@ -123,10 +125,152 @@
               <p-tag [value]="selectedRun.status" [severity]="runStatusSeverity(selectedRun.status)"></p-tag>
             </div>
             <div class="tab-header-right">
+              <p-select *ngIf="sheetTemplates.length > 1" [options]="sheetTemplates" optionLabel="label"
+                optionValue="id" [(ngModel)]="selectedTemplateId" styleClass="p-inputtext-sm"
+                pTooltip="Choose the payroll sheet format" tooltipPosition="bottom"
+                [style]="{'min-width':'16rem','margin-right':'0.5rem'}"></p-select>
+              <button pButton class="p-button-outlined p-button-sm" icon="pi pi-file-excel"
+                [label]="exportingSheet ? 'Exporting…' : 'Export Sheet'"
+                [disabled]="exportingSheet" (click)="exportWorkingSheet(selectedRun)"
+                pTooltip="Download the selected payroll sheet (.xlsx) — draft runs export an editable template, published runs a final snapshot."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-outlined p-button-sm" icon="pi pi-upload" label="Import Sheet"
+                *ngIf="selectedRun.status === 'DRAFT' && !selectedRun.lockedAt" (click)="openImport()"
+                pTooltip="Upload the filled working sheet to read HR/Finance input columns back onto these payslips."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-outlined p-button-sm" icon="pi pi-envelope"
+                *ngIf="selectedRun.status === 'PUBLISHED'"
+                [label]="emailingPayslips ? 'Sending…' : 'Email Payslips'" [disabled]="emailingPayslips"
+                (click)="emailPayslips(selectedRun)"
+                pTooltip="Generate and email a PDF payslip to every employee in this run."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-outlined p-button-sm" icon="pi pi-send"
+                label="Send to Finance" (click)="openDispatch()"
+                pTooltip="Email the payroll workbook to your finance team, with a summary of the totals."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-outlined p-button-sm" icon="pi pi-lock" label="Lock Month"
+                *ngIf="selectedRun.status === 'PUBLISHED' && !selectedRun.lockedAt"
+                (click)="lockRun(selectedRun)"
+                pTooltip="Freeze this month. Blocks delete, re-import and arrears."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-outlined p-button-sm p-button-warning" icon="pi pi-lock-open"
+                label="Unlock" *ngIf="selectedRun.lockedAt" (click)="unlockRun(selectedRun)"></button>
               <button class="new-app publish-btn" *ngIf="selectedRun.status === 'DRAFT'"
                 (click)="publishRun(selectedRun)">
                 <i class="pi pi-send"></i> Publish Payroll
               </button>
+            </div>
+          </div>
+
+          <div class="locked-banner" *ngIf="selectedRun.lockedAt">
+            <i class="pi pi-lock"></i>
+            This payroll month is locked — the figures are final. Unlock it to make corrections.
+          </div>
+
+          <!-- ── Pre-approval triage ──────────────────────────────────────── -->
+          <div class="triage">
+            <div class="triage-actions">
+              <button pButton class="p-button-sm p-button-outlined" icon="pi pi-exclamation-triangle"
+                [label]="exceptionsLoading ? 'Checking…' : 'Check Attendance Exceptions'"
+                [disabled]="exceptionsLoading" (click)="loadExceptions()"
+                pTooltip="Rebuilds every employee's month from attendance and flags anything that does not reconcile with the payslip."
+                tooltipPosition="bottom"></button>
+              <button pButton class="p-button-sm p-button-outlined" icon="pi pi-wallet"
+                [label]="adjustmentsLoading ? 'Loading…' : 'Loan & Incentive Lines'"
+                [disabled]="adjustmentsLoading" (click)="loadAdjustments()"
+                pTooltip="Every loan EMI and incentive automatically pulled into this run."
+                tooltipPosition="bottom"></button>
+            </div>
+
+            <!-- Exception summary -->
+            <div class="triage-result" *ngIf="exceptions">
+              <div class="triage-banner" [class.clean]="!exceptions.employeesWithIssues">
+                <ng-container *ngIf="!exceptions.employeesWithIssues">
+                  ✓ All {{ exceptions.employeeCount }} employee(s) reconcile with attendance — nothing flagged.
+                </ng-container>
+                <ng-container *ngIf="exceptions.employeesWithIssues">
+                  ⚠ <b>{{ exceptions.employeesWithIssues }} of {{ exceptions.employeeCount }}</b> employee(s)
+                  need a look — {{ exceptions.totalExceptions }} issue(s) in total. Worst first.
+                </ng-container>
+              </div>
+
+              <p-table [value]="exceptions.rows" responsiveLayout="scroll" styleClass="p-datatable-sm"
+                *ngIf="exceptions.employeesWithIssues" [scrollable]="true" scrollHeight="320px">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width:190px">Employee</th>
+                    <th style="width:70px" class="num">LOP</th>
+                    <th style="width:100px" class="num">Net Pay</th>
+                    <th>Issues</th>
+                    <th style="width:110px"></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-r>
+                  <tr *ngIf="r.issueCount">
+                    <td>
+                      <div class="emp-cell">
+                        <span class="emp-name">{{ r.name }}</span>
+                        <span class="emp-code">{{ r.employeeCode }}</span>
+                      </div>
+                    </td>
+                    <td class="num" [class.lop-warn]="r.lopDays > 0">{{ r.lopDays }}</td>
+                    <td class="num">{{ inr(r.netPay) }}</td>
+                    <td>
+                      <div class="issue-line" *ngFor="let i of r.issues">{{ i }}</div>
+                    </td>
+                    <td>
+                      <button pButton class="p-button-text p-button-sm" icon="pi pi-calendar"
+                        label="Calendar" (click)="openCalendarFor(r.employeeId, r.name)"></button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- Loan / incentive summary -->
+            <div class="triage-result" *ngIf="adjustments">
+              <div class="triage-banner adj">
+                Pulled in automatically: <b>{{ inr(adjustments.totalRecovery) }}</b> loan recovery and
+                <b>{{ inr(adjustments.totalIncentive) }}</b> incentive across
+                {{ adjustments.employeeCount }} employee(s).
+                <span *ngIf="adjustments.settled"> · already settled (run is published)</span>
+                <span *ngIf="!adjustments.settled"> · settles when you publish</span>
+              </div>
+
+              <p-table [value]="adjustments.rows" responsiveLayout="scroll" styleClass="p-datatable-sm"
+                [scrollable]="true" scrollHeight="280px">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Employee</th>
+                    <th class="num">Loan recovery</th>
+                    <th class="num">Incentive</th>
+                    <th>Detail</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-r>
+                  <tr>
+                    <td>
+                      <div class="emp-cell">
+                        <span class="emp-name">{{ r.name }}</span>
+                        <span class="emp-code">{{ r.employeeCode }}</span>
+                      </div>
+                    </td>
+                    <td class="num">{{ inr(r.loanRecovery) }}</td>
+                    <td class="num">{{ inr(r.incentivePayout) }}</td>
+                    <td>
+                      <div class="issue-line" *ngFor="let l of r.loans">
+                        Loan #{{ l.loanId }} — EMI {{ inr(l.emiAmount) }}, recovering
+                        {{ inr(l.recoverAmount) }}, outstanding after {{ inr(l.outstandingAfter) }}
+                        <span class="chip-final" *ngIf="l.isFinalInstalment">final</span>
+                      </div>
+                      <div class="issue-line" *ngFor="let i of r.incentives">
+                        {{ i.type }} — {{ inr(i.amount) }}
+                      </div>
+                      <div class="issue-line warn" *ngFor="let n of r.notes">{{ n }}</div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
             </div>
           </div>
 
@@ -193,7 +337,11 @@
                 <td class="deduction-col">{{ formatINR(p.totalDeductions) }}</td>
                 <td><strong class="net-pay">{{ formatINR(p.netPay) }}</strong></td>
                 <td>
+                  <button pButton icon="pi pi-calendar" class="p-button-text p-button-sm"
+                    pTooltip="Attendance calendar behind this payslip" (click)="openCalendar(p)"></button>
                   <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="openPayslip(p)"></button>
+                  <button pButton icon="pi pi-file-pdf" class="p-button-text p-button-sm" pTooltip="Download PDF"
+                    [disabled]="downloadingPayslipId === p.id" (click)="downloadPayslipPdf(p)"></button>
                 </td>
               </tr>
               <ng-template #skelRow1>
@@ -343,6 +491,8 @@
               </td>
               <td>
                 <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="openPayslip(p)"></button>
+                  <button pButton icon="pi pi-file-pdf" class="p-button-text p-button-sm" pTooltip="Download PDF"
+                    [disabled]="downloadingPayslipId === p.id" (click)="downloadPayslipPdf(p)"></button>
               </td>
             </tr>
             <ng-template #skelRow3>
@@ -395,6 +545,9 @@
               <td>
                 <button pButton icon="pi pi-eye" label="View" class="p-button-text p-button-sm"
                   (click)="openMyPayslip(p)"></button>
+                <button pButton icon="pi pi-file-pdf" label="PDF" class="p-button-text p-button-sm"
+                  [disabled]="downloadingPayslipId === p.id" (click)="downloadPayslipPdf(p)"
+                  pTooltip="Download this payslip as a PDF" tooltipPosition="left"></button>
               </td>
             </tr>
             <ng-template #skelRow4>
@@ -409,6 +562,143 @@
             </tr>
           </ng-template>
         </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 4: Arrears ═══════════════════════════════════════════════════ -->
+      <p-tabpanel [value]="4">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Salary Arrears</h3>
+            <span class="sub">Back-pay owed when a revision took effect before it was processed</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="arrearStatusFilter" [options]="[
+                { label: 'Pending', value: 'PENDING' },
+                { label: 'Applied', value: 'APPLIED' },
+                { label: 'Cancelled', value: 'CANCELLED' },
+                { label: 'All', value: '' }
+              ]" optionLabel="label" optionValue="value" (onChange)="loadArrears()"
+              styleClass="p-inputtext-sm" [style]="{'min-width':'10rem'}"></p-select>
+            <button pButton class="p-button-outlined p-button-sm" icon="pi pi-search"
+              [label]="arrearBusy ? 'Checking…' : 'Check for Arrears'" [disabled]="arrearBusy"
+              (click)="runArrearPreview()"
+              pTooltip="Recompute every published month against current salary structures. Nothing is written."
+              tooltipPosition="bottom"></button>
+          </div>
+        </div>
+
+        <div class="arrear-note">
+          Arrears are computed by replaying each published month against the employee's current
+          salary structure. Statutory PF and ESI due on the arrear are added automatically.
+          Nothing is paid until you apply a pending arrear to a draft payroll run.
+        </div>
+
+        <!-- Preview result -->
+        <div class="arrear-preview" *ngIf="arrearPreview && arrearPreview.count">
+          <div class="arrear-preview-head">
+            <div>
+              <strong>{{ arrearPreview.count }}</strong> employee(s) owed
+              <strong>{{ inr(arrearPreview.totalArrear) }}</strong> net
+              <span class="muted-sm">({{ inr(arrearPreview.totalGross) }} gross)</span>
+            </div>
+            <button class="new-app" [disabled]="arrearBusy" (click)="generateArrears()">
+              Record These Arrears
+            </button>
+          </div>
+
+          <p-table [value]="arrearPreview.results" responsiveLayout="scroll" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Employee</th>
+                <th>Period</th>
+                <th>Months</th>
+                <th>Gross Arrear</th>
+                <th>PF</th>
+                <th>ESI</th>
+                <th>Net Payable</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-a>
+              <tr>
+                <td><strong>{{ a.employeeName }}</strong> <span class="muted-sm">{{ a.employeeCode }}</span></td>
+                <td>{{ arrearPeriod(a) }}</td>
+                <td>{{ a.months.length }}</td>
+                <td>{{ inr(a.grossArrear) }}</td>
+                <td>{{ inr(a.pfArrear) }}</td>
+                <td>{{ inr(a.esiArrear) }}</td>
+                <td><strong class="net-pay">{{ inr(a.totalArrear) }}</strong></td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Recorded arrears -->
+        <div class="tab-header" style="margin-top:1.25rem">
+          <div class="tab-header-left">
+            <h3>Recorded Arrears</h3>
+            <span class="sub" *ngIf="selectedRun">
+              Applying adds them to the open run — {{ monthLabel(selectedRun.month) }} {{ selectedRun.year }}
+            </span>
+            <span class="sub" *ngIf="!selectedRun">Open a draft payroll run to apply pending arrears</span>
+          </div>
+          <div class="tab-header-right">
+            <button pButton class="p-button-sm" icon="pi pi-check"
+              label="Apply Pending to Open Run"
+              [disabled]="arrearBusy || !selectedRun || selectedRun.status !== 'DRAFT'"
+              (click)="applyArrearsToSelectedRun()"></button>
+          </div>
+        </div>
+
+        <p-table [value]="arrearsLoading ? skeletonRows : arrears" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Employee</th>
+              <th>Period</th>
+              <th>Gross</th>
+              <th>PF</th>
+              <th>ESI</th>
+              <th>Net Payable</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-a>
+            <tr *ngIf="!arrearsLoading">
+              <td>
+                <strong>{{ a.employee?.firstName }} {{ a.employee?.lastName }}</strong>
+                <span class="muted-sm">{{ a.employee?.employeeCode }}</span>
+              </td>
+              <td>{{ arrearPeriod(a) }}</td>
+              <td>{{ inr(a.grossArrear) }}</td>
+              <td>{{ inr(a.pfArrear) }}</td>
+              <td>{{ inr(a.esiArrear) }}</td>
+              <td><strong class="net-pay">{{ inr(a.totalArrear) }}</strong></td>
+              <td>
+                <p-tag [value]="a.status"
+                  [severity]="a.status === 'APPLIED' ? 'success' : a.status === 'CANCELLED' ? 'danger' : 'warn'"></p-tag>
+              </td>
+              <td>
+                <button pButton icon="pi pi-times" class="p-button-text p-button-sm p-button-danger"
+                  *ngIf="a.status === 'PENDING'" (click)="cancelArrear(a)" pTooltip="Discard"></button>
+              </td>
+            </tr>
+            <tr *ngIf="arrearsLoading">
+              <td *ngFor="let _ of [1,2,3,4,5,6,7,8]"><p-skeleton width="70px"></p-skeleton></td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" class="no-data center-right">
+                No arrears recorded. Use “Check for Arrears” to see if any are owed.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 5: Salary Templates ══════════════════════════════════════ -->
+      <p-tabpanel [value]="5" *ngIf="isHR()">
+        <app-salary-templates />
       </p-tabpanel>
 
     </p-tabpanels>
@@ -689,6 +979,184 @@
       </div>
     </div>
   </ng-container>
+</p-dialog>
+
+<!-- ── Working-sheet import ────────────────────────────────────────────────── -->
+<p-dialog header="Import Working Sheet" [(visible)]="importDialog" [modal]="true"
+  [style]="{ width: '860px' }" styleClass="import-dialog">
+
+  <div class="import-intro">
+    Upload the working sheet you exported for this run after Finance has filled it in.
+    Only the input columns are read — LOP days, TDS, recoveries, incentives, arrears,
+    reimbursements and remarks. Calculated and identity columns are ignored, so a stray
+    edit to a formula cell cannot corrupt the payslip.
+  </div>
+
+  <div class="import-file-row">
+    <input type="file" accept=".xlsx,.xls" (change)="onImportFileSelected($event)" />
+    <button pButton class="p-button-sm" icon="pi pi-eye" label="Preview Changes"
+      [disabled]="!importFile || importing" (click)="previewImport()"></button>
+  </div>
+
+  <ng-container *ngIf="importReport">
+    <div class="import-stats">
+      <div><span>Rows in sheet</span><strong>{{ importReport.totalRows }}</strong></div>
+      <div><span>Matched</span><strong>{{ importReport.matchedRows }}</strong></div>
+      <div><span>Will change</span><strong class="accent">{{ importReport.changedRows }}</strong></div>
+      <div><span>Unmatched</span><strong [class.danger]="importReport.unmatchedCodes.length">
+        {{ importReport.unmatchedCodes.length }}</strong></div>
+    </div>
+
+    <div class="import-warn" *ngIf="importReport.unmatchedCodes.length">
+      These employee codes are in the sheet but have no payslip in this run and will be skipped:
+      <strong>{{ importReport.unmatchedCodes.join(', ') }}</strong>
+    </div>
+
+    <div class="import-warn danger" *ngIf="erroredImportRows.length">
+      {{ erroredImportRows.length }} row(s) have validation errors and will not be imported:
+      <div *ngFor="let r of erroredImportRows.slice(0, 5)">
+        <strong>{{ r.employeeCode }}</strong> — {{ r.errors.join('; ') }}
+      </div>
+    </div>
+
+    <div class="import-none" *ngIf="!changedImportRows.length">
+      Nothing to import — every value in the sheet already matches the payslips.
+    </div>
+
+    <p-table [value]="changedImportRows" responsiveLayout="scroll" styleClass="p-datatable-sm"
+      *ngIf="changedImportRows.length" [scrollable]="true" scrollHeight="280px">
+      <ng-template pTemplate="header">
+        <tr><th style="width:130px">Employee</th><th>Changes</th></tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-r>
+        <tr>
+          <td><strong>{{ r.employeeCode }}</strong></td>
+          <td>
+            <span class="change-chip" *ngFor="let k of changeKeys(r)">
+              {{ k }}: <s>{{ r.changes[k].from }}</s> → <b>{{ r.changes[k].to }}</b>
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="p-button-text" label="Cancel" (click)="importDialog = false"></button>
+    <button pButton class="p-button-warning p-button-sm" label="Import Clean Rows Only"
+      *ngIf="erroredImportRows.length" [disabled]="importing" (click)="confirmImport(true)"></button>
+    <button class="new-app" [disabled]="!importReport || importing || !changedImportRows.length"
+      (click)="confirmImport(false)">
+      {{ importing ? 'Importing…' : 'Apply Import' }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Attendance calendar behind a payslip ────────────────────────────────── -->
+<p-dialog [header]="'Attendance — ' + calendarEmployeeName" [(visible)]="calendarDialog" [modal]="true"
+  [style]="{ width: '1180px' }" styleClass="calendar-dialog" [dismissableMask]="true">
+  <app-payroll-calendar *ngIf="calendarDialog && calendarEmployeeId"
+    [employeeId]="calendarEmployeeId" [runId]="selectedRun?.id" />
+  <ng-template pTemplate="footer">
+    <button pButton class="p-button-text" label="Close" (click)="calendarDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Send the verified workbook to Finance ───────────────────────────────── -->
+<p-dialog header="Send Payroll to Finance" [(visible)]="dispatchDialog" [modal]="true"
+  [style]="{ width: '760px' }" styleClass="calendar-dialog">
+
+  <div *ngIf="dispatchLoading" class="dispatch-loading">Checking the run…</div>
+
+  <ng-container *ngIf="dispatchPreview && !dispatchLoading">
+
+    <!-- Blockers stop the send outright -->
+    <div class="dispatch-block" *ngIf="dispatchPreview.blockers.length">
+      <b>Fix these before sending:</b>
+      <div *ngFor="let b of dispatchPreview.blockers">• {{ b }}</div>
+    </div>
+
+    <div class="dispatch-warn" *ngFor="let w of dispatchPreview.warnings">{{ w }}</div>
+
+    <!-- Totals Finance will receive -->
+    <div class="dispatch-totals">
+      <div><span>Employees</span><b>{{ dispatchPreview.totals.employeeCount }}</b></div>
+      <div><span>Gross</span><b>{{ inr(dispatchPreview.totals.totalGross) }}</b></div>
+      <div><span>Deductions</span><b>{{ inr(dispatchPreview.totals.totalDeductions) }}</b></div>
+      <div class="accent"><span>Net payable</span><b>{{ inr(dispatchPreview.totals.totalNet) }}</b></div>
+      <div><span>Employer cost</span><b>{{ inr(dispatchPreview.totals.totalEmployerCost) }}</b></div>
+    </div>
+
+    <div class="field">
+      <label>To <span class="hint">comma separated</span></label>
+      <input pInputText [(ngModel)]="dispatchTo" placeholder="finance@company.com, accounts@company.com" />
+    </div>
+
+    <div class="form-grid-2">
+      <div class="field">
+        <label>Cc <span class="hint">optional</span></label>
+        <input pInputText [(ngModel)]="dispatchCc" />
+      </div>
+      <div class="field">
+        <label>Subject</label>
+        <input pInputText [(ngModel)]="dispatchSubject" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Attach formats</label>
+      <div class="tpl-choices">
+        <div class="tpl-choice" *ngFor="let t of dispatchPreview.templates">
+          <p-checkbox [binary]="true" [ngModel]="dispatchTemplates.includes(t.id)"
+            (onChange)="toggleDispatchTemplate(t.id, $any($event).checked)"
+            [inputId]="'tpl-' + t.id" />
+          <label [for]="'tpl-' + t.id">{{ t.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>File mode</label>
+      <p-select [(ngModel)]="dispatchMode" [options]="[
+          { label: 'Final values (snapshot)', value: 'snapshot' },
+          { label: 'Editable working file (live formulas)', value: 'template' }
+        ]" optionLabel="label" optionValue="value" appendTo="body" />
+      <span class="hint">
+        Published runs normally go as final values; a draft as a file Finance can still work in.
+      </span>
+    </div>
+
+    <div class="field">
+      <label>Note to Finance <span class="hint">optional, appears in the email</span></label>
+      <input pInputText [(ngModel)]="dispatchNote"
+        placeholder="e.g. Arrears for Apr–Jun included. Please process by the 30th." />
+    </div>
+
+    <div class="draft-ack" *ngIf="dispatchPreview.status !== 'PUBLISHED'">
+      <p-checkbox [(ngModel)]="acknowledgeDraft" [binary]="true" inputId="ackdraft" />
+      <label for="ackdraft">
+        I understand this run is a <b>DRAFT</b> — the email and file names will be marked as such.
+      </label>
+    </div>
+
+    <!-- Send history -->
+    <div class="dispatch-history" *ngIf="dispatchPreview.previousDispatches.length">
+      <div class="dh-head">Already sent</div>
+      <div class="dh-row" *ngFor="let d of dispatchPreview.previousDispatches">
+        <span class="dh-when">{{ d.sentAt | date: 'dd MMM, HH:mm' }}</span>
+        <span class="dh-to">{{ d.recipients }}</span>
+        <span class="dh-net">{{ inr(d.totalNet) }}</span>
+        <span class="dh-status" [class.failed]="d.status === 'FAILED'">{{ d.status }}</span>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="p-button-text" label="Cancel" (click)="dispatchDialog = false"></button>
+    <button class="new-app" [disabled]="!canDispatch" (click)="sendDispatch()">
+      {{ dispatching ? 'Sending…' : 'Send to Finance' }}
+    </button>
+  </ng-template>
 </p-dialog>
 
 <p-toast></p-toast>

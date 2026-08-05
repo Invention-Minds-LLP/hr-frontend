@@ -152,16 +152,21 @@
             <td>
               <ng-container *ngIf="!r.cancelledAt; else cancelledCell">
                 <div class="iv-actions">
-                  <button pButton label="Evaluate" size="small" (click)="onEvaluate(r)"></button>
-                  <button pButton icon="pi pi-calendar" variant="outlined" size="small" pTooltip="Reschedule"
-                    tooltipPosition="top" (click)="openReschedule(r)"></button>
-                  <button pButton icon="pi pi-times" severity="danger" variant="outlined" size="small"
-                    pTooltip="Cancel" tooltipPosition="top" (click)="openCancel(r)"></button>
-                  <button *ngIf="r.sessionGroupId" pButton icon="pi pi-plus" variant="outlined" size="small"
-                    pTooltip="Add session" tooltipPosition="top" (click)="openAddSession(r)"></button>
-                  <button *ngIf="!r.candidateAssignedTestId && r.panel?.length > 1" pButton icon="pi pi-user-edit"
-                    variant="outlined" size="small" pTooltip="Reschedule one member" tooltipPosition="top"
-                    (click)="openSplit(r)"></button>
+                  <!-- Once HR review is submitted the round is closed → View only,
+                       no reschedule / cancel / add-session / split. -->
+                  <button pButton size="small" [label]="hrReviewed(r) ? 'View' : 'Evaluate'"
+                    [icon]="hrReviewed(r) ? 'pi pi-eye' : ''" (click)="onEvaluate(r)"></button>
+                  <ng-container *ngIf="!hrReviewed(r)">
+                    <button pButton icon="pi pi-calendar" variant="outlined" size="small" pTooltip="Reschedule"
+                      tooltipPosition="top" (click)="openReschedule(r)"></button>
+                    <button pButton icon="pi pi-times" severity="danger" variant="outlined" size="small"
+                      pTooltip="Cancel" tooltipPosition="top" (click)="openCancel(r)"></button>
+                    <button *ngIf="r.sessionGroupId" pButton icon="pi pi-plus" variant="outlined" size="small"
+                      pTooltip="Add session" tooltipPosition="top" (click)="openAddSession(r)"></button>
+                    <button *ngIf="!r.candidateAssignedTestId && r.panel?.length > 1" pButton icon="pi pi-user-edit"
+                      variant="outlined" size="small" pTooltip="Reschedule one member" tooltipPosition="top"
+                      (click)="openSplit(r)"></button>
+                  </ng-container>
                 </div>
               </ng-container>
               <ng-template #cancelledCell>

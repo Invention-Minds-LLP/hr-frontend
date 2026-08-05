@@ -1,0 +1,416 @@
+<div class="tax-page">
+
+  <app-module-guide title="Asset Register"
+    subtitle="Track company property issued to employees, and recover it at exit." [points]="[
+      { label: 'Register', desc: 'Every laptop, phone, SIM, vehicle and access card with its tag, serial number, cost and current book value.' },
+      { label: 'Allocate', desc: 'Issue an asset to an employee with an optional return-by date. They are notified and can acknowledge receipt.' },
+      { label: 'Return', desc: 'Record the condition on return. A lost asset defaults to recovering its book value in the final settlement.' },
+      { label: 'Exit Check', desc: 'Before clearing a resignation, check what the employee still holds. This is what stops hardware walking out the door.' }
+    ]">
+  </app-module-guide>
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <p-tabs [(value)]="activeTab" class="tax-tabs">
+    <p-tablist>
+      <p-tab [value]="0">Register</p-tab>
+      <p-tab [value]="1">My Assets</p-tab>
+      <p-tab [value]="2">Exit Check</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ══ TAB 0: Register ════════════════════════════════════════════════ -->
+      <p-tabpanel [value]="0">
+
+        <div class="stat-row" *ngIf="summary">
+          <div class="stat">
+            <span class="stat-label">Total assets</span>
+            <span class="stat-value">{{ summary.totalAssets }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Purchase value</span>
+            <span class="stat-value">{{ inr(summary.totalPurchaseCost) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Current book value</span>
+            <span class="stat-value">{{ inr(summary.totalCurrentValue) }}</span>
+          </div>
+          <div class="stat" *ngFor="let s of summary.byStatus">
+            <span class="stat-label">{{ pretty(s.status) }}</span>
+            <span class="stat-value">{{ s.count }}</span>
+          </div>
+          <div class="stat" [class.highlight]="summary.overdueReturns > 0">
+            <span class="stat-label">Overdue returns</span>
+            <span class="stat-value">{{ summary.overdueReturns }}</span>
+          </div>
+        </div>
+
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Asset Register</h3>
+            <span class="sub">{{ assetsTotal }} asset(s)</span>
+          </div>
+          <div class="tab-header-right">
+            <input pInputText [(ngModel)]="search" (input)="onSearch()"
+              placeholder="Search tag, name or serial…" class="search-input" />
+            <p-select [(ngModel)]="categoryFilter"
+              [options]="[{label:'All categories',value:''}].concat(categoryOptions)"
+              optionLabel="label" optionValue="value" (onChange)="onSearch()" styleClass="fy-select" />
+            <p-select [(ngModel)]="statusFilter"
+              [options]="[{label:'All statuses',value:''}].concat(statusOptions)"
+              optionLabel="label" optionValue="value" (onChange)="onSearch()" styleClass="fy-select" />
+            <button class="new-app" (click)="openNewAsset()">
+              Add Asset
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path d="M10.5003 4.16663V15.8333M4.66699 9.99996H16.3337" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p-table [value]="assetsLoading ? skeletonRows : assets" [paginator]="!assetsLoading" [rows]="20"
+          [totalRecords]="assetsTotal" [lazy]="true" (onLazyLoad)="onPage($event)"
+          responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Tag / Asset</th>
+              <th>Category</th>
+              <th>Serial</th>
+              <th class="num">Value</th>
+              <th>Status</th>
+              <th>Held by</th>
+              <th style="width:220px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-a>
+            <tr *ngIf="assetsLoading"><td colspan="7"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!assetsLoading">
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ a.assetTag }}</span>
+                  <span class="emp-code">{{ a.name }}</span>
+                </div>
+              </td>
+              <td><span class="sec-chip">{{ pretty(a.category) }}</span></td>
+              <td class="muted">{{ a.serialNumber || '—' }}</td>
+              <td class="num">{{ inr(a.currentValue || a.purchaseCost) }}</td>
+              <td><p-tag [value]="pretty(a.status)" [severity]="statusSeverity(a.status)" /></td>
+              <td>
+                <ng-container *ngIf="a.currentHolder">
+                  <div class="emp-cell">
+                    <span class="emp-name">{{ a.currentHolder.firstName }} {{ a.currentHolder.lastName }}</span>
+                    <span class="emp-code">since {{ a.allocatedOn | date: 'dd MMM yyyy' }}</span>
+                  </div>
+                </ng-container>
+                <span class="muted" *ngIf="!a.currentHolder">—</span>
+              </td>
+              <td>
+                <button class="ghost-btn small" (click)="openEditAsset(a)">Edit</button>
+                <button class="new-app small" *ngIf="!a.currentHolder && a.status === 'AVAILABLE'"
+                  (click)="openAllocate(a)">Allocate</button>
+                <button class="ghost-btn small" *ngIf="a.currentHolder" (click)="openReturn(a)">Return</button>
+                <button class="icon-btn danger" (click)="deleteAsset(a)" pTooltip="Delete">✕</button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="empty-cell">
+                No assets in the register yet. Add one, or run <code>npm run seed:assets</code> for demo data.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 1: My assets ═══════════════════════════════════════════════ -->
+      <p-tabpanel [value]="1">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>My Assets</h3>
+            <span class="sub">Company property issued to you</span>
+          </div>
+        </div>
+
+        <div class="notice">
+          You are accountable for anything listed here until it is returned and the return is recorded.
+          Acknowledge receipt so there is no dispute later.
+        </div>
+
+        <p-table [value]="myAssetsLoading ? skeletonRows : myAssets" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Asset</th>
+              <th>Category</th>
+              <th>Allocated</th>
+              <th>Return by</th>
+              <th>Status</th>
+              <th style="width:150px"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-a>
+            <tr *ngIf="myAssetsLoading"><td colspan="6"><p-skeleton height="18px" /></td></tr>
+            <tr *ngIf="!myAssetsLoading">
+              <td>
+                <div class="emp-cell">
+                  <span class="emp-name">{{ a.asset?.assetTag }}</span>
+                  <span class="emp-code">{{ a.asset?.name }}</span>
+                </div>
+              </td>
+              <td><span class="sec-chip">{{ pretty(a.asset?.category) }}</span></td>
+              <td class="muted">{{ a.allocatedOn | date: 'dd MMM yyyy' }}</td>
+              <td [class.overdue]="isOverdue(a)">
+                {{ a.dueOn ? (a.dueOn | date: 'dd MMM yyyy') : '—' }}
+                <span class="overdue-chip" *ngIf="isOverdue(a)">overdue</span>
+              </td>
+              <td>
+                <p-tag [value]="pretty(a.status)"
+                  [severity]="a.status === 'RETURNED' ? 'success' : a.status === 'LOST' ? 'danger' : 'info'" />
+                <div class="muted small" *ngIf="a.returnedOn">
+                  returned {{ a.returnedOn | date: 'dd MMM' }} · {{ pretty(a.returnCondition) }}
+                </div>
+              </td>
+              <td>
+                <button class="ghost-btn small" *ngIf="!a.returnedOn && !a.acknowledgedAt"
+                  (click)="acknowledge(a)">Acknowledge</button>
+                <span class="muted small" *ngIf="a.acknowledgedAt">
+                  Acknowledged {{ a.acknowledgedAt | date: 'dd MMM' }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr><td colspan="6" class="empty-cell">No assets are currently issued to you.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- ══ TAB 2: Exit check ══════════════════════════════════════════════ -->
+      <p-tabpanel [value]="2">
+        <div class="tab-header">
+          <div class="tab-header-left">
+            <h3>Exit Asset Check</h3>
+            <span class="sub">Run this before signing off a resignation clearance</span>
+          </div>
+          <div class="tab-header-right">
+            <p-select [(ngModel)]="exitEmployee" [options]="employees" optionLabel="displayName"
+              [filter]="true" filterBy="displayName" placeholder="Select an employee"
+              styleClass="fy-select" [style]="{ 'min-width': '18rem' }" />
+            <button class="new-app" [disabled]="exitLoading || !exitEmployee" (click)="runExitCheck()">
+              {{ exitLoading ? 'Checking…' : 'Check' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!exitReport && !exitLoading">
+          <h4>Nothing checked yet</h4>
+          <p>Select an employee and run the check to see what they still hold.</p>
+        </div>
+
+        <ng-container *ngIf="exitReport">
+          <div class="clear-banner" [class.blocked]="!exitReport.clear">
+            <ng-container *ngIf="exitReport.clear">
+              ✓ Clear — this employee holds no company assets.
+            </ng-container>
+            <ng-container *ngIf="!exitReport.clear">
+              ⚠ <b>{{ exitReport.outstandingCount }} asset(s) still outstanding</b>, worth
+              {{ inr(exitReport.outstandingValue) }}. Do not clear the exit until these are returned
+              or the value is recovered.
+            </ng-container>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat" [class.highlight]="exitReport.outstandingCount > 0">
+              <span class="stat-label">Still held</span>
+              <span class="stat-value">{{ exitReport.outstandingCount }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Value at risk</span>
+              <span class="stat-value">{{ inr(exitReport.outstandingValue) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Recovery already booked</span>
+              <span class="stat-value">{{ inr(exitReport.recoveryDue) }}</span>
+            </div>
+          </div>
+
+          <h4 class="sub-head" *ngIf="exitReport.outstanding.length">Outstanding</h4>
+          <p-table [value]="exitReport.outstanding" responsiveLayout="scroll"
+            styleClass="p-datatable-sm" *ngIf="exitReport.outstanding.length">
+            <ng-template pTemplate="header">
+              <tr><th>Tag</th><th>Asset</th><th>Category</th><th>Allocated</th><th class="num">Value</th></tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-o>
+              <tr>
+                <td><strong>{{ o.assetTag }}</strong></td>
+                <td>{{ o.name }}</td>
+                <td><span class="sec-chip">{{ pretty(o.category) }}</span></td>
+                <td class="muted">{{ o.allocatedOn | date: 'dd MMM yyyy' }}</td>
+                <td class="num">{{ inr(o.value) }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <h4 class="sub-head" *ngIf="exitReport.returned.length">Returned</h4>
+          <p-table [value]="exitReport.returned" responsiveLayout="scroll"
+            styleClass="p-datatable-sm" *ngIf="exitReport.returned.length">
+            <ng-template pTemplate="header">
+              <tr><th>Tag</th><th>Asset</th><th>Returned</th><th>Condition</th><th class="num">Recovery</th></tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-r>
+              <tr>
+                <td><strong>{{ r.assetTag }}</strong></td>
+                <td>{{ r.name }}</td>
+                <td class="muted">{{ r.returnedOn | date: 'dd MMM yyyy' }}</td>
+                <td><p-tag [value]="pretty(r.returnCondition)" [severity]="conditionSeverity(r.returnCondition)" /></td>
+                <td class="num">
+                  {{ inr(r.recoveryAmount) }}
+                  <span class="muted small" *ngIf="r.recoveryWaived">waived</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-container>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+  <!-- ── Asset editor ──────────────────────────────────────────────────────── -->
+  <p-dialog [header]="editing.id ? 'Edit Asset' : 'Add Asset'" [(visible)]="assetDialog" [modal]="true"
+    [style]="{ width: '720px' }" styleClass="tax-dialog">
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Asset tag <span class="hint">unique, as stencilled on the device</span></label>
+        <input pInputText [(ngModel)]="editing.assetTag" placeholder="e.g. CURA-LAP-014" />
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <input pInputText [(ngModel)]="editing.name" placeholder="e.g. Dell Latitude 5440" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <p-select [(ngModel)]="editing.category" [options]="categoryOptions" optionLabel="label"
+          optionValue="value" appendTo="body" />
+      </div>
+      <div class="field">
+        <label>Serial number</label>
+        <input pInputText [(ngModel)]="editing.serialNumber" />
+      </div>
+      <div class="field"><label>Make</label><input pInputText [(ngModel)]="editing.make" /></div>
+      <div class="field"><label>Model</label><input pInputText [(ngModel)]="editing.model" /></div>
+      <div class="field">
+        <label>Purchase date</label>
+        <p-datepicker [(ngModel)]="purchaseDate" dateFormat="dd M yy" appendTo="body" />
+      </div>
+      <div class="field">
+        <label>Purchase cost</label>
+        <p-inputNumber [(ngModel)]="editing.purchaseCost" mode="decimal" [min]="0" [useGrouping]="true" />
+      </div>
+      <div class="field">
+        <label>Current book value <span class="hint">used for exit recovery</span></label>
+        <p-inputNumber [(ngModel)]="editing.currentValue" mode="decimal" [min]="0" [useGrouping]="true" />
+      </div>
+      <div class="field">
+        <label>Warranty ends</label>
+        <p-datepicker [(ngModel)]="warrantyEnd" dateFormat="dd M yy" appendTo="body" />
+      </div>
+      <div class="field"><label>Location</label><input pInputText [(ngModel)]="editing.location" /></div>
+      <div class="field" *ngIf="editing.status !== 'ALLOCATED'">
+        <label>Status</label>
+        <p-select [(ngModel)]="editing.status" [options]="statusOptions" optionLabel="label"
+          optionValue="value" appendTo="body" />
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:12px">
+      <label>Remarks</label>
+      <input pInputText [(ngModel)]="editing.remarks" />
+    </div>
+
+    <div class="notice" *ngIf="editing.status === 'ALLOCATED'">
+      This asset is currently allocated, so its status is managed by the allocation flow.
+      Record a return to change it.
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="assetDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="savingAsset" (click)="saveAsset()">
+        {{ savingAsset ? 'Saving…' : 'Save' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Allocate ──────────────────────────────────────────────────────────── -->
+  <p-dialog [header]="'Allocate ' + (allocateTarget?.assetTag || '')" [(visible)]="allocateDialog"
+    [modal]="true" [style]="{ width: '520px' }" styleClass="tax-dialog">
+
+    <div class="field">
+      <label>Allocate to</label>
+      <p-select [(ngModel)]="allocateEmployee" [options]="employees" optionLabel="displayName"
+        [filter]="true" filterBy="displayName" placeholder="Select an employee" appendTo="body" />
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Return by <span class="hint">optional — drives the overdue list</span></label>
+      <p-datepicker [(ngModel)]="allocateDueOn" dateFormat="dd M yy" appendTo="body" />
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Purpose</label>
+      <input pInputText [(ngModel)]="allocatePurpose" placeholder="e.g. Field duty — Bangalore South" />
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="allocateDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="allocating || !allocateEmployee" (click)="allocate()">
+        {{ allocating ? 'Allocating…' : 'Allocate' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- ── Return ────────────────────────────────────────────────────────────── -->
+  <p-dialog [header]="'Return ' + (returnTarget?.assetTag || '')" [(visible)]="returnDialog"
+    [modal]="true" [style]="{ width: '520px' }" styleClass="tax-dialog">
+
+    <div class="field">
+      <label>Condition on return</label>
+      <p-select [(ngModel)]="returnCondition" [options]="conditionOptions" optionLabel="label"
+        optionValue="value" (onChange)="onReturnConditionChange()" appendTo="body" />
+    </div>
+
+    <div class="field" style="margin-top:12px">
+      <label>Recovery amount <span class="hint">charged in the final settlement</span></label>
+      <p-inputNumber [(ngModel)]="returnRecovery" mode="decimal" [min]="0" [useGrouping]="true"
+        [disabled]="returnWaived" />
+    </div>
+
+    <div class="field checkbox-field" style="margin-top:10px">
+      <p-checkbox [(ngModel)]="returnWaived" [binary]="true" inputId="waive" />
+      <label for="waive">Waive recovery</label>
+    </div>
+
+    <div class="field" style="margin-top:10px">
+      <label>Remarks</label>
+      <input pInputText [(ngModel)]="returnRemarks" placeholder="e.g. Screen scratched, still usable" />
+    </div>
+
+    <div class="notice warn" *ngIf="returnCondition === 'LOST'">
+      Marking this lost sets the asset status to Lost and defaults the recovery to its book value.
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="ghost-btn" (click)="returnDialog = false">Cancel</button>
+      <button class="new-app" [disabled]="returning" (click)="submitReturn()">
+        {{ returning ? 'Saving…' : 'Record Return' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+
+</div>

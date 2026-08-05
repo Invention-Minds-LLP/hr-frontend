@@ -11,6 +11,8 @@ import { from } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { canAccessManagementDashboard, canAccessManagementDashboardFor } from '../../shared/access-rules';
+import { AuthSession } from '../../services/auth/auth-session';
+import { PermissionService } from '../../services/auth/permission.service';
 
 @Component({
   selector: 'app-login',
@@ -28,13 +30,14 @@ export class Login {
 
 
 
-  constructor(private router: Router, private userService: User, private messageService: MessageService) { }
+  constructor(private router: Router, private userService: User, private messageService: MessageService, private auth: AuthSession, private perms: PermissionService) { }
 
   ngOnInit() {
     // If already logged in, bounce the user to the right landing page.
     // Same decision tree as landingRedirectGuard — kept in sync manually.
-    const token = localStorage.getItem('token');
-    if (token) {
+    // The app initializer has already tried the silent refresh by now, so an
+    // in-memory token here means the server confirmed the session.
+    if (this.auth.isLoggedIn()) {
       const candidateId = localStorage.getItem('candidateId');
       if (candidateId) {
         this.router.navigate(['/candidate-tests']);
@@ -79,10 +82,7 @@ export class Login {
             this.isLoading = false;
             this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + res.name });
             // store candidate info (as requested)
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('candidateId',res.candidateId); // <-- the key part
-            localStorage.setItem('name', res.name);
-            localStorage.setItem('role', 'candidate');
+            this.auth.setCandidateSession(res);
 
             // go to your candidate area; change route if needed
             this.router.navigate(['/candidate-tests']);
@@ -100,23 +100,15 @@ export class Login {
             this.isLoading = false;
             this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + response.username });
             if (response) {
-              localStorage.setItem('token', response.token);
-              // NOTE: you were storing employeeCode under 'employeeId'. Keep or rename as you wish.
-              localStorage.setItem('employeeId', response.employeeCode);
-              localStorage.setItem('name', response.username);
-              localStorage.setItem('role', response.role);
-              localStorage.setItem('userId', response.id);
-              localStorage.setItem('empId', response.empId);
-              localStorage.setItem('deptId', response.deptId);
-              localStorage.setItem('departmentName', response.departmentName || '');
-              localStorage.setItem('photoUrl', response.photoUrl || '');
-              localStorage.setItem('designation', response.designation || '');
-              localStorage.setItem('roleId', response.roleId || '');
-              localStorage.setItem('gender', response.gender || '');
+              // Token → memory. The server already set the httpOnly refresh
+              // cookie on this response; only display data is persisted.
+              this.auth.setSession(response);
               const landing = canAccessManagementDashboardFor(response.roleId, response.empId)
                 ? '/management-dashboard'
                 : '/individual';
-              this.router.navigate([landing]);
+              // Permissions must be in hand before we navigate — the navbar and
+              // permissionGuard both read them synchronously on the next page.
+              this.perms.load().subscribe(() => this.router.navigate([landing]));
             } else {
 
               console.error('Login failed:', (response as any)?.message);

@@ -1,0 +1,361 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="guide">
+  <app-module-guide
+    title="Role Permissions"
+    subtitle="Control which screens each role can see. Changes apply on the user's next login or page reload — no deployment needed."
+    [points]="[
+      { label: 'Roles', desc: 'Tick a box to give that role a screen; untick to take it away.' },
+      { label: 'Exceptions', desc: 'Give one person more or less than their role, without changing the role itself.' },
+      { label: 'Menu sections', desc: 'A section must be ticked for its screens to appear in the navbar — the items live inside it.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<div class="rp-container">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'roles'" (click)="switchTab('roles')">
+      <i class="pi pi-users"></i> Roles
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'exceptions'" (click)="switchTab('exceptions')">
+      <i class="pi pi-user-edit"></i> Exceptions
+      <span class="rp-badge" *ngIf="exceptions.length">{{ exceptions.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'scope'" (click)="switchTab('scope')">
+      <i class="pi pi-building"></i> Data Scope
+      <span class="rp-badge" *ngIf="scopedEmployees.length">{{ scopedEmployees.length }}</span>
+    </button>
+  </div>
+
+  <!-- ── Roles matrix ─────────────────────────────────────────────────── -->
+  <ng-container *ngIf="activeTab === 'roles'">
+
+    <div class="rp-error" *ngIf="loadError">
+      <i class="pi pi-exclamation-triangle"></i> {{ loadError }}
+    </div>
+
+    <div class="rp-loading" *ngIf="loading">Loading permissions…</div>
+
+    <ng-container *ngIf="!loading && !loadError">
+      <div class="rp-actions">
+        <span class="rp-dirty" *ngIf="hasChanges">
+          {{ dirtyRoleIds.length }} role{{ dirtyRoleIds.length === 1 ? '' : 's' }} changed
+        </span>
+        <span class="rp-clean" *ngIf="!hasChanges">No unsaved changes</span>
+        <button class="rp-btn ghost" [disabled]="!hasChanges || saving" (click)="reset()">Reset</button>
+        <button class="rp-btn primary" [disabled]="!hasChanges || saving" (click)="save()">
+          <i class="pi" [ngClass]="saving ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+          Save changes
+        </button>
+      </div>
+
+      <div class="rp-scroll">
+        <table class="rp-matrix">
+          <thead>
+            <tr>
+              <th class="rp-perm-col">Permission</th>
+              <th class="rp-role-col" *ngFor="let role of roles" [class.dirty]="isRoleDirty(role.id)">
+                <span class="rp-role-name">{{ role.name }}</span>
+                <span class="rp-role-count">{{ countFor(role.id) }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let group of groups">
+              <tr class="rp-group-row">
+                <td class="rp-perm-col">{{ group.module }}</td>
+                <td *ngFor="let role of roles" class="rp-cell">
+                  <button type="button" class="rp-group-toggle"
+                          [class.all]="moduleState(role.id, group) === 'all'"
+                          [class.some]="moduleState(role.id, group) === 'some'"
+                          (click)="toggleModule(role.id, group)"
+                          [pTooltip]="'Toggle all ' + group.module + ' for ' + role.name">
+                    <i class="pi"
+                       [ngClass]="moduleState(role.id, group) === 'all' ? 'pi-check-square'
+                                : moduleState(role.id, group) === 'some' ? 'pi-minus' : 'pi-stop'"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let perm of group.rows">
+                <td class="rp-perm-col rp-perm-name">
+                  <span class="rp-label">{{ perm.label || perm.name }}</span>
+                  <span class="rp-key">{{ perm.name }}</span>
+                </td>
+                <td *ngFor="let role of roles" class="rp-cell">
+                  <input type="checkbox" [checked]="has(role.id, perm.name)"
+                         (change)="toggle(role.id, perm.name)"
+                         [attr.aria-label]="perm.label + ' for ' + role.name" />
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- ── Exceptions ───────────────────────────────────────────────────── -->
+  <ng-container *ngIf="activeTab === 'exceptions'">
+
+    <div class="rp-actions">
+      <span class="rp-note">
+        Exceptions override the role for one person. Editing a role above will not change them.
+      </span>
+      <button class="rp-btn primary" (click)="openAdd()">
+        <i class="pi pi-plus"></i> Add exception
+      </button>
+    </div>
+
+    <div class="rp-loading" *ngIf="exceptionsLoading">Loading exceptions…</div>
+
+    <div class="rp-empty" *ngIf="!exceptionsLoading && !exceptions.length">
+      No exceptions — everyone follows their role.
+    </div>
+
+    <div class="rp-exception" *ngFor="let emp of exceptions">
+      <div class="rp-exception-head">
+        <div class="rp-who">
+          <strong>{{ emp.name }}</strong>
+          <span class="rp-muted">{{ emp.employeeCode }} · {{ emp.roleName }} · {{ emp.departmentName }}</span>
+        </div>
+        <div class="rp-exception-actions">
+          <button class="rp-btn ghost sm" (click)="openEdit(emp)">Edit</button>
+          <button class="rp-btn ghost sm danger" (click)="clearOverrides(emp)">Clear</button>
+        </div>
+      </div>
+      <div class="rp-chips">
+        <span class="rp-chip" [class.grant]="o.granted" [class.deny]="!o.granted"
+              *ngFor="let o of emp.overrides" [pTooltip]="o.name">
+          <i class="pi" [ngClass]="o.granted ? 'pi-plus' : 'pi-minus'"></i>
+          {{ labelFor(o.name) }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── Data scope ───────────────────────────────────────────────────── -->
+  <ng-container *ngIf="activeTab === 'scope'">
+
+    <div class="rp-actions">
+      <span class="rp-note">
+        Limits which <strong>employees</strong> a person sees — separate from the roles above,
+        which decide which <strong>screens</strong> they open. Anyone not listed here sees every branch.
+      </span>
+      <button class="rp-btn primary" (click)="openScopeAdd()">
+        <i class="pi pi-plus"></i> Restrict someone
+      </button>
+    </div>
+
+    <div class="rp-loading" *ngIf="scopeLoading">Loading data scopes…</div>
+
+    <div class="rp-empty" *ngIf="!scopeLoading && !scopedEmployees.length">
+      Nobody is restricted — every user currently sees all branches.
+    </div>
+
+    <div class="rp-exception" *ngFor="let row of scopedEmployees">
+      <div class="rp-exception-head">
+        <div class="rp-who">
+          <strong>{{ row.name }}</strong>
+          <span class="rp-muted">
+            {{ row.employeeCode }} · {{ row.roleName }}
+            <ng-container *ngIf="row.ownBranch"> · based at {{ row.ownBranch }}</ng-container>
+          </span>
+        </div>
+        <div class="rp-exception-actions">
+          <button class="rp-btn ghost sm" (click)="openScopeEdit(row)">Edit</button>
+          <button class="rp-btn ghost sm danger" (click)="clearScope(row)">Remove</button>
+        </div>
+      </div>
+      <div class="rp-chips">
+        <span class="rp-chip grant" *ngFor="let b of row.branches">
+          <i class="pi pi-building"></i> {{ b.name }}
+        </span>
+        <span class="rp-chip" *ngFor="let d of row.departments">
+          <i class="pi pi-sitemap"></i> {{ d.name }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- ── Data scope editor dialog ───────────────────────────────────────── -->
+<p-dialog [(visible)]="scopeDialogVisible" [modal]="true" [style]="{ width: '680px', maxWidth: '95vw' }"
+          [draggable]="false" [resizable]="false" styleClass="rp-dialog"
+          [header]="scopeEmployee ? 'Data scope for ' + scopeEmployee.name : 'Restrict someone to a branch'">
+
+  <div class="rp-dialog-body">
+
+    <!-- Step 1: pick the person -->
+    <ng-container *ngIf="!scopeEmployee">
+      <p class="rp-note">Search by name or employee code.</p>
+      <input type="text" class="rp-search" placeholder="e.g. EMP005 or Tejaswini"
+             [(ngModel)]="employeeQuery" (ngModelChange)="onEmployeeQuery($event)" />
+
+      <div class="rp-loading" *ngIf="employeeSearching">Searching…</div>
+      <div class="rp-empty" *ngIf="!employeeSearching && !employeeResults.length">No matching employees.</div>
+
+      <ul class="rp-emp-list">
+        <li *ngFor="let e of employeeResults" (click)="selectScopeEmployee(e)">
+          <strong>{{ e.name }}</strong>
+          <span class="rp-muted">{{ e.employeeCode }} · {{ e.roleName }} · {{ e.departmentName }}</span>
+        </li>
+      </ul>
+    </ng-container>
+
+    <!-- Step 2: choose the branches -->
+    <ng-container *ngIf="scopeEmployee">
+      <div class="rp-emp-head">
+        <div>
+          <strong>{{ scopeEmployee.name }}</strong>
+          <span class="rp-muted">
+            {{ scopeEmployee.employeeCode }} · role "{{ scopeEmployee.roleName }}"
+          </span>
+        </div>
+        <button class="rp-btn ghost sm" (click)="clearScopeSelection()">Change person</button>
+      </div>
+
+      <!-- Always-visible plain-language read-out of what the ticks add up to. -->
+      <div class="rp-error" *ngIf="scopeDraftIsGlobal">
+        <i class="pi pi-globe"></i> {{ scopeDraftSummary }}
+        <span *ngIf="!scopeWasGlobal"> Saving now removes their existing restriction.</span>
+      </div>
+      <div class="rp-note" *ngIf="!scopeDraftIsGlobal">
+        <i class="pi pi-lock"></i> {{ scopeDraftSummary }}
+      </div>
+
+      <h4 class="rp-group-title">Branches</h4>
+      <div class="rp-empty" *ngIf="!allBranches.length">No branches configured yet — add them under Masters › Branches.</div>
+      <div class="rp-chips">
+        <label class="rp-chip" *ngFor="let b of allBranches"
+               [class.grant]="draftBranchIds.has(b.id)">
+          <input type="checkbox" [checked]="draftBranchIds.has(b.id)"
+                 (change)="toggleScopeBranch(b.id)" />
+          {{ b.name }}<span class="rp-muted" *ngIf="b.location"> · {{ b.location }}</span>
+        </label>
+      </div>
+
+      <h4 class="rp-group-title">Departments <span class="rp-muted">(optional)</span></h4>
+      <p class="rp-note">
+        Leave blank for a plain branch HR. Ticking both narrows to the overlap —
+        e.g. Nursing <em>at</em> Chennai — not the sum of the two.
+      </p>
+      <div class="rp-chips">
+        <label class="rp-chip" *ngFor="let d of allDepartments"
+               [class.grant]="draftDepartmentIds.has(d.id)">
+          <input type="checkbox" [checked]="draftDepartmentIds.has(d.id)"
+                 (change)="toggleScopeDepartment(d.id)" />
+          {{ d.name }}
+        </label>
+      </div>
+    </ng-container>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="rp-btn ghost" (click)="scopeDialogVisible = false" [disabled]="scopeSaving">Cancel</button>
+    <button class="rp-btn primary" (click)="saveScope()"
+            [disabled]="!scopeEmployee || scopeSaving">
+      {{ scopeSaving ? 'Saving…' : 'Save scope' }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Exception editor dialog ────────────────────────────────────────── -->
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '760px', maxWidth: '95vw' }"
+          [draggable]="false" [resizable]="false" styleClass="rp-dialog"
+          [header]="editingEmployee ? 'Exceptions for ' + editingEmployee.name : 'Add exception'">
+
+  <div class="rp-dialog-body">
+
+  <!-- Step 1: pick the person -->
+  <ng-container *ngIf="!editingEmployee">
+    <p class="rp-note">Search by name or employee code.</p>
+    <input type="text" class="rp-search" placeholder="e.g. EMP005 or Tejaswini"
+           [(ngModel)]="employeeQuery" (ngModelChange)="onEmployeeQuery($event)" />
+
+    <div class="rp-loading" *ngIf="employeeSearching">Searching…</div>
+    <div class="rp-empty" *ngIf="!employeeSearching && !employeeResults.length">No matching employees.</div>
+
+    <ul class="rp-emp-list">
+      <li *ngFor="let e of employeeResults" (click)="selectEmployee(e)">
+        <strong>{{ e.name }}</strong>
+        <span class="rp-muted">{{ e.employeeCode }} · {{ e.roleName }} · {{ e.departmentName }}</span>
+      </li>
+    </ul>
+  </ng-container>
+
+  <!-- Step 2: set each permission -->
+  <ng-container *ngIf="editingEmployee">
+    <div class="rp-emp-head">
+      <div>
+        <strong>{{ editingEmployee.name }}</strong>
+        <span class="rp-muted">
+          {{ editingEmployee.employeeCode }} · role "{{ editingEmployee.roleName }}"
+        </span>
+      </div>
+      <button class="rp-btn ghost sm" (click)="clearEmployeeSelection()">Change person</button>
+    </div>
+
+    <p class="rp-note">
+      <b>Inherit</b> follows the role. <b>Grant</b> adds access the role does not give.
+      <b>Deny</b> removes access the role does give.
+      {{ draftCount }} exception{{ draftCount === 1 ? '' : 's' }} set.
+    </p>
+
+    <div class="rp-scroll dialog">
+      <table class="rp-override-table">
+        <thead>
+          <tr>
+            <th>Permission</th>
+            <th class="rp-center">Role gives</th>
+            <th class="rp-center">Setting</th>
+            <th class="rp-center">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let group of groups">
+            <tr class="rp-group-row"><td colspan="4">{{ group.module }}</td></tr>
+            <tr *ngFor="let perm of group.rows" [class.changed]="stateOf(perm.name) !== 'inherit'">
+              <td class="rp-perm-name">
+                <span class="rp-label">{{ perm.label || perm.name }}</span>
+                <span class="rp-key">{{ perm.name }}</span>
+              </td>
+              <td class="rp-center">
+                <i class="pi" [ngClass]="roleGrants(perm.name) ? 'pi-check rp-yes' : 'pi-times rp-no'"></i>
+              </td>
+              <td class="rp-center">
+                <div class="rp-tri">
+                  <button type="button" [class.on]="stateOf(perm.name) === 'inherit'"
+                          (click)="setState(perm.name, 'inherit')">Inherit</button>
+                  <button type="button" class="grant" [class.on]="stateOf(perm.name) === 'grant'"
+                          (click)="setState(perm.name, 'grant')">Grant</button>
+                  <button type="button" class="deny" [class.on]="stateOf(perm.name) === 'deny'"
+                          (click)="setState(perm.name, 'deny')">Deny</button>
+                </div>
+              </td>
+              <td class="rp-center">
+                <i class="pi" [ngClass]="effectiveFor(perm.name) ? 'pi-check rp-yes' : 'pi-times rp-no'"></i>
+                <i class="pi pi-info-circle rp-redundant" *ngIf="isRedundant(perm.name)"
+                   pTooltip="Same as the role gives today — this only matters if the role changes later."></i>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button class="rp-btn ghost" (click)="dialogVisible = false">Cancel</button>
+    <button class="rp-btn primary" *ngIf="editingEmployee"
+            [disabled]="dialogSaving" (click)="saveOverrides()">
+      <i class="pi" [ngClass]="dialogSaving ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+      Save exceptions
+    </button>
+  </ng-template>
+</p-dialog>
