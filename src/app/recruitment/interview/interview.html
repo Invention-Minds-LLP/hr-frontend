@@ -22,7 +22,7 @@
       <!-- Header -->
       <thead>
         <tr>
-          <th *ngFor="let h of ['No','Candidate','Job','Round','Start','Status','Score','Action']">
+          <th *ngFor="let h of ['No','Candidate','Job','Round','Panel','Start','Status','Score','Action']">
             {{ h }}
           </th>
         </tr>
@@ -46,6 +46,7 @@
           <td><p-skeleton width="70px" height="1.5rem"></p-skeleton></td>
           <td><p-skeleton width="90px" height="1.5rem"></p-skeleton></td>
           <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
+          <td><p-skeleton width="110px" height="1.5rem"></p-skeleton></td>
           <td><p-skeleton width="60px" height="1.5rem"></p-skeleton></td>
           <td><p-skeleton width="80px" height="1.5rem"></p-skeleton></td>
           <td><p-skeleton width="100px" height="1.5rem"></p-skeleton></td>
@@ -59,14 +60,15 @@
     <div class="table-wrap">
       <table>
         <colgroup>
-          <col style="width:5%">
-          <col style="width:12%">
+          <col style="width:4%">
           <col style="width:11%">
-          <col style="width:12%">
+          <col style="width:10%">
+          <col style="width:10%">
           <col style="width:15%">
-          <col style="width:11%">
-          <col style="width:8%">
-          <col style="width:26%">
+          <col style="width:12%">
+          <col style="width:10%">
+          <col style="width:7%">
+          <col style="width:21%">
         </colgroup>
         <thead>
           <tr>
@@ -74,6 +76,7 @@
             <th>Candidate</th>
             <th>Job</th>
             <th>Round</th>
+            <th>Panel</th>
             <th>Start</th>
             <th>Status</th>
             <th>Score</th>
@@ -106,6 +109,14 @@
                   style="margin-left:.35rem; font-size:.68rem; padding:.1rem .4rem;"
                   pTooltip="Multi-session round #{{ r.sessionGroupId }}" tooltipPosition="top">Session</span>
               </ng-template>
+            </td>
+
+            <!-- Panel members -->
+            <td>
+              <span pTooltip="{{ panelNames(r) }}" tooltipPosition="top"
+                style="display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                {{ r.candidateAssignedTestId ? '—' : panelNames(r) }}
+              </span>
             </td>
 
             <td>
@@ -175,7 +186,7 @@
             </td>
           </tr>
           <tr *ngIf="rows().length === 0">
-            <td style="text-align: center;" colspan="8" class="no-data center-right">
+            <td style="text-align: center;" colspan="9" class="no-data center-right">
               No interviews found.
             </td>
         </tbody>

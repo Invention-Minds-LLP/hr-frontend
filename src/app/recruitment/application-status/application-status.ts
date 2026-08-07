@@ -281,13 +281,13 @@ export class ApplicationStatus implements OnInit {
 //     });
 // }
 loadPanelOptions(stage: 'Panel' | 'Management') {
-  let roleId = 3; // default: reporting manager
+  // Management round → Management role only (unchanged).
+  // Panel round → everyone active EXCEPT Executives (roleId 2).
+  const source$ = stage === 'Management'
+    ? this.employeeService.getEmployeesByRole(4)
+    : this.employeeService.getEmployeesExcludingRoles([2]);
 
-  if (stage === 'Management') {
-    roleId = 4; // management role
-  }
-
-  this.employeeService.getEmployeesByRole(roleId)
+  source$
     .subscribe((data: any[]) => {
       this.panelOptions = data.map(emp => {
         const code = emp.employeeCode ?? undefined;

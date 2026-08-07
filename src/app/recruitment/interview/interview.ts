@@ -113,6 +113,15 @@ export class Interview {
     return !!row?.InterviewHRReview?.reviewedAt;
   }
 
+  /** Comma-separated panel member names for the table. */
+  panelNames(row: any): string {
+    const panel = row?.panel ?? [];
+    if (!panel.length) return '—';
+    return panel
+      .map((p: any) => (p.employee ? `${p.employee.firstName} ${p.employee.lastName}`.trim() : `#${p.employeeId}`))
+      .join(', ');
+  }
+
   onEvaluate(row: any) {
     console.log(row)
     if (row.candidateAssignedTestId && row.candidateAssignedTest) {
