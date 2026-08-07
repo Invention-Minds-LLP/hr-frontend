@@ -285,7 +285,7 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   // Panel round → everyone active EXCEPT Executives (roleId 2).
   const source$ = stage === 'Management'
     ? this.employeeService.getEmployeesByRole(4)
-    : this.employeeService.getEmployeesExcludingRoles([2]);
+    : this.employeeService.getEmployeesExcludingRoles([2, 5]);
 
   source$
     .subscribe((data: any[]) => {
