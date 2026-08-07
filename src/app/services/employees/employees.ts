@@ -152,6 +152,12 @@ export class Employees {
     params: { roleId: roleId.toString() }
   });
 }
+  /** Active employees EXCEPT the given roles (e.g. panel = all but Executives/Management). */
+  getEmployeesExcludingRoles(excludeRoleIds: number[]) {
+    return this.http.get<any[]>(`${this.apiUrl}/by-role`, {
+      params: { excludeRoleIds: excludeRoleIds.join(',') }
+    });
+  }
 
   getActiveEmployees() {
     return this.http.get<any[]>(`${this.apiUrl}/active`);
