@@ -22,12 +22,13 @@ export function resolveFileUrl(url: string | null | undefined): string {
   const idx = url.indexOf('/uploads/');
   if (idx === -1) return url; // not a locally-stored upload — leave as-is
   const path = url.substring(idx); // '/uploads/...'
-  // Resolve against the host the browser is CURRENTLY on so files load whether
-  // the app was reached via LAN IP or public domain (prod nginx serves /uploads
-  // on the same origin as the app). Falls back to the build-time apiUrl origin
-  // during SSR where `window` is unavailable.
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return `${window.location.origin}${path}`;
+  // Resolve against the current host but WITHOUT the port, so uploaded files
+  // load from the reverse-proxy on the default port (80/443) — which serves
+  // /uploads — rather than the app's own port (e.g. :4300, which doesn't).
+  // Works whether reached via LAN IP or public domain. Falls back to the
+  // build-time apiUrl origin during SSR where `window` is unavailable.
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    return `${window.location.protocol}//${window.location.hostname}${path}`;
   }
   const origin = environment.apiUrl.replace(/\/api\/?$/, ''); // strip trailing /api
   return `${origin}${path}`;
