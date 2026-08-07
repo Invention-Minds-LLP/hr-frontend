@@ -436,8 +436,10 @@ get isImageResume(): boolean {
     const resume = v.application?.candidate?.resumeUrl;
 
     if (resume) {
-      this.candidateResumeRawUrl = resume; // plain string
-      this.candidateResumeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(resume));
+      // Resolve against the current origin so it loads over LAN or public domain
+      // (the <img> for image resumes binds to this raw string directly).
+      this.candidateResumeRawUrl = resolveFileUrl(resume);
+      this.candidateResumeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.candidateResumeRawUrl);
     }
 
     this.form.patchValue({

@@ -21,8 +21,16 @@ export function resolveFileUrl(url: string | null | undefined): string {
   if (!url) return '';
   const idx = url.indexOf('/uploads/');
   if (idx === -1) return url; // not a locally-stored upload — leave as-is
+  const path = url.substring(idx); // '/uploads/...'
+  // Resolve against the host the browser is CURRENTLY on so files load whether
+  // the app was reached via LAN IP or public domain (prod nginx serves /uploads
+  // on the same origin as the app). Falls back to the build-time apiUrl origin
+  // during SSR where `window` is unavailable.
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}${path}`;
+  }
   const origin = environment.apiUrl.replace(/\/api\/?$/, ''); // strip trailing /api
-  return `${origin}${url.substring(idx)}`;
+  return `${origin}${path}`;
 }
 
 @Pipe({ name: 'fileUrl', standalone: true })

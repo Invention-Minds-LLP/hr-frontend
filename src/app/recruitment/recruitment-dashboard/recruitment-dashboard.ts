@@ -646,9 +646,11 @@ export class RecruitmentDashboard implements OnInit {
   openResume(url: string) {
     if (!url) return;
 
-    this.candidateResumeRawUrl = url;
+    // Resolve against the current origin so it loads over LAN or public domain
+    // (the <img> for image resumes binds to this raw string directly).
+    this.candidateResumeRawUrl = resolveFileUrl(url);
     this.candidateResumeUrl =
-      this.sanitizer.bypassSecurityTrustResourceUrl(resolveFileUrl(url));
+      this.sanitizer.bypassSecurityTrustResourceUrl(this.candidateResumeRawUrl);
 
     this.resumeDialogOpen = true;
   }

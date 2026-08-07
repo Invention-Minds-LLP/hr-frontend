@@ -156,7 +156,7 @@
             <td>{{ a.offer?.status || '—' }}</td>
             <td class="resume">
               <ng-container *ngIf="resumeUrl(a); else noResume">
-                <a [href]="resumeUrl(a)!" target="_blank" rel="noopener"
+                <a [href]="resumeHref(a)" target="_blank" rel="noopener"
                    pTooltip="View Resume" tooltipPosition="top">
                   <i class="pi pi-external-link"></i>
                 </a>

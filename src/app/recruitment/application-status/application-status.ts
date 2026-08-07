@@ -926,6 +926,11 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
     return a?.resumeUrl || a?.candidate?.resumeUrl || null;
   }
 
+  /** Résumé link resolved against the current origin (LAN / domain safe). */
+  resumeHref(a: any): string {
+    return resolveFileUrl(this.resumeUrl(a) || '');
+  }
+
   /** Open modal viewer */
   viewResume(a: any) {
     const url = this.resumeUrl(a);
