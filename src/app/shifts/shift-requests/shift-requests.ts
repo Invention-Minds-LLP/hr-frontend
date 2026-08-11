@@ -310,8 +310,11 @@ export class ShiftRequests {
     // No Level-1 if no incharge
     if (!a.hasIncharge) return false;
 
-    // Only Reporting Manager
-    if (!this.isReportingManager) return false;
+    // Only this employee's own Reporting Manager — matched by identity, not by
+    // roleId. A Management-role user can also be someone's reporting manager,
+    // and the backend authorises on empId (approveShiftChange), so gating on
+    // roleId === 3 hid the button from them for their own team.
+    if (a.employee?.reportingManager !== this.loggedEmpId) return false;
 
     return a.rmDecision === 'PENDING';
   }
