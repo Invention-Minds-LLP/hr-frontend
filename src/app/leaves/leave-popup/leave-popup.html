@@ -245,6 +245,8 @@
                     <!-- <button class="apply" (click)="(days > remainingLeave) && applyLeave()" [disabled]="days > remainingLeave">Apply Leave</button> -->
                     <!-- <button class="apply" (click)="applyLeave()" [disabled]="days > remainingLeave || isLoading"> -->
                     <!-- Over-balance no longer blocks apply — the excess is booked as LOP. -->
+                    <!-- EL balance rules refuse via toast (validateEarnedLeave), matching
+                         the CL/RH/sandwich checks — the button stays clickable. -->
                     <button class="apply" (click)="applyLeave()" [disabled]="isLoading">
 
                         <span *ngIf="!isLoading">{{ leaveData?.id ? 'Update Leave' : 'Apply Leave' }}</span>

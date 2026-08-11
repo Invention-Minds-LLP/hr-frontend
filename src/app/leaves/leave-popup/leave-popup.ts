@@ -83,6 +83,13 @@ export class LeavePopup {
 
   isLoading = false;
 
+  /** Set when the backend's EL rules refuse this application (minimum balance
+   *  to apply, or the balance that must remain). Null means allowed, or not yet
+   *  known — the check deliberately fails open, see runELPrecheck(). */
+  elBlockMessage: string | null = null;
+  private elPrecheckSeq = 0;
+  private elPrecheckTimer: any = null;
+
   monthsList = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
@@ -556,6 +563,10 @@ export class LeavePopup {
     }
     if (this.leaveType === 'EL') {
       this.validateEarnedLeave();
+      // Balance rules (28 to apply / 25 retained) are enforced server-side.
+      this.runELPrecheck();
+    } else {
+      this.elBlockMessage = null;
     }
 
   }
@@ -643,6 +654,12 @@ export class LeavePopup {
     }
 
     this.days = total;
+
+    // Re-run the EL balance check whenever the range changes. checkLeaveBalance()
+    // is bound only to the leave-type dropdown, so without this the check would
+    // run once against whatever dates happened to be selected at the time and
+    // never again — leaving Apply enabled for an application the API refuses.
+    this.runELPrecheck();
   }
 
 
@@ -998,12 +1015,16 @@ export class LeavePopup {
       },
       error: (err) => {
         console.error('Error applying leave:', err);
-        // alert('Failed to apply leave. Please try again.');
         this.isLoading = false;
+        // The API refuses with a specific reason (leave balance rules, one type
+        // per week, CL/RH limits). Showing "Failed to apply" instead hid all of
+        // them and left the employee with nothing to act on.
+        const serverMessage = err?.error?.error || err?.error?.message;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to apply leave. Please try again.'
+          detail: serverMessage || 'Failed to apply leave. Please try again.',
+          life: 8000,
         });
       }
     });
@@ -1577,8 +1598,78 @@ export class LeavePopup {
     const x = new Date(d);
     return `${x.getFullYear()}-${(x.getMonth() + 1).toString().padStart(2, '0')}-${x.getDate().toString().padStart(2, '0')}`;
   }
+  /**
+   * Ask the backend whether the EL balance rules permit this application.
+   *
+   * The thresholds (minimum balance to apply, minimum balance to retain) are
+   * NOT duplicated here — the server owns them, so a policy change is a
+   * one-place change. Debounced because it fires on every date change.
+   *
+   * Fails OPEN: on a network error or timeout the message is cleared and the
+   * employee can still submit, where the backend refuses authoritatively. A
+   * flaky connection must not block a legitimate application.
+   */
+  runELPrecheck() {
+    if (this.elPrecheckTimer) clearTimeout(this.elPrecheckTimer);
+
+    if (this.leaveType !== 'EL' || !this.fromDate || !this.toDate || !this.employeeId) {
+      this.elBlockMessage = null;
+      return;
+    }
+
+    const seq = ++this.elPrecheckSeq;
+    this.elPrecheckTimer = setTimeout(() => {
+      this.leaveService.precheckLeave({
+        leaveTypeId: this.leaveTypes.find(t => t.name === 'EL')?.id,
+        startDate: this.toYmd(this.fromDate),
+        endDate: this.toYmd(this.toDate),
+        isHalfDay: this.isHalfDay,
+        employeeId: Number(this.employeeId),
+      }).subscribe({
+        next: (res: any) => {
+          // Ignore a response that a later selection has already superseded.
+          if (seq !== this.elPrecheckSeq) return;
+          // Only the balance rules are surfaced from here. The 3/7 day limits
+          // are already checked locally by validateEarnedLeave(), which toasts
+          // immediately — echoing the server's version of the same refusal
+          // would show the employee the same thing twice.
+          const code = res?.elBlock?.code;
+          const message =
+            code === 'MIN_BALANCE' || code === 'RETAINED_BALANCE'
+              ? res.elBlock.message
+              : null;
+
+          // Toast only when the refusal changes, not on every response — this
+          // fires repeatedly while dragging a date range.
+          if (message && message !== this.elBlockMessage) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Earned Leave not permitted',
+              detail: message,
+              life: 8000,
+            });
+          }
+          this.elBlockMessage = message;
+        },
+        error: () => {
+          if (seq !== this.elPrecheckSeq) return;
+          this.elBlockMessage = null;
+        },
+      });
+    }, 400);
+  }
+
   validateEarnedLeave(): boolean {
     if (this.leaveType !== 'EL') return true;
+
+    if (this.elBlockMessage) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Earned Leave not permitted',
+        detail: this.elBlockMessage,
+      });
+      return false;
+    }
 
     if (this.days < 3) {
       this.messageService.add({

@@ -236,6 +236,7 @@
           <th style="width: 60px">#</th>
           <th>Holiday Name</th>
           <th>Date</th>
+          <th>Branch</th>
           <th>Description</th>
           <th style="width: 100px">Optional</th>
           <th style="width: 120px">Actions</th>
@@ -246,6 +247,7 @@
           <td>{{ i + 1 }}</td>
           <td>{{ item.title }}</td>
           <td>{{ item.date | date:'dd-MM-yyyy' }}</td>
+          <td>{{ getBranchName(item.branchId) }}</td>
           <td>{{ item.description || '-' }}</td>
           <td>
             <span class="active-badge" [class.active]="item.isOptional" [class.inactive]="!item.isOptional">
@@ -258,7 +260,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
-        <tr><td colspan="6" class="empty-msg">
+        <tr><td colspan="7" class="empty-msg">
           {{ holidayCalendar ? 'No holidays added yet' : 'Create a holiday calendar first' }}
         </td></tr>
       </ng-template>
@@ -395,6 +397,13 @@
       <label>Date <span class="req">*</span></label>
       <p-datepicker [(ngModel)]="formDate" dateFormat="dd-mm-yy" [showIcon]="true"
         [style]="{'width': '100%'}" appendTo="body"></p-datepicker>
+    </div>
+
+    <div class="field" *ngIf="activeTab === 'holidays'">
+      <label>Branch</label>
+      <p-select [options]="branches" [(ngModel)]="formBranchId" optionLabel="name" optionValue="id"
+        placeholder="All Branches" [showClear]="true" appendTo="body" styleClass="w-full"></p-select>
+      <small class="hint">Leave blank for an org-wide holiday. Set a branch for a regional holiday that applies only there.</small>
     </div>
 
     <div class="field" *ngIf="activeTab === 'holidays'">

@@ -114,6 +114,8 @@ export class Masters implements OnInit {
   formCalendarYear: number = new Date().getFullYear();
   formCalendarName = '';
   formIsOptional = false;
+  /** Null = org-wide holiday (all branches); set = only that branch. */
+  formBranchId: number | null = null;
 
   shiftTypeOptions = [
     { label: 'Morning', value: 'MORNING' },
@@ -219,6 +221,10 @@ export class Masters implements OnInit {
         });
         break;
       case 'holidays':
+        // Branches are needed for the "which branch is this holiday for" select.
+        if (!this.branches.length) {
+          this.branchService.getBranches().subscribe({ next: (b) => { this.branches = b; } });
+        }
         this.holidayService.getHolidaysByYear(this.holidayYear).subscribe({
           next: (data) => {
             this.holidayCalendar = data;
@@ -286,6 +292,7 @@ export class Masters implements OnInit {
     this.formDate = null;
     this.formDescription = '';
     this.formIsOptional = false;
+    this.formBranchId = null;
     this.dialogTitle = `Add ${this.getTabLabel()}`;
     this.dialogVisible = true;
   }
@@ -308,6 +315,7 @@ export class Masters implements OnInit {
     this.formDepartmentIds = item.departmentIds || (item.departments?.map((d: any) => d.id) ?? []);
     this.formDate = item.date ? new Date(item.date) : null;
     this.formIsOptional = item.isOptional ?? false;
+    this.formBranchId = item.branchId ?? null;
     this.dialogTitle = `Edit ${this.getTabLabel()}`;
     this.dialogVisible = true;
   }
@@ -339,6 +347,12 @@ export class Masters implements OnInit {
 
   onHolidayYearChange() {
     this.loadData();
+  }
+
+  /** Label for a holiday's branchId in the table — 'All Branches' when unset. */
+  getBranchName(branchId: number | null | undefined): string {
+    if (!branchId) return 'All Branches';
+    return this.branches.find(b => b.id === branchId)?.name || 'N/A';
   }
 
   createCalendar() {
@@ -475,6 +489,7 @@ export class Masters implements OnInit {
           date: this.formDate.toISOString(),
           description: this.formDescription || undefined,
           isOptional: this.formIsOptional,
+          branchId: this.formBranchId,
         };
         if (this.isEditing) {
           this.holidayService.updateHoliday(this.editingId!, holidayPayload).subscribe({

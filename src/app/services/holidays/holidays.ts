@@ -52,6 +52,8 @@ export class Holidays {
     date: string;
     description?: string;
     isOptional?: boolean;
+    /** Null/omitted = org-wide holiday; set = only that branch's regional holiday. */
+    branchId?: number | null;
   }): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/calendar/${calendarId}`,

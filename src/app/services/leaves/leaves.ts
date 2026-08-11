@@ -77,6 +77,21 @@ export class Leaves {
   getLeaveBalance(employeeId: number, year: number): Observable<any>{
     return this.http.get(`${this.apiUrl}/balance/${employeeId}?year=${year}`);
   }
+  /**
+   * Pre-flight check before submitting. Returns the paid/LOP split, payroll
+   * cutoff warnings, and — for Earned Leave — `elBlock` when the minimum
+   * balance rules refuse the application. The rules live in the backend so the
+   * thresholds are not duplicated here.
+   */
+  precheckLeave(payload: {
+    leaveTypeId: number;
+    startDate: string;
+    endDate: string;
+    isHalfDay?: boolean;
+    employeeId?: number;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/precheck`, payload);
+  }
   updateLeaveType(
     leaveId: number,
     newLeaveTypeId: number
