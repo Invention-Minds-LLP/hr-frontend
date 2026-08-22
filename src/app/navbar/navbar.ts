@@ -122,8 +122,13 @@ export class Navbar {
   setActiveMenu(url: string): void {
     let menu: string | null;
 
+    // '/admin/comp-off-approvals' lives under HR Ops, not HR Manual Entries, so
+    // it is excluded here — a bare startsWith('/admin/comp-off') claims it too.
+    const isCompOffRegister = url.startsWith('/admin/comp-off')
+      && !url.startsWith('/admin/comp-off-approvals');
+
     if (url.startsWith('/admin/hr-corrections') || url.startsWith('/admin/force-present')
-      || url.startsWith('/admin/encashment') || url.startsWith('/admin/comp-off')
+      || url.startsWith('/admin/encashment') || isCompOffRegister
       || url.startsWith('/admin/incentives') || url.startsWith('/admin/loans')) {
       menu = 'hrmanual';
     } else if (url.startsWith('/admin')) {

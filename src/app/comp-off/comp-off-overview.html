@@ -13,13 +13,25 @@
 
 <div class="page-container comp-off-overview">
   <div class="controls">
-    <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
-      placeholder="Filter" (onChange)="loadData()" [style]="{'min-width': '140px'}"></p-select>
+    <div class="view-switch">
+      <button pButton label="Credits" class="p-button-sm"
+        [ngClass]="view === 'credits' ? 'p-button-success' : 'p-button-outlined'"
+        (click)="setView('credits')"></button>
+      <button pButton class="p-button-sm"
+        [label]="pendingHrCount ? 'Requests (' + pendingHrCount + ')' : 'Requests'"
+        [ngClass]="view === 'requests' ? 'p-button-success' : 'p-button-outlined'"
+        (click)="setView('requests')"></button>
+    </div>
+    <p-select *ngIf="view === 'credits'" [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label"
+      optionValue="value" placeholder="Filter" (onChange)="loadData()" [style]="{'min-width': '140px'}"></p-select>
+    <p-select *ngIf="view === 'requests'" [options]="requestStatusOptions" [(ngModel)]="requestFilter"
+      optionLabel="label" optionValue="value" placeholder="Filter" (onChange)="loadRequests()"
+      [style]="{'min-width': '170px'}"></p-select>
     <button pButton label="Grant Comp Off" icon="pi pi-plus" class="p-button-sm p-button-success"
       (click)="openDialog()"></button>
   </div>
 
-  <p-table [value]="credits" [loading]="loading" [paginator]="credits.length > 15" [rows]="15"
+  <p-table *ngIf="view === 'credits'" [value]="credits" [loading]="loading" [paginator]="credits.length > 15" [rows]="15"
     styleClass="p-datatable-sm" [scrollable]="true" >
     <ng-template pTemplate="header">
       <tr>
@@ -30,7 +42,7 @@
         <th>Work Date</th>
         <th>Expiry Date</th>
         <th>Used</th>
-        <th>Used On</th>
+        <th>Used For</th>
         <th>Granted By</th>
         <th>Reason</th>
         <th style="width:80px">Actions</th>
@@ -49,13 +61,16 @@
             {{ item.used ? 'Yes' : 'No' }}
           </span>
         </td>
-        <td>{{ fmtDate(item.usedOn) || '-' }}</td>
+        <td>{{ usedForLabel(item) }}</td>
         <td>{{ item.grantedBy || '-' }}</td>
         <td>{{ item.grantReason || '-' }}</td>
         <td class="action-cell">
-          <button class="btn-icon delete" *ngIf="!item.used" (click)="confirmDelete(item)" pTooltip="Delete">
-            <i class="pi pi-trash"></i>
-          </button>
+          <div class="action-btns" *ngIf="!item.used; else noDelete">
+            <button class="btn-icon delete" (click)="confirmDelete(item)" pTooltip="Delete">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+          <ng-template #noDelete>—</ng-template>
         </td>
       </tr>
     </ng-template>
@@ -63,7 +78,68 @@
       <tr><td colspan="11" class="empty-msg">No comp off credits found</td></tr>
     </ng-template>
   </p-table>
+
+  <!-- Requests: nothing here has reached anyone's balance yet. HR approval is
+       what issues the credit. -->
+  <p-table *ngIf="view === 'requests'" [value]="requests" [loading]="loading"
+    [paginator]="requests.length > 15" [rows]="15" styleClass="p-datatable-sm" [scrollable]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Emp Code</th>
+        <th>Employee Name</th>
+        <th>Department</th>
+        <th>Work Date</th>
+        <th>Qualified As</th>
+        <th>Worked / Shift</th>
+        <th>Status</th>
+        <th>Manager</th>
+        <th style="width:190px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.employee?.employeeCode }}</td>
+        <td>{{ item.employee?.firstName }} {{ item.employee?.lastName }}</td>
+        <td>{{ item.employee?.Department?.name || '-' }}</td>
+        <td>{{ fmtDate(item.workDate) }}</td>
+        <td>{{ item.qualifier === 'HOLIDAY' ? 'Holiday' : item.qualifier === 'WEEK_OFF' ? 'Week off' : 'HR raised' }}</td>
+        <td>{{ fmtHours(item.workedMinutes) }} / {{ fmtHours(item.shiftMinutes) }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+        </td>
+        <td>{{ item.managerStatus === 'APPROVED' ? 'Approved' : item.managerStatus === 'REJECTED' ? 'Rejected' : 'Pending' }}</td>
+        <td class="action-cell">
+          <div class="action-btns" *ngIf="item.status === 'PENDING_HR'; else noAction">
+            <button pButton label="Approve" class="p-button-sm p-button-success"
+              [disabled]="actionLoading[item.id]" (click)="hrApprove(item)"></button>
+            <button pButton label="Reject" class="p-button-sm p-button-danger p-button-outlined"
+              [disabled]="actionLoading[item.id]" (click)="openReject(item)"></button>
+          </div>
+          <ng-template #noAction>—</ng-template>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="10" class="empty-msg">No comp off requests found</td></tr>
+    </ng-template>
+  </p-table>
 </div>
+
+<p-dialog header="Reject comp off request" [(visible)]="rejectDialogVisible" [modal]="true" [style]="{ width: '420px' }">
+  <div class="dialog-form">
+    <div class="field">
+      <label>Reason <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="rejectNote" rows="3" style="width:100%"
+        placeholder="Why is this comp-off not valid?"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="rejectDialogVisible = false"></button>
+    <button pButton label="Reject" class="p-button-danger" (click)="confirmReject()"></button>
+  </ng-template>
+</p-dialog>
 
 <p-dialog header="Grant Comp Off" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '450px' }">
   <div class="dialog-form">

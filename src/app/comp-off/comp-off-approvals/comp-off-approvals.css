@@ -1,0 +1,82 @@
+.guide { padding: 0px 60px; padding-top: 30px; }
+
+/* The card is the page gutter. Width is capped so a wide table scrolls inside
+   it instead of pushing the whole page sideways. */
+.comp-off-approvals {
+  display: block;
+  margin: 20px auto;
+  padding: 0 60px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+/* !important because a global heading rule tints these steel-blue otherwise. */
+.table-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff !important; }
+
+.name { font-weight: 600; }
+.emp-code { font-size: 12px; opacity: 0.7; }
+/* The cell stays a table cell — flexing the <td> itself pulls it out of the
+   table layout, and an empty one collapses to nothing, leaving a white gap. */
+.action-cell { text-align: center; }
+.action-btns { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.empty-msg { text-align: center; padding: 2rem; color: #888; }
+.status-badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.status-badge.ok { background: #d4edda; color: #155724; }
+.status-badge.wait { background: #fff3cd; color: #856404; }
+.status-badge.bad { background: #fce4ec; color: #c62828; }
+.dialog-form { display: flex; flex-direction: column; gap: 14px; padding: 0.5rem 0; }
+.field { display: flex; flex-direction: column; }
+.field label { margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+.reject-context { margin: 0; opacity: 0.8; font-size: 14px; }
+.req { color: red; }
+
+::ng-deep .comp-off-approvals .p-card,
+::ng-deep .comp-off-approvals .p-card-body,
+::ng-deep .comp-off-approvals .p-card-content {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Overflow lives on the table wrapper, not on the page. */
+::ng-deep .comp-off-approvals .p-datatable-table-container,
+::ng-deep .comp-off-approvals .p-datatable-wrapper {
+  overflow-x: auto;
+}
+
+::ng-deep .comp-off-approvals .p-datatable { border: none; background: transparent; }
+::ng-deep .comp-off-approvals .p-datatable table { width: 100%; }
+
+::ng-deep .comp-off-approvals .p-datatable .p-datatable-thead > tr > th {
+  background: #dcdcdc; color: #000; font-size: 15px; font-weight: 600;
+  padding: 14px 12px; border: none !important; text-align: center; white-space: nowrap;
+}
+::ng-deep .comp-off-approvals .p-datatable .p-datatable-thead > tr > th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+::ng-deep .comp-off-approvals .p-datatable .p-datatable-thead > tr > th:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+
+::ng-deep .comp-off-approvals .p-datatable .p-datatable-tbody > tr > td {
+  background: #000 !important; padding: 14px 12px; font-size: 15px; font-weight: 500;
+  color: #fff; text-align: center; border: none !important;
+  border-bottom: 2px solid #d9d9d9 !important;
+}
+::ng-deep .comp-off-approvals .p-datatable .p-datatable-tbody > tr:hover > td { background: #1a1a1a !important; }
+
+::ng-deep .comp-off-approvals .p-paginator {
+  display: flex; justify-content: center; gap: 4px; margin-top: 1rem; padding: 0.5rem;
+  background: transparent; border: none;
+}
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-page,
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-first,
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-prev,
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-next,
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-last {
+  width: 40px; height: 40px; border-radius: 8px; background: #fff; color: #333;
+  font-weight: 600; font-size: 13px; border: none;
+}
+::ng-deep .comp-off-approvals .p-paginator .p-paginator-page.p-highlight { background: #FB9C2A !important; color: #fff !important; }
+
+@media (max-width: 900px) {
+  .guide { padding: 20px; }
+  .comp-off-approvals { padding: 0 20px; }
+}

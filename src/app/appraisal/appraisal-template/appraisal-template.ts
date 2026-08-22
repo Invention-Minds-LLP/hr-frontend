@@ -58,14 +58,95 @@ export class AppraisalTemplate {
     { label: '5 - Excellent', value: 5 }
   ];
 
+  /** Bands are a percentage of the template's own maximum — see updateMarksScored(). */
   performanceOptions = [
-    { label: 'Outstanding (190+)', value: 'Outstanding' },
-    { label: 'Commendable (160-190)', value: 'Commendable' },
-    { label: 'Acceptable (120-159)', value: 'Acceptable' },
-    { label: 'Not Acceptable (0-119)', value: 'Not Acceptable' }
+    { label: 'Outstanding (95%+)', value: 'Outstanding' },
+    { label: 'Commendable (80–94%)', value: 'Commendable' },
+    { label: 'Acceptable (60–79%)', value: 'Acceptable' },
+    { label: 'Not Acceptable (below 60%)', value: 'Not Acceptable' }
   ];
 
+  /** Highest value in scoreOptions — one place to change if the scale changes. */
+  private readonly MAX_SCORE_PER_QUESTION = 5;
+
+  /** Which column this user fills: SELF | INCHARGE | SUPERVISOR | HOD.
+   *  Null means they may read the sheet but not score it. Derived server-side
+   *  from their relationship to the employee, not their role id. */
+  reviewerRole: string | null = null;
+
+  reviewerRoleLabels: Record<string, string> = {
+    SELF: 'Self',
+    INCHARGE: 'In-charge',
+    SUPERVISOR: 'Supervisor',
+    HOD: 'HOD',
+    REVIEWER: 'Reviewer',
+  };
+
+  /** Other reviewers' scores, shown read-only beside your own column. Only HR
+   *  receives these — for everyone else the server filters them out, so this
+   *  stays empty. Keyed `questionId|period` -> [{ role, score }]. */
+  othersScores: Record<string, Array<{ role: string; score: number }>> = {};
+
+  /** True when the caller is HR and therefore sees every reviewer's marks. */
+  canSeeAllScores = false;
+
+  /** Bands from the template, falling back to the system default. */
+  scoreBands: Array<{ label: string; minPercent: number }> = [
+    { label: 'Outstanding', minPercent: 95 },
+    { label: 'Commendable', minPercent: 80 },
+    { label: 'Acceptable', minPercent: 60 },
+    { label: 'Not Acceptable', minPercent: 0 },
+  ];
+
+  downloading = false;
+
+  get canScore(): boolean {
+    return !!this.reviewerRole;
+  }
+
+  othersFor(questionId: number, period: string): Array<{ role: string; score: number }> {
+    return this.othersScores[`${questionId}|${period}`] || [];
+  }
+
+  /** Periods where the reviewer explicitly picked a band. Auto-calc leaves
+   *  those alone instead of overwriting the choice on the next score change. */
+  private manualPerf: Record<string, boolean> = {};
+
   summaryPeriods = ['MONTH_1', 'MONTH_3', 'MONTH_6', 'YEAR_1'];
+
+  /** Fallback only. The server sends a per-cycle label, because a recurring
+   *  review stores YEAR_1 whatever year it covers — a second-year review must
+   *  read "2nd Year", not "1 Year". loadCycleShape() overwrites these. */
+  periodLabels: Record<string, string> = {
+    MONTH_1: '1st Month',
+    MONTH_3: '3rd Month',
+    MONTH_6: '6th Month',
+    YEAR_1: '1 Year',
+    YEAR_2: '2nd Year',
+  };
+
+  /** Columns to render. Four for a first-year cycle (the progression is worth
+   *  seeing); just the row's own period for an annual one, where the probation
+   *  columns are meaningless. Defaults to all four so legacy rows whose cycle
+   *  predates the derived scheme keep working. */
+  visiblePeriods: string[] = ['MONTH_1', 'MONTH_3', 'MONTH_6', 'YEAR_1'];
+  track: 'FIRST_YEAR' | 'RECURRING' | null = null;
+
+  /** period -> milestone date, and whether it has arrived. The backend refuses
+   *  to store a period whose milestone is still in the future, so the form
+   *  greys it out rather than letting the reviewer hit a 400 on submit. */
+  milestoneDates: Record<string, string> = {};
+  periodReached: Record<string, boolean> = {};
+
+  /** True when the editable period is still locked behind its milestone. */
+  get currentPeriodLocked(): boolean {
+    return this.milestoneDates[this.currentPeriod] ? !this.periodReached[this.currentPeriod] : false;
+  }
+
+  isPeriodEditable(period: string): boolean {
+    if (period !== this.currentPeriod) return false;
+    return this.milestoneDates[period] ? !!this.periodReached[period] : true;
+  }
 
   /** Total paused days within the current cycle window. Loaded after the
    *  appraisal-form GET resolves; subtracted from the elapsed-months calc
@@ -186,53 +267,128 @@ export class AppraisalTemplate {
 
     }
 
-    this.formService.getEmployeeForm(this.employeeId, this.departmentId, this.cycle, this.templateId).subscribe(data => {
-      this.template = {
-        ...data.template,
-        questions: data.template.questions.map((q: any) => ({
-          ...q,
-          periods: {
-            MONTH_1: { period: 'MONTH_1', score: this.findResponseScore(data.responses, q.id, 'MONTH_1') },
-            MONTH_3: { period: 'MONTH_3', score: this.findResponseScore(data.responses, q.id, 'MONTH_3') },
-            MONTH_6: { period: 'MONTH_6', score: this.findResponseScore(data.responses, q.id, 'MONTH_6') },
-            YEAR_1: { period: 'YEAR_1', score: this.findResponseScore(data.responses, q.id, 'YEAR_1') },
-            // YEAR_2: { period: 'YEAR_2', score: this.findResponseScore(data.responses, q.id, 'YEAR_2') }
-          }
-        }))
-      };
-      // ✅ auto assign currentPeriod based on employee DOJ (from API ideally)
-      if (data.employee?.dateOfJoining) {
-        this.joiningDate = new Date(data.employee.dateOfJoining).toLocaleDateString();
-        const doj = new Date(data.employee.dateOfJoining);
-        // Fetch pauses first so we can subtract paused days BEFORE picking the
-        // current period — otherwise a maternity-paused employee jumps to
-        // YEAR_1 too early.
+    this.formService.getEmployeeForm(this.employeeId, this.departmentId, this.cycle, this.templateId).subscribe({
+      next: (data) => {
+        if (!data?.template) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'No template',
+            detail: 'No performance template is attached to this row. Ask HR to assign one.',
+            life: 6000,
+          });
+          return;
+        }
+
+        this.reviewerRole = data.reviewerRole ?? null;
+        this.canSeeAllScores = !!data.canSeeAllScores;
+        if (Array.isArray(data.scoreBands) && data.scoreBands.length) {
+          this.scoreBands = data.scoreBands;
+        }
+
+        const responses = data.responses || [];
+        this.buildOthersScores(responses);
+
+        this.template = {
+          ...data.template,
+          questions: (data.template.questions || []).map((q: any) => ({
+            ...q,
+            periods: {
+              MONTH_1: { period: 'MONTH_1', score: this.findResponseScore(responses, q.id, 'MONTH_1') },
+              MONTH_3: { period: 'MONTH_3', score: this.findResponseScore(responses, q.id, 'MONTH_3') },
+              MONTH_6: { period: 'MONTH_6', score: this.findResponseScore(responses, q.id, 'MONTH_6') },
+              YEAR_1: { period: 'YEAR_1', score: this.findResponseScore(responses, q.id, 'YEAR_1') },
+              YEAR_2: { period: 'YEAR_2', score: this.findResponseScore(responses, q.id, 'YEAR_2') },
+            }
+          }))
+        };
+
+        // Preload BEFORE the pads are built — initializeSignaturePads() reads
+        // this.summary / this.finalReview to decide which pads lock read-only.
+        this.summary = this.mapSummaries(data.summaries || []);
+        if (data.finalReview) this.finalReview = data.finalReview;
+
+        const doj = data.employee?.dateOfJoining ? new Date(data.employee.dateOfJoining) : null;
+        if (doj) this.joiningDate = doj.toLocaleDateString();
+
+        // Fetch pauses first so paused days are subtracted BEFORE the DOJ
+        // fallback picks a period — otherwise a maternity-paused employee jumps
+        // to YEAR_1 too early. Pads initialise on both paths, and with no DOJ.
         this.appraisalService.listEmployeePauses(this.employeeId).subscribe({
-          next: (pauses) => {
-            this.pauseDays = this.computePausedDaysInCycle(pauses || [], doj, this.cycle);
-            this.activePause = (pauses || []).find(p => !p.endDate) || null;
-            this.currentPeriod = this.setCurrentPeriod(doj, this.cycle) as any;
-            console.log("Set currentPeriod to", this.currentPeriod);
-            this.initializeSignaturePads();
-          },
-          error: () => {
-            this.pauseDays = 0;
-            this.activePause = null;
-            this.currentPeriod = this.setCurrentPeriod(doj, this.cycle) as any;
-            this.initializeSignaturePads();
-          },
+          next: (pauses) => this.applyPausesAndInit(pauses || [], doj),
+          error: () => this.applyPausesAndInit([], doj),
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || 'Failed to load the appraisal form.',
+          life: 6000,
         });
       }
-
-
-      // preload summary
-      this.summary = this.mapSummaries(data.summaries);
-
-      // preload final review
-      if (data.finalReview) this.finalReview = data.finalReview;
     });
 
 
+  }
+
+  /** Resolve pause state + editable period, then always build the pads. */
+  private applyPausesAndInit(pauses: any[], doj: Date | null) {
+    this.pauseDays = doj ? this.computePausedDaysInCycle(pauses, doj, this.cycle) : 0;
+    this.activePause = pauses.find(p => !p.endDate) || null;
+    this.currentPeriod = this.resolveCurrentPeriod(doj);
+    this.loadCycleShape();
+    this.initializeSignaturePads();
+  }
+
+  /**
+   * Ask the backend which track this row's cycle belongs to, so the form shows
+   * the right columns and knows when each milestone opens. A cycle with no
+   * matching plan (created before cycles were derived) keeps the old
+   * all-four-columns behaviour.
+   */
+  private loadCycleShape() {
+    if (!this.employeeId) return;
+    this.formService.getEmployeeCycles(this.employeeId).subscribe({
+      next: (res) => {
+        const plan = (res.plans || []).find(p => p.cycle === this.cycle);
+
+        if (!plan) {
+          // Cycle matches no derived plan — a legacy label, or orphaned by a
+          // department changing its basis. Fall back to joining-date milestones
+          // so the period still locks until it opens; keep all four columns.
+          const now = Date.now();
+          for (const [period, date] of Object.entries(res.fallbackMilestones || {})) {
+            this.milestoneDates[period] = date;
+            this.periodReached[period] = new Date(date).getTime() <= now;
+          }
+          return;
+        }
+
+        this.track = plan.track;
+        for (const p of plan.periods) {
+          this.milestoneDates[p.period] = p.milestoneDate;
+          this.periodReached[p.period] = p.reached;
+          // Cycle-specific label wins: "2nd Year" for a second-year review even
+          // though it is stored as YEAR_1.
+          if (p.label) this.periodLabels[p.period] = p.label;
+        }
+        this.visiblePeriods = plan.track === 'RECURRING'
+          ? [this.currentPeriod]
+          : plan.periods.map(p => p.period);
+      },
+      error: () => { /* leave the defaults — the form still works */ },
+    });
+  }
+
+  /** Which column the reviewer may edit. HR picks a period when assigning the
+   *  row, so that wins — otherwise an employee whose DOJ math says YEAR_1 could
+   *  never complete the MONTH_3 row they were actually assigned. DOJ maths is
+   *  the fallback for legacy rows that carry no period. */
+  private resolveCurrentPeriod(doj: Date | null): 'MONTH_1' | 'MONTH_3' | 'MONTH_6' | 'YEAR_1' {
+    const assigned = this.summaryData?.period;
+    if (assigned && this.summaryPeriods.includes(assigned)) return assigned;
+    if (doj) return this.setCurrentPeriod(doj, this.cycle) as any;
+    return 'MONTH_1';
   }
 
   // ngAfterViewInit() {
@@ -427,9 +583,25 @@ export class AppraisalTemplate {
     if (role === 'hod') this.summary[period].hodSig = '';
   }
 
+  /** Only YOUR column preloads into the editable inputs. */
   findResponseScore(responses: any[], questionId: number, period: string) {
-    const r = responses.find(x => x.questionId === questionId && x.period === period);
-    return r ? r.score : null;
+    const mine = responses.find(x =>
+      x.questionId === questionId &&
+      x.period === period &&
+      (x.reviewerRole === this.reviewerRole || (!this.reviewerRole && x.reviewerRole === 'REVIEWER'))
+    );
+    return mine ? mine.score : null;
+  }
+
+  /** Everyone else's scores, for the read-only strip beside your input. */
+  private buildOthersScores(responses: any[]) {
+    this.othersScores = {};
+    for (const r of responses) {
+      if (r.score == null) continue;
+      if (r.reviewerRole === this.reviewerRole) continue;
+      const key = `${r.questionId}|${r.period}`;
+      (this.othersScores[key] ||= []).push({ role: r.reviewerRole, score: r.score });
+    }
   }
 
   mapSummaries(summaries: any[]) {
@@ -481,7 +653,13 @@ export class AppraisalTemplate {
       }
     });
 
-    // 3) Build final payload
+    // 3) Build final payload. Send finalReview only when it actually carries
+    // something — this object is pre-initialised with empty strings, and sending
+    // it unconditionally made the backend write a blank review row every time
+    // and suppressed the "HOD submitted, please review" notification to HR.
+    const hasFinalReview = ['appreciations', 'talents', 'overallComments', 'employeeSig', 'supervisorSig', 'hrSig']
+      .some(k => String((this.finalReview as any)?.[k] ?? '').trim() !== '');
+
     const payload = {
       employeeId: this.employeeId,
       departmentId: this.departmentId,
@@ -489,7 +667,7 @@ export class AppraisalTemplate {
       templateId: this.templateId ?? null,
       responses: flattenedResponses,
       summaries: flattenedSummaries,
-      finalReview: this.finalReview
+      finalReview: hasFinalReview ? this.finalReview : null
     };
     this.isLoading = true;
     console.log("Submitting payload:", payload);
@@ -508,23 +686,70 @@ export class AppraisalTemplate {
       }
     });
   }
+  /** Highest total this template can award, weight-aware. Questions with no
+   *  weight count as 1 so unweighted templates behave exactly as before. */
+  get maxMarks(): number {
+    if (!this.template?.questions?.length) return 0;
+    return this.template.questions.reduce(
+      (sum: number, q: any) => sum + this.MAX_SCORE_PER_QUESTION * (q.weight || 1),
+      0
+    );
+  }
+
+  /** Reviewer picked a band by hand — stop auto-calc from overwriting it. */
+  onOverallPerfPicked() {
+    this.manualPerf[this.currentPeriod] = true;
+  }
+
   updateMarksScored() {
     if (!this.template || !this.template.questions) return;
 
     let total = 0;
     this.template.questions.forEach((q: any) => {
-      const score = q.periods[this.currentPeriod].score;
-      if (score) total += score;
+      const score = q.periods[this.currentPeriod]?.score;
+      if (score) total += score * (q.weight || 1);
     });
 
     this.summary[this.currentPeriod].marksScored = total;
-    let performance = 'Not Acceptable';
-    if (total >= 190) performance = 'Outstanding';
-    else if (total >= 160) performance = 'Commendable';
-    else if (total >= 120) performance = 'Acceptable';
-    else performance = 'Not Acceptable';
 
-    this.summary[this.currentPeriod].overallPerf = performance;
+    if (this.manualPerf[this.currentPeriod]) return;
+
+    // Band on percentage of THIS template's maximum, using the template's own
+    // cut-offs. Comparing a raw total against fixed marks only ever worked for a
+    // template with exactly the number of questions those marks were written
+    // for — a 15-question form caps at 75 and could never leave "Not Acceptable".
+    const max = this.maxMarks;
+    if (!max) return;
+    const pct = (total / max) * 100;
+
+    const sorted = [...this.scoreBands].sort((a, b) => b.minPercent - a.minPercent);
+    const hit = sorted.find(b => pct >= b.minPercent);
+    this.summary[this.currentPeriod].overallPerf = hit?.label ?? sorted[sorted.length - 1]?.label ?? null;
+  }
+
+  /** Download the printed sheet. `tenure` spans every cycle. */
+  downloadSheet(scope: 'cycle' | 'tenure') {
+    if (!this.employeeId) return;
+    this.downloading = true;
+    this.formService.downloadSheet(this.employeeId, scope, this.cycle).subscribe({
+      next: (blob) => {
+        this.downloading = false;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `PerformanceIndicator_${this.employeeCode || this.employeeId}_${scope}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.downloading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Download failed',
+          detail: 'Could not generate the performance sheet.',
+        });
+      },
+    });
   }
 
   saveFinalSignature(role: 'emp' | 'sup' | 'hr') {

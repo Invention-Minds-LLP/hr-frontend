@@ -385,7 +385,8 @@
 
 
     <!-- HR Use Only -->
-    <p-panel header="HR Use Only" toggleable="false" *ngIf="currentStep === 'HR' || currentStep === 'CLOSED'">
+    <p-panel header="HR Use Only" toggleable="false"
+      *ngIf="isHRDept && (currentStep === 'HR' || currentStep === 'CLOSED')">
       <div class="grid">
         <div class="col-12 md:col-3">
           <p-floatLabel variant="on">

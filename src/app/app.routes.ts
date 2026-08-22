@@ -82,6 +82,7 @@ import { RolePermissions } from './settings/role-permissions/role-permissions';
 import { IncidentCategoryAdmin } from './incident/incident-category-admin/incident-category-admin';
 import { EncashmentOverview } from './encashment/encashment-overview';
 import { CompOffOverview } from './comp-off/comp-off-overview';
+import { CompOffApprovals } from './comp-off/comp-off-approvals/comp-off-approvals';
 import { IncentivesOverview } from './incentives/incentives-overview';
 import { LoansOverview } from './loans/loans-overview';
 import { IncentiveRequests } from './incentives/incentive-requests/incentive-requests';
@@ -150,6 +151,8 @@ export const routes: Routes = [
         { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incentives.view' } },
         { path: 'loans', component: LoansOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.loans.view' } },
         { path: 'module-utilization', component: ModuleUtilization, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.moduleUtilization.view' } },
+          { path: 'comp-off-approvals', component: CompOffApprovals, canActivate: [authGuard]},
+
     ],
 
   },
@@ -198,6 +201,8 @@ export const routes: Routes = [
   { path: 'attendance', component: AttendanceCalendars,canActivate: [authGuard]},
   { path: 'history', component: History,canActivate: [authGuard]},
   { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard]},
+  // Manager stage of the comp-off flow + the employee's own claims. Open to any
+  // signed-in user: the API decides who may approve what.
   { path: 'resignation', component: ResignOverview,canActivate: [authGuard]},
   { path: 'interview', component: CandidateEvalForm,canActivate: [authGuard]},
   { path: 'popup', component: PopUp,canActivate: [authGuard] },

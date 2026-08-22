@@ -1,13 +1,18 @@
 .guide { padding: 0px 60px; padding-top: 30px; }
 .page-container { padding: 20px 60px 40px; }
 .controls { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 16px; align-items: center; }
-.action-cell { display: flex; gap: 6px; align-items: center; }
+/* The cell stays a table cell — flexing the <td> itself pulls it out of the
+   table layout, and an empty one collapses to nothing, leaving a white gap. */
+.action-cell { text-align: center; }
+.action-btns { display: flex; gap: 6px; align-items: center; justify-content: center; }
 .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .btn-icon:hover { opacity: 0.8; }
 .btn-icon.delete { background: #fce4ec; color: #c62828; }
 .status-badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; }
 .status-badge.used { background: #d4edda; color: #155724; }
 .status-badge.unused { background: #fff3cd; color: #856404; }
+.status-badge.rejected { background: #fce4ec; color: #c62828; }
+.view-switch { display: flex; gap: 8px; margin-right: auto; }
 .empty-msg { text-align: center; padding: 2rem; color: #888; }
 .dialog-form { display: flex; flex-direction: column; gap: 14px; padding: 0.5rem 0; }
 .field { display: flex; flex-direction: column; }

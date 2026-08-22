@@ -1,7 +1,32 @@
 <div *ngIf="template" class="p-fluid performance-container">
   <div class="btn">
     <button class="back-btn" (click)="goBack()">← Back</button>
+    <button pButton size="small" severity="secondary" icon="pi pi-download"
+      [label]="downloading ? 'Preparing…' : 'This cycle (PDF)'"
+      [disabled]="downloading" (click)="downloadSheet('cycle')"></button>
+    <button pButton size="small" severity="secondary" icon="pi pi-file-pdf"
+      [label]="downloading ? 'Preparing…' : 'Full tenure (PDF)'"
+      [disabled]="downloading" (click)="downloadSheet('tenure')"></button>
   </div>
+
+  <!-- Which column this user fills. Derived from their relationship to the
+       employee, so an in-charge and a supervisor score side by side. -->
+  <div class="reviewer-strip" *ngIf="reviewerRole; else noScoring">
+    <span class="rs-label">You are scoring as</span>
+    <span class="rs-role">{{ reviewerRoleLabels[reviewerRole] || reviewerRole }}</span>
+    <span class="rs-hint" *ngIf="canSeeAllScores">
+      As HR you can see every reviewer's marks. Only your own column is editable.
+    </span>
+    <span class="rs-hint" *ngIf="!canSeeAllScores">
+      Scores are confidential — you see your own marks only, and other reviewers cannot see yours.
+    </span>
+  </div>
+  <ng-template #noScoring>
+    <div class="reviewer-strip is-readonly">
+      <span class="rs-label">Read only</span>
+      <span class="rs-hint">You can view this sheet but are not one of its reviewers.</span>
+    </div>
+  </ng-template>
   <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
 
   <!-- Pause banner: shown when the employee is currently paused. HR sees a
@@ -13,6 +38,19 @@
       <span> &middot; since {{ activePause.startDate | date:'dd-MM-yyyy' }} &middot; {{ activePause.reason }}</span>
       <div *ngIf="!isHRUser" class="pause-banner-sub">Submissions are disabled until HR ends the pause.</div>
       <div *ngIf="isHRUser" class="pause-banner-sub">HR override allowed — submit will proceed.</div>
+    </div>
+  </div>
+
+  <!-- Milestone lock: the period exists but the employee hasn't reached it yet,
+       so it cannot be rated. The backend refuses these too. -->
+  <div *ngIf="currentPeriodLocked" class="pause-banner">
+    <i class="pi pi-lock"></i>
+    <div>
+      <strong>{{ periodLabels[currentPeriod] || currentPeriod }} isn't open yet</strong>
+      <span> &middot; opens {{ milestoneDates[currentPeriod] | date:'dd MMM yyyy' }}</span>
+      <div class="pause-banner-sub">
+        Performance can only be rated once the period has been completed.
+      </div>
     </div>
   </div>
 
@@ -70,18 +108,24 @@
       <tr>
         <th>Category</th>
         <th>Question</th>
-        <th *ngFor="let p of ['1st Month','3rd Month','6th Month','1 Year']">{{ p }}</th>
+        <th *ngFor="let p of visiblePeriods">{{ periodLabels[p] || p }}</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-q>
       <tr>
         <td>{{ q.category }}</td>
         <td>{{ q.text }}</td>
-        <td *ngFor="let p of ['MONTH_1','MONTH_3','MONTH_6','YEAR_1']">
+        <td *ngFor="let p of visiblePeriods">
           <p-select [options]="scoreOptions" [(ngModel)]="q.periods[p].score" optionLabel="label" appendTo="body"
             optionValue="value" placeholder="Select Score" (onChange)="updateMarksScored()"
-            [disabled]="p !== currentPeriod">
+            [disabled]="!isPeriodEditable(p) || !canScore">
           </p-select>
+          <div class="other-scores" *ngIf="othersFor(q.id, p).length">
+            <span *ngFor="let o of othersFor(q.id, p)" class="os-chip"
+              [title]="(reviewerRoleLabels[o.role] || o.role) + ' scored ' + o.score">
+              {{ reviewerRoleLabels[o.role] || o.role }} {{ o.score }}
+            </span>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -89,7 +133,7 @@
 
   <!-- Summary -->
   <h3 class="p-mt-5">Overall Summary</h3>
-  <p-table [value]="summaryPeriods" responsiveLayout="scroll">
+  <p-table [value]="visiblePeriods" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
         <th>Assessment Period</th>
@@ -102,12 +146,21 @@
     </ng-template>
     <ng-template pTemplate="body" let-p>
       <tr>
-        <td>{{ p }}</td>
-        <td><input type="number" pInputText placeholder="Marks Scored" [(ngModel)]="summary[p].marksScored"
-            [disabled]="p !== currentPeriod" /></td>
+        <td>
+          {{ periodLabels[p] || p }}
+          <small *ngIf="milestoneDates[p]" class="marks-max">
+            {{ periodReached[p] ? 'due' : 'opens' }} {{ milestoneDates[p] | date:'dd MMM yyyy' }}
+          </small>
+        </td>
+        <td>
+          <input type="number" pInputText placeholder="Marks Scored" [(ngModel)]="summary[p].marksScored"
+            [disabled]="!isPeriodEditable(p)" />
+          <small *ngIf="p === currentPeriod && maxMarks" class="marks-max">out of {{ maxMarks }}</small>
+        </td>
         <td>
           <p-select [options]="performanceOptions" [(ngModel)]="summary[p].overallPerf" optionLabel="label"
-            appendTo="body" optionValue="value" placeholder="Select Performance" [disabled]="p !== currentPeriod">
+            appendTo="body" optionValue="value" placeholder="Select Performance" [disabled]="!isPeriodEditable(p)"
+            (onChange)="onOverallPerfPicked()">
           </p-select>
         </td>
         <!-- <td><input pInputText [(ngModel)]="summary[p].employeeSig" placeholder="Signature" [disabled]="p !== currentPeriod" /></td>
@@ -251,10 +304,10 @@
     <!-- Submit Button -->
     <div class="mt-4">
       <button pButton class="new-app" label="Submit" icon="pi pi-check"
-        [label]="isLoading ? 'Submitting': (activePause && !isHRUser ? 'Paused — Submit Disabled' : 'Submit')"
+        [label]="isLoading ? 'Submitting' : (!canScore ? 'Read only' : (currentPeriodLocked ? 'Not open yet' : (activePause && !isHRUser ? 'Paused — Submit Disabled' : 'Submit')))"
         [loading]="isLoading"
-        [disabled]="isLoading || (activePause && !isHRUser)"
-        [title]="activePause && !isHRUser ? 'Employee appraisal is paused' : ''"
+        [disabled]="isLoading || !canScore || currentPeriodLocked || (activePause && !isHRUser)"
+        [title]="currentPeriodLocked ? 'This period opens on its milestone date' : (activePause && !isHRUser ? 'Employee appraisal is paused' : '')"
         (click)="onSubmit()"></button>
     </div>
   </div>

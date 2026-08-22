@@ -180,6 +180,11 @@
   min-width: 320px;
 }
 
+.col-weight {
+  width: 90px;
+  min-width: 80px;
+}
+
 .col-actions {
   width: 150px;
   text-align: right;
@@ -356,3 +361,94 @@
   font-size: 14px;
 }
 
+
+.ptm-hint {
+  margin: 4px 0 16px;
+  font-size: 12px;
+  color: #9b9b9b;
+  line-height: 1.5;
+}
+
+.ptm-max {
+  font-size: 12px;
+  color: #9b9b9b;
+}
+
+.ptm-max strong {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.ptm-equiv {
+  font-size: 12px;
+  color: #9b9b9b;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Locked-template banner: the template has responses, so cloning is the way in. */
+.ptm-locked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border: 1px solid #3a3323;
+  border-left: 3px solid #d9a63c;
+  border-radius: 0 8px 8px 0;
+  background: #0a0a0a;
+  font-size: 13px;
+  color: #c4c4c4;
+}
+
+.ptm-locked strong { color: #fff; }
+
+/* Clone dialog */
+.ptm-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.ptm-dialog-close {
+  background: transparent;
+  border: none;
+  color: #9b9b9b;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ptm-dialog-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+.ptm-clone-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ptm-clone-body .ptm-field { min-width: 0; }
+
+.ptm-clone-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9b9b9b;
+}
+
+/* Band cut-off column — wider than the weight column so the header doesn't wrap. */
+.col-from {
+  width: 140px;
+  min-width: 130px;
+}
+
+.ptm-equiv-blank {
+  color: #6f7684;
+  font-style: italic;
+}

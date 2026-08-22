@@ -10,12 +10,6 @@
           [(ngModel)]="listDepartmentId" placeholder="Select" [filter]="true"
           (onChange)="loadList()" appendTo="body"></p-select>
       </div>
-      <div class="ptm-field">
-        <label>Cycle (optional)</label>
-        <p-select [options]="cycles" optionLabel="label" optionValue="value"
-          [(ngModel)]="listCycle" placeholder="All cycles" [filter]="true" [showClear]="true"
-          (onChange)="loadList()" appendTo="body"></p-select>
-      </div>
       <div class="ptm-spacer"></div>
       <button class="ptm-primary" (click)="openNew()" [disabled]="!listDepartmentId">
         + New Template
@@ -27,7 +21,6 @@
         <tr>
           <th style="width:50px;">#</th>
           <th>Title</th>
-          <th style="width:220px;">Cycle</th>
           <th style="width:120px;">Questions</th>
           <th style="width:160px;">Actions</th>
         </tr>
@@ -36,11 +29,14 @@
         <tr>
           <td>{{ i + 1 }}</td>
           <td>{{ t.title }}</td>
-          <td>{{ t.cycle }}</td>
           <td>{{ t._count?.questions ?? 0 }}</td>
           <td>
             <button class="ptm-icon-btn" (click)="openEdit(t)" title="Edit">
               <i class="pi pi-pencil"></i>
+            </button>
+            <button class="ptm-icon-btn" (click)="openClone(t)"
+              title="Clone — copy these questions into a new template, in this or another department">
+              <i class="pi pi-copy"></i>
             </button>
             <button class="ptm-icon-btn ptm-danger" (click)="onDelete(t)" title="Delete">
               <i class="pi pi-trash"></i>
@@ -50,7 +46,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="5" class="ptm-empty">
+          <td colspan="4" class="ptm-empty">
             <span *ngIf="!listDepartmentId">Select a department to view templates.</span>
             <span *ngIf="listDepartmentId">No templates found.</span>
           </td>
@@ -74,6 +70,19 @@
 
     <div *ngIf="loadingDetail" class="ptm-empty">Loading template…</div>
 
+    <!-- Locked because employees have already been scored against it. Cloning is
+         the way to make changes without disturbing recorded responses. -->
+    <div *ngIf="!loadingDetail && readOnlyTemplate" class="ptm-locked">
+      <div>
+        <strong>This template is locked</strong>
+        <span> — employees have been scored against it, so changing the questions would orphan
+          their answers.</span>
+      </div>
+      <button type="button" class="ptm-primary ptm-small" (click)="openClone({ id: editingId, title: form.get('title')?.value, departmentId: form.get('departmentId')?.value })">
+        Clone to edit
+      </button>
+    </div>
+
     <form *ngIf="!loadingDetail" [formGroup]="form" (ngSubmit)="save()">
       <div class="ptm-form-grid">
         <div class="ptm-field ptm-field-grow">
@@ -85,12 +94,11 @@
           <p-select [options]="departments" optionLabel="name" optionValue="id"
             formControlName="departmentId" [filter]="true" appendTo="body"></p-select>
         </div>
-        <div class="ptm-field">
-          <label>Cycle *</label>
-          <p-select [options]="cycles" optionLabel="label" optionValue="value"
-            formControlName="cycle" [filter]="true" appendTo="body"></p-select>
-        </div>
       </div>
+      <p class="ptm-hint">
+        This question set applies to every appraisal cycle for the selected department —
+        first-year milestones and annual reviews alike. No yearly re-creation needed.
+      </p>
 
       <div class="ptm-questions-header">
         <h4>Questions</h4>
@@ -104,8 +112,10 @@
           <thead>
             <tr>
               <th class="col-num">#</th>
-              <th class="col-cat">Category</th>
+              <th class="col-cat" title="Outer grouping — the sheet's first column">Category</th>
+              <th class="col-cat" title="Inner grouping — the sheet's 'Header' column">Section</th>
               <th class="col-text">Question / Criterion</th>
+              <th class="col-weight" title="Optional multiplier — leave blank for 1">Weight</th>
               <th class="col-actions"></th>
             </tr>
           </thead>
@@ -115,8 +125,14 @@
               <td class="col-cat">
                 <input pInputText formControlName="category" placeholder="e.g. Quality of work" />
               </td>
+              <td class="col-cat">
+                <input pInputText formControlName="section" placeholder="e.g. Professionalism" />
+              </td>
               <td class="col-text">
                 <input pInputText formControlName="text" placeholder="Criterion text" />
+              </td>
+              <td class="col-weight">
+                <input pInputText type="number" min="1" max="10" formControlName="weight" placeholder="1" />
               </td>
               <td class="col-actions">
                 <button type="button" class="ptm-icon-btn" (click)="moveUp(i)"
@@ -134,11 +150,75 @@
               </td>
             </tr>
             <tr *ngIf="questionsArray.length === 0">
-              <td colspan="4" class="ptm-empty">No questions yet. Click "+ Add Question" to start.</td>
+              <td colspan="6" class="ptm-empty">No questions yet. Click "+ Add Question" to start.</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Score bands. Entered as marks the way the printed sheet reads, stored
+           as percentages so the template survives questions being added. -->
+      <div class="ptm-questions-header" style="margin-top: 28px;">
+        <h4>Scoring criteria</h4>
+        <span class="ptm-max">Maximum for this template: <strong>{{ maxMarks || '—' }}</strong> marks</span>
+      </div>
+
+      <div class="ptm-table-wrap">
+        <table class="ptm-q-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-cat">Band</th>
+              <th class="col-from" title="The lowest total that still earns this band">From&nbsp;(marks)</th>
+              <th class="col-text">Equivalent</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of bands; let i = index">
+              <td class="col-num">{{ i + 1 }}</td>
+              <td class="col-cat">
+                <input pInputText [(ngModel)]="b.label" [ngModelOptions]="{ standalone: true }"
+                  placeholder="e.g. Outstanding" [disabled]="form.disabled" />
+              </td>
+              <td class="col-from">
+                <input pInputText type="number" min="0" [max]="maxMarks" [(ngModel)]="b.marks"
+                  [ngModelOptions]="{ standalone: true }" placeholder="—" [disabled]="form.disabled" />
+              </td>
+              <td class="col-text ptm-equiv">
+                <span *ngIf="!maxMarks">Add questions first</span>
+                <span *ngIf="maxMarks && bandPercent(b) === null" class="ptm-equiv-blank">not set</span>
+                <span *ngIf="maxMarks && bandPercent(b) !== null">
+                  {{ bandPercent(b) | number:'1.0-1' }}% of {{ maxMarks }}
+                  <span *ngIf="b.marks === maxMarks"> · perfect score only</span>
+                </span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="ptm-icon-btn ptm-danger" (click)="removeBand(i)"
+                  [disabled]="form.disabled || bands.length <= 2" title="Remove band">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <button type="button" class="ptm-primary ptm-small" (click)="addBand()" [disabled]="form.disabled">
+          + Add Band
+        </button>
+      </div>
+
+      <p class="ptm-hint">
+        Each row is the <strong>lowest total that still earns that band</strong> — so with a maximum
+        of {{ maxMarks || '—' }},
+        <span *ngIf="maxMarks">"{{ bands[0].label || 'the top band' }}" starting at {{ bands[0].marks ?? '—' }} means
+        {{ bands[0].marks ?? 0 }}–{{ maxMarks }} marks.</span>
+        The lowest band must start at 0 so every score lands somewhere. Cut-offs are stored as
+        percentages, so they keep working if you add questions later. Clear them all to fall back to
+        the system default of 95 / 80 / 60%.
+      </p>
 
       <div class="ptm-actions-row">
         <button type="button" class="ptm-secondary" (click)="backToList()">Back</button>
@@ -149,3 +229,43 @@
     </form>
   </div>
 </div>
+
+<!-- Clone dialog. The main use is reusing a long question set in another
+     department; it also unlocks a template that has recorded responses. -->
+<p-dialog header="Clone Template" [(visible)]="cloneDialogVisible" [modal]="true" [closable]="false"
+  [style]="{ width: '460px' }">
+
+  <ng-template pTemplate="header">
+    <div class="ptm-dialog-head">
+      <span>Clone Template</span>
+      <button type="button" class="ptm-dialog-close" (click)="cloneDialogVisible = false">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="ptm-clone-body" *ngIf="cloneSource">
+    <p class="ptm-clone-note">
+      Copies every question — category, section, weight — plus the scoring bands.
+      The copy has no responses, so you can edit it freely.
+    </p>
+
+    <div class="ptm-field">
+      <label>Department</label>
+      <p-select [options]="departments" optionLabel="name" optionValue="id"
+        [(ngModel)]="cloneDepartmentId" [filter]="true" appendTo="body"
+        placeholder="Select department"></p-select>
+    </div>
+
+    <div class="ptm-field">
+      <label>Title</label>
+      <input pInputText [(ngModel)]="cloneTitle" placeholder="e.g. Nursing - Staff Nurse" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="ptm-secondary" (click)="cloneDialogVisible = false">Cancel</button>
+    <button type="button" class="ptm-primary" (click)="confirmClone()"
+      [disabled]="cloning || !cloneTitle.trim() || !cloneDepartmentId">
+      {{ cloning ? 'Cloning…' : 'Clone' }}
+    </button>
+  </ng-template>
+</p-dialog>

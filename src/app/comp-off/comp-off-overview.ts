@@ -34,6 +34,27 @@ export class CompOffOverview implements OnInit {
   statusFilter: string | null = null;
   loggedEmpId = Number(localStorage.getItem('empId')) || 0;
 
+  // Credits are what employees can spend; requests are claims that have not
+  // been credited yet. Keeping them in one page but separate views stops the
+  // two being read as the same thing.
+  view: 'credits' | 'requests' = 'credits';
+  requests: any[] = [];
+  requestFilter: string | null = 'PENDING_HR';
+  pendingHrCount = 0;
+  actionLoading: { [id: number]: boolean } = {};
+
+  rejectDialogVisible = false;
+  rejectTarget: any = null;
+  rejectNote = '';
+
+  requestStatusOptions = [
+    { label: 'Awaiting HR', value: 'PENDING_HR' },
+    { label: 'With manager', value: 'PENDING_MANAGER' },
+    { label: 'Credited', value: 'APPROVED' },
+    { label: 'Rejected', value: 'REJECTED' },
+    { label: 'All', value: null },
+  ];
+
   dialogVisible = false;
   selectedEmployee: any = null;
   formWorkDate: Date | null = null;
@@ -60,6 +81,98 @@ export class CompOffOverview implements OnInit {
   ngOnInit() {
     this.loadData();
     this.loadEmployees();
+    this.refreshPendingCount();
+  }
+
+  setView(view: 'credits' | 'requests') {
+    this.view = view;
+    if (view === 'requests') this.loadRequests();
+    else this.loadData();
+  }
+
+  loadRequests() {
+    this.loading = true;
+    const params: any = {};
+    if (this.requestFilter) params.status = this.requestFilter;
+    this.compOffService.getRequests(params).subscribe({
+      next: (data) => { this.requests = data || []; this.loading = false; this.refreshPendingCount(); },
+      error: () => { this.loading = false; },
+    });
+  }
+
+  /** Badge on the Requests button — HR's actual queue depth. */
+  refreshPendingCount() {
+    this.compOffService.getHrPending().subscribe({
+      next: (rows) => { this.pendingHrCount = (rows || []).length; },
+      error: () => { this.pendingHrCount = 0; },
+    });
+  }
+
+  hrApprove(row: any) {
+    this.actionLoading[row.id] = true;
+    this.compOffService.hrDecide(row.id, true).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success', summary: 'Approved',
+          detail: 'Comp-off credited — valid for 30 days from the work date',
+        });
+        this.actionLoading[row.id] = false;
+        this.loadRequests();
+      },
+      error: (e) => {
+        this.actionLoading[row.id] = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' });
+      },
+    });
+  }
+
+  openReject(row: any) {
+    this.rejectTarget = row;
+    this.rejectNote = '';
+    this.rejectDialogVisible = true;
+  }
+
+  confirmReject() {
+    if (!this.rejectNote.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Reason required', detail: 'Say why you are rejecting it' });
+      return;
+    }
+    const row = this.rejectTarget;
+    this.actionLoading[row.id] = true;
+    this.compOffService.hrDecide(row.id, false, this.rejectNote.trim()).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'info', summary: 'Rejected', detail: 'Comp-off request rejected' });
+        this.actionLoading[row.id] = false;
+        this.rejectDialogVisible = false;
+        this.loadRequests();
+      },
+      error: (e) => {
+        this.actionLoading[row.id] = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' });
+      },
+    });
+  }
+
+  fmtHours(minutes: number | null): string {
+    if (minutes === null || minutes === undefined) return '-';
+    return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+  }
+
+  statusLabel(status: string): string {
+    switch (status) {
+      case 'PENDING_MANAGER': return 'With manager';
+      case 'PENDING_HR': return 'Awaiting HR';
+      case 'APPROVED': return 'Credited';
+      case 'REJECTED': return 'Rejected';
+      case 'WITHDRAWN': return 'Withdrawn';
+      default: return status;
+    }
+  }
+
+  statusClass(status: string): string {
+    if (status === 'APPROVED') return 'used';
+    if (status === 'REJECTED' || status === 'WITHDRAWN') return 'rejected';
+    return 'unused';
   }
 
   loadEmployees() {
@@ -101,6 +214,19 @@ export class CompOffOverview implements OnInit {
   fmtDate(d: any): string {
     if (!d) return '';
     return formatDate(d, 'dd-MM-yyyy', 'en');
+  }
+
+  // The leave day(s) this credit was consumed for. Legacy rows have no linked
+  // leave — those fall back to usedOn, which on old data is the approval date.
+  usedForLabel(item: any): string {
+    const leave = item?.leave;
+    if (leave) {
+      const start = this.fmtDate(leave.startDate);
+      const end = this.fmtDate(leave.endDate);
+      const range = start === end ? start : `${start} - ${end}`;
+      return leave.isHalfDay ? `${range} (Half Day)` : range;
+    }
+    return this.fmtDate(item?.usedOn) || '-';
   }
 
   openDialog() {

@@ -74,64 +74,80 @@ export class DeptPerformance {
     { label: 'Department', value: 'departmentId' },
     // { label: 'Cycle', value: 'cycle' } 
   ];
-  loggedEmployeeId: string = localStorage.getItem('empId') || '';
-
   selectedFilter: any = null;
   showFilterDropdown = false;
   filteredSummaries: any[] = [];
   loading = true;
   isLoading = false;
 
-  periods = [
-    { label: 'Month 1', value: 'MONTH_1' },
-    { label: 'Month 3', value: 'MONTH_3' },
-    { label: 'Month 6', value: 'MONTH_6' },
-    { label: 'Year 1', value: 'YEAR_1' },
-    // { label: 'Year 2', value: 'YEAR_2' }
+  // FIRST_YEAR creates all four probation rows under one DOJ-derived cycle;
+  // RECURRING creates the single annual row for the current cycle.
+  tracks = [
+    { label: 'First year (1st / 3rd / 6th month + 1 year)', value: 'FIRST_YEAR' },
+    { label: 'Annual review', value: 'RECURRING' },
   ];
 
-  cycles: any[] = [];
+  periodLabels: Record<string, string> = {
+    MONTH_1: '1st Month',
+    MONTH_3: '3rd Month',
+    MONTH_6: '6th Month',
+    YEAR_1: '1 Year',
+  };
+
+  cyclePreview: {
+    cycle: string;
+    periods: Array<{ period: string; milestoneDate: string; reached: boolean; label: string }>;
+    more: number;
+    /** Set when FIRST_YEAR is chosen for someone already past their first year. */
+    backfill: { completedOn: string; annualCycle: string | null } | null;
+  } | null = null;
+  cyclePreviewLoading = false;
+  cyclePreviewError = '';
+
+  /** Guards against an earlier lookup overwriting a later one — the preview
+   *  used to show the first-year plan while Annual review was selected. */
+  private previewToken = 0;
 
   constructor(private performanceService: PerformanceService, private employeeService: Employees,
     private departmentService: Departments, private fb: FormBuilder, private messageService: MessageService,
     private appraisalService: Appraisal) {
+    // No cycle/period fields — the backend derives both from each employee's
+    // DOJ and their department's configured basis. HR picks who and which track.
     this.assignForm = this.fb.group({
       employeeIds: [[], Validators.required],
       departmentId: [null, Validators.required],
-      cycle: ['', Validators.required],
+      track: ['FIRST_YEAR', Validators.required],
       templateId: [null, Validators.required],
-      period: ['', Validators.required],
     });
   }
 
   ngOnInit() {
+    // Role first — loadSummaries() and the action-column buttons both read it.
+    this.role = localStorage.getItem('role') || '';
     this.loadSummaries();
     this.loadEmployees();
     this.loadDepartments();
-    this.role = localStorage.getItem('role') || '';
     document.addEventListener('click', this.closeDropdownOnClickOutside);
-    this.generateCycles();
 
-    // Reload templates whenever department or cycle changes; clear stale picks.
+    // Templates now depend on department alone — a question set is valid for
+    // every cycle, so there's nothing to reload when the track changes.
     this.assignForm.get('departmentId')?.valueChanges.subscribe(() => {
       this.assignForm.patchValue({ templateId: null }, { emitEvent: false });
       this.loadTemplates();
     });
-    this.assignForm.get('cycle')?.valueChanges.subscribe(() => {
-      this.assignForm.patchValue({ templateId: null }, { emitEvent: false });
-      this.loadTemplates();
-    });
+    // Preview which cycle the selection will land in, so HR sees it before saving.
+    this.assignForm.get('employeeIds')?.valueChanges.subscribe(() => this.previewCycle());
+    this.assignForm.get('track')?.valueChanges.subscribe(() => this.previewCycle());
   }
 
   loadTemplates() {
     const departmentId = this.assignForm.value.departmentId;
-    const cycle = this.assignForm.value.cycle;
-    if (!departmentId || !cycle) {
+    if (!departmentId) {
       this.templates = [];
       return;
     }
     this.templatesLoading = true;
-    this.performanceService.listTemplates(departmentId, cycle).subscribe({
+    this.performanceService.listTemplates(departmentId).subscribe({
       next: (rows) => {
         this.templates = rows || [];
         this.templatesLoading = false;
@@ -142,10 +158,87 @@ export class DeptPerformance {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load templates for this department + cycle'
+          detail: 'Failed to load templates for this department'
         });
       }
     });
+  }
+
+  /**
+   * Read-only preview of the derived cycle for the first selected employee.
+   * HR no longer chooses a cycle, so this is how they see what will be created.
+   */
+  previewCycle() {
+    const ids: number[] = this.assignForm.value.employeeIds || [];
+    const track = this.assignForm.value.track;
+    this.cyclePreview = null;
+    this.cyclePreviewError = '';
+    if (!ids.length || !track) {
+      this.cyclePreviewLoading = false;
+      return;
+    }
+
+    // Employee and track changes both trigger a lookup, so two can be in flight
+    // at once. Only the newest may render.
+    const token = ++this.previewToken;
+    this.cyclePreviewLoading = true;
+
+    this.performanceService.getEmployeeCycles(ids[0]).subscribe({
+      next: (res) => {
+        // Superseded, or the selection moved on while this was in flight.
+        if (token !== this.previewToken) return;
+        if (this.assignForm.value.track !== track) return;
+
+        this.cyclePreviewLoading = false;
+        const plan = (res.plans || []).find(p => p.track === track);
+
+        if (!plan) {
+          this.cyclePreview = null;
+          this.cyclePreviewError = track === 'RECURRING'
+            ? 'No annual cycle has started for this employee yet — their first year is still running.'
+            : 'No first-year cycle could be derived (check the date of joining).';
+          return;
+        }
+
+        // First-year track chosen for someone whose first year is already over:
+        // allowed, since the paper reviews may never have been recorded, but
+        // it's a backfill and HR should know before pressing Assign.
+        let backfill: { completedOn: string; annualCycle: string | null } | null = null;
+        if (track === 'FIRST_YEAR') {
+          const yearOne = plan.periods.find(p => p.period === 'YEAR_1');
+          if (yearOne?.reached) {
+            const annual = (res.plans || []).filter(p => p.track === 'RECURRING');
+            backfill = {
+              completedOn: plan.endDate,
+              annualCycle: annual.length ? annual[annual.length - 1].cycle : null,
+            };
+          }
+        }
+
+        this.cyclePreview = {
+          cycle: plan.cycle,
+          periods: plan.periods.map(p => ({
+            period: p.period,
+            milestoneDate: p.milestoneDate,
+            reached: p.reached,
+            // Server-supplied; a second-year review reads "2nd Year" even
+            // though it is stored as YEAR_1.
+            label: p.label || this.periodLabels[p.period] || p.period,
+          })),
+          more: ids.length > 1 ? ids.length - 1 : 0,
+          backfill,
+        };
+      },
+      error: (err) => {
+        if (token !== this.previewToken) return;
+        this.cyclePreviewLoading = false;
+        this.cyclePreviewError = err?.error?.error || 'Could not derive the cycle for this employee.';
+      },
+    });
+  }
+
+  ngOnDestroy() {
+    document.removeEventListener('click', this.closeDropdownOnClickOutside);
   }
 
   closeDropdownOnClickOutside = (event: any) => {
@@ -194,19 +287,6 @@ export class DeptPerformance {
     });
   }
 
-  generateCycles() {
-    const currentYear = new Date().getFullYear();
-    this.cycles = [];
-
-    for (let i = 0; i < 20; i++) {
-      const startYear = currentYear + i;
-      const endYear = startYear + 1;
-      const cycle = `APR-${startYear} TO MAR-${endYear}`;
-
-      this.cycles.push({ label: cycle, value: cycle });
-    }
-  }
-
   onFilterChange() {
     this.filteredSummaries = [...this.summaries];
     this.showFilterDropdown = false;
@@ -228,20 +308,11 @@ export class DeptPerformance {
 
     this.performanceService.getSummaries().subscribe({
       next: (data: any[]) => {
-
-        let filtered = data || [];
-
-        if (this.role === 'HR Manager' || this.role === 'Management') {
-          filtered = data;
-        }
-        else if (this.role === 'Executives' && Number(localStorage.getItem('deptId')) === 1) {
-          filtered = data.filter((a: any) => a?.departmentId !== 1);
-        }
-        else if (this.role === 'Reporting Manager') {
-          filtered = data.filter(
-            (a: any) => a.employee?.reportingManager === Number(this.loggedEmployeeId)
-          );
-        }
+        // No client-side role filtering. GET /performance/summaries is now
+        // scoped server-side (see getAllSummaries), which is the only place it
+        // can be enforced — the old filter here fell through to "show
+        // everything" for any role it didn't name, and was bypassable anyway.
+        const filtered = data || [];
 
         this.summaries = filtered.map(s => ({
           ...s,
@@ -346,23 +417,67 @@ export class DeptPerformance {
   }
   filterEmployees(deptId: number) {
     this.filteredEmployees = this.employees.filter(e => e.departmentId === deptId);
+    // Previously-picked employees belong to the old department — drop them
+    // rather than silently assigning across departments.
+    this.assignForm.patchValue({ employeeIds: [] });
   }
 
   onAssign() {
-    const payload = this.assignForm.value;
-    this.performanceService.assignForm(payload).subscribe({
-      next: (res) => {
+    const { employeeIds, track, templateId } = this.assignForm.value;
+    this.isLoading = true;
+    // departmentId only scopes the employee/template pickers — the backend
+    // takes the department from each employee's own record.
+    this.performanceService.assignForm({ employeeIds, track, templateId }).subscribe({
+      next: (res: any[]) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Performance summaries assigned successfully.' });
-        console.log('Assigned:', res);
+        const rows = res || [];
+        const ok = rows.filter(r => r.assigned);
+        const failed = rows.filter(r => !r.assigned);
+        const rowCount = ok.reduce((n, r) => n + (r.created?.length || 0), 0);
+
+        if (ok.length) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Assigned',
+            detail: `${rowCount} row(s) created for ${ok.length} employee(s).`,
+          });
+        }
+        // A batch can mix tenures, so name anyone whose first year was already
+        // over — those rows are a backfill, not a live review.
+        const backfilled = ok.filter(r => r.backfill);
+        if (backfilled.length) {
+          this.messageService.add({
+            severity: 'info',
+            summary: `${backfilled.length} backfilled`,
+            detail: `${backfilled.map(r => r.employeeName || `#${r.employeeId}`).join(', ')} ` +
+              `already finished their first year — those milestones are all in the past.`,
+            life: 8000,
+          });
+        }
+        // A batch can partly fail (no DOJ, wrong department, already assigned)
+        // — surface that instead of reporting blanket success.
+        if (failed.length) {
+          this.messageService.add({
+            severity: ok.length ? 'warn' : 'error',
+            summary: `${failed.length} skipped`,
+            detail: [...new Set(failed.map(r => r.message).filter(Boolean))].join(' · ') || 'Already assigned',
+            life: 7000,
+          });
+        }
+
         this.visible = false;
-        this.assignForm.reset();
+        this.assignForm.reset({ track: 'FIRST_YEAR', employeeIds: [] });
+        this.cyclePreview = null;
+        this.cyclePreviewError = '';
         this.loadSummaries();
       },
       error: (err) => {
-        console.error(err)
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign performance summaries.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || 'Failed to assign performance summaries.',
+        });
       }
     });
   }
@@ -382,8 +497,9 @@ export class DeptPerformance {
     this.selectedSummary = null;
     this.loadSummaries(); // refresh table after closing form
   }
-  getDepartmentColors(departmentId: number) {
-    const baseHue = (departmentId * 40) % 360;
+  getDepartmentColors(departmentId?: number | null) {
+    // Guard: an unresolved department produced hsl(NaN, …), i.e. no colour.
+    const baseHue = ((Number(departmentId) || 0) * 40) % 360;
     const badgeColor = `hsl(${baseHue}, 70%, 85%)`;
     const dotColor = `hsl(${baseHue}, 70%, 40%)`;
 

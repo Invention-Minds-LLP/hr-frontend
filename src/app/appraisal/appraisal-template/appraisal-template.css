@@ -286,3 +286,64 @@
   justify-content: end;
   margin-right: 5px;
 }
+.marks-max {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #9b9b9b;
+  font-family: "Sofia Sans";
+}
+
+/* Which reviewer column the current user fills. */
+.reviewer-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  margin: 0 15px 18px;
+  padding: 10px 14px;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #4ade80;
+  border-radius: 0 8px 8px 0;
+  background: #0a0a0a;
+  font-family: "Sofia Sans";
+}
+
+.reviewer-strip.is-readonly { border-left-color: #9b9b9b; }
+
+.reviewer-strip .rs-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9b9b9b;
+}
+
+.reviewer-strip .rs-role {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.reviewer-strip .rs-hint {
+  font-size: 12px;
+  color: #9b9b9b;
+}
+
+/* Other reviewers' scores, read-only, under your own input. */
+.other-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.os-chip {
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: #1d242f;
+  color: #a9b3c2;
+  border: 1px solid #2a323f;
+  white-space: nowrap;
+}
