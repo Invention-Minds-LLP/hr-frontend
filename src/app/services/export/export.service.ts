@@ -9,6 +9,7 @@ export interface ExportParams {
   year?:      number;
   month?:     number;
   employeeId?: number;
+  cycleId?:   number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +25,7 @@ export class ExportService {
     if (params.year)       httpParams = httpParams.set('year',       String(params.year));
     if (params.month)      httpParams = httpParams.set('month',      String(params.month));
     if (params.employeeId) httpParams = httpParams.set('employeeId', String(params.employeeId));
+    if (params.cycleId)    httpParams = httpParams.set('cycleId',    String(params.cycleId));
 
     return this.http.get(`${this.base}/${table}`, {
       params: httpParams,

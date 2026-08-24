@@ -32,6 +32,12 @@
         <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
       </div> -->
+      <!-- Chase what's outstanding rather than scanning the whole list. Only
+           rendered for callers the server sent progress data to. -->
+      <p-select *ngIf="showProgress" [options]="pendingOptions" optionLabel="label" optionValue="value"
+        [(ngModel)]="pendingFilter" (onChange)="onPendingFilterChange()" appendTo="body"
+        placeholder="All rows" styleClass="pending-select"></p-select>
+
       <p-iconfield>
         <p-inputicon class="pi pi-search" />
         <input id="searchBox" class="input" type="text" pInputText placeholder="Search" (input)="onSearch($event)" />
@@ -140,6 +146,7 @@
         <th>Period</th>
         <th>Score</th>
         <th>Status</th>
+        <th *ngIf="showProgress">Progress</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -166,6 +173,7 @@
           <td><p-skeleton width="60px"></p-skeleton></td>
           <td><p-skeleton width="50px"></p-skeleton></td>
           <td><p-skeleton width="80px"></p-skeleton></td>
+          <td *ngIf="showProgress"><p-skeleton width="120px"></p-skeleton></td>
           <td><p-skeleton width="40px"></p-skeleton></td>
         </tr>
       </ng-container>
@@ -201,6 +209,19 @@
           <td>{{ s.periodLabel || periodLabels[s.period] || s.period }}</td>
           <td>{{ s.marksScored || '-' }}</td>
           <td>{{ s.overallPerf || 'Draft' }}</td>
+
+          <!-- Who has finished their part. Self is per cycle, so it reads the
+               same across that cycle's period rows; the reviewers are per row. -->
+          <td *ngIf="showProgress">
+            <div class="prog-cell">
+              <span class="prog-pill" *ngFor="let r of progressRoles"
+                [ngClass]="'is-' + (s.progress?.[r.key] || 'none')"
+                [title]="progressTitle(r.label, s.progress?.[r.key])">
+                {{ r.short }}
+              </span>
+            </div>
+          </td>
+
           <td>
             <div class="action-cell">
               <!-- TEMP: pause feature on hold — uncomment to re-enable

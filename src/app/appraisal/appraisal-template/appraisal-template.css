@@ -347,3 +347,15 @@
   border: 1px solid #2a323f;
   white-space: nowrap;
 }
+
+/* Score inside a read-only reviewer chip. Separated from the role name so
+   "Reviewer 5" cannot be misread as "Reviewer number 5". */
+.os-chip .os-score {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(125, 161, 240, 0.18);
+  color: #cfe0ff;
+  font-variant-numeric: tabular-nums;
+}

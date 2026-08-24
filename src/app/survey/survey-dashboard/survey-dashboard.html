@@ -13,10 +13,16 @@
   <!-- ============== FILTER BAR ============== -->
   <div class="sd-filters">
     <div class="sd-filter">
+      <label>Survey cycle</label>
+      <p-select [(ngModel)]="selectedCycleId" [options]="cycleOptions"
+                optionLabel="label" optionValue="value" placeholder="All cycles"
+                appendTo="body"></p-select>
+    </div>
+    <div class="sd-filter">
       <label>Date range (submitted)</label>
       <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [readonlyInput]="true"
                     dateFormat="dd-mm-yy" placeholder="All time" [showButtonBar]="true"
-                    appendTo="body"></p-datepicker>
+                    [disabled]="!!selectedCycleId" appendTo="body"></p-datepicker>
     </div>
     <div class="sd-filter">
       <label>Department</label>
@@ -39,6 +45,23 @@
       <button pButton label="Apply" icon="pi pi-filter" (click)="applyFilters()"></button>
       <button pButton label="Clear" icon="pi pi-times" class="p-button-outlined" (click)="clearFilters()"></button>
     </div>
+  </div>
+
+  <!-- ============== SELECTED CYCLE STRIP ============== -->
+  <div class="sd-cycle-strip" *ngIf="selectedCycle as c">
+    <p-tag [value]="c.status"
+           [severity]="c.status === 'OPEN' ? 'success' : c.status === 'SCHEDULED' ? 'warn' : 'secondary'"></p-tag>
+    <span class="sd-cycle-window">
+      {{ c.startDate | date: 'dd MMM yyyy' }} – {{ c.endDate | date: 'dd MMM yyyy' }}
+    </span>
+    <span class="sd-cycle-stat"><strong>{{ c.submitted }}</strong> submitted</span>
+    <span class="sd-cycle-stat"><strong>{{ c.pending }}</strong> pending</span>
+    <span class="sd-cycle-stat"><strong>{{ c.expired }}</strong> not submitted</span>
+    <span class="sd-cycle-stat"><strong>{{ c.completionPct }}%</strong> complete</span>
+    <span class="sd-cycle-note">
+      Recent joiners (within {{ c.exclusionDays }} days of start) excluded · repeats every
+      {{ c.recurrenceMonths }} months
+    </span>
   </div>
 
   <!-- ============== TABS ============== -->
@@ -67,6 +90,11 @@
             <div class="sd-kpi-value">{{ summary.totalDrafts }}</div>
           </div>
           <div class="sd-kpi">
+            <div class="sd-kpi-label">Not submitted</div>
+            <div class="sd-kpi-value">{{ summary.totalExpired || 0 }}</div>
+            <div class="sd-kpi-note">window closed</div>
+          </div>
+          <div class="sd-kpi">
             <div class="sd-kpi-label">Completion</div>
             <div class="sd-kpi-value">{{ summary.completionPct }}%</div>
             <p-progressBar [value]="summary.completionPct" [showValue]="false"></p-progressBar>
@@ -79,6 +107,7 @@
                 {{ deltaIcon(summary.scoreDelta) }} {{ summary.scoreDelta | number:'1.2-2' }}
               </span>
             </div>
+            <div class="sd-kpi-note" *ngIf="summary.prevCycle">vs {{ summary.prevCycle.name }}</div>
           </div>
           <div class="sd-kpi">
             <div class="sd-kpi-label">Positive %</div>
@@ -91,7 +120,7 @@
         </div>
         <ng-template #loadingKpi>
           <div class="sd-kpi-grid">
-            <p-skeleton height="90px" *ngFor="let _ of [1,2,3,4,5,6]"></p-skeleton>
+            <p-skeleton height="90px" *ngFor="let _ of [1,2,3,4,5,6,7]"></p-skeleton>
           </div>
         </ng-template>
 

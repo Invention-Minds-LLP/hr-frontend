@@ -190,6 +190,7 @@
 .date-badge  { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
 .year-badge  { background: rgba(76, 227, 123, 0.12); color: #4ce37b; border: 1px solid rgba(76,227,123,0.2); }
 .month-badge { background: rgba(251, 156, 42, 0.12); color: #FB9C2A; border: 1px solid rgba(251,156,42,0.2); }
+.cycle-badge { background: rgba(167, 139, 250, 0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.22); }
 
 /* ── Export button ────────────────────────────────────────────────────── */
 .export-btn {

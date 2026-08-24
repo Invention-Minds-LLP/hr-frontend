@@ -11,6 +11,22 @@ export interface SurveyQuestion {
   orderNo: number;
 }
 
+export interface SurveyCycle {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  /** SCHEDULED | OPEN | CLOSED */
+  status: string;
+  exclusionDays: number;
+  recurrenceMonths: number;
+  assigned: number;
+  submitted: number;
+  pending: number;
+  expired: number;
+  completionPct: number;
+}
+
 export interface SurveySubmitPayload {
   employeeId: number;
   answers: { questionId: number; answer: string }[];
@@ -50,8 +66,14 @@ export class SurveryService {
   private analyticsParams(filters?: any): HttpParams {
     let p = new HttpParams();
     if (!filters) return p;
-    if (filters.from) p = p.set('from', filters.from);
-    if (filters.to) p = p.set('to', filters.to);
+    // A cycle is itself a date window, so the backend ignores from/to when it
+    // is set — send only the cycle to keep the query string honest.
+    if (filters.cycleId) {
+      p = p.set('cycleId', String(filters.cycleId));
+    } else {
+      if (filters.from) p = p.set('from', filters.from);
+      if (filters.to) p = p.set('to', filters.to);
+    }
     if (filters.departmentId) p = p.set('departmentId', String(filters.departmentId));
     if (filters.departmentIds?.length) p = p.set('departmentIds', filters.departmentIds.join(','));
     if (filters.gender) p = p.set('gender', filters.gender);
@@ -89,5 +111,13 @@ export class SurveryService {
   }
   sendPendingReminders(surveyIds: number[]): Observable<any> {
     return this.http.post(`${this.baseUrl}/analytics/pending/remind`, { surveyIds });
+  }
+
+  // ===== Survey cycles =====
+  getSurveyCycles(): Observable<SurveyCycle[]> {
+    return this.http.get<SurveyCycle[]>(`${this.baseUrl}/cycles`);
+  }
+  getCycleExclusions(cycleId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/cycles/${cycleId}/exclusions`);
   }
 }

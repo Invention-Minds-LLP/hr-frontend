@@ -24,7 +24,10 @@
   <ng-template #noScoring>
     <div class="reviewer-strip is-readonly">
       <span class="rs-label">Read only</span>
-      <span class="rs-hint">You can view this sheet but are not one of its reviewers.</span>
+      <span class="rs-hint">
+        Scoring is done by the employee's in-charge, their reporting manager (HOD) and Management.
+        HR administers the cycle and signs the final review.
+      </span>
     </div>
   </ng-template>
   <h2 class="mb-4">{{ template.department.name }} Performance Appraisal ({{ template.cycle }})</h2>
@@ -122,8 +125,9 @@
           </p-select>
           <div class="other-scores" *ngIf="othersFor(q.id, p).length">
             <span *ngFor="let o of othersFor(q.id, p)" class="os-chip"
-              [title]="(reviewerRoleLabels[o.role] || o.role) + ' scored ' + o.score">
-              {{ reviewerRoleLabels[o.role] || o.role }} {{ o.score }}
+              [title]="(reviewerRoleLabels[o.role] || o.role) + ' scored ' + o.score + ' out of 5'">
+              {{ reviewerRoleLabels[o.role] || o.role }}
+              <b class="os-score">{{ o.score }}</b>
             </span>
           </div>
         </td>

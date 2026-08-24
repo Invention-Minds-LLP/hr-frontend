@@ -1,0 +1,161 @@
+<!-- Mirrors the managerial self-appraisal's layout: a compact table of cycles,
+     with the questionnaire in a dialog rather than inline. Sits on the same
+     page as that panel, so the two must not read as different products — and
+     an inline form here made the page scroll a long way.
+
+     Renders nothing when this person has no indicator cycles, so a manager
+     doesn't get a dead section under the panel that applies to them. -->
+<p-toast></p-toast>
+
+<div class="guide" *ngIf="cycles.length">
+  <app-module-guide
+    title="My Self Appraisal"
+    subtitle="Your own assessment for each performance-indicator cycle. Your in-charge and supervisor score the indicator separately — they don't see what you write here."
+    [points]="[
+      { label: 'One per cycle', desc: 'HR assigns the performance indicator first, then the cycle appears here for you to fill.' },
+      { label: 'Rate and comment', desc: 'Score each criterion from 1 to 5 and add a comment where it helps.' },
+      { label: 'Draft or submit', desc: 'Save a draft and come back to it. Submitting locks your answers — ask HR to reopen.' }
+    ]">
+  </app-module-guide>
+</div>
+
+<div class="self-appraisal-container" *ngIf="cycles.length">
+  <div class="section-header">
+    <div class="main-heading">My Self Appraisal</div>
+  </div>
+
+  <!-- Holding both routes means two self-appraisals exist for one person. -->
+  <div class="dsa-both" *ngIf="hasBoth">
+    <strong>You also have a managerial appraisal.</strong>
+    {{ managerialAppraisals[0].cycle }} is handled in the Self Appraisal section above — fill it
+    there, not here.
+  </div>
+
+  <div class="table-wrap">
+    <table class="appraisal-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cycle</th>
+          <th>Assessment Periods</th>
+          <th>Status</th>
+          <th>Last Saved</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of cycles; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ c.cycle }}</td>
+          <td>
+            <span class="period-chip" *ngFor="let p of c.periods">{{ p }}</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="statusClass(c)">{{ statusLabel(c) }}</span>
+          </td>
+          <td>{{ (c.submittedAt || c.lastSaved | date:'dd MMM yyyy') || '-' }}</td>
+          <td class="action-cell">
+            <button class="btn-icon edit" *ngIf="!c.submitted" (click)="open(c.cycle)"
+              [pTooltip]="c.started ? 'Continue Self-Appraisal' : 'Fill Self-Appraisal'"
+              tooltipPosition="top">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button class="btn-icon view" (click)="open(c.cycle)"
+              pTooltip="View Details" tooltipPosition="top">
+              <i class="pi pi-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── SELF-APPRAISAL FORM DIALOG ──────────────────────────────────── -->
+<p-dialog header="Self-Appraisal" [(visible)]="formDialogVisible" [modal]="true"
+  [style]="{ width: '700px', maxHeight: '85vh' }" [closable]="true" (onHide)="closeForm()">
+
+  <div class="dsa-loading" *ngIf="loadingForm">Loading the questionnaire…</div>
+
+  <div class="self-form" *ngIf="!loadingForm && activeCycle">
+    <div class="form-info">
+      <span>Cycle: <strong>{{ activeCycle }}</strong></span>
+      <span class="form-info-count" *ngIf="answers.length">
+        {{ answeredCount }} / {{ answers.length }} rated
+      </span>
+    </div>
+
+    <div class="dsa-both" *ngIf="submittedAt">
+      <strong>Submitted {{ submittedAt | date:'dd MMM yyyy' }}.</strong>
+      Read-only — ask HR to reopen it if something needs changing.
+    </div>
+
+    <div class="dsa-both" *ngIf="readOnly && !submittedAt">
+      <strong>Read only.</strong> You're viewing someone else's self-appraisal.
+    </div>
+
+    <!-- Question-based ratings grouped by section -->
+    <div *ngIf="groupedQuestions.length">
+      <div class="form-section" *ngFor="let group of groupedQuestions">
+        <h4 class="section-heading">{{ group.section }}</h4>
+        <div class="rating-scale-legend">
+          <span>1 - Needs Improvement</span>
+          <span>2 - Below Expectations</span>
+          <span>3 - Meets Expectations</span>
+          <span>4 - Exceeds Expectations</span>
+          <span>5 - Outstanding</span>
+        </div>
+        <div class="question-list">
+          <div class="q-card" *ngFor="let q of group.questions">
+            <div class="q-header">
+              <span class="q-text">{{ q.text }}</span>
+            </div>
+            <div class="q-rating-buttons">
+              <button *ngFor="let r of ratingScale" type="button"
+                class="rating-btn"
+                [class.active]="answerFor(q.id)?.rating === r"
+                [disabled]="!canEdit"
+                (click)="setRating(q.id, r)">
+                {{ r }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Free-text sections -->
+    <div class="form-section">
+      <h4 class="section-heading">In your own words</h4>
+
+      <h4>Key Achievements</h4>
+      <textarea pTextarea [(ngModel)]="achievements" [ngModelOptions]="{ standalone: true }"
+        rows="3" style="width: 100%" [disabled]="!canEdit"
+        placeholder="What went well this cycle?"></textarea>
+
+      <h4>Goals &amp; Objectives</h4>
+      <textarea pTextarea [(ngModel)]="goalsObjective" [ngModelOptions]="{ standalone: true }"
+        rows="3" style="width: 100%" [disabled]="!canEdit"
+        placeholder="What are you working towards?"></textarea>
+
+      <h4>Challenges Faced</h4>
+      <textarea pTextarea [(ngModel)]="challenges" [ngModelOptions]="{ standalone: true }"
+        rows="3" style="width: 100%" [disabled]="!canEdit"
+        placeholder="What got in the way?"></textarea>
+
+      <h4>Training Needs</h4>
+      <textarea pTextarea [(ngModel)]="trainingNeeds" [ngModelOptions]="{ standalone: true }"
+        rows="2" style="width: 100%" [disabled]="!canEdit"
+        placeholder="What would help you do this job better?"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Save Draft" class="p-button-text" *ngIf="canEdit"
+      (click)="save(true)" [loading]="saving"></button>
+    <button pButton label="Submit" class="p-button-success" *ngIf="canEdit"
+      (click)="save(false)" [loading]="saving"></button>
+    <button pButton label="Close" class="p-button-text" *ngIf="!canEdit"
+      (click)="closeForm()"></button>
+  </ng-template>
+</p-dialog>

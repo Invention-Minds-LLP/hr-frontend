@@ -161,6 +161,8 @@ export class SurveyList {
         return 'warn'; // Yellow/Orange
       case 'pending':
         return 'info'; // Blue (optional state)
+      case 'expired':
+        return 'danger'; // Red — window closed without a submission
       case 'rejected':
         return 'danger'; // Red
       default:

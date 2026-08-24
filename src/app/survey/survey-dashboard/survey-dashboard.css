@@ -38,7 +38,7 @@
 /* ── Filter bar ───────────────────────────────────────────── */
 .sd-page .sd-filters {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) auto;
+  grid-template-columns: repeat(5, 1fr) auto;
   gap: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -62,10 +62,32 @@
   .sd-page .sd-filter-actions { grid-column: 1 / -1; }
 }
 
+/* ── Selected cycle strip ─────────────────────────────────── */
+.sd-page .sd-cycle-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin: -12px 0 24px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+.sd-page .sd-cycle-window { font-weight: 700; color: #e5e7eb; }
+.sd-page .sd-cycle-stat strong { color: #ffffff; font-weight: 800; }
+.sd-page .sd-cycle-note {
+  margin-left: auto;
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
 /* ── KPI cards — semantic variants ────────────────────────── */
 .sd-page .sd-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -100,6 +122,11 @@
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
+.sd-page .sd-kpi-note {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
 .sd-page .sd-delta {
   display: inline-block;
   font-size: 0.78rem;
@@ -132,6 +159,7 @@
 .sd-page .sd-kpi-value.text-green-600 { color: #4ade80; }
 .sd-page .sd-kpi-value.text-red-600 { color: #f87171; }
 
+@media (max-width: 1500px) { .sd-page .sd-kpi-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 1200px) { .sd-page .sd-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px)  { .sd-page .sd-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 

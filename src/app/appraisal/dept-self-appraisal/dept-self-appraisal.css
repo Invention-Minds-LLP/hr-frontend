@@ -1,0 +1,264 @@
+/* Deliberately mirrors self-appraisal.css. Both panels sit on the Individual
+   page one above the other, so they must read as the same feature — copied
+   rather than shared because Angular scopes component styles. */
+
+.self-appraisal-container {
+  padding: 0 0px 0px;
+  color: white;
+  font-family: "Sofia Sans";
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.main-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.table-wrap {
+  max-height: 400px;
+  overflow: auto;
+  border-radius: 14px;
+  width: 100%;
+}
+
+.appraisal-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 14px;
+}
+
+.appraisal-table thead tr {
+  background: linear-gradient(96deg, #c6d3fe 0%, #abd6fc 100%);
+  height: 50px;
+}
+
+.appraisal-table thead tr th:first-child { border-top-left-radius: 16px; }
+.appraisal-table thead tr th:last-child { border-top-right-radius: 16px; }
+
+.appraisal-table th {
+  padding: 14px 20px;
+  color: #000;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+.appraisal-table tbody tr {
+  background: rgba(85, 85, 85, 0.4);
+  border-bottom: 1px solid #727272;
+}
+
+.appraisal-table tbody tr:last-child { border-bottom: none; }
+.appraisal-table tbody tr:last-child td:first-child { border-bottom-left-radius: 16px; }
+.appraisal-table tbody tr:last-child td:last-child { border-bottom-right-radius: 16px; }
+
+.appraisal-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  text-wrap: nowrap;
+}
+
+/* Assessment periods inside a cell — several per cycle. */
+.period-chip {
+  display: inline-block;
+  margin: 2px 3px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  font-weight: 600;
+  color: #d8dee9;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-badge.st-submitted { background: #e8f5e9; color: #2e7d32; }
+.status-badge.st-draft     { background: #fff3e0; color: #e65100; }
+.status-badge.st-pending   { background: #eceff1; color: #455a64; }
+
+/* Action buttons */
+.action-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.edit { background: #fff3e0; color: #e65100; }
+.btn-icon.view { background: #e3f2fd; color: #1565c0; }
+
+/* Notice used for the both-routes warning and the submitted lock. */
+.dsa-both {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1px solid #3a3323;
+  border-left: 3px solid #FB9C2A;
+  border-radius: 0 8px 8px 0;
+  background: rgba(251, 156, 42, 0.06);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c4c4c4;
+}
+
+.dsa-both strong { color: #fff; }
+
+.dsa-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+
+/* ---- form dialog ---- */
+
+.self-form { padding: 0.5rem 0; }
+
+.form-info {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #FFF;
+}
+
+.form-info-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: #aaa;
+  font-variant-numeric: tabular-nums;
+}
+
+.form-section { margin-bottom: 20px; }
+
+.form-section h4 {
+  margin: 0 0 8px;
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.section-heading {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #FB9C2A;
+  border-left: 4px solid #FB9C2A;
+  padding-left: 10px;
+}
+
+.rating-scale-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.q-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.q-header { flex: 1; }
+
+.q-text {
+  font-weight: 600;
+  color: #fff;
+  font-size: 14px;
+}
+
+.q-rating-buttons {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.rating-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #aaa;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-btn:hover:not(:disabled) { border-color: #FB9C2A; color: #FB9C2A; }
+.rating-btn.active { background: #FB9C2A; border-color: #FB9C2A; color: #000; }
+.rating-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.form-section textarea {
+  background: #0a0a0a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: "Sofia Sans";
+  resize: vertical;
+  margin-bottom: 4px;
+}
+
+.form-section textarea:focus { border-color: #FB9C2A; outline: none; }
+.form-section textarea:disabled { opacity: 0.6; }
+
+@media (max-width: 720px) {
+  .q-card { flex-direction: column; align-items: flex-start; }
+}

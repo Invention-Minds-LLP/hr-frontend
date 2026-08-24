@@ -36,6 +36,15 @@
           <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
         </select>
       </div>
+      <div class="filter-group" *ngIf="cycles.length">
+        <label>Survey Cycle</label>
+        <select [(ngModel)]="selectedCycleId">
+          <option [ngValue]="null">All cycles</option>
+          <option *ngFor="let c of cycles" [ngValue]="c.id">
+            {{ c.name }} ({{ c.submitted }}/{{ c.assigned }})
+          </option>
+        </select>
+      </div>
     </div>
     <div class="date-warning" *ngIf="dateRangeWarning">
       <span class="material-icons">warning</span>
@@ -44,6 +53,7 @@
     <p class="filters-hint">
       Date filters apply to exports marked with a calendar icon.
       Year / Month filters apply to summary and balance exports.
+      Survey Cycle applies to exports marked with a poll icon, and overrides the date range on those.
     </p>
   </div>
 
@@ -69,6 +79,9 @@
               </span>
               <span class="badge month-badge" *ngIf="item.needsMonth">
                 <span class="material-icons" style="font-size:12px">calendar_month</span> Month
+              </span>
+              <span class="badge cycle-badge" *ngIf="item.needsCycle">
+                <span class="material-icons" style="font-size:12px">poll</span> Cycle
               </span>
             </div>
           </div>

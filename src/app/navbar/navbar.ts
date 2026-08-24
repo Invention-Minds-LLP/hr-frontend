@@ -49,6 +49,16 @@ export class Navbar {
   username = '';
   // apiUrl = 'http://localhost:3002/api'; // Replace with your actual API URL
   employeeId = localStorage.getItem('empId') || '';
+
+  // Survey nav gating. Mirrors the backend's requireRoleOrDept(['HR_MANAGER',
+  // 'ADMIN'], [1]) on /api/survey/analytics/* — otherwise the link renders for
+  // people whose requests the API will just 403. The survey module has no
+  // permission-catalog key, so this can't go through *hasPerm.
+  deptId = Number(localStorage.getItem('deptId')) || 0;
+  isHRManager = ['HR_MANAGER', 'ADMIN'].includes(
+    (localStorage.getItem('role') || '').toUpperCase(),
+  );
+
   announcements: any[] = [];
   // Per-client module flags (set in environment): show these nav items only for
   // clients that have the module (e.g. IM). Off for others (e.g. JMRH).

@@ -149,7 +149,7 @@
             </a>
           </li>
 
-          <!-- <li class="nav-item" *ngIf="isHRManager || deptId === 1">
+          <li class="nav-item" *ngIf="isHRManager || deptId === 1">
             <a [routerLink]="'/survey-dashboard'" routerLinkActive="active" (click)="closeMenus()" class="nav-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -157,7 +157,7 @@
               </svg>
               <span>Survey Analytics</span>
             </a>
-          </li> -->
+          </li>
 
           <li class="nav-item">
             <a [routerLink]="'/individual'" routerLinkActive="active" (click)="closeMenus()" class="nav-link">
@@ -339,6 +339,19 @@
                 <span>PIP</span>
               </a>
             </li>
+            <!-- Employee Satisfaction Survey — the response list. The cycle-wise
+                 analytics live on the separate Survey Analytics top-level item. -->
+            <li class="nav-items" *ngIf="isHRManager || deptId === 1">
+              <a [routerLink]="'/admin/survey'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 8h6M7 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M15 3h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M21 3l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Survey</span>
+              </a>
+            </li>
           </ng-container>
 
           <ng-container *ngIf="activeAdminGroup==='compliance'">
@@ -408,7 +421,7 @@
             <!-- Comp-off approvals: a manager's queue of their team's claims,
                  and below it the signed-in user's own claims. Sits beside OT
                  Approvals because it is the same kind of act. -->
-            <li class="nav-items" *hasPerm="'admin.compOff.view'">
+            <li class="nav-items" *hasPerm="'admin.compOffApprovals.view'">
               <a [routerLink]="'/admin/comp-off-approvals'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

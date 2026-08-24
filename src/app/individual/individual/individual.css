@@ -1698,6 +1698,16 @@ h1 {
   line-height: normal;
 }
 
+.survey-due {
+  margin-top: 8px;
+  font-family: "Sofia Sans";
+  font-size: 12px;
+  color: #cbd5e1;
+  letter-spacing: 0.01em;
+}
+.survey-due .survey-due-days { color: #94a3b8; }
+.survey-due .survey-due-days.urgent { color: #f87171; font-weight: 700; }
+
 /* ===== BACK CARD DETAILS ===== */
 
 .back {

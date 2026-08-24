@@ -74,11 +74,13 @@ export class AppraisalTemplate {
    *  from their relationship to the employee, not their role id. */
   reviewerRole: string | null = null;
 
+  /** HOD is the employee's reporting manager — there is no separate
+   *  department-head field, and that is who signs the HOD column. */
   reviewerRoleLabels: Record<string, string> = {
     SELF: 'Self',
     INCHARGE: 'In-charge',
-    SUPERVISOR: 'Supervisor',
     HOD: 'HOD',
+    MANAGEMENT: 'Management',
     REVIEWER: 'Reviewer',
   };
 

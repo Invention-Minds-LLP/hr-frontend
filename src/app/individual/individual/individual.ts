@@ -29,6 +29,7 @@ import { Shifts } from '../../services/shifts/shifts';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { MyWeeklyTracker } from '../../weekly-tracker/my-weekly-tracker/my-weekly-tracker';
 import { SelfAppraisalComponent } from '../../appraisal/self-appraisal/self-appraisal';
+import { DeptSelfAppraisal } from '../../appraisal/dept-self-appraisal/dept-self-appraisal';
 import { MyWeeklyRatings } from '../../weekly-rating/my-weekly-ratings/my-weekly-ratings';
 import { SelfWeeklyRating } from '../../weekly-rating/self-weekly-rating/self-weekly-rating';
 import { DialogModule } from 'primeng/dialog';
@@ -60,7 +61,7 @@ type LeaveTypeCount = { label: string; count: number; total: number };
   imports: [TableModule, CommonModule, ButtonModule, LeavePopup, WfhPopup,
     PermissionPopup, FormsModule, FormsModule, CarouselModule, ResignationForm,
     GrievanceList, PoshList, MyIncidents, Tooltip, MyTests, TrainingList, SurveyList,
-    SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent,
+    SkeletonModule, SurveyForm, ModuleGuide, MyWeeklyTracker, SelfAppraisalComponent, DeptSelfAppraisal,
     MyWeeklyRatings, SelfWeeklyRating, DialogModule, TextareaModule],
   templateUrl: './individual.html',
   styleUrl: './individual.css'
@@ -136,6 +137,23 @@ currentWeeklyShiftIndex = 0;
 
     // optional: refresh pending surveys list
     // this.loadPendingSurveys();
+  }
+
+  /** Whole days between today and the cycle's last submission date. */
+  surveyDaysLeft(endDate: string | Date): number {
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.ceil((end.getTime() - today.getTime()) / 86400000) - 1;
+  }
+
+  surveyDueLabel(endDate: string | Date): string {
+    const days = this.surveyDaysLeft(endDate);
+    if (days < 0) return 'closed';
+    if (days === 0) return 'last day';
+    if (days === 1) return '1 day left';
+    return `${days} days left`;
   }
 
 

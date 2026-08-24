@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExportService, ExportParams } from '../../services/export/export.service';
+import { SurveryService, SurveyCycle } from '../../services/surveyService/survery-service';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 interface ExportItem {
@@ -11,6 +12,8 @@ interface ExportItem {
   needsDate?: boolean;
   needsYear?: boolean;
   needsMonth?: boolean;
+  /** Survey reports — scope the sheet to one survey cycle. */
+  needsCycle?: boolean;
 }
 
 interface ExportGroup {
@@ -33,7 +36,19 @@ export class Export {
   year      = new Date().getFullYear();
   month     = new Date().getMonth() + 1;
 
+  // Survey cycles — scopes the survey reports to one window. Left null by
+  // default so the sheets keep their existing all-cycles behaviour.
+  cycles: SurveyCycle[] = [];
+  selectedCycleId: number | null = null;
+
   loading: Record<string, boolean> = {};
+
+  ngOnInit(): void {
+    this.surveyApi.getSurveyCycles().subscribe({
+      next: c => this.cycles = c || [],
+      error: () => this.cycles = [],   // non-HR users can't read cycles; hide the picker
+    });
+  }
 
   get dateRangeWarning(): boolean {
     if (!this.startDate || !this.endDate) return false;
@@ -137,13 +152,13 @@ export class Export {
       title: 'Survey',
       icon: 'poll',
       items: [
-        { label: 'Survey Submission Summary', table: 'survey-submission-summary', filename: 'Survey_Submission_Summary', needsDate: true },
+        { label: 'Survey Submission Summary', table: 'survey-submission-summary', filename: 'Survey_Submission_Summary', needsDate: true, needsCycle: true },
         { label: 'Survey Question Master',    table: 'survey-question-master',    filename: 'Survey_Question_Master' },
-        { label: 'Survey Response Details',   table: 'survey-response-details',   filename: 'Survey_Response_Details',   needsDate: true },
-        { label: 'Survey – Topic Wise',       table: 'survey-topic-wise',         filename: 'Survey_Topic_Wise' },
-        { label: 'Survey – Employee Wise',    table: 'employee-wise-survey',      filename: 'Employee_Wise_Survey' },
-        { label: 'Survey – Question Wise',    table: 'question-wise-survey',      filename: 'Question_Wise_Survey' },
-        { label: 'Survey Pending',            table: 'survey-pending',            filename: 'Survey_Pending' },
+        { label: 'Survey Response Details',   table: 'survey-response-details',   filename: 'Survey_Response_Details',   needsDate: true, needsCycle: true },
+        { label: 'Survey – Topic Wise',       table: 'survey-topic-wise',         filename: 'Survey_Topic_Wise',         needsCycle: true },
+        { label: 'Survey – Employee Wise',    table: 'employee-wise-survey',      filename: 'Employee_Wise_Survey',      needsCycle: true },
+        { label: 'Survey – Question Wise',    table: 'question-wise-survey',      filename: 'Question_Wise_Survey',      needsCycle: true },
+        { label: 'Survey Pending',            table: 'survey-pending',            filename: 'Survey_Pending',            needsCycle: true },
       ],
     },
     {
@@ -174,14 +189,24 @@ export class Export {
     },
   ];
 
-  constructor(private exportService: ExportService) {}
+  constructor(
+    private exportService: ExportService,
+    private surveyApi: SurveryService,
+  ) {}
 
   export(item: ExportItem): void {
     if (this.loading[item.table]) return;
     this.loading[item.table] = true;
 
     const params: ExportParams = {};
-    if (item.needsDate)  { params.startDate = this.startDate || undefined; params.endDate = this.endDate || undefined; }
+    // Cycle wins over the date range on survey reports — it defines its own
+    // window, and the backend ignores startDate/endDate when it is set.
+    if (item.needsCycle && this.selectedCycleId) {
+      params.cycleId = this.selectedCycleId;
+    } else if (item.needsDate) {
+      params.startDate = this.startDate || undefined;
+      params.endDate = this.endDate || undefined;
+    }
     if (item.needsYear)  params.year  = this.year;
     if (item.needsMonth) params.month = this.month;
 

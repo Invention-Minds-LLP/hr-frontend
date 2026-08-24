@@ -203,6 +203,16 @@
                                 </defs>
                             </svg>
                         </button>
+
+                        <!-- Deadline for the current cycle. Surveys created before
+                             the cycle engine carry no cycle, so nothing is shown. -->
+                        <div class="survey-due" *ngIf="pendingSurveys[0]?.cycle as cyc">
+                            Closes {{ cyc.endDate | date: 'dd MMM yyyy' }}
+                            <span class="survey-due-days"
+                                  [class.urgent]="surveyDaysLeft(cyc.endDate) <= 1">
+                                · {{ surveyDueLabel(cyc.endDate) }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -960,7 +970,14 @@
 
     <app-my-weekly-tracker></app-my-weekly-tracker>
 
+    <!-- Managerial route: for people appraised through AppraisalForm. -->
     <app-self-appraisal></app-self-appraisal>
+
+    <!-- Dept Performance Indicator route: for executives and in-charges, whose
+         in-charge and supervisor score the indicator separately. Each panel
+         shows content only if that person actually has that kind of appraisal
+         assigned, so nobody sees both unless they genuinely have both. -->
+    <app-dept-self-appraisal></app-dept-self-appraisal>
 
     <!-- <app-my-weekly-ratings></app-my-weekly-ratings> -->
 

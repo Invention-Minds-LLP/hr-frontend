@@ -43,6 +43,7 @@ export const PERMISSION_KEYS = [
   'admin.incentiveRequests.view',
   'admin.shifts.view',
   'admin.otApprovals.view',
+  'admin.compOffApprovals.view',
   'admin.reports.view',
   'admin.payroll.view',
   'admin.taxDeclarations.view',

@@ -1635,7 +1635,7 @@ export class LeavePopup {
           // would show the employee the same thing twice.
           const code = res?.elBlock?.code;
           const message =
-            code === 'MIN_BALANCE' || code === 'RETAINED_BALANCE'
+            code === 'MIN_BALANCE' || code === 'RETAINED_BALANCE' || code === 'MAX_REQUESTS'
               ? res.elBlock.message
               : null;
 

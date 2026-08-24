@@ -77,6 +77,42 @@ export class DeptPerformance {
   selectedFilter: any = null;
   showFilterDropdown = false;
   filteredSummaries: any[] = [];
+
+  /** Reviewer columns HR chases, in the order they normally happen. `short` is
+   *  what fits in the cell; `label` carries the full name in the tooltip. */
+  progressRoles = [
+    { key: 'SELF', label: 'Self appraisal', short: 'Self' },
+    { key: 'INCHARGE', label: 'In-charge', short: 'IC' },
+    { key: 'HOD', label: 'HOD (reporting manager)', short: 'HOD' },
+    { key: 'MANAGEMENT', label: 'Management', short: 'Mgmt' },
+  ];
+
+  /** Narrow the list to rows still waiting on someone. */
+  pendingFilter: string | null = null;
+  pendingOptions = [
+    { label: 'All rows', value: null },
+    { label: 'Pending self appraisal', value: 'SELF' },
+    { label: 'Pending in-charge', value: 'INCHARGE' },
+    { label: 'Pending HOD', value: 'HOD' },
+    { label: 'Pending management', value: 'MANAGEMENT' },
+  ];
+
+  /** Present only when the server decided this caller may see it (HR/Management). */
+  get showProgress(): boolean {
+    return this.summaries.some(s => !!s.progress);
+  }
+
+  progressTitle(label: string, state: string | undefined): string {
+    switch (state) {
+      case 'done': return `${label}: complete`;
+      case 'partial': return `${label}: started, not all questions answered`;
+      case 'unknown': return `${label}: scores recorded, but no template is attached so completeness can't be checked`;
+      default: return `${label}: not started`;
+    }
+  }
+
+  /** Current search text, kept so the pending filter can re-apply it. */
+  private searchText = '';
   loading = true;
   isLoading = false;
 
@@ -253,17 +289,32 @@ export class DeptPerformance {
   };
 
   onSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const searchText = input.value.toLowerCase();
+    this.searchText = (event.target as HTMLInputElement).value.toLowerCase();
+    this.applyFilters();
+  }
 
-    if (!searchText) {
-      this.filteredSummaries = [...this.summaries]; // reset
-      return;
+  onPendingFilterChange() {
+    this.applyFilters();
+  }
+
+  /** Search text and the pending filter both narrow the same list. */
+  private applyFilters() {
+    let rows = this.matchesSearch(this.searchText);
+
+    if (this.pendingFilter) {
+      // "Pending" means that reviewer has not finished — not started or partway.
+      rows = rows.filter(s => (s.progress?.[this.pendingFilter!] ?? 'none') !== 'done');
     }
+
+    this.filteredSummaries = rows;
+  }
+
+  private matchesSearch(searchText: string): any[] {
+    if (!searchText) return [...this.summaries];
 
     const filterKey = this.selectedFilter?.value;
 
-    this.filteredSummaries = this.summaries.filter(s => {
+    return this.summaries.filter(s => {
       if (filterKey === 'employeeCode') {
         return s.employee?.employeeCode?.toLowerCase().includes(searchText);
       }
@@ -288,9 +339,8 @@ export class DeptPerformance {
   }
 
   onFilterChange() {
-    this.filteredSummaries = [...this.summaries];
+    this.applyFilters();
     this.showFilterDropdown = false;
-    console.log(this.selectedFilter)
   }
   toggleFilterDropdown() {
     this.showFilterDropdown = !this.showFilterDropdown;
@@ -299,6 +349,7 @@ export class DeptPerformance {
     this.selectedFilter = option;
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
     if (searchBox) searchBox.value = '';
+    this.searchText = '';
     this.showFilterDropdown = false; // hide after selecting
     this.onFilterChange(); // trigger filter logic
   }
@@ -320,7 +371,8 @@ export class DeptPerformance {
           photoUrl: s.employee?.photoUrl
         }));
 
-        this.filteredSummaries = [...this.summaries];
+        // Re-apply whatever search / pending filter was active before the reload.
+        this.applyFilters();
         this.loading = false;
 
         // TEMP: pause feature on hold — uncomment to re-enable.

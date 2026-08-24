@@ -1,4 +1,8 @@
-<div class="guide">
+<!-- Hidden when this person has no managerial appraisal. Executives are
+     appraised through the Dept Performance Indicator instead, and this sits on
+     the same page as that panel — an empty "No appraisals found" table under it
+     is just noise for them. -->
+<div class="guide" *ngIf="myAppraisals.length">
   <app-module-guide
     title="Self Appraisal"
     subtitle="Complete your self-assessment for each appraisal cycle. Share your achievements, challenges, and rate yourself."
@@ -13,7 +17,7 @@
 
 <p-toast></p-toast>
 
-<div class="self-appraisal-container">
+<div class="self-appraisal-container" *ngIf="myAppraisals.length">
   <div class="section-header">
     <div class="main-heading">My Appraisals</div>
   </div>

@@ -17,7 +17,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
-import { SurveryService } from '../../services/surveyService/survery-service';
+import { SurveryService, SurveyCycle } from '../../services/surveyService/survery-service';
 import { Departments, Department } from '../../services/departments/departments';
 import { FileUrlPipe } from '../../pipes/file-url.pipe';
 
@@ -26,6 +26,7 @@ Chart.register(...registerables);
 type Filters = {
   from?: string;
   to?: string;
+  cycleId?: number;
   departmentIds?: number[];
   gender?: string;
   designationId?: number;
@@ -65,6 +66,8 @@ export class SurveyDashboard implements OnInit, AfterViewInit {
   // ── Filter state ───────────────────────────────────────────
   filters: Filters = {};
   dateRange: Date[] | null = null;
+  cycles: SurveyCycle[] = [];
+  selectedCycleId: number | null = null;
   departments: Department[] = [];
   selectedDeptIds: number[] = [];
   selectedGender: string | null = null;
@@ -139,7 +142,29 @@ export class SurveyDashboard implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.deptApi.getDepartments().subscribe(d => this.departments = d || []);
+    this.api.getSurveyCycles().subscribe({
+      next: c => this.cycles = c || [],
+      error: () => this.cycles = [],
+    });
+    // Defaults to all-time rather than the latest cycle: surveys created before
+    // the cycle engine existed carry no cycleId, so pre-selecting one would
+    // open on an empty dashboard.
     this.loadAll();
+  }
+
+  /** Cycle picker options — completion % inline so HR sees it without drilling in. */
+  get cycleOptions() {
+    return [
+      { label: 'All cycles', value: null },
+      ...this.cycles.map(c => ({
+        label: `${c.name} — ${c.submitted}/${c.assigned} (${c.completionPct}%)`,
+        value: c.id,
+      })),
+    ];
+  }
+
+  get selectedCycle(): SurveyCycle | null {
+    return this.cycles.find(c => c.id === this.selectedCycleId) ?? null;
   }
 
   ngAfterViewInit() {
@@ -151,8 +176,13 @@ export class SurveyDashboard implements OnInit, AfterViewInit {
   // ====================================================================
   private buildFilters(): Filters {
     const f: Filters = {};
-    if (this.dateRange?.[0]) f.from = this.dateRange[0].toISOString();
-    if (this.dateRange?.[1]) f.to = this.dateRange[1].toISOString();
+    // Cycle wins over the date range — it defines its own window.
+    if (this.selectedCycleId) {
+      f.cycleId = this.selectedCycleId;
+    } else {
+      if (this.dateRange?.[0]) f.from = this.dateRange[0].toISOString();
+      if (this.dateRange?.[1]) f.to = this.dateRange[1].toISOString();
+    }
     if (this.selectedDeptIds?.length) f.departmentIds = this.selectedDeptIds;
     if (this.selectedGender) f.gender = this.selectedGender;
     if (this.selectedSections?.length) f.sections = this.selectedSections;
@@ -166,6 +196,7 @@ export class SurveyDashboard implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.dateRange = null;
+    this.selectedCycleId = null;
     this.selectedDeptIds = [];
     this.selectedGender = null;
     this.selectedSections = [];

@@ -131,6 +131,64 @@ export class PerformanceService {
     return this.http.post(`${this.baseUrl}/assign`, payload);
   }
 
+  // ── Self-appraisal (Dept Performance Indicator) ──────────────────────────
+  // Separate tables from the managerial self-appraisal, same question master.
+
+  /** Cycles this employee may self-appraise for — those with an assigned indicator. */
+  getSelfAppraisalCycles(employeeId?: number): Observable<{
+    employeeId: number;
+    employeeType: string | null;
+    cycles: Array<{
+      cycle: string;
+      periods: string[];
+      submitted: boolean;
+      submittedAt: string | null;
+      started: boolean;
+      lastSaved: string | null;
+    }>;
+    /** Managerial appraisals this person also has — their self-appraisal for
+     *  those lives in the managerial module, not here. */
+    managerialAppraisals: Array<{ id: number; cycle: string; status: string; submitted: boolean }>;
+    hasBoth: boolean;
+  }> {
+    let params = new HttpParams();
+    if (employeeId) params = params.set('employeeId', String(employeeId));
+    return this.http.get<any>(`${this.baseUrl}/self-appraisal/cycles`, { params });
+  }
+
+  /** Questionnaire for this employee plus anything already saved. */
+  getSelfAppraisal(cycle: string, employeeId?: number): Observable<{
+    employee: any;
+    cycle: string;
+    questions: Array<{ id: number; text: string; section: string | null; category: string | null }>;
+    selfAppraisal: any | null;
+    answers: Array<{ questionId: number; rating: number | null; comments: string | null }>;
+    canEdit: boolean;
+    readOnly: boolean;
+  }> {
+    let params = new HttpParams().set('cycle', cycle);
+    if (employeeId) params = params.set('employeeId', String(employeeId));
+    return this.http.get<any>(`${this.baseUrl}/self-appraisal`, { params });
+  }
+
+  saveSelfAppraisal(payload: {
+    employeeId?: number;
+    cycle: string;
+    answers: Array<{ questionId: number; rating: number | null; comments: string }>;
+    achievements?: string;
+    goalsObjective?: string;
+    challenges?: string;
+    trainingNeeds?: string;
+    isDraft: boolean;
+  }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/self-appraisal`, payload);
+  }
+
+  /** HR only — clears submittedAt so the employee can edit again. */
+  reopenSelfAppraisal(id: number): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/self-appraisal/${id}/reopen`, {});
+  }
+
   // Retro-fit a template onto a summary row that was created before
   // templateId became required. Backend refuses if responses exist.
   assignSummaryTemplate(summaryId: number, templateId: number): Observable<any> {
