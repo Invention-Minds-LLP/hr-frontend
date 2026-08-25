@@ -19,6 +19,8 @@ export class SettingsOverview {
   allowedRoles = ['EXECUTIVE', 'INTERN', 'JUNIOR_EXECUTIVE', 'REPORTING_MANAGER', 'INCHARGE'];
   isRestricted = true;
   isHr = false;
+  /** Login audit is HR-department, but not for its executives (roleId 2). */
+  canViewLoginActivities = false;
 
   @ViewChild('resignationForm') resignationForm!: ResignationForm;
 
@@ -37,6 +39,10 @@ export class SettingsOverview {
     this.isRestricted = this.allowedRoles.includes(norm);
     console.log(this.isRestricted)
     this.isHr = localStorage.getItem('deptId') === '1'; // Assuming deptId '1' is HR, adjust as needed
+    this.canViewLoginActivities = this.isHr && Number(localStorage.getItem('roleId')) !== 2;
+    // Never leave the hidden tab selected — a deep link or a stale state would
+    // otherwise render the list this flag exists to hide.
+    if (this.active === 'list' && !this.canViewLoginActivities) this.active = 'profile';
   }
 
   private normalizeRole(raw: any): string {

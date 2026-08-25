@@ -50,6 +50,7 @@ export const PERMISSION_KEYS = [
   'admin.companies.view',
   'admin.letters.view',
   'admin.assets.view',
+  'admin.archive.view',
   'admin.moduleUtilization.view',
 
   // HR Manual Entries

@@ -1,0 +1,96 @@
+<div class="tax-page">
+
+  <app-module-guide title="Archive"
+    subtitle="Records HR has retired — kept, not deleted, and restorable at any time." [points]="[
+      { label: 'What it holds', desc: 'Anything made inactive across Performance Indicator, Managerial Appraisal, Employees, Jobs, Assets, Announcements and Letters.' },
+      { label: 'Not a delete', desc: 'The record stays in the database with its full history. It only leaves the module working list, so it stops cluttering day-to-day screens.' },
+      { label: 'Restore', desc: 'Puts a record straight back into its module. Restoring an employee does not re-grant their login — set that on the employee form.' },
+      { label: 'Where archiving happens', desc: 'From each module\'s own list. This screen is where you find them again.' }
+    ]">
+  </app-module-guide>
+
+  <p-toast />
+  <p-confirmDialog />
+
+  <div class="tab-header">
+    <div class="tab-header-left">
+      <h3>Archived Records</h3>
+      <span class="sub">
+        {{ total }} shown<span *ngIf="archivedTotal"> · {{ archivedTotal }} archived in total</span>
+      </span>
+    </div>
+    <div class="tab-header-right">
+      <input pInputText [(ngModel)]="search" (input)="onSearch()"
+        placeholder="Search employee, cycle, title…" class="search-input" />
+
+      <p-select [(ngModel)]="moduleFilter" [options]="moduleOptions"
+        optionLabel="label" optionValue="value" (onChange)="onFilterChange()" styleClass="fy-select" />
+
+      <p-datepicker [(ngModel)]="fromDate" (onSelect)="onFilterChange()" (onClear)="onFilterChange()"
+        dateFormat="dd M yy" placeholder="Archived from" [showClear]="true" appendTo="body"
+        styleClass="fy-date" />
+      <p-datepicker [(ngModel)]="toDate" (onSelect)="onFilterChange()" (onClear)="onFilterChange()"
+        dateFormat="dd M yy" placeholder="Archived to" [showClear]="true" appendTo="body"
+        styleClass="fy-date" />
+
+      <!-- Restored records stay in the log so HR can see what came back. -->
+      <label class="chk">
+        <p-checkbox [(ngModel)]="includeRestored" [binary]="true" (onChange)="onFilterChange()" />
+        <span>Show restored</span>
+      </label>
+
+      <button class="ghost-btn" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <p-table [value]="loading ? skeletonRows : rows" [paginator]="!loading" [rows]="limit"
+    [totalRecords]="total" [lazy]="true" (onLazyLoad)="onPage($event)" responsiveLayout="scroll">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:170px">Module</th>
+        <th>Record</th>
+        <th>Reason</th>
+        <th style="width:190px">Archived</th>
+        <th style="width:130px"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-r>
+      <tr *ngIf="loading"><td colspan="5"><p-skeleton height="18px" /></td></tr>
+      <tr *ngIf="!loading" [class.is-restored]="r.restored">
+        <td><span class="sec-chip">{{ r.moduleLabel }}</span></td>
+        <td>
+          <div class="emp-cell">
+            <span class="emp-name">{{ r.label }}</span>
+            <span class="emp-code">#{{ r.recordId }}</span>
+          </div>
+        </td>
+        <td class="muted">{{ r.reason || '—' }}</td>
+        <td>
+          <div class="emp-cell">
+            <span class="emp-name">{{ r.archivedAt | date: 'dd MMM yyyy, h:mm a' }}</span>
+            <span class="emp-code">by {{ r.archivedByName || 'system' }}</span>
+          </div>
+        </td>
+        <td>
+          <button class="new-app small" *ngIf="!r.restored" [disabled]="restoring === r.id"
+            (click)="restore(r)">
+            {{ restoring === r.id ? '…' : 'Restore' }}
+          </button>
+          <p-tag *ngIf="r.restored" value="Restored" severity="success"
+            [pTooltip]="'Restored ' + (r.restoredAt | date: 'dd MMM yyyy') + ' by ' + (r.restoredByName || 'system')" />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="empty-cell">
+          Nothing archived yet. Records appear here when HR makes them inactive from their own module.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>

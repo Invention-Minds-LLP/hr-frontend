@@ -76,6 +76,7 @@ import { TaxAdmin } from './tax/tax-admin/tax-admin';
 import { Companies } from './settings/companies/companies';
 import { LettersOverview } from './letters/letters-overview/letters-overview';
 import { AssetsOverview } from './assets/assets-overview/assets-overview';
+import { ArchiveOverview } from './archive/archive-overview/archive-overview';
 import { WeeklyTrackerOverview } from './weekly-tracker/weekly-tracker-overview/weekly-tracker-overview';
 import { Masters } from './settings/masters/masters';
 import { RolePermissions } from './settings/role-permissions/role-permissions';
@@ -140,6 +141,7 @@ export const routes: Routes = [
         { path: 'companies', component: Companies, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.companies.view' } },
         { path: 'letters', component: LettersOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.letters.view' } },
         { path: 'assets', component: AssetsOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.assets.view' } },
+        { path: 'archive', component: ArchiveOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.archive.view' } },
         // Employee self-service — every logged-in user has their own tax page.
         { path: 'my-tax', component: MyTax, canActivate: [authGuard] },
         { path: 'weekly-tracker', component: WeeklyTrackerOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.weeklyTracker.view' } },

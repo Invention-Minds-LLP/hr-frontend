@@ -14,7 +14,7 @@
 <div class="page-container incentives-overview">
   <div class="controls">
     <button pButton label="Add Incentive" icon="pi pi-plus" class="p-button-sm p-button-success"
-      (click)="openDialog()"></button>
+      *ngIf="canAddIncentive" (click)="openDialog()"></button>
   </div>
 
   <p-table [value]="incentives" [loading]="loading" [paginator]="incentives.length > 15" [rows]="15"

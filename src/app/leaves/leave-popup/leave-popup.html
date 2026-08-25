@@ -76,7 +76,7 @@
                                 [disabled]="isDisabledDay(d, toMonth, toYear)">
                                 {{ d }}
                             </option> -->
-                            <option class="drop-down" *ngFor="let d of getAvailableDays(fromMonth, fromYear)"
+                            <option class="drop-down" *ngFor="let d of getAvailableDays(toMonth, toYear)"
                                 [value]="d">
                                 {{ d }}
                             </option>

@@ -3,7 +3,7 @@
 <div *ngIf="!selectedSummary" class="performance-container">
   <!-- New Appraisal Button -->
   <div class="flex justify-content-end align-items-center mb-4 flex1">
-    <div class="flex justify-content-around gap-3">
+    <div class="dp-toolbar">
 
       <button class="new-app" *ngIf="role === 'HR' || role === 'HR Manager'" (click)="openDialog()">
         New Appraisal
@@ -32,9 +32,18 @@
         <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
       </div> -->
-      <button *ngIf="isHR" class="btn" (click)="openEditRequests()"
+      <button *ngIf="isHR" class="toolbar-btn" (click)="openEditRequests()"
         title="Reviewers asking to change a period you've already signed off">
-        <i class="pi pi-inbox"></i> Edit Requests
+        <i class="pi pi-inbox"></i><span>Edit Requests</span>
+      </button>
+
+      <!-- Retired records are kept, not deleted. HR pulls them back into view
+           here; everyone else never sees them. -->
+      <button *ngIf="isHR" class="toolbar-btn" [class.is-on]="includeArchived"
+        (click)="includeArchived = !includeArchived; onIncludeArchivedChange()"
+        title="Show records that have been made inactive">
+        <i class="pi" [ngClass]="includeArchived ? 'pi-eye' : 'pi-eye-slash'"></i>
+        <span>Include Inactive</span>
       </button>
 
       <!-- Chase what's outstanding rather than scanning the whole list. Only
@@ -185,9 +194,9 @@
 
       <!-- Actual row -->
       <ng-template #dataRow>
-        <tr>
+        <tr [class.is-archived]="s.archivedAt">
           <td>{{ i + 1 }}</td>
-          
+
           <td class="empname">
             <img *ngIf="s.photoUrl; else defaultPhoto" [src]="s.photoUrl | fileUrl" alt="Profile" />
             <ng-template #defaultPhoto>
@@ -213,7 +222,11 @@
                covers, so the raw period would read "1 Year" on a 3rd-year row. -->
           <td>{{ s.periodLabel || periodLabels[s.period] || s.period }}</td>
           <td>{{ s.marksScored || '-' }}</td>
-          <td>{{ s.overallPerf || 'Draft' }}</td>
+          <td>
+            {{ s.overallPerf || 'Draft' }}
+            <span class="inactive-pill" *ngIf="s.archivedAt"
+              [title]="'Made inactive ' + (s.archivedAt | date:'dd MMM yyyy')">Inactive</span>
+          </td>
 
           <!-- Who has finished their part. Self is per cycle, so it reads the
                same across that cycle's period rows; the reviewers are per row. -->
@@ -234,11 +247,21 @@
                 <i class="pi pi-pause-circle"></i> Paused
               </span>
               -->
-              <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)">Open</button>
+              <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)"
+                [disabled]="s.archivedAt"
+                [title]="s.archivedAt ? 'This record is inactive' : ''">Open</button>
+
+              <!-- HR's combined view: every reviewer's marks plus the employee's
+                   own self-appraisal, side by side. Still readable when the row
+                   is inactive — the history is the reason it was kept. -->
+              <button *ngIf="isHR && s.templateId" class="btn view-btn" (click)="openDetail(s)"
+                title="See all reviewers' scores and the employee's self-appraisal">
+                <i class="pi pi-eye"></i> View
+              </button>
 
               <!-- HR signs a period off; after that reviewers need an approved
                    request to change it. -->
-              <button *ngIf="isHR && s.templateId" class="btn review-btn"
+              <button *ngIf="isHR && s.templateId && !s.archivedAt" class="btn review-btn"
                 [class.is-reviewed]="s.hrReviewedAt"
                 [disabled]="markingReviewed === s.id"
                 (click)="toggleReviewed(s)"
@@ -248,13 +271,31 @@
                 <i class="pi" [ngClass]="s.hrReviewedAt ? 'pi-lock' : 'pi-check'"></i>
                 {{ markingReviewed === s.id ? '…' : (s.hrReviewedAt ? 'Reviewed' : 'Mark Reviewed') }}
               </button>
-              <button *ngIf="!s.templateId && (role === 'HR' || role === 'HR Manager')"
+              <button *ngIf="!s.templateId && !s.archivedAt && (role === 'HR' || role === 'HR Manager')"
                 class="btn assign-tpl-btn" (click)="openAssignTemplate(s)">
                 Assign Template
               </button>
-              <button *ngIf="!s.templateId && !(role === 'HR' || role === 'HR Manager')"
+              <button *ngIf="!s.templateId && !s.archivedAt && !(role === 'HR' || role === 'HR Manager')"
                 class="btn" disabled title="HR must assign a template first">
                 No Template
+              </button>
+
+              <!-- Retire a record instead of deleting it: the history stays in
+                   the database, the row just leaves the working list and stops
+                   blocking a fresh assignment for the same milestone. -->
+              <button *ngIf="isHR && !s.archivedAt" class="btn archive-btn"
+                [disabled]="archivingRow === s.id"
+                (click)="setArchived(s, true)"
+                title="Keep this record but hide it from the working list">
+                <i class="pi pi-inbox"></i>
+                {{ archivingRow === s.id ? '…' : 'Make Inactive' }}
+              </button>
+              <button *ngIf="isHR && s.archivedAt" class="btn restore-btn"
+                [disabled]="archivingRow === s.id"
+                (click)="setArchived(s, false)"
+                title="Bring this record back into the working list">
+                <i class="pi pi-replay"></i>
+                {{ archivingRow === s.id ? '…' : 'Restore' }}
               </button>
               <!-- TEMP: pause feature on hold — uncomment to re-enable
               <button *ngIf="role === 'HR' || role === 'HR Manager'"
@@ -480,5 +521,107 @@
         </button>
       </div>
     </div>
+  </div>
+</p-dialog>
+
+<!-- HR's combined review. Two halves rather than one table: reviewers answer
+     the department's criteria, the self-appraisal answers a different question
+     set, so merging them would imply a row-by-row comparison that isn't there. -->
+<p-dialog [(visible)]="detailVisible" [modal]="true" [closable]="true"
+  [style]="{ width: '860px', maxHeight: '88vh' }" [header]="'Review Detail'">
+
+  <div *ngIf="detailLoading" class="rd-empty">Loading…</div>
+
+  <div *ngIf="!detailLoading && detail" class="rd">
+    <div class="rd-head">
+      <div>
+        <strong>{{ detail.employee?.firstName }} {{ detail.employee?.lastName }}</strong>
+        <span class="rd-meta">
+          {{ detail.employee?.employeeCode }} · {{ detail.summary?.periodLabel }} · {{ detail.summary?.cycle }}
+        </span>
+      </div>
+      <span class="status-pill" *ngIf="detail.summary?.hrReviewedAt">
+        Reviewed {{ detail.summary.hrReviewedAt | date:'dd MMM yyyy' }}
+      </span>
+    </div>
+
+    <!-- Totals first: where reviewers disagree shows up here before the detail. -->
+    <div class="rd-totals" *ngIf="detailRoles.length">
+      <div class="rd-total" *ngFor="let r of detailRoles">
+        <span class="rd-total-role">{{ detail.reviewerLabels[r] || r }}</span>
+        <span class="rd-total-score">
+          {{ detail.totals[r]?.total ?? '—' }}<small>/{{ detail.maxMarks }}</small>
+        </span>
+        <span class="rd-total-band">{{ detail.totals[r]?.band || '—' }}</span>
+      </div>
+    </div>
+
+    <h4 class="rd-heading">Reviewer scores</h4>
+    <div class="rd-empty" *ngIf="!detailRoles.length">
+      Nobody has scored this period yet.
+    </div>
+
+    <div class="scroller" *ngIf="detailRoles.length">
+      <table class="rd-table">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th *ngFor="let r of detailRoles">{{ detail.reviewerLabels[r] || r }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let q of detail.questions">
+            <td class="rd-q">
+              <span class="rd-cat" *ngIf="q.category">{{ q.category }}</span>
+              {{ q.text }}
+            </td>
+            <td *ngFor="let r of detailRoles" class="rd-score">
+              {{ q.scores?.[r] ?? '—' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="rd-heading">
+      Employee's self-appraisal
+      <small *ngIf="detail.selfAppraisal?.submittedAt">
+        submitted {{ detail.selfAppraisal.submittedAt | date:'dd MMM yyyy' }}
+      </small>
+      <small *ngIf="detail.selfAppraisal && !detail.selfAppraisal.submittedAt">draft</small>
+    </h4>
+
+    <div class="rd-empty" *ngIf="!detail.selfAppraisal">
+      The employee hasn't filled their self-appraisal for this period.
+    </div>
+
+    <ng-container *ngIf="detail.selfAppraisal">
+      <p class="rd-note">
+        These are a different set of questions from the criteria above — they can't be compared
+        row by row.
+      </p>
+
+      <div class="rd-self-section" *ngFor="let sec of detailSelfSections">
+        <div class="rd-self-heading">{{ sec.section }}</div>
+        <div class="rd-self-row" *ngFor="let a of sec.answers">
+          <span class="rd-self-q">{{ a.text }}</span>
+          <span class="rd-self-rating">{{ a.rating ?? '—' }}</span>
+          <span class="rd-self-comment" *ngIf="a.comments">{{ a.comments }}</span>
+        </div>
+      </div>
+
+      <div class="rd-self-text" *ngIf="detail.selfAppraisal.achievements">
+        <b>Achievements</b><span>{{ detail.selfAppraisal.achievements }}</span>
+      </div>
+      <div class="rd-self-text" *ngIf="detail.selfAppraisal.goalsObjective">
+        <b>Goals &amp; objectives</b><span>{{ detail.selfAppraisal.goalsObjective }}</span>
+      </div>
+      <div class="rd-self-text" *ngIf="detail.selfAppraisal.challenges">
+        <b>Challenges</b><span>{{ detail.selfAppraisal.challenges }}</span>
+      </div>
+      <div class="rd-self-text" *ngIf="detail.selfAppraisal.trainingNeeds">
+        <b>Training needs</b><span>{{ detail.selfAppraisal.trainingNeeds }}</span>
+      </div>
+    </ng-container>
   </div>
 </p-dialog>

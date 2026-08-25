@@ -33,6 +33,11 @@ export class IncentivesOverview implements OnInit {
   loading = true;
   loggedEmpId = Number(localStorage.getItem('empId')) || 0;
 
+  // HR-department executives can see the incentive register but not raise one —
+  // same carve-out the incidents menu makes for deptId 1 + roleId 2.
+  readonly canAddIncentive =
+    !(Number(localStorage.getItem('deptId')) === 1 && Number(localStorage.getItem('roleId')) === 2);
+
   dialogVisible = false;
   isEditing = false;
   editingId: number | null = null;

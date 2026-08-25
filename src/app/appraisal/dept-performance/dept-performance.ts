@@ -119,6 +119,53 @@ export class DeptPerformance {
   /** Current search text, kept so the pending filter can re-apply it. */
   private searchText = '';
 
+  // ── HR's combined review view ────────────────────────────────────────────
+  detailVisible = false;
+  detailLoading = false;
+  detail: any = null;
+
+  /** Reviewer columns that actually have scores — no point showing empty ones. */
+  get detailRoles(): string[] {
+    if (!this.detail) return [];
+    const present = new Set<string>();
+    for (const q of this.detail.questions || []) {
+      Object.keys(q.scores || {}).forEach(r => present.add(r));
+    }
+    return (this.detail.reviewerRoles || [])
+      .filter((r: string) => r !== 'SELF' && present.has(r))
+      .concat(present.has('REVIEWER') ? ['REVIEWER'] : []);
+  }
+
+  /** Self-appraisal answers grouped by section, as the employee filled them. */
+  get detailSelfSections(): Array<{ section: string; answers: any[] }> {
+    const answers = this.detail?.selfAppraisal?.answers || [];
+    const map = new Map<string, any[]>();
+    for (const a of answers) {
+      const key = a.section || 'General';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(a);
+    }
+    return [...map.entries()].map(([section, list]) => ({ section, answers: list }));
+  }
+
+  openDetail(row: any) {
+    this.detailVisible = true;
+    this.detailLoading = true;
+    this.detail = null;
+    this.performanceService.getReviewDetail(row.id).subscribe({
+      next: (res) => { this.detail = res; this.detailLoading = false; },
+      error: (err) => {
+        this.detailLoading = false;
+        this.detailVisible = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Cannot open',
+          detail: err?.error?.error || 'Could not load the review.',
+        });
+      },
+    });
+  }
+
   // ── HR sign-off + edit requests ──────────────────────────────────────────
   markingReviewed: number | null = null;
 
@@ -131,6 +178,49 @@ export class DeptPerformance {
   /** HR can sign a period off; the server enforces it regardless. */
   get isHR(): boolean {
     return this.showProgress;
+  }
+
+  // ── Archive / restore ────────────────────────────────────────────────────
+  // Rows assigned before the derived cycles went live still hold real appraisal
+  // history, so HR retires them instead of deleting them. Archived rows drop
+  // out of the lists, the printed sheet and the employee's self-appraisal, and
+  // stop blocking a fresh assignment for the same milestone.
+
+  /** HR-only: pull retired rows into the list alongside the active ones. */
+  includeArchived = false;
+  archivingRow: number | null = null;
+
+  onIncludeArchivedChange() {
+    this.loadSummaries();
+  }
+
+  setArchived(row: any, archived: boolean) {
+    this.archivingRow = row.id;
+    this.performanceService.setSummaryArchived(row.id, archived).subscribe({
+      next: (res) => {
+        this.archivingRow = null;
+        row.archivedAt = res.archivedAt ?? null;
+        this.messageService.add({
+          severity: 'success',
+          summary: archived ? 'Made inactive' : 'Restored',
+          detail: archived
+            ? 'The record is kept but hidden. Turn on "Include inactive" to see it.'
+            : 'The record is active again.',
+          life: 6000,
+        });
+        // An archived row leaves the default list entirely; a restored one only
+        // needs its own state refreshed, which already happened above.
+        if (archived && !this.includeArchived) this.loadSummaries();
+      },
+      error: (err) => {
+        this.archivingRow = null;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: err?.error?.error || 'Could not update the record.',
+        });
+      },
+    });
   }
 
   toggleReviewed(row: any) {
@@ -446,7 +536,7 @@ export class DeptPerformance {
   loadSummaries() {
     this.loading = true;
 
-    this.performanceService.getSummaries().subscribe({
+    this.performanceService.getSummaries(this.includeArchived).subscribe({
       next: (data: any[]) => {
         // No client-side role filtering. GET /performance/summaries is now
         // scoped server-side (see getAllSummaries), which is the only place it

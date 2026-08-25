@@ -89,8 +89,19 @@ export class PerformanceService {
     return this.http.post(`${this.baseUrl}/full-form`, payload);
   }
 
-  getSummaries(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/summaries`);
+  /**
+   * Archived rows are excluded unless HR asks for them — retired periods hold
+   * real history, so they are hidden rather than deleted. The flag is ignored
+   * server-side for anyone who is not HR.
+   */
+  getSummaries(includeArchived = false): Observable<any[]> {
+    const params = includeArchived ? new HttpParams().set('includeArchived', 'true') : undefined;
+    return this.http.get<any[]>(`${this.baseUrl}/summaries`, { params });
+  }
+
+  /** HR retires a period (or restores it) without deleting anything. */
+  setSummaryArchived(summaryId: number, archived: boolean): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/summary/${summaryId}/archive`, { archived });
   }
 
   /**
@@ -129,6 +140,15 @@ export class PerformanceService {
     templateId: number;
   }): Observable<any> {
     return this.http.post(`${this.baseUrl}/assign`, payload);
+  }
+
+  /**
+   * HR's combined view of one period: every reviewer's score per criterion,
+   * plus the employee's own self-appraisal. The two halves answer different
+   * question sets, so they are returned separately rather than merged.
+   */
+  getReviewDetail(summaryId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/summary/${summaryId}/review-detail`);
   }
 
   // ── HR sign-off + edit requests ──────────────────────────────────────────

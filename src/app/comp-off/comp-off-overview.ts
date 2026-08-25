@@ -55,6 +55,62 @@ export class CompOffOverview implements OnInit {
     { label: 'All', value: null },
   ];
 
+  // ── Filters ──────────────────────────────────────────────────────────────
+  // Applied client-side over the loaded rows and ANDed together, so name + date
+  // means that employee on that date — not either/or. The status dropdowns stay
+  // server-side; these three narrow whatever the server returned.
+  searchText = '';
+  deptFilter: string | null = null;
+  workDateFilter: Date | null = null;
+
+  get hasActiveFilters(): boolean {
+    return !!this.searchText.trim() || !!this.deptFilter || !!this.workDateFilter;
+  }
+
+  /** Departments present in the rows on screen — no point offering empty ones. */
+  get departmentOptions(): { label: string; value: string }[] {
+    const rows = this.view === 'credits' ? this.credits : this.requests;
+    const names = new Set<string>();
+    for (const r of rows) {
+      const d = r?.employee?.Department?.name;
+      if (d) names.add(d);
+    }
+    return [...names].sort().map(n => ({ label: n, value: n }));
+  }
+
+  get filteredCredits(): any[] {
+    return this.credits.filter(r => this.matchesFilters(r));
+  }
+
+  get filteredRequests(): any[] {
+    return this.requests.filter(r => this.matchesFilters(r));
+  }
+
+  private matchesFilters(row: any): boolean {
+    const term = this.searchText.trim().toLowerCase();
+    if (term) {
+      const name = `${row?.employee?.firstName ?? ''} ${row?.employee?.lastName ?? ''}`.toLowerCase();
+      const code = (row?.employee?.employeeCode ?? '').toLowerCase();
+      if (!name.includes(term) && !code.includes(term)) return false;
+    }
+
+    if (this.deptFilter && row?.employee?.Department?.name !== this.deptFilter) return false;
+
+    // Compared as rendered dd-MM-yyyy: workDate is stored as IST midnight in UTC,
+    // so comparing the formatted day avoids the timezone offset entirely.
+    if (this.workDateFilter && this.fmtDate(row?.workDate) !== this.fmtDate(this.workDateFilter)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  clearFilters() {
+    this.searchText = '';
+    this.deptFilter = null;
+    this.workDateFilter = null;
+  }
+
   dialogVisible = false;
   selectedEmployee: any = null;
   formWorkDate: Date | null = null;

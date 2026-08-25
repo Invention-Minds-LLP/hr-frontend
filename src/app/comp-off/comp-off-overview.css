@@ -1,6 +1,8 @@
 .guide { padding: 0px 60px; padding-top: 30px; }
 .page-container { padding: 20px 60px 40px; }
-.controls { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 16px; align-items: center; }
+.controls { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+.filter-input { min-width: 200px; }
+.filter-summary { margin: 0 0 10px; text-align: right; font-size: 13px; color: #bbb; }
 /* The cell stays a table cell — flexing the <td> itself pulls it out of the
    table layout, and an empty one collapses to nothing, leaving a white gap. */
 .action-cell { text-align: center; }

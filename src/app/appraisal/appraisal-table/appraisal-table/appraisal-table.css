@@ -615,6 +615,35 @@ label{
     justify-content: center !important;
   }
 
+ .dialog-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  
+  .dialog-close-btn {
+    background: transparent;
+    color: red;
+    border: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid red;
+  }
+  
+  .dialog-close-btn:hover {
+    background: red;
+    color: white;
+  }
+
 /* ── Full Detail Dialog ─────────────────────────────────── */
 .fd { display: flex; flex-direction: column; gap: 14px; }
 

@@ -268,23 +268,35 @@
   }
 
   .back-btn {
-  padding: 8px 16px;
+  /* Height matches the PDF buttons beside it; spacing comes from the .btn
+     container's gap, not per-button margins. */
+  height: 38px;
+  padding: 0 16px;
   border-radius: 8px;
   border: none;
   background: #FB9C2A;
   color: white;
   cursor: pointer;
-  margin-top: 30px;
-  margin-left: 15px;
   font-weight: 500;
   font-family: "Sofia Sans";
 }
 
-.btn{
+/* Header actions: Back + the PDF buttons. They previously sat flush against
+   each other because the row had no gap, and Back hung lower thanks to its own
+   margin-top. */
+.btn {
   display: flex;
-  align-items: end;
-  justify-content: end;
-  margin-right: 5px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 30px 15px 0 0;
+  flex-wrap: wrap;
+}
+
+.btn ::ng-deep .p-button {
+  height: 38px;
+  border-radius: 8px;
+  font-family: "Sofia Sans";
 }
 .marks-max {
   display: block;

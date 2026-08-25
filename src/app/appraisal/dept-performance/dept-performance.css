@@ -753,3 +753,190 @@ hr {
 .er-reject-reason { flex: 1; font-size: 13px; }
 .btn.approve-btn { border-color: #4ade80; color: #4ade80; }
 .btn.approve-btn:hover:not([disabled]) { background: rgba(74, 222, 128, 0.12); }
+
+/* ── Toolbar ───────────────────────────────────────────────────────────────
+   Every control on one 44px baseline. Previously the button was 42px, the
+   filter 44px and the select taller still, with "Edit Requests" wrapping onto
+   two lines because .btn had no height and no nowrap. */
+.dp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dp-toolbar > * { flex: 0 0 auto; }
+
+/* New Appraisal — was 42px, now shares the baseline. */
+.dp-toolbar .new-app { height: 44px; }
+
+/* Filter square keeps its 44px, just stops it shrinking. */
+.dp-toolbar .filter { width: 44px; height: 44px; flex-shrink: 0; }
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  white-space: nowrap;      /* the wrap that split "Edit Requests" in two */
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: transparent;
+  color: #fff;
+  font-family: "Sofia Sans";
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.18px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.toolbar-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: #fff; }
+.toolbar-btn:focus-visible { outline: 2px solid #7da1f0; outline-offset: 2px; }
+.toolbar-btn .pi { font-size: 15px; }
+
+/* The pending-status select. Global rules force .p-select to width:100%, so
+   these need !important to hold a sensible size in the toolbar. */
+:host ::ng-deep .pending-select.p-select {
+  width: 190px !important;
+  height: 44px !important;
+  display: flex;
+  align-items: center;
+  border-radius: 8px !important;
+  border: 1px solid #c4c4c4 !important;
+}
+
+:host ::ng-deep .pending-select .p-select-label {
+  padding: 0 12px !important;
+  font-size: 15px;
+  line-height: 44px;
+}
+
+:host ::ng-deep .pending-select .p-select-dropdown { width: 34px; }
+
+/* Search field, same baseline and radius as the rest. */
+:host ::ng-deep .dp-toolbar p-iconfield { display: block; }
+
+:host ::ng-deep .dp-toolbar .p-iconfield input {
+  height: 44px;
+  border-radius: 8px;
+  padding-left: 38px;
+  font-size: 15px;
+  min-width: 240px;
+}
+
+@media (max-width: 900px) {
+  .dp-toolbar { justify-content: flex-start; }
+  :host ::ng-deep .dp-toolbar .p-iconfield input { min-width: 160px; }
+  :host ::ng-deep .pending-select.p-select { width: 160px !important; }
+}
+
+/* ── HR review detail dialog ─────────────────────────────────────────────── */
+.rd { display: flex; flex-direction: column; gap: 6px; font-family: "Sofia Sans"; }
+.rd-empty { padding: 22px 12px; text-align: center; color: #888; font-style: italic; font-size: 14px; }
+
+.rd-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid #2a2a2a;
+}
+.rd-head strong { color: #fff; font-size: 15px; }
+.rd-meta { display: block; margin-top: 3px; font-size: 12px; color: #9b9b9b; }
+
+.status-pill {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; background: rgba(125,161,240,0.16); color: #7da1f0;
+}
+
+/* Totals — disagreement between reviewers shows here first. */
+.rd-totals { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 4px; }
+.rd-total {
+  display: flex; flex-direction: column; gap: 2px; min-width: 120px;
+  padding: 10px 14px; border: 1px solid #2a323f; border-radius: 8px; background: #0a0a0a;
+}
+.rd-total-role { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #9b9b9b; }
+.rd-total-score { font-size: 20px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+.rd-total-score small { font-size: 12px; font-weight: 500; color: #6f7684; }
+.rd-total-band { font-size: 12px; color: #7da1f0; }
+
+.rd-heading {
+  margin: 18px 0 8px; font-size: 14px; font-weight: 700; color: #FB9C2A;
+  border-left: 4px solid #FB9C2A; padding-left: 10px;
+}
+.rd-heading small { margin-left: 8px; font-weight: 500; color: #9b9b9b; font-size: 12px; }
+
+.rd-note { margin: 0 0 10px; font-size: 12px; color: #9b9b9b; font-style: italic; }
+
+.rd-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+.rd-table th {
+  position: sticky; top: 0; background: #1d242f; color: #d8dee9; text-align: center;
+  padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.rd-table th:first-child { text-align: left; }
+.rd-table td { padding: 9px 12px; border-bottom: 1px solid #1a1a1a; color: #fff; }
+.rd-table tbody tr:last-child td { border-bottom: none; }
+
+.rd-q { line-height: 1.45; }
+.rd-cat { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #6f7684; }
+.rd-score { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; width: 90px; }
+
+/* Self-appraisal half */
+.rd-self-section { margin-bottom: 12px; }
+.rd-self-heading {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #7da1f0; padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid #1f2735;
+}
+.rd-self-row {
+  display: grid; grid-template-columns: 1fr 40px; gap: 4px 10px;
+  padding: 7px 0; border-bottom: 1px solid #141414; font-size: 13px;
+}
+.rd-self-q { color: #fff; line-height: 1.45; }
+.rd-self-rating { text-align: center; font-weight: 700; color: #FB9C2A; font-variant-numeric: tabular-nums; }
+.rd-self-comment { grid-column: 1 / -1; font-size: 12px; color: #9b9b9b; font-style: italic; }
+
+.rd-self-text { margin-top: 10px; font-size: 13px; line-height: 1.55; }
+.rd-self-text b { display: block; color: #c4c4c4; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.rd-self-text span { color: #fff; }
+
+.btn.view-btn { border-color: #7da1f0; color: #7da1f0; }
+.btn.view-btn:hover:not([disabled]) { background: rgba(125, 161, 240, 0.12); }
+
+/* ── Inactive (archived) records ──────────────────────────────────────────
+   Retired rows are kept for their history, so they stay visible to HR when
+   asked for — muted, tagged, and with their working actions withdrawn. */
+
+.toolbar-btn.is-on {
+  border-color: #7da1f0;
+  color: #7da1f0;
+  background: rgba(125, 161, 240, 0.12);
+}
+
+tr.is-archived td {
+  opacity: 0.5;
+}
+
+/* The action cell stays legible — Restore has to be clickable. */
+tr.is-archived td:last-child,
+tr.is-archived .inactive-pill {
+  opacity: 1;
+}
+
+.inactive-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #9b9b9b;
+  color: #9b9b9b;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.btn.archive-btn { border-color: #9b9b9b; color: #9b9b9b; }
+.btn.archive-btn:hover:not([disabled]) { background: rgba(155, 155, 155, 0.14); }
+.btn.restore-btn { border-color: #f0c47d; color: #f0c47d; }
+.btn.restore-btn:hover:not([disabled]) { background: rgba(240, 196, 125, 0.14); }

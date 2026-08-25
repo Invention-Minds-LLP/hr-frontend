@@ -339,19 +339,6 @@
                 <span>PIP</span>
               </a>
             </li>
-            <!-- Employee Satisfaction Survey — the response list. The cycle-wise
-                 analytics live on the separate Survey Analytics top-level item. -->
-            <li class="nav-items" *ngIf="isHRManager || deptId === 1">
-              <a [routerLink]="'/admin/survey'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M7 8h6M7 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M15 3h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M21 3l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span>Survey</span>
-              </a>
-            </li>
           </ng-container>
 
           <ng-container *ngIf="activeAdminGroup==='compliance'">
@@ -507,6 +494,19 @@
               </a>
             </li>
             </ng-container>
+            <!-- Outside the payrollEnabled block on purpose: the archive spans
+                 every module, so a tenant without payroll still needs it. -->
+            <li class="nav-items" *hasPerm="'admin.archive.view'">
+              <a [routerLink]="'/admin/archive'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="4" width="20" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                  <path d="M4 8v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" stroke="currentColor" stroke-width="2"
+                    stroke-linejoin="round"/>
+                  <path d="M10 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Archive</span>
+              </a>
+            </li>
           </ng-container>
 
         </ul>
