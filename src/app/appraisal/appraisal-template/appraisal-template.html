@@ -1,12 +1,16 @@
 <div *ngIf="template" class="p-fluid performance-container">
   <div class="btn">
     <button class="back-btn" (click)="goBack()">← Back</button>
-    <button pButton size="small" severity="secondary" icon="pi pi-download"
-      [label]="downloading ? 'Preparing…' : 'This cycle (PDF)'"
-      [disabled]="downloading" (click)="downloadSheet('cycle')"></button>
-    <button pButton size="small" severity="secondary" icon="pi pi-file-pdf"
-      [label]="downloading ? 'Preparing…' : 'Full tenure (PDF)'"
-      [disabled]="downloading" (click)="downloadSheet('tenure')"></button>
+    <!-- HR only: the sheet is the completed record, and a reviewer exporting it
+         would carry away marks and signatures that are not theirs. -->
+    <ng-container *ngIf="canSeeAllScores">
+      <button pButton size="small" severity="secondary" icon="pi pi-download"
+        [label]="downloading ? 'Preparing…' : 'This cycle (PDF)'"
+        [disabled]="downloading" (click)="downloadSheet('cycle')"></button>
+      <button pButton size="small" severity="secondary" icon="pi pi-file-pdf"
+        [label]="downloading ? 'Preparing…' : 'Full tenure (PDF)'"
+        [disabled]="downloading" (click)="downloadSheet('tenure')"></button>
+    </ng-container>
   </div>
 
   <!-- Which column this user fills. Derived from their relationship to the
@@ -143,9 +147,8 @@
         <th>Assessment Period</th>
         <th>Marks Scored</th>
         <th>Overall Performance</th>
-        <th>Employee</th>
-        <th>HOD</th>
-        <th>HR</th>
+        <!-- Signatures are captured on the printed sheet, not on screen.
+             The DB columns remain and the PDF still leaves space for them. -->
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-p>
@@ -171,50 +174,24 @@
           <td><input pInputText [(ngModel)]="summary[p].supervisorSig" placeholder="Signature"[disabled]="p !== currentPeriod" /></td>
           <td><input pInputText [(ngModel)]="summary[p].hodSig" placeholder="Signature" [disabled]="p !== currentPeriod"/></td> -->
 
-        <td>
-          <canvas #empCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
-            [class.disabled-canvas]="p !== currentPeriod">
-          </canvas>
-
-          <div class="sig-action-row" *ngIf="!summary[p]?.employeeSig && p === currentPeriod">
-            <button pButton size="small" label="Save" (click)="saveSignature('emp', p)"></button>
-            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('emp', p)"></button>
-          </div>
-        </td>
-
-
-
-        <td>
-          <canvas #supCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
-            [class.disabled-canvas]="p !== currentPeriod">
-          </canvas>
-
-          <div class="sig-action-row" *ngIf="!summary[p]?.supervisorSig && p === currentPeriod">
-            <button pButton size="small" label="Save" (click)="saveSignature('sup', p)"></button>
-            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('sup', p)"></button>
-          </div>
-        </td>
-
-
-        <td>
-          <canvas #hodCanvas width="400" height="150" class="sig-canvas" [attr.data-period]="p"
-            [class.disabled-canvas]="p !== currentPeriod">
-          </canvas>
-
-          <div class="sig-action-row" *ngIf="!summary[p]?.hodSig && p === currentPeriod">
-            <button pButton size="small" label="Save" (click)="saveSignature('hod', p)"></button>
-            <button pButton size="small" severity="secondary" label="Clear" (click)="clearSignature('hod', p)"></button>
-          </div>
-        </td>
-
 
 
       </tr>
     </ng-template>
   </p-table>
 
+  <!-- Filled once per cycle at its last period, so it isn't written months
+       early from the 1st Month sheet. -->
+  <div class="final-review-note" *ngIf="!isFinalPeriod">
+    <i class="pi pi-info-circle"></i>
+    <span>
+      The Final Review — appreciations, talents and closing comments — is completed at
+      <strong>{{ finalPeriodLabel }}</strong>, once the cycle is finished.
+    </span>
+  </div>
+
   <!-- Final Review -->
-  <div class="p-mt-5">
+  <div class="p-mt-5" *ngIf="isFinalPeriod">
     <h3>Final Review</h3>
 
     <div class="p-fluid p-formgrid p-grid final">
@@ -263,57 +240,25 @@
               <label for="hrSig">HR Signature</label>
             </p-floatlabel>
           </div> -->
-
-      <!-- FINAL REVIEW SIGNATURES -->
-      <div class="flex justify-content-start gap-4 final-signatures-row w-100">
-        <div class="p-field p-col-12 md:4 final-sign-block">
-          <label class="sig-label">Employee Signature</label>
-
-          <canvas #finalEmpCanvas width="350" height="130" class="sig-canvas-1"></canvas>
-
-          <div class="sig-action-row-1">
-            <button pButton size="small" label="Save" (click)="saveFinalSignature('emp')"></button>
-            <button pButton size="small" severity="secondary" label="Clear"
-              (click)="clearFinalSignature('emp')"></button>
-          </div>
-        </div>
-
-        <div class="p-field p-col-12 md:4 final-sign-block">
-          <label class="sig-label">Supervisor Signature</label>
-
-          <canvas #finalSupCanvas width="350" height="130" class="sig-canvas-1"></canvas>
-
-          <div class="sig-action-row-1">
-            <button pButton size="small" label="Save" (click)="saveFinalSignature('sup')"></button>
-            <button pButton size="small" severity="secondary" label="Clear"
-              (click)="clearFinalSignature('sup')"></button>
-          </div>
-        </div>
-
-        <div class="p-field p-col-12 md:4 final-sign-block">
-          <label class="sig-label">HR Signature</label>
-
-          <canvas #finalHrCanvas width="350" height="130" class="sig-canvas-1"></canvas>
-
-          <div class="sig-action-row-1">
-            <button pButton size="small" label="Save" (click)="saveFinalSignature('hr')"></button>
-            <button pButton size="small" severity="secondary" label="Clear"
-              (click)="clearFinalSignature('hr')"></button>
-          </div>
-        </div>
-      </div>
-
-
+      <!-- Signatures are captured on the printed sheet, not on screen. The DB
+           columns remain, and the PDF still leaves Employee / Supervisor-In-charge
+           / HR blocks blank for wet signing. -->
+      <p class="sig-note">
+        Print the sheet for signatures — the PDF leaves space for Employee,
+        Supervisor / In-charge and HR.
+      </p>
     </div>
-    <!-- Submit Button -->
-    <div class="mt-4">
-      <button pButton class="new-app" label="Submit" icon="pi pi-check"
-        [label]="isLoading ? 'Submitting' : (!canScore ? 'Read only' : (currentPeriodLocked ? 'Not open yet' : (activePause && !isHRUser ? 'Paused — Submit Disabled' : 'Submit')))"
-        [loading]="isLoading"
-        [disabled]="isLoading || !canScore || currentPeriodLocked || (activePause && !isHRUser)"
-        [title]="currentPeriodLocked ? 'This period opens on its milestone date' : (activePause && !isHRUser ? 'Employee appraisal is paused' : '')"
-        (click)="onSubmit()"></button>
-    </div>
+  </div>
+
+  <!-- Outside the Final Review block, which only renders on the last period —
+       the earlier periods still need a way to save their scores. -->
+  <div class="mt-4">
+    <button pButton class="new-app" label="Submit" icon="pi pi-check"
+      [label]="isLoading ? 'Submitting' : (!canScore ? 'Read only' : (currentPeriodLocked ? 'Not open yet' : (activePause && !isHRUser ? 'Paused — Submit Disabled' : 'Submit')))"
+      [loading]="isLoading"
+      [disabled]="isLoading || !canScore || currentPeriodLocked || (activePause && !isHRUser)"
+      [title]="currentPeriodLocked ? 'This period opens on its milestone date' : (activePause && !isHRUser ? 'Employee appraisal is paused' : '')"
+      (click)="onSubmit()"></button>
   </div>
 </div>
 
@@ -366,4 +311,26 @@
     <button pButton label="Close" class="p-button-secondary" (click)="incidentDialogVisible = false"></button>
   </ng-template>
 
+</p-dialog>
+<!-- Raised when a submit is refused because HR has signed this period off.
+     Approval buys one correction. -->
+<p-dialog header="Request Edit" [(visible)]="editRequestVisible" [modal]="true"
+  [style]="{ width: '460px' }" [closable]="true">
+  <div class="er-body">
+    <p class="er-lead">
+      HR has marked this period's review complete, so it can no longer be changed directly.
+      Tell them what needs correcting and they'll decide.
+    </p>
+    <label class="er-label">Reason</label>
+    <textarea pInputTextarea rows="3" [(ngModel)]="editRequestReason"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="e.g. Scored the wrong row for question 4"></textarea>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="editRequestVisible = false"></button>
+    <button pButton [label]="editRequestSending ? 'Sending…' : 'Send Request'"
+      [disabled]="editRequestSending || !editRequestReason.trim()"
+      (click)="sendEditRequest()"></button>
+  </ng-template>
 </p-dialog>

@@ -359,3 +359,58 @@
   color: #cfe0ff;
   font-variant-numeric: tabular-nums;
 }
+
+/* Shown on the periods that don't carry the Final Review. */
+.final-review-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 24px 15px 0;
+  padding: 12px 16px;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #7da1f0;
+  border-radius: 0 8px 8px 0;
+  background: #0a0a0a;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9b9b9b;
+  font-family: "Sofia Sans";
+}
+
+.final-review-note strong { color: #fff; }
+.final-review-note .pi { color: #7da1f0; margin-top: 2px; }
+
+/* Signatures moved to the printed sheet; this explains where they went. */
+.sig-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #9b9b9b;
+  font-family: "Sofia Sans";
+}
+
+/* Edit-request dialog */
+.er-body { display: flex; flex-direction: column; gap: 8px; font-family: "Sofia Sans"; }
+
+.er-lead { margin: 0 0 4px; font-size: 13px; line-height: 1.5; color: #9b9b9b; }
+
+.er-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #c4c4c4;
+}
+
+.er-body textarea {
+  width: 100%;
+  background: #0a0a0a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: "Sofia Sans";
+  resize: vertical;
+}
+
+.er-body textarea:focus { border-color: #FB9C2A; outline: none; }

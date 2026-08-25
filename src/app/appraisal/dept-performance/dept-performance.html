@@ -32,6 +32,11 @@
         <input id="searchBox" class="input" type="text" placeholder="Search Employee"
           (input)="onSearch($event)" />
       </div> -->
+      <button *ngIf="isHR" class="btn" (click)="openEditRequests()"
+        title="Reviewers asking to change a period you've already signed off">
+        <i class="pi pi-inbox"></i> Edit Requests
+      </button>
+
       <!-- Chase what's outstanding rather than scanning the whole list. Only
            rendered for callers the server sent progress data to. -->
       <p-select *ngIf="showProgress" [options]="pendingOptions" optionLabel="label" optionValue="value"
@@ -230,6 +235,19 @@
               </span>
               -->
               <button *ngIf="s.templateId" class="btn" (click)="openSummary(s)">Open</button>
+
+              <!-- HR signs a period off; after that reviewers need an approved
+                   request to change it. -->
+              <button *ngIf="isHR && s.templateId" class="btn review-btn"
+                [class.is-reviewed]="s.hrReviewedAt"
+                [disabled]="markingReviewed === s.id"
+                (click)="toggleReviewed(s)"
+                [title]="s.hrReviewedAt
+                  ? 'Reviewed ' + (s.hrReviewedAt | date:'dd MMM yyyy') + ' — click to reopen'
+                  : 'Mark this period reviewed and lock it for editing'">
+                <i class="pi" [ngClass]="s.hrReviewedAt ? 'pi-lock' : 'pi-check'"></i>
+                {{ markingReviewed === s.id ? '…' : (s.hrReviewedAt ? 'Reviewed' : 'Mark Reviewed') }}
+              </button>
               <button *ngIf="!s.templateId && (role === 'HR' || role === 'HR Manager')"
                 class="btn assign-tpl-btn" (click)="openAssignTemplate(s)">
                 Assign Template
@@ -337,6 +355,12 @@
           <div class="cycle-preview-head">
             Will be filed under <strong>{{ cyclePreview.cycle }}</strong>
           </div>
+          <!-- Only opened periods are created; the rest come with a later
+               assign, once their milestone arrives. -->
+          <div class="cycle-preview-note" *ngIf="openPeriodCount">
+            Creating <strong>{{ openPeriodCount }}</strong> row(s) now — the
+            {{ cyclePreview.periods.length - openPeriodCount }} not yet open are created later.
+          </div>
           <ul class="cycle-preview-list">
             <li *ngFor="let p of cyclePreview.periods">
               <span class="cp-period">{{ p.label }}</span>
@@ -418,3 +442,43 @@
 <app-appraisal-pause-dialog [(visible)]="pauseDialogVisible"
   [employeeId]="pauseEmployeeId" [employeeLabel]="pauseEmployeeLabel"
   (changed)="onPauseChanged()"></app-appraisal-pause-dialog>
+<!-- HR's edit-request queue. A reviewer whose period has been signed off asks
+     here; approving buys them one correction. -->
+<p-dialog header="Edit Requests" [(visible)]="editRequestsVisible" [modal]="true"
+  [style]="{ width: '640px', maxHeight: '80vh' }" [closable]="true">
+
+  <div *ngIf="editRequestsLoading" class="er-empty">Loading…</div>
+
+  <div *ngIf="!editRequestsLoading && !editRequests.length" class="er-empty">
+    Nothing waiting. Requests appear here when a reviewer needs to change a period
+    you've already marked reviewed.
+  </div>
+
+  <div class="er-list" *ngIf="!editRequestsLoading && editRequests.length">
+    <div class="er-item" *ngFor="let r of editRequests">
+      <div class="er-head">
+        <strong>{{ r.summary?.employee?.firstName }} {{ r.summary?.employee?.lastName }}</strong>
+        <span class="er-meta">
+          {{ r.summary?.employee?.employeeCode }} · {{ r.summary?.period }} · {{ r.summary?.cycle }}
+        </span>
+      </div>
+      <div class="er-who">
+        <span class="er-role">{{ r.roleLabel }}</span>
+        requested by {{ r.requester?.firstName }} {{ r.requester?.lastName }}
+        on {{ r.requestedAt | date:'dd MMM yyyy' }}
+      </div>
+      <div class="er-reason">“{{ r.reason }}”</div>
+      <div class="er-actions">
+        <input pInputText class="er-reject-reason" [(ngModel)]="rejectReason"
+          [ngModelOptions]="{ standalone: true }" placeholder="Reason, if declining" />
+        <button class="btn" [disabled]="decidingRequest === r.id" (click)="decideRequest(r, false)">
+          Decline
+        </button>
+        <button class="btn approve-btn" [disabled]="decidingRequest === r.id"
+          (click)="decideRequest(r, true)">
+          {{ decidingRequest === r.id ? '…' : 'Approve' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</p-dialog>

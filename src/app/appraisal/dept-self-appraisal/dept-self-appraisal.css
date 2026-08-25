@@ -262,3 +262,11 @@
 @media (max-width: 720px) {
   .q-card { flex-direction: column; align-items: flex-start; }
 }
+
+/* Period not yet reached — nothing to do until its milestone date. */
+.status-badge.st-locked { background: #eceff1; color: #78909c; }
+
+.not-open {
+  color: #6f7684;
+  font-size: 13px;
+}

@@ -713,3 +713,43 @@ hr {
   border-color: rgba(125, 161, 240, 0.35);
   color: #7da1f0;
 }
+
+/* HR sign-off button on each row. */
+.btn.review-btn { border-color: #4ade80; color: #4ade80; }
+.btn.review-btn:hover:not([disabled]) { background: rgba(74, 222, 128, 0.12); }
+.btn.review-btn.is-reviewed { border-color: #7da1f0; color: #7da1f0; }
+.btn.review-btn.is-reviewed:hover:not([disabled]) { background: rgba(125, 161, 240, 0.12); }
+
+/* Edit-request queue */
+.er-empty { padding: 28px 12px; text-align: center; color: #888; font-style: italic; font-size: 14px; }
+.er-list { display: flex; flex-direction: column; gap: 12px; }
+
+.er-item {
+  padding: 14px 16px;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #d9a63c;
+  border-radius: 0 8px 8px 0;
+  background: #0a0a0a;
+}
+
+.er-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; color: #fff; }
+.er-meta { font-size: 12px; color: #9b9b9b; }
+.er-who { margin-top: 5px; font-size: 12px; color: #9b9b9b; }
+
+.er-role {
+  display: inline-block;
+  padding: 1px 7px;
+  margin-right: 4px;
+  border-radius: 3px;
+  background: rgba(125, 161, 240, 0.16);
+  color: #7da1f0;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.er-reason { margin-top: 8px; font-size: 13px; color: #c4c4c4; font-style: italic; }
+
+.er-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.er-reject-reason { flex: 1; font-size: 13px; }
+.btn.approve-btn { border-color: #4ade80; color: #4ade80; }
+.btn.approve-btn:hover:not([disabled]) { background: rgba(74, 222, 128, 0.12); }

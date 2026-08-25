@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, ElementRef, ViewChild, Output, EventEmitter, ViewChildren, QueryList } from '@angular/core';
-import SignaturePad from 'signature_pad';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TabsModule } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
@@ -43,7 +42,6 @@ export class AppraisalTemplate {
   incidents: any[] = [];
   loadingIncidents = false;
   isLoading = false;
-
 
 
   // Overall summary structure
@@ -102,6 +100,37 @@ export class AppraisalTemplate {
 
   downloading = false;
 
+  // Raised when a submit is refused because HR has signed the period off.
+  editRequestVisible = false;
+  editRequestReason = '';
+  editRequestSending = false;
+  lockedSummaryId: number | null = null;
+
+  sendEditRequest() {
+    if (!this.lockedSummaryId || !this.editRequestReason.trim()) return;
+    this.editRequestSending = true;
+    this.formService.requestEdit(this.lockedSummaryId, this.editRequestReason.trim()).subscribe({
+      next: (res) => {
+        this.editRequestSending = false;
+        this.editRequestVisible = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Request sent',
+          detail: res?.message || 'HR will review your request.',
+          life: 6000,
+        });
+      },
+      error: (err) => {
+        this.editRequestSending = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not send',
+          detail: err?.error?.error || 'Failed to send the request.',
+        });
+      },
+    });
+  }
+
   get canScore(): boolean {
     return !!this.reviewerRole;
   }
@@ -140,6 +169,27 @@ export class AppraisalTemplate {
   milestoneDates: Record<string, string> = {};
   periodReached: Record<string, boolean> = {};
 
+  /**
+   * The Final Review is one record per CYCLE (PerformanceFinalReview is keyed by
+   * employee + department + cycle, with no period), so it belongs only on the
+   * cycle's last period. Showing it on the 1st Month sheet would let someone
+   * write the whole cycle's closing remarks four months in.
+   *
+   * Last of visiblePeriods covers all three shapes: YEAR_1 for a first-year
+   * cycle, the single annual period for a recurring one, and YEAR_1 again for a
+   * legacy cycle that falls back to all four.
+   */
+  get isFinalPeriod(): boolean {
+    if (!this.visiblePeriods.length) return true;
+    return this.currentPeriod === this.visiblePeriods[this.visiblePeriods.length - 1];
+  }
+
+  /** Label of the period that carries the Final Review, for the note. */
+  get finalPeriodLabel(): string {
+    const last = this.visiblePeriods[this.visiblePeriods.length - 1];
+    return this.periodLabels[last] || last || '';
+  }
+
   /** True when the editable period is still locked behind its milestone. */
   get currentPeriodLocked(): boolean {
     return this.milestoneDates[this.currentPeriod] ? !this.periodReached[this.currentPeriod] : false;
@@ -149,6 +199,19 @@ export class AppraisalTemplate {
     if (period !== this.currentPeriod) return false;
     return this.milestoneDates[period] ? !!this.periodReached[period] : true;
   }
+
+  /**
+   * Which signature lines this viewer may capture.
+   *
+   * HR runs the session — they sit with the employee, so they can capture any
+   * line including the employee's own. A reviewer signs only their own: an
+   * in-charge has no business signing the HOD's line, and neither of them
+   * signs for the employee.
+   */
+  
+
+  /** A pad is drawable only if the period is open AND this line is theirs. */
+  
 
   /** Total paused days within the current cycle window. Loaded after the
    *  appraisal-form GET resolves; subtracted from the elapsed-months calc
@@ -218,7 +281,6 @@ export class AppraisalTemplate {
   }
 
 
-
   // Final review structure
   finalReview: any = {
     appreciations: "",
@@ -228,23 +290,6 @@ export class AppraisalTemplate {
     supervisorSig: "",
     hrSig: ""
   };
-
-  @ViewChildren('empCanvas') empCanvasRefs!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('supCanvas') supCanvasRefs!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('hodCanvas') hodCanvasRefs!: QueryList<ElementRef<HTMLCanvasElement>>;
-
-  empPads: Record<string, SignaturePad> = {};
-  supPads: Record<string, SignaturePad> = {};
-  hodPads: Record<string, SignaturePad> = {};
-
-  @ViewChild('finalEmpCanvas') finalEmpCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('finalSupCanvas') finalSupCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('finalHrCanvas') finalHrCanvas!: ElementRef<HTMLCanvasElement>;
-
-  finalEmpPad!: SignaturePad;
-  finalSupPad!: SignaturePad;
-  finalHrPad!: SignaturePad;
-
 
 
   constructor(private formService: PerformanceService, private incidentService: Incident, private messageService: MessageService,
@@ -304,8 +349,8 @@ export class AppraisalTemplate {
           }))
         };
 
-        // Preload BEFORE the pads are built — initializeSignaturePads() reads
-        // this.summary / this.finalReview to decide which pads lock read-only.
+        // Preloaded before the cycle shape resolves, so the form renders with
+        // saved scores immediately.
         this.summary = this.mapSummaries(data.summaries || []);
         if (data.finalReview) this.finalReview = data.finalReview;
 
@@ -314,7 +359,7 @@ export class AppraisalTemplate {
 
         // Fetch pauses first so paused days are subtracted BEFORE the DOJ
         // fallback picks a period — otherwise a maternity-paused employee jumps
-        // to YEAR_1 too early. Pads initialise on both paths, and with no DOJ.
+        // to YEAR_1 too early. Resolves on both paths, and with no DOJ.
         this.appraisalService.listEmployeePauses(this.employeeId).subscribe({
           next: (pauses) => this.applyPausesAndInit(pauses || [], doj),
           error: () => this.applyPausesAndInit([], doj),
@@ -339,7 +384,6 @@ export class AppraisalTemplate {
     this.activePause = pauses.find(p => !p.endDate) || null;
     this.currentPeriod = this.resolveCurrentPeriod(doj);
     this.loadCycleShape();
-    this.initializeSignaturePads();
   }
 
   /**
@@ -393,197 +437,14 @@ export class AppraisalTemplate {
     return 'MONTH_1';
   }
 
-  // ngAfterViewInit() {
-  //   this.initializeSignaturePads();
-  // }
 
 
-  initializeSignaturePads() {
-    setTimeout(() => {
-      console.log("Initializing signature pads with locking rules...");
-
-      /* -------------------------
-         EMPLOYEE SIGNATURE PAD
-      ------------------------- */
-      this.empCanvasRefs.forEach(canvas => {
-        const period = canvas.nativeElement.getAttribute("data-period");
-        const savedSig = this.summary[period!]?.employeeSig;
-
-        const isCurrent = (period === this.currentPeriod);
-        const hasSignature = savedSig && savedSig.startsWith("data:image");
-
-        if (!this.empPads[period!]) {
-          this.empPads[period!] = new SignaturePad(canvas.nativeElement, {
-            minWidth: 1,
-            maxWidth: 2,
-          });
-        }
-
-        const pad = this.empPads[period!];
-
-        if (hasSignature) {
-          console.log("EMP: loading saved signature for", period);
-          pad.fromDataURL(savedSig);
-
-          pad.off(); // disable drawing
-          canvas.nativeElement.style.pointerEvents = "none";
-        } else if (isCurrent) {
-          console.log("EMP: enabling drawing for", period);
-          pad.clear();
-          pad.on();
-          canvas.nativeElement.style.pointerEvents = "auto";
-        } else {
-          console.log("EMP: disabled (not current period)", period);
-          pad.clear();
-          pad.off();
-          canvas.nativeElement.style.pointerEvents = "none";
-        }
-      });
+  
 
 
+  
 
-      /* -------------------------
-         SUPERVISOR SIGNATURE PAD
-      ------------------------- */
-      this.supCanvasRefs.forEach(canvas => {
-        const period = canvas.nativeElement.getAttribute("data-period");
-        const savedSig = this.summary[period!]?.supervisorSig;
-
-        const isCurrent = (period === this.currentPeriod);
-        const hasSignature = savedSig && savedSig.startsWith("data:image");
-
-        if (!this.supPads[period!]) {
-          this.supPads[period!] = new SignaturePad(canvas.nativeElement, {
-            minWidth: 1,
-            maxWidth: 2,
-          });
-        }
-
-        const pad = this.supPads[period!];
-
-        if (hasSignature) {
-          console.log("SUP: loading saved signature for", period);
-          pad.fromDataURL(savedSig);
-
-          pad.off();
-          canvas.nativeElement.style.pointerEvents = "none";
-        } else if (isCurrent) {
-          console.log("SUP: enabling drawing for", period);
-          pad.clear();
-          pad.on();
-          canvas.nativeElement.style.pointerEvents = "auto";
-        } else {
-          console.log("SUP: disabled (not current)", period);
-          pad.clear();
-          pad.off();
-          canvas.nativeElement.style.pointerEvents = "none";
-        }
-      });
-
-
-
-      /* -------------------------
-         HOD SIGNATURE PAD
-      ------------------------- */
-      this.hodCanvasRefs.forEach(canvas => {
-        const period = canvas.nativeElement.getAttribute("data-period");
-        const savedSig = this.summary[period!]?.hodSig;
-
-        const isCurrent = (period === this.currentPeriod);
-        const hasSignature = savedSig && savedSig.startsWith("data:image");
-
-        if (!this.hodPads[period!]) {
-          this.hodPads[period!] = new SignaturePad(canvas.nativeElement, {
-            minWidth: 1,
-            maxWidth: 2,
-          });
-        }
-
-        const pad = this.hodPads[period!];
-
-        if (hasSignature) {
-          console.log("HOD: loading saved signature for", period);
-          pad.fromDataURL(savedSig);
-
-          pad.off();
-          canvas.nativeElement.style.pointerEvents = "none";
-        } else if (isCurrent) {
-          console.log("HOD: enabling drawing for", period);
-          pad.clear();
-          pad.on();
-          canvas.nativeElement.style.pointerEvents = "auto";
-        } else {
-          console.log("HOD: disabled (not current)", period);
-          pad.clear();
-          pad.off();
-          canvas.nativeElement.style.pointerEvents = "none";
-        }
-      });
-
-      if (this.finalEmpCanvas && !this.finalEmpPad) {
-        console.log("Initializing final employee signature pad");
-        this.finalEmpPad = new SignaturePad(this.finalEmpCanvas.nativeElement);
-        if (this.finalReview.employeeSig?.startsWith("data:image")) {
-          this.finalEmpPad.fromDataURL(this.finalReview.employeeSig);
-          this.finalEmpPad.off();
-          this.finalEmpCanvas.nativeElement.style.pointerEvents = "none";
-        }
-      }
-
-      if (this.finalSupCanvas && !this.finalSupPad) {
-        this.finalSupPad = new SignaturePad(this.finalSupCanvas.nativeElement);
-        if (this.finalReview.supervisorSig?.startsWith("data:image")) {
-          this.finalSupPad.fromDataURL(this.finalReview.supervisorSig);
-          this.finalSupPad.off();
-          this.finalSupCanvas.nativeElement.style.pointerEvents = "none";
-        }
-      }
-
-      if (this.finalHrCanvas && !this.finalHrPad) {
-        this.finalHrPad = new SignaturePad(this.finalHrCanvas.nativeElement);
-        if (this.finalReview.hrSig?.startsWith("data:image")) {
-          this.finalHrPad.fromDataURL(this.finalReview.hrSig);
-          this.finalHrPad.off();
-          this.finalHrCanvas.nativeElement.style.pointerEvents = "none";
-        }
-      }
-
-    }, 50);
-  }
-
-
-
-  saveSignature(role: 'emp' | 'sup' | 'hod', period: string) {
-    let pad: SignaturePad;
-
-    if (role === 'emp') pad = this.empPads[period];
-    else if (role === 'sup') pad = this.supPads[period];
-    else pad = this.hodPads[period];
-
-    if (!pad || pad.isEmpty()) return;
-
-    const data = pad.toDataURL();
-
-    if (role === 'emp') this.summary[period].employeeSig = data;
-    if (role === 'sup') this.summary[period].supervisorSig = data;
-    if (role === 'hod') this.summary[period].hodSig = data;
-  }
-
-  clearSignature(role: 'emp' | 'sup' | 'hod', period: string) {
-    let pad: SignaturePad;
-
-    if (role === 'emp') pad = this.empPads[period];
-    else if (role === 'sup') pad = this.supPads[period];
-    else pad = this.hodPads[period];
-
-    if (!pad) return;
-
-    pad.clear();
-
-    if (role === 'emp') this.summary[period].employeeSig = '';
-    if (role === 'sup') this.summary[period].supervisorSig = '';
-    if (role === 'hod') this.summary[period].hodSig = '';
-  }
+  
 
   /** Only YOUR column preloads into the editable inputs. */
   findResponseScore(responses: any[], questionId: number, period: string) {
@@ -621,7 +482,6 @@ export class AppraisalTemplate {
   }
 
 
-
   onSubmit() {
     // 1) Flatten responses
     const flattenedResponses: any[] = [];
@@ -648,6 +508,9 @@ export class AppraisalTemplate {
           period,
           marksScored: s.marksScored,
           overallPerf: s.overallPerf,
+          // The UI no longer captures signatures, but these are still sent so a
+          // row signed before the change keeps its images when scores are
+          // edited. They round-trip whatever the server returned.
           employeeSig: s.employeeSig,
           supervisorSig: s.supervisorSig,
           hodSig: s.hodSig
@@ -659,8 +522,11 @@ export class AppraisalTemplate {
     // something — this object is pre-initialised with empty strings, and sending
     // it unconditionally made the backend write a blank review row every time
     // and suppressed the "HOD submitted, please review" notification to HR.
-    const hasFinalReview = ['appreciations', 'talents', 'overallComments', 'employeeSig', 'supervisorSig', 'hrSig']
-      .some(k => String((this.finalReview as any)?.[k] ?? '').trim() !== '');
+    // Only the cycle's last period carries it. Earlier periods load the record
+    // for display, so without this check they would re-save it unchanged.
+    const hasFinalReview = this.isFinalPeriod
+      && ['appreciations', 'talents', 'overallComments', 'employeeSig', 'supervisorSig', 'hrSig']
+        .some(k => String((this.finalReview as any)?.[k] ?? '').trim() !== '');
 
     const payload = {
       employeeId: this.employeeId,
@@ -683,8 +549,19 @@ export class AppraisalTemplate {
       },
       error: (err) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error submitting form.' });
-        console.error("Error submitting form", err);
+        // 423 = HR has signed this period off. Offer the way back in rather
+        // than a dead end.
+        if (err?.status === 423 && err?.error?.summaryId) {
+          this.lockedSummaryId = err.error.summaryId;
+          this.editRequestReason = '';
+          this.editRequestVisible = true;
+          return;
+        }
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || 'Error submitting form.',
+        });
       }
     });
   }
@@ -754,35 +631,9 @@ export class AppraisalTemplate {
     });
   }
 
-  saveFinalSignature(role: 'emp' | 'sup' | 'hr') {
-    let pad: SignaturePad;
+  
 
-    if (role === 'emp') pad = this.finalEmpPad;
-    else if (role === 'sup') pad = this.finalSupPad;
-    else pad = this.finalHrPad;
-
-    if (pad.isEmpty()) return;
-
-    const data = pad.toDataURL();
-
-    if (role === 'emp') this.finalReview.employeeSig = data;
-    if (role === 'sup') this.finalReview.supervisorSig = data;
-    if (role === 'hr') this.finalReview.hrSig = data;
-  }
-
-  clearFinalSignature(role: 'emp' | 'sup' | 'hr') {
-    let pad: SignaturePad;
-
-    if (role === 'emp') pad = this.finalEmpPad;
-    else if (role === 'sup') pad = this.finalSupPad;
-    else pad = this.finalHrPad;
-
-    pad.clear();
-
-    if (role === 'emp') this.finalReview.employeeSig = '';
-    if (role === 'sup') this.finalReview.supervisorSig = '';
-    if (role === 'hr') this.finalReview.hrSig = '';
-  }
+  
   openIncidentPopup() {
     if (!this.employeeId) return;
 

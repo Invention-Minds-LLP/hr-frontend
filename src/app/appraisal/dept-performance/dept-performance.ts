@@ -102,6 +102,11 @@ export class DeptPerformance {
     return this.summaries.some(s => !!s.progress);
   }
 
+  /** Periods that have opened — only these are created by an assign. */
+  get openPeriodCount(): number {
+    return (this.cyclePreview?.periods || []).filter(p => p.reached).length;
+  }
+
   progressTitle(label: string, state: string | undefined): string {
     switch (state) {
       case 'done': return `${label}: complete`;
@@ -113,6 +118,90 @@ export class DeptPerformance {
 
   /** Current search text, kept so the pending filter can re-apply it. */
   private searchText = '';
+
+  // ── HR sign-off + edit requests ──────────────────────────────────────────
+  markingReviewed: number | null = null;
+
+  editRequestsVisible = false;
+  editRequests: any[] = [];
+  editRequestsLoading = false;
+  decidingRequest: number | null = null;
+  rejectReason = '';
+
+  /** HR can sign a period off; the server enforces it regardless. */
+  get isHR(): boolean {
+    return this.showProgress;
+  }
+
+  toggleReviewed(row: any) {
+    const next = !row.hrReviewedAt;
+    this.markingReviewed = row.id;
+    this.performanceService.setHrReviewed(row.id, next).subscribe({
+      next: (res) => {
+        this.markingReviewed = null;
+        row.hrReviewedAt = res.hrReviewedAt ?? null;
+        this.messageService.add({
+          severity: 'success',
+          summary: next ? 'Marked reviewed' : 'Reopened',
+          detail: res.message,
+          life: 6000,
+        });
+      },
+      error: (err) => {
+        this.markingReviewed = null;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: err?.error?.error || 'Could not update the review status.',
+        });
+      },
+    });
+  }
+
+  openEditRequests() {
+    this.editRequestsVisible = true;
+    this.editRequestsLoading = true;
+    this.performanceService.listEditRequests('PENDING').subscribe({
+      next: (rows) => {
+        this.editRequests = rows || [];
+        this.editRequestsLoading = false;
+      },
+      error: () => {
+        this.editRequests = [];
+        this.editRequestsLoading = false;
+        this.messageService.add({
+          severity: 'error', summary: 'Error', detail: 'Could not load edit requests.',
+        });
+      },
+    });
+  }
+
+  decideRequest(r: any, approve: boolean) {
+    this.decidingRequest = r.id;
+    this.performanceService.decideEditRequest(r.id, approve, this.rejectReason).subscribe({
+      next: () => {
+        this.decidingRequest = null;
+        this.rejectReason = '';
+        this.messageService.add({
+          severity: 'success',
+          summary: approve ? 'Approved' : 'Rejected',
+          detail: approve
+            ? 'The reviewer can now make one change to that period.'
+            : 'The reviewer has been told.',
+        });
+        this.openEditRequests();
+        this.loadSummaries();
+      },
+      error: (err) => {
+        this.decidingRequest = null;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: err?.error?.error || 'Could not record the decision.',
+        });
+      },
+    });
+  }
   loading = true;
   isLoading = false;
 
@@ -506,6 +595,18 @@ export class DeptPerformance {
             life: 8000,
           });
         }
+        // Periods that exist but haven't opened yet are created by a later
+        // assign — say so, or it looks like rows went missing.
+        const heldBack = ok.reduce((n, r) => n + (r.notOpen?.length || 0), 0);
+        if (heldBack) {
+          this.messageService.add({
+            severity: 'info',
+            summary: `${heldBack} not open yet`,
+            detail: 'Those periods are created once their milestone date arrives — assign again then.',
+            life: 7000,
+          });
+        }
+
         // A batch can partly fail (no DOJ, wrong department, already assigned)
         // — surface that instead of reporting blanket success.
         if (failed.length) {

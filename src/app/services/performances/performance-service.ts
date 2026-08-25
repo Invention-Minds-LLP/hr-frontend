@@ -131,6 +131,30 @@ export class PerformanceService {
     return this.http.post(`${this.baseUrl}/assign`, payload);
   }
 
+  // ── HR sign-off + edit requests ──────────────────────────────────────────
+  // Reviewers edit freely until HR marks a period reviewed; after that a change
+  // needs an approved request, and the approval is consumed by the edit.
+
+  /** HR marks a period's review complete, or reopens it. */
+  setHrReviewed(summaryId: number, reviewed: boolean): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/summary/${summaryId}/review`, { reviewed });
+  }
+
+  /** A reviewer asks HR to reopen a period they can no longer edit. */
+  requestEdit(summaryId: number, reason: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/summary/${summaryId}/edit-request`, { reason });
+  }
+
+  /** HR's queue. `status` is PENDING by default, or ALL. */
+  listEditRequests(status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL' = 'PENDING'): Observable<any[]> {
+    const params = new HttpParams().set('status', status);
+    return this.http.get<any[]>(`${this.baseUrl}/edit-requests`, { params });
+  }
+
+  decideEditRequest(id: number, approve: boolean, rejectionReason?: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/edit-requests/${id}`, { approve, rejectionReason });
+  }
+
   // ── Self-appraisal (Dept Performance Indicator) ──────────────────────────
   // Separate tables from the managerial self-appraisal, same question master.
 
@@ -138,9 +162,15 @@ export class PerformanceService {
   getSelfAppraisalCycles(employeeId?: number): Observable<{
     employeeId: number;
     employeeType: string | null;
+    /** One entry per assigned (cycle, period) — the employee self-assesses at
+     *  every milestone, as the reviewers score at every milestone. */
     cycles: Array<{
       cycle: string;
-      periods: string[];
+      period: string;
+      periodLabel: string;
+      milestoneDate: string | null;
+      /** False until the milestone is reached; the row can't be filled yet. */
+      open: boolean;
       submitted: boolean;
       submittedAt: string | null;
       started: boolean;
@@ -157,16 +187,18 @@ export class PerformanceService {
   }
 
   /** Questionnaire for this employee plus anything already saved. */
-  getSelfAppraisal(cycle: string, employeeId?: number): Observable<{
+  getSelfAppraisal(cycle: string, period: string, employeeId?: number): Observable<{
     employee: any;
     cycle: string;
+    period: string;
+    periodLabel: string;
     questions: Array<{ id: number; text: string; section: string | null; category: string | null }>;
     selfAppraisal: any | null;
     answers: Array<{ questionId: number; rating: number | null; comments: string | null }>;
     canEdit: boolean;
     readOnly: boolean;
   }> {
-    let params = new HttpParams().set('cycle', cycle);
+    let params = new HttpParams().set('cycle', cycle).set('period', period);
     if (employeeId) params = params.set('employeeId', String(employeeId));
     return this.http.get<any>(`${this.baseUrl}/self-appraisal`, { params });
   }
@@ -174,6 +206,7 @@ export class PerformanceService {
   saveSelfAppraisal(payload: {
     employeeId?: number;
     cycle: string;
+    period: string;
     answers: Array<{ questionId: number; rating: number | null; comments: string }>;
     achievements?: string;
     goalsObjective?: string;

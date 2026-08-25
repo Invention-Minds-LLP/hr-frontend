@@ -36,8 +36,10 @@ export class DeptSelfAppraisal implements OnInit {
   loggedEmpId = Number(localStorage.getItem('empId')) || 0;
 
   loadingCycles = true;
+  /** One entry per assigned (cycle, period). */
   cycles: Array<{
-    cycle: string; periods: string[]; submitted: boolean;
+    cycle: string; period: string; periodLabel: string;
+    milestoneDate: string | null; open: boolean; submitted: boolean;
     submittedAt: string | null; started: boolean; lastSaved: string | null;
   }> = [];
 
@@ -47,8 +49,10 @@ export class DeptSelfAppraisal implements OnInit {
   managerialAppraisals: Array<{ id: number; cycle: string; status: string; submitted: boolean }> = [];
   hasBoth = false;
 
-  /** The cycle whose form is open in the dialog. */
+  /** The (cycle, period) whose form is open in the dialog. */
   activeCycle: string | null = null;
+  activePeriod: string | null = null;
+  activePeriodLabel = '';
   /** The questionnaire lives in a dialog, as the managerial one does — an
    *  inline form on the Individual page made it scroll a long way. */
   formDialogVisible = false;
@@ -102,23 +106,27 @@ export class DeptSelfAppraisal implements OnInit {
     });
   }
 
-  statusLabel(c: { submitted: boolean; started: boolean }): string {
+  statusLabel(c: { submitted: boolean; started: boolean; open: boolean }): string {
     if (c.submitted) return 'Submitted';
-    return c.started ? 'Draft' : 'Not Started';
+    if (c.started) return 'Draft';
+    return c.open ? 'Not Started' : 'Not Open';
   }
 
-  statusClass(c: { submitted: boolean; started: boolean }): string {
+  statusClass(c: { submitted: boolean; started: boolean; open: boolean }): string {
     if (c.submitted) return 'st-submitted';
-    return c.started ? 'st-draft' : 'st-pending';
+    if (c.started) return 'st-draft';
+    return c.open ? 'st-pending' : 'st-locked';
   }
 
-  open(cycle: string) {
-    this.activeCycle = cycle;
+  open(c: { cycle: string; period: string; periodLabel: string }) {
+    this.activeCycle = c.cycle;
+    this.activePeriod = c.period;
+    this.activePeriodLabel = c.periodLabel;
     this.formDialogVisible = true;
     this.loadingForm = true;
     this.resetForm();
 
-    this.performanceService.getSelfAppraisal(cycle).subscribe({
+    this.performanceService.getSelfAppraisal(c.cycle, c.period).subscribe({
       next: (res) => {
         this.loadingForm = false;
         this.employee = res.employee;
@@ -154,6 +162,7 @@ export class DeptSelfAppraisal implements OnInit {
       error: (err) => {
         this.loadingForm = false;
         this.activeCycle = null;
+        this.activePeriod = null;
         this.formDialogVisible = false;
         this.messageService.add({
           severity: 'error',
@@ -168,6 +177,8 @@ export class DeptSelfAppraisal implements OnInit {
   closeForm() {
     this.formDialogVisible = false;
     this.activeCycle = null;
+    this.activePeriod = null;
+    this.activePeriodLabel = '';
     this.resetForm();
     this.loadCycles();
   }
@@ -200,7 +211,7 @@ export class DeptSelfAppraisal implements OnInit {
   }
 
   save(isDraft: boolean) {
-    if (!this.activeCycle || !this.canEdit) return;
+    if (!this.activeCycle || !this.activePeriod || !this.canEdit) return;
 
     // Submitting locks the record, so require a complete set first. Drafts save
     // whatever is there.
@@ -216,6 +227,7 @@ export class DeptSelfAppraisal implements OnInit {
     this.saving = true;
     this.performanceService.saveSelfAppraisal({
       cycle: this.activeCycle,
+      period: this.activePeriod,
       answers: this.answers.map(a => ({
         questionId: a.questionId,
         rating: a.rating,
