@@ -67,7 +67,9 @@ export class DeptPerformance {
   }
   assignForm: FormGroup;
   selectedSummary: any = null;
-  role: string = '';
+  // Seeded here as well as in ngOnInit so the role-gated getters below are
+  // correct even if something reads them before init.
+  role: string = localStorage.getItem('role') || '';
   filterOptions = [
     { label: 'Employee Code', value: 'employeeCode' },
     { label: 'Name', value: 'name' },
@@ -175,9 +177,21 @@ export class DeptPerformance {
   decidingRequest: number | null = null;
   rejectReason = '';
 
-  /** HR can sign a period off; the server enforces it regardless. */
+  /**
+   * HR can sign a period off, work the edit queue and archive; the server
+   * enforces all three regardless of what this returns.
+   *
+   * Derived from the signed-in role, NOT from the rows on screen. It used to
+   * return `showProgress`, which reads the loaded data — so once every row was
+   * archived the list came back empty, this went false, and the Include
+   * Inactive button that would have revealed those rows disappeared with it.
+   * Mirrors the backend's isHRViewer: HR, HR Manager, Management, or anyone in
+   * the HR department.
+   */
   get isHR(): boolean {
-    return this.showProgress;
+    const role = (this.role || '').trim();
+    if (role === 'HR' || role === 'HR Manager' || role === 'Management') return true;
+    return Number(localStorage.getItem('deptId')) === 1;
   }
 
   // ── Archive / restore ────────────────────────────────────────────────────
