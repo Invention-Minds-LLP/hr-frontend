@@ -360,7 +360,7 @@
                 <label>
                   <span class="lbl">Evidence (proof)</span>
                   <input type="file" (change)="onEvidenceFileSelected(c, $event)"
-                         accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" [disabled]="evidenceUploading[c.id]" />
+                         accept=".pdf,.png,.jpg,.jpeg,.webp" [disabled]="evidenceUploading[c.id]" />
                   <small class="muted" *ngIf="evidenceUploading[c.id]">
                     <i class="pi pi-spin pi-spinner"></i> Uploading…
                   </small>
@@ -416,7 +416,7 @@
               <label class="full-row">
                 <span class="lbl">File</span>
                 <input type="file" (change)="onDocFileSelected($event)"
-                       accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" />
+                       accept=".pdf,.png,.jpg,.jpeg,.webp" />
                 <small class="muted" *ngIf="docFile">Selected: {{ docFile.name }}</small>
               </label>
             </div>
@@ -461,7 +461,7 @@
             <label class="full-row">
               <span class="lbl">Final Report (optional)</span>
               <input type="file" (change)="onReportFileSelected($event)"
-                     accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" [disabled]="reportUploading" />
+                     accept=".pdf,.png,.jpg,.jpeg,.webp" [disabled]="reportUploading" />
               <small class="muted" *ngIf="reportUploading"><i class="pi pi-spin pi-spinner"></i> Uploading…</small>
               <small class="muted" *ngIf="!reportUploading && completeReportUrl">
                 <a [href]="completeReportUrl" target="_blank"><i class="pi pi-file"></i> View attached report</a>

@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { Holidays } from '../../services/holidays/holidays';
 import { Shifts } from '../../services/shifts/shifts';
+import { resolveFileUrl } from '../../pipes/file-url.pipe';
 
 interface CalendarDay {
   date: Date;
@@ -421,7 +422,10 @@ export class LeavePopup {
     this.declineReason = data.declineReason;
     this.isHalfDay = data.isHalfDay;
     this.selectedPrescription = null;
-    this.prescriptionUrl = data.prescriptionUrl || null;
+    // Resolve against the current origin so the prescription opens over the LAN
+    // IP inside the premises and over the public domain outside (same rule as
+    // the résumé links in the recruitment application table).
+    this.prescriptionUrl = resolveFileUrl(data.prescriptionUrl) || null;
 
     this.halfDaySession = data.halfDaySession || 'FIRST_HALF';
     this.calculateDays();
