@@ -59,7 +59,7 @@ export class SurveyForm {
     const empData = {
       employeeId: localStorage.getItem('employeeId'),
       name: this.surveyData?.employee ? this.surveyData.employee.firstName + ' ' + this.surveyData.employee.lastName : '',
-      role: localStorage.getItem('role'),
+      designation: this.surveyData?.employee?.designation?.name || '',
       deptId: localStorage.getItem('deptId'),
       empId: localStorage.getItem('empId'),
       departmentName: this.surveyData?.employee?.Department?.name || '',
@@ -82,7 +82,7 @@ export class SurveyForm {
         this.employeeDetails = {
           name: emp.firstName + ' ' + emp.lastName,
           employeeId: emp.employeeCode,      // or emp.id if you want DB id
-          role: emp?.designation?.name,
+          designation: emp?.designation?.name,
           deptId: this.surveyData.employee.Department?.id,
           departmentName: this.surveyData.employee.Department?.name || '',
         };
@@ -104,12 +104,7 @@ export class SurveyForm {
           if (!groups[r.question.section]) groups[r.question.section] = [];
           groups[r.question.section].push(r.question);
         });
-        this.groupedQuestions = this.sectionOrder
-          .filter(sec => groups[sec]) // only existing sections
-          .map(sec => ({
-            section: sec,
-            questions: groups[sec]
-          }));
+        this.groupedQuestions = this.buildGroups(groups);
 
 
         this.form.patchValue({ employeeId: emp.id });
@@ -133,12 +128,23 @@ export class SurveyForm {
           if (!groups[q.section]) groups[q.section] = [];
           groups[q.section].push(q);
         });
-        this.groupedQuestions = Object.keys(groups).map(sec => ({
-          section: sec,
-          questions: groups[sec],
-        }));
+        this.groupedQuestions = this.buildGroups(groups);
       });
     }
+  }
+
+  /**
+   * Panels follow sectionOrder (A-L) and questions follow orderNo, which
+   * restarts at 1 in every section. Neither the questions endpoint nor the
+   * stored responses come back in that order on their own.
+   */
+  private buildGroups(groups: Record<string, any[]>) {
+    return this.sectionOrder
+      .filter(sec => groups[sec]) // only existing sections
+      .map(sec => ({
+        section: sec,
+        questions: [...groups[sec]].sort((a, b) => (a.orderNo ?? 0) - (b.orderNo ?? 0)),
+      }));
   }
 
 
