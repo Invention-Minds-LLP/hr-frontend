@@ -32,6 +32,10 @@ export const PERMISSION_KEYS = [
   'admin.appraisal.view',
   'admin.training.view',
   'admin.pip.view',
+  // .view is the screen (reporting managers hold it, and see only their own
+  // assignments); .manage is HR's final decision.
+  'admin.probation.view',
+  'admin.probation.manage',
 
   // Administration › Compliance
   'admin.resignation.view',

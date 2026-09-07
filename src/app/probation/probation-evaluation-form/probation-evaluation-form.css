@@ -1,0 +1,82 @@
+.eval-form { display: flex; flex-direction: column; gap: 18px; }
+
+/* Header */
+.form-header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.form-header h2 { margin: 0; font-family: "Sofia Sans"; font-size: 22px; font-weight: 700; color: white; flex: 1; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.round-tag { padding: 4px 12px; border-radius: 12px; background: #fff3cd; color: #856404; font-size: 12px; font-weight: 600; }
+
+/* Panels */
+.panel { border: 1px solid #333; border-radius: 10px; background: #141414; padding: 18px 20px; }
+.panel-title { font-family: "Sofia Sans"; font-size: 15px; font-weight: 700; color: #FB9C2A; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.legend { display: flex; gap: 16px; font-size: 12px; font-weight: 500; color: #999; }
+.legend b { color: #ccc; }
+
+/* Particulars grid */
+.particulars { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 28px; }
+.pair { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; border-bottom: 1px solid #262626; }
+.pair .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #888; }
+.pair .v { font-size: 14px; color: #eee; }
+.pair .v.missing { color: #f0a0a0; font-style: italic; }
+
+/* Rating grid — mirrors the printed form's table */
+.rating-grid { width: 100%; border-collapse: collapse; }
+.rating-grid th, .rating-grid td { border: 1px solid #333; padding: 8px 10px; vertical-align: middle; }
+.rating-grid thead th { background: #1e1e1e; color: #ddd; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+.rating-grid .cat-col { text-align: left; }
+.rating-grid .mark-col { width: 56px; text-align: center; }
+.cat-label { font-weight: 600; font-size: 14px; color: #eee; }
+.cat-criteria { font-size: 12px; color: #999; margin-top: 3px; line-height: 1.4; }
+/* Unrated rows are the only thing standing between the manager and submitting. */
+.rating-grid tr.unrated .cat-col { box-shadow: inset 3px 0 0 #856404; }
+
+.mark-static { display: inline-flex; width: 18px; height: 18px; align-items: center; justify-content: center; border: 1px solid #555; border-radius: 3px; font-size: 12px; color: #eee; }
+.mark-static.selected { border-color: #FB9C2A; color: #FB9C2A; font-weight: 700; }
+
+/* Fields */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 13px; font-weight: 600; color: #ddd; }
+.field .sub { font-size: 12px; color: #888; }
+.field textarea { width: 100%; }
+.req { color: #ef4444; }
+.readonly-block p { margin: 4px 0 0; font-size: 14px; color: #eee; white-space: pre-wrap; }
+
+/* Recommendation / decision options */
+.outcome-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.outcome { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid #333; border-radius: 8px; cursor: pointer; }
+.outcome.readonly { cursor: default; }
+.outcome:hover:not(.readonly) { border-color: #555; }
+.outcome.selected { border-color: #FB9C2A; background: #1c1710; }
+.outcome-text { display: flex; flex-direction: column; gap: 2px; }
+.outcome-label { font-size: 14px; font-weight: 600; color: #eee; }
+.outcome-hint { font-size: 12px; color: #999; }
+
+/* Actions + hints */
+.form-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.hint { font-size: 12.5px; color: #999; display: flex; align-items: center; gap: 6px; }
+.hint.warn { color: #ffd966; }
+.hint strong { color: #eee; }
+
+.hr-panel { border-color: #3a3020; }
+.decided { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 28px; }
+.decided .readonly-block { grid-column: 1 / -1; }
+
+.loading-block { padding: 40px; text-align: center; color: #888; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+/* Lara paints inputs light; screens override locally. Disabled = submitted
+   form read back, so it stays legible instead of greying out. */
+:host ::ng-deep .p-textarea, :host ::ng-deep .p-inputtext {
+  background-color: #0d0d0d !important; color: #eee !important;
+  border: 1px solid #333 !important; border-radius: 6px;
+  font-family: "Sofia Sans"; font-size: 14px; padding: 10px 12px; width: 100%;
+}
+:host ::ng-deep .p-textarea:enabled:focus, :host ::ng-deep .p-inputtext:enabled:focus {
+  border-color: #FB9C2A !important; box-shadow: none !important;
+}
+:host ::ng-deep .p-textarea::placeholder { color: #666; }
+:host ::ng-deep .p-textarea:disabled, :host ::ng-deep .p-textarea[disabled] {
+  background-color: #111 !important; color: #ccc !important; opacity: 1 !important; cursor: default;
+}
+:host ::ng-deep .p-radiobutton .p-radiobutton-box { background: #0d0d0d; border-color: #555; }
+:host ::ng-deep .p-radiobutton.p-radiobutton-checked .p-radiobutton-box { background: #FB9C2A; border-color: #FB9C2A; }

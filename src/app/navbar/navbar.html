@@ -339,6 +339,16 @@
                 <span>PIP</span>
               </a>
             </li>
+            <li class="nav-items" *hasPerm="['admin.probation.view', 'admin.probation.manage']">
+              <a [routerLink]="'/admin/probation'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 14l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Probation</span>
+              </a>
+            </li>
           </ng-container>
 
           <ng-container *ngIf="activeAdminGroup==='compliance'">

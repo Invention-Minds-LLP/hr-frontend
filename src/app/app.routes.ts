@@ -89,6 +89,7 @@ import { LoansOverview } from './loans/loans-overview';
 import { IncentiveRequests } from './incentives/incentive-requests/incentive-requests';
 import { WeeklyRatingOverview } from './weekly-rating/weekly-rating-overview';
 import { PipOverview } from './pip/pip-overview/pip-overview';
+import { ProbationOverview } from './probation/probation-overview/probation-overview';
 import { ModuleUtilization } from './module-utilization/module-utilization';
 import { PipResponseForm } from './pip/pip-response-form/pip-response-form';
 
@@ -148,6 +149,8 @@ export const routes: Routes = [
         { path: 'incentive-requests', component: IncentiveRequests, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incentiveRequests.view' } },
         { path: 'weekly-rating', component: WeeklyRatingOverview, canActivate: [authGuard]},
         { path: 'pip', component: PipOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.pip.view' } },
+        // Either key opens the screen; what it shows is decided server-side.
+        { path: 'probation', component: ProbationOverview, canActivate: [authGuard, permissionGuard], data: { perm: ['admin.probation.view', 'admin.probation.manage'] } },
         { path: 'encashment', component: EncashmentOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.encashment.view' } },
         { path: 'comp-off', component: CompOffOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.compOff.view' } },
         { path: 'incentives', component: IncentivesOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incentives.view' } },

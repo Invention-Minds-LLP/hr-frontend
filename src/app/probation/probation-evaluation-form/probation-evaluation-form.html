@@ -1,0 +1,226 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="eval-form" *ngIf="!loading; else loadingTpl">
+
+  <!-- ═══ Header ══════════════════════════════════════════════════════════ -->
+  <div class="form-header">
+    <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text p-button-sm"
+      (click)="close()"></button>
+    <h2>Probationary Progress Evaluation</h2>
+    <div class="header-actions">
+      <span class="round-tag" *ngIf="data?.round > 1">Round {{ data.round }} — after extension</span>
+      <button *ngIf="data?.status !== 'PENDING_MANAGER'" pButton icon="pi pi-file-pdf" label="PDF"
+        class="p-button-sm p-button-outlined" (click)="downloadPdf()"></button>
+    </div>
+  </div>
+
+  <!-- ═══ Particulars ═════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-title">Employee Details</div>
+    <div class="particulars">
+      <div class="pair"><span class="k">Employee Name</span><span class="v">{{ data?.employeeName }}</span></div>
+      <div class="pair"><span class="k">Employee ID</span><span class="v">{{ data?.employee?.employeeCode }}</span></div>
+      <div class="pair"><span class="k">Department</span><span class="v">{{ data?.employee?.Department?.name || '—' }}</span></div>
+      <div class="pair"><span class="k">Designation</span><span class="v">{{ data?.employee?.designation?.name || '—' }}</span></div>
+      <div class="pair">
+        <span class="k">Reporting Manager</span>
+        <span class="v" [class.missing]="!data?.managerName">{{ data?.managerName || 'Not assigned' }}</span>
+      </div>
+      <div class="pair"><span class="k">Date of Joining</span><span class="v">{{ data?.employee?.dateOfJoining | date: 'dd MMM yyyy' }}</span></div>
+      <div class="pair"><span class="k">Probation Completion Date</span><span class="v">{{ data?.dueDate | date: 'dd MMM yyyy' }}</span></div>
+      <div class="pair">
+        <span class="k">Evaluation Date</span>
+        <span class="v">{{ data?.evaluationDate ? (data.evaluationDate | date: 'dd MMM yyyy') : 'Not yet submitted' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Previous rounds (read-only reference) ═══════════════════════════ -->
+  <div class="panel" *ngIf="data?.previousRounds?.length">
+    <div class="panel-title">Previous Evaluations (reference only)</div>
+    <div class="prev-round" *ngFor="let p of data.previousRounds">
+      <div class="prev-head">
+        <strong>Round {{ p.round }}</strong>
+        <span>Evaluated {{ p.evaluationDate | date: 'dd MMM yyyy' }} by {{ p.managerName || '—' }}</span>
+        <span class="prev-outcome">HR decision: {{ outcomeLabel(p.hrDecision) }}</span>
+      </div>
+      <div class="prev-body">
+        <div><span class="k">Strong points</span><p>{{ p.strongPoints || '—' }}</p></div>
+        <div><span class="k">Improvement points</span><p>{{ p.improvementPoints || '—' }}</p></div>
+        <div *ngIf="p.hrComments"><span class="k">HR comments</span><p>{{ p.hrComments }}</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Rating grid ═════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-title">
+      Performance Evaluation
+      <span class="legend">
+        <span *ngFor="let r of ratingOptions"><b>{{ r.code }}</b> = {{ r.label }}</span>
+      </span>
+    </div>
+
+    <table class="rating-grid">
+      <thead>
+        <tr>
+          <th class="cat-col">Performance Category</th>
+          <th *ngFor="let r of ratingOptions" class="mark-col" [pTooltip]="r.label">{{ r.code }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of categories" [class.unrated]="canEdit && !ratings[c.code]">
+          <td class="cat-col">
+            <div class="cat-label">{{ c.label }}</div>
+            <div class="cat-criteria">{{ c.criteria }}</div>
+          </td>
+          <td *ngFor="let r of ratingOptions" class="mark-col">
+            <p-radioButton *ngIf="canEdit" [name]="c.code" [value]="r.code"
+              [(ngModel)]="ratings[c.code]" [inputId]="c.code + '_' + r.code">
+            </p-radioButton>
+            <span *ngIf="!canEdit" class="mark-static" [class.selected]="ratings[c.code] === r.code">
+              {{ ratings[c.code] === r.code ? '✕' : '' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hint warn" *ngIf="canEdit && unratedCount > 0">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ unratedCount }} categor{{ unratedCount === 1 ? 'y' : 'ies' }} still unrated. All eight are required.
+    </div>
+  </div>
+
+  <!-- ═══ Comments ════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-title">Comments</div>
+
+    <div class="field">
+      <label>Strong Points <span class="req">*</span></label>
+      <div class="sub">Strengths, achievements, attitude, competencies and overall contribution.</div>
+      <textarea pTextarea rows="4" [(ngModel)]="strongPoints" [disabled]="!canEdit"
+        placeholder="Required"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Suggestions / Areas for Improvement <span class="req">*</span></label>
+      <div class="sub">Where improvement is needed, plus any training or development recommendation.</div>
+      <textarea pTextarea rows="4" [(ngModel)]="improvementPoints" [disabled]="!canEdit"
+        placeholder="Required"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Employee Comments</label>
+      <div class="sub">Optional — transcribe anything the employee wrote on the signed form.</div>
+      <textarea pTextarea rows="3" [(ngModel)]="employeeComments" [disabled]="!canEdit"></textarea>
+    </div>
+  </div>
+
+  <!-- ═══ Manager recommendation ══════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-title">Recommendation — Reporting Manager / HOD</div>
+
+    <div class="outcome-list">
+      <label *ngFor="let o of outcomes" class="outcome"
+        [class.selected]="recommendation === o.code" [class.readonly]="!canEdit">
+        <p-radioButton *ngIf="canEdit" name="recommendation" [value]="o.code"
+          [(ngModel)]="recommendation" [inputId]="'rec_' + o.code"></p-radioButton>
+        <span *ngIf="!canEdit" class="mark-static" [class.selected]="recommendation === o.code">
+          {{ recommendation === o.code ? '✕' : '' }}
+        </span>
+        <span class="outcome-text">
+          <span class="outcome-label">{{ o.label }}</span>
+          <span class="outcome-hint">{{ o.hint }}</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="field">
+      <label>
+        Manager's Comments
+        <span class="req" *ngIf="managerCommentsRequired">*</span>
+      </label>
+      <div class="sub" *ngIf="recommendation === 'EXTEND'">
+        State the reason for the extension and what improvement is expected during it.
+      </div>
+      <div class="sub" *ngIf="recommendation === 'TERMINATE' || recommendation === 'DEPARTMENT_TRANSFER'">
+        A detailed justification is required.
+      </div>
+      <textarea pTextarea rows="4" [(ngModel)]="managerComments" [disabled]="!canEdit"
+        [placeholder]="managerCommentsRequired ? 'Required for this recommendation' : 'Optional'"></textarea>
+    </div>
+
+    <div class="form-actions" *ngIf="canEdit">
+      <button pButton label="Submit to HR" icon="pi pi-check"
+        [disabled]="!managerFormValid" [loading]="saving" (click)="submitManager()"></button>
+      <span class="hint" *ngIf="!managerFormValid">
+        Complete every rating, both comment fields and a recommendation to submit.
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══ HR review ═══════════════════════════════════════════════════════ -->
+  <div class="panel hr-panel" *ngIf="data?.status !== 'PENDING_MANAGER'">
+    <div class="panel-title">HR Manager Review — Final Decision</div>
+
+    <div class="hint" *ngIf="data?.managerRecommendation">
+      Manager recommended: <strong>{{ outcomeLabel(data.managerRecommendation) }}</strong>
+    </div>
+
+    <ng-container *ngIf="canDecide">
+      <div class="outcome-list">
+        <label *ngFor="let o of outcomes" class="outcome" [class.selected]="hrDecision === o.code">
+          <p-radioButton name="hrDecision" [value]="o.code" [(ngModel)]="hrDecision"
+            [inputId]="'hr_' + o.code"></p-radioButton>
+          <span class="outcome-text">
+            <span class="outcome-label">{{ o.label }}</span>
+            <span class="outcome-hint">{{ o.hint }}</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="hint warn" *ngIf="hrDisagrees">
+        <i class="pi pi-exclamation-triangle"></i>
+        Your decision differs from the manager's recommendation to
+        <strong>{{ outcomeLabel(data.managerRecommendation) }}</strong>. Both are printed on the PDF.
+      </div>
+
+      <div class="field">
+        <label>HR Comments <span class="req">*</span></label>
+        <div class="sub">Record the reason for the final decision. Required.</div>
+        <textarea pTextarea rows="4" [(ngModel)]="hrComments" placeholder="Required"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button pButton label="Record Decision" icon="pi pi-verified"
+          [disabled]="!hrDecision || !hrComments.trim()" [loading]="saving" (click)="submitHr()"></button>
+      </div>
+    </ng-container>
+
+    <!-- Decided, or the viewer has no decision rights -->
+    <ng-container *ngIf="!canDecide">
+      <div class="decided" *ngIf="isCompleted; else awaitingHr">
+        <div class="pair"><span class="k">Final decision</span><span class="v">{{ outcomeLabel(data.hrDecision) }}</span></div>
+        <div class="pair"><span class="k">Decided by</span><span class="v">{{ data.hrDecidedByName || '—' }}</span></div>
+        <div class="pair"><span class="k">Date of approval</span><span class="v">{{ data.hrDecidedAt | date: 'dd MMM yyyy' }}</span></div>
+        <div class="pair" *ngIf="data.nextReviewDate">
+          <span class="k">Next review date</span><span class="v">{{ data.nextReviewDate | date: 'dd MMM yyyy' }}</span>
+        </div>
+        <div class="field readonly-block">
+          <label>HR Comments</label>
+          <p>{{ data.hrComments || '—' }}</p>
+        </div>
+      </div>
+      <ng-template #awaitingHr>
+        <div class="hint">Awaiting HR review.</div>
+      </ng-template>
+    </ng-container>
+  </div>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-block"><i class="pi pi-spin pi-spinner"></i> Loading evaluation…</div>
+</ng-template>
