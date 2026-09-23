@@ -127,6 +127,18 @@
   width: 100%;
 }
 
+/* A row holding fewer than three fields would otherwise be centred by the rule
+   above and float in the middle of the form, out of line with every full row.
+   The negative margin is the other half of that: three .col-4 fields are
+   33.3333% wide *plus* 1rem of side padding each, so a full row overflows by
+   2rem and `center` absorbs it by starting 1rem to the left — which is what
+   makes the first input sit flush with the form edge. A short row has no
+   overflow to absorb, so it has to be pulled that 1rem itself. */
+.field-row--start {
+  justify-content: flex-start;
+  margin-left: -1rem;
+}
+
 ::ng-deep .p-datepicker {
   height: 42px;
   width: 100%;
@@ -541,6 +553,12 @@ a{
 
   .field-row {
     flex-wrap: wrap;
+  }
+
+  /* Fields are 48% and wrap from here down, so no row overflows and there is
+     nothing for the -1rem to cancel — it would push this row out of line. */
+  .field-row--start {
+    margin-left: 0;
   }
 
   .field.col-4,
