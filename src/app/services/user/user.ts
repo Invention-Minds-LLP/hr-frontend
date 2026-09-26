@@ -39,8 +39,18 @@ export class User {
       params
     });
   }
+  /**
+   * Candidate login step 1 — password. Does NOT return a session token any
+   * more; on success it emails a 6-digit code and responds
+   * { otpRequired: true, email, expiresInSeconds }.
+   */
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/candidate/login`, { email, password });
+  }
+
+  /** Candidate login step 2 — exchange the emailed code for the session. */
+  verifyCandidateOtp(email: string, otp: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/candidate/login/verify-otp`, { email, otp });
   }
 
   // Optional: if you use a set-password flow for candidates

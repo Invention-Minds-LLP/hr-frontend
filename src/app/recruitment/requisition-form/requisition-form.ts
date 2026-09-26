@@ -51,16 +51,12 @@ export class RequisitionForm {
 
     // form may not be initialized yet
     if (this.requisitionForm) {
+      // Keep the raw API timestamps in the controls — the date inputs format them
+      // for display. Patching formatted strings back in made them round-trip to the
+      // API as unparseable dates. closedOn feeds a p-datepicker, so it needs a Date.
       const formattedReq = {
         ...req,
-        raisedByDate: this.formatDateTime(req.raisedByDate),
-        approvedByHoDDate: this.formatDateTime(req.approvedByHoDDate),
-        approvedBySMODate: this.formatDateTime(req.approvedBySMODate),
-        receivedByHRDate: this.formatDateTime(req.receivedByHRDate),
-        hodRejectedDate: this.formatDateTime(req.hodRejectedDate),
-        smoRejectedDate: this.formatDateTime(req.smoRejectedDate),
-        hrRejectedDate: this.formatDateTime(req.hrRejectedDate),
-        closedOn: this.formatDateTime(req.closedOn)
+        closedOn: req.closedOn ? new Date(req.closedOn) : null
       };
       console.log('Patching form with requisition:', formattedReq);
       this.requisitionForm.patchValue(formattedReq);
@@ -401,7 +397,7 @@ export class RequisitionForm {
         break;
     }
   }
-  private formatDateTime(value: string | Date | null): string {
+  formatDateTime(value: string | Date | null): string {
     if (!value) return '';
 
     const date = value instanceof Date ? value : new Date(value);
@@ -420,7 +416,10 @@ export class RequisitionForm {
 
 
   saveSignature(role: 'raisedBy' | 'hod' | 'coo' | 'hr') {
-    const now = new Date().toLocaleString(); // capture system date/time
+    // ISO, not toLocaleString() — a locale string like "23/9/2026, 11:04:12 am"
+    // is an Invalid Date once the API parses it. The inputs render it through
+    // formatDateTime(), so the user still sees a readable stamp.
+    const now = new Date().toISOString(); // capture system date/time
 
     switch (role) {
       case 'raisedBy':

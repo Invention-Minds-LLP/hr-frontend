@@ -196,7 +196,8 @@
             [class.disabled-canvas]="requisitionId && currentStep !== 'RAISED'"></canvas>
 
           <p-floatLabel variant="on">
-            <input pInputText id="raisedByDate" formControlName="raisedByDate" readonly />
+            <input pInputText id="raisedByDate"
+              [value]="formatDateTime(requisitionForm.get('raisedByDate')?.value)" readonly />
             <label for="raisedByDate">Date</label>
           </p-floatLabel>
 
@@ -226,7 +227,8 @@
             [class.disabled-canvas]="!(currentStep === 'HOD' && isRM)"></canvas>
 
           <p-floatLabel variant="on">
-            <input pInputText id="approvedByHoDDate" formControlName="approvedByHoDDate" readonly />
+            <input pInputText id="approvedByHoDDate"
+              [value]="formatDateTime(requisitionForm.get('approvedByHoDDate')?.value)" readonly />
             <label for="approvedByHoDDate">Date</label>
           </p-floatLabel>
 
@@ -261,7 +263,8 @@
                     [class.disabled-canvas]="!(currentStep === 'HR' && isHRDept)"></canvas>
 
             <p-floatLabel variant="on">
-              <input pInputText id="receivedByHRDate" formControlName="receivedByHRDate" readonly />
+              <input pInputText id="receivedByHRDate"
+                [value]="formatDateTime(requisitionForm.get('receivedByHRDate')?.value)" readonly />
               <label for="receivedByHRDate">Date</label>
             </p-floatLabel>
 
@@ -295,7 +298,8 @@
                     [class.disabled-canvas]="!(currentStep === 'COO' && isManagement)"></canvas>
 
             <p-floatLabel variant="on">
-              <input pInputText id="approvedBySMODate" formControlName="approvedBySMODate" readonly />
+              <input pInputText id="approvedBySMODate"
+                [value]="formatDateTime(requisitionForm.get('approvedBySMODate')?.value)" readonly />
               <label for="approvedBySMODate">Date</label>
             </p-floatLabel>
 

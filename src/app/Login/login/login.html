@@ -7,6 +7,472 @@
             <div class="para">Plan your time, build new skills, share feedback, and stay connected to what matters.
             </div>
         </div>
+
+        <!-- ── The employee lifecycle, running quietly beside the form ───────
+             Two tracks on one stage. Left: the reporting line, permanently on
+             screen. Right: six acts of a working life, cross-fading on a single
+             42s loop. They are wired together — the spark riding the spine is
+             the act's paperwork climbing the chain, and each tier lights as it
+             lands there.
+
+             Decorative only: aria-hidden, pointer-events none, and every moving
+             part is switched off under prefers-reduced-motion. -->
+        <svg class="stage" viewBox="0 0 720 570" preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true" focusable="false">
+
+            <defs>
+                <linearGradient id="hmPanel" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#530061" />
+                    <stop offset="1" stop-color="#0D0A30" />
+                </linearGradient>
+                <radialGradient id="hmGlow">
+                    <stop offset="0" stop-color="#FB9C2A" stop-opacity="0.55" />
+                    <stop offset="1" stop-color="#FB9C2A" stop-opacity="0" />
+                </radialGradient>
+            </defs>
+
+            <!-- Slow motes drifting up, so the dark ground is never completely dead -->
+            <g class="dust" fill="#FB9C2A" opacity="0.35">
+                <circle class="mote mote-1" cx="292" cy="520" r="1.8" />
+                <circle class="mote mote-2" cx="418" cy="520" r="1.3" />
+                <circle class="mote mote-3" cx="534" cy="520" r="2.1" />
+                <circle class="mote mote-4" cx="648" cy="520" r="1.5" />
+                <circle class="mote mote-5" cx="356" cy="520" r="1.2" />
+                <circle class="mote mote-6" cx="596" cy="520" r="1.7" />
+            </g>
+
+            <!-- ══ THE REPORTING CHART ═════════════════════════════════════════
+                 Tiers drawn from the FK columns on Employee rather than role
+                 names: inchargeId, reportingManager, then HR and Management.
+
+                 Deliberately a bounded CARD of labelled boxes, not a column of
+                 dots on a line. Dots on a line is the shape of a progress
+                 tracker, and standing one beside an actual six-step sequence
+                 made people read it as a second timeline. Boxes in a branching
+                 tree, inside their own frame, can only be an org chart — and a
+                 card sits NEXT TO the scene instead of splitting the panel in
+                 two, so no dividing rule is needed. -->
+            <text class="zone-label" x="22" y="30">REPORTING LINE</text>
+
+            <rect x="6" y="44" width="212" height="448" rx="14"
+                  fill="#FFFFFF" fill-opacity="0.025" stroke="#AFAFAF" stroke-opacity="0.12" />
+
+            <!-- Connectors. The manager forks to two in-charges, each holding
+                 their own report — the fork is what makes it a chart. -->
+            <g fill="none" stroke="#AFAFAF" stroke-opacity="0.22" stroke-width="1.5">
+                <path d="M112 115 V165" />
+                <path d="M112 195 V245" />
+                <path d="M112 275 V300 H62 V326" />
+                <path d="M112 300 H162 V326" />
+                <path d="M62 354 V406" />
+                <path d="M162 354 V406" />
+            </g>
+
+            <!-- An approval travelling up its link, drawn child-to-parent. This
+                 replaces the dot that used to ride a single spine: there is no
+                 single spine any more, and lighting the actual link says which
+                 hand-off is happening rather than just where something is. -->
+            <path class="link link-emp-ic"  d="M62 406 V354" />
+            <path class="link link-ic-mgr"  d="M62 326 V300 H112 V275" />
+            <path class="link link-mgr-hr"  d="M112 245 V195" />
+            <path class="link link-hr-mgmt" d="M112 165 V115" />
+
+            <!-- Management · roleId 4 -->
+            <g class="chip">
+                <rect x="56" y="85" width="112" height="30" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.3" />
+                <g class="lit lit-mgmt">
+                    <rect x="56" y="85" width="112" height="30" rx="8" fill="#FB9C2A" opacity="0.16" />
+                    <rect x="56" y="85" width="112" height="30" rx="8"
+                          fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                </g>
+                <text class="chip-label" x="112" y="104.5">Management</text>
+            </g>
+
+            <!-- HR / HR Manager · roleId 1 -->
+            <g class="chip">
+                <rect x="73" y="165" width="78" height="30" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.3" />
+                <g class="lit lit-hr">
+                    <rect x="73" y="165" width="78" height="30" rx="8" fill="#FB9C2A" opacity="0.16" />
+                    <rect x="73" y="165" width="78" height="30" rx="8"
+                          fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                </g>
+                <text class="chip-label" x="112" y="184.5">HR</text>
+            </g>
+
+            <!-- Reporting manager · the HOD column on every approval -->
+            <g class="chip">
+                <rect x="49" y="245" width="126" height="30" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.3" />
+                <g class="lit lit-hod">
+                    <rect x="49" y="245" width="126" height="30" rx="8" fill="#FB9C2A" opacity="0.16" />
+                    <rect x="49" y="245" width="126" height="30" rx="8"
+                          fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                </g>
+                <text class="chip-label" x="112" y="264.5">Manager (HOD)</text>
+            </g>
+
+            <!-- In-charge · the inchargeId relation. Two of them, because one
+                 manager holding several in-charges is the actual shape. -->
+            <g class="chip">
+                <rect x="24" y="326" width="76" height="28" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.3" />
+                <g class="lit lit-ic">
+                    <rect x="24" y="326" width="76" height="28" rx="8" fill="#FB9C2A" opacity="0.16" />
+                    <rect x="24" y="326" width="76" height="28" rx="8"
+                          fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                </g>
+                <text class="chip-label chip-label-sm" x="62" y="344">In-charge</text>
+            </g>
+            <g class="chip">
+                <rect x="124" y="326" width="76" height="28" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.16" />
+                <text class="chip-label chip-label-sm chip-label-dim" x="162" y="344">In-charge</text>
+            </g>
+
+            <!-- The employee — whose story the stage beside this tells -->
+            <g class="chip">
+                <rect x="22" y="406" width="80" height="28" rx="8"
+                      fill="url(#hmPanel)" stroke="#FB9C2A" stroke-opacity="0.4" />
+                <g class="lit lit-emp">
+                    <rect x="22" y="406" width="80" height="28" rx="8" fill="#FB9C2A" opacity="0.16" />
+                    <rect x="22" y="406" width="80" height="28" rx="8"
+                          fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                </g>
+                <text class="chip-label chip-label-sm chip-label-emp" x="62" y="424">Employee</text>
+            </g>
+            <g class="chip">
+                <rect x="122" y="406" width="80" height="28" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.16" />
+                <text class="chip-label chip-label-sm chip-label-dim" x="162" y="424">Employee</text>
+            </g>
+
+            <!-- Says what the card IS, in terms of the story beside it, rather
+                 than leaving the reader to guess which of the two is the
+                 sequence. -->
+            <text class="zone-note" x="112" y="466" text-anchor="middle">who approves at each step</text>
+
+            <text class="zone-label" x="250" y="30">EMPLOYEE LIFECYCLE</text>
+
+            <!-- Six steps, one lit. This is the sequence — the column on the
+                 left is not. -->
+            <g class="steps">
+                <circle cx="252" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle cx="274" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle cx="296" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle cx="318" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle cx="340" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle cx="362" cy="512" r="4.5" fill="#FFFFFF" opacity="0.16" />
+                <circle class="step-thumb" cx="252" cy="512" r="5.5" fill="#FB9C2A" />
+            </g>
+
+            <!-- ══ THE LIFECYCLE ═══════════════════════════════════════════════
+                 Six acts, seven seconds each. Every act runs the same 42s
+                 animation offset by seven seconds from the last, so they hand
+                 over in sequence and cannot drift apart. -->
+
+            <!-- ─── ACT 1 · Requisition → Interview → Offer ──────────────── -->
+            <g class="act act-1">
+                <!-- Job board: the approved requisition, now open -->
+                <rect x="262" y="88" width="150" height="96" rx="8"
+                      fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.22" />
+                <rect class="a1-req" x="276" y="104" width="122" height="20" rx="3" fill="#FB9C2A" />
+                <rect x="276" y="132" width="122" height="20" rx="3" fill="#FFFFFF" opacity="0.12" />
+                <rect x="276" y="160" width="122" height="20" rx="3" fill="#FFFFFF" opacity="0.12" />
+
+                <!-- The offer, signed -->
+                <rect x="540" y="88" width="130" height="160" rx="6" fill="#F3F0FA" opacity="0.94" />
+                <text class="paper-title" x="605" y="110">OFFER</text>
+                <g fill="#2A2140" opacity="0.28">
+                    <rect x="558" y="128" width="94" height="8" rx="2" />
+                    <rect x="558" y="146" width="94" height="8" rx="2" />
+                    <rect x="558" y="164" width="94" height="8" rx="2" />
+                    <rect x="558" y="182" width="62" height="8" rx="2" />
+                </g>
+                <path class="a1-sign" d="M560 216 c 9 -15, 19 9, 28 -5 s 17 12, 29 -3"
+                      fill="none" stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" />
+
+                <!-- The interview, across a table -->
+                <g class="bob bob-a">
+                    <circle cx="350" cy="290" r="16" fill="#8B7BB8" />
+                    <path d="M332 310 h36 v42 h-36 z" fill="#8B7BB8" />
+                </g>
+                <g class="bob bob-b">
+                    <circle cx="580" cy="294" r="15" fill="#8B7BB8" />
+                    <path d="M565 313 h30 v39 h-30 z" fill="#8B7BB8" />
+                </g>
+                <rect x="300" y="352" width="330" height="12" rx="6" fill="url(#hmPanel)"
+                      stroke="#AFAFAF" stroke-opacity="0.2" />
+                <rect x="322" y="364" width="10" height="48" fill="#3A2F58" />
+                <rect x="608" y="364" width="10" height="48" fill="#3A2F58" />
+                <rect class="a1-doc" x="395" y="338" width="58" height="13" rx="2" fill="#F3F0FA" opacity="0.92" />
+                <path class="a1-tick" d="M549 344 l4 4.5 l8.5 -9.5"
+                      fill="none" stroke="#FB9C2A" stroke-width="2.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+
+                <text class="cap" x="250" y="545">Requisition · Interview · Offer</text>
+            </g>
+
+            <!-- ─── ACT 2 · Joining, assets, probation ───────────────────── -->
+            <g class="act act-2">
+                <!-- The new joiner, badged -->
+                <circle cx="330" cy="240" r="19" fill="#8B7BB8" />
+                <path d="M308 262 h44 v72 h-44 z" fill="#8B7BB8" />
+                <rect x="314" y="334" width="13" height="26" rx="4" fill="#8B7BB8" />
+                <rect x="333" y="334" width="13" height="26" rx="4" fill="#8B7BB8" />
+                <path d="M330 258 L330 288" stroke="#AFAFAF" stroke-opacity="0.5" stroke-width="1.4" />
+                <g class="a2-badge">
+                    <rect x="316" y="286" width="28" height="34" rx="4" fill="#F3F0FA" opacity="0.95" />
+                    <rect x="321" y="292" width="18" height="6" rx="2" fill="#2A2140" opacity="0.35" />
+                    <rect x="321" y="302" width="18" height="4" rx="2" fill="#2A2140" opacity="0.22" />
+                    <rect x="321" y="309" width="12" height="4" rx="2" fill="#FB9C2A" opacity="0.8" />
+                </g>
+
+                <!-- Desk and the allocated asset -->
+                <rect x="440" y="316" width="230" height="13" rx="6" fill="url(#hmPanel)"
+                      stroke="#AFAFAF" stroke-opacity="0.2" />
+                <rect x="462" y="329" width="11" height="31" fill="#3A2F58" />
+                <rect x="638" y="329" width="11" height="31" fill="#3A2F58" />
+                <g class="a2-asset">
+                    <rect x="510" y="304" width="90" height="12" rx="3" fill="#3A2F58" />
+                    <!-- A lit screen, not a wooden panel: #FB9C2A this dark
+                         mixes to brown against #0b0b0f, so the glow is a
+                         lighter tint of the same accent. -->
+                    <rect x="518" y="256" width="74" height="48" rx="4" fill="#FFD9A3" opacity="0.85" />
+                    <rect x="518" y="256" width="74" height="48" rx="4" fill="none"
+                          stroke="#AFAFAF" stroke-opacity="0.3" />
+                </g>
+                <line x1="280" y1="360" x2="690" y2="360" stroke="#AFAFAF" stroke-opacity="0.18" stroke-width="2" />
+
+                <!-- Probation, running to a decision -->
+                <text class="axis-label" x="440" y="398">PROBATION</text>
+                <rect x="440" y="406" width="230" height="14" rx="7" fill="#FFFFFF" opacity="0.1" />
+                <rect class="a2-meter" x="440" y="406" width="230" height="14" rx="7" fill="#FB9C2A" opacity="0.85" />
+                <g class="a2-stamp">
+                    <rect x="478" y="438" width="154" height="30" rx="4" fill="none"
+                          stroke="#FB9C2A" stroke-width="1.8" />
+                    <text class="stamp-text" x="555" y="458">CONFIRMED</text>
+                </g>
+
+                <text class="cap" x="250" y="545">Joining · Assets · Probation</text>
+            </g>
+
+            <!-- ─── ACT 3 · A working day ────────────────────────────────── -->
+            <g class="act act-3">
+                <!-- The clock -->
+                <circle cx="340" cy="236" r="62" fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.28" />
+                <g stroke="#AFAFAF" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round">
+                    <line x1="340" y1="184" x2="340" y2="192" />
+                    <line x1="392" y1="236" x2="384" y2="236" />
+                    <line x1="340" y1="288" x2="340" y2="280" />
+                    <line x1="288" y1="236" x2="296" y2="236" />
+                </g>
+                <line class="a3-hand-h" x1="340" y1="236" x2="340" y2="206"
+                      stroke="#BFB6E0" stroke-width="3.4" stroke-linecap="round" />
+                <line class="a3-hand-m" x1="340" y1="236" x2="340" y2="192"
+                      stroke="#FB9C2A" stroke-width="2.4" stroke-linecap="round" />
+                <circle cx="340" cy="236" r="4" fill="#FB9C2A" />
+
+                <!-- Punching in -->
+                <circle class="a3-ripple a3-r1" cx="340" cy="392" r="16"
+                        fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                <circle class="a3-ripple a3-r2" cx="340" cy="392" r="16"
+                        fill="none" stroke="#FB9C2A" stroke-width="1.8" />
+                <g fill="none" stroke="#BFB6E0" stroke-width="2" stroke-linecap="round">
+                    <path d="M330 400 a12 14 0 0 1 20 -14" />
+                    <path d="M334 400 a8 10 0 0 1 13 -10" />
+                    <path d="M338 400 a4 6 0 0 1 7 -6" />
+                </g>
+
+                <!-- The shift, and the overtime hanging off the end of it -->
+                <text class="axis-label" x="440" y="262">SHIFT</text>
+                <text class="axis-label axis-label-hot" x="651" y="262">OT</text>
+                <rect x="440" y="270" width="180" height="16" rx="8" fill="#FFFFFF" opacity="0.1" />
+                <rect class="a3-shift" x="440" y="270" width="180" height="16" rx="8" fill="#8B7BB8" opacity="0.8" />
+                <rect class="a3-ot" x="622" y="270" width="58" height="16" rx="8" fill="#FB9C2A" opacity="0.9" />
+                <text class="mono" x="440" y="326">IN&#160;&#160;09:00</text>
+                <text class="mono" x="440" y="352">OUT&#160;18:00</text>
+
+                <!-- The week so far -->
+                <text class="axis-label" x="440" y="392">THIS WEEK</text>
+                <g class="week">
+                    <rect class="a3-day a3-d1" x="440" y="402" width="20" height="20" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a3-day a3-d2" x="466" y="402" width="20" height="20" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a3-day a3-d3" x="492" y="402" width="20" height="20" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a3-day a3-d4" x="518" y="402" width="20" height="20" rx="4" fill="#FB9C2A" opacity="0.85" />
+                    <rect class="a3-day a3-d5" x="544" y="402" width="20" height="20" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a3-day a3-d6" x="570" y="402" width="20" height="20" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a3-day a3-d7" x="596" y="402" width="20" height="20" rx="4" fill="#FFFFFF" opacity="0.1" />
+                </g>
+
+                <text class="cap" x="250" y="545">Attendance · Shift · Overtime</text>
+            </g>
+
+            <!-- ─── ACT 4 · A request climbing the chain ─────────────────────
+                 The act that makes the reporting line legible, so it gets the
+                 longest dwell: three decisions, landing in order. -->
+            <g class="act act-4">
+                <g class="a4-card">
+                    <rect x="280" y="200" width="200" height="150" rx="10"
+                          fill="url(#hmPanel)" stroke="#AFAFAF" stroke-opacity="0.24" />
+                    <rect x="298" y="220" width="110" height="12" rx="3" fill="#FB9C2A" opacity="0.85" />
+                    <g fill="#FFFFFF" opacity="0.16">
+                        <rect x="298" y="248" width="164" height="9" rx="3" />
+                        <rect x="298" y="268" width="140" height="9" rx="3" />
+                        <rect x="298" y="288" width="152" height="9" rx="3" />
+                        <rect x="298" y="308" width="96" height="9" rx="3" />
+                    </g>
+                </g>
+
+                <path class="a4-link" d="M492 275 H528" stroke="#FB9C2A" stroke-opacity="0.5"
+                      stroke-width="2" stroke-dasharray="4 5" fill="none" />
+
+                <g stroke="#AFAFAF" stroke-opacity="0.22" stroke-width="1.5">
+                    <line x1="554" y1="242" x2="554" y2="262" />
+                    <line x1="554" y1="290" x2="554" y2="310" />
+                </g>
+
+                <circle class="a4-fill a4-f1" cx="554" cy="228" r="14" fill="#FB9C2A" />
+                <circle cx="554" cy="228" r="14" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a4-tick a4-t1" d="M548 228 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="578" y="233">In-charge</text>
+
+                <circle class="a4-fill a4-f2" cx="554" cy="276" r="14" fill="#FB9C2A" />
+                <circle cx="554" cy="276" r="14" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a4-tick a4-t2" d="M548 276 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="578" y="281">Manager (HOD)</text>
+
+                <circle class="a4-fill a4-f3" cx="554" cy="324" r="14" fill="#FB9C2A" />
+                <circle cx="554" cy="324" r="14" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a4-tick a4-t3" d="M548 324 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="578" y="329">HR</text>
+
+                <text class="cap" x="250" y="545">Leave · Permission · Comp-off</text>
+            </g>
+
+            <!-- ─── ACT 5 · Appraisal, training, payroll ─────────────────── -->
+            <g class="act act-5">
+                <g class="bars">
+                    <rect class="a5-bar a5-b1" x="286" y="330" width="30" height="70" rx="4" fill="#8B7BB8" opacity="0.55" />
+                    <rect class="a5-bar a5-b2" x="332" y="292" width="30" height="108" rx="4" fill="#8B7BB8" opacity="0.65" />
+                    <rect class="a5-bar a5-b3" x="378" y="258" width="30" height="142" rx="4" fill="#8B7BB8" opacity="0.75" />
+                    <rect class="a5-bar a5-b4" x="424" y="224" width="30" height="176" rx="4" fill="#FB9C2A" opacity="0.88" />
+                </g>
+                <rect x="278" y="400" width="184" height="3" rx="1.5" fill="#AFAFAF" opacity="0.3" />
+                <text class="axis-label" x="278" y="422">APPRAISAL</text>
+
+                <g class="a5-star">
+                    <path d="M540 144 l7.6 15.4 l17 2.5 l-12.3 12 l2.9 16.9 l-15.2 -8 l-15.2 8 l2.9 -16.9 l-12.3 -12 l17 -2.5 z"
+                          fill="#FB9C2A" opacity="0.9" />
+                </g>
+                <text class="axis-label" x="540" y="212" text-anchor="middle">TRAINING</text>
+
+                <g class="a5-slip">
+                    <rect x="580" y="250" width="112" height="150" rx="7" fill="#F3F0FA" opacity="0.94" />
+                    <g fill="#2A2140" opacity="0.28">
+                        <rect x="596" y="270" width="64" height="8" rx="2" />
+                        <rect x="596" y="288" width="80" height="6" rx="2" />
+                        <rect x="596" y="304" width="68" height="6" rx="2" />
+                        <rect x="596" y="320" width="76" height="6" rx="2" />
+                    </g>
+                    <rect x="596" y="346" width="80" height="12" rx="3" fill="#FB9C2A" opacity="0.85" />
+                    <text class="rupee" x="596" y="386">&#8377;</text>
+                </g>
+                <text class="axis-label" x="580" y="422">PAYROLL</text>
+
+                <text class="cap" x="250" y="545">Appraisal · Training · Payroll</text>
+            </g>
+
+            <!-- ─── ACT 6 · Exit, and the cycle closing ──────────────────── -->
+            <g class="act act-6">
+                <g class="a6-letter">
+                    <rect x="282" y="150" width="104" height="74" rx="5" fill="#F3F0FA" opacity="0.9" />
+                    <g fill="#2A2140" opacity="0.3">
+                        <rect x="296" y="166" width="60" height="7" rx="2" />
+                        <rect x="296" y="182" width="76" height="5" rx="2" />
+                        <rect x="296" y="195" width="68" height="5" rx="2" />
+                        <rect x="296" y="208" width="44" height="5" rx="2" />
+                    </g>
+                    <!-- Inside the group, so the label leaves with the letter.
+                         Left outside it, it hung in empty air for the rest of
+                         the act labelling nothing. -->
+                    <text class="axis-label" x="334" y="246" text-anchor="middle">RESIGNATION</text>
+                </g>
+
+                <!-- Raised from its old y=200 so the checklist clears the heart
+                     that floats over the embrace below. -->
+                <text class="axis-label" x="430" y="182">CLEARANCE</text>
+                <rect x="430" y="199" width="18" height="18" rx="3" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a6-k1" d="M434 208 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="460" y="213">Assets</text>
+
+                <rect x="430" y="235" width="18" height="18" rx="3" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a6-k2" d="M434 244 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="460" y="249">Finance</text>
+
+                <rect x="430" y="271" width="18" height="18" rx="3" fill="none" stroke="#AFAFAF" stroke-opacity="0.35" />
+                <path class="a6-k3" d="M434 280 l4 4.5 l8.5 -9.5" fill="none"
+                      stroke="#FB9C2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="row-label" x="460" y="285">Handover</text>
+
+                <line x1="270" y1="440" x2="700" y2="440" stroke="#AFAFAF" stroke-opacity="0.18" stroke-width="2" />
+
+                <!-- The badge set down where they stood — and picked up again by
+                     the candidate who walks in when act 1 comes round. -->
+                <g class="a6-badge">
+                    <rect x="296" y="406" width="26" height="32" rx="4" fill="#F3F0FA" opacity="0.85" />
+                    <rect x="301" y="412" width="16" height="5" rx="2" fill="#2A2140" opacity="0.35" />
+                    <rect x="301" y="421" width="16" height="4" rx="2" fill="#FB9C2A" opacity="0.7" />
+                </g>
+
+                <!-- ── The send-off ────────────────────────────────────────
+                     Two colleagues waiting at the end of the walk. The act
+                     ends on the embrace rather than on an empty street: a
+                     figure walking away alone is an offboarding diagram, not
+                     a farewell. -->
+                <g class="a6-friend">
+                    <circle cx="620" cy="352" r="15" fill="#A594D1" />
+                    <path d="M604 372 h32 v46 h-32 z" fill="#A594D1" />
+                    <rect x="607" y="418" width="7" height="22" fill="#A594D1" />
+                    <rect x="625" y="418" width="7" height="22" fill="#A594D1" />
+                    <!-- The arm that goes round them -->
+                    <rect class="a6-hug-arm" x="576" y="382" width="30" height="9" rx="4.5" fill="#A594D1" />
+                </g>
+
+                <g class="a6-friend-b">
+                    <circle cx="676" cy="358" r="13" fill="#8B7BB8" />
+                    <path d="M662 376 h28 v42 h-28 z" fill="#8B7BB8" />
+                    <rect x="665" y="418" width="6" height="22" fill="#8B7BB8" />
+                    <rect x="681" y="418" width="6" height="22" fill="#8B7BB8" />
+                    <rect class="a6-wave" x="690" y="380" width="26" height="8" rx="4" fill="#8B7BB8" />
+                </g>
+
+                <path class="a6-heart" d="M592 338 l-9 -9 a6.4 6.4 0 0 1 9 -9 a6.4 6.4 0 0 1 9 9 z"
+                      fill="#FB9C2A" />
+
+                <g class="a6-walker">
+                    <circle cx="352" cy="352" r="15" fill="#8B7BB8" />
+                    <path d="M336 372 h32 v46 h-32 z" fill="#8B7BB8" />
+                    <!-- Hugging back -->
+                    <rect class="a6-hug-back" x="368" y="384" width="28" height="9" rx="4.5" fill="#8B7BB8" />
+                    <!-- Narrow and set well apart: the step animation squashes
+                         the pair horizontally, and wider legs closer together
+                         merge into one at the bottom of the stride. -->
+                    <g class="legs">
+                        <rect x="339" y="418" width="7" height="22" fill="#8B7BB8" />
+                        <rect x="357" y="418" width="7" height="22" fill="#8B7BB8" />
+                    </g>
+                </g>
+
+                <text class="cap" x="250" y="545">Resignation · Clearance · Farewell</text>
+            </g>
+        </svg>
     </div>
 
     <div class="right">
@@ -16,7 +482,9 @@
                     <img class="" src="/logo.png" alt="">
                 </div>
             <div class="right-side-heading">Sign <span>in</span></div>
-            <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)">
+
+            <!-- Step 1: EMP ID / email + password -->
+            <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)" *ngIf="!otpStage">
                 <div class="input">
                     <p-floatlabel variant="on" >
                         <input pInputText id="empID" class="login-input" autocomplete="off" name="empId" [(ngModel)]="loginData.empId"
@@ -35,6 +503,29 @@
                 </div>
                 <div class="flex justify-content-center align-items-center ">
                     <p-button label="LOG IN" type="submit"  [label]="isLoading ? 'LOGGING IN...' : 'LOG IN'" [loading]="isLoading" class="btn" />
+                </div>
+            </form>
+
+            <!-- Step 2 (candidates only): the emailed 6-digit code -->
+            <form #otpForm="ngForm" class="form" (ngSubmit)="submitOtp()" *ngIf="otpStage">
+                <div class="otp-note">
+                    Enter the 6-digit code we emailed to <b>{{ otpEmail }}</b>.
+                </div>
+                <div class="input">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="otp" class="login-input" name="otp" inputmode="numeric"
+                            autocomplete="one-time-code" maxlength="6" [(ngModel)]="otpCode" required />
+                        <label for="otp">Verification code</label>
+                    </p-floatlabel>
+                </div>
+                <div class="otp-note" *ngIf="otpSecondsLeft > 0">Code expires in {{ otpSecondsLeft }}s</div>
+                <div class="otp-note" *ngIf="otpSecondsLeft <= 0">Code expired — request a new one.</div>
+                <div class="flex justify-content-center align-items-center ">
+                    <p-button type="submit" [label]="isLoading ? 'VERIFYING...' : 'VERIFY'" [loading]="isLoading" class="btn" />
+                </div>
+                <div class="flex justify-content-center align-items-center gap-2 otp-actions">
+                    <p-button type="button" label="Resend code" [text]="true" [disabled]="isLoading" (onClick)="resendOtp()" />
+                    <p-button type="button" label="Back" [text]="true" [disabled]="isLoading" (onClick)="backToPassword()" />
                 </div>
             </form>
 
