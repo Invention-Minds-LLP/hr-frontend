@@ -1,0 +1,855 @@
+/* Manager / HOD dashboard.
+   Same visual language as the Management and HR Analytics dashboards — dark
+   ground, Sofia Sans, translucent cards — but its own scoped tokens so nothing
+   here can leak into those screens. */
+
+.mgr-wrap {
+  --bg: #000;
+  --card: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --text: #f3f4f6;
+  --muted: #b6c4d6;
+  --accent: #60a5fa;
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Sofia Sans', sans-serif;
+  padding: 28px 60px;
+  min-height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.mgr-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.mgr-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.mgr-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.mgr-relchip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.14);
+  color: #bfdbfe;
+}
+.mgr-refresh {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mgr-refresh:hover { background: rgba(255, 255, 255, 0.11); border-color: rgba(255, 255, 255, 0.22); }
+
+/* ── Empty / error state ────────────────────────────────── */
+.mgr-empty {
+  text-align: center;
+  padding: 72px 24px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.mgr-empty-icon { font-size: 2.6rem; }
+.mgr-empty h2 { font-size: 1.2rem; font-weight: 700; margin: 12px 0 6px; }
+.mgr-empty p { color: var(--muted); max-width: 480px; margin: 0 auto 16px; line-height: 1.55; }
+
+/* ── KPI row ────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+/* The manager's own workload row — four tiles, not five. */
+.kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.kpi-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 1.05rem 1.2rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: border-color 0.18s, transform 0.15s;
+}
+.kpi-card:hover { border-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+.kpi-card.ok   { border-color: rgba(34, 197, 94, 0.4); }
+.kpi-card.warn { border-color: rgba(245, 158, 11, 0.4); }
+.kpi-card.bad  { border-color: rgba(239, 68, 68, 0.4); }
+.kpi-card.info { border-color: rgba(96, 165, 250, 0.4); }
+
+.kpi-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.kpi-value { font-size: 2.1rem; font-weight: 800; color: #fff; line-height: 1.1; }
+.kpi-value small { font-size: 1rem; font-weight: 600; color: var(--muted); }
+.kpi-value.muted { color: var(--muted); }
+.kpi-card.ok   .kpi-value { color: var(--good); }
+.kpi-card.warn .kpi-value { color: var(--warn); }
+.kpi-card.bad  .kpi-value { color: var(--danger); }
+.kpi-card.info .kpi-value { color: var(--accent); }
+.kpi-sub { font-size: 0.87rem; color: #d4dce8; font-weight: 500; }
+
+/* ── Cards ──────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px 20px;
+  margin-bottom: 18px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card-head-right { display: flex; align-items: center; gap: 10px; }
+.card-title { font-size: 1.05rem; font-weight: 700; }
+.card-badge {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.card-badge.badge-hot { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
+.card-note { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+}
+.link-btn:hover { text-decoration: underline; }
+
+.row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.row-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.sub-title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mini-kpi-wrap { align-content: start; }
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  padding: 5px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.tab:hover { color: #fff; background: rgba(96, 165, 250, 0.08); }
+.tab.active { background: rgba(96, 165, 250, 0.16); border-color: rgba(96, 165, 250, 0.45); color: #fff; }
+.tab-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.76rem;
+}
+
+/* ── Filter chips ───────────────────────────────────────── */
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  padding: 4px 11px;
+  font-size: 0.81rem;
+  cursor: pointer;
+}
+.chip:hover { color: #fff; }
+.chip.active { background: rgba(96, 165, 250, 0.16); border-color: rgba(96, 165, 250, 0.45); color: #fff; }
+.chip-count { margin-left: 5px; opacity: 0.75; }
+
+/* ── Tables ─────────────────────────────────────────────── */
+.mgr-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+.mgr-table th {
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.mgr-table td { padding: 9px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle; }
+.mgr-table tr.row-alt { background: rgba(255, 255, 255, 0.02); }
+.emp-name { display: block; font-weight: 600; color: #fff; }
+.emp-code { display: block; font-size: 0.76rem; color: var(--muted); }
+.reason-cell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty-row { padding: 22px 4px; color: var(--muted); font-size: 0.88rem; text-align: center; }
+
+.status-pill,
+.score-pill,
+.rel-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.status-pill.ok,   .score-pill.ok   { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+.status-pill.bad,  .score-pill.bad  { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+.status-pill.warn, .score-pill.warn { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
+.status-pill.info { background: rgba(96, 165, 250, 0.18); color: #bfdbfe; }
+.status-pill.muted, .score-pill.muted { background: rgba(255, 255, 255, 0.08); color: var(--muted); }
+
+.rel-chip { background: rgba(167, 139, 250, 0.16); color: #ddd6fe; }
+.rel-chip.hod { background: rgba(96, 165, 250, 0.16); color: #bfdbfe; }
+
+/* ── Charts ─────────────────────────────────────────────────
+   Heights include the axis band, so the labels are never cut off into a
+   nested scrollbar. */
+.chart-box { position: relative; height: 260px; margin-bottom: 14px; }
+.chart-box-sm { height: 210px; }
+.chart-box-xs { height: 130px; }
+
+/* ── Score list ─────────────────────────────────────────── */
+.score-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.score-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 8px 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.score-list li .emp-code { grid-column: 1; }
+.score-list li .score-pill { grid-row: 1 / span 2; grid-column: 2; }
+
+/* ── Roster grid ────────────────────────────────────────── */
+.roster-scroll { overflow-x: auto; }
+.roster-table { min-width: 720px; }
+.roster-table .sticky-col {
+  position: sticky;
+  left: 0;
+  background: #0a0a0a;
+  z-index: 1;
+}
+.shift-cell { text-align: center; }
+.shift-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.14);
+  color: #bfdbfe;
+}
+.shift-chip.unack { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
+.muted { color: var(--muted); }
+
+/* ── Mini KPIs (training) ───────────────────────────────── */
+.mini-kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.mini-kpi {
+  flex: 1 1 120px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.mini-kpi span { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.1; }
+.mini-kpi label { font-size: 0.78rem; color: var(--muted); }
+.mini-kpi.danger { border-color: rgba(239, 68, 68, 0.35); }
+.mini-kpi.danger span { color: var(--danger); }
+
+/* ── Announcements ──────────────────────────────────────── */
+.ann-list { list-style: none; margin: 0; padding: 0; }
+.ann-list li { padding: 10px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.ann-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.ann-title { font-weight: 600; color: #fff; }
+.ann-pending { font-size: 0.78rem; color: #fcd34d; white-space: nowrap; }
+.ann-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .kpi-grid, .kpi-grid-4 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 1100px) {
+  .row-3col { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .mgr-wrap { padding: 20px 16px 56px; }
+  .kpi-grid, .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .row-2col { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .kpi-grid, .kpi-grid-4 { grid-template-columns: 1fr; }
+  .mgr-header { flex-direction: column; }
+}
+
+
+/* ── Numbered sections ──────────────────────────────────────
+   The five sections are the dashboard's structure, so each gets a visible
+   number and a rule — a manager should be able to say "section 3" out loud. */
+.section { margin-bottom: 34px; }
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.16);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #bfdbfe;
+  font-size: 0.82rem;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.section-title { margin: 0; font-size: 1.15rem; font-weight: 700; }
+.section-filters { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.section-head .link-btn { margin-left: 8px; }
+.sub-head { justify-content: flex-end; margin-bottom: 8px; }
+
+/* ── The ⓘ explainer ────────────────────────────────────────
+   Every chart and every section carries one. Hover/focus reveals a plain
+   sentence about what the number actually counts — the questions people ask
+   about a dashboard are almost always "counted over what?". */
+.info-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  cursor: help;
+  flex: 0 0 auto;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.info-dot:hover {
+  color: #fff;
+  border-color: rgba(96, 165, 250, 0.7);
+  background: rgba(96, 165, 250, 0.16);
+}
+/* PrimeNG renders the tooltip in an overlay outside this component, so the
+   width has to be set globally-scoped via ::ng-deep on the style class. */
+:host ::ng-deep .info-tip .p-tooltip-text {
+  max-width: 340px;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  background: #14161a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e5eaf2;
+}
+
+/* ── Hero figure (section 1 headcount) ──────────────────────
+   Proportional figures, same sans as everything else: tabular digits make a
+   large number look loose. */
+.hero-row { display: flex; align-items: center; gap: 18px; }
+.hero { flex: 0 0 auto; text-align: center; padding: 0 8px; }
+.hero-value { display: block; font-size: 3rem; font-weight: 800; color: #fff; line-height: 1; }
+.hero-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.hero-chart { flex: 1 1 auto; min-width: 0; margin-bottom: 0; }
+
+/* ── Show more ──────────────────────────────────────────────*/
+.more-row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.expand-btn {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.38);
+  color: #bfdbfe;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.expand-btn:hover { background: rgba(96, 165, 250, 0.22); }
+.expand-btn.ghost { background: transparent; border-color: var(--border); color: var(--muted); }
+.expand-btn.ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+
+.rank { font-weight: 800; color: var(--muted); width: 28px; }
+/* Any shortfall against the person's own shift, however small. */
+.late { color: #fcd34d; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .hero-row { flex-direction: column; align-items: stretch; }
+  .section-filters { margin-left: 0; }
+}
+
+
+/* ── Queue colours (section 2) ──────────────────────────────
+   The bar chart is gone, so these swatches carry the identity. Each tab sets
+   --queue from the component's validated eight-slot palette; the label always
+   sits beside the dot, so colour is a second cue and never the only one. */
+.queue-tab { display: inline-flex; align-items: center; gap: 7px; }
+.queue-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--queue, #3987e5);
+  flex: 0 0 auto;
+}
+.queue-tab.active {
+  background: color-mix(in srgb, var(--queue) 20%, transparent);
+  border-color: var(--queue);
+  color: #fff;
+}
+.queue-tab:hover { background: color-mix(in srgb, var(--queue) 12%, transparent); color: #fff; }
+/* A rule down the left of the open queue's table, so the colour follows
+   through from the tab to the rows it selected. */
+.queue-table { border-left: 3px solid var(--queue, #3987e5); }
+.queue-table th:first-child, .queue-table td:first-child { padding-left: 12px; }
+
+/* ── Section 2 split: queue 60 / alerts 40 ──────────────────
+   The table carries six columns and needs the width; the marquee reads better
+   narrow and tall, which is also the shape it has to be to scroll usefully. */
+.section-split {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  gap: 18px;
+  align-items: start;
+}
+.split-main, .split-side { min-width: 0; }
+.split-side .card { height: 100%; display: flex; flex-direction: column; }
+.alerts-counts { justify-content: flex-start; gap: 8px; margin-bottom: 10px; }
+
+/* ── Alerts marquee ─────────────────────────────────────────
+   A continuous upward scroll that stops on hover or keyboard focus. Duration
+   scales with the row count, so ten alerts do not fly past faster than three. */
+.alerts-card { overflow: hidden; }
+.ticker {
+  position: relative;
+  flex: 1 1 auto;
+  height: 340px;
+  overflow: hidden;
+  /* Isolate the marquee's paint work from the rest of the page, so a long
+     scroll cannot force the whole dashboard to re-rasterise. */
+  contain: strict;
+  /* Fade both ends so items enter and leave instead of being chopped. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22px, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 22px, #000 calc(100% - 22px), transparent);
+}
+.ticker-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: ticker-up calc(var(--ticker-rows, 4) * 5s) linear infinite;
+  /* Promote once, up front, rather than letting the compositor re-decide on
+     every frame of a minute-long animation. */
+  will-change: transform;
+}
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track { animation-play-state: paused; }
+/* The track holds the list twice; -50% lands exactly on the copy, so the loop
+   has no jump. */
+@keyframes ticker-up {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+.ticker-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid var(--section, #d95926);
+  font-size: 0.85rem;
+}
+.ticker-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ticker-kind {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(57, 135, 229, 0.2);
+  color: #bfdbfe;
+}
+.ticker-kind.ann { background: rgba(217, 89, 38, 0.22); color: #fdba8c; }
+.ticker-title {
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.35;
+  /* Titles wrap in a narrow column rather than being cut mid-word. */
+  overflow-wrap: anywhere;
+}
+.ticker-body {
+  color: var(--muted);
+  line-height: 1.45;
+  /* Two lines then ellipsis — enough to know what it is, short enough that the
+     scroll keeps a steady rhythm. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ticker-at { flex: 0 0 auto; font-size: 0.74rem; color: var(--muted); }
+
+/* Motion is decoration here — the same items are readable stationary. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
+  .ticker-track { animation: none; }
+}
+
+@media (max-width: 1100px) {
+  .section-split { grid-template-columns: 1fr; }
+  .ticker { height: 260px; }
+}
+
+/* ── Shift timings in the roster grid ───────────────────────*/
+.shift-chip { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.25; }
+.shift-time {
+  font-size: 0.68rem;
+  font-weight: 500;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+
+/* ── Bigger, colour-carrying queue tabs ─────────────────────
+   These replaced a bar chart, so they have to read as the primary control on
+   the section — larger hit area, a filled swatch, and the active tab tinted
+   with its own hue rather than a single generic blue. */
+.tabs { gap: 8px; margin-bottom: 14px; }
+.queue-tab {
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  border-width: 1px;
+  background: rgba(255, 255, 255, 0.03);
+  min-height: 40px;
+}
+.queue-dot {
+  width: 11px;
+  height: 11px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--queue) 22%, transparent);
+}
+.queue-tab.active {
+  background: color-mix(in srgb, var(--queue) 22%, transparent);
+  border-color: var(--queue);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--queue) 45%, transparent);
+}
+.queue-tab.active .tab-count {
+  background: var(--queue);
+  color: #0b0b0b;
+  font-weight: 800;
+}
+.queue-tab .tab-count { font-size: 0.8rem; padding: 1px 8px; }
+
+/* ── Coloured table headers ─────────────────────────────────
+   The header band picks up the section's (or the open queue's) hue, so a table
+   is visually tied to the control that produced it. Text stays on an ink token
+   — the tint is a background, never the label's colour. */
+/* Mixed against an OPAQUE base, not `transparent`: over a translucent card the
+   old version let the page show through, which is what made it look muddy. One
+   value, reused by the sticky column, so there is no seam at the first cell. */
+.mgr-table.tinted {
+  --head-bg: color-mix(in srgb, var(--queue, var(--section, #3987e5)) 34%, #12141a);
+  --head-rule: color-mix(in srgb, var(--queue, var(--section, #3987e5)) 85%, transparent);
+}
+.mgr-table.tinted thead th {
+  background: var(--head-bg);
+  color: #ffffff;
+  font-weight: 800;
+  border-bottom: 2px solid var(--head-rule);
+}
+.mgr-table.tinted thead th:first-child { border-top-left-radius: 10px; }
+.mgr-table.tinted thead th:last-child { border-top-right-radius: 10px; }
+/* Same fill as the rest of the row, so the frozen column is invisible as a join. */
+.roster-table.tinted thead th.sticky-col { background: var(--head-bg); }
+.roster-table.tinted tbody td.sticky-col { background: #0e0f13; }
+
+/* ── Score-band key ─────────────────────────────────────────*/
+.band-key {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+.band-key-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.band-key-item { display: inline-flex; align-items: center; gap: 6px; color: #e5eaf2; }
+.band-swatch { width: 11px; height: 11px; border-radius: 3px; flex: 0 0 auto; }
+.band-range { color: var(--muted); }
+
+/* ── Score pills follow the same bands as the chart ─────────*/
+.score-pill.strong    { background: rgba(25, 158, 112, 0.22); color: #7ee0b8; }
+.score-pill.solid     { background: rgba(144, 133, 233, 0.22); color: #c9c2f7; }
+.score-pill.attention { background: rgba(230, 103, 103, 0.22); color: #f7b4b4; }
+
+
+/* ── Per-section colour ─────────────────────────────────────
+   Each of the five sections carries its own hue on --section: the number badge,
+   the rule under the heading and the card edge all take it, so scrolling the
+   page reads as five distinct places rather than one long blue list. */
+.section-no {
+  background: var(--section, #3987e5);
+  border-color: var(--section, #3987e5);
+  color: #0b0b0b;
+  font-weight: 900;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--section, #3987e5) 20%, transparent);
+}
+.section-head {
+  border-bottom: none;
+  position: relative;
+  padding-bottom: 12px;
+}
+/* A rule that fades out, rather than a hard line across the full width. */
+.section-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    var(--section, #3987e5),
+    color-mix(in srgb, var(--section, #3987e5) 25%, transparent) 45%,
+    transparent 80%);
+}
+.section .card {
+  border-top: 2px solid color-mix(in srgb, var(--section, #3987e5) 42%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--section, #3987e5) 7%, transparent), transparent 120px),
+    var(--card);
+}
+.section-title { color: #fff; }
+
+/* Filter chips pick up the section hue when active. */
+.section-filters .chip.active {
+  background: color-mix(in srgb, var(--section, #3987e5) 22%, transparent);
+  border-color: var(--section, #3987e5);
+  color: #fff;
+}
+
+/* ── Colour-carrying stat tiles ─────────────────────────────
+   --tile is the same hue the metric has in the chart underneath, so a number
+   and its bar are recognisably the same thing. */
+.mini-kpi {
+  border-color: color-mix(in srgb, var(--tile, #ffffff) 38%, transparent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--tile, #ffffff) 20%, transparent), transparent 78%),
+    rgba(255, 255, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+.mini-kpi::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--tile, #3987e5);
+}
+.mini-kpi span { color: #fff; }
+.mini-kpi label { color: #d4dce8; }
+/* The old .danger modifier is superseded by --tile; kept neutral so any
+   leftover usage does not fight the tile colour. */
+.mini-kpi.danger { border-color: color-mix(in srgb, var(--tile, #e66767) 38%, transparent); }
+.mini-kpi.danger span { color: #fff; }
+
+/* Hero card gets the section wash too. */
+.hero-value { text-shadow: 0 0 32px color-mix(in srgb, var(--section, #3987e5) 45%, transparent); }
+
+
+/* ── Section 1: one line ────────────────────────────────────
+   Gender collapses to a slim rail, the counts to a two-column ledger, and the
+   chart takes the rest as the hero. Three fixed roles rather than equal thirds,
+   because the chart is the thing being read and the other two are reference. */
+.s1-grid {
+  display: grid;
+  grid-template-columns: 190px 260px minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.s1-grid > .card { display: flex; flex-direction: column; margin-bottom: 0; }
+.rail-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.rail-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7fb6ff;
+}
+
+/* ── Rail ───────────────────────────────────────────────────*/
+.rail-donut { position: relative; height: 128px; }
+.rail-total {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.rail-total b { font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1; }
+.rail-total small { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.rail-sub {
+  display: block;
+  text-align: center;
+  margin: 8px 0 10px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.rail-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.rail-legend li { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; }
+.rail-swatch { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+.rail-name { flex: 1 1 auto; color: #e5eaf2; }
+.rail-legend b { color: #fff; font-variant-numeric: tabular-nums; }
+
+/* ── Strip ──────────────────────────────────────────────────*/
+.strip-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.strip-tile {
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+}
+.strip-tile b { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+.strip-tile span {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+.ledger { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ledger li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.84rem;
+}
+.ledger li:last-child { border-bottom: none; }
+.ledger-name { color: #d4dce8; }
+.ledger-value { font-weight: 800; font-variant-numeric: tabular-nums; }
+.ledger-note { margin: 8px 0 0; font-size: 0.72rem; color: var(--muted); }
+
+/* ── Hero chart ─────────────────────────────────────────────*/
+/* DEFINITE HEIGHT, NOT auto.
+   Chart.js with responsive + maintainAspectRatio:false sizes the canvas from
+   its container. Give the container `height:auto` inside a flex column and the
+   canvas sizes the container instead — the ResizeObserver fires, the chart
+   re-renders, the box grows again, forever. That loop is synchronous, so it
+   pegs the main thread and Chart shows "Page Unresponsive" rather than merely
+   running slowly. Every canvas wrapper on this page must have a fixed height. */
+.s1-chart-box { flex: 0 0 auto; height: 280px; margin-bottom: 0; }
+
+/* ── Gradient tokens ────────────────────────────────────────
+   The supplied ramps, one class each, so a tile and its chart series can never
+   drift apart. */
+.grad-blue   { background: linear-gradient(180deg, #16ABFB 0%, #086BFC 100%); }
+.grad-green  { background: linear-gradient(180deg, #1AEBB1 0%, #00BD93 100%); }
+.grad-orange { background: linear-gradient(180deg, #FEBF26 0%, #FD8C0C 100%); }
+/* No .grad-pink token on purpose: pink belongs to the female slice only, and
+   it is applied there from the component's ramp map. Leaving a utility class
+   here would be an invitation to reuse it somewhere it does not belong. */
+.grad-purple { background: linear-gradient(180deg, #B764FC 0%, #7B28FC 100%); }
+.grad-cyan   { background: linear-gradient(180deg, #02E5EC 0%, #00B0D7 100%); }
+.grad-indigo { background: linear-gradient(180deg, #5548FA 0%, #2C28EE 100%); }
+
+/* The period filter's active state uses the supplied button ramp. */
+.section-filters .period-chip.active {
+  background: linear-gradient(90deg, #652AF6 0%, #0F5FFC 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (max-width: 1250px) {
+  /* Rail and strip pair up, chart drops full width beneath — still readable,
+     which a 190px chart column would not be. */
+  .s1-grid { grid-template-columns: 190px minmax(0, 1fr); }
+  .s1-chart { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .s1-grid { grid-template-columns: 1fr; }
+}
