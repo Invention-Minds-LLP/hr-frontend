@@ -6,7 +6,8 @@ import { catchError, switchMap } from 'rxjs/operators';
 import { AuthSession } from './services/auth/auth-session';
 
 /** Endpoints that establish or tear down a session — never retry these. */
-const AUTH_ENDPOINTS = ['/users/login', '/users/refresh', '/users/logout', '/users/candidate/login'];
+const AUTH_ENDPOINTS = ['/users/login', '/users/refresh', '/users/logout', '/users/candidate/login',
+  '/users/candidate/login/verify-otp'];
 
 export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,

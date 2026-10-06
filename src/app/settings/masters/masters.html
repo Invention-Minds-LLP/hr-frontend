@@ -39,6 +39,19 @@
       (click)="openCreateDialog()"></button>
   </div>
 
+  <!-- The fallback every unmapped department relies on, stated once up front. -->
+  <div class="org-default-bar" *ngIf="activeTab === 'departments'">
+    <i class="pi pi-star-fill"></i>
+    <span *ngIf="orgDefaultClearanceNames.length">
+      Organisation default exit clearance: <strong>{{ orgDefaultClearanceLabel }}</strong>
+      — used by any department without its own list.
+    </span>
+    <span *ngIf="!orgDefaultClearanceNames.length">
+      No organisation default exit clearance is set. Departments without their own list will get
+      only their HOD clearance. Turn it on for a department when editing it.
+    </span>
+  </div>
+
   <!-- ── DEPARTMENTS TABLE ────────────────────────────────────────────── -->
   <p-table *ngIf="activeTab === 'departments'" [value]="departments" [loading]="loading"
     [paginator]="departments.length > 10" [rows]="10" styleClass="p-datatable-sm" [scrollable]="true" class="master-table">
@@ -49,6 +62,8 @@
         <th style="width: 130px">OT Budget (hrs/mo)</th>
         <th style="width: 130px">Min Daily Strength</th>
         <th style="width: 200px">Appraisal Cycle</th>
+        <th style="width: 160px">Exit clearance by</th>
+        <th style="width: 110px">Checklist</th>
         <th style="width: 120px">Actions</th>
       </tr>
     </ng-template>
@@ -59,13 +74,23 @@
         <td>{{ item.otBudgetHoursPerMonth || 0 }}</td>
         <td>{{ item.minDailyStrength || 0 }}</td>
         <td>{{ apprSummary(item) }}</td>
+        <td [pTooltip]="clearanceTooltip(item)" tooltipPosition="top">
+          <span [class.muted-cell]="!item.clearanceDepartments?.length">{{ clearanceSummary(item) }}</span>
+          <i class="pi pi-star-fill org-default-star" *ngIf="item.isDefaultClearance"
+            pTooltip="In the organisation default clearance list"></i>
+        </td>
+        <td>
+          <span *ngIf="checklistCount(item)">{{ checklistCount(item) }} line(s)</span>
+          <span *ngIf="!checklistCount(item)" class="empty-msg">Not set</span>
+        </td>
         <td class="action-cell">
           <button class="btn-icon edit" (click)="openEditDialog(item)" pTooltip="Edit"><i class="pi pi-pencil"></i></button>
+          <button class="btn-icon" (click)="openChecklist(item)" pTooltip="Clearance checklist"><i class="pi pi-list-check"></i></button>
         </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="6" class="empty-msg">No departments found</td></tr>
+      <tr><td colspan="8" class="empty-msg">No departments found</td></tr>
     </ng-template>
   </p-table>
 
@@ -317,6 +342,49 @@
     </div>
   </div> -->
 
+<!-- ── CLEARANCE CHECKLIST DIALOG ─────────────────────────────────────── -->
+<!-- The lines this department ticks off when somebody leaves. Until these are
+     set, a clearance shows a single generic line. -->
+<p-dialog [header]="'Clearance checklist — ' + checklistDeptName" [(visible)]="checklistVisible"
+  [modal]="true" [style]="{ width: '560px' }" [closable]="true">
+  <div class="dialog-form">
+    <p class="appr-hint" style="margin-top:0">
+      What {{ checklistDeptName }} checks before releasing someone. Each line is cleared, marked due,
+      or marked not applicable at the exit. A line marked due blocks the clearance.
+    </p>
+
+    <div *ngIf="checklistLoading" class="empty-msg">Loading…</div>
+
+    <div *ngIf="!checklistLoading">
+      <div class="field" *ngFor="let item of checklistItems; let i = index">
+        <div style="display:flex; gap:.4rem; align-items:center">
+          <input type="text" pInputText [(ngModel)]="item.label" style="flex:1"
+            placeholder="e.g. ID card returned" />
+          <button class="btn-icon" (click)="moveChecklistItem(i, -1)" [disabled]="i === 0"
+            pTooltip="Move up"><i class="pi pi-arrow-up"></i></button>
+          <button class="btn-icon" (click)="moveChecklistItem(i, 1)"
+            [disabled]="i === checklistItems.length - 1" pTooltip="Move down"><i class="pi pi-arrow-down"></i></button>
+          <button class="btn-icon delete" (click)="removeChecklistItem(i)" pTooltip="Remove">
+            <i class="pi pi-trash"></i></button>
+        </div>
+      </div>
+
+      <div *ngIf="!checklistItems.length" class="empty-msg">
+        No lines yet. Add the checks this department makes at an exit.
+      </div>
+
+      <button pButton label="Add line" icon="pi pi-plus" class="p-button-sm p-button-text"
+        (click)="addChecklistItem()"></button>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="checklistVisible = false"></button>
+    <button pButton [label]="checklistSaving ? 'Saving…' : 'Save checklist'" icon="pi pi-check"
+      [disabled]="checklistSaving || checklistLoading" (click)="saveChecklist()"></button>
+  </ng-template>
+</p-dialog>
+
 <!-- ── ADD / EDIT DIALOG ──────────────────────────────────────────────── -->
 <p-dialog [header]="dialogTitle" [(visible)]="dialogVisible" [modal]="true"
   [style]="{ width: '450px' }" [closable]="true" >
@@ -349,6 +417,30 @@
         <p-select [options]="monthOptions" [(ngModel)]="formApprCalMonth" optionLabel="n" optionValue="v" placeholder="— select month —" [showClear]="true" [style]="{ width: '100%' }" appendTo="body"></p-select>
         <small class="appr-hint" *ngIf="formApprPeriod === 6 && formApprCalMonth">
           Half-yearly → appraisals in <strong>{{ monthName(formApprCalMonth) }}</strong> &amp; <strong>{{ monthName(secondMonth(formApprCalMonth)) }}</strong>.
+        </small>
+      </div>
+      <div class="field">
+        <label>Exit clearance required from</label>
+        <p-multiSelect [options]="departments" [(ngModel)]="formClearanceDeptIds" optionLabel="name"
+          optionValue="id" [filter]="true" display="chip" placeholder="— organisation default —"
+          [style]="{ width: '100%' }" appendTo="body" panelStyleClass="dark-select-panel"></p-multiSelect>
+        <small class="appr-hint">
+          When somebody from this department leaves, these departments must clear them.
+          Their own HOD is always included.
+        </small>
+        <!-- "Organisation default" means nothing unless you can see what is in it. -->
+        <small class="appr-hint default-note" *ngIf="!formClearanceDeptIds.length">
+          Left empty, leavers here go to the organisation default:
+          <strong>{{ orgDefaultClearanceLabel }}</strong>.
+        </small>
+      </div>
+
+      <div class="field toggle-field">
+        <label>In the organisation default list</label>
+        <p-toggleSwitch [(ngModel)]="formIsDefaultClearance"></p-toggleSwitch>
+        <small class="appr-hint">
+          Clears leavers from any department that has no list of its own.
+          Currently: <strong>{{ orgDefaultClearanceLabel }}</strong>.
         </small>
       </div>
     </ng-container>

@@ -159,6 +159,18 @@
   background: transparent
 }
 
+/* Same for the multiselect, which otherwise renders on the theme's white. */
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep .p-multiselect-label {
+  background: transparent !important;
+  color: #fff !important;
+  width: 100%;
+}
+
+:host ::ng-deep .p-multiselect-label.p-placeholder { color: #b9b9b9 !important; }
+:host ::ng-deep .p-multiselect-dropdown { background: transparent !important; color: #fff !important; }
+:host ::ng-deep .p-multiselect-chip-item .p-chip { background: #242424 !important; color: #fff !important; }
+
 .nav-btns {
   display: flex;
   justify-content: flex-end;

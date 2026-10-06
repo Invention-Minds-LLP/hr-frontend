@@ -380,6 +380,82 @@ a {
   gap: 14px;
 }
 
+/* ── Overflowing nav rows ─────────────────────────────────────────────
+   Both the main menu and the admin items row hold more entries than fit
+   once a user has broad permissions, and they used to simply run off the
+   edge of the screen with the last few unreachable. They now scroll, with
+   arrows that appear only when there is something past the edge. The
+   `can-left` / `can-right` classes are set by NavScrollDirective. */
+.nav-scroll-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* min-width lets this flex child shrink below its content so the inner
+     scroller actually overflows instead of stretching the row. */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nav-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  /* The arrows are the affordance; a scrollbar under the menu looks broken. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keep the row at its natural width rather than being squeezed to fit. */
+.nav-scroll > * {
+  min-width: max-content;
+}
+
+.nav-scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #1e1e1e;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.nav-scroll-btn.left {
+  left: 0;
+}
+
+.nav-scroll-btn.right {
+  right: 0;
+}
+
+.nav-scroll-btn:hover {
+  background: #FB9C2A;
+  color: #000;
+}
+
+.nav-scroll-wrap.can-left .nav-scroll-btn.left,
+.nav-scroll-wrap.can-right .nav-scroll-btn.right {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .nav-item .active {
   display: inline-flex;
   height: 40px;

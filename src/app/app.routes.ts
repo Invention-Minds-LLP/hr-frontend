@@ -26,6 +26,7 @@ import { EmployeeDetails } from './leaves/employee-details/employee-details';
 import { HrDashboard } from './dashboard/hr-dashboard/hr-dashboard';
 import { ManagementDashboard } from './dashboard/management-dashboard/management-dashboard';
 import { HrManagerDashboard } from './dashboard/hr-manager-dashboard/hr-manager-dashboard';
+import { ManagerDashboard } from './dashboard/manager-dashboard/manager-dashboard';
 import { RecruitmentDashboard } from './recruitment/recruitment-dashboard/recruitment-dashboard';
 import { Internship } from './internship/internship/internship';
 import { CandidateEvalForm } from './candidate-eval-form/candidate-eval-form';
@@ -104,6 +105,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: HrDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.hr.view' } },
   { path: 'management-dashboard', component: ManagementDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.management.view' } },
   { path: 'hr-manager-dashboard', component: HrManagerDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.hrAnalytics.view' } },
+  { path: 'manager-dashboard', component: ManagerDashboard, canActivate: [authGuard, permissionGuard], data: { perm: 'dashboard.manager.view' } },
   { path: 'survey-dashboard', component: SurveyDashboard, canActivate: [authGuard]},
   { path: 'individual', component: Individual, canActivate: [authGuard]},
   { path: 'settings', component: SettingsOverview,canActivate: [authGuard]},
@@ -132,7 +134,7 @@ export const routes: Routes = [
       { path: 'training', component: TrainingOverview, canActivate: [authGuard] },
       { path: 'incidents', component: IncidentOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.incidents.view' } },
       { path: 'shifts', component: ShiftOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.shifts.view' } },
-      { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard]},
+      { path: 'tracking', component: GeoTrackingOverview, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.geoTracking.view' } },
         { path: 'ot-approvals', component: OtApprovals, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.otApprovals.view' } },
         { path: 'reports', component: Export, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.reports.view' } },
         { path: 'force-present', component: ForcePresent, canActivate: [authGuard, permissionGuard], data: { perm: 'admin.forcePresent.view' } },

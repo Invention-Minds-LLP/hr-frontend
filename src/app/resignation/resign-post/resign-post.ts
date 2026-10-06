@@ -175,6 +175,19 @@ downloadCertificate() {
 
         this.selectedDepartmentIds = [...this.originalDepartmentIds];
 
+        // Nothing created yet → start from what this employee's department says
+        // should clear them (Settings › Masters › Departments). HR can still
+        // add or remove for this individual before saving.
+        if (!this.selectedDepartmentIds.length) {
+          this.api.suggestedClearanceDepartments(this.resignationId).subscribe({
+            next: (r) => {
+              if (!this.selectedDepartmentIds.length && r?.departmentIds?.length) {
+                this.selectedDepartmentIds = [...r.departmentIds];
+              }
+            },
+            error: () => { /* leave the list empty for HR to choose */ },
+          });
+        }
 
         this.lockedClearances = {};
 

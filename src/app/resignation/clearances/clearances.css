@@ -1,3 +1,174 @@
+/* ── Clearance column in the list ───────────────────────────────────────────
+   Was a stack of raw keys ("DEPT_Design: PENDING"). One chip per desk, named
+   in plain words, with its state carried by colour. */
+
+.cl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 28rem;
+}
+
+.cl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: #141414;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color .15s ease, transform .15s ease;
+}
+
+.cl-chip:hover:not(:disabled) { border-color: #6a6a6a; transform: translateY(-1px); }
+.cl-chip:disabled { cursor: default; opacity: .55; }
+.cl-chip:focus-visible { outline: 2px solid #4da3ff; outline-offset: 2px; }
+
+.cl-chip-name { color: #e6e6e6; }
+
+.cl-chip-state {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding-left: 6px;
+  border-left: 1px solid #333;
+}
+
+.cl-chip.is-APPROVED { border-color: rgba(16, 185, 129, .45); background: rgba(16, 185, 129, .10); }
+.cl-chip.is-APPROVED .cl-chip-state { color: #34d399; border-left-color: rgba(16, 185, 129, .35); }
+
+.cl-chip.is-REJECTED { border-color: rgba(220, 38, 38, .45); background: rgba(220, 38, 38, .10); }
+.cl-chip.is-REJECTED .cl-chip-state { color: #f87171; border-left-color: rgba(220, 38, 38, .35); }
+
+.cl-chip.is-PENDING .cl-chip-state { color: #fbbf24; }
+
+.cl-none { color: #7a7a7a; }
+
+/* Employee cell — avatar beside name and code */
+.empname .emp-text { display: flex; flex-direction: column; line-height: 1.25; }
+.empname .default-photo { background-color: #fff; }
+
+/* ── Clearance checklist dialog ─────────────────────────────────────────────
+   Was a three-column table with a dropdown per row. A clearance is a series of
+   small decisions, so each line now carries its own one-click control and the
+   header says what the saved result will be. */
+
+.chk { display: flex; flex-direction: column; gap: 1rem; }
+
+.chk-head {
+  display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: .9rem; border-bottom: 1px solid #2b2b2b;
+}
+.chk-who { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.chk-name { font-size: 1.02rem; font-weight: 600; color: #fff; }
+.chk-sub { font-size: .78rem; color: #9a9a9a; }
+
+.chk-progress { min-width: 15rem; flex: 1; max-width: 22rem; }
+.chk-progress-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: .78rem; color: #9a9a9a; margin-bottom: .35rem; gap: .75rem;
+}
+.chk-outcome { font-weight: 600; font-size: .72rem; letter-spacing: .02em; }
+.chk-outcome.good { color: #34d399; }
+.chk-outcome.danger { color: #f87171; }
+.chk-outcome.warn { color: #fbbf24; }
+
+.chk-bar { height: 5px; border-radius: 99px; background: #2b2b2b; overflow: hidden; }
+.chk-bar span {
+  display: block; height: 100%; border-radius: 99px; background: #10b981;
+  transition: width .25s ease;
+}
+
+.chk-counts { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .45rem; font-size: .72rem; }
+.chk-count { color: #9a9a9a; }
+.chk-count.good { color: #34d399; }
+.chk-count.danger { color: #f87171; }
+.chk-count.warn { color: #fbbf24; }
+.chk-count.muted { color: #7a7a7a; }
+
+.chk-group { display: flex; flex-direction: column; gap: .5rem; }
+.chk-group-title {
+  margin: .25rem 0 0; font-size: .72rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: #9a9a9a;
+}
+
+/* A line of the checklist. The left border carries its state so the eye finds
+   anything outstanding without reading. */
+.chk-item {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: .7rem .85rem; border: 1px solid #2b2b2b; border-left: 3px solid #3d3d3d;
+  border-radius: 6px; background: #121212;
+}
+.chk-item.is-CLEARED { border-left-color: #10b981; background: rgba(16, 185, 129, .07); }
+.chk-item.is-DUE { border-left-color: #dc2626; background: rgba(220, 38, 38, .08); }
+.chk-item.is-NA { border-left-color: #4a4a4a; background: #101010; }
+.chk-item.is-PENDING { border-left-color: #f59e0b; }
+
+.chk-item-main {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+.chk-label { font-size: .9rem; color: #ededed; flex: 1; min-width: 12rem; }
+
+.chk-status { display: inline-flex; border: 1px solid #333; border-radius: 6px; overflow: hidden; }
+.chk-opt {
+  border: 0; background: #0c0c0c; cursor: pointer;
+  padding: .32rem .6rem; font-size: .76rem; color: #9a9a9a;
+  border-right: 1px solid #333; transition: background .15s ease, color .15s ease;
+}
+.chk-opt:last-child { border-right: 0; }
+.chk-opt:hover { background: #242424; color: #ededed; }
+.chk-opt.active { color: #fff; font-weight: 600; }
+.chk-opt.opt-CLEARED.active { background: #10b981; }
+.chk-opt.opt-DUE.active { background: #dc2626; }
+.chk-opt.opt-NA.active { background: #94a3b8; }
+.chk-opt.opt-PENDING.active { background: #f59e0b; }
+.chk-opt:focus-visible { outline: 2px solid #3465b0; outline-offset: -2px; }
+
+.chk-note {
+  width: 100%; font-size: .82rem;
+  background: #0c0c0c !important; border: 1px solid #333 !important; color: #ededed !important;
+}
+.chk-note::placeholder { color: #7a7a7a; }
+.chk-item.is-DUE .chk-note { border-color: rgba(220, 38, 38, .5) !important; }
+
+.chk-empty, .chk-rule { font-size: .8rem; color: #9a9a9a; margin: 0; }
+.chk-rule { padding-top: .25rem; border-top: 1px dashed #2b2b2b; }
+.chk-rule strong { color: #ededed; }
+
+/* The dialog surface itself, so the panel is not white behind all of this. */
+::ng-deep .chk-dialog .p-dialog-content,
+::ng-deep .chk-dialog .p-dialog-header,
+::ng-deep .chk-dialog .p-dialog-footer {
+  background: #0a0a0a !important;
+  color: #ededed !important;
+  border-color: #2b2b2b !important;
+}
+
+/* Native scrollbars in the table and dialog, which render white by default. */
+::ng-deep .card .p-datatable-wrapper::-webkit-scrollbar,
+::ng-deep .chk-dialog .p-dialog-content::-webkit-scrollbar { width: 8px; height: 8px; }
+
+::ng-deep .card .p-datatable-wrapper::-webkit-scrollbar-track,
+::ng-deep .chk-dialog .p-dialog-content::-webkit-scrollbar-track { background: #111; }
+
+::ng-deep .card .p-datatable-wrapper::-webkit-scrollbar-thumb,
+::ng-deep .chk-dialog .p-dialog-content::-webkit-scrollbar-thumb {
+  background: #3a3a3a; border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .chk-item-main { align-items: stretch; }
+  .chk-status { width: 100%; }
+  .chk-opt { flex: 1; text-align: center; }
+}
+
 .card {
   /* background:linear-gradient(135deg, #76ea9f, #6fdfc9) !important; */
   box-shadow: var(--shadow, 0 8px 24px rgba(16, 24, 40, 0.06));

@@ -15,6 +15,7 @@ export const PERMISSION_KEYS = [
   'dashboard.hr.view',
   'dashboard.management.view',
   'dashboard.hrAnalytics.view',
+  'dashboard.manager.view',
 
   // Menu sections (the headings themselves)
   'admin.section.view',
@@ -47,6 +48,7 @@ export const PERMISSION_KEYS = [
   'admin.incentiveRequests.view',
   'admin.shifts.view',
   'admin.otApprovals.view',
+  'admin.geoTracking.view',
   'admin.compOffApprovals.view',
   'admin.reports.view',
   'admin.payroll.view',

@@ -84,6 +84,77 @@ body {
   color: #fff !important;
 } */
 
+/* ==== DARK MULTISELECT PANEL ====
+   Overlays are appended to <body>, so a component stylesheet cannot reach them.
+   Opt a multiselect in with panelStyleClass="dark-select-panel" and its popup
+   follows the dark surfaces the rest of the app uses, instead of the theme's
+   white default sitting on a black dialog. */
+.p-multiselect-overlay.dark-select-panel {
+  background: #141414 !important;
+  border: 1px solid #2f2f2f !important;
+  color: #ededed !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55) !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-header {
+  background: #141414 !important;
+  border-bottom: 1px solid #2f2f2f !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-filter,
+.p-multiselect-overlay.dark-select-panel .p-inputtext {
+  background: #0c0c0c !important;
+  border: 1px solid #333 !important;
+  color: #ededed !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-filter::placeholder {
+  color: #8a8a8a !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-list {
+  background: #141414 !important;
+  padding: 4px !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-option {
+  color: #ededed !important;
+  border-radius: 6px !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-option:hover,
+.p-multiselect-overlay.dark-select-panel .p-multiselect-option.p-focus {
+  background: #242424 !important;
+  color: #fff !important;
+}
+
+/* Chosen rows keep the app's green accent rather than the theme's mint fill. */
+.p-multiselect-overlay.dark-select-panel .p-multiselect-option.p-multiselect-option-selected {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #fff !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-checkbox-box {
+  background: #0c0c0c !important;
+  border-color: #3d3d3d !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-checkbox-checked .p-checkbox-box {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+.p-multiselect-overlay.dark-select-panel .p-multiselect-empty-message {
+  color: #9a9a9a !important;
+}
+
+/* Selected values on the closed control */
+.p-multiselect .p-multiselect-label.p-placeholder { color: #9a9a9a !important; }
+.p-multiselect .p-multiselect-chip-item .p-chip {
+  background: #242424 !important;
+  color: #fff !important;
+}
+
 /* Dropdown Highlight */
 .p-dropdown-panel .p-highlight {
   background-color: var(--primary-color) !important;

@@ -672,6 +672,17 @@
                                         </div>
                                     </p-floatLabel>
                                 </div>
+                                <!-- A reporting manager often heads several departments. Clearances and
+                                     requisitions for every department listed here reach them. -->
+                                <div class="field col-4" *ngIf="showsHeadedDepartments">
+                                    <p-floatLabel variant="on">
+                                        <p-multiSelect [options]="departments" formControlName="headedDepartmentIds"
+                                            optionLabel="name" optionValue="id" [filter]="true" display="chip"
+                                            appendTo="body" panelStyleClass="dark-select-panel"></p-multiSelect>
+                                        <label>Departments headed</label>
+                                    </p-floatLabel>
+                                    <small class="hint">Their own department is always included.</small>
+                                </div>
                                 <div class="field col-4">
                                     <p-floatLabel variant="on">
                                         <p-select [options]="reportingManagers" formControlName="reportingManager"

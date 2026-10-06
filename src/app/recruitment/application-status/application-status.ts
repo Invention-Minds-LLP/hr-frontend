@@ -168,6 +168,9 @@ export class ApplicationStatus implements OnInit {
     joinLocation: [''],
     workMode: [null as string | null],
     proposedJoinAt: [null as Date | null],
+    // Acceptance deadline — separate from the joining date. Left blank the
+    // backend defaults it to 7 days from send; it is never null on a sent offer.
+    validUntil: [null as Date | null],
     customNotes: [''],
     cc: [''],
     bcc: [''],
@@ -476,9 +479,29 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
 
 
   signOffer(app: Application) {
+    // Same trap as decline: a freshly created DRAFT can't go straight to SIGNED,
+    // so recording an acceptance for an offer that was never sent used to fail
+    // silently. Tell the user instead of firing a doomed request.
+    if (!this.offerIsLive(app)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No offer to accept',
+        detail: 'Send the offer first — only an offer that has been sent can be accepted.',
+        life: 6000,
+      });
+      return;
+    }
     this.getOrCreateOffer(app).pipe(
       switchMap(ofr => this.api.markOfferSigned(ofr.id))
-    ).subscribe(() => this.load());
+    ).subscribe({
+      next: () => this.load(),
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: err?.error?.error || err?.error?.message || 'Failed to accept the offer',
+        life: 8000,
+      }),
+    });
   }
 
   declineOffer(app: Application) {
@@ -493,7 +516,15 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   joined(app: Application) {
     this.getOrCreateOffer(app).pipe(
       switchMap(ofr => this.api.markJoined(ofr.id))
-    ).subscribe(() => this.load());
+    ).subscribe({
+      next: () => this.load(),
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: err?.error?.error || err?.error?.message || 'Failed to mark as joined',
+        life: 8000,
+      }),
+    });
   }
 
   noShow(app: Application) {
@@ -531,8 +562,10 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   private offerPayload() {
     const v = this.offerForm.value;
     const dt = v.proposedJoinAt as Date | null;
+    const vu = v.validUntil as Date | null;
     return {
       proposedJoinAt: dt ? dt.toISOString() : undefined,
+      validUntil: vu ? vu.toISOString() : undefined,
       ctc: (v.ctc !== null && v.ctc !== undefined && String(v.ctc) !== '') ? Number(v.ctc) : undefined,
       joinLocation: v.joinLocation?.trim() || undefined,
       workMode: v.workMode || undefined,
@@ -608,23 +641,57 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   submitReason() {
     if (!this.currentApp) return;
     const reason = this.reasonForm.value.reason || undefined;
-    this.isLoading = true;
 
+    // Declining needs a live offer. Creating one on the fly (as this used to)
+    // produced a DRAFT and then asked the API for DRAFT → DECLINED, which the
+    // offer state machine rejects — the dialog just closed and nothing changed.
+    if (this.reasonMode === 'decline' && !this.offerIsLive(this.currentApp)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No offer to decline',
+        detail: 'Send the offer first — only an offer that has been sent can be declined.',
+        life: 6000,
+      });
+      return;
+    }
+
+    this.isLoading = true;
     const call$ = this.reasonMode === 'decline'
       ? this.getOrCreateOffer(this.currentApp).pipe(switchMap(ofr => this.api.declineOffer(ofr.id, reason)))
       : this.getOrCreateOffer(this.currentApp).pipe(switchMap(ofr => this.api.markNoShow(ofr.id, reason)));
 
-    call$.subscribe(() => {
-      this.showReasonDialog = false;
-      this.reasonForm.reset();
-      this.load();
-      this.isLoading = false;
+    call$.subscribe({
+      next: () => {
+        this.showReasonDialog = false;
+        this.reasonForm.reset();
+        this.load();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.error || err?.error?.message || 'Action failed',
+          life: 8000,
+        });
+      },
     });
   }
 
   // --- helpers ---
   private getOrCreateOffer(app: Application) {
     return app.offer ? of(app.offer) : this.api.createOffer(app.id);
+  }
+
+  /**
+   * True when the application has an offer the candidate can still act on.
+   * SENT / VIEWED are the only statuses from which the API allows SIGNED or
+   * DECLINED — see `offerNext` in recruiting.controller.ts.
+   */
+  offerIsLive(app: Application | null | undefined): boolean {
+    const s = (app as any)?.offer?.status;
+    return s === 'SENT' || s === 'VIEWED';
   }
 
   load() {

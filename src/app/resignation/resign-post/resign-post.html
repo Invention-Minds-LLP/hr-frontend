@@ -58,11 +58,11 @@
                     <td>{{ t.dueDate ? (t.dueDate | date:'dd-MM-yyyy') : '-' }}</td>
                     <td>{{ t.status || 'OPEN' }}</td>
                     <td class="task-btns" *ngIf="t.id">
-                        <button size="small" label="Open" class="open-btn" style="width: 30%;"
+                        <button type="button" class="open-btn task-btn" [class.is-on]="(t.status || 'OPEN') === 'OPEN'"
                             (click)="setTaskStatus(t,'OPEN')">Open</button>
-                        <button size="small" label="In Progress" class="pending-btn" style="width: 40%;"
-                            (click)="setTaskStatus(t,'IN_PROGRESS')">In Progress</button>
-                        <button size="small" class="save-btn" style="width: 30%;" label="Done"
+                        <button type="button" class="pending-btn task-btn" [class.is-on]="t.status === 'IN_PROGRESS'"
+                            (click)="setTaskStatus(t,'IN_PROGRESS')">In progress</button>
+                        <button type="button" class="save-btn task-btn" [class.is-on]="t.status === 'DONE'"
                             (click)="setTaskStatus(t,'DONE')">Done</button>
                     </td>
                 </tr>
@@ -142,8 +142,41 @@
             </div>
         </div>
     </section> -->
+    <!-- 🏢 Which departments have to clear this person. Pre-filled from their own
+         department's configuration (Settings › Masters › Departments); HR can
+         still adjust it for this individual. -->
+    <section class="card">
+        <div class="card-h">Applicable Departments for Clearance</div>
+
+        <div class="dept-picker">
+            <p-multiSelect [options]="departments" [(ngModel)]="selectedDepartmentIds" optionLabel="label"
+                optionValue="value" placeholder="Select departments" display="chip" [filter]="true"
+                [ngModelOptions]="{standalone:true}" appendTo="body" styleClass="dept-multiselect"
+                panelStyleClass="dark-select-panel">
+            </p-multiSelect>
+
+            <button pButton label="Save departments" class="save-btn" (click)="saveDepartments()"></button>
+        </div>
+
+        <small class="dept-hint">
+            Saving creates a clearance for each department, with that department's checklist.
+            Departments already cleared stay as they are.
+        </small>
+    </section>
+
     <section class="card">
         <div class="card-h">Department Clearances</div>
+
+        <!-- Nothing here is not the same as nothing to do, so say which it is. -->
+        <div class="cl-empty" *ngIf="!clearances.length">
+            No clearances yet.
+            <span *ngIf="!selectedDepartmentIds.length">
+                Choose the departments above and save to create them.
+            </span>
+            <span *ngIf="selectedDepartmentIds.length">
+                Save the departments selected above to create them.
+            </span>
+        </div>
 
         <div class="clearance-grid">
             <div class="cl-card" *ngFor="let c of clearances">
