@@ -460,6 +460,12 @@
       <span *ngIf="fullDetailAppraisal.dueDate" class="fd-due">Due: {{ fmtDate(fullDetailAppraisal.dueDate) }}</span>
     </div>
 
+<button *ngIf="fullDetailAppraisal.managerReview"
+        [disabled]="downloadingId === fullDetailAppraisal.id"
+        (click)="exportRatings(fullDetailAppraisal.id)" class="btn">
+  {{ downloadingId === fullDetailAppraisal.id ? 'Generating...' : 'Download ratings PDF' }}
+</button>
+
     <!-- ── Score Overview (if both submitted) ──────────────────────── -->
     <div class="fd-scores" *ngIf="fullDetailAppraisal.overallScore || fullDetailAppraisal.finalDecision">
       <div class="fd-score-card" *ngIf="fullDetailAppraisal.overallScore">

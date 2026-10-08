@@ -133,4 +133,8 @@ export class Appraisal {
   deletePause(pauseId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/pauses/${pauseId}`);
   }
+
+  downloadAppraisalRatingsPdf(id: number) {
+  return this.http.get(`${this.apiUrl}/${id}/ratings-pdf`, { responseType: 'blob' });
+}
 }
