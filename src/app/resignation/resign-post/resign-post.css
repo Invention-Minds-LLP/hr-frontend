@@ -72,7 +72,39 @@
 .task-btns {
   margin-right: 4px;
   display: flex;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Row actions, not form buttons: the shared .open-btn / .pending-btn / .save-btn
+   classes are 160px wide, which swamped the table. Size them to their label and
+   show which state the task is actually in. */
+.task-btns .task-btn {
+  width: auto;
+  min-width: 0;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 6px;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.task-btns .task-btn:hover { opacity: 0.85; }
+
+/* The current status reads as solid; the other two sit back. */
+.task-btns .task-btn.is-on {
+  opacity: 1;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+}
+
+.task-btns .task-btn:focus-visible {
+  outline: 2px solid #4da3ff;
+  outline-offset: 1px;
 }
 
 /* .clearance-grid {
@@ -100,6 +132,32 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 18px;
+}
+
+/* Department picker — the step that creates the clearances below. */
+.dept-picker {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dept-picker .dept-multiselect {
+  flex: 1;
+  min-width: 260px;
+}
+
+.dept-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.cl-empty {
+  font-size: 13px;
+  opacity: 0.7;
+  padding: 4px 0 12px;
 }
 
 .cl-card {
@@ -339,9 +397,33 @@
   background-color: transparent !important;
 }
 
+/* Match the select above — the closed multiselect was rendering white. */
+::ng-deep .p-multiselect-label {
+  color: #fff !important;
+  background-color: transparent !important;
+}
+
+::ng-deep .p-multiselect-label.p-placeholder { color: #b9b9b9 !important; }
+::ng-deep .p-multiselect-dropdown { background: transparent !important; color: #fff !important; }
+::ng-deep .p-multiselect-chip-item .p-chip { background: #242424 !important; color: #fff !important; }
+
 ::ng-deep .p-multiselect {
+  background-color: #020403 !important;
+  color: white !important;
   width: 20%;
   background: #020403;
+}
+
+/* The department picker fills its row instead of the 20% above. */
+::ng-deep .p-multiselect.dept-multiselect {
+  width: auto !important;
+  flex: 1;
+  min-width: 260px;
+}
+
+/* The filter sits inside the dark panel now, so it must not be dark-on-dark. */
+::ng-deep .dark-select-panel .p-multiselect-filter {
+  color: #ededed !important;
 }
 
 ::ng-deep .p-multiselect-label,

@@ -11,12 +11,13 @@ import { Announcements, } from '../services/announcement/announcements';
 import { AuthSession } from '../services/auth/auth-session';
 import { PermissionService } from '../services/auth/permission.service';
 import { HasPermDirective } from '../shared/has-perm.directive';
+import { NavScrollDirective } from '../shared/nav-scroll.directive';
 
 
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, CommonModule, PopUp, AnnouncementForm, ResignationForm, HasPermDirective],
+  imports: [RouterModule, CommonModule, PopUp, AnnouncementForm, ResignationForm, HasPermDirective, NavScrollDirective],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })

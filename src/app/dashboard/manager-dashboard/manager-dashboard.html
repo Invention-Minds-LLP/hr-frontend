@@ -1,0 +1,502 @@
+<div class="mgr-wrap">
+
+  <!-- ══ HEADER ══ -->
+  <div class="mgr-header">
+    <div>
+      <h1 class="mgr-title">My Team</h1>
+      <p class="mgr-sub">
+        What is happening within your team
+        <ng-container *ngIf="snapshot && !noTeam">
+          · {{ snapshot.teamStrength }} direct report{{ snapshot.teamStrength === 1 ? '' : 's' }}
+          <span class="mgr-relchip" *ngIf="snapshot.relations?.incharge">{{ snapshot.relations.incharge }} as In-charge</span>
+          <span class="mgr-relchip" *ngIf="snapshot.relations?.hod">{{ snapshot.relations.hod }} as HOD</span>
+        </ng-container>
+      </p>
+    </div>
+    <button class="mgr-refresh" (click)="refresh()" pTooltip="Reload every section" tooltipPosition="left">⟳ Refresh</button>
+  </div>
+
+  <div class="kpi-grid" *ngIf="loading">
+    <div class="kpi-card" *ngFor="let i of skeletonRows; trackBy: trackByIndex">
+      <p-skeleton height="1rem" width="60%"></p-skeleton>
+      <p-skeleton height="2rem" width="40%" styleClass="mt-2"></p-skeleton>
+    </div>
+  </div>
+
+  <div class="mgr-empty" *ngIf="!loading && errorMsg">
+    <div class="mgr-empty-icon">⚠</div>
+    <h2>{{ errorMsg }}</h2>
+    <button class="mgr-refresh" (click)="refresh()">Try again</button>
+  </div>
+
+  <div class="mgr-empty" *ngIf="!loading && !errorMsg && noTeam">
+    <div class="mgr-empty-icon">👥</div>
+    <h2>Nobody reports to you yet</h2>
+    <p>
+      This dashboard fills up once employees are assigned to you as their
+      In-charge or Reporting Manager. Ask HR to set that on the employee record.
+    </p>
+  </div>
+
+  <ng-container *ngIf="!loading && !errorMsg && !noTeam">
+
+    <!-- ════════════════════════════════════════════════════
+         SECTION 1 — TEAM COMPOSITION
+         One line: gender collapses to a slim rail, the counts to a two-column
+         ledger, and the chart takes the remaining ~55% as the hero.
+         ════════════════════════════════════════════════════ -->
+    <div class="section" style="--section:#086BFC">
+      <div class="section-head">
+        <span class="section-no">1</span>
+        <h2 class="section-title">Team Composition</h2>
+        <span class="info-dot" [pTooltip]="info['outlook']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+        <div class="section-filters">
+          <button class="chip period-chip" *ngFor="let p of periods; trackBy: trackByIndex"
+                  [class.active]="period === p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
+        </div>
+      </div>
+
+      <div class="s1-grid" *ngIf="composition">
+
+        <!-- ── rail: headcount + gender ── -->
+        <div class="card s1-rail">
+          <div class="rail-head">
+            <span class="rail-label">Gender</span>
+            <span class="info-dot" [pTooltip]="info['gender']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+          </div>
+          <div class="rail-donut">
+            <canvas id="mgrGenderChart"></canvas>
+            <div class="rail-total">
+              <b>{{ composition.headcount }}</b>
+              <small>Total</small>
+            </div>
+          </div>
+          <span class="rail-sub">Direct reports</span>
+          <ul class="rail-legend">
+            <li *ngFor="let g of composition.gender; trackBy: trackByIndex">
+              <span class="rail-swatch" [style.background]="genderGradient(g.key)"></span>
+              <span class="rail-name">{{ g.label }}</span>
+              <b>{{ g.value }}</b>
+            </li>
+          </ul>
+        </div>
+
+        <!-- ── strip: the two headline numbers, then the ledger ── -->
+        <div class="card s1-strip">
+          <div class="rail-head">
+            <span class="rail-label">{{ composition.period?.label }}</span>
+            <span class="card-badge" *ngIf="composition.hasPlanned && !composition.hasActual">Planned</span>
+          </div>
+
+          <div class="strip-tiles">
+            <div class="strip-tile grad-blue">
+              <b>{{ headline.primary }}</b>
+              <span>{{ headline.primaryLabel }}</span>
+            </div>
+            <div class="strip-tile grad-indigo">
+              <b>{{ headline.secondary }}</b>
+              <span>{{ headline.secondaryLabel }}</span>
+            </div>
+          </div>
+
+          <ul class="ledger">
+            <li *ngFor="let r of ledger; trackBy: trackByIndex">
+              <span class="ledger-name">{{ r.label }}</span>
+              <b class="ledger-value" [style.color]="r.color">{{ r.value }}</b>
+            </li>
+          </ul>
+          <p class="ledger-note">Day-counts, not head-counts.</p>
+        </div>
+
+        <!-- ── hero: the chart ── -->
+        <div class="card s1-chart">
+          <div class="card-head">
+            <span class="card-title">Day by day — {{ composition.period?.label }}</span>
+            <span class="info-dot" [pTooltip]="info['outlook']" tooltipPosition="left" tooltipStyleClass="info-tip">i</span>
+          </div>
+          <div class="chart-box s1-chart-box"><canvas id="mgrOutlookChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         SECTION 2 — REQUESTS WAITING ON YOU
+         ════════════════════════════════════════════════════ -->
+    <div class="section" style="--section:#d95926">
+      <div class="section-head">
+        <span class="section-no">2</span>
+        <h2 class="section-title">Requests Waiting On You</h2>
+        <span class="info-dot" [pTooltip]="info['approvals']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+        <span class="card-badge" [class.badge-hot]="approvals?.counts?.total">
+          {{ approvals?.counts?.total || 0 }} pending
+        </span>
+      </div>
+
+      <!-- 60 / 40: the queue table needs the width, the ticker reads fine in a
+           narrow column. Both belong to section 2, so they sit side by side
+           rather than stacked. -->
+      <div class="section-split">
+        <div class="split-main">
+        <div class="card" *ngIf="approvals">
+          <!-- One colour per queue, always beside its label — with the chart gone
+               these carry the identity, so they are the validated palette rather
+               than eight colours picked by eye. -->
+          <div class="tabs">
+            <button class="tab queue-tab" *ngFor="let t of approvalTabs; trackBy: trackByIndex"
+                    [class.active]="approvalTab === t.key"
+                    [style.--queue]="t.color"
+                    (click)="approvalTab = t.key">
+              <span class="queue-dot"></span>
+              {{ t.label }} <span class="tab-count">{{ approvals.counts?.[t.key] || 0 }}</span>
+            </button>
+          </div>
+
+          <div class="card-head sub-head">
+            <span class="info-dot" *ngIf="approvalTab === 'requisition'"
+                  [pTooltip]="info['requisition']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+            <button class="link-btn" *ngIf="approvalTarget(approvalTab)" (click)="goToApprovals()">Open queue →</button>
+          </div>
+
+          <div class="empty-row" *ngIf="!approvalRows.length">Nothing waiting on you here.</div>
+
+          <!-- Manpower requisition is department-level and has no employee, so it
+               gets its own columns rather than being forced into the shape of an
+               employee request. -->
+          <table class="mgr-table queue-table tinted" [style.--queue]="activeQueueColor"
+                 *ngIf="approvalRows.length && approvalTab === 'requisition'">
+            <thead>
+              <tr><th>Designation</th><th>Vacancies</th><th>Reason</th><th>Raised by</th><th>Raised on</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of visible('requisition', approvalRows); let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+                <td>
+                  <span class="emp-name">{{ r.designation || '—' }}</span>
+                  <span class="emp-code" *ngIf="r.urgent">Urgent</span>
+                </td>
+                <td>{{ r.vacancies ?? '—' }}</td>
+                <td class="reason-cell" [pTooltip]="r.reasonDetails || ''" tooltipPosition="top">
+                  {{ r.reasonType }}{{ r.reasonDetails ? ' — ' + r.reasonDetails : '' }}
+                </td>
+                <td>{{ r.raisedBy || '—' }}</td>
+                <td>{{ r.requestDate | date:'dd MMM yyyy' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="mgr-table queue-table tinted" [style.--queue]="activeQueueColor"
+                 *ngIf="approvalRows.length && approvalTab !== 'requisition'">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Relation</th>
+                <th>{{ approvalTab === 'ot' ? 'Date' : (approvalTab === 'compOff' ? 'Worked On' : (approvalTab === 'weeklyReports' ? 'Week' : 'From')) }}</th>
+                <th *ngIf="approvalTab === 'leave'">To</th>
+                <th>Detail</th>
+                <th>Reason / Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of visible(approvalTab, approvalRows); let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+                <td>
+                  <span class="emp-name">{{ r.employeeName }}</span>
+                  <span class="emp-code">{{ r.employeeCode }}</span>
+                </td>
+                <td><span class="rel-chip" [class.hod]="r.relation === 'HOD'">{{ r.relation }}</span></td>
+                <td>{{ (r.startDate || r.date || r.day || r.workDate || r.weekStartDate || r.createdAt) | date:'dd MMM yyyy' }}</td>
+                <td *ngIf="approvalTab === 'leave'">{{ r.endDate | date:'dd MMM yyyy' }}</td>
+                <td>
+                  <ng-container [ngSwitch]="approvalTab">
+                    <span *ngSwitchCase="'leave'">{{ r.leaveType?.name || '—' }}{{ r.isHalfDay ? ' (half day)' : '' }}</span>
+                    <span *ngSwitchCase="'permission'">{{ r.permissionType || '—' }}</span>
+                    <span *ngSwitchCase="'ot'">{{ r.minutes }} min</span>
+                    <span *ngSwitchCase="'compOff'">{{ r.qualifier || '—' }}</span>
+                    <span *ngSwitchCase="'weeklyReports'">{{ r.weekLabel || '—' }}</span>
+                    <span *ngSwitchCase="'roster'">{{ r.isMonthly ? 'Monthly plan' : (r.requestedMode || 'Roster') }}</span>
+                    <span *ngSwitchCase="'resignation'">
+                      LWD {{ r.proposedLastWorkingDay | date:'dd MMM' }} · {{ r.noticePeriodDays }}d notice
+                    </span>
+                    <span *ngSwitchDefault>—</span>
+                  </ng-container>
+                </td>
+                <td class="reason-cell" [pTooltip]="r.reason || r.taskDescription || r.employeeSummary || ''" tooltipPosition="top">
+                  {{ r.reason || r.taskDescription || r.employeeSummary || '—' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="more-row" *ngIf="approvalRows.length">
+            <button class="expand-btn" *ngIf="canShowMore(approvalTab, approvalRows)" (click)="showMore(approvalTab, approvalRows)">
+              View More ({{ remaining(approvalTab, approvalRows) }} more)
+            </button>
+            <button class="expand-btn ghost" *ngIf="isExpanded(approvalTab)" (click)="showLess(approvalTab)">Show less</button>
+          </div>
+        </div>
+        </div>
+
+        <div class="split-side">
+        <!-- Alerts marquee. Scrolls upward continuously in the narrow column
+             and stops on hover or keyboard focus, so a passer-by sees the
+             newest items and a reader can pause on one. -->
+        <div class="card alerts-card" *ngIf="alerts?.items?.length">
+          <div class="card-head">
+            <span class="card-title">Alerts &amp; Circulars</span>
+            <span class="info-dot" [pTooltip]="info['alerts']" tooltipPosition="left" tooltipStyleClass="info-tip">i</span>
+          </div>
+          <div class="card-head sub-head alerts-counts">
+            <span class="card-badge">{{ alerts.counts?.notifications || 0 }} unread</span>
+            <span class="card-badge">{{ alerts.counts?.announcements || 0 }} circulars</span>
+            <span class="card-badge" *ngIf="alerts.truncated" pTooltip="Only the newest 12 scroll here; the rest are in your notifications." tooltipPosition="bottom">newest 12</span>
+          </div>
+          <div class="ticker" [style.--ticker-rows]="alerts.items.length">
+            <!-- Rendered twice so the loop has no visible seam; the copy is
+                 hidden from screen readers. -->
+            <div class="ticker-track">
+              <ng-container *ngFor="let pass of tickerPasses; trackBy: trackByIndex">
+                <div class="ticker-item" *ngFor="let a of alerts.items; trackBy: trackByIndex" [attr.aria-hidden]="pass === 1 ? 'true' : null">
+                  <div class="ticker-top">
+                    <span class="ticker-kind" [class.ann]="a.kind === 'ANNOUNCEMENT'">
+                      {{ a.kind === 'ANNOUNCEMENT' ? 'Circular' : 'Alert' }}
+                    </span>
+                    <span class="ticker-at">{{ a.at | date:'dd MMM' }}</span>
+                  </div>
+                  <span class="ticker-title">{{ a.pinned ? '📌 ' : '' }}{{ a.title }}</span>
+                  <span class="ticker-body">{{ a.body }}</span>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         SECTION 3 — SHIFT ROSTER
+         ════════════════════════════════════════════════════ -->
+    <div class="section" style="--section:#9085e9">
+      <div class="section-head">
+        <span class="section-no">3</span>
+        <h2 class="section-title">Shift Roster</h2>
+        <span class="info-dot" [pTooltip]="info['roster']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+        <div class="section-filters">
+          <button class="chip" [class.active]="rosterWeek === 'this'" (click)="rosterWeek = 'this'">This week</button>
+          <button class="chip" [class.active]="rosterWeek === 'next'" (click)="rosterWeek = 'next'">Next week</button>
+        </div>
+        <a class="link-btn" routerLink="/admin/shifts" *hasPerm="'admin.shifts.view'">Manage shifts →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">
+            {{ roster?.from | date:'dd MMM' }} – {{ roster?.to | date:'dd MMM yyyy' }}
+          </span>
+        </div>
+        <div class="empty-row" *ngIf="!roster?.rows?.length">No roster published for this week.</div>
+        <div class="roster-scroll" *ngIf="roster?.rows?.length">
+          <table class="mgr-table roster-table tinted">
+            <thead>
+              <tr>
+                <th class="sticky-col">Employee</th>
+                <th *ngFor="let d of roster.days; trackBy: trackByIndex">{{ d | date:'EEE dd' }}</th>
+                <th>Unack.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of visible('roster-' + rosterWeek, roster.rows); let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+                <td class="sticky-col">
+                  <span class="emp-name">{{ r.name }}</span>
+                  <span class="emp-code">{{ r.employeeCode }}</span>
+                </td>
+                <td *ngFor="let d of roster.days; trackBy: trackByIndex" class="shift-cell">
+                  <span class="shift-chip" *ngIf="r.shifts?.[d]" [class.unack]="!r.shifts[d].acknowledged">
+                    {{ r.shifts[d].shift }}
+                    <!-- The name alone does not say when to turn up, and shift
+                         names are not consistent across departments. -->
+                    <small class="shift-time" *ngIf="r.shifts[d].startTime">
+                      {{ r.shifts[d].startTime | date:'HH:mm':'+0530' }}–{{ r.shifts[d].endTime | date:'HH:mm':'+0530' }}
+                    </small>
+                  </span>
+                  <span class="muted" *ngIf="!r.shifts?.[d]">—</span>
+                </td>
+                <td><span class="status-pill" [ngClass]="r.unacknowledged ? 'warn' : 'muted'">{{ r.unacknowledged }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more-row" *ngIf="roster?.rows?.length">
+          <button class="expand-btn" *ngIf="canShowMore('roster-' + rosterWeek, roster.rows)" (click)="showMore('roster-' + rosterWeek, roster.rows)">
+            View More ({{ remaining('roster-' + rosterWeek, roster.rows) }} more)
+          </button>
+          <button class="expand-btn ghost" *ngIf="isExpanded('roster-' + rosterWeek)" (click)="showLess('roster-' + rosterWeek)">Show less</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         SECTION 4 — WEEKLY PERFORMANCE
+         ════════════════════════════════════════════════════ -->
+    <div class="section" *ngIf="performance" style="--section:#199e70">
+      <div class="section-head">
+        <span class="section-no">4</span>
+        <h2 class="section-title">Weekly Performance</h2>
+        <span class="info-dot" [pTooltip]="info['pendingPerf']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+        <a class="link-btn" routerLink="/admin/weekly-rating">Rate team →</a>
+      </div>
+
+      <div class="row-2col">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Pending Your Rating</span>
+            <span class="card-badge" [class.badge-hot]="pendingRatings.length">{{ pendingRatings.length }} this week</span>
+          </div>
+          <div class="empty-row" *ngIf="!pendingRatings.length">Everyone is rated for this week.</div>
+          <table class="mgr-table tinted" *ngIf="pendingRatings.length">
+            <thead><tr><th>Employee</th><th>Designation</th><th>Last score</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let m of visible('pendingRatings', pendingRatings); let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+                <td>
+                  <span class="emp-name">{{ m.name }}</span>
+                  <span class="emp-code">{{ m.employeeCode }}</span>
+                </td>
+                <td>{{ m.designation }}</td>
+                <td>
+                  <span class="score-pill" [ngClass]="scoreClass(m.latestScore)">
+                    {{ m.latestScore != null ? m.latestScore + '/' + performance.scoreScaleMax : 'Never rated' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="more-row" *ngIf="pendingRatings.length">
+            <button class="expand-btn" *ngIf="canShowMore('pendingRatings', pendingRatings)" (click)="showMore('pendingRatings', pendingRatings)">
+              View More ({{ remaining('pendingRatings', pendingRatings) }} more)
+            </button>
+            <button class="expand-btn ghost" *ngIf="isExpanded('pendingRatings')" (click)="showLess('pendingRatings')">Show less</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Top 5 Performers</span>
+            <span class="info-dot" [pTooltip]="info['topPerformers']" tooltipPosition="left" tooltipStyleClass="info-tip">i</span>
+          </div>
+          <div class="empty-row" *ngIf="!performance.topPerformers?.length">Nobody rated yet.</div>
+          <div class="chart-box chart-box-sm" *ngIf="performance.topPerformers?.length">
+            <canvas id="mgrTopChart"></canvas>
+          </div>
+          <!-- The key, not a legend: it names the threshold each colour stands
+               for, which the bar length alone cannot show. -->
+          <div class="band-key" *ngIf="performance.topPerformers?.length">
+            <span class="band-key-title">Score bands</span>
+            <span class="band-key-item" *ngFor="let b of SCORE_BANDS; trackBy: trackByIndex">
+              <span class="band-swatch" [style.background]="b.color"></span>
+              <b>{{ b.label }}</b> <span class="band-range">{{ b.range }}</span>
+            </span>
+          </div>
+          <table class="mgr-table tinted" *ngIf="performance.topPerformers?.length">
+            <thead><tr><th>#</th><th>Employee</th><th>Average</th><th>Weeks</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let t of performance.topPerformers; let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+                <td class="rank">{{ i + 1 }}</td>
+                <td>
+                  <span class="emp-name">{{ t.name }}</span>
+                  <span class="emp-code">{{ t.designation }}</span>
+                </td>
+                <td><span class="score-pill" [ngClass]="scoreClass(t.avgScore)">{{ t.avgScore }}/{{ performance.scoreScaleMax }}</span></td>
+                <td>{{ t.weeksRated }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         SECTION 5 — ATTENDANCE TODAY
+         ════════════════════════════════════════════════════ -->
+    <div class="section" *ngIf="attendanceToday" style="--section:#c98500">
+      <div class="section-head">
+        <span class="section-no">5</span>
+        <h2 class="section-title">Attendance Today</h2>
+        <span class="info-dot" [pTooltip]="info['attendanceToday']" tooltipPosition="right" tooltipStyleClass="info-tip">i</span>
+        <span class="card-badge" *ngIf="attendanceToday.holiday">Holiday · {{ attendanceToday.holiday }}</span>
+        <a class="link-btn" routerLink="/admin/attendance" *hasPerm="'admin.attendance.view'">Full register →</a>
+      </div>
+
+      <div class="mini-kpi-row">
+        <div class="mini-kpi" style="--tile:#3987e5"><span>{{ attendanceToday.summary?.['Present'] || 0 }}</span><label>Present</label></div>
+        <div class="mini-kpi" style="--tile:#e66767"><span>{{ attendanceToday.summary?.['Absent'] || 0 }}</span><label>Absent</label></div>
+        <div class="mini-kpi" style="--tile:#c98500"><span>{{ attendanceToday.lateCount || 0 }}</span><label>Late in</label></div>
+        <div class="mini-kpi" style="--tile:#d95926"><span>{{ attendanceToday.earlyOutCount || 0 }}</span><label>Early out</label></div>
+        <div class="mini-kpi" style="--tile:#9085e9"><span>{{ attendanceToday.rosteredCount || 0 }}</span><label>Have a shift today</label></div>
+      </div>
+
+      <div class="card" *ngIf="attendanceToday.rows?.length">
+        <div class="card-head">
+          <span class="card-title">Punches vs Rostered Shift</span>
+          <span class="info-dot" [pTooltip]="info['shiftCompare']" tooltipPosition="left" tooltipStyleClass="info-tip">i</span>
+        </div>
+
+        <div class="chip-row">
+          <button *ngFor="let c of attendanceCategories; trackBy: trackByIndex"
+                  class="chip" [class.active]="attendanceFilter === c" (click)="attendanceFilter = c">
+            {{ c }}
+            <span class="chip-count" *ngIf="c !== 'All'">{{ attendanceToday.summary?.[c] || 0 }}</span>
+          </button>
+        </div>
+
+        <div class="empty-row" *ngIf="!attendanceRows.length">No one in this state today.</div>
+        <table class="mgr-table tinted" *ngIf="attendanceRows.length">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Shift</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Late in</th>
+              <th>Early out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of visible('attendance', attendanceRows); let i = index; trackBy: trackById" [class.row-alt]="i % 2 === 1">
+              <td>
+                <span class="emp-name">{{ r.name }}</span>
+                <span class="emp-code">{{ r.employeeCode }}</span>
+              </td>
+              <td>
+                <span *ngIf="r.shiftName">{{ r.shiftName }}</span>
+                <span class="emp-code" *ngIf="r.shiftStart">
+                  {{ r.shiftStart | date:'HH:mm':'+0530' }} – {{ r.shiftEnd | date:'HH:mm':'+0530' }}
+                </span>
+                <span class="muted" *ngIf="!r.shiftName">No shift</span>
+              </td>
+              <td>{{ r.checkIn ? (r.checkIn | date:'HH:mm':'+0530') : '—' }}</td>
+              <td>{{ r.checkOut ? (r.checkOut | date:'HH:mm':'+0530') : '—' }}</td>
+              <td><span [class.late]="r.lateByMin">{{ mins(r.lateByMin) }}</span></td>
+              <td><span [class.late]="r.earlyOutMin">{{ mins(r.earlyOutMin) }}</span></td>
+              <td><span class="status-pill" [ngClass]="statusClass(r.status)">{{ r.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="more-row" *ngIf="attendanceRows.length">
+          <button class="expand-btn" *ngIf="canShowMore('attendance', attendanceRows)" (click)="showMore('attendance', attendanceRows)">
+            View More ({{ remaining('attendance', attendanceRows) }} more)
+          </button>
+          <button class="expand-btn ghost" *ngIf="isExpanded('attendance')" (click)="showLess('attendance')">Show less</button>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="attendanceToday.lateCount || attendanceToday.earlyOutCount">
+        <div class="card-head">
+          <span class="card-title">Minutes Lost Against Own Shift</span>
+          <span class="info-dot" [pTooltip]="info['shiftCompare']" tooltipPosition="left" tooltipStyleClass="info-tip">i</span>
+        </div>
+        <div class="chart-box chart-box-sm"><canvas id="mgrShiftChart"></canvas></div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

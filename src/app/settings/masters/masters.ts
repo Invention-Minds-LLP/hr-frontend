@@ -12,7 +12,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
-import { Departments, Department } from '../../services/departments/departments';
+import { Departments, Department, ClearanceTemplateItem } from '../../services/departments/departments';
 import { Branches, Branch } from '../../services/branches/branches';
 import { Designations, Designation } from '../../services/designations/designations';
 import { Roles, Role } from '../../services/roles/roles';
@@ -110,6 +110,32 @@ export class Masters implements OnInit {
   formStartTime = '';
   formEndTime = '';
   formDepartmentIds: number[] = []; // departments this shift is assignable to
+
+  // ── Exit clearance config (departments tab) ──────────────────────────────
+  /** Departments that must clear someone leaving the department being edited. */
+  formClearanceDeptIds: number[] = [];
+  /** Is the department being edited part of the organisation default list? */
+  formIsDefaultClearance = false;
+
+  /** The organisation-wide fallback: who clears a leaver from any department
+   *  that has no list of its own. Shown wherever "organisation default" appears,
+   *  because the phrase means nothing on its own. */
+  get orgDefaultClearanceNames(): string[] {
+    return this.departments.filter((d: any) => d.isDefaultClearance).map((d: any) => d.name);
+  }
+
+  get orgDefaultClearanceLabel(): string {
+    const names = this.orgDefaultClearanceNames;
+    return names.length ? names.join(', ') : 'none set';
+  }
+
+  /** Checklist editor, opened per department. */
+  checklistVisible = false;
+  checklistDeptId: number | null = null;
+  checklistDeptName = '';
+  checklistItems: ClearanceTemplateItem[] = [];
+  checklistLoading = false;
+  checklistSaving = false;
   formDate: Date | null = null;
   formCalendarYear: number = new Date().getFullYear();
   formCalendarName = '';
@@ -289,6 +315,8 @@ export class Masters implements OnInit {
     this.formStartTime = '';
     this.formEndTime = '';
     this.formDepartmentIds = [];
+    this.formClearanceDeptIds = [];
+    this.formIsDefaultClearance = false;
     this.formDate = null;
     this.formDescription = '';
     this.formIsOptional = false;
@@ -313,11 +341,91 @@ export class Masters implements OnInit {
     this.formStartTime = item.startTime ? this.toTimeString(item.startTime) : '';
     this.formEndTime = item.endTime ? this.toTimeString(item.endTime) : '';
     this.formDepartmentIds = item.departmentIds || (item.departments?.map((d: any) => d.id) ?? []);
+    this.formClearanceDeptIds = (item.clearanceDepartments ?? []).map((d: any) => d.id);
+    this.formIsDefaultClearance = !!item.isDefaultClearance;
     this.formDate = item.date ? new Date(item.date) : null;
     this.formIsOptional = item.isOptional ?? false;
     this.formBranchId = item.branchId ?? null;
     this.dialogTitle = `Edit ${this.getTabLabel()}`;
     this.dialogVisible = true;
+  }
+
+  // ── Clearance checklist per department ───────────────────────────────────
+  // The lines that desk ticks off at an exit. Without these a clearance falls
+  // back to a single generic line.
+
+  openChecklist(dept: any) {
+    this.checklistDeptId = dept.id;
+    this.checklistDeptName = dept.name;
+    this.checklistItems = [];
+    this.checklistVisible = true;
+    this.checklistLoading = true;
+    this.departmentService.getClearanceItems(dept.id).subscribe({
+      next: (items) => { this.checklistItems = items.map(i => ({ ...i })); this.checklistLoading = false; },
+      error: () => { this.showError('Failed to load the checklist'); this.checklistLoading = false; },
+    });
+  }
+
+  addChecklistItem() {
+    this.checklistItems = [...this.checklistItems, { label: '' }];
+  }
+
+  removeChecklistItem(index: number) {
+    this.checklistItems = this.checklistItems.filter((_, i) => i !== index);
+  }
+
+  moveChecklistItem(index: number, delta: number) {
+    const target = index + delta;
+    if (target < 0 || target >= this.checklistItems.length) return;
+    const items = [...this.checklistItems];
+    [items[index], items[target]] = [items[target], items[index]];
+    this.checklistItems = items;
+  }
+
+  saveChecklist() {
+    if (!this.checklistDeptId) return;
+    const items = this.checklistItems
+      .map(i => ({ ...i, label: (i.label || '').trim() }))
+      .filter(i => i.label.length);
+
+    if (!items.length) {
+      this.showError('Add at least one line, or close without saving');
+      return;
+    }
+
+    this.checklistSaving = true;
+    this.departmentService.saveClearanceItems(this.checklistDeptId, items).subscribe({
+      next: (saved) => {
+        this.checklistItems = saved;
+        this.checklistSaving = false;
+        this.checklistVisible = false;
+        this.messageService.add({
+          severity: 'success', summary: 'Saved',
+          detail: `Checklist saved for ${this.checklistDeptName}`,
+        });
+        this.loadData();
+      },
+      error: () => { this.showError('Failed to save the checklist'); this.checklistSaving = false; },
+    });
+  }
+
+  /** "IT, Stores +2" for the departments table, or what the default resolves to. */
+  clearanceSummary(dept: any): string {
+    const names = (dept.clearanceDepartments ?? []).map((d: any) => d.name);
+    if (!names.length) return `Org default: ${this.orgDefaultClearanceLabel}`;
+    return names.length <= 2 ? names.join(', ') : `${names.slice(0, 2).join(', ')} +${names.length - 2}`;
+  }
+
+  /** Full list for the row tooltip, so nothing is hidden behind "+2". */
+  clearanceTooltip(dept: any): string {
+    const names = (dept.clearanceDepartments ?? []).map((d: any) => d.name);
+    return names.length
+      ? `Cleared by: ${names.join(', ')}`
+      : `No list of its own — uses the organisation default: ${this.orgDefaultClearanceLabel}`;
+  }
+
+  checklistCount(dept: any): number {
+    return (dept.clearanceTemplateItems ?? []).length;
   }
 
   private toTimeString(dt: string): string {
@@ -378,13 +486,17 @@ export class Masters implements OnInit {
 
     switch (this.activeTab) {
       case 'departments': {
-        const deptData = {
+        const deptData: any = {
           name: this.formName,
           otBudgetHoursPerMonth: Number(this.formOtBudget) || 0,
           minDailyStrength: Number(this.formMinStrength) || 0,
           appraisalCycleBasis: this.formApprBasis === 'CALENDAR' ? 'CALENDAR' : 'DOJ',
           appraisalPeriodMonths: Number(this.formApprPeriod) || 12,
           appraisalCalendarMonth: this.formApprBasis === 'CALENDAR' ? (this.formApprCalMonth ?? null) : null,
+          // Who clears a leaver from this department.
+          clearanceDepartmentIds: this.formClearanceDeptIds,
+          // Whether this department is in the organisation-wide fallback list.
+          isDefaultClearance: this.formIsDefaultClearance,
         };
         if (this.isEditing) {
           this.departmentService.updateDepartment(this.editingId!, deptData).subscribe({

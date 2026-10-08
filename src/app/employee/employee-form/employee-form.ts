@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 import { Employees } from '../../services/employees/employees';
 import { Departments } from '../../services/departments/departments';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Branches } from '../../services/branches/branches';
 import { Roles } from '../../services/roles/roles';
 import { CommonModule } from '@angular/common';
@@ -32,7 +33,7 @@ import { FileUrlPipe, resolveFileUrl } from '../../pipes/file-url.pipe';
   selector: 'app-employee-form',
   imports: [CommonModule, ButtonModule, Select, InputTextModule, FileUploadModule, ReactiveFormsModule,
     StepsModule, DatePicker, FloatLabel, FormsModule, Checkbox, StepperModule, TextareaModule,
-    DialogModule, ToastModule, ToggleSwitchModule, FileUrlPipe],
+    DialogModule, ToastModule, ToggleSwitchModule, FileUrlPipe, MultiSelectModule],
   templateUrl: './employee-form.html',
   styleUrl: './employee-form.css',
   providers: [MessageService]
@@ -130,6 +131,17 @@ export class EmployeeForm {
 
 
   departments: any[] = [];
+
+  /** HOD / Reporting Manager — the role that can head departments. */
+  private readonly HOD_ROLE_ID = 3;
+
+  /** Show the "departments headed" picker for an HOD, or whenever somebody
+   *  already has departments assigned, so existing data is never hidden. */
+  get showsHeadedDepartments(): boolean {
+    const roleId = Number(this.employeeForm?.get('roleId')?.value);
+    const existing = this.employeeForm?.get('headedDepartmentIds')?.value || [];
+    return roleId === this.HOD_ROLE_ID || existing.length > 0;
+  }
   branches: any[] = [];
   roles: any[] = [];
 
@@ -264,6 +276,9 @@ export class EmployeeForm {
       designationId: ['', Validators.required],
 
       departmentId: ['', Validators.required],
+      // Departments this person heads, for a reporting manager who covers more
+      // than one. Their own department always counts, so this is the extras.
+      headedDepartmentIds: [[]],
       branchId: ['', Validators.required],
       roleId: ['', Validators.required],
       dateOfJoining: ['', Validators.required],
@@ -1445,6 +1460,7 @@ export class EmployeeForm {
       referenceCode: data.referenceCode,
       designationId: data.designationId,
       departmentId: data.departmentId,
+      headedDepartmentIds: (data.headedDepartments || []).map((d: any) => d.id),
       branchId: data.branchId,
       roleId: data.roleId,
       dateOfJoining: data.dateOfJoining ? new Date(data.dateOfJoining) : null,

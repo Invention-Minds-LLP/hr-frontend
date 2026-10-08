@@ -592,7 +592,7 @@
           </div>
 
           <div class="form-field">
-            <label>Expiry Date <span class="optional">(default: 3 months from work date)</span></label>
+            <label>Expiry Date <span class="optional">(default: 30 days from work date)</span></label>
             <p-datepicker
               [(ngModel)]="coExpiryDate"
               dateFormat="dd-mm-yy"
@@ -845,7 +845,7 @@
           @if (woOverrideType === 'MARK_WORKING') {
             <div class="form-field full-width comp-off-row">
               <p-checkbox [(ngModel)]="woAutoCompOff" [binary]="true" inputId="woAutoCompOff"></p-checkbox>
-              <label for="woAutoCompOff">Auto-grant Comp-Off credit for this working day (3-month expiry)</label>
+              <label for="woAutoCompOff">Auto-grant Comp-Off credit for this working day (30-day expiry)</label>
             </div>
           }
         </div>
@@ -854,7 +854,7 @@
           <div class="info-box debit">
             The employee will be marked as <strong>PRESENT</strong> on this date.
             @if (woAutoCompOff) {
-              A Comp-Off credit will be automatically granted with a 3-month expiry.
+              A Comp-Off credit will be automatically granted with a 30-day expiry.
             }
           </div>
         }

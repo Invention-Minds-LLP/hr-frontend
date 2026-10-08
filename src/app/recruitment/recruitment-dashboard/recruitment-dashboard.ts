@@ -1,7 +1,7 @@
 // src/app/pages/recruiting-dashboard/recruiting-dashboard.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {
-  Recuriting, Job, Application, ApplicationStatuses, JobStatus, Offer
+  Recuriting, Job, Application, ApplicationStatuses, JobStatus
 } from '../../services/recruiting/recuriting';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -337,31 +337,13 @@ export class RecruitmentDashboard implements OnInit {
   }
 
   // --- Offers ---
-  ensureOffer(app: Application, cb: (o: Offer) => void) {
-    if (app.offer) return cb(app.offer);
-    this.api.createOffer(app.id).subscribe(of => cb(of));
-  }
-
-  sendOffer(app: Application) {
-    this.ensureOffer(app, of => {
-      const join = prompt('Proposed join date (ISO)?') || undefined;
-      this.api.sendOffer(of.id, { proposedJoinAt: join }).subscribe(() => this.loadApps());
-    });
-  }
-  signOffer(app: Application) {
-    this.ensureOffer(app, of => this.api.markOfferSigned(of.id).subscribe(() => this.loadApps()));
-  }
-  declineOffer(app: Application) {
-    const reason = prompt('Decline reason?') || undefined;
-    this.ensureOffer(app, of => this.api.declineOffer(of.id, reason).subscribe(() => this.loadApps()));
-  }
-  markJoined(app: Application) {
-    this.ensureOffer(app, of => this.api.markJoined(of.id).subscribe(() => this.loadApps()));
-  }
-  markNoShow(app: Application) {
-    const reason = prompt('No-show reason?') || undefined;
-    this.ensureOffer(app, of => this.api.markNoShow(of.id, reason).subscribe(() => this.loadApps()));
-  }
+  // The offer actions that used to live here (ensureOffer / sendOffer /
+  // signOffer / declineOffer / markJoined / markNoShow) were dead code: nothing
+  // in this component's template or class ever called them. They drove the whole
+  // flow off window.prompt() — asking the user to hand-type an ISO join date —
+  // and swallowed every server error, so a rejected transition looked like
+  // nothing happening. The live offer UI is in application-status.ts, which has
+  // real dialogs and error handling; these were removed rather than rebuilt.
 
   // quick helpers
   statusClass(s: string) {

@@ -436,6 +436,58 @@
   background-color: transparent !important;
 }
 
+/* The organisation default list, stated above the departments table. */
+.org-default-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid #2b2b2b;
+  border-left: 3px solid #e8b931;
+  border-radius: 8px;
+  background: #121212;
+  color: #d7d7d7;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.org-default-bar .pi { color: #e8b931; margin-top: 2px; }
+.org-default-bar strong { color: #fff; }
+
+.org-default-star { color: #e8b931; font-size: 11px; margin-left: 6px; }
+.muted-cell { opacity: 0.7; }
+.default-note { display: block; margin-top: 4px; }
+
+/* MultiSelect gets the same treatment as the select above — without it the
+   closed field keeps the theme's white background on the dark dialog. */
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep .p-multiselect-label {
+  color: #FFF !important;
+  font-family: "Sofia Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  background-color: transparent !important;
+}
+
+:host ::ng-deep .p-multiselect-label.p-placeholder {
+  color: #b9b9b9 !important;
+  font-weight: 500;
+}
+
+:host ::ng-deep .p-multiselect-dropdown {
+  background: transparent !important;
+  color: #FFF !important;
+}
+
+:host ::ng-deep .p-multiselect-chip-item .p-chip {
+  background: #242424 !important;
+  color: #FFF !important;
+}
+
 ::ng-deep .p-textarea{
   background-color: transparent !important;
   color: #FFF !important;

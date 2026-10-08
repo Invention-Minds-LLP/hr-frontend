@@ -112,6 +112,15 @@
     <nav class="main-nav">
       <!-- Row 1: Main Headings -->
       <ul class="main-headings ">
+        <div class="nav-scroll-wrap">
+          <button type="button" class="nav-scroll-btn left" aria-label="Scroll menu left"
+            (click)="mainRow.page(-1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <div class="nav-scroll" navScroll #mainRow="navScroll">
         <div class="flex1">
           <li class="nav-item" *hasPerm="'dashboard.hr.view'"><a
               [routerLink]="'/dashboard'" routerLinkActive="active" class="nav-link"
@@ -137,6 +146,15 @@
                 <path d="M3 13H11V3H3V13ZM3 21H11V15H3V21ZM13 21H21V11H13V21ZM13 3V9H21V3H13Z" fill="currentColor" />
               </svg>
               <span>HR Analytics</span>
+            </a>
+          </li>
+
+          <li class="nav-item" *hasPerm="'dashboard.manager.view'">
+            <a [routerLink]="'/manager-dashboard'" routerLinkActive="active" (click)="closeMenus()" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5Z" fill="currentColor" />
+              </svg>
+              <span>My Team</span>
             </a>
           </li>
 
@@ -238,6 +256,15 @@
             </a>
           </li>
         </div>
+          </div>
+          <button type="button" class="nav-scroll-btn right" aria-label="Scroll menu right"
+            (click)="mainRow.page(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
         <div class="">
           <li class="nav-item"><a [routerLink]="'/settings'" routerLinkActive="active" (click)="closeMenus()"
               class="nav-link">
@@ -268,6 +295,15 @@
         </div>
 
         <!-- Items row -->
+        <div class="nav-scroll-wrap">
+          <button type="button" class="nav-scroll-btn left" aria-label="Scroll items left"
+            (click)="adminRow.page(-1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <div class="nav-scroll" navScroll #adminRow="navScroll">
         <ul class="admin-items-row">
 
           <ng-container *ngIf="activeAdminGroup==='workforce'">
@@ -436,7 +472,7 @@
                 <span>OT Approvals</span>
               </a>
             </li>
-            <!-- <li class="nav-items" *ngIf="isReportingManager || isHRManager || isManagement">
+            <li class="nav-items" *hasPerm="'admin.geoTracking.view'">
               <a [routerLink]="'/admin/tracking'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -444,7 +480,7 @@
                 </svg>
                 <span>Location Tracking</span>
               </a>
-            </li> -->
+            </li>
             <li class="nav-items" *hasPerm="'admin.reports.view'">
               <a [routerLink]="'/admin/reports'" routerLinkActive="active" class="nav-link" (click)="closeMenus()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -520,6 +556,15 @@
           </ng-container>
 
         </ul>
+          </div>
+          <button type="button" class="nav-scroll-btn right" aria-label="Scroll items right"
+            (click)="adminRow.page(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
         </div><!-- /admin-sub-nav -->
       </ng-container>
 

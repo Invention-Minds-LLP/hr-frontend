@@ -116,6 +116,20 @@ export class Resignation {
     return this.http.get<any[]>(`${this.apiUrl}/with-clearances`);
   }
 
+  /** What the leaver's own department says should clear them. */
+  suggestedClearanceDepartments(resignationId: number): Observable<{ departmentIds: number[] }> {
+    return this.http.get<{ departmentIds: number[] }>(
+      `${this.apiUrl}/${resignationId}/suggested-departments`,
+    );
+  }
+
+  /** Departments the signed-in user may clear for — an HOD can head several. */
+  myClearanceDepartments(): Observable<{ isHR: boolean; departmentIds: number[] }> {
+    return this.http.get<{ isHR: boolean; departmentIds: number[] }>(
+      `${this.apiUrl}/my-clearance-departments`,
+    );
+  }
+
   getExitInterviewByEmployee(employeeId: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/exit-interview/employee/${employeeId}`);
 }
@@ -144,5 +158,13 @@ export class Resignation {
     {}
   );
 }
+
+  generateRelievingLetter(resignationId: number) {
+    return this.http.post<any>(`${this.apiUrl}/${resignationId}/relieving-letter`, {});
+  }
+
+  generateExperienceLetter(resignationId: number) {
+    return this.http.post<any>(`${this.apiUrl}/${resignationId}/experience-letter`, {});
+  }
 
 }

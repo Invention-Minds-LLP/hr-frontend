@@ -58,11 +58,20 @@ export const permissionGuard: CanActivateFn = (route) => {
  *   No session                                        → /login
  *   candidateId present (candidate)                   → /candidate-tests
  *   roleId === 4 OR empId in mgmt allowlist           → /management-dashboard
+ *   holds dashboard.manager.view (In-charge / HOD)    → /manager-dashboard
  *   everything else (employees/HR/etc)                → /individual
+ *
+ * The manager branch reads PermissionService, not localStorage: In-charge is
+ * not a reliable roleId here (roleId 5 is named "Junior Executive") and the key
+ * can be granted or revoked from the Role Permissions matrix, which a hardcoded
+ * role check would ignore. Safe synchronously for the same reason
+ * permissionGuard is — app.config.ts resolves the permission load before the
+ * router boots.
  */
 export const landingRedirectGuard: CanActivateFn = () => {
   const router = inject(Router);
   const auth = inject(AuthSession);
+  const perms = inject(PermissionService);
 
   if (!auth.isLoggedIn()) {
     return router.createUrlTree(['/login']);
@@ -70,5 +79,11 @@ export const landingRedirectGuard: CanActivateFn = () => {
   if (localStorage.getItem('candidateId')) {
     return router.createUrlTree(['/candidate-tests']);
   }
-  return router.createUrlTree([canAccessManagementDashboard() ? '/management-dashboard' : '/individual']);
+  if (canAccessManagementDashboard()) {
+    return router.createUrlTree(['/management-dashboard']);
+  }
+  if (perms.has('dashboard.manager.view')) {
+    return router.createUrlTree(['/manager-dashboard']);
+  }
+  return router.createUrlTree(['/individual']);
 };

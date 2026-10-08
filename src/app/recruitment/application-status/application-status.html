@@ -407,6 +407,14 @@
       </div>
     </div>
 
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="label">Accept By <span class="muted">(defaults to 7 days)</span></label>
+        <p-datepicker formControlName="validUntil" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
+        <small class="muted">Deadline for the candidate to accept. After this the offer auto-expires.</small>
+      </div>
+    </div>
+
     <div class="dialog-field">
       <label class="label">Custom Notes / Terms <span class="muted">(optional)</span></label>
       <textarea pTextarea rows="3" formControlName="customNotes"
