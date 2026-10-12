@@ -925,7 +925,7 @@
     <!-- OT Records. The whole block is gated on HR having enabled overtime for
          this employee — for everyone else overtime is not a thing they have, so
          an empty "no OT records" panel is just noise. -->
-    <div class="ot-section" *ngIf="canRequestOt">
+    <!-- <div class="ot-section" *ngIf="canRequestOt">
         <div class="header-part">
             <div class="main-heading">
                 My Overtime (OT) Records
@@ -979,9 +979,9 @@
                 every source — including overtime picked up automatically from a late check-out.
             </p>
 
-            <!-- Every overtime row for this employee: what they raised, plus
+             Every overtime row for this employee: what they raised, plus
                  anything picked up from a late check-out or entered by HR —
-                 which matters, because all of it spends the same weekly cap. -->
+                 which matters, because all of it spends the same weekly cap.
             <div class="ot-req-list">
                 <div class="ot-req-row" *ngFor="let r of otRequests">
                     <div class="ot-req-main">
@@ -1009,9 +1009,7 @@
                     No overtime recorded yet.
                 </div>
             </div>
-        </div>
-
-    </div>
+        </div> -->
 
     <!-- Comp-off. Unlike overtime there is no per-employee eligibility flag, so
          this shows for everyone; the API refuses a claim with no manager. -->
