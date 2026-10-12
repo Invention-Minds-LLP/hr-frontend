@@ -25,6 +25,8 @@ import { CompOffService } from '../../services/comp-off/comp-off';
 })
 export class CompOffApprovals implements OnInit {
   pending: any[] = [];
+  /** Approved claims still waiting for the manager to confirm the day. */
+  awaitingConfirmation: any[] = [];
   mine: any[] = [];
   loading = true;
   actionLoading: { [id: number]: boolean } = {};
@@ -34,6 +36,14 @@ export class CompOffApprovals implements OnInit {
   rejectDialogVisible = false;
   rejectTarget: any = null;
   rejectNote = '';
+
+  // Confirmation sets the worked figure HR credits against, so it gets a dialog
+  // rather than a bare button.
+  confirmDialogVisible = false;
+  confirmTarget: any = null;
+  confirmWorked = true;
+  confirmHours: number | null = null;
+  confirmNote = '';
 
   constructor(private compOffService: CompOffService, private messageService: MessageService) {}
 
@@ -46,13 +56,18 @@ export class CompOffApprovals implements OnInit {
     // Stage one only. HR does its half on the Comp Off register under HR Manual
     // Entries, so duplicating the HR queue here would just be two doors into the
     // same work.
+    // Every action sets actionLoading[id] and refreshes on success; without
+    // clearing it here the row's buttons stay disabled until a page reload.
+    this.actionLoading = {};
+
     forkJoin({
       pending: this.compOffService.getManagerPending(),
       mine: this.compOffService.getMyRequests(),
     }).subscribe({
       next: ({ pending, mine }) => {
-        this.pending = pending || [];
-        this.mine = mine || [];
+        this.pending = pending?.awaitingApproval || [];
+        this.awaitingConfirmation = pending?.awaitingConfirmation || [];
+        this.mine = mine?.requests || [];
         this.loading = false;
       },
       error: () => { this.loading = false; },
@@ -65,7 +80,7 @@ export class CompOffApprovals implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success', summary: 'Approved',
-          detail: 'Comp-off approved and sent to HR',
+          detail: 'Now confirm the day was worked',
         });
         this.load();
       },
@@ -102,6 +117,52 @@ export class CompOffApprovals implements OnInit {
     });
   }
 
+  // ── Stage two: confirming the day was worked ──────────────────────────────
+
+  openConfirm(row: any) {
+    this.confirmTarget = row;
+    this.confirmWorked = true;
+    // Default to the punch basis where detection found one.
+    this.confirmHours = row.workedMinutes ? +(row.workedMinutes / 60).toFixed(2) : null;
+    this.confirmNote = '';
+    this.confirmDialogVisible = true;
+  }
+
+  submitConfirm() {
+    const row = this.confirmTarget;
+    if (!this.confirmWorked && !this.confirmNote.trim()) {
+      this.messageService.add({
+        severity: 'warn', summary: 'Reason required',
+        detail: 'Explain why the day was not worked — this rejects the claim',
+      });
+      return;
+    }
+
+    const hours = Number(this.confirmHours);
+    const workedMinutes = this.confirmWorked && Number.isFinite(hours) && hours > 0
+      ? Math.round(hours * 60)
+      : undefined;
+
+    this.actionLoading[row.id] = true;
+    this.compOffService
+      .confirm(row.id, this.confirmWorked, workedMinutes, this.confirmNote.trim() || undefined)
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: this.confirmWorked ? 'success' : 'info',
+            summary: this.confirmWorked ? 'Confirmed' : 'Not confirmed',
+            detail: this.confirmWorked ? 'Sent to HR for the credit' : 'Claim rejected',
+          });
+          this.confirmDialogVisible = false;
+          this.load();
+        },
+        error: (e) => {
+          this.actionLoading[row.id] = false;
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: e.error?.error || 'Failed' });
+        },
+      });
+  }
+
   withdraw(row: any) {
     this.compOffService.withdrawRequest(row.id).subscribe({
       next: () => {
@@ -124,9 +185,23 @@ export class CompOffApprovals implements OnInit {
     return `${h}h ${m}m`;
   }
 
+  /**
+   * Why the day qualified. Detection sets the qualifier from the calendar; a
+   * claim raised by hand often has none yet, so fall back to who raised it
+   * rather than mislabelling an employee's own claim as "HR raised".
+   */
+  qualifierLabel(row: any): string {
+    if (row?.qualifier === 'HOLIDAY') return 'Holiday';
+    if (row?.qualifier === 'WEEK_OFF') return 'Week off';
+    if (row?.source === 'EMPLOYEE_REQUEST') return 'Self-claimed';
+    if (row?.source === 'HR') return 'HR raised';
+    return '-';
+  }
+
   statusLabel(status: string): string {
     switch (status) {
       case 'PENDING_MANAGER': return 'With manager';
+      case 'PENDING_CONFIRMATION': return 'Awaiting confirmation';
       case 'PENDING_HR': return 'With HR';
       case 'APPROVED': return 'Credited';
       case 'REJECTED': return 'Rejected';

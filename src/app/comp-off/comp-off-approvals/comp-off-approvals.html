@@ -42,7 +42,7 @@
         </td>
         <td>{{ row.employee?.Department?.name || '-' }}</td>
         <td>{{ fmtDate(row.workDate) }}</td>
-        <td>{{ row.qualifier === 'HOLIDAY' ? 'Holiday' : row.qualifier === 'WEEK_OFF' ? 'Week off' : 'HR raised' }}</td>
+        <td>{{ qualifierLabel(row) }}</td>
         <td>{{ fmtHours(row.workedMinutes) }}</td>
         <td>{{ fmtHours(row.shiftMinutes) }}</td>
         <td class="action-cell">
@@ -61,6 +61,49 @@
     </ng-template>
   </p-table>
 </p-card>
+
+<!-- Stage two: the claim stands, but was the day actually worked? -->
+@if (awaitingConfirmation.length) {
+  <p-card class="comp-off-approvals">
+    <div class="table-header">
+      <h3>Awaiting your confirmation</h3>
+    </div>
+
+    <p-table [value]="awaitingConfirmation" [loading]="loading"
+      [paginator]="awaitingConfirmation.length > 10" [rows]="10" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Employee</th>
+          <th>Work Date</th>
+          <th>Qualified As</th>
+          <th>Reason</th>
+          <th>Worked</th>
+          <th style="width:190px">Action</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="name">{{ row.employee?.firstName }} {{ row.employee?.lastName }}</div>
+            <div class="emp-code">{{ row.employee?.employeeCode }}</div>
+          </td>
+          <td>{{ fmtDate(row.workDate) }}</td>
+          <td>{{ qualifierLabel(row) }}</td>
+          <td>{{ row.reason || '-' }}</td>
+          <td>{{ fmtHours(row.workedMinutes) }}</td>
+          <td class="action-cell">
+            <button pButton label="Confirm outcome" class="p-button-sm p-button-success"
+              [disabled]="actionLoading[row.id]" (click)="openConfirm(row)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p class="stage-hint">Confirming sends the claim to HR, who issue the credit. Nothing is credited before that.</p>
+  </p-card>
+}
 
 <p-card class="comp-off-approvals">
   <div class="table-header">
@@ -86,7 +129,7 @@
       <tr>
         <td>{{ i + 1 }}</td>
         <td>{{ fmtDate(row.workDate) }}</td>
-        <td>{{ row.qualifier === 'HOLIDAY' ? 'Holiday' : row.qualifier === 'WEEK_OFF' ? 'Week off' : 'HR raised' }}</td>
+        <td>{{ qualifierLabel(row) }}</td>
         <td>{{ fmtHours(row.workedMinutes) }}</td>
         <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) }}</span></td>
         <td>{{ row.managerNote || '-' }}</td>
@@ -122,5 +165,43 @@
   <ng-template pTemplate="footer">
     <button pButton label="Cancel" class="p-button-text" (click)="rejectDialogVisible = false"></button>
     <button pButton label="Reject" class="p-button-danger" (click)="confirmReject()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Confirm the day was worked" [(visible)]="confirmDialogVisible" [modal]="true"
+  [style]="{ width: '440px' }">
+  <div class="dialog-form">
+    <p class="reject-context" *ngIf="confirmTarget">
+      {{ confirmTarget.employee?.firstName }} {{ confirmTarget.employee?.lastName }} —
+      {{ fmtDate(confirmTarget.workDate) }}
+      <br /><span class="ctx-reason">{{ confirmTarget.reason || 'No reason given' }}</span>
+    </p>
+
+    <div class="confirm-choice">
+      <button type="button" class="choice" [class.chosen]="confirmWorked"
+        (click)="confirmWorked = true">The day was worked</button>
+      <button type="button" class="choice" [class.chosen]="!confirmWorked"
+        (click)="confirmWorked = false">It was not worked</button>
+    </div>
+
+    <div class="field" *ngIf="confirmWorked">
+      <label>Hours worked</label>
+      <input type="number" min="0" step="0.25" [(ngModel)]="confirmHours" style="width:100%" />
+      <small class="field-hint">
+        {{ confirmTarget?.workedMinutes
+            ? 'Pre-filled from the punch on that day.'
+            : 'No punch was recorded, so enter what they actually worked.' }}
+      </small>
+    </div>
+
+    <div class="field" *ngIf="!confirmWorked">
+      <label>Why not? <span class="req">*</span></label>
+      <textarea pTextarea [(ngModel)]="confirmNote" rows="3" style="width:100%"
+        placeholder="Required — this rejects the claim."></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="confirmDialogVisible = false"></button>
+    <button pButton label="Save" class="p-button-success" (click)="submitConfirm()"></button>
   </ng-template>
 </p-dialog>
