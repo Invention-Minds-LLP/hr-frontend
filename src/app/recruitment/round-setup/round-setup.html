@@ -1,0 +1,109 @@
+<div class="rs-wrap">
+  <div class="rs-head">
+    <div>
+      <h2>Interview rounds</h2>
+      <p class="rs-sub">
+        Name a sequence once and pick it when creating a job — a written test can come first for one role
+        and second for another. A job keeps its own copy, so editing a sequence here never disturbs hiring
+        already under way.
+      </p>
+    </div>
+    <button class="rs-primary" (click)="newTemplate()" *ngIf="!editing">New sequence</button>
+  </div>
+
+  <!-- List -->
+  <ng-container *ngIf="!editing">
+    <div class="rs-loading" *ngIf="loading">Loading…</div>
+
+    <div class="rs-empty" *ngIf="!loading && !templates.length">
+      No sequences yet. Jobs currently follow the built-in order: <b>1 Panel → 2 Test → 3 Management</b>.
+      Create one to change that.
+    </div>
+
+    <div class="rs-card" *ngFor="let t of templates">
+      <div class="rs-card-main">
+        <div class="rs-card-title">
+          {{ t.name }}
+          <span class="rs-tag rs-default" *ngIf="t.isDefault">Default</span>
+          <span class="rs-tag" *ngIf="t.department">{{ t.department.name }}</span>
+        </div>
+        <div class="rs-flow">{{ summary(t) }}</div>
+      </div>
+      <div class="rs-card-actions">
+        <button class="rs-ghost" (click)="edit(t)">Edit</button>
+        <button class="rs-ghost rs-danger" (click)="remove(t)">Remove</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Editor -->
+  <div class="rs-editor" *ngIf="editing">
+    <div class="rs-row">
+      <label>
+        Name
+        <input pInputText [(ngModel)]="form.name" placeholder="e.g. Clinical hiring" />
+      </label>
+      <label>
+        Department
+        <p-select [options]="departments" optionLabel="name" optionValue="id" [(ngModel)]="form.departmentId"
+          placeholder="Any department" [showClear]="true" appendTo="body" styleClass="rs-select"></p-select>
+      </label>
+      <label class="rs-check" pTooltip="Used by jobs whose department has no sequence of its own"
+        tooltipPosition="top">
+        <p-checkbox [binary]="true" [(ngModel)]="form.isDefault"></p-checkbox>
+        Use as the default
+      </label>
+    </div>
+
+    <table class="rs-table">
+      <thead>
+        <tr>
+          <th style="width:3rem;">#</th>
+          <th style="width:12rem;">Type</th>
+          <th>Round name</th>
+          <th style="width:16rem;">Test</th>
+          <th style="width:7rem;">Required</th>
+          <th style="width:9rem;">Order</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of form.rounds; let i = index">
+          <td>{{ r.seq }}</td>
+          <td>
+            <p-select [options]="typeOptions" optionLabel="label" optionValue="value" [(ngModel)]="r.type"
+              (onChange)="onTypeChange(r, $event.value)" appendTo="body" styleClass="rs-select"></p-select>
+          </td>
+          <td><input pInputText [(ngModel)]="r.name" placeholder="Shown to HR and on the interview" /></td>
+          <td>
+            <p-select *ngIf="r.type === 'TEST'" [options]="tests" optionLabel="name" optionValue="id"
+              [(ngModel)]="r.testId" placeholder="HR picks at assign time" [showClear]="true"
+              appendTo="body" styleClass="rs-select"></p-select>
+            <span class="rs-muted" *ngIf="r.type !== 'TEST'">—</span>
+          </td>
+          <td><p-checkbox [binary]="true" [(ngModel)]="r.isRequired"></p-checkbox></td>
+          <td class="rs-order">
+            <button class="rs-ghost" (click)="move(i, -1)" [disabled]="i === 0">↑</button>
+            <button class="rs-ghost" (click)="move(i, 1)" [disabled]="i === form.rounds.length - 1">↓</button>
+            <button class="rs-ghost rs-danger" (click)="removeRound(i)" [disabled]="form.rounds.length <= 1">✕</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="rs-ghost" (click)="addRound()">+ Add round</button>
+
+    <div class="rs-preview">
+      Candidates will go through:
+      <b>
+        <span *ngFor="let r of form.rounds; let last = last">{{ r.seq }} {{ r.name }}<span *ngIf="!last"> → </span></span>
+      </b>
+    </div>
+
+    <div class="rs-actions">
+      <button class="rs-ghost" (click)="cancel()">Cancel</button>
+      <button class="rs-primary" (click)="save()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save sequence' }}</button>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>

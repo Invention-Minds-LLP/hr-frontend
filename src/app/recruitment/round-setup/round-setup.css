@@ -1,0 +1,229 @@
+/* Same page gutters as the other full-page screens (assigned-test, masters). */
+.rs-wrap {
+  font-family: "Sofia Sans";
+  padding: 40px 60px;
+  color: #fff;
+}
+
+.rs-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rs-head h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+}
+
+.rs-sub {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.8rem;
+  color: #9b9b9b;
+  line-height: 1.5;
+}
+
+.rs-loading,
+.rs-empty {
+  padding: 1.25rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #9b9b9b;
+  font-size: 0.85rem;
+}
+
+.rs-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.6rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rs-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.rs-flow {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #9b9b9b;
+}
+
+.rs-tag {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #d4d4d4;
+}
+
+.rs-default {
+  background: rgba(251, 156, 42, 0.18);
+  color: #FB9C2A;
+}
+
+.rs-card-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.rs-editor {
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.rs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.rs-row > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: #d4d4d4;
+}
+
+.rs-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.45rem !important;
+}
+
+.rs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.rs-table th {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d4;
+}
+
+.rs-table td {
+  padding: 0.45rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: middle;
+}
+
+.rs-table input {
+  width: 100%;
+}
+
+.rs-order {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rs-muted {
+  color: #9b9b9b;
+}
+
+.rs-preview {
+  margin-top: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  background: rgba(251, 156, 42, 0.12);
+  color: #FB9C2A;
+  font-size: 0.82rem;
+}
+
+.rs-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.rs-primary {
+  background: #194B9B;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.rs-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+
+.rs-ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.rs-danger {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #f87171;
+}
+
+/* Same treatment as the job dialog: PrimeNG's select defaults to a light
+   field, which showed the Department picker as a white box on a dark page. */
+:host ::ng-deep .p-select {
+  width: 100%;
+  min-width: 11rem;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 6px;
+}
+
+:host ::ng-deep .p-select-label,
+:host ::ng-deep .p-select .p-placeholder {
+  color: #fff !important;
+  background: transparent !important;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host ::ng-deep .p-select .p-placeholder {
+  color: #9b9b9b !important;
+}
+
+:host ::ng-deep .p-select-dropdown {
+  width: 1.6rem;
+  color: #9b9b9b !important;
+}
+
+:host ::ng-deep input.p-inputtext {
+  width: 100%;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+/* The two header fields shouldn't stretch across the whole row. */
+.rs-row > label > input,
+.rs-row > label ::ng-deep .p-select {
+  min-width: 14rem;
+}

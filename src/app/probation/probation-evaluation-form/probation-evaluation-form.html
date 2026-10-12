@@ -7,11 +7,52 @@
   <div class="form-header">
     <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text p-button-sm"
       (click)="close()"></button>
-    <h2>Probationary Progress Evaluation</h2>
+    <h2>{{ captureMode ? 'Record Paper Evaluation' : 'Probationary Progress Evaluation' }}</h2>
     <div class="header-actions">
       <span class="round-tag" *ngIf="data?.round > 1">Round {{ data.round }} — after extension</span>
-      <button *ngIf="data?.status !== 'PENDING_MANAGER'" pButton icon="pi pi-file-pdf" label="PDF"
+      <button *ngIf="!captureMode && data?.status !== 'PENDING_MANAGER'" pButton icon="pi pi-file-pdf" label="PDF"
         class="p-button-sm p-button-outlined" (click)="downloadPdf()"></button>
+    </div>
+  </div>
+
+  <!-- ═══ Capture mode banner + paper dates ═══════════════════════════════ -->
+  <div class="panel capture-panel" *ngIf="captureMode">
+    <div class="hint warn">
+      <i class="pi pi-info-circle"></i>
+      <span>
+        You are transcribing an evaluation that was <strong>already completed and signed on paper</strong>.
+        Enter it exactly as it appears on the form. Saving applies the outcome to the employee's record
+        straight away and notifies nobody.
+      </span>
+    </div>
+
+    <div class="capture-dates">
+      <div class="field">
+        <label>Who signed the form (Supervisor)</label>
+        <div class="sub">Defaults to the current reporting manager — change it if someone else signed.</div>
+        <p-select [options]="managerOptions" [(ngModel)]="signedByManagerId"
+          optionLabel="label" optionValue="value" [filter]="true" filterBy="label"
+          [showClear]="true" placeholder="Not recorded" appendTo="body" [style]="{ width: '100%' }">
+        </p-select>
+      </div>
+      <div class="field">
+        <label>Date the manager signed the form <span class="req">*</span></label>
+        <p-datepicker [(ngModel)]="paperEvaluationDate" dateFormat="dd M yy" [maxDate]="today"
+          [showIcon]="true" appendTo="body" placeholder="Required" [style]="{ width: '100%' }">
+        </p-datepicker>
+      </div>
+      <div class="field">
+        <label>Date HR approved it</label>
+        <div class="sub">Leave blank if it is the same day.</div>
+        <p-datepicker [(ngModel)]="paperHrDecidedAt" dateFormat="dd M yy" [maxDate]="today"
+          [showIcon]="true" appendTo="body" placeholder="Same as above" [style]="{ width: '100%' }">
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="hint warn" *ngIf="hrDateBeforeManagerDate">
+      <i class="pi pi-exclamation-triangle"></i>
+      HR cannot have approved the form before the manager signed it.
     </div>
   </div>
 
@@ -152,7 +193,7 @@
         [placeholder]="managerCommentsRequired ? 'Required for this recommendation' : 'Optional'"></textarea>
     </div>
 
-    <div class="form-actions" *ngIf="canEdit">
+    <div class="form-actions" *ngIf="canEdit && !captureMode">
       <button pButton label="Submit to HR" icon="pi pi-check"
         [disabled]="!managerFormValid" [loading]="saving" (click)="submitManager()"></button>
       <span class="hint" *ngIf="!managerFormValid">
@@ -162,7 +203,7 @@
   </div>
 
   <!-- ═══ HR review ═══════════════════════════════════════════════════════ -->
-  <div class="panel hr-panel" *ngIf="data?.status !== 'PENDING_MANAGER'">
+  <div class="panel hr-panel" *ngIf="captureMode || data?.status !== 'PENDING_MANAGER'">
     <div class="panel-title">HR Manager Review — Final Decision</div>
 
     <div class="hint" *ngIf="data?.managerRecommendation">
@@ -193,9 +234,19 @@
         <textarea pTextarea rows="4" [(ngModel)]="hrComments" placeholder="Required"></textarea>
       </div>
 
-      <div class="form-actions">
+      <div class="form-actions" *ngIf="!captureMode">
         <button pButton label="Record Decision" icon="pi pi-verified"
           [disabled]="!hrDecision || !hrComments.trim()" [loading]="saving" (click)="submitHr()"></button>
+      </div>
+
+      <div class="form-actions" *ngIf="captureMode">
+        <button pButton label="Save Paper Record" icon="pi pi-save"
+          [disabled]="!captureValid" [loading]="saving" (click)="submitCapture()"></button>
+        <button pButton label="Cancel" class="p-button-text" (click)="close()"></button>
+        <span class="hint" *ngIf="!captureValid">
+          Transcribe every rating, both comment fields, the manager's recommendation,
+          HR's decision and comments, and the date the manager signed the form.
+        </span>
       </div>
     </ng-container>
 

@@ -41,9 +41,16 @@ export class ProbationOverview implements OnInit {
 
   rows: any[] = [];
   dueRows: any[] = [];
+  /** Module go-live date; rows due before it are backlog the cron never opens. */
+  cutoffDate: string | null = null;
 
   /** Set to open the form; cleared to return to the list. */
   selectedId: number | null = null;
+
+  // ── Capture mode (HR transcribing a signed paper evaluation) ──────────────
+  captureMode = false;
+  /** The due-list row being captured when no evaluation exists yet. */
+  captureFor: any = null;
 
   // ── Assign-manager dialog (HR clears the unassigned bucket) ────────────────
   assignDialogVisible = false;
@@ -102,7 +109,11 @@ export class ProbationOverview implements OnInit {
 
     if (this.activeTab === 'due') {
       this.probation.listDue(60).subscribe({
-        next: (rows) => { this.dueRows = rows; this.loading = false; },
+        next: (res) => {
+          this.dueRows = res.rows ?? [];
+          this.cutoffDate = res.cutoffDate ?? null;
+          this.loading = false;
+        },
         error: (err) => this.fail(err, 'Could not load upcoming probations'),
       });
       return;
@@ -130,12 +141,30 @@ export class ProbationOverview implements OnInit {
   }
 
   open(row: any) {
+    this.captureMode = false;
+    this.captureFor = null;
     this.selectedId = row.id;
+  }
+
+  /**
+   * Transcribe a decision already signed on paper. From the evaluations list the
+   * round exists; from the due list it does not and the server creates it.
+   */
+  capture(row: any, fromDueList = false) {
+    this.captureMode = true;
+    this.captureFor = fromDueList ? row : null;
+    this.selectedId = fromDueList ? null : row.id;
   }
 
   onFormClosed(changed: boolean) {
     this.selectedId = null;
+    this.captureMode = false;
+    this.captureFor = null;
     if (changed) this.load();
+  }
+
+  get formOpen(): boolean {
+    return this.selectedId !== null || this.captureFor !== null;
   }
 
   /** HR's manual run of the same job the 09:15 cron performs. */

@@ -63,6 +63,15 @@
             <textarea pInputTextarea class="q-textarea" rows="3" [placeholder]="(i+1) + '. Type Your Question Here...'"
                 formControlName="text"></textarea>
 
+            <!-- Reference answer: shown to whoever evaluates the attempt. It is
+                 never compared to what the candidate wrote — descriptive
+                 answers are scored by hand. -->
+            <div class="model-answer" *ngIf="q.get('type')!.value === 'Descriptive'">
+                <label>Reference answer <span class="hint">(for the evaluator — optional)</span></label>
+                <textarea pInputTextarea class="q-textarea" rows="3" formControlName="modelAnswer"
+                    placeholder="What a good answer should cover. Shown beside the candidate's answer when scoring."></textarea>
+            </div>
+
             <!-- options -->
             <div class="options" *ngIf="q.get('type')!.value !== 'Descriptive'">
                 <div class="opt-row" formArrayName="options" *ngFor="let opt of optionsFA(i).controls; let oi = index">

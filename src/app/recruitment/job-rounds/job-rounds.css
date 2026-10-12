@@ -1,0 +1,164 @@
+.jr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.jr-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.jr-loading {
+  padding: 1.5rem;
+  text-align: center;
+  color: #9b9b9b;
+}
+
+.jr-note {
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  background: rgba(251, 156, 42, 0.12);
+  color: #FB9C2A;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.jr-template {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.82rem;
+}
+
+.jr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.jr-table th {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d4;
+}
+
+.jr-table td {
+  padding: 0.45rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: middle;
+}
+
+.jr-table input {
+  width: 100%;
+}
+
+.jr-order {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.jr-muted {
+  color: #9b9b9b;
+  font-size: 0.78rem;
+}
+
+.jr-preview {
+  margin-top: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  background: rgba(52, 101, 176, 0.14);
+  font-size: 0.82rem;
+}
+
+.jr-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.jr-primary {
+  background: #194B9B;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.jr-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.jr-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+
+.jr-ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.jr-danger {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #f87171;
+}
+
+/* PrimeNG's select renders a light field with its own intrinsic width, which
+   on this dark dialog showed as a white box with the label clipped to
+   "Panel …". Fill the cell and follow the surrounding surface. */
+:host ::ng-deep .p-select {
+  width: 100%;
+  min-width: 0;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 6px;
+}
+
+:host ::ng-deep .p-select-label,
+:host ::ng-deep .p-select .p-placeholder {
+  color: #fff !important;
+  background: transparent !important;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host ::ng-deep .p-select .p-placeholder {
+  color: #9b9b9b !important;
+}
+
+:host ::ng-deep .p-select-dropdown {
+  width: 1.6rem;
+  color: #9b9b9b !important;
+}
+
+/* Inputs in the table share the same treatment. */
+:host ::ng-deep input.p-inputtext {
+  width: 100%;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+}

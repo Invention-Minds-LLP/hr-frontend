@@ -430,6 +430,10 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       panelUserIds: (v.panelIds ?? []).join(','),
       mode: v.mode || 'OFFLINE',
       meetingLink: v.mode === 'ONLINE' ? (v.meetingLink?.trim() || undefined) : undefined,
+      // Which configured round this is, plus the reason when it is being run
+      // ahead of its turn — the API refuses an out-of-order round without one.
+      roundSeq: this.pendingRoundSeq ?? undefined,
+      outOfOrderReason: this.pendingOutOfOrderReason || undefined,
     };
 
     this.api.scheduleInterview(this.currentApp.id, payload).subscribe({
@@ -703,7 +707,11 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       page: this.page,
       pageSize: this.pageSize,
     }).subscribe({
-      next: (res) => { this.apps = res.rows; this.total = res.total },
+      next: (res) => {
+        this.apps = res.rows;
+        this.total = res.total;
+        this.loadRoundsForVisibleJobs();
+      },
       error: (e) => this.error = e?.error?.error || 'Failed to load',
       complete: () => this.loading = false,
     });
@@ -805,6 +813,106 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   // }
 
 
+  // ── Configured interview rounds ──────────────────────────────────────────
+  // The sequence belongs to the JOB, so it's fetched once per job rather than
+  // once per application. Each candidate's position in it is worked out from
+  // the interviews and tests already on the row.
+  private jobRounds = new Map<number, any[]>();
+  /** The round being scheduled, and the reason if it's ahead of its turn. */
+  pendingRoundSeq: number | null = null;
+  pendingOutOfOrderReason: string | null = null;
+
+  /**
+   * Remember which round an action belongs to, and collect a reason when it
+   * jumps the queue. Returns false if HR cancels the prompt.
+   */
+  private prepareRound(a: Application, action: ActionKey): boolean {
+    const round = this.roundsFor(a).find(
+      (r: any) => r.state === 'NOT_STARTED' && this.actionForRoundType(r.type) === action,
+    );
+    this.pendingRoundSeq = round?.seq ?? null;
+    this.pendingOutOfOrderReason = null;
+
+    if (round?.needsOverride) {
+      const reason = window.prompt(
+        `Round ${round.seq} (${round.name}) comes later in this job's sequence.\n` +
+        `Why is it being scheduled now?`,
+      );
+      if (!reason || !reason.trim()) return false;
+      this.pendingOutOfOrderReason = reason.trim();
+    }
+    return true;
+  }
+
+  private loadRoundsForVisibleJobs(): void {
+    const jobIds = [...new Set((this.apps || []).map((a: any) => a.jobId).filter(Boolean))];
+    for (const jobId of jobIds) {
+      if (this.jobRounds.has(jobId)) continue;
+      this.jobRounds.set(jobId, []); // placeholder, stops a second request
+      this.api.getJobRounds(jobId).subscribe({
+        next: (res) => this.jobRounds.set(jobId, res?.rounds || []),
+        error: () => this.jobRounds.delete(jobId),
+      });
+    }
+  }
+
+  /** Which action schedules a round of this type. */
+  actionForRoundType(type: string): ActionKey | null {
+    switch (String(type || '').toUpperCase()) {
+      case 'TEST': return 'ASSIGN_TEST';
+      case 'PANEL': return 'SCHEDULE_PANEL';
+      case 'MANAGEMENT': return 'SCHEDULE_MANAGEMENT';
+      default: return null;
+    }
+  }
+
+  /**
+   * This candidate's rounds with their state. Mirrors the server's
+   * computeApplicationRounds; the server stays the authority and refuses an
+   * out-of-order save without a reason.
+   */
+  roundsFor(a: Application): any[] {
+    const sequence = this.jobRounds.get((a as any).jobId) || [];
+    if (!sequence.length) return [];
+
+    const interviews = ((a as any).interviews || []).filter((i: any) => !i.cancelledAt);
+    const tests = (a as any).CandidateAssignedTest || [];
+
+    const rounds = sequence.map((round: any) => {
+      let state: 'NOT_STARTED' | 'SCHEDULED' | 'COMPLETED' = 'NOT_STARTED';
+
+      if (String(round.type).toUpperCase() === 'TEST') {
+        const assigned = round.testId
+          ? tests.find((t: any) => t.testId === round.testId)
+          : tests[0];
+        if (assigned) state = assigned.status === 'Completed' ? 'COMPLETED' : 'SCHEDULED';
+      } else {
+        const matches = interviews.filter((i: any) =>
+          i.roundSeq != null
+            ? i.roundSeq === round.seq
+            : String(i.stage || '').toLowerCase() === String(round.name || '').toLowerCase());
+        if (matches.length) state = matches.some((m: any) => !!m.result) ? 'COMPLETED' : 'SCHEDULED';
+      }
+
+      return { ...round, state };
+    });
+
+    const nextIndex = rounds.findIndex((r: any) => r.state !== 'COMPLETED');
+    return rounds.map((r: any, i: number) => ({
+      ...r,
+      isNext: i === nextIndex,
+      needsOverride: i > nextIndex && r.state === 'NOT_STARTED',
+    }));
+  }
+
+  /** Label for the rounds column / tooltip: "1 Test ✓ · 2 Panel …". */
+  roundSummary(a: Application): string {
+    const rounds = this.roundsFor(a);
+    if (!rounds.length) return '';
+    const mark = (s: string) => (s === 'COMPLETED' ? '✓' : s === 'SCHEDULED' ? '•' : '');
+    return rounds.map((r: any) => `${r.seq} ${r.name} ${mark(r.state)}`.trim()).join(' · ');
+  }
+
   actionOptionsFor(a: Application): { label: string; value: ActionKey; disabled?: boolean }[] {
     const opts: { label: string; value: ActionKey; disabled?: boolean }[] = [];
 
@@ -844,20 +952,19 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
     //     opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
     //   }
     // }
+    // Rounds come from the job's configured sequence, not from a fixed ladder:
+    // some jobs test first and interview after, others the other way round.
+    // Only the next unfinished round is offered; anything further ahead is
+    // offered as an explicit out-of-order action that will ask for a reason.
     if (canScheduleRounds) {
-
-      if (interviews.length === 0) {
-        opts.push({ label: 'Schedule Round 1 – Panel', value: 'SCHEDULE_PANEL' });
-      }
-
-      if (interviews.some((i: any) => i.stage === 'Panel')) {
-
-        if (!testAssigned) {
-          opts.push({ label: 'Schedule Round 2 – Test', value: 'ASSIGN_TEST' });
-        }
-
-        if (!interviews.some((i: any) => i.stage === 'Management')) {
-          opts.push({ label: 'Schedule Round 3 – Management', value: 'SCHEDULE_MANAGEMENT' });
+      for (const round of this.roundsFor(a)) {
+        if (round.state !== 'NOT_STARTED') continue;
+        const action = this.actionForRoundType(round.type);
+        if (!action) continue;
+        if (round.isNext) {
+          opts.push({ label: `Schedule Round ${round.seq} – ${round.name}`, value: action });
+        } else if (round.needsOverride) {
+          opts.push({ label: `Round ${round.seq} – ${round.name} (out of order)`, value: action });
         }
       }
     }
@@ -926,15 +1033,18 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       case 'DECLINE_OFFER':
         this.declineOffer(a);
         break;
+      // Each round action carries its configured number and name, so the stage
+      // reads "Technical Panel" when that is what the job calls round 2.
       case 'SCHEDULE_PANEL':
-        this.scheduleInterview(a, 'Panel');
+      case 'SCHEDULE_MANAGEMENT': {
+        if (!this.prepareRound(a, key)) break;
+        const round = this.roundsFor(a).find((r: any) => r.seq === this.pendingRoundSeq);
+        this.scheduleInterview(a, round?.name || (key === 'SCHEDULE_PANEL' ? 'Panel' : 'Management'));
         break;
+      }
       case 'ASSIGN_TEST':
+        if (!this.prepareRound(a, key)) break;
         this.openAssignTest(a);
-        break;
-
-      case 'SCHEDULE_MANAGEMENT':
-        this.scheduleInterview(a, 'Management');
         break;
     }
   }
@@ -955,6 +1065,8 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
   });
 
 
+  /** Set by prepareRound(); sent with the assignment so the API accepts an
+   *  out-of-turn test round. */
   openAssignTest(a: Application) {
     this.currentApp = a;
     if (!this.testsCatalog.length) {
@@ -980,6 +1092,9 @@ loadPanelOptions(stage: 'Panel' | 'Management') {
       testId: Number(v.testId), // <-- cast to number (in case it’s a string)
       testDate: this.toIsos(v.testDateDate!, v.testDateTime!),
       deadlineDate: this.toIsos(v.deadlineDateDate!, v.deadlineDateTime!),
+      // Carried from the action that opened this dialog; the API refuses a
+      // test round taken ahead of its turn without one.
+      outOfOrderReason: this.pendingOutOfOrderReason || undefined,
     };
     this.api.assignTestToApplication(this.currentApp.id, payload).subscribe(() => {
       this.showAssignTestDialog = false;

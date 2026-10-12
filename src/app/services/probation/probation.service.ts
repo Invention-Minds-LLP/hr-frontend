@@ -28,6 +28,20 @@ export interface ManagerSubmission {
   employeeComments?: string;
 }
 
+/** A signed paper evaluation transcribed by HR. */
+export interface CaptureSubmission extends ManagerSubmission {
+  /** One of these identifies the round; employeeId creates it when none exists. */
+  evaluationId?: number;
+  employeeId?: number;
+  managerId?: number | null;
+  decision: ProbationOutcome;
+  hrComments: string;
+  /** Date the manager signed the paper form. */
+  evaluationDate: string;
+  /** Date HR approved it on paper; defaults to the manager's date. */
+  hrDecidedAt?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProbationService {
   private apiUrl = environment.apiUrl + '/probation';
@@ -61,9 +75,16 @@ export class ProbationService {
     return this.http.get<any>(`${this.apiUrl}/evaluations/${id}`);
   }
 
-  /** Employees whose probation closes within `days` and who have no open round. */
-  listDue(days = 30): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/due`, { params: new HttpParams().set('days', days) });
+  /**
+   * Employees whose probation closes within `days` and who have no open round.
+   * `cutoffDate` is the module's go-live date: rows due before it are backlog
+   * the daily job will never open, so HR clears them by capturing the paper
+   * decision.
+   */
+  listDue(days = 30): Observable<{ cutoffDate: string | null; rows: any[] }> {
+    return this.http.get<{ cutoffDate: string | null; rows: any[] }>(`${this.apiUrl}/due`, {
+      params: new HttpParams().set('days', days),
+    });
   }
 
   getEmployeeHistory(employeeId: number): Observable<{ evaluations: any[]; records: any[] }> {
@@ -90,6 +111,17 @@ export class ProbationService {
       `${this.apiUrl}/generate`,
       {},
     );
+  }
+
+  /**
+   * Record a decision that was taken and signed on paper. Pass `evaluationId`
+   * when a round is already open, or `employeeId` for pre-cutoff backlog where
+   * no round exists — the server creates it.
+   *
+   * The dates are the ones on the paper, not today's.
+   */
+  captureOffline(body: CaptureSubmission): Observable<any> {
+    return this.http.post(`${this.apiUrl}/capture`, body);
   }
 
   downloadPdf(id: number): Observable<Blob> {

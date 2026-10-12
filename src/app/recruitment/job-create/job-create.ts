@@ -29,12 +29,22 @@ export class JobCreate {
   created?: Job;
   userId: string = ''
 
+  /**
+   * Interview round sequences. One department often hires several
+   * designations that need different orders — a staff nurse screened by a
+   * written test first, a ward clerk interviewed first — so the sequence is
+   * chosen per job. Left blank, the job takes its department's sequence (or
+   * the default), which is what most jobs want.
+   */
+  roundTemplates: any[] = [];
+
   form = this.fb.group({
     title: ['', Validators.required],
     departmentId: [null as number | null, Validators.required],
     location: [''],
     headcount: [1, [Validators.required, Validators.min(1)]],
     createdBy: [null as number | null], // your current user id
+    roundTemplateId: [null as number | null],
   });
 
 
@@ -43,7 +53,31 @@ export class JobCreate {
       next: (rows) => (this.departments = rows || []),
       error: () => (this.departments = []),
     });
+    this.api.listRoundTemplates().subscribe({
+      next: (rows) => (this.roundTemplates = rows || []),
+      error: () => (this.roundTemplates = []),
+    });
     this.userId = localStorage.getItem('empId')|| ''
+  }
+
+  /** "1 Written test → 2 Clinical panel", so the choice is readable. */
+  templateFlow(template: any): string {
+    return (template?.items || []).map((i: any) => `${i.seq} ${i.name}`).join('  →  ');
+  }
+
+  /** What this job will run, given the current choices. */
+  get chosenFlow(): string {
+    const chosen = this.roundTemplates.find(t => t.id === this.form.value.roundTemplateId);
+    if (chosen) return this.templateFlow(chosen);
+
+    const deptId = this.form.value.departmentId;
+    const forDept = deptId ? this.roundTemplates.find(t => t.departmentId === deptId) : null;
+    if (forDept) return `${this.templateFlow(forDept)}   (from ${forDept.name})`;
+
+    const fallback = this.roundTemplates.find(t => t.isDefault);
+    if (fallback) return `${this.templateFlow(fallback)}   (default sequence)`;
+
+    return '1 Panel  →  2 Test  →  3 Management   (built-in order — no sequences configured yet)';
   }
 
   submit() {

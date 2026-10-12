@@ -53,6 +53,23 @@
   margin-top: 20px;
 }
 
+/* Reference answer for a descriptive question (evaluator-facing). */
+.model-answer {
+  margin-top: 12px;
+}
+.model-answer > label {
+  display: block;
+  font-size: 0.82rem;
+  color: #d4d4d4;
+}
+.model-answer .hint {
+  color: #9b9b9b;
+  font-weight: 400;
+}
+.model-answer .q-textarea {
+  margin-top: 6px;
+}
+
 .options {
   margin-top: 8px;
 }

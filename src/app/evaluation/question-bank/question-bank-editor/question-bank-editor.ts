@@ -37,6 +37,8 @@ type QuestionFG = FormGroup<{
   negativeWeight: FormControl<number>;
   answerType: FormControl<AnswerType>;
   text: FormControl<string>;
+  /** Descriptive only: the reference answer the evaluator reads against. */
+  modelAnswer: FormControl<string>;
   options: FormArray<OptionFG>;
 }>;
 
@@ -168,6 +170,7 @@ export class QuestionBankEditor implements OnInit {
       negativeWeight: this.fb.control(0),
       text: this.fb.control('', { validators: [Validators.required] }),
       answerType: this.fb.control<AnswerType>(isDesc ? null : 'single'),
+      modelAnswer: this.fb.control(''),
       options: this.fb.array<OptionFG>(
         type === 'Descriptive' ? [] : [this.createOption(), this.createOption()]
       )
@@ -414,6 +417,9 @@ export class QuestionBankEditor implements OnInit {
               type: q.type,                               // 'MCQ' or 'Descriptive'
               weight: Number(q.weight) || 1,
               answerType: q.type === 'Descriptive' ? undefined : q.answerType,
+              // Reference answer for the evaluator; MCQs carry their correct
+              // options instead.
+              modelAnswer: q.type === 'Descriptive' ? (q.modelAnswer || null) : null,
               options: q.type === 'Descriptive'
                 ? undefined
                 : (q.options || []).map((o: any) => ({ text: o.text!, isCorrect: !!o.isCorrect }))
@@ -503,6 +509,7 @@ export class QuestionBankEditor implements OnInit {
         answerType: this.fb.control<AnswerType>(
           q.type === 'Descriptive' ? null : (q.answerType ?? (q.options?.filter((o: any) => o.isCorrect).length === 1 ? 'single' : 'multiple'))
         ),
+        modelAnswer: this.fb.control(q.modelAnswer ?? ''),
         options: this.fb.array<OptionFG>(
           q.type === 'Descriptive'
             ? []

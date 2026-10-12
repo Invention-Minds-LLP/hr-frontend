@@ -27,11 +27,25 @@
           <span>Headcount *</span>
           <input formControlName="headcount" type="number" min="1" />
         </label>
-<!--   
+
+        <!-- Round order. Two designations in the same department often need
+             opposite orders, so it is chosen per job rather than per
+             department. Blank = the department's sequence. -->
         <label>
-          <span>Backfill for Employee ID</span>
-          <input formControlName="backfillForEmployeeId" type="number" />
-        </label> -->
+          <span>Interview sequence</span>
+          <select formControlName="roundTemplateId" [attr.disabled]="roundTemplates.length ? null : true">
+            <option [ngValue]="null">
+              {{ roundTemplates.length ? "Use the department's sequence" : 'None saved yet — built-in order applies' }}
+            </option>
+            <option *ngFor="let t of roundTemplates" [ngValue]="t.id">
+              {{ t.name }}{{ t.isDefault ? ' (default)' : '' }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="flow-preview">
+        Candidates for this job will go through: <b>{{ chosenFlow }}</b>
       </div>
   
       <div class="actions">

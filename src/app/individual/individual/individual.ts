@@ -10,7 +10,7 @@ import { WfhPopup } from '../../leaves/wfh-popup/wfh-popup';
 import { PermissionPopup } from '../../leaves/permission-popup/permission-popup';
 import { Holiday, Holidays } from '../../services/holidays/holidays';
 import { CarouselModule } from 'primeng/carousel';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
 import { GrievanceList } from "../../grievance/grievance-list/grievance-list";
 import { PoshList } from "../../posh/posh-list/posh-list";
@@ -36,6 +36,8 @@ import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { PipService } from '../../services/pip/pip.service';
 import { Dashboard } from '../../services/dashboard/dashboard';
+import { OvertimeService, MyOvertimeResponse } from '../../services/overtime/overtime';
+import { CompOffService, MyCompOffResponse } from '../../services/comp-off/comp-off';
 import { Resignation } from '../../services/resignation/resignation';
 
 interface individual {
@@ -55,6 +57,7 @@ interface AttendanceDay {
 
 // put this in your component class
 type LeaveTypeCount = { label: string; count: number; total: number };
+type CompOffBalance = { available: number; earned: number; used: number; nextExpiry: string | null };
 
 @Component({
   selector: 'app-individual',
@@ -99,6 +102,7 @@ export class Individual {
   currentUserId = localStorage.getItem('empId');
 
   leaveByTypeToday: LeaveTypeCount[] = [];
+  compOffBalance: CompOffBalance | null = null;
   financialYearLabel = '';
   selectedSurvey: any = null;   // Holds the survey being taken
   showSurveyForm = false;
@@ -171,7 +175,6 @@ currentWeeklyShiftIndex = 0;
   logResponseVisible = false;
 
   // OT
-  myOtRecords: any[] = [];
   otLoading = false;
 
   // Exit Interview
@@ -182,7 +185,8 @@ currentWeeklyShiftIndex = 0;
     private surveyService: SurveryService, private leaveService: Leaves, private shiftService: Shifts,
     private holidaysService: Holidays, private pipService: PipService,
     private dashboardService: Dashboard, private resignationService: Resignation,
-    private permissionService: Permission) { }
+    private permissionService: Permission, private overtimeService: OvertimeService,
+    private compOffService: CompOffService) { }
 
   // Edit/cancel allowed only while the request is fully PENDING
   // (no incharge / RM / HR action yet).
@@ -475,25 +479,14 @@ formatShiftDisplayTime(value: string | Date): string {
     this.financialYearLabel = `${year}-${year + 1}`;
     const employeeId = Number(this.currentUserId);
 
-    const calYear = new Date().getMonth() >= 3 ? year : year + 1;
-    forkJoin({
-      balances: this.leaveService.getLeaveBalance(employeeId, year),
-      compOffCredits: this.leaveService.getCompOffCredits(employeeId),
-      allLeaves: this.leaveService.getLeaves(),
-      holidayData: this.holidaysService.getHolidaysByYear(calYear)
-    }).subscribe(({ balances, compOffCredits, allLeaves, holidayData }: any) => {
+    // CO and RH balances are derived server-side (comp-off credits / RH cap),
+    // so the balance API is the single source — same as the mobile app.
+    this.leaveService.getLeaveBalance(employeeId, year)
+      .subscribe((balances: any) => {
 
         // const gender = this.employee?.gender?.toUpperCase() || '';
         const gender = localStorage.getItem('gender')?.toUpperCase() || '';
         console.log('Employee Gender:', gender);
-
-        // Calculate comp off balance from credits (unused & non-expired)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const validCompOffs = (compOffCredits || []).filter((c: any) =>
-          !c.used && new Date(c.expiryDate) >= today
-        );
-        const totalCompOffs = (compOffCredits || []).filter((c: any) => !c.used).length;
 
         // Correct order using DB values
         const leaveOrder = [
@@ -506,10 +499,8 @@ formatShiftDisplayTime(value: string | Date): string {
           'Paternity Leave'
         ];
 
-        // Filter based on gender and remove CO/RH from balance API (calculated separately)
+        // Filter based on gender
         let filtered = balances.filter((b: any) => {
-          if (b.leaveType === 'CO') return false;
-          if (b.leaveType === 'RH') return false;
           if (b.leaveType === 'Maternity Leave' && gender !== 'FEMALE') return false;
           if (b.leaveType === 'Paternity Leave' && gender !== 'MALE') return false;
           return true;
@@ -524,48 +515,24 @@ formatShiftDisplayTime(value: string | Date): string {
 
         console.log('Filtered and Sorted Leave Balances:', filtered);
 
-        this.leaveByTypeToday = filtered.map((b: any) => ({
-          label: b.leaveType,
-          count: b.remaining,
-          total: b.totalAllowed
-        }));
+        // CO gets its own page in the slider (available / earned / used /
+        // next expiry) — a single "x / y" badge doesn't explain credits.
+        const co = filtered.find((b: any) => b.leaveType === 'CO');
+        this.compOffBalance = co ? {
+          available: co.remaining,
+          earned: co.totalAllowed,
+          used: co.totalUsed,
+          nextExpiry: co.nextExpiry ?? null
+        } : null;
 
-        // Add comp off balance at the correct position (after EL, index 3)
-        const coEntry: LeaveTypeCount = {
-          label: 'CO',
-          count: validCompOffs.length,
-          total: totalCompOffs
-        };
-        const coPosition = this.leaveByTypeToday.findIndex(
-          (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('CO')
-        );
-        if (coPosition === -1) {
-          this.leaveByTypeToday.push(coEntry);
-        } else {
-          this.leaveByTypeToday.splice(coPosition, 0, coEntry);
-        }
-
-        // Add RH balance (counted from optional holidays in calendar)
-        const optionalHolidayCount = ((holidayData?.holidays || []) as any[]).filter((h: any) => h.isOptional).length;
-        const rhUsed = (allLeaves || []).filter((l: any) =>
-          (l.employee?.id === employeeId || l.employeeId === employeeId) &&
-          l.leaveType?.name === 'RH' &&
-          (l.status === 'PENDING' || l.status === 'APPROVED')
-        ).length;
-        const rhAllowed = 2;
-        const rhEntry: LeaveTypeCount = {
-          label: 'RH',
-          count: Math.max(0, rhAllowed - rhUsed),
-          total: rhAllowed
-        };
-        const rhPosition = this.leaveByTypeToday.findIndex(
-          (l) => leaveOrder.indexOf(l.label) > leaveOrder.indexOf('RH')
-        );
-        if (rhPosition === -1) {
-          this.leaveByTypeToday.push(rhEntry);
-        } else {
-          this.leaveByTypeToday.splice(rhPosition, 0, rhEntry);
-        }
+        this.leaveByTypeToday = filtered
+          .filter((b: any) => b.leaveType !== 'CO')
+          .map((b: any) => ({
+            label: b.leaveType,
+            count: b.remaining,
+            total: b.totalAllowed
+          }));
+        this.leaveIndex = 0;
       });
   }
 
@@ -1226,8 +1193,18 @@ formatShiftDisplayTime(value: string | Date): string {
     );
   }
 
+  /** The Comp Off page sits after the last page of regular leave types. */
+  get onCompOffPage() {
+    return !!this.compOffBalance && this.leaveIndex >= this.leaveByTypeToday.length;
+  }
+
+  get hasNextLeaves() {
+    return this.leaveIndex + this.visibleCount < this.leaveByTypeToday.length
+      || (!!this.compOffBalance && !this.onCompOffPage);
+  }
+
   nextLeaves() {
-    if (this.leaveIndex + this.visibleCount < this.leaveByTypeToday.length) {
+    if (this.hasNextLeaves) {
       this.leaveIndex += this.visibleCount;
     }
   }
@@ -1353,15 +1330,224 @@ formatShiftDisplayTime(value: string | Date): string {
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
+  /**
+   * One list, every source. /requests/my returns all of this employee's
+   * OvertimeApproval rows — automatic, HR-entered and self-raised — so the old
+   * approved-only week carousel was a second view of the same data, minus the
+   * pending ones. It has been removed; this is the only OT list now.
+   */
   loadMyOtRecords() {
-    this.otLoading = true;
-    this.dashboardService.getMyApprovedOT()
-      .pipe(catchError(() => of([])))
-      .subscribe((data: any[]) => {
-        this.myOtRecords = data || [];
-        this.buildOtWeeks();
-        this.otLoading = false;
+    this.loadOtRequests();
+    this.loadCompOffClaims();
+  }
+
+  // ── Raising overtime ────────────────────────────────────────────
+  // Eligibility, the weekly allowance and the requests all arrive together, so
+  // the page never has to reconstruct a rule the server enforces.
+  otEligibility: MyOvertimeResponse | null = null;
+  otRequests: any[] = [];
+  otRequestForm: { date: string; hours: number | null; taskDescription: string } = {
+    date: '', hours: null, taskDescription: '',
+  };
+  otSubmitting = false;
+  otRequestError = '';
+  otRequestNotice = '';
+
+  loadOtRequests() {
+    this.overtimeService.getMyRequests()
+      .pipe(catchError(() => of(null)))
+      .subscribe((res) => {
+        this.otEligibility = res;
+        this.otRequests = res?.requests || [];
       });
+  }
+
+  /** Overtime is only offered to employees HR has enabled it for. */
+  get canRequestOt(): boolean {
+    return this.otEligibility?.overtimeEnabled === true;
+  }
+
+  get otWeeklyRemaining(): number {
+    return this.otEligibility?.week?.remainingMinutes ?? 0;
+  }
+
+  submitOtRequest() {
+    this.otRequestError = '';
+    this.otRequestNotice = '';
+
+    const hours = Number(this.otRequestForm.hours);
+    if (!this.otRequestForm.date) {
+      this.otRequestError = 'Pick the day you need to work late.';
+      return;
+    }
+    if (!Number.isFinite(hours) || hours <= 0) {
+      this.otRequestError = 'Enter how long you expect the overtime to take.';
+      return;
+    }
+    if (!this.otRequestForm.taskDescription.trim()) {
+      this.otRequestError = 'Describe the work — it is what your manager approves against.';
+      return;
+    }
+
+    this.otSubmitting = true;
+    this.overtimeService.createRequest({
+      date: this.otRequestForm.date,
+      expectedMinutes: Math.round(hours * 60),
+      taskDescription: this.otRequestForm.taskDescription.trim(),
+    }).subscribe({
+      next: () => {
+        this.otRequestNotice = 'Sent to your reporting manager.';
+        this.otRequestForm = { date: '', hours: null, taskDescription: '' };
+        this.otSubmitting = false;
+        this.loadOtRequests();
+      },
+      error: (e) => {
+        this.otSubmitting = false;
+        // The API explains a cap breach by naming the days that consumed the
+        // week, so show its message rather than a generic failure.
+        this.otRequestError = e.error?.message || 'Could not raise the request.';
+      },
+    });
+  }
+
+  withdrawOtRequest(row: any) {
+    this.overtimeService.withdrawRequest(row.id)
+      .subscribe({
+        next: () => this.loadOtRequests(),
+        error: (e) => { this.otRequestError = e.error?.message || 'Could not withdraw.'; },
+      });
+  }
+
+  // ── Claiming comp-off ───────────────────────────────────────────
+  // Same three gates as overtime: the manager approves the claim, confirms the
+  // day was worked, then HR issues the credit.
+  compOffClaims: any[] = [];
+  compOffAllowance: MyCompOffResponse | null = null;
+  compOffForm: { workDate: string; reason: string } = { workDate: '', reason: '' };
+  compOffSubmitting = false;
+  compOffError = '';
+  compOffNotice = '';
+
+  loadCompOffClaims() {
+    this.compOffService.getMyRequests()
+      .pipe(catchError(() => of(null)))
+      .subscribe((res) => {
+        this.compOffAllowance = res;
+        this.compOffClaims = res?.requests || [];
+      });
+  }
+
+  submitCompOffClaim() {
+    this.compOffError = '';
+    this.compOffNotice = '';
+
+    if (!this.compOffForm.workDate) {
+      this.compOffError = 'Pick the day you worked.';
+      return;
+    }
+    if (!this.compOffForm.reason.trim()) {
+      this.compOffError = 'Say what you worked on — it is what your manager approves against.';
+      return;
+    }
+
+    this.compOffSubmitting = true;
+    this.compOffService.createMyRequest({
+      workDate: this.compOffForm.workDate,
+      reason: this.compOffForm.reason.trim(),
+    }).subscribe({
+      next: () => {
+        this.compOffNotice = 'Sent to your reporting manager.';
+        this.compOffForm = { workDate: '', reason: '' };
+        this.compOffSubmitting = false;
+        this.loadCompOffClaims();
+      },
+      error: (e) => {
+        this.compOffSubmitting = false;
+        this.compOffError = e.error?.error || 'Could not raise the claim.';
+      },
+    });
+  }
+
+  withdrawCompOffClaim(row: any) {
+    this.compOffService.withdrawRequest(row.id).subscribe({
+      next: () => this.loadCompOffClaims(),
+      error: (e) => { this.compOffError = e.error?.error || 'Could not withdraw.'; },
+    });
+  }
+
+  compOffStatusLabel(row: any): string {
+    switch (row?.status) {
+      case 'PENDING_MANAGER': return 'With manager';
+      case 'PENDING_CONFIRMATION': return 'Awaiting confirmation';
+      case 'PENDING_HR': return 'With HR';
+      case 'APPROVED': return 'Credited';
+      case 'REJECTED': return 'Rejected';
+      case 'WITHDRAWN': return 'Withdrawn';
+      default: return row?.status ?? '-';
+    }
+  }
+
+  compOffStatusClass(row: any): string {
+    if (row?.status === 'APPROVED') return 'ok';
+    if (row?.status === 'REJECTED' || row?.status === 'WITHDRAWN') return 'bad';
+    return 'wait';
+  }
+
+  /** Whichever note explains the outcome — HR's, the confirmation's, or the manager's. */
+  compOffNote(row: any): string | null {
+    return row?.hrNote || row?.confirmNote || row?.managerNote || null;
+  }
+
+  /** True for overtime the employee raised, as opposed to automatic or HR OT. */
+  isOtRequest(row: any): boolean {
+    return row?.source === 'EMPLOYEE_REQUEST';
+  }
+
+  /** Where the row came from, in the employee's language. */
+  otSourceLabel(row: any): string {
+    if (this.isOtRequest(row)) return row.taskDescription || 'Requested overtime';
+    if (row?.source === 'MANUAL') return 'Added by HR';
+    return 'From your check-out';
+  }
+
+  /**
+   * The hours to show. A self-raised row that has not been confirmed yet is
+   * still only a claim, so it shows what was asked for; everything else shows
+   * the recorded minutes.
+   */
+  otRowMinutes(row: any): number {
+    if (this.isOtRequest(row) && row.taskCompleted !== true) return row.expectedMinutes ?? 0;
+    return row.minutes ?? 0;
+  }
+
+  /**
+   * Approved-but-unconfirmed is called out: sanctioned, but not yet payable.
+   * Automatic and HR rows use the legacy PENDING/APPROVED vocabulary and have
+   * no confirmation step.
+   */
+  otStatusLabel(row: any): string {
+    if (row.status === 'REJECTED') return 'Rejected';
+
+    if (!this.isOtRequest(row)) {
+      if (row.status === 'APPROVED' || row.status === 'APPROVE') return 'Approved';
+      return 'Awaiting approval';
+    }
+
+    // A raised request walks three gates: the manager sanctions the hours, the
+    // manager confirms the work, then HR signs off. `status` only turns
+    // APPROVED at the last one, so the middle states are read off
+    // managerStatus and taskCompleted.
+    if (row.status === 'APPROVED') return 'Approved — will be paid';
+    if (row.managerStatus !== 'APPROVED') return 'With manager';
+    if (row.taskCompleted === false) return 'Not completed';
+    if (row.taskCompleted === true) return 'With HR';
+    return 'Approved — awaiting confirmation';
+  }
+
+  otStatusClass(row: any): string {
+    if (row.status === 'REJECTED' || row.taskCompleted === false) return 'bad';
+    if (row.status === 'APPROVED' || row.status === 'APPROVE') return 'ok';
+    return 'wait';
   }
 
   formatOtDuration(minutes: number): string {
@@ -1371,62 +1557,6 @@ formatShiftDisplayTime(value: string | Date): string {
     return `${h} hrs ${m} mins`;
   }
 
-  // ── OT week-wise carousel ─────────────────────────────────────
-  otWeeks: { weekStart: Date; weekEnd: Date; label: string; records: any[]; totalMinutes: number }[] = [];
-  currentOtWeekIndex = 0;
-
-  /** Monday 00:00 of the ISO week containing `d`. */
-  private mondayOf(d: Date): Date {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    const day = x.getDay();              // 0 Sun .. 6 Sat
-    x.setDate(x.getDate() + (day === 0 ? -6 : 1 - day));
-    return x;
-  }
-
-  /** Bucket OT records into Mon–Sun weeks, newest week first. */
-  private buildOtWeeks() {
-    const byWeek = new Map<number, { weekStart: Date; records: any[] }>();
-    for (const ot of this.myOtRecords) {
-      const ws = this.mondayOf(new Date(ot.date));
-      const key = ws.getTime();
-      if (!byWeek.has(key)) byWeek.set(key, { weekStart: ws, records: [] });
-      byWeek.get(key)!.records.push(ot);
-    }
-
-    this.otWeeks = [...byWeek.values()]
-      .sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime())
-      .map((w) => {
-        const weekEnd = new Date(w.weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        const records = w.records.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        const totalMinutes = records.reduce((sum, r) => sum + (r.minutes || 0), 0);
-        return {
-          weekStart: w.weekStart,
-          weekEnd,
-          label: this.formatWeekRange(w.weekStart, weekEnd),
-          records,
-          totalMinutes,
-        };
-      });
-    this.currentOtWeekIndex = 0;
-  }
-
-  private formatWeekRange(start: Date, end: Date): string {
-    const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
-    const left = sameMonth ? `${start.getDate()}` : `${start.getDate()} ${m[start.getMonth()]}`;
-    return `${left} – ${end.getDate()} ${m[end.getMonth()]} ${end.getFullYear()}`;
-  }
-
-  prevOtWeek() {
-    if (this.currentOtWeekIndex > 0) this.currentOtWeekIndex--;
-  }
-  nextOtWeek() {
-    if (this.currentOtWeekIndex < this.otWeeks.length - 1) this.currentOtWeekIndex++;
-  }
 
   loadMyExitInterviews() {
     const employeeId = Number(this.currentUserId);
