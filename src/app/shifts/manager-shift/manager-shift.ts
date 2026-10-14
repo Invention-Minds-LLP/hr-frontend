@@ -161,15 +161,6 @@ export class ManagerShift {
         });
       }
     });
-    // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
-    this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
-      this.executiveShifts = res.map((s: any) => ({
-        ...s,
-        label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-      }));
-      this.buildExecutiveRotation();
-    });
-    this.service.getRotationPatterns().subscribe(r => this.patterns = r);
   }
 
   // ── Team-list filtering & department-name sort ──
@@ -288,6 +279,7 @@ export class ManagerShift {
   openAssign(emp: any) {
     this.selectedEmployee = emp;
     this.selectedMode = emp.EmployeeShiftSetting?.mode || 'FIXED';
+    this.loadShifts(emp); 
   }
 
   // save() {
@@ -618,6 +610,7 @@ export class ManagerShift {
       startDate: new Date()
     };
     this.requestVisible = true;
+    this.loadShifts(emps[0]);
   }
 
   closeRequestDialog() {
@@ -1864,7 +1857,7 @@ export class ManagerShift {
     this.weekOffDateMap = {};
     this.isMonthLocked = false;
     this.selectedMonth = undefined!;
-    this.shiftsReady = this.loadShiftsForEmployee(emp);
+    this.loadShifts(emp);
   }
 
 
@@ -2010,36 +2003,24 @@ private getEmpDeptId(emp: any): number | null {
   const id = emp?.Department?.id ?? emp?.departmentId ?? emp?.deptId ?? emp?.department?.id;
   return id != null ? Number(id) : null;
 }
-private loadShiftsForEmployee(emp: any): Promise<void> {
-  const deptId = this.getEmpDeptId(emp);
-  console.log('employee', emp, 'deptId', deptId);
 
-  // clear the previous employee's shifts so they can't leak into this dialog
+loadShifts(emp: any) {
+  const deptId = emp?.Department?.id;
   this.executiveShifts = [];
-  this.executiveRotationOrder = [];
+  this.shiftsReady = Promise.resolve();
+  if (!deptId) return;
 
-  if (deptId == null) {
-    this.showError('Department missing', 'This employee has no department, so shifts cannot be loaded.');
-    return Promise.resolve();
-  }
-this.shiftsLoading = true;
-  return new Promise<void>(resolve => {
+  this.shiftsReady = new Promise<void>(resolve => {
     this.service.getExecutiveShifts(deptId).subscribe({
-      next: (res: any[]) => {
-        console.log('shifts for dept', deptId, res);
-        this.executiveShifts = (res || []).map((s: any) => ({
+      next: res => {
+        this.executiveShifts = res.map((s: any) => ({
           ...s,
           label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
         }));
         this.buildExecutiveRotation();
-        this.shiftsLoading = false;
         resolve();
       },
-      error: (err) => {
-        this.shiftsLoading = false;
-        this.showError('Could not load shifts', err?.error?.error || 'Failed to load shifts for this department.');
-        resolve();
-      }
+      error: () => resolve()
     });
   });
 }
