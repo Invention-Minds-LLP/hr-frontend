@@ -66,6 +66,8 @@ export class ManagerShift {
   selectedPatternId!: number;
   startDate = new Date();
 
+  shiftsLoading = false;
+
   isMonthLocked = false;
   // dialog
   requestVisible = false;
@@ -84,6 +86,7 @@ export class ManagerShift {
   patternVisible = false;
 
   departmentId: number = Number(localStorage.getItem('deptId'));
+  private shiftsReady: Promise<void> = Promise.resolve();
 
   patternForm = {
     name: '',
@@ -859,6 +862,7 @@ export class ManagerShift {
 
 
   async onMonthSelected() {
+    await this.shiftsReady;
     this.generateWeeks();
 
 
@@ -1860,6 +1864,7 @@ export class ManagerShift {
     this.weekOffDateMap = {};
     this.isMonthLocked = false;
     this.selectedMonth = undefined!;
+    this.shiftsReady = this.loadShiftsForEmployee(emp);
   }
 
 
@@ -1999,6 +2004,45 @@ export class ManagerShift {
 
     return d;
   }
+
+  // Department of the EMPLOYEE (not the logged-in manager)
+private getEmpDeptId(emp: any): number | null {
+  const id = emp?.Department?.id ?? emp?.departmentId ?? emp?.deptId ?? emp?.department?.id;
+  return id != null ? Number(id) : null;
+}
+private loadShiftsForEmployee(emp: any): Promise<void> {
+  const deptId = this.getEmpDeptId(emp);
+  console.log('employee', emp, 'deptId', deptId);
+
+  // clear the previous employee's shifts so they can't leak into this dialog
+  this.executiveShifts = [];
+  this.executiveRotationOrder = [];
+
+  if (deptId == null) {
+    this.showError('Department missing', 'This employee has no department, so shifts cannot be loaded.');
+    return Promise.resolve();
+  }
+this.shiftsLoading = true;
+  return new Promise<void>(resolve => {
+    this.service.getExecutiveShifts(deptId).subscribe({
+      next: (res: any[]) => {
+        console.log('shifts for dept', deptId, res);
+        this.executiveShifts = (res || []).map((s: any) => ({
+          ...s,
+          label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+        }));
+        this.buildExecutiveRotation();
+        this.shiftsLoading = false;
+        resolve();
+      },
+      error: (err) => {
+        this.shiftsLoading = false;
+        this.showError('Could not load shifts', err?.error?.error || 'Failed to load shifts for this department.');
+        resolve();
+      }
+    });
+  });
+}
 
 
 }
