@@ -201,7 +201,15 @@
     <div class="rd-jobs-wrap">
       <div class="col">
         <div class="card">
-          <h3>Jobs</h3>
+          <div class="rd-jobs-head">
+            <h3>Jobs</h3>
+            <!-- Reusable round sequences live outside any one job; the icon on
+                 each row overrides the order for that job alone. -->
+            <button class="rd-rounds-link" (click)="goToRoundSetup()"
+              pTooltip="Create and edit reusable interview round sequences" tooltipPosition="left">
+              <i class="pi pi-sliders-h"></i> Round setup
+            </button>
+          </div>
           <div class="table-wrap">
             <table class="jobs">
               <colgroup>
@@ -262,8 +270,16 @@
                       </span>
                     </td>
                     <td class="left">
+                      <div class="rd-action-cell">
+                      <!-- Round order for this job alone: two designations in
+                           one department often need opposite orders. -->
+                      <button class="rd-rounds-btn" (click)="openRounds(j); $event.stopPropagation()"
+                        pTooltip="Interview round order for this job" tooltipPosition="top"
+                        aria-label="Interview rounds">
+                        <i class="pi pi-sliders-h"></i>
+                      </button>
                       <p-select [options]="jobStatusOptionsFor(j)" [ngModel]="j.status"
-                        (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '7rem' }"
+                        (onChange)="onJobStatusChange(j, $event.value)" [style]="{ width: '6.5rem' }"
                         [disabled]="updatingJobId === j.id" [showClear]="false" [editable]="false" appendTo="body"
                         optionLabel="label" optionValue="value" [placeholder]="j.status">
                         <ng-template pTemplate="selectedItem">
@@ -273,6 +289,7 @@
                           <span>{{ opt.label }}</span>
                         </ng-template>
                       </p-select>
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -803,5 +820,7 @@
           (onHide)="closeNewAppDialog()">
   <app-application-create *ngIf="newAppDialogOpen"></app-application-create>
 </p-dialog>
+
+<app-job-rounds [job]="roundsJob" (closed)="roundsJob = null"></app-job-rounds>
 
 <p-toast></p-toast>

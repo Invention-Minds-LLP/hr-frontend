@@ -1,0 +1,286 @@
+<div class="question-bank">
+  <div class="header">
+    <div class="flex1">
+      <div class="filter" (click)="showFilterDropdown = !showFilterDropdown; $event.stopPropagation()"
+        pTooltip="Filter by test status" tooltipPosition="top">
+        <i class="pi pi-filter"></i>
+        <ul class="menu-list" *ngIf="showFilterDropdown">
+          <li class="list" *ngFor="let option of statusOptions"
+            (click)="selectStatus(option); $event.stopPropagation()"
+            [ngClass]="{ 'active': statusFilter === option.value }">
+            {{ option.label }}
+          </li>
+        </ul>
+      </div>
+
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input id="candidateTestSearch" type="text" pInputText placeholder="Candidate, email or test"
+          [value]="search" (input)="onSearch($any($event.target).value)" />
+      </p-iconfield>
+
+      <span class="cat-active-filter" *ngIf="statusFilter">
+        {{ statusLabel(statusFilter!) }}
+        <i class="pi pi-times" (click)="selectStatus(statusOptions[0])"></i>
+      </span>
+    </div>
+  </div>
+
+  <div class="cat-error" *ngIf="loadError">
+    {{ loadError }}
+    <button type="button" (click)="load(page)">Retry</button>
+  </div>
+
+  <p-table [value]="loading ? skeletonRows : rows" [lazy]="true" [paginator]="!loading" [rows]="pageSize"
+    [totalRecords]="total" [first]="(page - 1) * pageSize" (onPage)="onPage($event)" responsiveLayout="scroll">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>No</th>
+        <th>Candidate</th>
+        <th>Job</th>
+        <th>Test</th>
+        <th>Status</th>
+        <th>Score</th>
+        <th>Attempts</th>
+        <th>Assigned</th>
+        <th>Deadline</th>
+        <th>Result</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-a let-i="rowIndex">
+      <tr *ngIf="!loading; else skeletonRow">
+        <td>{{ (page - 1) * pageSize + i + 1 }}</td>
+        <td class="empname">
+          <div>
+            <div class="name">{{ a.candidateName || '—' }}</div>
+            <span class="email">{{ a.candidateEmail || 'No email' }}</span>
+          </div>
+        </td>
+        <td>
+          <div>{{ a.jobTitle || '—' }}</div>
+          <span class="cat-muted" *ngIf="a.department">{{ a.department }}</span>
+        </td>
+        <td>
+          <div>{{ a.testName || '—' }}</div>
+          <span class="cat-muted" *ngIf="a.duration">{{ a.duration }} min · pass {{ a.passingPercent }}%</span>
+        </td>
+        <td><span [ngClass]="statusClass(a.status)">{{ statusLabel(a.status) }}</span></td>
+        <td>{{ scoreText(a) }}</td>
+        <td>{{ a.attempts }}</td>
+        <td>{{ (a.assignedAt | date: 'dd-MM-yyyy HH:mm') || '—' }}</td>
+        <td>
+          <span *ngIf="a.deadlineDate; else noDeadline" [class.cat-overdue]="isOverdue(a)"
+            [pTooltip]="isOverdue(a) ? 'Deadline passed, test not completed' : ''" tooltipPosition="top">
+            {{ a.deadlineDate | date: 'dd-MM-yyyy HH:mm' }}
+          </span>
+          <ng-template #noDeadline><span class="cat-muted">No deadline</span></ng-template>
+        </td>
+        <td>
+          <span [ngClass]="resultClass(a)" [pTooltip]="resultTooltip(a)" tooltipPosition="top">
+            {{ resultLabel(a) }}
+          </span>
+        </td>
+        <td>
+          <button class="btn-edit" (click)="openEvaluation(a)" [disabled]="!canEvaluate(a)"
+            [pTooltip]="canEvaluate(a) ? 'View answers and score the descriptive ones' : 'Nothing submitted yet'"
+            tooltipPosition="top">Evaluate</button>
+        </td>
+      </tr>
+
+      <!-- Skeleton Row -->
+      <ng-template #skeletonRow>
+        <tr>
+          <td><p-skeleton width="2rem"></p-skeleton></td>
+          <td><p-skeleton width="120px" height="12px"></p-skeleton></td>
+          <td><p-skeleton width="90px"></p-skeleton></td>
+          <td><p-skeleton width="110px"></p-skeleton></td>
+          <td><p-skeleton width="70px"></p-skeleton></td>
+          <td><p-skeleton width="40px"></p-skeleton></td>
+          <td><p-skeleton width="40px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="80px"></p-skeleton></td>
+          <td><p-skeleton width="60px"></p-skeleton></td>
+          <td><p-skeleton width="70px"></p-skeleton></td>
+        </tr>
+      </ng-template>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="11" class="cat-empty">
+          {{ search || statusFilter
+              ? 'No candidate tests match this filter.'
+              : 'No tests have been assigned to candidates yet. Assign one from an application.' }}
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>
+
+<p-toast></p-toast>
+
+<!-- Evaluation: the candidate's answer beside the reference answer. Nothing is
+     compared automatically — descriptive answers are marked by the evaluator. -->
+<p-dialog [(visible)]="evalVisible" [modal]="true" [closable]="false" [dismissableMask]="true"
+  [style]="{ width: '980px', maxWidth: '96vw' }">
+  <ng-template pTemplate="header">
+    <div class="cat-dlg-header">
+      <span>
+        {{ overview ? (overview.candidateName || 'Candidate') + ' — ' + overview.testName : 'Evaluation' }}
+      </span>
+      <button class="cat-dlg-close" (click)="evalVisible = false">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="cat-dlg-loading" *ngIf="evalLoading">Loading submission…</div>
+
+  <ng-container *ngIf="!evalLoading && overview as o">
+    <div class="cat-ovr-head">
+      <div>
+        <div class="cat-ovr-sub">
+          {{ o.jobTitle || 'No job' }} ·
+          Attempt {{ o.attempts }} ·
+          Submitted: {{ (o.completedAt | date:'dd-MM-yyyy HH:mm') || 'not submitted' }} ·
+          Time: {{ fmtDuration(o.timeTakenSec) }}
+        </div>
+        <div class="cat-ovr-sub">
+          Score {{ o.score ?? '—' }}% · pass mark {{ o.passingPercent }}%
+        </div>
+        <!-- Who did what. Marking and deciding are separate acts by separate people. -->
+        <div class="cat-ovr-sub">
+          <span *ngIf="o.evaluatedByName">Marked by <b>{{ o.evaluatedByName }}</b> on {{ o.evaluatedAt | date:'dd-MM-yyyy HH:mm' }}</span>
+          <span *ngIf="!o.evaluatedByName && o.evaluatedAt">No written answers to mark</span>
+          <span *ngIf="!o.evaluatedAt">Not yet marked</span>
+          ·
+          <span *ngIf="o.reviewDecision">
+            <b>{{ o.reviewDecision }}</b> by {{ o.reviewedByName || 'HR' }} on {{ o.reviewedAt | date:'dd-MM-yyyy HH:mm' }}
+          </span>
+          <span *ngIf="!o.reviewDecision">awaiting HR decision</span>
+        </div>
+      </div>
+      <div class="cat-ovr-badges">
+        <span class="cat-pill cat-done">Correct {{ o.totals.correct }}</span>
+        <span class="cat-pill cat-cancelled">Wrong {{ o.totals.wrong }}</span>
+        <span class="cat-pill cat-pending">Unanswered {{ o.totals.unanswered }}</span>
+        <span class="cat-pill cat-progress" *ngIf="o.totals.pendingManual">
+          To mark {{ o.totals.pendingManual }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Demo/imported rows carry a score with no answers behind it; say so
+         rather than letting the score above look like it came from below. -->
+    <div class="cat-error" *ngIf="!o.hasAnswers">
+      No answers were stored for this attempt, so only the questions are shown.
+      The score and review decision above come from the record itself, not from anything below.
+    </div>
+
+    <table class="cat-eval">
+      <thead>
+        <tr>
+          <th style="width:2.5rem;">No</th>
+          <th>Question</th>
+          <th>Candidate's answer</th>
+          <th>Reference answer</th>
+          <th style="width:9rem;">Mark</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of o.rows">
+          <td>{{ r.no }}</td>
+          <td>
+            <div>{{ r.text }}</div>
+            <span class="cat-muted">{{ r.type === 'MCQ' ? 'MCQ' : 'Descriptive' }} · {{ r.weight }} mark(s)</span>
+          </td>
+
+          <!-- Candidate's answer -->
+          <td>
+            <ng-container *ngIf="r.type === 'MCQ'; else writtenAnswer">
+              <div *ngIf="r.selectedOptionTexts.length; else noAnswer">
+                <div *ngFor="let t of r.selectedOptionTexts">{{ t }}</div>
+              </div>
+            </ng-container>
+            <ng-template #writtenAnswer>
+              <div class="cat-answer" *ngIf="r.rawAnswer">{{ r.rawAnswer }}</div>
+              <div *ngIf="r.fileUrl">
+                <a [href]="r.fileUrl" target="_blank">📎 Open attachment</a>
+              </div>
+              <ng-container *ngIf="!r.rawAnswer && !r.fileUrl">
+                <span class="cat-muted">Not answered</span>
+              </ng-container>
+            </ng-template>
+            <ng-template #noAnswer><span class="cat-muted">Not answered</span></ng-template>
+          </td>
+
+          <!-- Reference answer -->
+          <td>
+            <ng-container *ngIf="r.type === 'MCQ'; else refAnswer">
+              <div *ngFor="let t of r.correctOptionTexts">{{ t }}</div>
+            </ng-container>
+            <ng-template #refAnswer>
+              <div class="cat-answer" *ngIf="r.modelAnswer; else noRef">{{ r.modelAnswer }}</div>
+              <ng-template #noRef>
+                <span class="cat-muted">No reference answer set on this question</span>
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <!-- Mark -->
+          <td>
+            <ng-container *ngIf="r.type === 'MCQ'; else manualMark">
+              <!-- An MCQ nobody answered isn't "wrong" — it matches the
+                   Unanswered count in the header. -->
+              <span *ngIf="!r.selectedOptionIds.length" class="cat-pill cat-pending">Not answered</span>
+              <span *ngIf="r.selectedOptionIds.length"
+                [ngClass]="r.isCorrect ? 'cat-pill cat-done' : 'cat-pill cat-cancelled'">
+                {{ r.isCorrect ? 'Correct' : 'Wrong' }}
+              </span>
+            </ng-container>
+            <ng-template #manualMark>
+              <div class="cat-mark">
+                <input type="number" min="0" [max]="r.weight" [(ngModel)]="r.manualScore"
+                  [ngModelOptions]="{ standalone: true }" placeholder="0" />
+                <span>/ {{ r.weight }}</span>
+              </div>
+              <input class="cat-remarks" type="text" [(ngModel)]="r.remarks"
+                [ngModelOptions]="{ standalone: true }" placeholder="Remarks (optional)" />
+              <small class="cat-mark-error" *ngIf="invalidMark(r)">
+                0 to {{ r.weight }} only
+              </small>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- HR's call. Managers and panel members mark and stop there. -->
+    <div class="cat-decision" *ngIf="o.viewer?.canDecide">
+      <div class="cat-decision-row">
+        <input class="cat-remarks" type="text" [(ngModel)]="reviewNote" [ngModelOptions]="{ standalone: true }"
+          placeholder="Note on the decision (optional)" />
+        <button class="cat-pass" (click)="decide('PASS')" [disabled]="evalSaving">Pass</button>
+        <button class="cat-fail" (click)="decide('FAIL')" [disabled]="evalSaving">Fail</button>
+      </div>
+      <small class="cat-muted" *ngIf="marksOutstanding">
+        {{ o.totals.pendingManual }} written answer(s) still unmarked — save the marks first so the score is final.
+      </small>
+    </div>
+    <div class="cat-muted cat-decision" *ngIf="!o.viewer?.canDecide">
+      Your marks go to HR, who make the final pass or fail decision.
+    </div>
+
+    <div class="cat-dlg-actions">
+      <span class="cat-muted" *ngIf="!descriptiveRows().length">
+        This test has no descriptive questions — nothing to mark by hand.
+      </span>
+      <button class="btn-edit" (click)="evalVisible = false">Close</button>
+      <button class="cat-save" *ngIf="descriptiveRows().length" (click)="saveEvaluation()" [disabled]="evalSaving">
+        {{ evalSaving ? 'Saving…' : 'Save evaluation' }}
+      </button>
+    </div>
+  </ng-container>
+</p-dialog>

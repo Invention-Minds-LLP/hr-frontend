@@ -5,6 +5,7 @@ import { TestCreation } from "../test-creation/test-creation";
 import { TestAssignment } from "../test-assignment/test-assignment";
 import { AllTest } from "../all-test/all-test";
 import { AssignedTest } from "../assigned-test/assigned-test";
+import { CandidateAssignedTest } from "../candidate-assigned-test/candidate-assigned-test";
 import { TrainingForm } from '../../training/training-form/training-form';
 import { TrainingList } from '../../training/training-list/training-list';
 import { TrainingOverview } from "../../training/training-overview/training-overview";
@@ -12,7 +13,7 @@ import { ModuleGuide } from '../../shared/module-guide/module-guide';
 
 @Component({
   selector: 'app-evaluation-overview',
-  imports: [CommonModule, QuestionBank, AllTest, AssignedTest, TrainingForm, TrainingList, TrainingOverview, ModuleGuide],
+  imports: [CommonModule, QuestionBank, AllTest, AssignedTest, CandidateAssignedTest, TrainingForm, TrainingList, TrainingOverview, ModuleGuide],
   templateUrl: './evaluation-overview.html',
   styleUrl: './evaluation-overview.css'
 })
@@ -32,6 +33,9 @@ export class EvaluationOverview {
         break
       case 'assigned':
         this.tableHeading = 'Assigned Tests'
+        break
+      case 'candidateTests':
+        this.tableHeading = 'Candidate Tests'
         break
         default:
         this.tableHeading = 'Question Bank List'

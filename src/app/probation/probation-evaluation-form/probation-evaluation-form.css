@@ -15,9 +15,21 @@
 /* Particulars grid */
 .particulars { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 28px; }
 .pair { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; border-bottom: 1px solid #262626; }
-.pair .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #888; }
+.k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #999; display: block; }
 .pair .v { font-size: 14px; color: #eee; }
 .pair .v.missing { color: #f0a0a0; font-style: italic; }
+
+/* Previous rounds — reference only, so it reads as quieter than the live form
+   without becoming unreadable. The head is flex: as plain inline spans the
+   manager's name ran straight into "HR decision:". */
+.prev-round { border: 1px solid #2b2b2b; border-left: 3px solid #5a4a2a; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: #101010; }
+.prev-round:last-child { margin-bottom: 0; }
+.prev-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-bottom: 12px; }
+.prev-head strong { font-size: 14px; color: #eee; }
+.prev-head span { font-size: 12.5px; color: #999; }
+.prev-outcome { padding: 2px 10px; border-radius: 9px; background: #2a2318; color: #e0b068; font-weight: 600; font-size: 12px !important; }
+.prev-body { display: flex; flex-direction: column; gap: 10px; }
+.prev-body p { margin: 3px 0 0; font-size: 13.5px; line-height: 1.5; color: #ccc; white-space: pre-wrap; }
 
 /* Rating grid — mirrors the printed form's table */
 .rating-grid { width: 100%; border-collapse: collapse; }
@@ -59,6 +71,8 @@
 .hint strong { color: #eee; }
 
 .hr-panel { border-color: #3a3020; }
+.capture-panel { border-color: #856404; }
+.capture-dates { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 14px; }
 .decided { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 28px; }
 .decided .readonly-block { grid-column: 1 / -1; }
 
@@ -78,5 +92,14 @@
 :host ::ng-deep .p-textarea:disabled, :host ::ng-deep .p-textarea[disabled] {
   background-color: #111 !important; color: #ccc !important; opacity: 1 !important; cursor: default;
 }
+/* Select + datepicker: Lara renders the chosen label near-black on this dark
+   panel, so the selection reads as empty until you open the overlay. */
+:host ::ng-deep .p-select { background: #0d0d0d !important; border: 1px solid #333 !important; }
+:host ::ng-deep .p-select-label,
+:host ::ng-deep .p-select-label.p-placeholder { color: #eee !important; background: transparent !important; font-size: 14px; }
+:host ::ng-deep .p-select-label.p-placeholder { color: #777 !important; }
+:host ::ng-deep .p-select-dropdown, :host ::ng-deep .p-select-clear-icon { color: #999 !important; }
+:host ::ng-deep .p-datepicker-input { background: #0d0d0d !important; color: #eee !important; border: 1px solid #333 !important; }
+
 :host ::ng-deep .p-radiobutton .p-radiobutton-box { background: #0d0d0d; border-color: #555; }
 :host ::ng-deep .p-radiobutton.p-radiobutton-checked .p-radiobutton-box { background: #FB9C2A; border-color: #FB9C2A; }

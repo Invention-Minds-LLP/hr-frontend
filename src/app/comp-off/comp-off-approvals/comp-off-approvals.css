@@ -29,7 +29,34 @@
 .field { display: flex; flex-direction: column; }
 .field label { margin-bottom: 6px; font-weight: 600; font-size: 14px; }
 .reject-context { margin: 0; opacity: 0.8; font-size: 14px; }
+.ctx-reason { opacity: 0.75; font-size: 13px; }
 .req { color: red; }
+
+/* Stage two — confirming the day was worked. */
+.stage-hint { margin: 10px 0 0; font-size: 12.5px; color: #888; }
+.field-hint { margin-top: 5px; font-size: 12px; color: #888; }
+.confirm-choice { display: flex; gap: 8px; }
+.choice {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: #374151;
+  font-family: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.choice.chosen { background: #d4edda; color: #155724; border-color: #155724; font-weight: 600; }
+.field input[type="number"] {
+  padding: 8px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+}
 
 ::ng-deep .comp-off-approvals .p-card,
 ::ng-deep .comp-off-approvals .p-card-body,

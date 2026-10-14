@@ -487,16 +487,31 @@
                         </span>
 
                         <!-- Leave Items -->
-                        <ul class="lb-list">
+                        <ul class="lb-list" *ngIf="!onCompOffPage">
                             <li class="lb-item" *ngFor="let it of visibleLeaves">
                                 <span class="lb-name">{{ it.label }}</span>
                                 <span class="lb-badge">{{ it.count }} / {{ it.total }}</span>
                             </li>
                         </ul>
 
+                        <!-- Comp Off page -->
+                        <div class="co-panel" *ngIf="onCompOffPage && compOffBalance as co">
+                            <div class="co-head">
+                                <span class="co-big">{{ co.available }}</span>
+                                <span class="co-head-label">Comp Off<br>available</span>
+                            </div>
+                            <div class="co-stats">
+                                <div><span>{{ co.earned }}</span>Earned</div>
+                                <div><span>{{ co.used }}</span>Used</div>
+                            </div>
+                            <div class="co-expiry" *ngIf="co.nextExpiry">
+                                Next expiry: {{ co.nextExpiry | date:'dd MMM yyyy' }}
+                            </div>
+                        </div>
+
                         <!-- Right Arrow -->
                         <span class="arrow right"
-                            [class.disabled]="leaveIndex + visibleCount >= leaveByTypeToday.length"
+                            [class.disabled]="!hasNextLeaves"
                             (click)="nextLeaves()">
                             <i class="pi pi-chevron-right"></i>
                         </span>
@@ -907,8 +922,10 @@
 
 
 
-    <!-- OT Records -->
-    <div class="ot-section">
+    <!-- OT Records. The whole block is gated on HR having enabled overtime for
+         this employee — for everyone else overtime is not a thing they have, so
+         an empty "no OT records" panel is just noise. -->
+    <!-- <div class="ot-section" *ngIf="canRequestOt">
         <div class="header-part">
             <div class="main-heading">
                 My Overtime (OT) Records
@@ -918,55 +935,153 @@
             </div>
         </div>
 
-        <div *ngIf="otLoading" class="ot-loading">
-            <i class="pi pi-spin pi-spinner"></i> Loading OT records...
-        </div>
-
-        <div *ngIf="!otLoading && myOtRecords.length === 0" class="ot-empty">
-            <i class="pi pi-clock"></i>
-            <span>No approved OT records found.</span>
-        </div>
-
-        <div class="ot-carousel" *ngIf="!otLoading && otWeeks.length > 0">
-            <!-- Week header: range + total OT for the week -->
-            <div class="ot-week-head">
-                <button class="ot-arrow" (click)="prevOtWeek()" [disabled]="currentOtWeekIndex === 0"
-                        aria-label="Previous week">‹</button>
-                <div class="ot-week-info">
-                    <div class="ot-week-range">{{ otWeeks[currentOtWeekIndex].label }}</div>
-                    <div class="ot-week-total">
-                        {{ otWeeks[currentOtWeekIndex].records.length }} record(s) ·
-                        {{ formatOtDuration(otWeeks[currentOtWeekIndex].totalMinutes) }} total
-                    </div>
-                </div>
-                <button class="ot-arrow" (click)="nextOtWeek()"
-                        [disabled]="currentOtWeekIndex === otWeeks.length - 1" aria-label="Next week">›</button>
+        <div class="ot-request">
+            <div class="ot-request-head">
+                <span class="ot-request-title">Request overtime</span>
+                <span class="ot-allowance" *ngIf="otEligibility">
+                    {{ formatOtDuration(otEligibility.week.usedMinutes) }} of
+                    {{ formatOtDuration(otEligibility.weeklyCapMinutes) }} used this week
+                    <span class="ot-weekoff" *ngIf="otEligibility.week.weekOffDate">
+                        · week-off {{ otEligibility.week.weekOffDate | date: 'EEE, dd MMM' }}
+                    </span>
+                </span>
             </div>
 
-            <div class="ot-cards">
-                <div class="ot-card" *ngFor="let ot of otWeeks[currentOtWeekIndex].records">
-                    <div class="ot-card-icon">
-                        <i class="pi pi-clock"></i>
-                    </div>
-                    <div class="ot-card-body">
-                        <div class="ot-date">{{ ot.date | date: 'EEE, dd MMM yyyy' }}</div>
-                        <div class="ot-duration">{{ formatOtDuration(ot.minutes) }}</div>
-                    </div>
-                    <div class="ot-card-badge">
-                        <span class="ot-approved-badge">
-                            <i class="pi pi-check-circle"></i> Approved
+            <div class="ot-request-form">
+                <div class="ot-field">
+                    <label for="otReqDate">Date</label>
+                    <input id="otReqDate" type="date" [(ngModel)]="otRequestForm.date" name="otReqDate" />
+                </div>
+                <div class="ot-field">
+                    <label for="otReqHours">Hours</label>
+                    <input id="otReqHours" type="number" min="0.5" max="4" step="0.5"
+                           [(ngModel)]="otRequestForm.hours" name="otReqHours" placeholder="e.g. 2" />
+                </div>
+                <div class="ot-field grow">
+                    <label for="otReqTask">What is the overtime for?</label>
+                    <input id="otReqTask" type="text" [(ngModel)]="otRequestForm.taskDescription"
+                           name="otReqTask" placeholder="e.g. Close the month-end billing backlog" />
+                </div>
+                <button class="ot-submit" (click)="submitOtRequest()" [disabled]="otSubmitting">
+                    {{ otSubmitting ? 'Sending…' : 'Request' }}
+                </button>
+            </div>
+
+            <div class="ot-msg error" *ngIf="otRequestError">{{ otRequestError }}</div>
+            <div class="ot-msg ok" *ngIf="otRequestNotice">{{ otRequestNotice }}</div>
+            <div class="ot-msg warn" *ngIf="otEligibility && !otEligibility.hasReportingManager">
+                You have no reporting manager set, so there is nobody to approve a request. Ask HR to assign one.
+            </div>
+            <p class="ot-note">
+                Your manager approves the hours, then confirms the work once the day has passed.
+                Overtime is paid only after that confirmation, and is capped at
+                {{ formatOtDuration(otEligibility?.weeklyCapMinutes || 240) }} a week across
+                every source — including overtime picked up automatically from a late check-out.
+            </p>
+
+             Every overtime row for this employee: what they raised, plus
+                 anything picked up from a late check-out or entered by HR —
+                 which matters, because all of it spends the same weekly cap.
+            <div class="ot-req-list">
+                <div class="ot-req-row" *ngFor="let r of otRequests">
+                    <div class="ot-req-main">
+                        <span class="ot-req-date">
+                            {{ r.date | date: 'EEE, dd MMM yyyy' }}
+                            <span class="ot-auto-tag" *ngIf="!isOtRequest(r)">auto</span>
                         </span>
+                        <span class="ot-req-task">{{ otSourceLabel(r) }}</span>
+                    </div>
+                    <div class="ot-req-side">
+                        <span class="ot-req-hours">{{ formatOtDuration(otRowMinutes(r)) }}</span>
+                        <span class="ot-req-status" [ngClass]="otStatusClass(r)">{{ otStatusLabel(r) }}</span>
+                        <button class="ot-withdraw" *ngIf="r.status === 'REQUESTED'"
+                                (click)="withdrawOtRequest(r)">Withdraw</button>
+                    </div>
+                    <div class="ot-req-reason" *ngIf="r.status === 'REJECTED' && r.rejectionReason">
+                        {{ r.rejectionReason }}
+                    </div>
+                    <div class="ot-req-reason" *ngIf="r.taskCompleted === false && r.taskAckNote">
+                        {{ r.taskAckNote }}
                     </div>
                 </div>
-            </div>
 
-            <!-- Dots -->
-            <div class="ot-dots" *ngIf="otWeeks.length > 1">
-                <span class="ot-dot" *ngFor="let w of otWeeks; let i = index"
-                      [class.active]="i === currentOtWeekIndex" (click)="currentOtWeekIndex = i"></span>
+                <div class="ot-req-empty" *ngIf="!otRequests.length">
+                    No overtime recorded yet.
+                </div>
+            </div>
+        </div> -->
+
+    <!-- Comp-off. Unlike overtime there is no per-employee eligibility flag, so
+         this shows for everyone; the API refuses a claim with no manager. -->
+    <!-- <div class="ot-section">
+        <div class="header-part">
+            <div class="main-heading">
+                My Comp-Off Claims
+                <i class="pi pi-info-circle info-icon"
+                    pTooltip="Claim a comp-off for a holiday or week-off you worked. Your manager approves it, confirms the day, then HR issues the credit."
+                    tooltipPosition="right"></i>
             </div>
         </div>
-    </div>
+
+        <div class="ot-request">
+            <div class="ot-request-head">
+                <span class="ot-request-title">Claim a comp-off</span>
+                <span class="ot-allowance" *ngIf="compOffAllowance">
+                    {{ compOffAllowance.month.used }} of {{ compOffAllowance.maxPerMonth }} used
+                    {{ compOffAllowance.month.start | date: 'MMMM' }}
+                    <span class="ot-weekoff" *ngIf="compOffAllowance.month.remaining === 0">
+                        · limit reached
+                    </span>
+                </span>
+            </div>
+
+            <div class="ot-request-form">
+                <div class="ot-field">
+                    <label for="coDate">Date worked</label>
+                    <input id="coDate" type="date" [(ngModel)]="compOffForm.workDate" name="coDate" />
+                </div>
+                <div class="ot-field grow">
+                    <label for="coReason">What did you work on?</label>
+                    <input id="coReason" type="text" [(ngModel)]="compOffForm.reason" name="coReason"
+                           placeholder="e.g. Covered the Sunday on-call rota" />
+                </div>
+                <button class="ot-submit" (click)="submitCompOffClaim()" [disabled]="compOffSubmitting">
+                    {{ compOffSubmitting ? 'Sending…' : 'Claim' }}
+                </button>
+            </div>
+
+            <div class="ot-msg error" *ngIf="compOffError">{{ compOffError }}</div>
+            <div class="ot-msg ok" *ngIf="compOffNotice">{{ compOffNotice }}</div>
+            <p class="ot-note">
+                You can claim a day only if you were marked present on it, it was a mandatory
+                holiday or your week-off, and you worked your full shift — the same test the
+                system applies automatically. Most qualifying days are already claimed for you.
+                You may earn {{ compOffAllowance?.maxPerMonth || 2 }} comp-offs a month, counting
+                any HR granted you directly. Your manager approves the claim, then confirms the
+                day was worked, and HR issues the credit last — nothing lands in your balance
+                before that. If you need one beyond the monthly limit, ask HR to grant it.
+            </p>
+
+            <div class="ot-req-list">
+                <div class="ot-req-row" *ngFor="let c of compOffClaims">
+                    <div class="ot-req-main">
+                        <span class="ot-req-date">{{ c.workDate | date: 'EEE, dd MMM yyyy' }}</span>
+                        <span class="ot-req-task">{{ c.reason || '—' }}</span>
+                    </div>
+                    <div class="ot-req-side">
+                        <span class="ot-req-status" [ngClass]="compOffStatusClass(c)">{{ compOffStatusLabel(c) }}</span>
+                        <button class="ot-withdraw" *ngIf="c.status === 'PENDING_MANAGER'"
+                                (click)="withdrawCompOffClaim(c)">Withdraw</button>
+                    </div>
+                    <div class="ot-req-reason" *ngIf="compOffNote(c)">{{ compOffNote(c) }}</div>
+                </div>
+
+                <div class="ot-req-empty" *ngIf="!compOffClaims.length">
+                    No comp-off claims yet.
+                </div>
+            </div>
+        </div>
+    </div> -->
 
     <app-my-weekly-tracker></app-my-weekly-tracker>
 

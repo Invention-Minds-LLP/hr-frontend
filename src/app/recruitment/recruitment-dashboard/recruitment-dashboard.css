@@ -1625,3 +1625,79 @@ table.heatmap td.heat-l3 { background: rgba(37,99,235,0.85);  color: #fff; }
 .heatmap-legend .heat-l1 { background: rgba(96,165,250,0.18); }
 .heatmap-legend .heat-l2 { background: rgba(96,165,250,0.42); }
 .heatmap-legend .heat-l3 { background: rgba(37,99,235,0.85);  }
+
+/* Action cell: the round-order button sits beside the status dropdown rather
+   than stacking above it, which made every row twice as tall. */
+.rd-action-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+}
+
+.rd-rounds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.rd-rounds-btn:hover {
+  border-color: #FB9C2A;
+  color: #FB9C2A;
+}
+
+/* The status dropdown only ever shows "Select Action", so it doesn't need the
+   width the component defaults to — the overlay sizes itself independently. */
+.rd-action-cell ::ng-deep .p-select {
+  flex: 0 0 auto;
+  width: 6.5rem;
+  min-width: 0;
+}
+
+.rd-action-cell ::ng-deep .p-select-label {
+  padding: 0.3rem 0.45rem;
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.rd-action-cell ::ng-deep .p-select-dropdown {
+  width: 1.5rem;
+}
+
+/* "Round setup" beside the Jobs heading — the sequences themselves are not
+   per job, so they don't belong on a row. */
+.rd-jobs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rd-rounds-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.rd-rounds-link:hover {
+  border-color: #FB9C2A;
+  color: #FB9C2A;
+}

@@ -1,0 +1,254 @@
+/* Candidate Tests — additions on top of the shared Assigned Tests table styles
+   (see styleUrls). Only what this screen adds: status pills, the secondary
+   line under a cell, the overdue deadline and the empty / error states. */
+
+.cat-pill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cat-done {
+  background: rgba(22, 163, 74, 0.16);
+  color: #4ade80;
+}
+
+.cat-progress {
+  background: rgba(251, 156, 42, 0.16);
+  color: #FB9C2A;
+}
+
+.cat-cancelled {
+  background: rgba(220, 38, 38, 0.16);
+  color: #f87171;
+}
+
+.cat-pending {
+  background: rgba(255, 255, 255, 0.1);
+  color: #d4d4d4;
+}
+
+/* Second line inside a cell — department, test duration, "no deadline". */
+.cat-muted {
+  display: block;
+  font-size: 0.72rem;
+  color: #9b9b9b;
+}
+
+.cat-overdue {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.cat-active-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.6rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(251, 156, 42, 0.16);
+  color: #FB9C2A;
+  font-size: 0.75rem;
+}
+
+.cat-active-filter i {
+  cursor: pointer;
+}
+
+.cat-empty {
+  padding: 1.5rem 0.75rem;
+  text-align: center;
+  color: #9b9b9b;
+}
+
+.cat-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.14);
+  color: #f87171;
+  font-size: 0.85rem;
+}
+
+/* ── Evaluation dialog ──────────────────────────────────────────────────── */
+
+.cat-dlg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.cat-dlg-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.cat-dlg-loading {
+  padding: 1.5rem;
+  text-align: center;
+  color: #9b9b9b;
+}
+
+.cat-ovr-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.cat-ovr-sub {
+  font-size: 0.78rem;
+  color: #9b9b9b;
+  line-height: 1.6;
+}
+
+.cat-ovr-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cat-eval {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.cat-eval th {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d4;
+  font-weight: 600;
+}
+
+.cat-eval td {
+  padding: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+
+/* Written answers can be long — keep the line breaks the candidate typed. */
+.cat-answer {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 11rem;
+  overflow: auto;
+}
+
+.cat-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cat-mark input {
+  width: 4rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #fff;
+}
+
+.cat-remarks {
+  margin-top: 0.35rem;
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.cat-mark-error {
+  display: block;
+  margin-top: 0.2rem;
+  color: #f87171;
+  font-size: 0.7rem;
+}
+
+/* HR decision strip, below the marks. */
+.cat-decision {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.cat-decision-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cat-decision-row .cat-remarks {
+  margin-top: 0;
+  flex: 1;
+}
+
+.cat-pass,
+.cat-fail {
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.4rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cat-pass { background: #16a34a; }
+.cat-fail { background: #dc2626; }
+
+.cat-pass:disabled,
+.cat-fail:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.cat-dlg-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.cat-save {
+  background: #16a34a;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cat-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.cat-error button {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 4px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}

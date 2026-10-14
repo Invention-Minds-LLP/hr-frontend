@@ -1,11 +1,13 @@
 // src/app/pages/recruiting-dashboard/recruiting-dashboard.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   Recuriting, Job, Application, ApplicationStatuses, JobStatus
 } from '../../services/recruiting/recuriting';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JobCreate } from "../job-create/job-create";
+import { JobRounds } from "../job-rounds/job-rounds";
 import { ApplicationCreate } from "../application-create/application-create";
 import { ApplicationStatus } from "../application-status/application-status";
 import { MessageService } from 'primeng/api';
@@ -31,7 +33,8 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-recruitment-dashboard',
   imports: [CommonModule, FormsModule, JobCreate, ApplicationCreate, ApplicationStatus,
     ToastModule, SelectModule, Interview, CandidateEvalForm, DialogModule,
-    RequisitionList, TooltipModule, SkeletonModule, TableModule, ModuleGuide, ButtonModule],
+    RequisitionList, TooltipModule, SkeletonModule, TableModule, ModuleGuide, ButtonModule,
+    JobRounds],
   templateUrl: './recruitment-dashboard.html',
   styleUrl: './recruitment-dashboard.css',
   providers: [MessageService]
@@ -39,6 +42,12 @@ import { ButtonModule } from 'primeng/button';
 export class RecruitmentDashboard implements OnInit {
   private api = inject(Recuriting);
   private messages = inject(MessageService);
+  private router = inject(Router);
+
+  /** Reusable interview round sequences, maintained outside any one job. */
+  goToRoundSetup(): void {
+    this.router.navigate(['/recruitment/round-setup']);
+  }
 
   private fmtDate(d: any): string {
     if (!d) return '-';
@@ -61,6 +70,13 @@ export class RecruitmentDashboard implements OnInit {
 
   // jobs
   jobs: Job[] = [];
+
+  /** The job whose interview round order is being edited; null = closed. */
+  roundsJob: Job | null = null;
+
+  openRounds(job: Job): void {
+    this.roundsJob = job;
+  }
   totalJobs = 0;
   page = 1; pageSize = 10;
   selectedJob?: Job;

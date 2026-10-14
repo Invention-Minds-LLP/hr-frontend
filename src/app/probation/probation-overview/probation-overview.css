@@ -40,6 +40,13 @@
 .btn-icon:hover { opacity: 0.8; }
 .btn-icon.view { background: #e3f2fd; color: #1565c0; }
 .btn-icon.extend { background: #fff3cd; color: #856404; }
+.btn-icon.paper { background: #ede7f6; color: #5e35b1; }
+
+/* Backlog / paper-decision hints on the due list */
+.flags { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: 5px; }
+.flag { padding: 2px 8px; border-radius: 9px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.flag.backlog { background: #ede7f6; color: #5e35b1; }
+.flag.paper { background: #fde7e7; color: #a02020; }
 
 .empty-msg { text-align: center; padding: 2rem; color: #888; }
 

@@ -1,0 +1,83 @@
+<p-dialog [(visible)]="visible" [modal]="true" [closable]="false" [dismissableMask]="true"
+  [style]="{ width: '860px', maxWidth: '96vw' }" (onHide)="close()">
+
+  <ng-template pTemplate="header">
+    <div class="jr-header">
+      <span>Interview rounds — {{ job?.title }}</span>
+      <button class="jr-close" (click)="close()">✕</button>
+    </div>
+  </ng-template>
+
+  <div class="jr-loading" *ngIf="loading">Loading…</div>
+
+  <ng-container *ngIf="!loading">
+    <p class="jr-note" *ngIf="!configured">
+      This job has no sequence of its own yet, so it is following
+      <b>{{ job?.departmentName || 'its department' }}</b>'s. Saving here sets an order for this job alone —
+      other jobs in the department are unaffected.
+    </p>
+
+    <!-- Only worth offering when sequences exist; otherwise say where they
+         come from instead of an empty dropdown. -->
+    <div class="jr-template" *ngIf="templates.length">
+      Start from a sequence:
+      <p-select [options]="templates" optionLabel="name" optionValue="id" placeholder="Choose one"
+        (onChange)="applyTemplate($event.value)" appendTo="body" styleClass="jr-select"></p-select>
+      <span class="jr-muted">then adjust the rows below if this job needs something different</span>
+    </div>
+
+    <div class="jr-template jr-muted" *ngIf="!templates.length">
+      No saved sequences yet — build the rounds for this job below, or create reusable ones under
+      <b>Recruitment ▸ Round setup</b> to pick from next time.
+    </div>
+
+    <table class="jr-table">
+      <thead>
+        <tr>
+          <th style="width:3rem;">#</th>
+          <th style="width:12rem;">Type</th>
+          <th>Round name</th>
+          <th style="width:15rem;">Test</th>
+          <th style="width:8rem;">Order</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of rounds; let i = index">
+          <td>{{ r.seq }}</td>
+          <td>
+            <p-select [options]="typeOptions" optionLabel="label" optionValue="value" [(ngModel)]="r.type"
+              (onChange)="onTypeChange(r, $event.value)" appendTo="body" styleClass="jr-select"></p-select>
+          </td>
+          <td><input pInputText [(ngModel)]="r.name" /></td>
+          <td>
+            <p-select *ngIf="r.type === 'TEST'" [options]="tests" optionLabel="name" optionValue="id"
+              [(ngModel)]="r.testId" placeholder="HR picks at assign time" [showClear]="true"
+              appendTo="body" styleClass="jr-select"></p-select>
+            <span class="jr-muted" *ngIf="r.type !== 'TEST'">—</span>
+          </td>
+          <td class="jr-order">
+            <button class="jr-ghost" (click)="move(i, -1)" [disabled]="i === 0">↑</button>
+            <button class="jr-ghost" (click)="move(i, 1)" [disabled]="i === rounds.length - 1">↓</button>
+            <button class="jr-ghost jr-danger" (click)="removeRound(i)" [disabled]="rounds.length <= 1">✕</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="jr-ghost" (click)="addRound()">+ Add round</button>
+
+    <div class="jr-preview">
+      Candidates for this job will go through:
+      <b><span *ngFor="let r of rounds; let last = last">{{ r.seq }} {{ r.name }}<span *ngIf="!last"> → </span></span></b>
+    </div>
+
+    <div class="jr-actions">
+      <button class="jr-ghost" (click)="close()">Cancel</button>
+      <button class="jr-primary" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Save for this job' }}
+      </button>
+    </div>
+  </ng-container>
+</p-dialog>
+
+<p-toast></p-toast>

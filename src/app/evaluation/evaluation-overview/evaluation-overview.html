@@ -29,6 +29,8 @@
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'test' }" (click)="show('test')">Test Creation</li></button>
         <div class="br"></div>
         <button><li class="sub-item" [ngClass]="{ 'active': active === 'assigned' }" (click)="show('assigned')">Assigned Tests</li></button>
+        <div class="br"></div>
+        <button><li class="sub-item" [ngClass]="{ 'active': active === 'candidateTests' }" (click)="show('candidateTests')">Candidate Tests</li></button>
     </ul>
 </nav>
 <!-- <div>
@@ -42,5 +44,6 @@
     <app-question-bank *ngIf="active === 'form'"></app-question-bank>
     <app-all-test *ngIf="active === 'test'"></app-all-test>
     <app-assigned-test *ngIf="active === 'assigned'"></app-assigned-test>
+    <app-candidate-assigned-test *ngIf="active === 'candidateTests'"></app-candidate-assigned-test>
     <!-- <app-test-creation></app-test-creation> -->
 </div>

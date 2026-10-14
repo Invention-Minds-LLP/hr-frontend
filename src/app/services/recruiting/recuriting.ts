@@ -44,6 +44,25 @@ export interface Application {
   candidate?: Candidate; job?: Job; offer?: Offer | null; interviews?: Interview[];
 }
 export interface Paged<T> { total: number; rows: T[]; }
+
+/** One row of the Candidate Tests list — flattened by the API. */
+export interface CandidateAssignedTestRow {
+  id: number; applicationId: number; candidateId: number;
+  candidateName: string; candidateEmail: string; candidatePhone: string;
+  jobId: number | null; jobTitle: string; department: string;
+  applicationStatus: string | null;
+  testId: number; testName: string; duration: number | null; passingPercent: number | null;
+  status: string; attempts: number; score: number | null;
+  assignedAt: string; testDate: string | null; deadlineDate: string | null;
+  startedAt: string | null; completedAt: string | null;
+  /** Set once the written answers have been marked (or there were none). */
+  evaluatedAt: string | null; evaluatedByName: string | null;
+  reviewDecision: string | null; reviewedAt: string | null; reviewedByName: string | null;
+}
+export interface CandidateTestList {
+  data: CandidateAssignedTestRow[];
+  total: number; page: number; pageSize: number; totalPages: number;
+}
 export interface PipelineStats {
   jobsOpen: number; applied: number; shortlisted: number;
   interviewing: number; offered: number; accepted: number; hired: number;
@@ -108,7 +127,9 @@ export class Recuriting {
   private http = inject(HttpClient);
 
   /* -------- Jobs -------- */
-  createJob(body: Partial<Job> & { title: string; departmentId: number; createdBy: number }): Observable<Job> {
+  /** `roundTemplateId` picks the interview sequence; omitted, the job takes
+   *  its department's sequence (or the default). */
+  createJob(body: Partial<Job> & { title: string; departmentId: number; createdBy: number; roundTemplateId?: number | null }): Observable<Job> {
     return this.http.post<Job>(`${baseUrl}/jobs`, body);
   }
 
@@ -243,7 +264,7 @@ export class Recuriting {
   }
 
   // assign
-  assignTestToApplication(applicationId: number, body: { testId: number; testDate?: string; deadlineDate?: string; }) {
+  assignTestToApplication(applicationId: number, body: { testId: number; testDate?: string; deadlineDate?: string; outOfOrderReason?: string; }) {
     return this.http.post<{ assigned: CandidateAssignedTest }>(`${baseUrl}/applications/${applicationId}/tests/assign`, body);
   }
 
@@ -302,6 +323,54 @@ export class Recuriting {
     if (params?.jobId) p = p.set('jobId', String(params.jobId));
     return this.http.get<CandidateAssignedTest[]>(`${baseUrl}/tests/review-queue`, { params: p });
   }
+  /** HR: every candidate's assigned test — the Candidate Tests list. */
+  listCandidateAssignedTests(
+    params: { status?: string; jobId?: number; q?: string; page?: number; pageSize?: number } = {}
+  ): Observable<CandidateTestList> {
+    let p = new HttpParams();
+    for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') p = p.set(k, String(v));
+    return this.http.get<CandidateTestList>(`${baseUrl}/tests/assigned`, { params: p });
+  }
+
+  /* ─────────────── Interview round configuration ─────────────── */
+
+  listRoundTemplates(): Observable<any[]> {
+    return this.http.get<any[]>(`${baseUrl}/round-templates`);
+  }
+  createRoundTemplate(body: { name: string; departmentId?: number | null; isDefault?: boolean; rounds: any[] }) {
+    return this.http.post<any>(`${baseUrl}/round-templates`, body);
+  }
+  updateRoundTemplate(id: number, body: any) {
+    return this.http.put<any>(`${baseUrl}/round-templates/${id}`, body);
+  }
+  deleteRoundTemplate(id: number) {
+    return this.http.delete<{ ok: true }>(`${baseUrl}/round-templates/${id}`);
+  }
+  /** The rounds a job runs (its own snapshot, or the legacy order). */
+  getJobRounds(jobId: number): Observable<{ jobId: number; configured: boolean; rounds: any[] }> {
+    return this.http.get<any>(`${baseUrl}/jobs/${jobId}/rounds`);
+  }
+  setJobRounds(jobId: number, body: { rounds?: any[]; templateId?: number }) {
+    return this.http.put<any>(`${baseUrl}/jobs/${jobId}/rounds`, body);
+  }
+  /** Where one candidate stands in that sequence. */
+  getApplicationRounds(applicationId: number): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/applications/${applicationId}/rounds`);
+  }
+
+  /** HR: one candidate's submission — answers beside the reference answers. */
+  getCandidateTestOverview(assignedId: number): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/candidate/tests/${assignedId}/overview`);
+  }
+
+  /** HR: save manual marks for the descriptive answers; the score is recomputed. */
+  evaluateCandidateTest(
+    assignedId: number,
+    evaluations: { questionId: number; manualScore: number; remarks?: string }[]
+  ): Observable<any> {
+    return this.http.post(`${baseUrl}/candidate/tests/${assignedId}/evaluate`, { evaluations });
+  }
+
   upsertFeedback(interviewId: number, dto: any): Observable<any> {
     return this.http.post(`${baseUrl}/interview/${interviewId}/feedback`, dto);
   }
