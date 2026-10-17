@@ -279,7 +279,6 @@ export class ManagerShift {
   openAssign(emp: any) {
     this.selectedEmployee = emp;
     this.selectedMode = emp.EmployeeShiftSetting?.mode || 'FIXED';
-    this.loadShifts(emp); 
   }
 
   // save() {
@@ -610,7 +609,6 @@ export class ManagerShift {
       startDate: new Date()
     };
     this.requestVisible = true;
-    this.loadShifts(emps[0]);
   }
 
   closeRequestDialog() {
@@ -1998,32 +1996,14 @@ export class ManagerShift {
     return d;
   }
 
-  // Department of the EMPLOYEE (not the logged-in manager)
-private getEmpDeptId(emp: any): number | null {
-  const id = emp?.Department?.id ?? emp?.departmentId ?? emp?.deptId ?? emp?.department?.id;
-  return id != null ? Number(id) : null;
-}
-
 loadShifts(emp: any) {
-  const deptId = emp?.Department?.id;
-  this.executiveShifts = [];
-  this.shiftsReady = Promise.resolve();
-  if (!deptId) return;
-
-  this.shiftsReady = new Promise<void>(resolve => {
-    this.service.getExecutiveShifts(deptId).subscribe({
-      next: res => {
-        this.executiveShifts = res.map((s: any) => ({
-          ...s,
-          label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-        }));
-        this.buildExecutiveRotation();
-        resolve();
-      },
-      error: () => resolve()
-    });
+  this.service.getExecutiveShifts(emp.Department.id).subscribe(res => {
+    this.executiveShifts = res.map((s: any) => ({
+      ...s,
+      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+    }));
+    this.buildExecutiveRotation();
   });
 }
-
 
 }
