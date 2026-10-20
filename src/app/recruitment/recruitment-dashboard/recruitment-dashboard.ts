@@ -1,5 +1,6 @@
 // src/app/pages/recruiting-dashboard/recruiting-dashboard.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DownloadOtpService } from '../../shared/download-otp/download-otp.service';
 import { Router } from '@angular/router';
 import {
   Recuriting, Job, Application, ApplicationStatuses, JobStatus
@@ -40,6 +41,7 @@ import { ButtonModule } from 'primeng/button';
   providers: [MessageService]
 })
 export class RecruitmentDashboard implements OnInit {
+  private downloadOtp = inject(DownloadOtpService);
   private api = inject(Recuriting);
   private messages = inject(MessageService);
   private router = inject(Router);
@@ -608,9 +610,9 @@ export class RecruitmentDashboard implements OnInit {
     this.selectedList = null;
     this.selectedRows = [];
   }
-  exportApplications() {
-    console.log(this.applicationRows)
+  async exportApplications() {
     if (!this.applicationRows.length) return;
+    if (!(await this.downloadOtp.verify('Job applications (Excel)'))) return;
 
     const exportData = this.applicationRows.map((r: any, index: number) => ({
       'S.No': index + 1,

@@ -476,7 +476,7 @@
     </div>
 
     <div class="right">
-        <div class="right-side">
+        <div class="right-side" [class.right-side--compact]="mfaStage">
             <!-- <img class="logo" src="/logo1.png" alt=""> -->
                 <div class="logo">
                     <img class="" src="/logo.png" alt="">
@@ -484,7 +484,7 @@
             <div class="right-side-heading">Sign <span>in</span></div>
 
             <!-- Step 1: EMP ID / email + password -->
-            <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)" *ngIf="!otpStage">
+            <form #loginForm="ngForm" class="form" (ngSubmit)="onSubmit(loginForm)" *ngIf="!otpStage && !mfaStage">
                 <div class="input">
                     <p-floatlabel variant="on" >
                         <input pInputText id="empID" class="login-input" autocomplete="off" name="empId" [(ngModel)]="loginData.empId"
@@ -526,6 +526,48 @@
                 <div class="flex justify-content-center align-items-center gap-2 otp-actions">
                     <p-button type="button" label="Resend code" [text]="true" [disabled]="isLoading" (onClick)="resendOtp()" />
                     <p-button type="button" label="Back" [text]="true" [disabled]="isLoading" (onClick)="backToPassword()" />
+                </div>
+            </form>
+
+            <!-- Step 2 (HR / Management / Operations): Google Authenticator -->
+            <form #mfaForm="ngForm" class="form" (ngSubmit)="submitMfa()" *ngIf="mfaStage">
+                <ng-container *ngIf="mfaStep === 'mfa_setup'">
+                    <div>
+                        <div class="mfa-title">Set up Google Authenticator</div>
+                        <div class="mfa-sub">Required for your department — one time only</div>
+                    </div>
+                    <div class="mfa-setup">
+                        <div class="mfa-qr">
+                            <img [src]="mfaQr" alt="Google Authenticator QR code" width="128" height="128" />
+                        </div>
+                        <ol class="mfa-steps">
+                            <li>Install <b>Google Authenticator</b> on your phone</li>
+                            <li>Tap <b>+</b> → <b>Scan a QR code</b></li>
+                            <li>Enter the <b>6-digit code</b> it shows below</li>
+                        </ol>
+                    </div>
+                    <div class="mfa-key-row">
+                        Can't scan? Choose <b>Enter a setup key</b> and type:<br />
+                        <span class="mfa-key">{{ mfaKey }}</span>
+                    </div>
+                </ng-container>
+                <div *ngIf="mfaStep === 'mfa'">
+                    <div class="mfa-title">Two-step verification</div>
+                    <div class="mfa-sub">Enter the 6-digit code shown in Google Authenticator</div>
+                </div>
+                <div class="input">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="mfaCode" class="login-input" name="mfaCode" inputmode="numeric"
+                            autocomplete="one-time-code" maxlength="6" [(ngModel)]="mfaCode" required />
+                        <label for="mfaCode">Authenticator code</label>
+                    </p-floatlabel>
+                </div>
+                <div class="flex justify-content-center align-items-center ">
+                    <p-button type="submit" [label]="isLoading ? 'VERIFYING...' : 'VERIFY'" [loading]="isLoading" class="btn" />
+                </div>
+                <div class="flex justify-content-between align-items-center otp-actions">
+                    <p-button type="button" label="Back" [text]="true" icon="pi pi-arrow-left" [disabled]="isLoading" (onClick)="backFromMfa()" />
+                    <span class="mfa-help">Lost your phone? Ask HR to reset it.</span>
                 </div>
             </form>
 

@@ -15,17 +15,27 @@ import * as XLSX from 'xlsx';
 import { Chart } from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 import { Notifications } from './services/notifications/notifications';
+import { NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { DownloadOtpDialog } from './shared/download-otp/download-otp-dialog';
+import { ScreenProtectionService } from './shared/screen-protection/screen-protection.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, Navbar, CommonModule, ToastModule, AnnouncementPopup, AcknowledgePopup],
+  imports: [RouterOutlet, Login, Navbar, CommonModule, ToastModule, AnnouncementPopup, AcknowledgePopup, DownloadOtpDialog],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
 
   constructor(private router: Router, private svc: Announcements, private inactivityService: InactivityService,
-    private ackService: Grievance, private notificationService: Notifications) { }
+    private ackService: Grievance, private notificationService: Notifications, private screenProtection: ScreenProtectionService) {
+    // DPDP: no copy / screenshots app-wide; the watermark follows the login state.
+    this.screenProtection.start();
+    this.screenProtection.refreshWatermark();
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => this.screenProtection.refreshWatermark());
+  }
   protected title = 'hr-frontend';
 
   dark = false;

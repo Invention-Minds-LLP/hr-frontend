@@ -6,6 +6,41 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* ==== DPDP screen protection (shared/screen-protection) ==== */
+body.hm-protected { -webkit-user-select: none; user-select: none; }
+body.hm-protected input,
+body.hm-protected textarea,
+body.hm-protected [contenteditable="true"],
+body.hm-protected .ql-editor { -webkit-user-select: text; user-select: text; }
+body.hm-privacy-blur > *:not(.hm-watermark) { filter: blur(18px); }
+.hm-watermark {
+  position: fixed; inset: 0; z-index: 2147483000; pointer-events: none;
+  background-repeat: repeat; opacity: 0.07;
+}
+/* "Verify to download" dialog shell (shared/download-otp). Own class so the
+   page-level ::ng-deep .p-dialog overrides elsewhere can't restyle it. */
+.p-dialog.dotp-dialog {
+  background: #0d0d12 !important;
+  border: 1px solid #2a2a35 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 80px rgba(58, 29, 77, .7) !important;
+  color: #e5e7eb !important;
+}
+.p-dialog.dotp-dialog .p-dialog-header {
+  background: transparent !important;
+  color: #fff !important;
+  border-bottom: 1px solid #2a2a35 !important;
+  padding: 16px 20px !important;
+}
+.p-dialog.dotp-dialog .p-dialog-title { color: #fff !important; font-weight: 700 !important; font-size: 1.1rem !important; }
+.p-dialog.dotp-dialog .p-dialog-content {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  padding: 16px 20px 20px !important;
+}
+
+@media print { .hm-watermark { opacity: 0.15; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 /* ==== PRIMARY COLOR OVERRIDES (GLOBAL) ==== */
 /* styles.scss (global) */
 :root,

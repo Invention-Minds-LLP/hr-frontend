@@ -25,6 +25,9 @@
 
 <app-announcement-popup></app-announcement-popup>
 
+<!-- DPDP download check (email OTP + captcha + reason) — opened by DownloadOtpService -->
+<app-download-otp-dialog></app-download-otp-dialog>
+
 <app-acknowledge-popup
 *ngIf="pendingComplaint"
 [visible]="popupVisible"

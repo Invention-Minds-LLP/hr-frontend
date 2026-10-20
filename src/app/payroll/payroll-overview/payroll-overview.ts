@@ -218,7 +218,7 @@ onStructureEmployeeSelect(event: any): void {
       employeeId: undefined as any,
       basic: 0, hra: 0, medicalAllowance: 0, travelAllowance: 0,
       specialAllowance: 0, otherAllowances: 0,
-      pfApplicable: true, esiApplicable: true, ptApplicable: true, tdsMonthly: 0,
+      pfApplicable: true, epsApplicable: true, esiApplicable: true, ptApplicable: true, tdsMonthly: 0,
     };
   }
 

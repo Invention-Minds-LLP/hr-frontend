@@ -287,8 +287,9 @@ export class TaxAdmin implements OnInit {
     this.companyService.downloadStatutoryFile(type, this.statMonth, this.statYear, this.selectedCompanyId || undefined)
       .subscribe({
         next: (blob) => {
-          const ext = type === 'PF_ECR' ? 'txt' : 'csv';
-          saveAs(blob, `${type}_${this.statYear}_${String(this.statMonth).padStart(2, '0')}.${ext}`);
+          // Every statutory file is .csv — the PF ECR included, matching the file
+          // the EPFO portal accepts (#~# delimited content, .csv name).
+          saveAs(blob, `${type}_${this.statYear}_${String(this.statMonth).padStart(2, '0')}.csv`);
           this.ok(`${this.typeLabel(type)} file downloaded`);
           this.loadFilings();
         },

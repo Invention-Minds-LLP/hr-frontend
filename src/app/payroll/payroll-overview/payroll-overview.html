@@ -782,6 +782,10 @@
         <p-checkbox [(ngModel)]="editingStructure.pfApplicable" [binary]="true"></p-checkbox>
         PF Applicable (12% of Basic)
       </label>
+      <label class="check-label" *ngIf="editingStructure.pfApplicable">
+        <p-checkbox [(ngModel)]="editingStructure.epsApplicable" [binary]="true"></p-checkbox>
+        EPS member (untick if wages were above the ceiling — employer's full 12% then goes to EPF)
+      </label>
       <label class="check-label">
         <p-checkbox [(ngModel)]="editingStructure.esiApplicable" [binary]="true"></p-checkbox>
         ESI Applicable (if Gross ≤ ₹21,000)

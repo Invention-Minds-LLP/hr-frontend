@@ -140,6 +140,28 @@ export class ResetPassword {
     });
   }
 
+  mfaResetting = false;
+
+  onResetMfa() {
+    const targetUserId = Number(this.selectedEmployee?.userId);
+    if (!targetUserId) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select an employee' });
+      return;
+    }
+    if (!confirm(`Reset Google Authenticator for ${this.selectedEmployee?.name}? They will scan a new QR code at next login and their open sessions end.`)) return;
+    this.mfaResetting = true;
+    this.userService.adminResetMfa(targetUserId).subscribe({
+      next: (res) => {
+        this.mfaResetting = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+      },
+      error: (err) => {
+        this.mfaResetting = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.error || 'Failed to reset authenticator.' });
+      }
+    });
+  }
+
   passwordMismatch(): boolean {
     return (
       !!this.reset.newPassword &&

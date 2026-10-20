@@ -198,6 +198,13 @@ export const routes: Routes = [
       { path: 'exit', component: ExitInterviewList, },
       { path: 'hr-review/:id', component: HrEvaluate, },
       { path: 'my-interview', component: MyInterview, canActivate: [permissionGuard], data: { perm: 'recruitment.interviews.view' } },
+      // Interview round sequences. Reuses the jobs permission deliberately:
+      // a new catalog key grants nobody until the permission seed is re-run.
+      {
+        path: 'round-setup',
+        loadComponent: () => import('./recruitment/round-setup/round-setup').then(m => m.RoundSetup),
+        canActivate: [permissionGuard], data: { perm: 'recruitment.jobs.view' },
+      },
     ],
   },
 

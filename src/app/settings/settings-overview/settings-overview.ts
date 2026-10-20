@@ -6,10 +6,11 @@ import { Table } from "../table/table";
 import { LoginCreation } from "../login-creation/login-creation";
 import { Export } from "../export/export";
 import { ResignationForm } from "../../resignation/resignation-form/resignation-form";
+import { DownloadLogs } from "../download-logs/download-logs";
 
 @Component({
   selector: 'app-settings-overview',
-  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation, Export, ResignationForm],
+  imports: [CommonModule, Profile, ResetPassword, Table, LoginCreation, Export, ResignationForm, DownloadLogs],
   templateUrl: './settings-overview.html',
   styleUrl: './settings-overview.css'
 })
@@ -21,6 +22,8 @@ export class SettingsOverview {
   isHr = false;
   /** Login audit is HR-department, but not for its executives (roleId 2). */
   canViewLoginActivities = false;
+  /** DPDP download audit trail — HR department and Management (roleId 4). */
+  canViewDownloadLogs = false;
 
   @ViewChild('resignationForm') resignationForm!: ResignationForm;
 
@@ -43,6 +46,8 @@ export class SettingsOverview {
     // Never leave the hidden tab selected — a deep link or a stale state would
     // otherwise render the list this flag exists to hide.
     if (this.active === 'list' && !this.canViewLoginActivities) this.active = 'profile';
+    this.canViewDownloadLogs = this.isHr || Number(localStorage.getItem('roleId')) === 4;
+    if (this.active === 'downloads' && !this.canViewDownloadLogs) this.active = 'profile';
   }
 
   private normalizeRole(raw: any): string {

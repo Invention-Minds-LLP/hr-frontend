@@ -38,6 +38,16 @@ export class Login {
   otpSecondsLeft = 0;
   private otpTimer: any = null;
 
+  // ---- Google Authenticator step (HR / Management / Operations) ----
+  // The password response carries a short-lived challenge instead of a
+  // session; the 6-digit authenticator code exchanges it for the session.
+  mfaStage = false;
+  mfaStep: 'mfa' | 'mfa_setup' = 'mfa';
+  mfaChallenge = '';
+  mfaQr = '';
+  mfaKey = '';
+  mfaCode = '';
+
 
 
   constructor(private router: Router, private userService: User, private messageService: MessageService, private auth: AuthSession, private perms: PermissionService) { }
@@ -191,21 +201,11 @@ export class Login {
         this.userService.loginUser(idOrEmail, password).subscribe({
           next: (response) => {
             this.isLoading = false;
-            this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + response.username });
-            if (response) {
-              // Token → memory. The server already set the httpOnly refresh
-              // cookie on this response; only display data is persisted.
-              this.auth.setSession(response);
-              const landing = canAccessManagementDashboardFor(response.roleId, response.empId)
-                ? '/management-dashboard'
-                : '/individual';
-              // Permissions must be in hand before we navigate — the navbar and
-              // permissionGuard both read them synchronously on the next page.
-              this.perms.load().subscribe(() => this.router.navigate([landing]));
-            } else {
-
-              console.error('Login failed:', (response as any)?.message);
+            if (response?.challenge) {
+              this.startMfa(response.challenge);
+              return;
             }
+            this.finishEmployeeLogin(response);
           },
           error: (error) => {
             this.isLoading = false;
@@ -218,6 +218,63 @@ export class Login {
     } else {
       console.log('Form is invalid');
     }
+  }
+
+  private finishEmployeeLogin(response: any) {
+    if (!response) return;
+    this.messageService.add({ severity: 'success', summary: 'Login Successful', detail: 'Welcome, ' + response.username });
+    // Token → memory. The server already set the httpOnly refresh
+    // cookie on this response; only display data is persisted.
+    this.auth.setSession(response);
+    const landing = canAccessManagementDashboardFor(response.roleId, response.empId)
+      ? '/management-dashboard'
+      : '/individual';
+    // Permissions must be in hand before we navigate — the navbar and
+    // permissionGuard both read them synchronously on the next page.
+    this.perms.load().subscribe(() => this.router.navigate([landing]));
+  }
+
+  // ---- Google Authenticator step ---------------------------------------
+
+  private startMfa(challenge: { token: string; step: 'mfa' | 'mfa_setup'; mfaSetup?: { qrDataUrl: string; manualKey: string } }) {
+    this.mfaStage = true;
+    this.mfaStep = challenge.step;
+    this.mfaChallenge = challenge.token;
+    this.mfaQr = challenge.mfaSetup?.qrDataUrl || '';
+    this.mfaKey = challenge.mfaSetup?.manualKey || '';
+    this.mfaCode = '';
+  }
+
+  submitMfa() {
+    const code = (this.mfaCode || '').trim();
+    if (!/^\d{6}$/.test(code)) {
+      this.messageService.add({ severity: 'warn', summary: 'Enter the code', detail: 'Enter the 6-digit code from Google Authenticator.' });
+      return;
+    }
+    this.isLoading = true;
+    this.userService.loginMfa(this.mfaChallenge, code).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.backFromMfa();
+        this.finishEmployeeLogin(response);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.mfaCode = '';
+        const detail = err?.error?.error || 'Incorrect authenticator code.';
+        this.messageService.add({ severity: 'error', summary: 'Verification failed', detail });
+        // Challenge expired (10 min) — start again from the password.
+        if (err?.status === 401 && /expired|session/i.test(detail)) this.backFromMfa();
+      },
+    });
+  }
+
+  backFromMfa() {
+    this.mfaStage = false;
+    this.mfaChallenge = '';
+    this.mfaQr = '';
+    this.mfaKey = '';
+    this.mfaCode = '';
   }
 
   invaild(control: NgModel) {

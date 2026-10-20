@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
+import { DownloadOtpService } from '../../shared/download-otp/download-otp.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ManagementService } from '../../services/management/management.service';
@@ -16,6 +17,7 @@ Chart.register(...registerables);
   styleUrl: './hr-manager-dashboard.css',
 })
 export class HrManagerDashboard implements OnInit, AfterViewInit {
+  private downloadOtp = inject(DownloadOtpService);
 
   /** Client feature flag — hides the Payroll Readiness section when false. */
   readonly payrollEnabled = environment.payrollEnabled;
@@ -574,7 +576,8 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
   /** Trigger the browser's print dialog — combined with the print stylesheet
    *  this generates a tidy PDF / paper export of the entire dashboard.
    *  We expand any collapsed UI before printing so nothing is missing. */
-  exportDashboardPdf() {
+  async exportDashboardPdf() {
+    if (!(await this.downloadOtp.verify('HR manager dashboard (print / PDF)'))) return;
     const wasCollapsed = this.attentionCollapsed;
     this.attentionCollapsed = false;
     // Give Angular one tick to repaint the expanded panel before print
@@ -1680,7 +1683,8 @@ export class HrManagerDashboard implements OnInit, AfterViewInit {
 
   closeSubModal() { this.subModalVisible = false; }
 
-  exportSubModalCsv() {
+  async exportSubModalCsv() {
+    if (!(await this.downloadOtp.verify(`${this.subModalTitle} (CSV)`))) return;
     this.downloadCsv(this.subModalTitle, this.subModalColumns, this.subModalRows);
   }
 
