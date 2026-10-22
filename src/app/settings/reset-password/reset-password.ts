@@ -144,6 +144,8 @@ export class ResetPassword {
   }
 
   // ---- IT department: reset Google Authenticator ----
+  /** Which reset the IT tabs show; non-IT users always stay on 'password'. */
+  mode: 'password' | 'mfa' = 'password';
   canResetMfa = false;
   mfaEmployeeList: any[] = [];
   mfaSelectedEmployee: any = null;
