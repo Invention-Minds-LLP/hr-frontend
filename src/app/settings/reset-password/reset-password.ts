@@ -57,6 +57,9 @@ export class ResetPassword {
     // their own account.
     this.isHrDept = Number(localStorage.getItem('deptId')) === 1;
 
+    this.canResetMfa = localStorage.getItem('canResetMfa') === 'true';
+    if (this.canResetMfa) this.loadMfaEmployees();
+
     if (this.isHrDept) {
       this.disableSelect = false;
       this.userService.listAllUsers().subscribe({
@@ -140,19 +143,38 @@ export class ResetPassword {
     });
   }
 
+  // ---- IT department: reset Google Authenticator ----
+  canResetMfa = false;
+  mfaEmployeeList: any[] = [];
+  mfaSelectedEmployee: any = null;
   mfaResetting = false;
 
+  private loadMfaEmployees() {
+    this.userService.listAllUsers().subscribe({
+      next: (res: any) => {
+        const items = Array.isArray(res) ? res : res?.items;
+        this.mfaEmployeeList = (items ?? []).map((u: any) => ({
+          userId: u.id,
+          employeeId: u.employeeCode,
+          name: u.username
+        }));
+      },
+      error: (err) => console.error('Failed to fetch employee list', err)
+    });
+  }
+
   onResetMfa() {
-    const targetUserId = Number(this.selectedEmployee?.userId);
+    const targetUserId = Number(this.mfaSelectedEmployee?.userId);
     if (!targetUserId) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select an employee' });
       return;
     }
-    if (!confirm(`Reset Google Authenticator for ${this.selectedEmployee?.name}? They will scan a new QR code at next login and their open sessions end.`)) return;
+    if (!confirm(`Reset Google Authenticator for ${this.mfaSelectedEmployee?.name}? They will scan a new QR code at next login and their open sessions end.`)) return;
     this.mfaResetting = true;
     this.userService.adminResetMfa(targetUserId).subscribe({
       next: (res) => {
         this.mfaResetting = false;
+        this.mfaSelectedEmployee = null;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
       },
       error: (err) => {
