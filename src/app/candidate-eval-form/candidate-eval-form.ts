@@ -1,25 +1,17 @@
 
 
-import { Component, computed, signal, effect, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 
-// PrimeNG (swap for your UI lib as needed)
-import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { ChipModule } from 'primeng/chip';
 import { Recuriting } from '../services/recruiting/recuriting';
-import { Departments, Department } from '../services/departments/departments';
-import { ProgressBar } from 'primeng/progressbar';
-import { Tag } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { resolveFileUrl } from '../pipes/file-url.pipe';
 
 
@@ -36,8 +28,7 @@ type SelectOpt = { label: string; value: string };
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule,
-    CardModule, InputTextModule, DatePicker, SelectModule,
-    InputNumberModule, TextareaModule, ButtonModule, DividerModule, ChipModule, ProgressBar, Tag
+    InputTextModule, DatePicker, SelectModule, InputNumberModule, ButtonModule
   ],
   templateUrl: './candidate-eval-form.html',
   styleUrl: './candidate-eval-form.css'
@@ -47,7 +38,6 @@ export class CandidateEvalForm {
   form: any;
   saving: boolean = false;
   panelId: number | null = null;
-  departments: SelectOpt[] = [];
   isRestricted = false; // set based on role and department
   username = '';
   yesNo = ['Yes', 'No'].map(x => ({ label: x, value: x }));
@@ -86,30 +76,24 @@ export class CandidateEvalForm {
   // yesNo = ['Yes','No'].map(x => ({label:x, value:x}));
 
   criteria = [
-    { key: 'jobSkills', label: 'Job skills' },
-    { key: 'jobKnowledge', label: 'Job knowledge' },
-    { key: 'attitude', label: 'Attitude & behavior' },
-    { key: 'communication', label: 'Communication skills' }
+    { key: 'jobSkills', label: 'Job skills', hint: 'Can they do the hands-on work this role needs?' },
+    { key: 'jobKnowledge', label: 'Job knowledge', hint: 'Do they understand the domain, tools and processes?' },
+    { key: 'attitude', label: 'Attitude & behavior', hint: 'Ownership, professionalism, how they handle pressure.' },
+    { key: 'communication', label: 'Communication skills', hint: 'Clarity, listening, and how well they explain.' }
   ] as const;
-  private loadDepartments() {
-    this.deptSvc.getDepartments().subscribe({
-      next: (list: Department[]) => {
-        // map API -> PrimeNG options; keep value = name to avoid changing your form control type
-        this.departments = (list || []).map(d => ({ label: d.name, value: d.name }));
-      },
-      error: (err) => {
-        console.error('Failed to load departments', err);
-        this.departments = []; // fallback empty
-      }
-    });
-  }
-  constructor(private fb: FormBuilder, private api: Recuriting, private deptSvc: Departments, private messageService: MessageService, private sanitizer: DomSanitizer) {
+  readonly scale = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  decisions = ['Selected', 'Shortlisted', 'Hold', 'Rejected'];
+  showResume = true;
+
+  constructor(private fb: FormBuilder, private api: Recuriting, private messageService: MessageService, private sanitizer: DomSanitizer) {
+    // Candidate details are display-only (they come from the interview and are
+    // never saved from here), so they carry no validators.
     this.form = this.fb.group({
       candidate: this.fb.group({
-        name: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
-        date: this.fb.control<Date | null>(null, { validators: Validators.required }),
-        position: this.fb.control<string>('', { validators: Validators.required, nonNullable: true }),
-        department: this.fb.control<string | null>(null, { validators: Validators.required }),
+        name: this.fb.control<string>('', { nonNullable: true }),
+        date: this.fb.control<Date | null>(null),
+        position: this.fb.control<string>('', { nonNullable: true }),
+        department: this.fb.control<string | null>(null),
         qualification: this.fb.control<string>(''),
         experienceYears: this.fb.control<number | null>(null),
       }),
@@ -170,7 +154,6 @@ export class CandidateEvalForm {
 
     this.username = localStorage.getItem('name') || '';
     console.log('role:', rawRole, '→', norm, 'deptId:', deptId, 'isRestricted:', this.isRestricted);
-    this.loadDepartments();
     this.applyAccessRules();
     if (this.pendingInterview) {
       this.populateFromInterview(this.pendingInterview);
@@ -196,21 +179,13 @@ export class CandidateEvalForm {
         attitude: this.fb.control<number | null>(null, { validators: score01Validator }),
         communication: this.fb.control<number | null>(null, { validators: score01Validator }),
       }),
-      signature: this.fb.control<string>(''),
-      // ⬇️ important: type as number | null (not just null)
+      // Questions the panelist explicitly marked "not applicable" (score null).
+      naKeys: this.fb.control<string[]>([], { nonNullable: true }),
+      comments: this.fb.control<string>('', { nonNullable: true }),
       average: this.fb.control<number | null>({ value: null, disabled: true }),
     });
 
-    g.get('scores')!.valueChanges.subscribe((scores: any) => {
-      const vals = this.criteria
-        .map(c => Number(scores?.[c.key]))
-        .filter(n => Number.isFinite(n));
-      const avg: number | null = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
-
-      // now this matches FormControl<number | null>
-      (g.get('average') as FormControl<number | null>).setValue(avg, { emitEvent: false });
-    });
-
+    this.syncAverage(g);
     this.panelArr.push(g);
     // apply current rule to the newly added group
     this.setPanelValidators(!this.isRestricted);
@@ -248,7 +223,19 @@ export class CandidateEvalForm {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Please fill Panel User ID and Name for each panelist before submitting.'
+          detail: 'Your name is missing from the scorecard. Add it, then submit again.'
+        });
+        this.saving = false;
+        return;
+      }
+      // Questions that don't apply can be skipped, but the average needs at
+      // least one rated question to mean anything.
+      if (this.panelArr.controls.some(g => this.ratedCount(g) === 0)) {
+        this.form.markAllAsTouched();
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Nothing rated yet',
+          detail: 'Rate at least one question before submitting. Mark the rest N/A if they don\'t apply.'
         });
         this.saving = false;
         return;
@@ -260,15 +247,17 @@ export class CandidateEvalForm {
         jobSkills: number | null; jobKnowledge: number | null; attitude: number | null; communication: number | null;
       };
 
+      // null (not undefined) for N/A / blank, so a score the panelist cleared
+      // is actually removed instead of the old value being kept.
       const dto = {
         panelId: this.panelId,            // REQUIRED by backend
         name: g.get('name')!.value,
         designation: g.get('designation')!.value || undefined,
-        jobSkills: scores.jobSkills ?? undefined,
-        jobKnowledge: scores.jobKnowledge ?? undefined,
-        attitude: scores.attitude ?? undefined,
-        communication: scores.communication ?? undefined,
-        notes: g.get('signature')!.value || undefined,
+        jobSkills: scores.jobSkills ?? null,
+        jobKnowledge: scores.jobKnowledge ?? null,
+        attitude: scores.attitude ?? null,
+        communication: scores.communication ?? null,
+        notes: (g.get('comments')!.value || '').trim() || null,
         submit, // DRAFT or SUBMITTED (server computes status)
       };
 
@@ -374,7 +363,9 @@ export class CandidateEvalForm {
   private setPanelValidators(required: boolean) {
     this.panelArr.controls.forEach(g => {
       const scores = (g.get('scores') as FormGroup);
-      const vs = required ? [Validators.required, score01Validator] : [score01Validator];
+      // Individual questions are never required — N/A / blank ones are simply
+      // left out of the average. saveAllPanel checks at least one is rated.
+      const vs = [score01Validator];
 
       // name required if we're enforcing
       g.get('name')!.setValidators(required ? [Validators.required] : []);
@@ -585,21 +576,81 @@ get isImageResume(): boolean {
         attitude: this.fb.control<number | null>(f?.attitude ?? null, { validators: score01Validator }),
         communication: this.fb.control<number | null>(f?.communication ?? null, { validators: score01Validator }),
       }),
-      signature: this.fb.control<string>(f?.notes || ''),
+      // N/A isn't stored separately — once submitted, an empty score was
+      // skipped on purpose, so show it as N/A. In a draft it may simply be
+      // not rated yet.
+      naKeys: this.fb.control<string[]>(
+        this.isSubmittedFb(f) ? this.criteria.filter(c => f?.[c.key] == null).map(c => c.key) : [],
+        { nonNullable: true }),
+      comments: this.fb.control<string>(f?.notes || '', { nonNullable: true }),
       average: this.fb.control<number | null>({ value: f?.average ?? null, disabled: true }),
       panelUserId: this.fb.control<number | null>(f?.panelUserId ?? null),
       status: this.fb.control<string>(f?.status ?? 'DRAFT'),
       submittedAt: this.fb.control<Date | null>(f?.submittedAt ? new Date(f.submittedAt) : null),
     });
 
-    // keep average in sync
+    this.syncAverage(g);
+    return g;
+  }
+
+  // ---- scorecard ----
+  /** Average over the rated questions only; N/A and blank are left out. */
+  private syncAverage(g: FormGroup) {
     g.get('scores')!.valueChanges.subscribe((scores: any) => {
-      const vals = this.criteria.map(c => Number(scores?.[c.key])).filter(Number.isFinite);
+      const vals = this.criteria
+        .map(c => scores?.[c.key])
+        .filter((n: any) => typeof n === 'number' && Number.isFinite(n)) as number[];
       const avg = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
       (g.get('average') as FormControl<number | null>).setValue(avg, { emitEvent: false });
     });
+  }
 
-    return g;
+  score(g: AbstractControl, key: string): number | null {
+    const v = g.get(['scores', key])?.value;
+    return typeof v === 'number' ? v : null;
+  }
+
+  isNa(g: AbstractControl, key: string): boolean {
+    return (g.get('naKeys')?.value as string[] | undefined)?.includes(key) ?? false;
+  }
+
+  /** Pick a score; picking the current score again clears it. */
+  setScore(g: AbstractControl, key: string, value: number) {
+    if (g.disabled) return;
+    const ctrl = g.get(['scores', key])!;
+    ctrl.setValue(ctrl.value === value ? null : value);
+    ctrl.markAsTouched();
+    this.setNa(g, key, false);
+  }
+
+  toggleNa(g: AbstractControl, key: string) {
+    if (g.disabled) return;
+    const on = !this.isNa(g, key);
+    this.setNa(g, key, on);
+    if (on) g.get(['scores', key])!.setValue(null);
+  }
+
+  private setNa(g: AbstractControl, key: string, on: boolean) {
+    const ctrl = g.get('naKeys')!;
+    const keys = (ctrl.value as string[]).filter(k => k !== key);
+    ctrl.setValue(on ? [...keys, key] : keys);
+  }
+
+  ratedCount(g: AbstractControl): number {
+    return this.criteria.filter(c => this.score(g, c.key) != null).length;
+  }
+
+  /** Questions that won't count: marked N/A or left blank. */
+  skippedCount(g: AbstractControl): number {
+    return this.criteria.length - this.ratedCount(g);
+  }
+
+  initials(name: string | null | undefined): string {
+    return (name || '?').trim().split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('');
+  }
+
+  setDecision(value: string) {
+    this.form.get('conclusion')!.setValue(value);
   }
 
   @Output() closeForm = new EventEmitter<void>();
