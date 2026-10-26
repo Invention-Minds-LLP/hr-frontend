@@ -149,6 +149,7 @@ export class Masters implements OnInit {
     { label: 'Night', value: 'NIGHT' },
     { label: 'Flexible', value: 'FLEXIBLE' },
     { label: 'Nursing', value: 'NURSING' },
+    { label: 'Executive', value: 'EXECUTIVE' },
   ];
 
   constructor(
