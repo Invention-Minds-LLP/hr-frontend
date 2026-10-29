@@ -282,7 +282,11 @@ export class CandidateSummary implements OnInit {
       evidenceUrl: edit.evidenceUrl || undefined,
       note:        edit.note        || undefined,
     }).subscribe({
-      next: () => { this.toast.add({ severity: 'success', summary: 'Saved', detail: 'Check updated.' }); this.loadBgv(); },
+      next: (updated: any) => { 
+      check.status = updated?.status ?? edit.status;
+      check.evidenceUrl = updated?.evidenceUrl ?? edit.evidenceUrl;
+      check.note = updated?.note ?? edit.note;
+        this.toast.add({ severity: 'success', summary: 'Saved', detail: 'Check updated.' }); },
       error: (err) => this.showError('Failed to update check', err),
     });
   }

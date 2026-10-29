@@ -66,6 +66,8 @@ export class ManagerShift {
   selectedPatternId!: number;
   startDate = new Date();
 
+  shiftsLoading = false;
+
   isMonthLocked = false;
   // dialog
   requestVisible = false;
@@ -84,6 +86,7 @@ export class ManagerShift {
   patternVisible = false;
 
   departmentId: number = Number(localStorage.getItem('deptId'));
+  private shiftsReady: Promise<void> = Promise.resolve();
 
   patternForm = {
     name: '',
@@ -158,15 +161,6 @@ export class ManagerShift {
         });
       }
     });
-    // this.service.getExecutiveShifts().subscribe(r => this.executiveShifts = r);
-    this.service.getExecutiveShifts(this.departmentId).subscribe(res => {
-      this.executiveShifts = res.map((s: any) => ({
-        ...s,
-        label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
-      }));
-      this.buildExecutiveRotation();
-    });
-    this.service.getRotationPatterns().subscribe(r => this.patterns = r);
   }
 
   // ── Team-list filtering & department-name sort ──
@@ -859,6 +853,7 @@ export class ManagerShift {
 
 
   async onMonthSelected() {
+    await this.shiftsReady;
     this.generateWeeks();
 
 
@@ -1860,6 +1855,7 @@ export class ManagerShift {
     this.weekOffDateMap = {};
     this.isMonthLocked = false;
     this.selectedMonth = undefined!;
+    this.loadShifts(emp);
   }
 
 
@@ -2000,5 +1996,14 @@ export class ManagerShift {
     return d;
   }
 
+loadShifts(emp: any) {
+  this.service.getExecutiveShifts(emp.Department.id).subscribe(res => {
+    this.executiveShifts = res.map((s: any) => ({
+      ...s,
+      label: `${s.name} (${this.formatTime(s.startTime)} - ${this.formatTime(s.endTime)})`
+    }));
+    this.buildExecutiveRotation();
+  });
+}
 
 }

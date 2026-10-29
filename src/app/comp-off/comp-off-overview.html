@@ -78,7 +78,15 @@
           </span>
         </td>
         <td>{{ usedForLabel(item) }}</td>
-        <td>{{ item.grantedBy || '-' }}</td>
+        <!-- <td>{{ item.grantedByName || '-' }}</td> -->
+         <td>
+            <div>
+                {{ item.grantedByName || '-' }}
+            </div>
+            <div style="font-size: 13px;">
+                {{ item.grantedByEmployeeCode || '-'}}
+            </div>
+         </td>
         <td>{{ item.grantReason || '-' }}</td>
         <td class="action-cell">
           <div class="action-btns" *ngIf="!item.used; else noDelete">

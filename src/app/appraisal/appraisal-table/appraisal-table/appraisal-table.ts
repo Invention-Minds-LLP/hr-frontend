@@ -943,4 +943,26 @@ export class AppraisalTable {
       }
     });
   }
+
+  downloadingId: number | null = null;
+
+exportRatings(id: number) {
+  this.downloadingId = id;
+  this.appraisalService.downloadAppraisalRatingsPdf(id).subscribe({
+    next: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `AppraisalRatings_${id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.downloadingId = null;
+    },
+    error: () => {
+      this.downloadingId = null;
+      // use your existing toast here, e.g. this.messageService.add({ severity: 'error', summary: 'Could not download PDF' });
+    },
+  });
+}
+
 }
