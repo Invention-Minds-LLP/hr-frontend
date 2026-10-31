@@ -6,7 +6,7 @@ import { AuthSession } from '../../services/auth/auth-session';
  * DPDP screen protection, app-wide (ported from DocMinds):
  *   • no copy / cut / select / drag / right-click outside form fields
  *   • blocks PrintScreen, Ctrl+P / S / U, F12 and devtools shortcuts
- *   • blurs the page when the window loses focus (screenshot tools, Alt+Tab)
+ *   • covers the page when the window loses focus (screenshot tools, Alt+Tab)
  *     and briefly on PrintScreen, overwriting the clipboard
  *   • tiled watermark with the user, employee code and date, so any photo or
  *     capture that slips through is traceable
@@ -14,6 +14,9 @@ import { AuthSession } from '../../services/auth/auth-session';
  * Browsers cannot fully stop OS-level screenshots or phone cameras; these
  * measures deter casual capture and make leaks attributable.
  */
+/** How long the window must stay unfocused before the privacy cover goes up. */
+const PRIVACY_COVER_DELAY_MS = 300;
+
 @Injectable({ providedIn: 'root' })
 export class ScreenProtectionService {
   private doc = inject(DOCUMENT);
@@ -43,11 +46,29 @@ export class ScreenProtectionService {
       this.doc.addEventListener('contextmenu', (e) => e.preventDefault(), true);
       this.doc.addEventListener('keydown', (e) => this.onKeyDown(e), true);
       this.doc.addEventListener('keyup', (e) => { if (e.key === 'PrintScreen') this.onPrintScreen(); }, true);
-      // Focus moving into an embedded iframe (PDF / résumé viewer) also fires window blur; skip it.
-      win.addEventListener('blur', () => setTimeout(() => {
-        if (this.sessionActive && this.doc.activeElement?.tagName !== 'IFRAME') body.classList.add('hm-privacy-blur');
-      }));
-      win.addEventListener('focus', () => body.classList.remove('hm-privacy-blur'));
+      // The privacy cover is one opaque layer over the page. It used to be
+      // filter: blur() on every element, which Firefox repaints slowly enough
+      // to freeze big pages — and Firefox fires window blur for its own file
+      // pickers and prompts, so it ran during ordinary use.
+      const cover = this.doc.createElement('div');
+      cover.className = 'hm-privacy-cover';
+      cover.setAttribute('aria-hidden', 'true');
+      cover.textContent = 'HR Minds — content hidden while this window is not in focus';
+      body.appendChild(cover);
+
+      // Wait a moment before covering: a focus blip (dropdown, picker opening)
+      // shouldn't flash the cover. Focus moving into an embedded iframe
+      // (PDF / résumé viewer) also fires window blur; skip it.
+      let blurTimer: ReturnType<typeof setTimeout> | undefined;
+      win.addEventListener('blur', () => {
+        clearTimeout(blurTimer);
+        blurTimer = setTimeout(() => {
+          if (this.sessionActive && !this.doc.hasFocus() && this.doc.activeElement?.tagName !== 'IFRAME') {
+            body.classList.add('hm-privacy-blur');
+          }
+        }, PRIVACY_COVER_DELAY_MS);
+      });
+      win.addEventListener('focus', () => { clearTimeout(blurTimer); body.classList.remove('hm-privacy-blur'); });
       this.doc.addEventListener('visibilitychange', () => {
         body.classList.toggle('hm-privacy-blur', this.sessionActive && this.doc.visibilityState === 'hidden');
       });

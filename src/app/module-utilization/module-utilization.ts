@@ -10,11 +10,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ModuleGuide } from '../shared/module-guide/module-guide';
+import { environment } from '../../environment/environment.prod';
 import {
   ModuleUsageService,
   ModuleUsageModule,
   ModuleUsageUser,
 } from '../services/module-usage/module-usage.service';
+
+/** Modules a client may not be licensed for — same environment flags the navbar uses. */
+const MODULE_ENABLED: Record<string, boolean> = {
+  payroll: environment.payrollEnabled,
+  'weekly-tracker': environment.weeklyTrackerEnabled,
+};
 
 @Component({
   selector: 'app-module-utilization',
@@ -38,6 +45,8 @@ export class ModuleUtilization implements OnInit {
   totalEligible = 0;
   rangeFrom: string | null = null;
   rangeTo: string | null = null;
+  dataFrom: string | null = null;
+  retentionDays = 0;
 
   // Users dialog
   usersDialogVisible = false;
@@ -65,10 +74,12 @@ export class ModuleUtilization implements OnInit {
     this.loading = true;
     this.svc.getSummary(this.toISO(this.fromDate), this.toISO(this.toDate)).subscribe({
       next: (res) => {
-        this.modules = res.modules || [];
+        this.modules = (res.modules || []).filter((m) => MODULE_ENABLED[m.key] !== false);
         this.totalEligible = res.totalEligible || 0;
         this.rangeFrom = res.from;
         this.rangeTo = res.to;
+        this.dataFrom = res.dataFrom;
+        this.retentionDays = res.retentionDays || 0;
         this.loading = false;
       },
       error: (err) => {
@@ -100,6 +111,11 @@ export class ModuleUtilization implements OnInit {
       (u.code || '').toLowerCase().includes(q) ||
       (u.department || '').toLowerCase().includes(q),
     );
+  }
+
+  /** The picked range starts before the oldest log still kept — earlier days read as zero. */
+  get rangeBeforeData(): boolean {
+    return !!this.rangeFrom && !!this.dataFrom && new Date(this.rangeFrom) < new Date(this.dataFrom);
   }
 
   adoptionClass(pct: number): string {

@@ -13,7 +13,15 @@ body.hm-protected input,
 body.hm-protected textarea,
 body.hm-protected [contenteditable="true"],
 body.hm-protected .ql-editor { -webkit-user-select: text; user-select: text; }
-body.hm-privacy-blur > *:not(.hm-watermark) { filter: blur(18px); }
+/* Privacy cover: one opaque layer, cheap to draw (a page-wide filter: blur()
+   froze Firefox). Below the watermark so a capture still carries the user. */
+.hm-privacy-cover {
+  display: none; position: fixed; inset: 0; z-index: 2147482999;
+  align-items: center; justify-content: center; padding: 16px; text-align: center;
+  background: #1e1b2e; color: #c4b5fd; font: 600 15px Arial, sans-serif;
+}
+body.hm-privacy-blur .hm-privacy-cover { display: flex; }
+@media print { .hm-privacy-cover { display: none !important; } }
 .hm-watermark {
   position: fixed; inset: 0; z-index: 2147483000; pointer-events: none;
   background-repeat: repeat; opacity: 0.07;
