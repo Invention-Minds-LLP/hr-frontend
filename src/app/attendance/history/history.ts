@@ -254,9 +254,11 @@ exportMonthlyRegister() {
     .subscribe(async (data: any[]) => {
 
       if (!data.length) return;
-      if (!(await this.downloadOtp.verify(`Attendance register ${month} (Excel)`))) return;
+      const stamp = await this.downloadOtp.verifyStamp(`Attendance register ${month} (Excel)`);
+      if (!stamp) return;
 
       const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.sheet_add_aoa(worksheet, [[], [stamp]], { origin: -1 }); // Download ID footer
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Register');
 

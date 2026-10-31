@@ -612,7 +612,8 @@ export class RecruitmentDashboard implements OnInit {
   }
   async exportApplications() {
     if (!this.applicationRows.length) return;
-    if (!(await this.downloadOtp.verify('Job applications (Excel)'))) return;
+    const stamp = await this.downloadOtp.verifyStamp('Job applications (Excel)');
+    if (!stamp) return;
 
     const exportData = this.applicationRows.map((r: any, index: number) => ({
       'S.No': index + 1,
@@ -626,6 +627,7 @@ export class RecruitmentDashboard implements OnInit {
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.sheet_add_aoa(worksheet, [[], [stamp]], { origin: -1 }); // Download ID footer
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Applications');
 

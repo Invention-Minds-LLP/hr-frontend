@@ -103,7 +103,10 @@ hr {
   width: 110%;
   height: 120px;
   border-top: 1px solid #C4C4C4;
-
+  /* Hangs over the main nav row, whose scroller is position:relative and
+     arrows z-index:3 — without this they sit on top and eat the Log Out click.
+     Stays below the logout popup (999). */
+  z-index: 100;
 }
 
 .flex {

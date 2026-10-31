@@ -16,7 +16,7 @@ import { DownloadLogRow, DownloadOtpService } from '../../shared/download-otp/do
       <div class="dl__head">
         <div class="dl__title">Download Logs</div>
         <div class="dl__filters">
-          <input pInputText type="text" placeholder="Search name, code, file, reason" [(ngModel)]="search" (keyup.enter)="load(1)" />
+          <input pInputText type="text" placeholder="Search Download ID, name, code, file, reason" [(ngModel)]="search" (keyup.enter)="load(1)" />
           <input pInputText type="date" [(ngModel)]="from" (change)="load(1)" aria-label="From date" />
           <input pInputText type="date" [(ngModel)]="to" (change)="load(1)" aria-label="To date" />
           <button pButton type="button" icon="pi pi-search" label="Search" (click)="load(1)"></button>
@@ -27,11 +27,12 @@ import { DownloadLogRow, DownloadOtpService } from '../../shared/download-otp/do
                (onLazyLoad)="onPage($event)" [first]="(page - 1) * pageSize" responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>When</th><th>Employee</th><th>Department / Role</th><th>What</th><th>Reason</th><th>Served</th><th>IP</th>
+            <th>Download ID</th><th>When</th><th>Employee</th><th>Department / Role</th><th>What</th><th>Reason</th><th>Served</th><th>IP</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-r>
           <tr>
+            <td class="dl__code">{{ r.downloadCode || '—' }}</td>
             <td>{{ r.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
             <td><b>{{ r.username }}</b><div class="dl__muted">{{ r.employeeCode }}</div></td>
             <td>{{ r.departmentName || '—' }}<div class="dl__muted">{{ r.role }}</div></td>
@@ -42,7 +43,7 @@ import { DownloadLogRow, DownloadOtpService } from '../../shared/download-otp/do
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
-          <tr><td colspan="7" class="dl__muted">No downloads recorded for this filter.</td></tr>
+          <tr><td colspan="8" class="dl__muted">No downloads recorded for this filter.</td></tr>
         </ng-template>
       </p-table>
       @if (error) { <p class="dl__error">{{ error }}</p> }
@@ -55,6 +56,7 @@ import { DownloadLogRow, DownloadOtpService } from '../../shared/download-otp/do
     .dl__filters { display: flex; flex-wrap: wrap; gap: 8px; }
     .dl__muted { font-size: 12px; opacity: .7; }
     .dl__reason { max-width: 320px; white-space: pre-wrap; }
+    .dl__code { font-family: monospace; font-size: 12px; white-space: nowrap; user-select: text; }
     .dl__error { color: #c2410c; }
   `],
 })

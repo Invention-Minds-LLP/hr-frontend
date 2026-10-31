@@ -465,7 +465,8 @@ export class EmployeeList {
         : this.employee;
 
     if (!sourceData || sourceData.length === 0) return;
-    if (!(await this.downloadOtp.verify('Employee full data (Excel)'))) return;
+    const stamp = await this.downloadOtp.verifyStamp('Employee full data (Excel)');
+    if (!stamp) return;
 
     const finalRows = sourceData.map((emp: any) => {
       let flat = this.flatten(emp);
@@ -531,6 +532,7 @@ export class EmployeeList {
     });
 
     const worksheet = XLSX.utils.json_to_sheet(finalRows);
+    XLSX.utils.sheet_add_aoa(worksheet, [[], [stamp]], { origin: -1 }); // Download ID footer
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
     XLSX.writeFile(workbook, 'Employee_Full_Data.xlsx');

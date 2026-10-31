@@ -67,15 +67,37 @@ export class DownloadOtpService {
     return this.http.get<PictureCaptcha>(`${this.apiUrl}/captcha`);
   }
 
+  /** Footer line of the most recently authorised download ("Download ID: … | Download #n"). */
+  private lastStamp: string | null = null;
+
   /** Logs the download (what/why) and arms the one-time ticket for a server file route. */
   async authorize(body: { captchaId: string; captchaAnswer: number[]; reason: string; label: string }): Promise<void> {
     const page = typeof window !== 'undefined' ? window.location.pathname : null;
-    const res = await firstValueFrom(this.http.post<{ logId: string; ticket: string }>(
+    const res = await firstValueFrom(this.http.post<{ logId: string; ticket: string; downloadCode: string; stamp: string }>(
       `${this.apiUrl}/authorize`,
       { ...body, page },
       { headers: { 'X-Download-Grant': this.currentGrant() || '' } },
     ));
+    this.lastStamp = res.stamp;
     setDownloadTicket(res.ticket);
+  }
+
+  /**
+   * For exports built in the browser: runs the same check as verify() and
+   * resolves the footer line to put in the file, or null if cancelled.
+   * (Server files are stamped by the backend — no need to call this for them.)
+   *
+   *   const stamp = await this.downloadOtp.verifyStamp('Employee list (Excel)');
+   *   if (!stamp) return;
+   */
+  async verifyStamp(label = 'this download'): Promise<string | null> {
+    this.lastStamp = null;
+    return (await this.verify(label)) ? this.lastStamp : null;
+  }
+
+  /** Print exports: the stamp is printed at the foot of every page (styles.css, @media print). */
+  setPrintStamp(stamp: string): void {
+    try { document.body.dataset['downloadStamp'] = stamp; } catch { /* SSR / no DOM */ }
   }
 
   getLogs(params: { page: number; pageSize: number; search?: string; from?: string; to?: string }): Observable<DownloadLogPage> {
@@ -92,6 +114,7 @@ export interface PictureCaptcha { captchaId: string; image: string; prompt: stri
 
 export interface DownloadLogRow {
   id: string;
+  downloadCode: string | null;
   employeeCode: string;
   username: string;
   role: string;

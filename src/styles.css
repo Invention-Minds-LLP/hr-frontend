@@ -40,6 +40,15 @@ body.hm-privacy-blur > *:not(.hm-watermark) { filter: blur(18px); }
   padding: 16px 20px 20px !important;
 }
 
+/* Download ID at the foot of every printed page (DownloadOtpService.setPrintStamp). */
+@media print {
+  body[data-download-stamp]::after {
+    content: attr(data-download-stamp);
+    position: fixed; left: 0; right: 0; bottom: 4px;
+    font: 8px Arial, sans-serif; color: #555; text-align: center;
+  }
+}
+
 @media print { .hm-watermark { opacity: 0.15; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 /* ==== PRIMARY COLOR OVERRIDES (GLOBAL) ==== */
 /* styles.scss (global) */
