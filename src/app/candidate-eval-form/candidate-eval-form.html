@@ -1,229 +1,265 @@
-<form class="eval-form" *ngIf="form" [formGroup]="form">
-  <div class="btn">
-    <button class="back-btn" (click)="goBack()">← Back</button>
-  </div>
-  <p-card class="eval-card">
-    <h2 class="page-title">Candidate Evaluation Form</h2>
+<form class="ev" *ngIf="form" [formGroup]="form">
 
-    <!-- Candidate info -->
-    <div class="section">
-      <div class="section-title">Candidate Information</div>
+  <!-- Top bar -->
+  <header class="ev-top">
+    <button type="button" class="ev-back" (click)="goBack()">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      <span>Back to interviews</span>
+    </button>
+    <h2 class="ev-title">Candidate evaluation</h2>
+  </header>
 
-      <!-- ⬇️ one wrapper for the whole candidate group -->
-      <div class="form-grid" formGroupName="candidate">
-        <div class="field">
-          <label>Full name <span class="req">*</span></label>
-          <input pInputText formControlName="name" placeholder="e.g. Priya K." />
-        </div>
-
-        <div class="field">
-          <label>Date <span class="req">*</span></label>
-          <p-datepicker formControlName="date" dateFormat="dd-mm-yy"></p-datepicker>
-        </div>
-
-        <div class="field">
-          <label>Position applied for <span class="req">*</span></label>
-          <input pInputText formControlName="position" />
-        </div>
-
-        <div class="field">
-          <label>Department <span class="req">*</span></label>
-          <p-select [options]="departments" optionLabel="label" optionValue="value" formControlName="department"
-            placeholder="Select" [filter]="true"></p-select>
-        </div>
-
-        <div class="field">
-          <label>Highest qualification</label>
-          <input pInputText formControlName="qualification" />
-        </div>
-
-        <div class="field">
-          <label>Total experience (years)</label>
-          <p-inputNumber formControlName="experienceYears" [min]="0" [max]="50"></p-inputNumber>
-        </div>
+  <!-- Candidate summary (display only — comes from the interview) -->
+  <section class="ev-candidate" aria-label="Candidate" formGroupName="candidate">
+    <div class="ev-avatar" aria-hidden="true">{{ initials(form.get('candidate.name')?.value) }}</div>
+    <div class="ev-candidate-main">
+      <h3 class="ev-name">{{ form.get('candidate.name')?.value || 'Candidate' }}</h3>
+      <p class="ev-role">
+        {{ form.get('candidate.position')?.value || 'Position not set' }}
+        <ng-container *ngIf="form.get('candidate.department')?.value">
+          <span class="ev-dot" aria-hidden="true">·</span>{{ form.get('candidate.department')?.value }}
+        </ng-container>
+      </p>
+    </div>
+    <dl class="ev-facts">
+      <div>
+        <dt>Interview</dt>
+        <dd>{{ (form.get('candidate.date')?.value | date:'dd MMM yyyy, h:mm a') || '—' }}</dd>
       </div>
-      <div class="resume-wrapper" *ngIf="candidateResumeUrl">
-        <label>Resume Preview</label>
+      <div>
+        <dt>Qualification</dt>
+        <dd>{{ form.get('candidate.qualification')?.value || '—' }}</dd>
+      </div>
+      <div>
+        <dt>Experience</dt>
+        <dd>
+          <ng-container *ngIf="form.get('candidate.experienceYears')?.value != null; else noExp">
+            {{ form.get('candidate.experienceYears')?.value }} yrs
+          </ng-container>
+          <ng-template #noExp>—</ng-template>
+        </dd>
+      </div>
+    </dl>
+    <button type="button" class="ev-ghost ev-resume-toggle" *ngIf="candidateResumeUrl"
+      (click)="showResume = !showResume" [attr.aria-expanded]="showResume">
+      <i class="pi" [ngClass]="showResume ? 'pi-eye-slash' : 'pi-file'" aria-hidden="true"></i>
+      {{ showResume ? 'Hide resume' : 'Show resume' }}
+    </button>
+  </section>
 
-        <!-- Image -->
-        <div class="resume-frame" *ngIf="isImageResume; else pdfBlock">
-          <img [src]="candidateResumeRawUrl" class="resume-img" />
+  <div class="ev-body" [class.with-resume]="candidateResumeUrl && showResume">
+
+    <div class="ev-main">
+
+      <!-- ===== My scorecard (editable) ===== -->
+      <ng-template #myPanel>
+        <section class="ev-section" *ngFor="let g of panelArr.controls" [formGroup]="panelGroup(g)">
+          <div class="ev-section-head">
+            <div>
+              <h3 class="ev-h">Your scorecard</h3>
+              <p class="ev-sub">Rate each question from 0 to 10. If a question doesn't apply to this candidate, mark it N/A — it won't count in the average.</p>
+            </div>
+            <div class="ev-scorer" *ngIf="g.get('name')?.value; else nameInput">
+              Scoring as <b>{{ g.get('name')?.value }}</b>
+              <span *ngIf="g.get('designation')?.value">· {{ g.get('designation')?.value }}</span>
+            </div>
+            <ng-template #nameInput>
+              <label class="ev-field ev-name-input">
+                <span>Your name</span>
+                <input pInputText formControlName="name" placeholder="Enter your name" />
+              </label>
+            </ng-template>
+          </div>
+
+          <ol class="ev-questions">
+            <li class="ev-q" *ngFor="let c of criteria"
+              [class.is-na]="isNa(g, c.key)" [class.is-rated]="score(g, c.key) != null">
+              <div class="ev-q-text">
+                <span class="ev-q-label" [id]="'q-' + c.key">{{ c.label }}</span>
+                <span class="ev-q-hint">{{ c.hint }}</span>
+              </div>
+
+              <div class="ev-q-input">
+                <div class="ev-scale" role="radiogroup" [attr.aria-labelledby]="'q-' + c.key">
+                  <button type="button" class="ev-pt" *ngFor="let n of scale"
+                    role="radio" [attr.aria-checked]="score(g, c.key) === n"
+                    [attr.aria-label]="n + ' out of 10'"
+                    [class.on]="score(g, c.key) === n"
+                    [class.filled]="score(g, c.key) != null && n < score(g, c.key)!"
+                    [disabled]="g.disabled" (click)="setScore(g, c.key, n)">{{ n }}</button>
+                </div>
+                <button type="button" class="ev-na" [class.on]="isNa(g, c.key)"
+                  [attr.aria-pressed]="isNa(g, c.key)" [disabled]="g.disabled"
+                  (click)="toggleNa(g, c.key)">N/A</button>
+              </div>
+
+              <span class="ev-q-value" aria-live="polite">
+                <ng-container *ngIf="score(g, c.key) != null">{{ score(g, c.key) }}<small>/10</small></ng-container>
+                <ng-container *ngIf="score(g, c.key) == null && isNa(g, c.key)">N/A</ng-container>
+                <ng-container *ngIf="score(g, c.key) == null && !isNa(g, c.key)">—</ng-container>
+              </span>
+            </li>
+          </ol>
+
+          <label class="ev-field ev-comments">
+            <span>Comments <em>optional</em></span>
+            <textarea formControlName="comments" rows="3"
+              placeholder="Strengths, concerns, anything the next round should probe…"></textarea>
+          </label>
+
+          <footer class="ev-submitbar">
+            <div class="ev-total" aria-live="polite">
+              <span class="ev-total-num">{{ g.get('average')?.value ?? '—' }}<small *ngIf="g.get('average')?.value != null">/10</small></span>
+              <span class="ev-total-meta">
+                Average of <b>{{ ratedCount(g) }}</b> of {{ criteria.length }} rated
+                <ng-container *ngIf="skippedCount(g) > 0"> · {{ skippedCount(g) }} not counted</ng-container>
+              </span>
+            </div>
+            <button pButton type="button" class="ev-primary" icon="pi pi-send"
+              [label]="saving ? 'Submitting…' : 'Submit feedback'" [loading]="saving"
+              [disabled]="saving || g.disabled" (click)="saveAllPanel(true)"></button>
+          </footer>
+        </section>
+      </ng-template>
+
+      <!-- ===== All panel feedback (read only) ===== -->
+      <section class="ev-section" *ngIf="viewAllPanelReadOnly; else myPanel">
+        <div class="ev-section-head">
+          <div>
+            <h3 class="ev-h">Panel feedback</h3>
+            <p class="ev-sub">
+              <b>{{ submittedCount }}</b> of <b>{{ totalPanelMembers }}</b> panelists submitted
+              <ng-container *ngIf="totalPanelMembers > 0 && submittedCount < totalPanelMembers">
+                · waiting on {{ totalPanelMembers - submittedCount }}
+              </ng-container>
+            </p>
+          </div>
+          <div class="ev-overall" *ngIf="overallAverage != null">
+            <span class="ev-total-num">{{ overallAverage }}<small>/10</small></span>
+            <span class="ev-total-meta">Panel average</span>
+          </div>
         </div>
 
-        <!-- PDF -->
-        <ng-template #pdfBlock>
-          <div class="resume-frame">
-            <iframe [src]="candidateResumeUrl"></iframe>
+        <p class="ev-empty" *ngIf="!panelArr.length">
+          No panelist has filled the scorecard yet. Their scores appear here as soon as they save.
+        </p>
+
+        <article class="ev-pf" *ngFor="let g of panelArr.controls">
+          <header class="ev-pf-head">
+            <div class="ev-avatar sm" aria-hidden="true">{{ initials(g.get('name')?.value) }}</div>
+            <div class="ev-pf-who">
+              <b>{{ g.get('name')?.value || 'Unknown panelist' }}</b>
+              <span>{{ g.get('designation')?.value || '—' }}</span>
+            </div>
+            <span class="ev-status" [class.done]="g.get('status')?.value === 'SUBMITTED'">
+              {{ g.get('status')?.value === 'SUBMITTED' ? 'Submitted' : 'Draft' }}
+            </span>
+            <span class="ev-pf-avg">
+              {{ g.get('average')?.value ?? '—' }}<small *ngIf="g.get('average')?.value != null">/10</small>
+            </span>
+          </header>
+
+          <ul class="ev-bars">
+            <li *ngFor="let c of criteria" [class.is-na]="score(g, c.key) == null">
+              <span class="ev-bar-label">{{ c.label }}</span>
+              <span class="ev-bar" aria-hidden="true">
+                <span class="ev-bar-fill" [style.transform]="'scaleX(' + (score(g, c.key) ?? 0) / 10 + ')'"></span>
+              </span>
+              <span class="ev-bar-value">
+                {{ score(g, c.key) != null ? score(g, c.key) + '/10' : 'N/A' }}
+              </span>
+            </li>
+          </ul>
+          <p class="ev-pf-meta">{{ ratedCount(g) }} of {{ criteria.length }} rated</p>
+
+          <blockquote class="ev-pf-comment" *ngIf="g.get('comments')?.value">
+            {{ g.get('comments')?.value }}
+          </blockquote>
+        </article>
+      </section>
+
+      <!-- ===== Decision (HR) ===== -->
+      <section class="ev-section" *ngIf="isRestricted">
+        <div class="ev-section-head">
+          <div>
+            <h3 class="ev-h">Final decision</h3>
+            <p class="ev-sub">Recorded by HR after the panel has scored.</p>
           </div>
+        </div>
+
+        <div class="ev-decision" role="radiogroup" aria-label="Decision">
+          <button type="button" *ngFor="let d of decisions" role="radio"
+            class="ev-chip" [ngClass]="'d-' + d.toLowerCase()"
+            [class.on]="form.get('conclusion')?.value === d"
+            [attr.aria-checked]="form.get('conclusion')?.value === d"
+            (click)="setDecision(d)">{{ d }}</button>
+        </div>
+
+        <label class="ev-field ev-comments">
+          <span>Remarks <em>optional</em></span>
+          <textarea formControlName="remarks" rows="3" placeholder="Why this decision, next steps…"></textarea>
+        </label>
+      </section>
+
+      <!-- ===== HR use only ===== -->
+      <section class="ev-section" *ngIf="isRestricted">
+        <div class="ev-section-head">
+          <div>
+            <h3 class="ev-h">Offer details</h3>
+            <p class="ev-sub">For HR only. Not visible to the panel.</p>
+          </div>
+        </div>
+
+        <div class="ev-grid" formGroupName="hr">
+          <label class="ev-field">
+            <span>Present salary / month</span>
+            <p-inputNumber formControlName="presentSalary" [min]="0" mode="currency" currency="INR" locale="en-IN"></p-inputNumber>
+          </label>
+          <label class="ev-field">
+            <span>Expected salary / month</span>
+            <p-inputNumber formControlName="expectedSalary" [min]="0" mode="currency" currency="INR" locale="en-IN"></p-inputNumber>
+          </label>
+          <label class="ev-field">
+            <span>Gross offer / month</span>
+            <p-inputNumber formControlName="grossOffer" [min]="0" mode="currency" currency="INR" locale="en-IN"></p-inputNumber>
+          </label>
+          <label class="ev-field">
+            <span>Payslip produced?</span>
+            <p-select formControlName="payslip" [options]="yesNo" placeholder="Select"></p-select>
+          </label>
+          <label class="ev-field">
+            <span>Notice period (days)</span>
+            <p-inputNumber formControlName="noticePeriod" [min]="0"></p-inputNumber>
+          </label>
+          <label class="ev-field">
+            <span>Expected joining date</span>
+            <p-datepicker formControlName="expectedDoj" dateFormat="dd-mm-yy" appendTo="body"></p-datepicker>
+          </label>
+        </div>
+
+        <footer class="ev-submitbar">
+          <button type="button" class="ev-ghost" (click)="reset()">Reset</button>
+          <button pButton type="button" class="ev-primary" icon="pi pi-check"
+            [label]="saving ? 'Saving…' : 'Save evaluation'" [loading]="saving" [disabled]="saving"
+            (click)="submit()"></button>
+        </footer>
+      </section>
+    </div>
+
+    <!-- Resume -->
+    <aside class="ev-resume" *ngIf="candidateResumeUrl && showResume" aria-label="Resume">
+      <div class="ev-resume-head">
+        <span>Resume</span>
+        <a [href]="candidateResumeRawUrl" target="_blank" rel="noopener">
+          Open in new tab <i class="pi pi-external-link" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="ev-resume-frame">
+        <img *ngIf="isImageResume; else pdfBlock" [src]="candidateResumeRawUrl" alt="Candidate resume" />
+        <ng-template #pdfBlock>
+          <iframe [src]="candidateResumeUrl" title="Candidate resume"></iframe>
         </ng-template>
       </div>
-
-    </div>
-
-    <p-divider type="solid"></p-divider>
-
-    <!-- Panel & scoring -->
-    <ng-template #myPanel class="section">
-      <div class="section-title">
-        Interview Panel & Scores <span class="muted">(0–10 each)</span>
-      </div>
-
-      <div class="panel-grid mt-6" [style.gridTemplateColumns]="'220px ' + '220px '.repeat(panelArr.length)">
-        <div class="panel-cell muted">Criteria / Panel</div>
-
-        <!-- ⬇️ give each column its FormGroup -->
-        <div class="panel-cell" *ngFor="let p of panelArr.controls; let i = index" [formGroup]="panelGroup(p)">
-          <div class="panel-header">
-            <input pInputText placeholder="Name" formControlName="name" />
-            <input pInputText placeholder="Designation" formControlName="designation" />
-            <div class="panel-meta">
-              Avg: <b>{{ p.get('average')?.value ?? '—' }}</b>
-              <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger"
-                (click)="removePanelist(i)" *ngIf="panelArr.length > 1"></button>
-            </div>
-          </div>
-        </div>
-
-        <!-- criteria rows -->
-        <ng-container *ngFor="let c of criteria">
-          <div class="panel-cell crit">{{ c.label }}</div>
-          <div class="panel-cell" *ngFor="let p of panelArr.controls" [formGroup]="scoresGroup(p)">
-            <p-inputNumber [formControlName]="c.key" [min]="0" [max]="10" [useGrouping]="false" [showButtons]="true"
-              [step]="1" suffix="/10" [inputStyle]="{ width: '100%' }" [style]="{ width: '100%' }"></p-inputNumber>
-          </div>
-        </ng-container>
-
-        <!-- notes/signature -->
-        <div class="panel-cell crit">Signature / Notes</div>
-        <div class="panel-cell" *ngFor="let p of panelArr.controls" [formGroup]="panelGroup(p)">
-          <textarea pInputTextarea rows="2" formControlName="signature" placeholder="Notes / Signature"></textarea>
-        </div>
-      </div>
-      <div class="panel-toolbar">
-        <!-- <button pButton icon="pi pi-user-plus" label="Add panelist" type="button" (click)="addPanelist()"></button> -->
-        <span class="overall" *ngIf="overallAverage != null">Overall avg: <b>{{ overallAverage }}</b></span>
-        <span class="spacer"></span>
-        <button pButton type="button" label="Submit Panel Feedback" [loading]="saving"
-          [label]="saving? 'Submitting' : 'Submit Panel Feedback' " [disabled]="saving" icon="pi pi-save"
-          (click)="saveAllPanel(true)"></button>
-      </div>
-    </ng-template>
-    <section *ngIf="viewAllPanelReadOnly; else myPanel">
-      <p class="p-mb-2">
-        Panel submissions: <b>{{ submittedCount }}</b> / <b>{{ totalPanelMembers }}</b>
-      </p>
-      <small *ngIf="totalPanelMembers > 0 && submittedCount < totalPanelMembers">
-        Waiting on {{ totalPanelMembers - submittedCount }} panelist(s).
-      </small>
-
-      <div class="panel-container">
-
-        <div *ngFor="let g of panelArr.controls; let i = index" class="p-mb-3 panel-card">
-          <div class="panel-head">
-            <p-chip [label]="panelGroup(g).get('name')?.value || 'Unknown panelist'"></p-chip>
-            <p-tag styleClass="p-ml-2"
-              [value]="'Designation: ' + (panelGroup(g).get('designation')?.value || '—')"></p-tag>
-            <p-tag styleClass="p-ml-2" [severity]="'info'"
-              [value]="'Status: ' + (panelGroup(g).get('status')?.value || '—')"></p-tag>
-            <p-tag styleClass="p-ml-auto" [severity]="'success'"
-              [value]="'Avg: ' + (panelGroup(g).get('average')?.value ?? '—')"></p-tag>
-          </div>
-
-          <div class="score-grid">
-            <div class="score-item">
-              <div class="score-label">Job skills</div>
-              <div class="score-value">{{ panelGroup(g).get('scores.jobSkills')?.value ?? '—' }}/10</div>
-              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.jobSkills')?.value != null"
-                             [value]="(panelGroup(g).get('scores.jobSkills')?.value || 0) * 10"></p-progressBar> -->
-            </div>
-
-            <div class="score-item">
-              <div class="score-label">Job knowledge</div>
-              <div class="score-value">{{ panelGroup(g).get('scores.jobKnowledge')?.value ?? '—' }}/10</div>
-              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.jobKnowledge')?.value != null"
-                             [value]="(panelGroup(g).get('scores.jobKnowledge')?.value || 0) * 10"></p-progressBar> -->
-            </div>
-
-            <div class="score-item">
-              <div class="score-label">Attitude</div>
-              <div class="score-value">{{ panelGroup(g).get('scores.attitude')?.value ?? '—' }}/10</div>
-              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.attitude')?.value != null"
-                             [value]="(panelGroup(g).get('scores.attitude')?.value || 0) * 10"></p-progressBar> -->
-            </div>
-
-            <div class="score-item">
-              <div class="score-label">Communication</div>
-              <div class="score-value">{{ panelGroup(g).get('scores.communication')?.value ?? '—' }}/10</div>
-              <!-- <p-progressBar *ngIf="panelGroup(g).get('scores.communication')?.value != null"
-                             [value]="(panelGroup(g).get('scores.communication')?.value || 0) * 10"></p-progressBar> -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-
-    <!-- Conclusion -->
-    <div class="section" *ngIf="isRestricted">
-      <div class="section-title">Final Conclusion</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Decision <span class="req">*</span></label>
-          <p-select [options]="[
-                { label: 'Selected', value: 'Selected' },
-                { label: 'Shortlisted', value: 'Shortlisted' },
-                { label: 'Hold', value: 'Hold' },
-                { label: 'Rejected', value: 'Rejected' }
-              ]" formControlName="conclusion" placeholder="Choose"></p-select>
-        </div>
-        <div class="field col-4">
-          <label>Remarks</label>
-          <textarea pInputTextarea rows="3" formControlName="remarks" placeholder="Overall notes"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <p-divider type="solid" *ngIf="isRestricted"></p-divider>
-
-    <!-- HR block -->
-    <div class="section" *ngIf="isRestricted">
-      <div class="section-title">For HR use only</div>
-
-      <!-- ⬇️ one wrapper for the HR group -->
-      <div class="form-grid" formGroupName="hr">
-        <div class="field">
-          <label>Present salary</label>
-          <p-inputNumber formControlName="presentSalary" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
-        </div>
-        <div class="field">
-          <label>Payslip produced?</label>
-          <p-select formControlName="payslip" [options]="yesNo" placeholder="Select"></p-select>
-        </div>
-        <div class="field">
-          <label>Expected salary / month</label>
-          <p-inputNumber formControlName="expectedSalary" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
-        </div>
-        <div class="field">
-          <label>Gross offer / month</label>
-          <p-inputNumber formControlName="grossOffer" [min]="0" [mode]="'currency'" currency="INR"></p-inputNumber>
-        </div>
-        <div class="field">
-          <label>Notice Period</label>
-          <p-inputNumber formControlName="noticePeriod" [min]="0"></p-inputNumber>
-        </div>
-        <div class="field">
-          <label>Expected DOJ</label>
-          <p-datepicker formControlName="expectedDoj" dateFormat="dd-mm-yy"></p-datepicker>
-        </div>
-      </div>
-    </div>
-
-    <div class="actions" *ngIf="isRestricted">
-      <button pButton type="button" label="Reset" class="p-button-text" (click)="reset()"></button>
-      <span class="spacer"></span>
-      <button pButton type="submit" label="Save Evaluation" class="p-button-text" [loading]="saving"
-        [label]="saving? 'Saving' : 'Save Evaluation'" (click)="submit()" icon="pi pi-check"></button>
-    </div>
-  </p-card>
+    </aside>
+  </div>
 </form>

@@ -3,9 +3,9 @@
     title="Module Utilization"
     subtitle="See which application modules employees are actually using over a date range, and who has never touched them."
     [points]="[
-      { label: 'Adoption per Module', desc: 'For each business module, the count and percentage of active employees who used at least one of its features in the selected period.' },
-      { label: 'Who Is (Not) Using It', desc: 'Drill into any module to see the names of employees using it and those who are not.' },
-      { label: 'Date Range', desc: 'Pick any window (default: last 30 days) and refresh — data comes from the API access log.' }
+      { label: 'Adoption per Module', desc: 'For each module, how many of the employees who can use it actually worked in it during the period. Self-service modules count every active employee; HR-only modules (Recruitment, Masters, Dashboards, Weekly Tracker) count only those with access.' },
+      { label: 'Real Use Only', desc: 'Background loads (dropdown lists, the announcement popup, your own profile) and failed calls are ignored. Masters counts only adding or editing records.' },
+      { label: 'Date Range', desc: 'Pick any window (default: last 30 days). Activity is kept for a limited period, so very old ranges show no data.' }
     ]">
   </app-module-guide>
 </div>
@@ -28,6 +28,14 @@
     <button pButton type="button" label="Apply" icon="pi pi-refresh"
       [loading]="loading" (click)="load()"></button>
   </div>
+
+  @if (rangeBeforeData) {
+    <div class="data-warning">
+      <i class="pi pi-exclamation-triangle"></i>
+      Activity is only kept for {{ retentionDays }} days — records start on
+      <b>{{ dataFrom | date:'dd MMM yyyy' }}</b>. Days before that show as "not using".
+    </div>
+  }
 
   <!-- Summary cards -->
   <div class="summary-cards">
@@ -61,7 +69,12 @@
     </ng-template>
     <ng-template pTemplate="body" let-mod>
       <tr>
-        <td class="module-name">{{ mod.label }}</td>
+        <td class="module-name">
+        {{ mod.label }}
+        <div class="module-audience">
+          {{ mod.audience === 'access' ? mod.eligibleCount + ' with access' : 'All employees' }}
+        </div>
+      </td>
         <td>
           <span class="count-badge using" (click)="openUsers(mod, 'using')"
             pTooltip="View users" tooltipPosition="top">{{ mod.activeCount }}</span>

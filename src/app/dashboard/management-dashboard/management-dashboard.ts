@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
+import { DownloadOtpService } from '../../shared/download-otp/download-otp.service';
 import { CommonModule } from '@angular/common';
 import { ManagementService } from '../../services/management/management.service';
 import { environment } from '../../../environment/environment.prod';
@@ -15,6 +16,7 @@ Chart.register(...registerables);
   styleUrl: './management-dashboard.css',
 })
 export class ManagementDashboard implements OnInit, AfterViewInit {
+  private downloadOtp = inject(DownloadOtpService);
 
   /** Client feature flag — hides the Payroll Summary section when false. */
   readonly payrollEnabled = environment.payrollEnabled;
@@ -546,7 +548,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
   /** Trigger the browser's print dialog — combined with the print stylesheet
    *  this generates a tidy PDF / paper export of the entire dashboard.
    *  We expand any collapsed UI before printing so nothing is missing. */
-  exportDashboardPdf() {
+  async exportDashboardPdf() {
+    const stamp = await this.downloadOtp.verifyStamp('Management dashboard (print / PDF)');
+    if (!stamp) return;
+    this.downloadOtp.setPrintStamp(stamp); // printed at the foot of every page
     const wasCollapsed = this.attentionCollapsed;
     this.attentionCollapsed = false;
     // Give Angular one tick to repaint the expanded panel before print
@@ -1914,8 +1919,10 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
     this.modalDrill = null;
   }
 
-  exportModalCsv() {
-    this.downloadCsv(this.modalTitle, this.modalColumns, this.modalRows);
+  async exportModalCsv() {
+    const stamp = await this.downloadOtp.verifyStamp(`${this.modalTitle} (CSV)`);
+    if (!stamp) return;
+    this.downloadCsv(this.modalTitle, this.modalColumns, this.modalRows, stamp);
   }
 
   // ── Sub-modal (drill-down from row) ──────────────────────
@@ -1934,11 +1941,13 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
 
   closeSubModal() { this.subModalVisible = false; }
 
-  exportSubModalCsv() {
-    this.downloadCsv(this.subModalTitle, this.subModalColumns, this.subModalRows);
+  async exportSubModalCsv() {
+    const stamp = await this.downloadOtp.verifyStamp(`${this.subModalTitle} (CSV)`);
+    if (!stamp) return;
+    this.downloadCsv(this.subModalTitle, this.subModalColumns, this.subModalRows, stamp);
   }
 
-  private downloadCsv(title: string, cols: { key: string; label: string }[], rows: any[]) {
+  private downloadCsv(title: string, cols: { key: string; label: string }[], rows: any[], stamp: string) {
     const header = cols.map(c => c.label).join(',');
     const body   = rows.map(r =>
       cols.map(c => {
@@ -1946,7 +1955,9 @@ export class ManagementDashboard implements OnInit, AfterViewInit {
         return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
       }).join(',')
     ).join('\n');
-    const blob = new Blob([header + '\n' + body], { type: 'text/csv' });
+    // Download ID footer, quoted so its "|" and spaces stay in one cell.
+    const footer = `"${stamp.replace(/"/g, '""')}"`;
+    const blob = new Blob([header + '\n' + body + '\n\n' + footer], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;

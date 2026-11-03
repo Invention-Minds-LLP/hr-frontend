@@ -13,6 +13,8 @@ export interface ModuleUsageUser {
 export interface ModuleUsageModule {
   key: string;
   label: string;
+  /** 'all' = measured against every active employee; 'access' = only those who can open it. */
+  audience: 'all' | 'access';
   eligibleCount: number;
   activeCount: number;
   inactiveCount: number;
@@ -25,6 +27,9 @@ export interface ModuleUsageSummary {
   from: string;
   to: string;
   totalEligible: number;
+  /** Oldest access-log row still kept; earlier dates have no data. */
+  dataFrom: string | null;
+  retentionDays: number;
   modules: ModuleUsageModule[];
 }
 

@@ -1,4 +1,5 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { DownloadOtpService } from '../../shared/download-otp/download-otp.service';
 import { IconField } from 'primeng/iconfield';
 import { TableModule } from 'primeng/table';
 import { InputIcon } from 'primeng/inputicon';
@@ -35,6 +36,7 @@ import { FileUrlPipe } from '../../pipes/file-url.pipe';
   styleUrl: './employee-list.css'
 })
 export class EmployeeList {
+  private downloadOtp = inject(DownloadOtpService);
   @Output() editEmployee = new EventEmitter<any>();
 
   constructor(private employeeService: Employees, private departmentService: Departments, private branchService: Branches, private roleService: Roles, private shiftService: Shifts) { }
@@ -456,13 +458,15 @@ export class EmployeeList {
 
 
 
-  downloadEmployeeData(): void {
+  async downloadEmployeeData(): Promise<void> {
     const sourceData =
       this.filteredEmployees && this.filteredEmployees.length > 0
         ? this.filteredEmployees
         : this.employee;
 
     if (!sourceData || sourceData.length === 0) return;
+    const stamp = await this.downloadOtp.verifyStamp('Employee full data (Excel)');
+    if (!stamp) return;
 
     const finalRows = sourceData.map((emp: any) => {
       let flat = this.flatten(emp);
@@ -528,6 +532,7 @@ export class EmployeeList {
     });
 
     const worksheet = XLSX.utils.json_to_sheet(finalRows);
+    XLSX.utils.sheet_add_aoa(worksheet, [[], [stamp]], { origin: -1 }); // Download ID footer
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
     XLSX.writeFile(workbook, 'Employee_Full_Data.xlsx');

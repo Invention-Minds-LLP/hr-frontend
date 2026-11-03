@@ -156,7 +156,10 @@
   ========================= */
   .right-side {
     width: 400px;
-    height: 75vh;
+    /* min-height, not height: the Google Authenticator step switches the card
+       to its compact layout (.right-side--compact) but must never spill out. */
+    min-height: 75vh;
+    box-sizing: border-box;
     padding: 40px 35px;
     border-radius: 20px;
     border: 1px solid var(--Glass1-Stroke-Carey, #AFAFAF);
@@ -447,13 +450,104 @@
 /* Candidate OTP step — the emailed 6-digit code screen. */
 .otp-note {
   font-size: 0.85rem;
-  opacity: 0.8;
+  color: #e5e7eb;
+  line-height: 1.45;
   text-align: center;
   margin-bottom: 8px;
 }
 
 .otp-actions {
   margin-top: 4px;
+}
+
+.otp-note b {
+  color: #fff;
+}
+
+/* ── Google Authenticator step ──────────────────────────────────────────────
+   The card goes compact (smaller logo + heading) so the QR, the steps and the
+   code field fit in the same card as the password form — no scrolling. */
+.right-side--compact .logo img {
+  width: 64px;
+  height: 64px;
+}
+.right-side--compact .right-side-heading {
+  font-size: 30px;
+  margin-bottom: 14px;
+}
+.right-side--compact .form {
+  gap: 14px;
+}
+
+.mfa-title {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+.mfa-sub {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* QR on the left, the three steps on the right */
+.mfa-setup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mfa-qr {
+  flex: none;
+  background: #fff;
+  padding: 6px;
+  border-radius: 10px;
+  line-height: 0;
+}
+.mfa-qr img {
+  width: 128px;
+  height: 128px;
+}
+.mfa-steps {
+  margin: 0;
+  padding-left: 18px;
+  color: #e5e7eb;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.mfa-steps li + li {
+  margin-top: 4px;
+}
+.mfa-steps b {
+  color: #fff;
+}
+
+/* Manual key — for when the camera can't read the QR */
+.mfa-key-row {
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+.mfa-key {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border: 1px dashed rgba(255, 152, 0, 0.6);
+  border-radius: 6px;
+  color: #ff9800;
+  font-family: monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  word-break: break-all;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.mfa-help {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-align: center;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

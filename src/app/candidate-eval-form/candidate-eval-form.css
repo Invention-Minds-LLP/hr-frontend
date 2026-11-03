@@ -1,354 +1,900 @@
-/* card & page title (match the second image vibe) */
-.eval-form {
-  padding: 0px 0px;
+/* ── Candidate evaluation ─────────────────────────────────────────────
+   Dark task surface on the app's black page. One accent (brand orange) marks
+   the chosen score and the current decision; blue is kept for the primary
+   action, matching the rest of the recruitment screens. */
+:host {
+  --ev-bg: #0d0d12;
+  --ev-surface: #141419;
+  --ev-surface-2: #1b1b22;
+  --ev-line: #2a2a33;
+  --ev-line-strong: #3a3a46;
+  --ev-text: #f4f4f6;
+  --ev-muted: #a3a3b0;
+  --ev-faint: #75757f;
+  --ev-accent: #fb9c2a;
+  --ev-accent-ink: #1a0f00;
+  --ev-accent-soft: rgba(251, 156, 42, 0.16);
+  --ev-primary: #0062a1;
+  --ev-primary-hover: #0a72b6;
+  --ev-good: #4ade80;
+  --ev-warn: #facc15;
+  --ev-bad: #f87171;
+  --ev-radius: 14px;
+  --ev-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  display: block;
+  color: var(--ev-text);
+  font-family: "Sofia Sans", system-ui, sans-serif;
 }
-.eval-card {
-  border-radius: 16px;
+
+.ev {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ev *,
+.ev *::before,
+.ev *::after {
+  box-sizing: border-box;
+}
+
+.ev ::selection {
+  background: var(--ev-accent);
+  color: var(--ev-accent-ink);
+}
+
+/* ── Top bar ── */
+.ev-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.ev-title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.ev-back,
+.ev-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--ev-line-strong);
+  border-radius: 999px;
   background: transparent;
-  color: white;
+  color: var(--ev-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s var(--ev-ease), border-color 0.18s var(--ev-ease);
 }
-::ng-deep .p-card-body{
+
+.ev-back:hover,
+.ev-ghost:hover {
+  background: var(--ev-surface-2);
+  border-color: var(--ev-muted);
+}
+
+.ev-back .pi,
+.ev-ghost .pi {
+  color: inherit;
+  font-size: 0.8125rem;
+}
+
+/* ── Candidate strip ── */
+.ev-candidate {
+  display: flex;
+  align-items: center;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  padding: 18px 20px;
+  background: var(--ev-surface);
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+}
+
+.ev-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--ev-accent-soft);
+  color: var(--ev-accent);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.ev-avatar.sm {
+  width: 36px;
+  height: 36px;
+  font-size: 0.8125rem;
+}
+
+.ev-candidate-main {
+  min-width: 180px;
+}
+
+.ev-name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ev-role {
+  margin: 4px 0 0;
+  color: var(--ev-muted);
+  font-size: 0.9375rem;
+}
+
+.ev-dot {
+  margin: 0 6px;
+}
+
+.ev-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0 0 0 auto;
+}
+
+.ev-facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ev-facts dt {
+  color: var(--ev-faint);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ev-facts dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Body: scorecard + resume side by side ── */
+.ev-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ev-body.with-resume {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+
+.ev-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ev-section {
+  padding: 20px;
+  background: var(--ev-surface);
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+}
+
+.ev-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.ev-h {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.ev-sub {
+  margin: 4px 0 0;
+  max-width: 62ch;
+  color: var(--ev-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.ev-sub b {
+  color: var(--ev-text);
+}
+
+.ev-scorer {
+  color: var(--ev-muted);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.ev-scorer b {
+  color: var(--ev-text);
+}
+
+/* ── Questions ── */
+.ev-questions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ev-line);
+}
+
+.ev-q {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto 52px;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ev-line);
+}
+
+.ev-q-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ev-q-label {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.ev-q-hint {
+  color: var(--ev-faint);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.ev-q.is-na .ev-q-label {
+  color: var(--ev-muted);
+}
+
+.ev-q-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ev-scale {
+  display: flex;
+  gap: 4px;
+}
+
+.ev-pt,
+.ev-na {
+  height: 34px;
+  border: 1px solid var(--ev-line-strong);
+  background: var(--ev-surface-2);
+  color: var(--ev-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.15s var(--ev-ease), color 0.15s var(--ev-ease),
+    border-color 0.15s var(--ev-ease), transform 0.15s var(--ev-ease);
+}
+
+.ev-pt {
+  width: 34px;
+  border-radius: 8px;
+}
+
+.ev-pt:hover:not(:disabled) {
+  border-color: var(--ev-accent);
+  color: var(--ev-text);
+}
+
+.ev-pt.filled {
+  background: var(--ev-accent-soft);
+  border-color: transparent;
+  color: var(--ev-accent);
+}
+
+.ev-pt.on {
+  background: var(--ev-accent);
+  border-color: var(--ev-accent);
+  color: var(--ev-accent-ink);
+  transform: translateY(-1px);
+}
+
+.ev-na {
+  padding: 0 12px;
+  border-radius: 999px;
+  border-style: dashed;
+}
+
+.ev-na:hover:not(:disabled) {
+  color: var(--ev-text);
+  border-color: var(--ev-muted);
+}
+
+.ev-na.on {
+  border-style: solid;
+  border-color: var(--ev-text);
+  background: var(--ev-text);
+  color: var(--ev-bg);
+}
+
+.ev-pt:disabled,
+.ev-na:disabled {
+  cursor: default;
+}
+
+.ev-pt:disabled:not(.on):not(.filled),
+.ev-na:disabled:not(.on) {
+  opacity: 0.45;
+}
+
+.ev-q-value {
+  justify-self: end;
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ev-text);
+}
+
+.ev-q-value small {
+  color: var(--ev-faint);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ev-q.is-na .ev-q-value,
+.ev-q:not(.is-rated):not(.is-na) .ev-q-value {
+  color: var(--ev-faint);
+  font-size: 0.875rem;
+}
+
+/* ── Fields ── */
+.ev-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ev-field > span {
+  color: var(--ev-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.ev-field em {
+  margin-left: 4px;
+  color: var(--ev-faint);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ev-comments {
+  margin-top: 18px;
+}
+
+.ev-name-input {
+  min-width: 220px;
+}
+
+.ev textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  resize: vertical;
+  border: 1px solid var(--ev-line-strong);
+  border-radius: 10px;
+  background: var(--ev-bg);
+  color: var(--ev-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  transition: border-color 0.15s var(--ev-ease);
+}
+
+.ev textarea::placeholder {
+  color: var(--ev-faint);
+}
+
+.ev textarea:hover {
+  border-color: var(--ev-muted);
+}
+
+.ev textarea:focus {
+  outline: none;
+  border-color: var(--ev-accent);
+}
+
+.ev-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.ev-grid ::ng-deep .p-inputnumber,
+.ev-grid ::ng-deep .p-select,
+.ev-grid ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+/* ── Submit bar ── */
+.ev-submitbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ev-line);
+}
+
+.ev-total,
+.ev-overall {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.ev-overall {
+  margin-right: 0;
+}
+
+.ev-total-num {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-total-num small {
+  margin-left: 1px;
+  color: var(--ev-faint);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ev-total-meta {
+  color: var(--ev-muted);
+  font-size: 0.875rem;
+}
+
+.ev-total-meta b {
+  color: var(--ev-text);
+}
+
+.ev-primary,
+:host ::ng-deep .ev-primary.p-button {
+  height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ev-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+:host ::ng-deep .ev-primary.p-button:not(:disabled):hover {
+  background: var(--ev-primary-hover);
+}
+
+:host ::ng-deep .ev-primary.p-button .pi,
+:host ::ng-deep .ev-primary.p-button .p-button-icon {
+  color: #fff;
+}
+
+/* ── Decision ── */
+.ev-decision {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ev-chip {
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid var(--ev-line-strong);
+  border-radius: 999px;
+  background: var(--ev-surface-2);
+  color: var(--ev-muted);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s var(--ev-ease), color 0.15s var(--ev-ease), border-color 0.15s var(--ev-ease);
+}
+
+.ev-chip:hover {
+  color: var(--ev-text);
+  border-color: var(--ev-muted);
+}
+
+.ev-chip.on {
+  color: var(--ev-bg);
+  border-color: transparent;
+}
+
+.ev-chip.d-selected.on { background: var(--ev-good); }
+.ev-chip.d-shortlisted.on { background: var(--ev-accent); }
+.ev-chip.d-hold.on { background: var(--ev-warn); }
+.ev-chip.d-rejected.on { background: var(--ev-bad); }
+
+/* ── Read-only panel feedback ── */
+.ev-empty {
+  margin: 0;
+  padding: 20px;
+  border: 1px dashed var(--ev-line-strong);
+  border-radius: 10px;
+  color: var(--ev-muted);
+  font-size: 0.9375rem;
+}
+
+.ev-pf {
+  padding: 16px 0;
+  border-top: 1px solid var(--ev-line);
+}
+
+.ev-pf-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ev-pf-who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.ev-pf-who span {
+  color: var(--ev-muted);
+  font-size: 0.8125rem;
+}
+
+.ev-status {
+  padding: 3px 10px;
+  border: 1px solid var(--ev-line-strong);
+  border-radius: 999px;
+  color: var(--ev-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ev-status.done {
+  border-color: transparent;
+  background: rgba(74, 222, 128, 0.14);
+  color: var(--ev-good);
+}
+
+.ev-pf-avg {
+  min-width: 64px;
+  text-align: right;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-pf-avg small {
+  color: var(--ev-faint);
+  font-size: 0.75rem;
+}
+
+.ev-bars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 28px;
+  list-style: none;
+  margin: 14px 0 0;
   padding: 0;
 }
-.page-title {
-  margin: 0 0 14px 0;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  color: white;
+
+.ev-bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  grid-template-areas: "label value" "bar bar";
+  gap: 6px 8px;
+  align-items: baseline;
 }
 
-/* Resume section wrapper */
-.resume-wrapper {
-  margin-top: 20px;
+.ev-bar-label {
+  grid-area: label;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-/* Frame that contains PDF or image */
-.resume-frame {
+.ev-bar-value {
+  grid-area: value;
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-bar {
+  grid-area: bar;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ev-surface-2);
+  overflow: hidden;
+}
+
+.ev-bar-fill {
+  display: block;
   width: 100%;
-  height: 500px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ev-accent);
+  transform-origin: left center;
+  transition: transform 0.3s var(--ev-ease);
+}
 
+.ev-bars li.is-na .ev-bar-label,
+.ev-bars li.is-na .ev-bar-value {
+  color: var(--ev-faint);
+}
+
+.ev-bars li.is-na .ev-bar {
+  background: repeating-linear-gradient(90deg, var(--ev-line) 0 4px, transparent 4px 8px);
+}
+
+.ev-pf-meta {
+  margin: 10px 0 0;
+  color: var(--ev-faint);
+  font-size: 0.8125rem;
+}
+
+.ev-pf-comment {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--ev-surface-2);
+  color: var(--ev-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* ── Resume ── */
+.ev-resume {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px);
+  min-height: 480px;
+  background: var(--ev-surface);
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+  overflow: hidden;
+}
+
+.ev-resume-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ev-line);
+  font-weight: 700;
+}
+
+.ev-resume-head a {
+  color: var(--ev-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.ev-resume-head a:hover {
+  text-decoration: underline;
+}
+
+.ev-resume-head a .pi {
+  color: inherit;
+  font-size: 0.75rem;
+}
+
+.ev-resume-frame {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  overflow: hidden; /* prevents outer scrollbars */
+  background: #fafafa;
 }
 
-/* PDF iframe */
-.resume-frame iframe {
+.ev-resume-frame iframe {
   width: 100%;
   height: 100%;
   border: none;
 }
 
-/* Image resume */
-.resume-img {
+.ev-resume-frame img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-/* Optional: buttons above resume */
-.resume-actions {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
+/* ── Focus ── */
+.ev button:focus-visible,
+.ev a:focus-visible {
+  outline: 2px solid var(--ev-accent);
+  outline-offset: 2px;
 }
 
-.resume-actions a {
-  font-size: 13px;
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
+/* ── Responsive ── */
+@media (max-width: 1280px) {
+  .ev-body.with-resume {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ev-resume {
+    position: static;
+    height: min(70vh, 640px);
+    min-height: 360px;
+  }
+
+  /* On one column, read the resume first, then score. */
+  .ev-resume {
+    order: -1;
+  }
 }
 
-.resume-actions a:hover {
-  text-decoration: underline;
+@media (max-width: 820px) {
+  .ev-q {
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .ev-q-input {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-wrap: wrap;
+  }
+
+  .ev-scale {
+    display: grid;
+    grid-template-columns: repeat(11, minmax(0, 1fr));
+    flex: 1 1 100%;
+  }
+
+  .ev-pt {
+    width: auto;
+  }
+
+  .ev-facts {
+    margin-left: 0;
+  }
+
+  .ev-grid,
+  .ev-bars {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
+@media (max-width: 520px) {
+  .ev-section,
+  .ev-candidate {
+    padding: 16px;
+  }
 
-/* sections */
-.section {
-  margin-top: 8px;
+  .ev-scale {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .ev-submitbar {
+    flex-wrap: wrap;
+  }
+
+  .ev-total {
+    flex-basis: 100%;
+  }
 }
-.section-title {
-  font-weight: 700;
-  margin: 8px 0 10px;
+
+@media (prefers-reduced-motion: reduce) {
+  .ev *,
+  .ev *::before,
+  .ev *::after {
+    transition: none !important;
+  }
 }
-.muted {
+
+/* ── Global PrimeNG overlay overrides (kept from the previous version) ──
+   These are ::ng-deep, so other pages already rely on them once this
+   component has loaded. Do not scope them without checking those pages. */
+::ng-deep .p-inputnumber-button {
+  background: transparent;
   color: white;
-  font-weight: 400;
 }
 
-.p-inputtext,
+::ng-deep .p-inputnumber-button:hover {
+  background: transparent;
+}
+
+::ng-deep .p-select-dropdown {
+  color: white;
+}
+
+::ng-deep .p-card-body {
+  padding: 0;
+}
+
 ::ng-deep .p-datepicker-input,
 ::ng-deep .p-select-label,
 ::ng-deep .p-inputnumber-input,
-::ng-deep .p-textarea{
+::ng-deep .p-textarea {
   color: white !important;
 }
 
-/* 4-column responsive form grid */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+::ng-deep .p-select-list {
+  background: #020403 !important;
+  color: white !important;
 }
 
-.field .p-select{
-  background-color: transparent;
-}
-.field > label {
-  font-size: 13px;
-  color:white;
-}
-.req {
-  color: #ef4444;
-}
-
-.col-2 {
-  grid-column: span 2;
-}
-.col-3 {
-  grid-column: span 3;
-}
-.col-4 {
-  grid-column: span 4;
-}
-
-/* Panel scoring table-like grid */
-.panel-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.panel-toolbar .overall {
-  margin-left: auto;
+::ng-deep .p-select-empty-message {
   color: white;
-}
-
-.panel-toolbar button{
-  background-color: #0062A1;
-  border: none;
-}
-.panel-toolbar button:hover{
-  background-color: #0062A1;
-  border: none;
-}
-
-.panel-grid {
-  display: grid;
-  gap: 10px;
-  align-items: start;
-}
-.panel-cell {
-  background:transparent;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 10px;
-}
-.panel-cell.crit {
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-.panel-header {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.panel-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-}
-
-/* actions */
-.actions {
-  display: flex;
-  align-items: center;
-  margin-top: 16px;
-}
-.actions .spacer {
-  flex: 1 1 auto;
-}
-.panel-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.panel-container{
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-.panel-head {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.panel-head .muted {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-.panel-head .avg {
-  margin-left: auto;
-  font-weight: 600;
-}
-.score-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(240px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
-}
-.score-item {
-  border: 1px dashed #e5e7eb;
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.score-label {
-  font-weight: 600;
-  color: white;
-}
-.score-value {
-  margin: 4px 0 6px;
-  color: white;
-}
-
-textarea{
-  background-color: transparent;
-}
-
-textarea::placeholder{
-  color: white;
-}
-
-.p-button-text{
-  background: #0062A1;
-  color: white;
-}
-.p-button-text:hover{
-  background: #0062A1;
-  color: white;
-}
-.panel-header input::placeholder{
-  color: white;
-}
-
-::ng-deep .p-inputnumber-button{
-  background: transparent;
-  color: white;
-}
-
-::ng-deep .p-inputnumber-button:hover{
-  background: transparent;
-}
-
-::ng-deep .p-select-dropdown{
-  color: white;
-}
-
-.back-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #FB9C2A;
-  color: white;
-  cursor: pointer;
-  margin-bottom: 30px;
-  margin-left: 15px;
-  font-weight: 500;
-  font-family: "Sofia Sans";
-}
-
-.btn{
-  display: flex;
-  align-items: end;
-  justify-content: end;
-}
-
-::ng-deep .p-select-list{
-    background: #020403 !important;
-    color: white !important;
-}
-
-::ng-deep .p-select-empty-message{
-    color: white;
 }
 
 ::ng-deep .p-button,
-::ng-deep .p-select-option{
+::ng-deep .p-select-option {
   color: white !important;
 }
-
 
 ::ng-deep .p-iconfield .p-inputtext:not(:last-child),
 ::ng-deep .p-iconfield .p-inputicon:last-child,
-::ng-deep .p-icon{
+::ng-deep .p-icon {
   color: white !important;
 }
 
-::ng-deep .p-select-label{
+::ng-deep .p-select-label {
   color: white !important;
 }
 
-::ng-deep .p-select-header
-{
+::ng-deep .p-select-header {
   background: #020403 !important;
   color: white !important;
 }
 
 ::ng-deep .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus,
-::ng-deep .p-select-option.p-select-option-selected{
+::ng-deep .p-select-option.p-select-option-selected {
   color: black !important;
 }
 
-::ng-deep .p-multiselect-overlay{
+::ng-deep .p-multiselect-overlay {
   background: #020403 !important;
   color: white !important;
 }
 
 ::ng-deep .p-multiselect-option,
-::ng-deep .p-multiselect-display-chip .p-multiselect-label{
+::ng-deep .p-multiselect-display-chip .p-multiselect-label {
   color: white !important;
 }
+
 ::ng-deep .p-multiselect-option.p-multiselect-option-selected,
-::ng-deep .p-chip-remove-icon{
+::ng-deep .p-chip-remove-icon {
   color: black !important;
 }
 
-::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus{
+::ng-deep .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
   color: black !important;
-}
-
-
-  
-/* responsive */
-@media (max-width: 980px) {
-  .form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
 }

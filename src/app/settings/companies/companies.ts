@@ -64,6 +64,13 @@ export class Companies implements OnInit {
   ptSlabs: PtSlab[] = [];
   lwfMonths = '';
 
+  workingDaysOptions = [
+    { label: 'Calendar days — week-offs & holidays paid', value: 'CALENDAR_DAYS' },
+    { label: 'Fixed days every month — week-offs & holidays paid', value: 'FIXED_DAYS' },
+    { label: 'Exclude week-offs — holidays paid', value: 'EXCLUDE_WEEK_OFFS' },
+    { label: 'Exclude week-offs and holidays', value: 'EXCLUDE_WEEK_OFFS_AND_HOLIDAYS' },
+  ];
+
   lwfFrequencyOptions = [
     { label: 'Monthly', value: 'MONTHLY' },
     { label: 'Half-yearly', value: 'HALF_YEARLY' },
@@ -102,7 +109,7 @@ export class Companies implements OnInit {
   // ── companies ───────────────────────────────────────────────────────────────
 
   openNewCompany(): void {
-    this.editing = { isActive: true };
+    this.editing = { isActive: true, workingDaysBasis: 'CALENDAR_DAYS', fixedWorkingDays: null };
     this.companyDialog = true;
   }
 
@@ -115,6 +122,13 @@ export class Companies implements OnInit {
     if (!this.editing.name?.trim()) {
       this.err('Company name is required');
       return;
+    }
+    if (this.editing.workingDaysBasis === 'FIXED_DAYS') {
+      const n = Number(this.editing.fixedWorkingDays);
+      if (!Number.isInteger(n) || n < 1 || n > 31) {
+        this.err('Fixed working days must be a whole number between 1 and 31');
+        return;
+      }
     }
 
     this.savingCompany = true;
@@ -196,7 +210,9 @@ export class Companies implements OnInit {
   private blankConfig(): Partial<StatutoryConfig> {
     return {
       pfEnabled: true, pfEmployeeRate: 12, pfEmployerRate: 12, pfWageCeiling: 15000,
-      pfCapAtCeiling: false, pfAdminChargeRate: 0.5, edliRate: 0.5, epsRate: 8.33,
+      pfCapAtCeiling: false, pfEmployerCapAtCeiling: false,
+      pfAdminChargeRate: 0.5, pfAdminMinCharge: 500, pfAdminMinChargeInactive: 75,
+      edliRate: 0.5, epsRate: 8.33,
       esiEnabled: true, esiEmployeeRate: 0.75, esiEmployerRate: 3.25, esiWageLimit: 21000,
       ptEnabled: true, ptState: null,
       lwfEnabled: false, lwfEmployeeAmount: 0, lwfEmployerAmount: 0, lwfFrequency: 'MONTHLY',
@@ -259,10 +275,14 @@ export class Companies implements OnInit {
       ptSlabs: this.ptSlabs,
       lwfDeductionMonths: months.length ? months : null,
     }).subscribe({
-      next: () => {
+      next: (saved: any) => {
         this.savingConfig = false;
         this.configDialog = false;
         this.ok('Statutory configuration saved');
+        // A version starting mid-month is applied to that whole month.
+        if (saved?.warning) {
+          this.toast.add({ severity: 'warn', summary: 'Check the effective date', detail: saved.warning, life: 12000 });
+        }
         this.loadConfigs();
       },
       error: (e) => {

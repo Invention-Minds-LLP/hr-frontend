@@ -68,6 +68,8 @@ export class AuthSession {
     localStorage.setItem('designation', res?.designation || '');
     localStorage.setItem('roleId', res?.roleId || '');
     localStorage.setItem('gender', res?.gender || '');
+    // IT department: may reset someone's Google Authenticator (server re-checks).
+    localStorage.setItem('canResetMfa', res?.canResetMfa ? 'true' : '');
   }
 
   /** Candidate login response — token stays in storage for this flow only. */

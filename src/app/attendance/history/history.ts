@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { DownloadOtpService } from '../../shared/download-otp/download-otp.service';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
@@ -38,6 +39,7 @@ interface Attendance {
   styleUrl: './history.css'
 })
 export class History {
+  private downloadOtp = inject(DownloadOtpService);
 
   filteredAttendanceData: any[] = [];
   selectedFilter: any = null;
@@ -249,11 +251,14 @@ exportMonthlyRegister() {
     String(d.getMonth() + 1).padStart(2, '0');
 
   this.attendanceService.getMonthlyRegister(month)
-    .subscribe((data: any[]) => {
+    .subscribe(async (data: any[]) => {
 
       if (!data.length) return;
+      const stamp = await this.downloadOtp.verifyStamp(`Attendance register ${month} (Excel)`);
+      if (!stamp) return;
 
       const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.sheet_add_aoa(worksheet, [[], [stamp]], { origin: -1 }); // Download ID footer
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Register');
 

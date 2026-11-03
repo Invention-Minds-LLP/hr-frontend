@@ -6,6 +6,13 @@ import { environment } from '../../../environment/environment.prod';
 const BASE = `${environment.apiUrl}/companies`;
 const PAYROLL = `${environment.apiUrl}/payroll`;
 
+/** How payroll counts the working days a monthly salary is divided by. */
+export type WorkingDaysBasis =
+  | 'CALENDAR_DAYS'
+  | 'FIXED_DAYS'
+  | 'EXCLUDE_WEEK_OFFS'
+  | 'EXCLUDE_WEEK_OFFS_AND_HOLIDAYS';
+
 export interface Company {
   id: number;
   name: string;
@@ -29,6 +36,8 @@ export interface Company {
   signatoryDesignation?: string | null;
   signatoryPlace?: string | null;
   logoUrl?: string | null;
+  workingDaysBasis?: WorkingDaysBasis;
+  fixedWorkingDays?: number | null;
   _count?: { employees: number; payrollRuns: number };
   statutoryConfigs?: StatutoryConfig[];
 }
@@ -50,7 +59,12 @@ export interface StatutoryConfig {
   pfEmployerRate: number;
   pfWageCeiling: number;
   pfCapAtCeiling: boolean;
+  /** Employee PF on full basic, employer share capped. Only used when pfCapAtCeiling is off. */
+  pfEmployerCapAtCeiling: boolean;
   pfAdminChargeRate: number;
+  /** Establishment monthly minimum admin charge (contributing / no members). */
+  pfAdminMinCharge: number;
+  pfAdminMinChargeInactive: number;
   edliRate: number;
   epsRate: number;
 
@@ -88,7 +102,14 @@ export interface StatutorySummary {
   month: number;
   year: number;
   payslipCount: number;
-  pf: { employee: number; employer: number; adminCharges: number; edli: number };
+  pf: {
+    employee: number; employer: number; adminCharges: number; edli: number;
+    /** Sum of the per-employee 0.5% before the establishment minimum. */
+    adminChargesComputed?: number;
+    adminMinimumApplied?: boolean;
+  };
+  /** Employees within the PF ceiling who have PF switched off. */
+  pfCoverageGaps?: { employeeId: number; employeeCode: string; name: string; pfWage: number }[];
   esi: { employee: number; employer: number };
   pt: { total: number };
   lwf: { employee: number; employer: number };

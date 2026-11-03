@@ -18,6 +18,8 @@ export interface SalaryStructure {
   mobileInternet?: number;
   mealFuel?: number;
   pfApplicable: boolean;
+  /** EPS member. False → the employer's whole 12% stays in EPF (A/c 1). */
+  epsApplicable?: boolean;
   esiApplicable: boolean;
   ptApplicable: boolean;
   tdsMonthly: number;
@@ -200,6 +202,8 @@ export interface SalaryTemplate {
   branchId?: number | null;
   employmentType?: string | null;
   pfApplicable: boolean;
+  /** EPS member. False → the employer's whole 12% stays in EPF (A/c 1). */
+  epsApplicable?: boolean;
   esiApplicable: boolean;
   ptApplicable: boolean;
   components: TemplateComponent[];
@@ -595,7 +599,7 @@ export class PayrollService {
   previewSalaryTemplate(body: {
     templateId?: number; components?: TemplateComponent[];
     inputMode: TemplateInputMode; inputAmount: number;
-    pfApplicable?: boolean; esiApplicable?: boolean; ptApplicable?: boolean;
+    pfApplicable?: boolean; epsApplicable?: boolean; esiApplicable?: boolean; ptApplicable?: boolean;
   }): Observable<TemplatePreview> {
     return this.http.post<TemplatePreview>(`${BASE}/templates/preview`, body);
   }

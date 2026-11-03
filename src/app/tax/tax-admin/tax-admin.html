@@ -186,6 +186,22 @@
           <p>Statutory files are generated from published payslips. Publish the payroll run first.</p>
         </div>
 
+        <ng-container *ngIf="summary?.pfCoverageGaps as gaps">
+          <div class="empty-note" *ngIf="gaps.length">
+            <p>
+              <strong>{{ gaps.length }} employee(s) have PF switched off but earn within the
+              PF wage ceiling.</strong>
+              When the ceiling rises these are the people who must be enrolled. Turn PF on in their salary
+              structure (Payroll › Salary Structures) before generating the return.
+            </p>
+            <p class="muted small">
+              <span *ngFor="let g of gaps; let last = last">
+                {{ g.employeeCode }} {{ g.name }} ({{ inr(g.pfWage) }}){{ last ? '' : ' · ' }}
+              </span>
+            </p>
+          </div>
+        </ng-container>
+
         <ng-container *ngIf="summary && summary.payslipCount">
           <div class="stat-row">
             <div class="stat">
@@ -219,7 +235,7 @@
               <div class="dl-title">PF ECR</div>
               <div class="dl-sub">EPFO electronic challan cum return</div>
               <div class="dl-amount">{{ inr(summary.pf.employee + summary.pf.employer) }}</div>
-              <button class="new-app full" (click)="download('PF_ECR')">Download .txt</button>
+              <button class="new-app full" (click)="download('PF_ECR')">Download .csv</button>
             </div>
             <div class="dl-card">
               <div class="dl-title">ESI</div>
@@ -260,7 +276,14 @@
               <tr><td>Gratuity provision</td><td>{{ inr(summary.provisions.gratuity) }}</td></tr>
               <tr><td>Statutory bonus provision</td><td>{{ inr(summary.provisions.bonus) }}</td></tr>
               <tr><td>Leave encashment provision</td><td>{{ inr(summary.provisions.leaveEncashment) }}</td></tr>
-              <tr><td>PF admin charges</td><td>{{ inr(summary.pf.adminCharges) }}</td></tr>
+              <tr>
+                <td>PF admin charges
+                  <div class="muted small" *ngIf="summary.pf.adminMinimumApplied">
+                    establishment minimum applied — computed {{ inr(summary.pf.adminChargesComputed) }}
+                  </div>
+                </td>
+                <td>{{ inr(summary.pf.adminCharges) }}</td>
+              </tr>
               <tr><td>EDLI charges</td><td>{{ inr(summary.pf.edli) }}</td></tr>
               <tr class="total">
                 <td>Total employer provisions</td>

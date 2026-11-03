@@ -136,7 +136,9 @@
                 <span *ngIf="row.pfEnabled">
                   {{ row.pfEmployeeRate }}% / {{ row.pfEmployerRate }}%
                   <div class="muted small">
-                    {{ row.pfCapAtCeiling ? 'capped at ' + inr(row.pfWageCeiling) : 'on full basic' }}
+                    {{ row.pfCapAtCeiling ? 'capped at ' + inr(row.pfWageCeiling)
+                      : row.pfEmployerCapAtCeiling ? 'employer capped at ' + inr(row.pfWageCeiling)
+                      : 'on full basic' }}
                   </div>
                 </span>
                 <span *ngIf="!row.pfEnabled" class="muted">Off</span>
@@ -245,6 +247,19 @@
       </div>
     </div>
 
+    <h4 class="dlg-section">Payroll — working days <span class="hint">what a monthly salary is divided by; LOP is deducted per day of it</span></h4>
+    <div class="form-grid">
+      <div class="field">
+        <label>Working days basis</label>
+        <p-select [(ngModel)]="editing.workingDaysBasis" [options]="workingDaysOptions" optionLabel="label"
+          optionValue="value" appendTo="body" />
+      </div>
+      <div class="field" *ngIf="editing.workingDaysBasis === 'FIXED_DAYS'">
+        <label>Fixed working days <span class="hint">e.g. 26, 30 or 31</span></label>
+        <p-inputNumber [(ngModel)]="editing.fixedWorkingDays" [min]="1" [max]="31" [useGrouping]="false" />
+      </div>
+    </div>
+
     <ng-template pTemplate="footer">
       <button class="ghost-btn" (click)="companyDialog = false">Cancel</button>
       <button class="new-app" [disabled]="savingCompany" (click)="saveCompany()">
@@ -283,11 +298,19 @@
         <p-inputNumber [(ngModel)]="config.epsRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
       <div class="field"><label>Admin charge %</label>
         <p-inputNumber [(ngModel)]="config.pfAdminChargeRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
+      <div class="field"><label>Admin charge minimum <span class="hint">per month, with contributing members</span></label>
+        <p-inputNumber [(ngModel)]="config.pfAdminMinCharge" mode="decimal" [useGrouping]="true" /></div>
+      <div class="field"><label>Admin charge minimum <span class="hint">months with no contributing member</span></label>
+        <p-inputNumber [(ngModel)]="config.pfAdminMinChargeInactive" mode="decimal" [useGrouping]="true" /></div>
       <div class="field"><label>EDLI %</label>
         <p-inputNumber [(ngModel)]="config.edliRate" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" /></div>
       <div class="field checkbox-field">
         <p-checkbox [(ngModel)]="config.pfCapAtCeiling" [binary]="true" inputId="pfcap" />
         <label for="pfcap">Restrict PF to the wage ceiling</label>
+      </div>
+      <div class="field checkbox-field" *ngIf="!config.pfCapAtCeiling">
+        <p-checkbox [(ngModel)]="config.pfEmployerCapAtCeiling" [binary]="true" inputId="pfercap" />
+        <label for="pfercap">Employee on full basic, restrict only the employer share</label>
       </div>
     </div>
 

@@ -19,6 +19,16 @@ export class User {
   loginUser(employeeCode: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, { employeeCode, password });
   }
+
+  /** HR / Management / Operations: exchange the login challenge + Google Authenticator code for the session. */
+  loginMfa(challenge: string, code: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login/mfa`, { challenge, code });
+  }
+
+  /** HR: clear someone's authenticator so they re-scan a QR code at next login. */
+  adminResetMfa(userId: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/admin/reset-mfa`, { userId });
+  }
   resetMyPassword(userId: any,confirmPassword: string, newPassword: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${this.apiUrl}/reset-password`,
