@@ -87,6 +87,7 @@
               <span *ngIf="cell.type === 'WEEKOFF'" class="tag">WO</span>
               <span *ngIf="cell.type === 'HOLIDAY'" class="tag">H</span>
               <span *ngIf="cell.type === 'ABSENT'" class="tag">A</span>
+              <span *ngIf="cell.type === 'LEAVE'" class="tag">{{ cell.leaveType }}</span>
             </td>
             <td class="sum">{{ row.summary.present }}</td>
             <td class="sum">{{ row.summary.matched }}</td>
