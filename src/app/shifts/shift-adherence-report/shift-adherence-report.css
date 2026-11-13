@@ -12,6 +12,11 @@
   margin-bottom: 12px;
 }
 
+.report-right{
+  display: flex;
+  gap: 10px;
+}
+
 .rh-left h3 { margin: 0; font-size: 18px; color: #ffffff; }
 .rh-left .sub { margin: 4px 0 0; font-size: 12px; color: rgba(255, 255, 255, .7); }
 
@@ -154,3 +159,104 @@ thead .emp-col { background: #1f3a5f; color: #fff; z-index: 3; }
 
 .sum { padding: 3px 6px; color: #212f3d; }
 .sum.bad { color: #c0392b; font-weight: 700; }
+
+
+
+.filter {
+  color: #9b9b9b;
+  font-size: 18px;
+  font-family: "Sofia Sans";
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: black !important;
+  cursor: pointer;
+  width: 50px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 95%;
+  /* below the filter div */
+  left: 0%;
+  background: #0e0d0d;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 210px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 0;
+  color: white;
+
+}
+
+.filter-dropdown li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14px;
+}
+
+.filter-dropdown li:hover {
+  background-color: #ffffff;
+  border-radius: 20px;
+}
+
+.filter-dropdown li.active {
+  background-color: #d0ebff;
+  font-weight: bold;
+  color: black;
+  border-radius: 20px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  /* width: 300px; */
+  height: 44px;
+  padding: 20px 16px;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: white;
+  font-family: "Sofia Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.18px;
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: rgb(12, 12, 12);
+}
+
+.search input::placeholder {
+  color: #757575 !important;
+}
+
+input {
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+  background-color: transparent !important;
+}
