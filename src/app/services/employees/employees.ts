@@ -16,6 +16,14 @@ export interface Qualification {
   year: number;
 }
 
+export interface EmployeeImportResult {
+  totalRows: number;
+  successCount: number;
+  failedCount: number;
+  failed: { rowNumber: number; employeeCode: string; error: string }[];
+  warnings: string[];
+}
+
 export interface Employee {
   id?: number;
   employeeCode: string;
@@ -220,6 +228,17 @@ uploadExcel(file: File, year: number, month: number) {
   formData.append('month', String(month));
 
   return this.http.post<any>(`${this.apiUrl}/bulk-upload`, formData);
+}
+
+/** Empty employee import sheet (headers + instructions). */
+downloadEmployeeImportTemplate() {
+  return this.http.get(`${this.apiUrl}/bulk-import/template`, { responseType: 'blob' });
+}
+
+bulkImportEmployees(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return this.http.post<EmployeeImportResult>(`${this.apiUrl}/bulk-import`, formData);
 }
   getDesignations(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/designation`);

@@ -437,6 +437,63 @@
   width: 100%;
 }
 
+/* The app makes text inputs transparent globally (--p-inputtext-background),
+   but p-select uses its own token and stayed the theme's white — with the
+   global white label that hid the chosen value. Match the other fields. */
+.ev-grid ::ng-deep .p-select {
+  background: transparent;
+  border-color: var(--ev-line-strong);
+}
+
+.ev-grid ::ng-deep .p-select:not(.p-disabled):hover {
+  border-color: var(--ev-muted);
+}
+
+.ev-grid ::ng-deep .p-select.p-focus {
+  border-color: var(--ev-accent);
+  box-shadow: none;
+}
+
+.ev-grid ::ng-deep .p-select .p-select-label {
+  color: var(--ev-text) !important;
+}
+
+.ev-grid ::ng-deep .p-select .p-select-label.p-placeholder {
+  color: var(--ev-faint) !important;
+}
+
+/* Its option list. Global, but only reaches overlays that opt in with
+   panelStyleClass="ev-select-panel". */
+::ng-deep .p-select-overlay.ev-select-panel {
+  background: #1b1b22;
+  border: 1px solid #3a3a46;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+
+::ng-deep .p-select-overlay.ev-select-panel .p-select-list {
+  background: transparent !important;
+  padding: 4px;
+}
+
+::ng-deep .p-select-overlay.ev-select-panel .p-select-option {
+  border-radius: 6px;
+  color: #f4f4f6 !important;
+  background: transparent;
+}
+
+::ng-deep .p-select-overlay.ev-select-panel .p-select-option:not(.p-select-option-selected).p-focus {
+  background: #2a2a33;
+  color: #f4f4f6 !important;
+}
+
+::ng-deep .p-select-overlay.ev-select-panel .p-select-option.p-select-option-selected,
+::ng-deep .p-select-overlay.ev-select-panel .p-select-option.p-select-option-selected.p-focus {
+  background: #fb9c2a;
+  color: #1a0f00 !important;
+  font-weight: 700;
+}
+
 /* ── Submit bar ── */
 .ev-submitbar {
   display: flex;

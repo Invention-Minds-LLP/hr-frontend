@@ -342,7 +342,8 @@ export class Interview {
         startTime: this.toOffsetIso(start),
         endTime: this.toOffsetIso(end),
         panelUserIds: (v.panelIds ?? []).join(','),
-        sessionGroupId: this.rescheduleRow.sessionGroupId,
+        // A normal interview becomes the first session of a new round.
+        sessionGroupId: this.rescheduleRow.sessionGroupId ?? this.rescheduleRow.id,
       };
       this.svc.scheduleInterview(appId, body).subscribe({
         next: () => {

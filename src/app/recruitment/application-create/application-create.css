@@ -142,6 +142,10 @@ legend {
   cursor: pointer;
   margin-right: 8px;
 }
+.hint {
+  color: var(--ac-muted);
+  font-size: 0.75rem;
+}
 .file-preview {
   display: flex;
   align-items: center;

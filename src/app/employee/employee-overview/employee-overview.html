@@ -58,9 +58,18 @@
       <div class="br"></div>
       <button>
         <li class="sub-item"
+            [ngClass]="{ 'active': active === 'import' }"
+            (click)="show('import')">
+          Employee Import
+        </li>
+      </button>
+
+      <div class="br"></div>
+      <button>
+        <li class="sub-item"
             [ngClass]="{ 'active': active === 'upload' }"
             (click)="show('upload')">
-          Bulk Upload Employees
+          Leave Balance Upload
         </li>
       </button>
 
@@ -91,7 +100,7 @@
     <div *ngIf="active === 'upload'">
         <div class="upload-section">
 
-            <h2>Bulk Employee Excel Upload</h2>
+            <h2>Leave Balance Excel Upload</h2>
             <div class="filters">
       <div class="field">
         <label for="year">Year</label>
@@ -156,6 +165,57 @@
           
           </div>
           
+    </div>
+    <div *ngIf="active === 'import'">
+        <div class="upload-section import-section">
+            <h2>Employee Bulk Import</h2>
+            <p class="import-hint">
+                Download the template, fill one employee per row, then upload it.
+                Department, branch, role and designation must already exist in Masters.
+                Rows with problems are listed below; all other rows are saved.
+            </p>
+
+            <button type="button" class="template-btn" (click)="downloadImportTemplate()">
+                Download template
+            </button>
+
+            <label class="dropzone" (drop)="onImportDrop($event)" (dragover)="allowDrop($event)">
+                <p>Drag &amp; drop the filled template here, or click to choose a file</p>
+                <input type="file" accept=".xlsx,.xls" [disabled]="importing" (change)="onImportFileSelected($event)" />
+            </label>
+
+            <div *ngIf="importing" class="uploading">Importing... this can take a few minutes for large files.</div>
+            <div *ngIf="importError" class="import-error">{{ importError }}</div>
+
+            <div *ngIf="importResult" class="import-result">
+                <p class="import-summary">
+                    {{ importResult.totalRows }} rows ·
+                    <span class="ok">{{ importResult.successCount }} saved</span> ·
+                    <span [class.bad]="importResult.failedCount > 0">{{ importResult.failedCount }} failed</span>
+                </p>
+
+                <div *ngIf="importResult.warnings.length" class="logs">
+                    <h3>Saved with warnings</h3>
+                    <pre>{{ importResult.warnings.join('\n') }}</pre>
+                </div>
+
+                <div *ngIf="importResult.failed.length" class="failed-table-wrap">
+                    <h3>Rows not saved — fix these in your sheet and upload only them again</h3>
+                    <table class="failed-table">
+                        <thead>
+                            <tr><th>Sheet row</th><th>Employee code</th><th>Problem</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let f of importResult.failed">
+                                <td>{{ f.rowNumber }}</td>
+                                <td>{{ f.employeeCode || '—' }}</td>
+                                <td>{{ f.error }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <app-survey-list *ngIf="active === 'survey'" ></app-survey-list>
 </div>

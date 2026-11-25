@@ -4,7 +4,8 @@ import { EmployeeList } from "../employee-list/employee-list";
 import { CommonModule } from '@angular/common';
 import { ModuleGuide } from '../../shared/module-guide/module-guide';
 import { UnreportedEmployee } from "../unreported-employee/unreported-employee";
-import { Employee, Employees } from '../../services/employees/employees';
+import { Employee, EmployeeImportResult, Employees } from '../../services/employees/employees';
+import { saveAs } from 'file-saver';
 import { MessageService } from 'primeng/api';
 import { SurveyList } from "../../survey/survey-list/survey-list";
 import { ManageAttendance } from "../../attendance/manage-attendance/manage-attendance";
@@ -96,6 +97,48 @@ export class EmployeeOverview {
         });
         this.uploading = false;
       }
+    });
+  }
+
+  // ---------- Employee import ----------
+  importing = false;
+  importResult: EmployeeImportResult | null = null;
+  importError = '';
+
+  downloadImportTemplate() {
+    this.importError = '';
+    this.uploadService.downloadEmployeeImportTemplate().subscribe({
+      next: (blob) => saveAs(blob, 'employee-import-template.xlsx'),
+      error: () => (this.importError = 'Could not download the template.'),
+    });
+  }
+
+  onImportFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) this.importEmployees(file);
+    input.value = ''; // allow re-selecting the same file after fixing it
+  }
+
+  onImportDrop(event: DragEvent) {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.importEmployees(file);
+  }
+
+  importEmployees(file: File) {
+    this.importing = true;
+    this.importResult = null;
+    this.importError = '';
+    this.uploadService.bulkImportEmployees(file).subscribe({
+      next: (res) => {
+        this.importResult = res;
+        this.importing = false;
+      },
+      error: (err) => {
+        this.importError = err?.error?.error || 'Import failed. Please try again.';
+        this.importing = false;
+      },
     });
   }
 }

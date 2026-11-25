@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Recuriting, Job, Candidate, Application } from '../../services/recruiting/recuriting';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -159,6 +160,9 @@ export class ApplicationCreate implements OnInit, OnDestroy {
   //   });
   // }
   submit() {
+    // One submission at a time: a second tap (or Enter) while the first is
+    // still uploading would otherwise post the application twice.
+    if (this.saving) return;
     this.error = undefined;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -171,6 +175,13 @@ export class ApplicationCreate implements OnInit, OnDestroy {
         detail: "Please upload your resume!",
       });
       this.saving = false;
+      return;
+    }
+
+    // Re-check at submit time: the file may have changed on disk since it was picked.
+    if (this.selectedResumeFile.size > this.maxResumeBytes) {
+      this.error = this.resumeTooLargeMessage(this.selectedResumeFile);
+      this.messageService.add({ severity: 'error', summary: 'Resume too large', detail: this.error });
       return;
     }
 
@@ -214,9 +225,16 @@ export class ApplicationCreate implements OnInit, OnDestroy {
           this.selectedResumeFile = undefined;
           this.saving = false;
         },
-        error: (e) => {
-          this.error = e?.error?.error || "Failed to create";
+        error: (e: HttpErrorResponse) => {
+          this.error = this.submitErrorMessage(e);
           this.saving = false;
+          // The browser could not send the request at all — usually the picked
+          // resume can no longer be read (edited after picking, or a cloud file
+          // not downloaded). Clear it so the candidate has to pick it again.
+          if (e.status === 0) {
+            this.selectedResumeFile = undefined;
+            if (this.fileInput) this.fileInput.nativeElement.value = '';
+          }
           this.messageService.add({
             severity: "error",
             summary: "Submission failed",
@@ -226,13 +244,58 @@ export class ApplicationCreate implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Explain a failed submission in words the candidate can act on. The server's
+   * own `{ error }` message wins when there is one; otherwise the reply came
+   * from the browser or the proxy in front of the API and has no JSON body.
+   */
+  private submitErrorMessage(e: HttpErrorResponse): string {
+    const serverMsg = typeof e?.error?.error === 'string' ? e.error.error : '';
+    if (serverMsg) return serverMsg;
+    switch (e?.status) {
+      case 0:
+        return 'Upload interrupted — please re-select your resume and try again.';
+      case 413:
+        return 'Your resume is too large. Please upload a file under 1 MB and try again.';
+      case 429:
+        return 'Too many attempts from this network. Please wait a few minutes and try again.';
+      case 502:
+      case 503:
+      case 504:
+        return 'The server took too long to respond. Your application may still have been received — please check with HR before submitting again.';
+      default:
+        return `Could not submit the application (error ${e?.status ?? 'unknown'}). Please try again.`;
+    }
+  }
+
   selectedResumeFile?: File;
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
+
+  // The server (nginx client_max_body_size 1m) refuses larger requests before
+  // the API sees them, and the browser cannot read that refusal. Check here so
+  // the candidate gets a clear message. Kept a little under 1 MB to leave room
+  // for the form fields sent alongside the file.
+  readonly maxResumeBytes = 1000 * 1024;
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedResumeFile = input.files[0];
+      const file = input.files[0];
+      if (file.size > this.maxResumeBytes) {
+        this.selectedResumeFile = undefined;
+        input.value = '';
+        this.error = this.resumeTooLargeMessage(file);
+        this.messageService.add({ severity: 'error', summary: 'Resume too large', detail: this.error });
+        return;
+      }
+      this.error = undefined;
+      this.selectedResumeFile = file;
     }
+  }
+
+  private resumeTooLargeMessage(file: File): string {
+    const mb = (file.size / (1024 * 1024)).toFixed(1);
+    return `Your resume is ${mb} MB. Please upload a file under 1 MB (for example, save it as a compressed PDF).`;
   }
 
   isInvalid(form: string) {

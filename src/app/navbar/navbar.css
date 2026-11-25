@@ -42,6 +42,13 @@ span{
   height: 90px;
   width: 100%;
   /* margin-top: 50px; */
+  /* The profile and notification dropdowns hang below this bar, over the
+     announcement ticker and the main nav row (whose active pill and scroll
+     arrows paint later in the page). Lifting the whole bar keeps every
+     dropdown on top in all browsers. The logout popup lives outside this bar,
+     so it is not trapped underneath. */
+  position: relative;
+  z-index: 50;
 }
 
 hr {

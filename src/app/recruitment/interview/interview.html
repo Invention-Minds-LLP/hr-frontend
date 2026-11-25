@@ -172,8 +172,9 @@
                       tooltipPosition="top" (click)="openReschedule(r)"></button>
                     <button pButton icon="pi pi-times" severity="danger" variant="outlined" size="small"
                       pTooltip="Cancel" tooltipPosition="top" (click)="openCancel(r)"></button>
-                    <button *ngIf="r.sessionGroupId" pButton icon="pi pi-plus" variant="outlined" size="small"
-                      pTooltip="Add session" tooltipPosition="top" (click)="openAddSession(r)"></button>
+                    <button pButton icon="pi pi-plus" variant="outlined" size="small"
+                      [pTooltip]="r.sessionGroupId ? 'Add session' : 'Convert to session interview'"
+                      tooltipPosition="top" (click)="openAddSession(r)"></button>
                     <button *ngIf="!r.candidateAssignedTestId && r.panel?.length > 1" pButton icon="pi pi-user-edit"
                       variant="outlined" size="small" pTooltip="Reschedule one member" tooltipPosition="top"
                       (click)="openSplit(r)"></button>
