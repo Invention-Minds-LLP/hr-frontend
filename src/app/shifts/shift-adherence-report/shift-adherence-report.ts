@@ -32,6 +32,16 @@ export class ShiftAdherenceReport implements OnInit {
   loading = false;
   exporting = false;
 
+  selectedFilter: any = null;
+  showFilterDropdown = false;
+  searchText = '';
+  filteredRows: any[] = [];
+  filterOptions = [
+    { label: 'Employee Code', value: 'employeeCode' },
+    { label: 'Name', value: 'name' },
+    { label: 'Department', value: 'department' },
+  ];
+
   constructor(
     private shiftsService: Shifts,
     private toast: MessageService
@@ -52,7 +62,11 @@ export class ShiftAdherenceReport implements OnInit {
     this.data = null;
     this.shiftsService.getShiftAdherenceReport(month, year).subscribe({
       next: (res) => {
-        this.data = res;
+      this.data = res;
+      this.filteredRows = [...(res.rows || [])];
+
+      this.applyFilter();
+
         this.loading = false;
       },
       error: () => {
@@ -97,4 +111,44 @@ export class ShiftAdherenceReport implements OnInit {
 
   allottedShort(cell: any): string { return this.short(cell.allottedName, cell.allottedType); }
   workedShort(cell: any): string { return this.short(cell.workedName, cell.workedType); }
+
+applyFilter(): void {
+  const field = this.selectedFilter?.value;
+
+  this.filteredRows = (this.data?.rows || []).filter((row: any) => {
+
+    return String(row[field] || '')
+      .toLowerCase()
+      .includes(this.searchText.toLowerCase());
+  });
+
+}
+
+  onSearch(event: Event):void {
+    const input = event.target as HTMLInputElement;
+      this.searchText = input.value.toLowerCase();
+
+  this.applyFilter();
+  }
+
+  toggleFilterDropdown(): void {
+    this.showFilterDropdown = !this.showFilterDropdown;
+  }
+
+selectFilter(option: any): void {
+
+  this.selectedFilter = option;
+
+  this.searchText = '';
+
+  const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+
+  if (searchBox) {
+    searchBox.value = '';
+  }
+
+  this.applyFilter();
+
+  this.showFilterDropdown = false;
+}
 }
